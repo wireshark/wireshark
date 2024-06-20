@@ -13,13 +13,13 @@
 
 #include "x11-glx-render-enum.h"
 
-static void mesa_CallList(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CallList(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CallList_list, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     int type;
@@ -83,19 +83,19 @@ static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
 }
 
-static void mesa_ListBase(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ListBase(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ListBase_base, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Begin(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Begin(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Begin_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Bitmap(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Bitmap(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Bitmap_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -126,372 +126,372 @@ static void mesa_Bitmap(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Bitmap_bitmap, (length - 44) / 1, byte_order);
 }
 
-static void mesa_Color3bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Color3bv_v, 3, byte_order);
 }
 
-static void mesa_Color3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Color3dv_v, hf_x11_glx_render_Color3dv_v_item, 3, byte_order);
 }
 
-static void mesa_Color3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Color3fv_v, hf_x11_glx_render_Color3fv_v_item, 3, byte_order);
 }
 
-static void mesa_Color3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Color3iv_v, hf_x11_glx_render_Color3iv_v_item, 3, byte_order);
 }
 
-static void mesa_Color3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Color3sv_v, hf_x11_glx_render_Color3sv_v_item, 3, byte_order);
 }
 
-static void mesa_Color3ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Color3ubv_v, 3, byte_order);
 }
 
-static void mesa_Color3uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_Color3uiv_v, hf_x11_glx_render_Color3uiv_v_item, 3, byte_order);
 }
 
-static void mesa_Color3usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color3usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_Color3usv_v, hf_x11_glx_render_Color3usv_v_item, 3, byte_order);
 }
 
-static void mesa_Color4bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Color4bv_v, 4, byte_order);
 }
 
-static void mesa_Color4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Color4dv_v, hf_x11_glx_render_Color4dv_v_item, 4, byte_order);
 }
 
-static void mesa_Color4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Color4fv_v, hf_x11_glx_render_Color4fv_v_item, 4, byte_order);
 }
 
-static void mesa_Color4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Color4iv_v, hf_x11_glx_render_Color4iv_v_item, 4, byte_order);
 }
 
-static void mesa_Color4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Color4sv_v, hf_x11_glx_render_Color4sv_v_item, 4, byte_order);
 }
 
-static void mesa_Color4ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Color4ubv_v, 4, byte_order);
 }
 
-static void mesa_Color4uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_Color4uiv_v, hf_x11_glx_render_Color4uiv_v_item, 4, byte_order);
 }
 
-static void mesa_Color4usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Color4usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_Color4usv_v, hf_x11_glx_render_Color4usv_v_item, 4, byte_order);
 }
 
-static void mesa_EdgeFlagv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EdgeFlagv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_EdgeFlagv_flag, 1, byte_order);
 }
 
-static void mesa_End(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_End(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_Indexdv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Indexdv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Indexdv_c, hf_x11_glx_render_Indexdv_c_item, 1, byte_order);
 }
 
-static void mesa_Indexfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Indexfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Indexfv_c, hf_x11_glx_render_Indexfv_c_item, 1, byte_order);
 }
 
-static void mesa_Indexiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Indexiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Indexiv_c, hf_x11_glx_render_Indexiv_c_item, 1, byte_order);
 }
 
-static void mesa_Indexsv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Indexsv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Indexsv_c, hf_x11_glx_render_Indexsv_c_item, 1, byte_order);
 }
 
-static void mesa_Normal3bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Normal3bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Normal3bv_v, 3, byte_order);
 }
 
-static void mesa_Normal3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Normal3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Normal3dv_v, hf_x11_glx_render_Normal3dv_v_item, 3, byte_order);
 }
 
-static void mesa_Normal3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Normal3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Normal3fv_v, hf_x11_glx_render_Normal3fv_v_item, 3, byte_order);
 }
 
-static void mesa_Normal3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Normal3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Normal3iv_v, hf_x11_glx_render_Normal3iv_v_item, 3, byte_order);
 }
 
-static void mesa_Normal3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Normal3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Normal3sv_v, hf_x11_glx_render_Normal3sv_v_item, 3, byte_order);
 }
 
-static void mesa_RasterPos2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_RasterPos2dv_v, hf_x11_glx_render_RasterPos2dv_v_item, 2, byte_order);
 }
 
-static void mesa_RasterPos2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_RasterPos2fv_v, hf_x11_glx_render_RasterPos2fv_v_item, 2, byte_order);
 }
 
-static void mesa_RasterPos2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_RasterPos2iv_v, hf_x11_glx_render_RasterPos2iv_v_item, 2, byte_order);
 }
 
-static void mesa_RasterPos2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_RasterPos2sv_v, hf_x11_glx_render_RasterPos2sv_v_item, 2, byte_order);
 }
 
-static void mesa_RasterPos3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_RasterPos3dv_v, hf_x11_glx_render_RasterPos3dv_v_item, 3, byte_order);
 }
 
-static void mesa_RasterPos3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_RasterPos3fv_v, hf_x11_glx_render_RasterPos3fv_v_item, 3, byte_order);
 }
 
-static void mesa_RasterPos3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_RasterPos3iv_v, hf_x11_glx_render_RasterPos3iv_v_item, 3, byte_order);
 }
 
-static void mesa_RasterPos3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_RasterPos3sv_v, hf_x11_glx_render_RasterPos3sv_v_item, 3, byte_order);
 }
 
-static void mesa_RasterPos4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_RasterPos4dv_v, hf_x11_glx_render_RasterPos4dv_v_item, 4, byte_order);
 }
 
-static void mesa_RasterPos4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_RasterPos4fv_v, hf_x11_glx_render_RasterPos4fv_v_item, 4, byte_order);
 }
 
-static void mesa_RasterPos4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_RasterPos4iv_v, hf_x11_glx_render_RasterPos4iv_v_item, 4, byte_order);
 }
 
-static void mesa_RasterPos4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RasterPos4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_RasterPos4sv_v, hf_x11_glx_render_RasterPos4sv_v_item, 4, byte_order);
 }
 
-static void mesa_Rectdv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Rectdv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Rectdv_v1, hf_x11_glx_render_Rectdv_v1_item, 2, byte_order);
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Rectdv_v2, hf_x11_glx_render_Rectdv_v2_item, 2, byte_order);
 }
 
-static void mesa_Rectfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Rectfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Rectfv_v1, hf_x11_glx_render_Rectfv_v1_item, 2, byte_order);
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Rectfv_v2, hf_x11_glx_render_Rectfv_v2_item, 2, byte_order);
 }
 
-static void mesa_Rectiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Rectiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Rectiv_v1, hf_x11_glx_render_Rectiv_v1_item, 2, byte_order);
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Rectiv_v2, hf_x11_glx_render_Rectiv_v2_item, 2, byte_order);
 }
 
-static void mesa_Rectsv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Rectsv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Rectsv_v1, hf_x11_glx_render_Rectsv_v1_item, 2, byte_order);
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Rectsv_v2, hf_x11_glx_render_Rectsv_v2_item, 2, byte_order);
 }
 
-static void mesa_TexCoord1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_TexCoord1dv_v, hf_x11_glx_render_TexCoord1dv_v_item, 1, byte_order);
 }
 
-static void mesa_TexCoord1fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord1fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexCoord1fv_v, hf_x11_glx_render_TexCoord1fv_v_item, 1, byte_order);
 }
 
-static void mesa_TexCoord1iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord1iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexCoord1iv_v, hf_x11_glx_render_TexCoord1iv_v_item, 1, byte_order);
 }
 
-static void mesa_TexCoord1sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord1sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_TexCoord1sv_v, hf_x11_glx_render_TexCoord1sv_v_item, 1, byte_order);
 }
 
-static void mesa_TexCoord2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_TexCoord2dv_v, hf_x11_glx_render_TexCoord2dv_v_item, 2, byte_order);
 }
 
-static void mesa_TexCoord2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexCoord2fv_v, hf_x11_glx_render_TexCoord2fv_v_item, 2, byte_order);
 }
 
-static void mesa_TexCoord2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexCoord2iv_v, hf_x11_glx_render_TexCoord2iv_v_item, 2, byte_order);
 }
 
-static void mesa_TexCoord2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_TexCoord2sv_v, hf_x11_glx_render_TexCoord2sv_v_item, 2, byte_order);
 }
 
-static void mesa_TexCoord3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_TexCoord3dv_v, hf_x11_glx_render_TexCoord3dv_v_item, 3, byte_order);
 }
 
-static void mesa_TexCoord3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexCoord3fv_v, hf_x11_glx_render_TexCoord3fv_v_item, 3, byte_order);
 }
 
-static void mesa_TexCoord3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexCoord3iv_v, hf_x11_glx_render_TexCoord3iv_v_item, 3, byte_order);
 }
 
-static void mesa_TexCoord3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_TexCoord3sv_v, hf_x11_glx_render_TexCoord3sv_v_item, 3, byte_order);
 }
 
-static void mesa_TexCoord4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_TexCoord4dv_v, hf_x11_glx_render_TexCoord4dv_v_item, 4, byte_order);
 }
 
-static void mesa_TexCoord4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexCoord4fv_v, hf_x11_glx_render_TexCoord4fv_v_item, 4, byte_order);
 }
 
-static void mesa_TexCoord4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexCoord4iv_v, hf_x11_glx_render_TexCoord4iv_v_item, 4, byte_order);
 }
 
-static void mesa_TexCoord4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexCoord4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_TexCoord4sv_v, hf_x11_glx_render_TexCoord4sv_v_item, 4, byte_order);
 }
 
-static void mesa_Vertex2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Vertex2dv_v, hf_x11_glx_render_Vertex2dv_v_item, 2, byte_order);
 }
 
-static void mesa_Vertex2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Vertex2fv_v, hf_x11_glx_render_Vertex2fv_v_item, 2, byte_order);
 }
 
-static void mesa_Vertex2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Vertex2iv_v, hf_x11_glx_render_Vertex2iv_v_item, 2, byte_order);
 }
 
-static void mesa_Vertex2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Vertex2sv_v, hf_x11_glx_render_Vertex2sv_v_item, 2, byte_order);
 }
 
-static void mesa_Vertex3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Vertex3dv_v, hf_x11_glx_render_Vertex3dv_v_item, 3, byte_order);
 }
 
-static void mesa_Vertex3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Vertex3fv_v, hf_x11_glx_render_Vertex3fv_v_item, 3, byte_order);
 }
 
-static void mesa_Vertex3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Vertex3iv_v, hf_x11_glx_render_Vertex3iv_v_item, 3, byte_order);
 }
 
-static void mesa_Vertex3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Vertex3sv_v, hf_x11_glx_render_Vertex3sv_v_item, 3, byte_order);
 }
 
-static void mesa_Vertex4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Vertex4dv_v, hf_x11_glx_render_Vertex4dv_v_item, 4, byte_order);
 }
 
-static void mesa_Vertex4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex4fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Vertex4fv_v, hf_x11_glx_render_Vertex4fv_v_item, 4, byte_order);
 }
 
-static void mesa_Vertex4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Vertex4iv_v, hf_x11_glx_render_Vertex4iv_v_item, 4, byte_order);
 }
 
-static void mesa_Vertex4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Vertex4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_Vertex4sv_v, hf_x11_glx_render_Vertex4sv_v_item, 4, byte_order);
 }
 
-static void mesa_ClipPlane(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ClipPlane(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ClipPlane_plane, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ClipPlane_equation, hf_x11_glx_render_ClipPlane_equation_item, 4, byte_order);
 }
 
-static void mesa_ColorMaterial(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ColorMaterial(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ColorMaterial_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -499,13 +499,13 @@ static void mesa_ColorMaterial(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 4;
 }
 
-static void mesa_CullFace(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CullFace(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CullFace_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Fogf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Fogf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Fogf_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -513,14 +513,14 @@ static void mesa_Fogf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_ord
     *offsetp += 4;
 }
 
-static void mesa_Fogfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Fogfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Fogfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Fogfv_params, hf_x11_glx_render_Fogfv_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_Fogi(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Fogi(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Fogi_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -528,20 +528,20 @@ static void mesa_Fogi(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_ord
     *offsetp += 4;
 }
 
-static void mesa_Fogiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Fogiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Fogiv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Fogiv_params, hf_x11_glx_render_Fogiv_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_FrontFace(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_FrontFace(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_FrontFace_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Hint(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Hint(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Hint_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -549,7 +549,7 @@ static void mesa_Hint(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_ord
     *offsetp += 4;
 }
 
-static void mesa_Lightf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Lightf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Lightf_light, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -559,7 +559,7 @@ static void mesa_Lightf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     *offsetp += 4;
 }
 
-static void mesa_Lightfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Lightfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Lightfv_light, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -568,7 +568,7 @@ static void mesa_Lightfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Lightfv_params, hf_x11_glx_render_Lightfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_Lighti(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Lighti(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Lighti_light, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -578,7 +578,7 @@ static void mesa_Lighti(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     *offsetp += 4;
 }
 
-static void mesa_Lightiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Lightiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Lightiv_light, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -587,7 +587,7 @@ static void mesa_Lightiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Lightiv_params, hf_x11_glx_render_Lightiv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_LightModelf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LightModelf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LightModelf_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -595,14 +595,14 @@ static void mesa_LightModelf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 4;
 }
 
-static void mesa_LightModelfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LightModelfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LightModelfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_LightModelfv_params, hf_x11_glx_render_LightModelfv_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_LightModeli(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LightModeli(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LightModeli_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -610,14 +610,14 @@ static void mesa_LightModeli(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 4;
 }
 
-static void mesa_LightModeliv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LightModeliv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LightModeliv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_LightModeliv_params, hf_x11_glx_render_LightModeliv_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_LineStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LineStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LineStipple_factor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -625,13 +625,13 @@ static void mesa_LineStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 2;
 }
 
-static void mesa_LineWidth(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LineWidth(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LineWidth_width, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Materialf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Materialf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Materialf_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -641,7 +641,7 @@ static void mesa_Materialf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_Materialfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Materialfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Materialfv_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -650,7 +650,7 @@ static void mesa_Materialfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Materialfv_params, hf_x11_glx_render_Materialfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_Materiali(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Materiali(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Materiali_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -660,7 +660,7 @@ static void mesa_Materiali(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_Materialiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Materialiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Materialiv_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -669,13 +669,13 @@ static void mesa_Materialiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_Materialiv_params, hf_x11_glx_render_Materialiv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_PointSize(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PointSize(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PointSize_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_PolygonMode(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PolygonMode(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PolygonMode_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -683,7 +683,7 @@ static void mesa_PolygonMode(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 4;
 }
 
-static void mesa_PolygonStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PolygonStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PolygonStipple_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -702,7 +702,7 @@ static void mesa_PolygonStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_PolygonStipple_mask, (length - 20) / 1, byte_order);
 }
 
-static void mesa_Scissor(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Scissor(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Scissor_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -714,13 +714,13 @@ static void mesa_Scissor(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 4;
 }
 
-static void mesa_ShadeModel(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ShadeModel(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ShadeModel_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_TexParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexParameterf_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -730,7 +730,7 @@ static void mesa_TexParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 4;
 }
 
-static void mesa_TexParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexParameterfv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -739,7 +739,7 @@ static void mesa_TexParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexParameterfv_params, hf_x11_glx_render_TexParameterfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_TexParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexParameteri_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -749,7 +749,7 @@ static void mesa_TexParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 4;
 }
 
-static void mesa_TexParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexParameteriv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -758,7 +758,7 @@ static void mesa_TexParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexParameteriv_params, hf_x11_glx_render_TexParameteriv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_TexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexImage1D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -791,7 +791,7 @@ static void mesa_TexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexImage1D_pixels, (length - 48) / 1, byte_order);
 }
 
-static void mesa_TexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexImage2D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -826,7 +826,7 @@ static void mesa_TexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexImage2D_pixels, (length - 52) / 1, byte_order);
 }
 
-static void mesa_TexEnvf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexEnvf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexEnvf_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -836,7 +836,7 @@ static void mesa_TexEnvf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 4;
 }
 
-static void mesa_TexEnvfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexEnvfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexEnvfv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -845,7 +845,7 @@ static void mesa_TexEnvfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexEnvfv_params, hf_x11_glx_render_TexEnvfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_TexEnvi(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexEnvi(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexEnvi_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -855,7 +855,7 @@ static void mesa_TexEnvi(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 4;
 }
 
-static void mesa_TexEnviv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexEnviv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexEnviv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -864,7 +864,7 @@ static void mesa_TexEnviv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexEnviv_params, hf_x11_glx_render_TexEnviv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_TexGend(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexGend(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexGend_coord, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -874,7 +874,7 @@ static void mesa_TexGend(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 8;
 }
 
-static void mesa_TexGendv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexGendv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexGendv_coord, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -883,7 +883,7 @@ static void mesa_TexGendv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_TexGendv_params, hf_x11_glx_render_TexGendv_params_item, (length - 8) / 8, byte_order);
 }
 
-static void mesa_TexGenf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexGenf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexGenf_coord, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -893,7 +893,7 @@ static void mesa_TexGenf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 4;
 }
 
-static void mesa_TexGenfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexGenfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexGenfv_coord, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -902,7 +902,7 @@ static void mesa_TexGenfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexGenfv_params, hf_x11_glx_render_TexGenfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_TexGeni(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexGeni(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexGeni_coord, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -912,7 +912,7 @@ static void mesa_TexGeni(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 4;
 }
 
-static void mesa_TexGeniv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexGeniv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexGeniv_coord, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -921,45 +921,45 @@ static void mesa_TexGeniv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_TexGeniv_params, hf_x11_glx_render_TexGeniv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_InitNames(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_InitNames(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_LoadName(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LoadName(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LoadName_name, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_PassThrough(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PassThrough(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PassThrough_token, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_PopName(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_PopName(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_PushName(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PushName(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PushName_name, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_DrawBuffer(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DrawBuffer(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DrawBuffer_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Clear(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Clear(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Clear_mask, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ClearAccum(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ClearAccum(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ClearAccum_red, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -971,13 +971,13 @@ static void mesa_ClearAccum(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_ClearIndex(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ClearIndex(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ClearIndex_c, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ClearColor(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ClearColor(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ClearColor_red, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -989,25 +989,25 @@ static void mesa_ClearColor(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_ClearStencil(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ClearStencil(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ClearStencil_s, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ClearDepth(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ClearDepth(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ClearDepth_depth, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
 }
 
-static void mesa_StencilMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_StencilMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_StencilMask_mask, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ColorMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ColorMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ColorMask_red, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1019,19 +1019,19 @@ static void mesa_ColorMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 1;
 }
 
-static void mesa_DepthMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DepthMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DepthMask_flag, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
 
-static void mesa_IndexMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_IndexMask(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_IndexMask_mask, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Accum(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Accum(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Accum_op, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1039,29 +1039,29 @@ static void mesa_Accum(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_or
     *offsetp += 4;
 }
 
-static void mesa_Disable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Disable(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Disable_cap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Enable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Enable(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Enable_cap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_PopAttrib(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_PopAttrib(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_PushAttrib(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PushAttrib(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PushAttrib_mask, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_Map1d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Map1d(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Map1d_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1076,7 +1076,7 @@ static void mesa_Map1d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_or
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Map1d_points, hf_x11_glx_render_Map1d_points_item, (length - 28) / 8, byte_order);
 }
 
-static void mesa_Map1f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Map1f(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Map1f_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1091,7 +1091,7 @@ static void mesa_Map1f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_or
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Map1f_points, hf_x11_glx_render_Map1f_points_item, (length - 20) / 4, byte_order);
 }
 
-static void mesa_Map2d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Map2d(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Map2d_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1114,7 +1114,7 @@ static void mesa_Map2d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_or
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_Map2d_points, hf_x11_glx_render_Map2d_points_item, (length - 52) / 8, byte_order);
 }
 
-static void mesa_Map2f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Map2f(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Map2f_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1137,7 +1137,7 @@ static void mesa_Map2f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_or
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_Map2f_points, hf_x11_glx_render_Map2f_points_item, (length - 36) / 4, byte_order);
 }
 
-static void mesa_MapGrid1d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MapGrid1d(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MapGrid1d_un, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1147,7 +1147,7 @@ static void mesa_MapGrid1d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 8;
 }
 
-static void mesa_MapGrid1f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MapGrid1f(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MapGrid1f_un, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1157,7 +1157,7 @@ static void mesa_MapGrid1f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_MapGrid2d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MapGrid2d(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MapGrid2d_un, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1173,7 +1173,7 @@ static void mesa_MapGrid2d(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 8;
 }
 
-static void mesa_MapGrid2f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MapGrid2f(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MapGrid2f_un, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1189,27 +1189,27 @@ static void mesa_MapGrid2f(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_EvalCoord1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalCoord1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_EvalCoord1dv_u, hf_x11_glx_render_EvalCoord1dv_u_item, 1, byte_order);
 }
 
-static void mesa_EvalCoord1fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalCoord1fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_EvalCoord1fv_u, hf_x11_glx_render_EvalCoord1fv_u_item, 1, byte_order);
 }
 
-static void mesa_EvalCoord2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalCoord2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_EvalCoord2dv_u, hf_x11_glx_render_EvalCoord2dv_u_item, 2, byte_order);
 }
 
-static void mesa_EvalCoord2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalCoord2fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_EvalCoord2fv_u, hf_x11_glx_render_EvalCoord2fv_u_item, 2, byte_order);
 }
 
-static void mesa_EvalMesh1(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalMesh1(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_EvalMesh1_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1219,13 +1219,13 @@ static void mesa_EvalMesh1(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_EvalPoint1(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalPoint1(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_EvalPoint1_i, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_EvalMesh2(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalMesh2(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_EvalMesh2_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1239,7 +1239,7 @@ static void mesa_EvalMesh2(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_EvalPoint2(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EvalPoint2(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_EvalPoint2_i, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1247,7 +1247,7 @@ static void mesa_EvalPoint2(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_AlphaFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_AlphaFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_AlphaFunc_func, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1255,7 +1255,7 @@ static void mesa_AlphaFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_BlendFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BlendFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BlendFunc_sfactor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1263,13 +1263,13 @@ static void mesa_BlendFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_LogicOp(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LogicOp(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_LogicOp_opcode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_StencilFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_StencilFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_StencilFunc_func, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1279,7 +1279,7 @@ static void mesa_StencilFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 4;
 }
 
-static void mesa_StencilOp(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_StencilOp(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_StencilOp_fail, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1289,13 +1289,13 @@ static void mesa_StencilOp(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_DepthFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DepthFunc(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DepthFunc_func, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_PixelZoom(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelZoom(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PixelZoom_xfactor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1303,7 +1303,7 @@ static void mesa_PixelZoom(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
 }
 
-static void mesa_PixelTransferf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelTransferf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PixelTransferf_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1311,7 +1311,7 @@ static void mesa_PixelTransferf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 4;
 }
 
-static void mesa_PixelTransferi(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelTransferi(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PixelTransferi_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1319,7 +1319,7 @@ static void mesa_PixelTransferi(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 4;
 }
 
-static void mesa_PixelMapfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelMapfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int mapsize;
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapfv_map, tvb, *offsetp, 4, byte_order);
@@ -1330,7 +1330,7 @@ static void mesa_PixelMapfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_PixelMapfv_values, hf_x11_glx_render_PixelMapfv_values_item, mapsize, byte_order);
 }
 
-static void mesa_PixelMapuiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelMapuiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int mapsize;
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapuiv_map, tvb, *offsetp, 4, byte_order);
@@ -1341,7 +1341,7 @@ static void mesa_PixelMapuiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_PixelMapuiv_values, hf_x11_glx_render_PixelMapuiv_values_item, mapsize, byte_order);
 }
 
-static void mesa_PixelMapusv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelMapusv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int mapsize;
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapusv_map, tvb, *offsetp, 4, byte_order);
@@ -1352,13 +1352,13 @@ static void mesa_PixelMapusv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_PixelMapusv_values, hf_x11_glx_render_PixelMapusv_values_item, mapsize, byte_order);
 }
 
-static void mesa_ReadBuffer(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ReadBuffer(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ReadBuffer_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_CopyPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyPixels_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1372,7 +1372,7 @@ static void mesa_CopyPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_DrawPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DrawPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DrawPixels_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1399,7 +1399,7 @@ static void mesa_DrawPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_DrawPixels_pixels, (length - 36) / 1, byte_order);
 }
 
-static void mesa_DepthRange(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DepthRange(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DepthRange_zNear, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -1407,7 +1407,7 @@ static void mesa_DepthRange(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 8;
 }
 
-static void mesa_Frustum(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Frustum(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Frustum_left, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -1423,37 +1423,37 @@ static void mesa_Frustum(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 8;
 }
 
-static void mesa_LoadIdentity(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_LoadIdentity(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_LoadMatrixf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LoadMatrixf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_LoadMatrixf_m, hf_x11_glx_render_LoadMatrixf_m_item, 16, byte_order);
 }
 
-static void mesa_LoadMatrixd(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LoadMatrixd(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_LoadMatrixd_m, hf_x11_glx_render_LoadMatrixd_m_item, 16, byte_order);
 }
 
-static void mesa_MatrixMode(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MatrixMode(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MatrixMode_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_MultMatrixf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultMatrixf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_MultMatrixf_m, hf_x11_glx_render_MultMatrixf_m_item, 16, byte_order);
 }
 
-static void mesa_MultMatrixd(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultMatrixd(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_MultMatrixd_m, hf_x11_glx_render_MultMatrixd_m_item, 16, byte_order);
 }
 
-static void mesa_Ortho(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Ortho(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Ortho_left, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -1469,15 +1469,15 @@ static void mesa_Ortho(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_or
     *offsetp += 8;
 }
 
-static void mesa_PopMatrix(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_PopMatrix(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_PushMatrix(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_PushMatrix(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_Rotated(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Rotated(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Rotated_angle, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -1489,7 +1489,7 @@ static void mesa_Rotated(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 8;
 }
 
-static void mesa_Rotatef(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Rotatef(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Rotatef_angle, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1501,7 +1501,7 @@ static void mesa_Rotatef(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     *offsetp += 4;
 }
 
-static void mesa_Scaled(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Scaled(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Scaled_x, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -1511,7 +1511,7 @@ static void mesa_Scaled(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     *offsetp += 8;
 }
 
-static void mesa_Scalef(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Scalef(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Scalef_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1521,7 +1521,7 @@ static void mesa_Scalef(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     *offsetp += 4;
 }
 
-static void mesa_Translated(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Translated(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Translated_x, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -1531,7 +1531,7 @@ static void mesa_Translated(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 8;
 }
 
-static void mesa_Translatef(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Translatef(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Translatef_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1541,7 +1541,7 @@ static void mesa_Translatef(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_Viewport(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Viewport(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Viewport_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1553,7 +1553,7 @@ static void mesa_Viewport(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     *offsetp += 4;
 }
 
-static void mesa_DrawArrays(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DrawArrays(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DrawArrays_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1563,7 +1563,7 @@ static void mesa_DrawArrays(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_PolygonOffset(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PolygonOffset(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PolygonOffset_factor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1571,7 +1571,7 @@ static void mesa_PolygonOffset(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 4;
 }
 
-static void mesa_CopyTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyTexImage1D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1589,7 +1589,7 @@ static void mesa_CopyTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 4;
 }
 
-static void mesa_CopyTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyTexImage2D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1609,7 +1609,7 @@ static void mesa_CopyTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 4;
 }
 
-static void mesa_CopyTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyTexSubImage1D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1625,7 +1625,7 @@ static void mesa_CopyTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     *offsetp += 4;
 }
 
-static void mesa_CopyTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyTexSubImage2D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1645,7 +1645,7 @@ static void mesa_CopyTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     *offsetp += 4;
 }
 
-static void mesa_TexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage1D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1678,7 +1678,7 @@ static void mesa_TexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexSubImage1D_pixels, (length - 48) / 1, byte_order);
 }
 
-static void mesa_TexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage2D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1715,7 +1715,7 @@ static void mesa_TexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexSubImage2D_pixels, (length - 56) / 1, byte_order);
 }
 
-static void mesa_BindTexture(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BindTexture(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BindTexture_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1723,7 +1723,7 @@ static void mesa_BindTexture(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 4;
 }
 
-static void mesa_PrioritizeTextures(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PrioritizeTextures(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     n = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -1733,12 +1733,12 @@ static void mesa_PrioritizeTextures(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_PrioritizeTextures_priorities, hf_x11_glx_render_PrioritizeTextures_priorities_item, n, byte_order);
 }
 
-static void mesa_Indexubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Indexubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_Indexubv_c, 1, byte_order);
 }
 
-static void mesa_BlendColor(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BlendColor(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BlendColor_red, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1750,13 +1750,13 @@ static void mesa_BlendColor(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_BlendEquation(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BlendEquation(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BlendEquation_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ColorTable_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1785,7 +1785,7 @@ static void mesa_ColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ColorTable_table, (length - 40) / 1, byte_order);
 }
 
-static void mesa_ColorTableParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ColorTableParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ColorTableParameterfv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1794,7 +1794,7 @@ static void mesa_ColorTableParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ColorTableParameterfv_params, hf_x11_glx_render_ColorTableParameterfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_ColorTableParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ColorTableParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ColorTableParameteriv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1803,7 +1803,7 @@ static void mesa_ColorTableParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_ColorTableParameteriv_params, hf_x11_glx_render_ColorTableParameteriv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_CopyColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyColorTable_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1817,7 +1817,7 @@ static void mesa_CopyColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 4;
 }
 
-static void mesa_ColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ColorSubTable_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1846,7 +1846,7 @@ static void mesa_ColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ColorSubTable_data, (length - 40) / 1, byte_order);
 }
 
-static void mesa_CopyColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyColorSubTable_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1860,7 +1860,7 @@ static void mesa_CopyColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     *offsetp += 4;
 }
 
-static void mesa_ConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter1D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1889,7 +1889,7 @@ static void mesa_ConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ConvolutionFilter1D_image, (length - 40) / 1, byte_order);
 }
 
-static void mesa_ConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter2D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -1920,7 +1920,7 @@ static void mesa_ConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ConvolutionFilter2D_image, (length - 44) / 1, byte_order);
 }
 
-static void mesa_ConvolutionParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ConvolutionParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionParameterf_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1930,7 +1930,7 @@ static void mesa_ConvolutionParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *
     *offsetp += 4;
 }
 
-static void mesa_ConvolutionParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ConvolutionParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionParameterfv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1939,7 +1939,7 @@ static void mesa_ConvolutionParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ConvolutionParameterfv_params, hf_x11_glx_render_ConvolutionParameterfv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_ConvolutionParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ConvolutionParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionParameteri_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1949,7 +1949,7 @@ static void mesa_ConvolutionParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *
     *offsetp += 4;
 }
 
-static void mesa_ConvolutionParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ConvolutionParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionParameteriv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1958,7 +1958,7 @@ static void mesa_ConvolutionParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree 
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_ConvolutionParameteriv_params, hf_x11_glx_render_ConvolutionParameteriv_params_item, (length - 8) / 4, byte_order);
 }
 
-static void mesa_CopyConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyConvolutionFilter1D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1972,7 +1972,7 @@ static void mesa_CopyConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree
     *offsetp += 4;
 }
 
-static void mesa_CopyConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyConvolutionFilter2D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -1988,7 +1988,7 @@ static void mesa_CopyConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree
     *offsetp += 4;
 }
 
-static void mesa_SeparableFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SeparableFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_SeparableFilter2D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2006,7 +2006,7 @@ static void mesa_SeparableFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_SeparableFilter2D_column, (length - 24) / 1, byte_order);
 }
 
-static void mesa_Histogram(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Histogram(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Histogram_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2018,7 +2018,7 @@ static void mesa_Histogram(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 1;
 }
 
-static void mesa_Minmax(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_Minmax(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_Minmax_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2028,19 +2028,19 @@ static void mesa_Minmax(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     *offsetp += 1;
 }
 
-static void mesa_ResetHistogram(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ResetHistogram(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ResetHistogram_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ResetMinmax(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ResetMinmax(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ResetMinmax_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_TexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexImage3D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -2077,7 +2077,7 @@ static void mesa_TexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexImage3D_pixels, (length - 56) / 1, byte_order);
 }
 
-static void mesa_TexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage3D_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -2118,7 +2118,7 @@ static void mesa_TexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexSubImage3D_pixels, (length - 64) / 1, byte_order);
 }
 
-static void mesa_CopyTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CopyTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CopyTexSubImage3D_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2140,97 +2140,97 @@ static void mesa_CopyTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     *offsetp += 4;
 }
 
-static void mesa_ActiveTexture(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ActiveTexture(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ActiveTexture_texture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_MultiTexCoord1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord1dv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord1dv_v, hf_x11_glx_render_MultiTexCoord1dv_v_item, 1, byte_order);
 }
 
-static void mesa_MultiTexCoord1iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord1iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord1iv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord1iv_v, hf_x11_glx_render_MultiTexCoord1iv_v_item, 1, byte_order);
 }
 
-static void mesa_MultiTexCoord1sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord1sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord1sv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord1sv_v, hf_x11_glx_render_MultiTexCoord1sv_v_item, 1, byte_order);
 }
 
-static void mesa_MultiTexCoord2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord2dv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord2dv_v, hf_x11_glx_render_MultiTexCoord2dv_v_item, 2, byte_order);
 }
 
-static void mesa_MultiTexCoord2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord2iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord2iv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord2iv_v, hf_x11_glx_render_MultiTexCoord2iv_v_item, 2, byte_order);
 }
 
-static void mesa_MultiTexCoord2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord2sv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord2sv_v, hf_x11_glx_render_MultiTexCoord2sv_v_item, 2, byte_order);
 }
 
-static void mesa_MultiTexCoord3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord3dv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord3dv_v, hf_x11_glx_render_MultiTexCoord3dv_v_item, 3, byte_order);
 }
 
-static void mesa_MultiTexCoord3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord3iv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord3iv_v, hf_x11_glx_render_MultiTexCoord3iv_v_item, 3, byte_order);
 }
 
-static void mesa_MultiTexCoord3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord3sv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord3sv_v, hf_x11_glx_render_MultiTexCoord3sv_v_item, 3, byte_order);
 }
 
-static void mesa_MultiTexCoord4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord4dv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord4dv_v, hf_x11_glx_render_MultiTexCoord4dv_v_item, 4, byte_order);
 }
 
-static void mesa_MultiTexCoord4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord4iv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord4iv_v, hf_x11_glx_render_MultiTexCoord4iv_v_item, 4, byte_order);
 }
 
-static void mesa_MultiTexCoord4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord4sv_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord4sv_v, hf_x11_glx_render_MultiTexCoord4sv_v_item, 4, byte_order);
 }
 
-static void mesa_SampleCoverage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SampleCoverage(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_SampleCoverage_value, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2238,7 +2238,7 @@ static void mesa_SampleCoverage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 1;
 }
 
-static void mesa_CompressedTexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CompressedTexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int imageSize;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage3D_target, tvb, *offsetp, 4, byte_order);
@@ -2261,7 +2261,7 @@ static void mesa_CompressedTexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexImage3D_data, imageSize, byte_order);
 }
 
-static void mesa_CompressedTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CompressedTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int imageSize;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage2D_target, tvb, *offsetp, 4, byte_order);
@@ -2282,7 +2282,7 @@ static void mesa_CompressedTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexImage2D_data, imageSize, byte_order);
 }
 
-static void mesa_CompressedTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CompressedTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int imageSize;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage1D_target, tvb, *offsetp, 4, byte_order);
@@ -2301,7 +2301,7 @@ static void mesa_CompressedTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexImage1D_data, imageSize, byte_order);
 }
 
-static void mesa_CompressedTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CompressedTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int imageSize;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage3D_target, tvb, *offsetp, 4, byte_order);
@@ -2328,7 +2328,7 @@ static void mesa_CompressedTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexSubImage3D_data, imageSize, byte_order);
 }
 
-static void mesa_CompressedTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CompressedTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int imageSize;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage2D_target, tvb, *offsetp, 4, byte_order);
@@ -2351,7 +2351,7 @@ static void mesa_CompressedTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexSubImage2D_data, imageSize, byte_order);
 }
 
-static void mesa_CompressedTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CompressedTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int imageSize;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage1D_target, tvb, *offsetp, 4, byte_order);
@@ -2370,7 +2370,7 @@ static void mesa_CompressedTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexSubImage1D_data, imageSize, byte_order);
 }
 
-static void mesa_BlendFuncSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BlendFuncSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BlendFuncSeparate_sfactorRGB, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2382,12 +2382,12 @@ static void mesa_BlendFuncSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     *offsetp += 4;
 }
 
-static void mesa_FogCoorddv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_FogCoorddv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_FogCoorddv_coord, hf_x11_glx_render_FogCoorddv_coord_item, 1, byte_order);
 }
 
-static void mesa_PointParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PointParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PointParameterf_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2395,14 +2395,14 @@ static void mesa_PointParameterf(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
     *offsetp += 4;
 }
 
-static void mesa_PointParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PointParameterfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PointParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_PointParameterfv_params, hf_x11_glx_render_PointParameterfv_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_PointParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PointParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PointParameteri_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2410,54 +2410,54 @@ static void mesa_PointParameteri(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
     *offsetp += 4;
 }
 
-static void mesa_PointParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PointParameteriv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PointParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_PointParameteriv_params, hf_x11_glx_render_PointParameteriv_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_SecondaryColor3bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3bv_v, 3, byte_order);
 }
 
-static void mesa_SecondaryColor3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3dv_v, hf_x11_glx_render_SecondaryColor3dv_v_item, 3, byte_order);
 }
 
-static void mesa_SecondaryColor3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3iv_v, hf_x11_glx_render_SecondaryColor3iv_v_item, 3, byte_order);
 }
 
-static void mesa_SecondaryColor3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3sv_v, hf_x11_glx_render_SecondaryColor3sv_v_item, 3, byte_order);
 }
 
-static void mesa_SecondaryColor3ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3ubv_v, 3, byte_order);
 }
 
-static void mesa_SecondaryColor3uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3uiv_v, hf_x11_glx_render_SecondaryColor3uiv_v_item, 3, byte_order);
 }
 
-static void mesa_SecondaryColor3usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3usv_v, hf_x11_glx_render_SecondaryColor3usv_v_item, 3, byte_order);
 }
 
-static void mesa_WindowPos3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_WindowPos3fv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_WindowPos3fv_v, hf_x11_glx_render_WindowPos3fv_v_item, 3, byte_order);
 }
 
-static void mesa_BeginQuery(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BeginQuery(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BeginQuery_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2465,13 +2465,13 @@ static void mesa_BeginQuery(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 4;
 }
 
-static void mesa_EndQuery(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_EndQuery(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_EndQuery_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_BlendEquationSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BlendEquationSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BlendEquationSeparate_modeRGB, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2479,7 +2479,7 @@ static void mesa_BlendEquationSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *
     *offsetp += 4;
 }
 
-static void mesa_DrawBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DrawBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     n = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -2488,174 +2488,174 @@ static void mesa_DrawBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_DrawBuffers_bufs, hf_x11_glx_render_DrawBuffers_bufs_item, n, byte_order);
 }
 
-static void mesa_VertexAttrib1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib1dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib1dv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib1dv_v, hf_x11_glx_render_VertexAttrib1dv_v_item, 1, byte_order);
 }
 
-static void mesa_VertexAttrib1sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib1sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib1sv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib1sv_v, hf_x11_glx_render_VertexAttrib1sv_v_item, 1, byte_order);
 }
 
-static void mesa_VertexAttrib2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib2dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib2dv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib2dv_v, hf_x11_glx_render_VertexAttrib2dv_v_item, 2, byte_order);
 }
 
-static void mesa_VertexAttrib2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib2sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib2sv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib2sv_v, hf_x11_glx_render_VertexAttrib2sv_v_item, 2, byte_order);
 }
 
-static void mesa_VertexAttrib3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib3dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib3dv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib3dv_v, hf_x11_glx_render_VertexAttrib3dv_v_item, 3, byte_order);
 }
 
-static void mesa_VertexAttrib3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib3sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib3sv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib3sv_v, hf_x11_glx_render_VertexAttrib3sv_v_item, 3, byte_order);
 }
 
-static void mesa_VertexAttrib4Nbv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4Nbv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4Nbv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4Nbv_v, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4Niv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4Niv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4Niv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4Niv_v, hf_x11_glx_render_VertexAttrib4Niv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4Nsv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4Nsv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4Nsv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4Nsv_v, hf_x11_glx_render_VertexAttrib4Nsv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4Nubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4Nubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4Nubv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4Nubv_v, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4Nuiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4Nuiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4Nuiv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4Nuiv_v, hf_x11_glx_render_VertexAttrib4Nuiv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4Nusv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4Nusv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4Nusv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4Nusv_v, hf_x11_glx_render_VertexAttrib4Nusv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4bv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4bv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4bv_v, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4dv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4dv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4dv_v, hf_x11_glx_render_VertexAttrib4dv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4iv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4iv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4iv_v, hf_x11_glx_render_VertexAttrib4iv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4sv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4sv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4sv_v, hf_x11_glx_render_VertexAttrib4sv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4ubv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4ubv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4ubv_v, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4uiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4uiv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4uiv_v, hf_x11_glx_render_VertexAttrib4uiv_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4usv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4usv_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4usv_v, hf_x11_glx_render_VertexAttrib4usv_v_item, 4, byte_order);
 }
 
-static void mesa_MultiTexCoord1fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord1fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord1fvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord1fvARB_v, hf_x11_glx_render_MultiTexCoord1fvARB_v_item, 1, byte_order);
 }
 
-static void mesa_MultiTexCoord2fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord2fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord2fvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord2fvARB_v, hf_x11_glx_render_MultiTexCoord2fvARB_v_item, 2, byte_order);
 }
 
-static void mesa_MultiTexCoord3fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord3fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord3fvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord3fvARB_v, hf_x11_glx_render_MultiTexCoord3fvARB_v_item, 3, byte_order);
 }
 
-static void mesa_MultiTexCoord4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MultiTexCoord4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_MultiTexCoord4fvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_MultiTexCoord4fvARB_v, hf_x11_glx_render_MultiTexCoord4fvARB_v_item, 4, byte_order);
 }
 
-static void mesa_CurrentPaletteMatrixARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CurrentPaletteMatrixARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CurrentPaletteMatrixARB_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_MatrixIndexubvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MatrixIndexubvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int size;
     size = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -2664,7 +2664,7 @@ static void mesa_MatrixIndexubvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_MatrixIndexubvARB_indices, size, byte_order);
 }
 
-static void mesa_MatrixIndexusvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MatrixIndexusvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int size;
     size = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -2673,7 +2673,7 @@ static void mesa_MatrixIndexusvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_MatrixIndexusvARB_indices, hf_x11_glx_render_MatrixIndexusvARB_indices_item, size, byte_order);
 }
 
-static void mesa_MatrixIndexuivARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_MatrixIndexuivARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int size;
     size = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -2682,35 +2682,35 @@ static void mesa_MatrixIndexuivARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_MatrixIndexuivARB_indices, hf_x11_glx_render_MatrixIndexuivARB_indices_item, size, byte_order);
 }
 
-static void mesa_VertexAttrib1fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib1fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib1fvARB_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib1fvARB_v, hf_x11_glx_render_VertexAttrib1fvARB_v_item, 1, byte_order);
 }
 
-static void mesa_VertexAttrib2fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib2fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib2fvARB_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib2fvARB_v, hf_x11_glx_render_VertexAttrib2fvARB_v_item, 2, byte_order);
 }
 
-static void mesa_VertexAttrib3fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib3fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib3fvARB_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib3fvARB_v, hf_x11_glx_render_VertexAttrib3fvARB_v_item, 3, byte_order);
 }
 
-static void mesa_VertexAttrib4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4fvARB_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4fvARB_v, hf_x11_glx_render_VertexAttrib4fvARB_v_item, 4, byte_order);
 }
 
-static void mesa_ProgramStringARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramStringARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int len;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramStringARB_target, tvb, *offsetp, 4, byte_order);
@@ -2723,7 +2723,7 @@ static void mesa_ProgramStringARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, gu
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ProgramStringARB_string, len, byte_order);
 }
 
-static void mesa_BindProgramARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_BindProgramARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_BindProgramARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2731,7 +2731,7 @@ static void mesa_BindProgramARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 4;
 }
 
-static void mesa_ProgramEnvParameter4dvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramEnvParameter4dvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ProgramEnvParameter4dvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2740,7 +2740,7 @@ static void mesa_ProgramEnvParameter4dvARB(tvbuff_t *tvb, int *offsetp, proto_tr
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ProgramEnvParameter4dvARB_params, hf_x11_glx_render_ProgramEnvParameter4dvARB_params_item, 4, byte_order);
 }
 
-static void mesa_ProgramEnvParameter4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramEnvParameter4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ProgramEnvParameter4fvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2749,7 +2749,7 @@ static void mesa_ProgramEnvParameter4fvARB(tvbuff_t *tvb, int *offsetp, proto_tr
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ProgramEnvParameter4fvARB_params, hf_x11_glx_render_ProgramEnvParameter4fvARB_params_item, 4, byte_order);
 }
 
-static void mesa_ProgramLocalParameter4dvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramLocalParameter4dvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ProgramLocalParameter4dvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2758,7 +2758,7 @@ static void mesa_ProgramLocalParameter4dvARB(tvbuff_t *tvb, int *offsetp, proto_
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ProgramLocalParameter4dvARB_params, hf_x11_glx_render_ProgramLocalParameter4dvARB_params_item, 4, byte_order);
 }
 
-static void mesa_ProgramLocalParameter4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramLocalParameter4fvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ProgramLocalParameter4fvARB_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2767,7 +2767,7 @@ static void mesa_ProgramLocalParameter4fvARB(tvbuff_t *tvb, int *offsetp, proto_
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ProgramLocalParameter4fvARB_params, hf_x11_glx_render_ProgramLocalParameter4fvARB_params_item, 4, byte_order);
 }
 
-static void mesa_TexFilterFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexFilterFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_TexFilterFuncSGIS_target, tvb, *offsetp, 4, byte_order);
@@ -2780,7 +2780,7 @@ static void mesa_TexFilterFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexFilterFuncSGIS_weights, hf_x11_glx_render_TexFilterFuncSGIS_weights_item, n, byte_order);
 }
 
-static void mesa_TexImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexImage4DSGIS_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -2819,7 +2819,7 @@ static void mesa_TexImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexImage4DSGIS_pixels, (length - 60) / 1, byte_order);
 }
 
-static void mesa_TexSubImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TexSubImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage4DSGIS_swapbytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -2864,7 +2864,7 @@ static void mesa_TexSubImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_TexSubImage4DSGIS_pixels, (length - 72) / 1, byte_order);
 }
 
-static void mesa_DetailTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DetailTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_DetailTexFuncSGIS_target, tvb, *offsetp, 4, byte_order);
@@ -2875,7 +2875,7 @@ static void mesa_DetailTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_DetailTexFuncSGIS_points, hf_x11_glx_render_DetailTexFuncSGIS_points_item, n, byte_order);
 }
 
-static void mesa_SharpenTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SharpenTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_SharpenTexFuncSGIS_target, tvb, *offsetp, 4, byte_order);
@@ -2886,7 +2886,7 @@ static void mesa_SharpenTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_SharpenTexFuncSGIS_points, hf_x11_glx_render_SharpenTexFuncSGIS_points_item, n, byte_order);
 }
 
-static void mesa_SampleMaskSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SampleMaskSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_SampleMaskSGIS_value, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2894,28 +2894,28 @@ static void mesa_SampleMaskSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 1;
 }
 
-static void mesa_SamplePatternSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SamplePatternSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_SamplePatternSGIS_pattern, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_FrameZoomSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_FrameZoomSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_FrameZoomSGIX_factor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_TagSampleBufferSGIX(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_TagSampleBufferSGIX(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void mesa_ReferencePlaneSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ReferencePlaneSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ReferencePlaneSGIX_equation, hf_x11_glx_render_ReferencePlaneSGIX_equation_item, 4, byte_order);
 }
 
-static void mesa_FogFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_FogFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     n = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -2924,35 +2924,35 @@ static void mesa_FogFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_FogFuncSGIS_points, hf_x11_glx_render_FogFuncSGIS_points_item, n, byte_order);
 }
 
-static void mesa_SecondaryColor3fvEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_SecondaryColor3fvEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_SecondaryColor3fvEXT_v, hf_x11_glx_render_SecondaryColor3fvEXT_v_item, 3, byte_order);
 }
 
-static void mesa_FogCoordfvEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_FogCoordfvEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_FogCoordfvEXT_coord, hf_x11_glx_render_FogCoordfvEXT_coord_item, 1, byte_order);
 }
 
-static void mesa_PixelTexGenSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_PixelTexGenSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_PixelTexGenSGIX_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_VertexWeightfvEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexWeightfvEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexWeightfvEXT_weight, hf_x11_glx_render_VertexWeightfvEXT_weight_item, 1, byte_order);
 }
 
-static void mesa_CombinerParameterfvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CombinerParameterfvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CombinerParameterfvNV_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_CombinerParameterfvNV_params, hf_x11_glx_render_CombinerParameterfvNV_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_CombinerParameterfNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CombinerParameterfNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CombinerParameterfNV_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2960,14 +2960,14 @@ static void mesa_CombinerParameterfNV(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 4;
 }
 
-static void mesa_CombinerParameterivNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CombinerParameterivNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CombinerParameterivNV_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_render_CombinerParameterivNV_params, hf_x11_glx_render_CombinerParameterivNV_params_item, (length - 4) / 4, byte_order);
 }
 
-static void mesa_CombinerParameteriNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CombinerParameteriNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CombinerParameteriNV_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2975,7 +2975,7 @@ static void mesa_CombinerParameteriNV(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 4;
 }
 
-static void mesa_CombinerInputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CombinerInputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CombinerInputNV_stage, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -2991,7 +2991,7 @@ static void mesa_CombinerInputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
     *offsetp += 4;
 }
 
-static void mesa_CombinerOutputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_CombinerOutputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_CombinerOutputNV_stage, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -3015,7 +3015,7 @@ static void mesa_CombinerOutputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, gu
     *offsetp += 1;
 }
 
-static void mesa_FinalCombinerInputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_FinalCombinerInputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_FinalCombinerInputNV_variable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -3027,7 +3027,7 @@ static void mesa_FinalCombinerInputNV(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 4;
 }
 
-static void mesa_TextureColorMaskSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TextureColorMaskSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TextureColorMaskSGIS_red, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -3039,7 +3039,7 @@ static void mesa_TextureColorMaskSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 1;
 }
 
-static void mesa_ExecuteProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ExecuteProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ExecuteProgramNV_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -3048,7 +3048,7 @@ static void mesa_ExecuteProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, gu
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ExecuteProgramNV_params, hf_x11_glx_render_ExecuteProgramNV_params_item, 4, byte_order);
 }
 
-static void mesa_LoadProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_LoadProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int len;
     proto_tree_add_item(t, hf_x11_glx_render_LoadProgramNV_target, tvb, *offsetp, 4, byte_order);
@@ -3061,7 +3061,7 @@ static void mesa_LoadProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_LoadProgramNV_program, len, byte_order);
 }
 
-static void mesa_ProgramParameters4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramParameters4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int num;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramParameters4dvNV_target, tvb, *offsetp, 4, byte_order);
@@ -3074,7 +3074,7 @@ static void mesa_ProgramParameters4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree 
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ProgramParameters4dvNV_params, hf_x11_glx_render_ProgramParameters4dvNV_params_item, num, byte_order);
 }
 
-static void mesa_ProgramParameters4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramParameters4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int num;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramParameters4fvNV_target, tvb, *offsetp, 4, byte_order);
@@ -3087,7 +3087,7 @@ static void mesa_ProgramParameters4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ProgramParameters4fvNV_params, hf_x11_glx_render_ProgramParameters4fvNV_params_item, num, byte_order);
 }
 
-static void mesa_RequestResidentProgramsNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_RequestResidentProgramsNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     n = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -3096,7 +3096,7 @@ static void mesa_RequestResidentProgramsNV(tvbuff_t *tvb, int *offsetp, proto_tr
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_RequestResidentProgramsNV_ids, hf_x11_glx_render_RequestResidentProgramsNV_ids_item, n, byte_order);
 }
 
-static void mesa_TrackMatrixNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_TrackMatrixNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_TrackMatrixNV_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -3108,98 +3108,98 @@ static void mesa_TrackMatrixNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 4;
 }
 
-static void mesa_VertexAttrib1svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib1svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib1svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib1svNV_v, hf_x11_glx_render_VertexAttrib1svNV_v_item, 1, byte_order);
 }
 
-static void mesa_VertexAttrib2svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib2svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib2svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib2svNV_v, hf_x11_glx_render_VertexAttrib2svNV_v_item, 2, byte_order);
 }
 
-static void mesa_VertexAttrib3svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib3svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib3svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib3svNV_v, hf_x11_glx_render_VertexAttrib3svNV_v_item, 3, byte_order);
 }
 
-static void mesa_VertexAttrib4svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4svNV_v, hf_x11_glx_render_VertexAttrib4svNV_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib1fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib1fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib1fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib1fvNV_v, hf_x11_glx_render_VertexAttrib1fvNV_v_item, 1, byte_order);
 }
 
-static void mesa_VertexAttrib2fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib2fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib2fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib2fvNV_v, hf_x11_glx_render_VertexAttrib2fvNV_v_item, 2, byte_order);
 }
 
-static void mesa_VertexAttrib3fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib3fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib3fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib3fvNV_v, hf_x11_glx_render_VertexAttrib3fvNV_v_item, 3, byte_order);
 }
 
-static void mesa_VertexAttrib4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4fvNV_v, hf_x11_glx_render_VertexAttrib4fvNV_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib1dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib1dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib1dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib1dvNV_v, hf_x11_glx_render_VertexAttrib1dvNV_v_item, 1, byte_order);
 }
 
-static void mesa_VertexAttrib2dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib2dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib2dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib2dvNV_v, hf_x11_glx_render_VertexAttrib2dvNV_v_item, 2, byte_order);
 }
 
-static void mesa_VertexAttrib3dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib3dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib3dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib3dvNV_v, hf_x11_glx_render_VertexAttrib3dvNV_v_item, 3, byte_order);
 }
 
-static void mesa_VertexAttrib4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4dvNV_v, hf_x11_glx_render_VertexAttrib4dvNV_v_item, 4, byte_order);
 }
 
-static void mesa_VertexAttrib4ubvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttrib4ubvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttrib4ubvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttrib4ubvNV_v, 4, byte_order);
 }
 
-static void mesa_VertexAttribs1svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs1svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1svNV_index, tvb, *offsetp, 4, byte_order);
@@ -3210,7 +3210,7 @@ static void mesa_VertexAttribs1svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs1svNV_v, hf_x11_glx_render_VertexAttribs1svNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs2svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs2svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2svNV_index, tvb, *offsetp, 4, byte_order);
@@ -3221,7 +3221,7 @@ static void mesa_VertexAttribs2svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs2svNV_v, hf_x11_glx_render_VertexAttribs2svNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs3svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs3svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3svNV_index, tvb, *offsetp, 4, byte_order);
@@ -3232,7 +3232,7 @@ static void mesa_VertexAttribs3svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs3svNV_v, hf_x11_glx_render_VertexAttribs3svNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs4svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs4svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4svNV_index, tvb, *offsetp, 4, byte_order);
@@ -3243,7 +3243,7 @@ static void mesa_VertexAttribs4svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4svNV_v, hf_x11_glx_render_VertexAttribs4svNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs1fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs1fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1fvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3254,7 +3254,7 @@ static void mesa_VertexAttribs1fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs1fvNV_v, hf_x11_glx_render_VertexAttribs1fvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs2fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs2fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2fvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3265,7 +3265,7 @@ static void mesa_VertexAttribs2fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs2fvNV_v, hf_x11_glx_render_VertexAttribs2fvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs3fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs3fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3fvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3276,7 +3276,7 @@ static void mesa_VertexAttribs3fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs3fvNV_v, hf_x11_glx_render_VertexAttribs3fvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4fvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3287,7 +3287,7 @@ static void mesa_VertexAttribs4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4fvNV_v, hf_x11_glx_render_VertexAttribs4fvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs1dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs1dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1dvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3298,7 +3298,7 @@ static void mesa_VertexAttribs1dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs1dvNV_v, hf_x11_glx_render_VertexAttribs1dvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs2dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs2dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2dvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3309,7 +3309,7 @@ static void mesa_VertexAttribs2dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs2dvNV_v, hf_x11_glx_render_VertexAttribs2dvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs3dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs3dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3dvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3320,7 +3320,7 @@ static void mesa_VertexAttribs3dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs3dvNV_v, hf_x11_glx_render_VertexAttribs3dvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4dvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3331,7 +3331,7 @@ static void mesa_VertexAttribs4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4dvNV_v, hf_x11_glx_render_VertexAttribs4dvNV_v_item, n, byte_order);
 }
 
-static void mesa_VertexAttribs4ubvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_VertexAttribs4ubvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4ubvNV_index, tvb, *offsetp, 4, byte_order);
@@ -3342,13 +3342,13 @@ static void mesa_VertexAttribs4ubvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4ubvNV_v, n, byte_order);
 }
 
-static void mesa_ActiveStencilFaceEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ActiveStencilFaceEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_ActiveStencilFaceEXT_face, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void mesa_ProgramNamedParameter4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramNamedParameter4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int len;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramNamedParameter4fvNV_id, tvb, *offsetp, 4, byte_order);
@@ -3360,7 +3360,7 @@ static void mesa_ProgramNamedParameter4fvNV(tvbuff_t *tvb, int *offsetp, proto_t
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ProgramNamedParameter4fvNV_v, hf_x11_glx_render_ProgramNamedParameter4fvNV_v_item, 4, byte_order);
 }
 
-static void mesa_ProgramNamedParameter4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_ProgramNamedParameter4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int len;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramNamedParameter4dvNV_id, tvb, *offsetp, 4, byte_order);
@@ -3372,7 +3372,7 @@ static void mesa_ProgramNamedParameter4dvNV(tvbuff_t *tvb, int *offsetp, proto_t
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ProgramNamedParameter4dvNV_v, hf_x11_glx_render_ProgramNamedParameter4dvNV_v_item, 4, byte_order);
 }
 
-static void mesa_DepthBoundsEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_DepthBoundsEXT(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_render_DepthBoundsEXT_zmin, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
@@ -3744,10 +3744,10 @@ static const value_string glx_render_op_name[] = {
 };
 static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);
 
-static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order, int length)
+static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order, int length)
 {
     while (length >= 4) {
-        guint32 op, len;
+        uint32_t op, len;
         int next;
         proto_item *ti;
         proto_tree *tt;
@@ -4866,10 +4866,10 @@ static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
 #include "x11-enum.h"
 
 
-static void bigreqEnable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void bigreqEnable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void bigreqEnable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void bigreqEnable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -4899,7 +4899,7 @@ static const x11_reply_info bigreq_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_bigreq(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_bigreq(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(bigreq_extension_minor);
@@ -4922,7 +4922,7 @@ static void register_bigreq(void)
     set_handler("BIG-REQUESTS", dispatch_bigreq, bigreq_errors, bigreq_events, NULL, bigreq_replies);
 }
 
-static void struct_xproto_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xproto_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4942,7 +4942,7 @@ static void struct_xproto_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static int struct_size_xproto_STR(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xproto_STR(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_name_len;
@@ -4951,7 +4951,7 @@ static int struct_size_xproto_STR(tvbuff_t *tvb _U_, int *offsetp _U_, guint byt
     return size + 1;
 }
 
-static void struct_xproto_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xproto_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4968,7 +4968,7 @@ static void struct_xproto_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_render_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4996,7 +4996,7 @@ static void struct_render_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_render_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5018,7 +5018,7 @@ static void struct_render_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_render_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5034,7 +5034,7 @@ static void struct_render_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static int struct_size_render_PICTDEPTH(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_render_PICTDEPTH(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_num_visuals;
@@ -5043,7 +5043,7 @@ static int struct_size_render_PICTDEPTH(tvbuff_t *tvb _U_, int *offsetp _U_, gui
     return size + 8;
 }
 
-static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5066,7 +5066,7 @@ static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static int struct_size_render_PICTSCREEN(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_render_PICTSCREEN(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int i, off;
@@ -5079,7 +5079,7 @@ static int struct_size_render_PICTSCREEN(tvbuff_t *tvb _U_, int *offsetp _U_, gu
     return size + 8;
 }
 
-static void struct_render_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5098,7 +5098,7 @@ static void struct_render_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_render_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5120,7 +5120,7 @@ static void struct_render_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_render_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5140,7 +5140,7 @@ static void struct_render_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_render_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5156,7 +5156,7 @@ static void struct_render_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_render_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5170,7 +5170,7 @@ static void struct_render_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_render_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5185,7 +5185,7 @@ static void struct_render_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_render_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5203,7 +5203,7 @@ static void struct_render_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_render_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5227,7 +5227,7 @@ static void struct_render_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_render_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5257,7 +5257,7 @@ static void struct_render_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_render_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5273,7 +5273,7 @@ static void struct_render_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void struct_render_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5291,7 +5291,7 @@ static void struct_render_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_render_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_render_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5305,14 +5305,14 @@ static void struct_render_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void compositeQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_QueryVersion_client_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_composite_QueryVersion_client_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void compositeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void compositeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5335,7 +5335,7 @@ static void compositeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 16;
 }
 
-static void compositeRedirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeRedirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_RedirectWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5344,7 +5344,7 @@ static void compositeRedirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 3;
 }
 
-static void compositeRedirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeRedirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_RedirectSubwindows_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5353,7 +5353,7 @@ static void compositeRedirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 3;
 }
 
-static void compositeUnredirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeUnredirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_UnredirectWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5362,7 +5362,7 @@ static void compositeUnredirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 3;
 }
 
-static void compositeUnredirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeUnredirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_UnredirectSubwindows_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5371,7 +5371,7 @@ static void compositeUnredirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_,
     *offsetp += 3;
 }
 
-static void compositeCreateRegionFromBorderClip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeCreateRegionFromBorderClip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_CreateRegionFromBorderClip_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5379,7 +5379,7 @@ static void compositeCreateRegionFromBorderClip(tvbuff_t *tvb, packet_info *pinf
     *offsetp += 4;
 }
 
-static void compositeNameWindowPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeNameWindowPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_NameWindowPixmap_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5387,12 +5387,12 @@ static void compositeNameWindowPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 4;
 }
 
-static void compositeGetOverlayWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeGetOverlayWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_GetOverlayWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void compositeGetOverlayWindow_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void compositeGetOverlayWindow_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5413,7 +5413,7 @@ static void compositeGetOverlayWindow_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 20;
 }
 
-static void compositeReleaseOverlayWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void compositeReleaseOverlayWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_composite_ReleaseOverlayWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5439,7 +5439,7 @@ static const x11_reply_info composite_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_composite(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_composite(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(composite_extension_minor);
@@ -5486,14 +5486,14 @@ static void register_composite(void)
     set_handler("Composite", dispatch_composite, composite_errors, composite_events, NULL, composite_replies);
 }
 
-static void damageQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void damageQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_damage_QueryVersion_client_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_damage_QueryVersion_client_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void damageQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void damageQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5516,7 +5516,7 @@ static void damageQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 16;
 }
 
-static void damageCreate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void damageCreate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_damage_Create_damage, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5527,13 +5527,13 @@ static void damageCreate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
     *offsetp += 3;
 }
 
-static void damageDestroy(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void damageDestroy(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_damage_Destroy_damage, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void damageSubtract(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void damageSubtract(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_damage_Subtract_damage, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5541,7 +5541,7 @@ static void damageSubtract(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     field32(tvb, offsetp, t, hf_x11_damage_Subtract_parts, byte_order);
 }
 
-static void damageAdd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void damageAdd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_damage_Add_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5564,7 +5564,7 @@ static const x11_reply_info damage_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_damage(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_damage(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(damage_extension_minor);
@@ -5599,7 +5599,7 @@ static void register_damage(void)
     set_handler("DAMAGE", dispatch_damage, damage_errors, damage_events, NULL, damage_replies);
 }
 
-static void struct_dbe_SwapInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_dbe_SwapInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5616,7 +5616,7 @@ static void struct_dbe_SwapInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_dbe_BufferAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_dbe_BufferAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5630,7 +5630,7 @@ static void struct_dbe_BufferAttributes(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void struct_dbe_VisualInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_dbe_VisualInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5650,7 +5650,7 @@ static void struct_dbe_VisualInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static int struct_size_dbe_VisualInfos(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_dbe_VisualInfos(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_n_infos;
@@ -5659,7 +5659,7 @@ static int struct_size_dbe_VisualInfos(tvbuff_t *tvb _U_, int *offsetp _U_, guin
     return size + 4;
 }
 
-static void struct_dbe_VisualInfos(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_dbe_VisualInfos(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5676,7 +5676,7 @@ static void struct_dbe_VisualInfos(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void dbeQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dbeQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dbe_QueryVersion_major_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -5685,7 +5685,7 @@ static void dbeQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void dbeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dbeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5708,7 +5708,7 @@ static void dbeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 22;
 }
 
-static void dbeAllocateBackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dbeAllocateBackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dbe_AllocateBackBuffer_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -5720,13 +5720,13 @@ static void dbeAllocateBackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 3;
 }
 
-static void dbeDeallocateBackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dbeDeallocateBackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dbe_DeallocateBackBuffer_buffer, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void dbeSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dbeSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n_actions;
     f_n_actions = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -5736,15 +5736,15 @@ static void dbeSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     length -= f_n_actions * 8;
 }
 
-static void dbeBeginIdiom(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dbeBeginIdiom(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void dbeEndIdiom(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dbeEndIdiom(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void dbeGetVisualInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dbeGetVisualInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n_drawables;
     f_n_drawables = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -5753,7 +5753,7 @@ static void dbeGetVisualInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     listOfCard32(tvb, offsetp, t, hf_x11_dbe_GetVisualInfo_drawables, hf_x11_dbe_GetVisualInfo_drawables_item, f_n_drawables, byte_order);
     length -= f_n_drawables * 4;
 }
-static void dbeGetVisualInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dbeGetVisualInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n_supported_visuals;
@@ -5777,12 +5777,12 @@ static void dbeGetVisualInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     struct_dbe_VisualInfos(tvb, offsetp, t, byte_order, f_n_supported_visuals);
 }
 
-static void dbeGetBackBufferAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dbeGetBackBufferAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dbe_GetBackBufferAttributes_buffer, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dbeGetBackBufferAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dbeGetBackBufferAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5822,7 +5822,7 @@ static const x11_reply_info dbe_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_dbe(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_dbe(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(dbe_extension_minor);
@@ -5866,14 +5866,14 @@ static void register_dbe(void)
     set_handler("DOUBLE-BUFFER", dispatch_dbe, dbe_errors, dbe_events, NULL, dbe_replies);
 }
 
-static void dpmsGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dpmsGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dpms_GetVersion_client_major_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_dpms_GetVersion_client_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void dpmsGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dpmsGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5894,10 +5894,10 @@ static void dpmsGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 2;
 }
 
-static void dpmsCapable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dpmsCapable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void dpmsCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dpmsCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5918,10 +5918,10 @@ static void dpmsCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 23;
 }
 
-static void dpmsGetTimeouts(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dpmsGetTimeouts(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void dpmsGetTimeouts_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dpmsGetTimeouts_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5946,7 +5946,7 @@ static void dpmsGetTimeouts_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 18;
 }
 
-static void dpmsSetTimeouts(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dpmsSetTimeouts(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dpms_SetTimeouts_standby_timeout, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -5956,23 +5956,23 @@ static void dpmsSetTimeouts(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
 }
 
-static void dpmsEnable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dpmsEnable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void dpmsDisable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dpmsDisable(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void dpmsForceLevel(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dpmsForceLevel(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_dpms_ForceLevel_power_level, byte_order);
 }
 
-static void dpmsInfo(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void dpmsInfo(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -5994,7 +5994,7 @@ static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     *offsetp += 21;
 }
 
-static void dpmsSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dpmsSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     {
         static int* const event_mask_bits [] = {
@@ -6028,7 +6028,7 @@ static const x11_reply_info dpms_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_dpms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_dpms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(dpms_extension_minor);
@@ -6075,7 +6075,7 @@ static void register_dpms(void)
     set_handler("DPMS", dispatch_dpms, dpms_errors, dpms_events, NULL, dpms_replies);
 }
 
-static void struct_dri2_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_dri2_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -6096,7 +6096,7 @@ static void struct_dri2_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_dri2_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_dri2_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -6111,14 +6111,14 @@ static void struct_dri2_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void dri2QueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2QueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_QueryVersion_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri2_QueryVersion_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6139,13 +6139,13 @@ static void dri2QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
 }
 
-static void dri2Connect(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2Connect(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_Connect_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_dri2_Connect_driver_type, byte_order);
 }
-static void dri2Connect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2Connect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_driver_name_length;
@@ -6175,14 +6175,14 @@ static void dri2Connect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     listOfByte(tvb, offsetp, t, hf_x11_dri2_Connect_reply_device_name, f_device_name_length, byte_order);
 }
 
-static void dri2Authenticate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2Authenticate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_Authenticate_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri2_Authenticate_magic, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2Authenticate_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2Authenticate_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6201,19 +6201,19 @@ static void dri2Authenticate_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
 }
 
-static void dri2CreateDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2CreateDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_CreateDrawable_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void dri2DestroyDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2DestroyDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_DestroyDrawable_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void dri2GetBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2GetBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_GetBuffers_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6221,7 +6221,7 @@ static void dri2GetBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_dri2_GetBuffers_attachments, hf_x11_dri2_GetBuffers_attachments_item, (length - 12) / 4, byte_order);
 }
-static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_count;
@@ -6249,7 +6249,7 @@ static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     struct_dri2_DRI2Buffer(tvb, offsetp, t, byte_order, f_count);
 }
 
-static void dri2CopyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2CopyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_CopyRegion_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6260,7 +6260,7 @@ static void dri2CopyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_dri2_CopyRegion_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2CopyRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2CopyRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6277,7 +6277,7 @@ static void dri2CopyRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
 }
 
-static void dri2GetBuffersWithFormat(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2GetBuffersWithFormat(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_GetBuffersWithFormat_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6285,7 +6285,7 @@ static void dri2GetBuffersWithFormat(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 4;
     struct_dri2_AttachFormat(tvb, offsetp, t, byte_order, (length - 12) / 8);
 }
-static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_count;
@@ -6313,7 +6313,7 @@ static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     struct_dri2_DRI2Buffer(tvb, offsetp, t, byte_order, f_count);
 }
 
-static void dri2SwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2SwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_SwapBuffers_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6330,7 +6330,7 @@ static void dri2SwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_dri2_SwapBuffers_remainder_lo, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2SwapBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2SwapBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6351,12 +6351,12 @@ static void dri2SwapBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
 }
 
-static void dri2GetMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2GetMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_GetMSC_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2GetMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2GetMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6385,7 +6385,7 @@ static void dri2GetMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     *offsetp += 4;
 }
 
-static void dri2WaitMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2WaitMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_WaitMSC_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6402,7 +6402,7 @@ static void dri2WaitMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_dri2_WaitMSC_remainder_lo, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2WaitMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2WaitMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6431,7 +6431,7 @@ static void dri2WaitMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
 }
 
-static void dri2WaitSBC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2WaitSBC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_WaitSBC_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6440,7 +6440,7 @@ static void dri2WaitSBC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_dri2_WaitSBC_target_sbc_lo, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2WaitSBC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2WaitSBC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6469,7 +6469,7 @@ static void dri2WaitSBC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
 }
 
-static void dri2SwapInterval(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2SwapInterval(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_SwapInterval_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6477,14 +6477,14 @@ static void dri2SwapInterval(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
 }
 
-static void dri2GetParam(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri2GetParam(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri2_GetParam_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri2_GetParam_param, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri2GetParam_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2GetParam_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6505,7 +6505,7 @@ static void dri2GetParam_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     *offsetp += 4;
 }
 
-static void dri2InvalidateBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void dri2InvalidateBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -6550,7 +6550,7 @@ static const x11_reply_info dri2_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_dri2(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_dri2(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(dri2_extension_minor);
@@ -6612,14 +6612,14 @@ static void register_dri2(void)
     set_handler("DRI2", dispatch_dri2, dri2_errors, dri2_events, NULL, dri2_replies);
 }
 
-static void dri3QueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3QueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_QueryVersion_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri3_QueryVersion_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri3QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri3QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6640,14 +6640,14 @@ static void dri3QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
 }
 
-static void dri3Open(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3Open(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_Open_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri3_Open_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri3Open_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri3Open_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6666,7 +6666,7 @@ static void dri3Open_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     *offsetp += 24;
 }
 
-static void dri3PixmapFromBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3PixmapFromBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_PixmapFromBuffer_pixmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6686,12 +6686,12 @@ static void dri3PixmapFromBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 1;
 }
 
-static void dri3BufferFromPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3BufferFromPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_BufferFromPixmap_pixmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri3BufferFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri3BufferFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6722,7 +6722,7 @@ static void dri3BufferFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 12;
 }
 
-static void dri3FenceFromFD(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3FenceFromFD(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_FenceFromFD_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6734,14 +6734,14 @@ static void dri3FenceFromFD(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 3;
 }
 
-static void dri3FDFromFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3FDFromFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_FDFromFence_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri3_FDFromFence_fence, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri3FDFromFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri3FDFromFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -6760,7 +6760,7 @@ static void dri3FDFromFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 24;
 }
 
-static void dri3GetSupportedModifiers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3GetSupportedModifiers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_GetSupportedModifiers_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6771,7 +6771,7 @@ static void dri3GetSupportedModifiers(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void dri3GetSupportedModifiers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri3GetSupportedModifiers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_window_modifiers;
@@ -6800,7 +6800,7 @@ static void dri3GetSupportedModifiers_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     listOfCard64(tvb, offsetp, t, hf_x11_dri3_GetSupportedModifiers_reply_screen_modifiers, hf_x11_dri3_GetSupportedModifiers_reply_screen_modifiers_item, f_num_screen_modifiers, byte_order);
 }
 
-static void dri3PixmapFromBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3PixmapFromBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_buffers;
     proto_tree_add_item(t, hf_x11_dri3_PixmapFromBuffers_pixmap, tvb, *offsetp, 4, byte_order);
@@ -6843,12 +6843,12 @@ static void dri3PixmapFromBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     length -= f_num_buffers * 1;
 }
 
-static void dri3BuffersFromPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3BuffersFromPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_BuffersFromPixmap_pixmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void dri3BuffersFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dri3BuffersFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_nfd;
@@ -6883,7 +6883,7 @@ static void dri3BuffersFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     listOfCard32(tvb, offsetp, t, hf_x11_dri3_BuffersFromPixmap_reply_offsets, hf_x11_dri3_BuffersFromPixmap_reply_offsets_item, f_nfd, byte_order);
 }
 
-static void dri3SetDRMDeviceInUse(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3SetDRMDeviceInUse(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_SetDRMDeviceInUse_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6893,7 +6893,7 @@ static void dri3SetDRMDeviceInUse(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
 }
 
-static void dri3ImportSyncobj(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3ImportSyncobj(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_ImportSyncobj_syncobj, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6901,7 +6901,7 @@ static void dri3ImportSyncobj(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 4;
 }
 
-static void dri3FreeSyncobj(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void dri3FreeSyncobj(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_dri3_FreeSyncobj_syncobj, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6934,7 +6934,7 @@ static const x11_reply_info dri3_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_dri3(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_dri3(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(dri3_extension_minor);
@@ -6990,14 +6990,14 @@ static void register_dri3(void)
     set_handler("DRI3", dispatch_dri3, dri3_errors, dri3_events, NULL, dri3_replies);
 }
 
-static void geQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void geQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_ge_QueryVersion_client_major_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_ge_QueryVersion_client_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void geQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void geQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7031,7 +7031,7 @@ static const x11_reply_info ge_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_ge(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_ge(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(ge_extension_minor);
@@ -7054,7 +7054,7 @@ static void register_ge(void)
     set_handler("Generic Event Extension", dispatch_ge, ge_errors, ge_events, NULL, ge_replies);
 }
 
-static void glxBufferSwapComplete(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void glxBufferSwapComplete(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -7078,14 +7078,14 @@ static void glxBufferSwapComplete(tvbuff_t *tvb, int *offsetp, proto_tree *t, gu
 }
 
 
-static void glxRender(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxRender(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_Render_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     dispatch_glx_render(tvb, pinfo, offsetp, t, byte_order, (length - 8));
 }
 
-static void glxRenderLarge(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxRenderLarge(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_data_len;
     proto_tree_add_item(t, hf_x11_glx_RenderLarge_context_tag, tvb, *offsetp, 4, byte_order);
@@ -7101,7 +7101,7 @@ static void glxRenderLarge(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     length -= f_data_len * 1;
 }
 
-static void glxCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_CreateContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7117,13 +7117,13 @@ static void glxCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 3;
 }
 
-static void glxDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_DestroyContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxMakeCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxMakeCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_MakeCurrent_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7132,7 +7132,7 @@ static void glxMakeCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_MakeCurrent_old_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxMakeCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxMakeCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7153,12 +7153,12 @@ static void glxMakeCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 20;
 }
 
-static void glxIsDirect(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxIsDirect(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_IsDirect_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxIsDirect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxIsDirect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7179,14 +7179,14 @@ static void glxIsDirect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 23;
 }
 
-static void glxQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_QueryVersion_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_QueryVersion_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7209,19 +7209,19 @@ static void glxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 16;
 }
 
-static void glxWaitGL(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxWaitGL(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_WaitGL_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxWaitX(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxWaitX(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_WaitX_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxCopyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCopyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_CopyContext_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7233,7 +7233,7 @@ static void glxCopyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_SwapBuffers_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7241,7 +7241,7 @@ static void glxSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxUseXFont(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxUseXFont(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_UseXFont_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7255,7 +7255,7 @@ static void glxUseXFont(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
 }
 
-static void glxCreateGLXPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreateGLXPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_CreateGLXPixmap_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7267,12 +7267,12 @@ static void glxCreateGLXPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void glxGetVisualConfigs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetVisualConfigs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetVisualConfigs_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetVisualConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetVisualConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -7298,13 +7298,13 @@ static void glxGetVisualConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetVisualConfigs_reply_property_list, hf_x11_glx_GetVisualConfigs_reply_property_list_item, f_length, byte_order);
 }
 
-static void glxDestroyGLXPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDestroyGLXPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_DestroyGLXPixmap_glx_pixmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxVendorPrivate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxVendorPrivate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_VendorPrivate_vendor_code, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7313,7 +7313,7 @@ static void glxVendorPrivate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     listOfByte(tvb, offsetp, t, hf_x11_glx_VendorPrivate_data, (length - 12) / 1, byte_order);
 }
 
-static void glxVendorPrivateWithReply(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxVendorPrivateWithReply(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_VendorPrivateWithReply_vendor_code, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7321,7 +7321,7 @@ static void glxVendorPrivateWithReply(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_VendorPrivateWithReply_data, (length - 12) / 1, byte_order);
 }
-static void glxVendorPrivateWithReply_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxVendorPrivateWithReply_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -7344,12 +7344,12 @@ static void glxVendorPrivateWithReply_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     listOfByte(tvb, offsetp, t, hf_x11_glx_VendorPrivateWithReply_reply_data2, (f_length * 4), byte_order);
 }
 
-static void glxQueryExtensionsString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxQueryExtensionsString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_QueryExtensionsString_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxQueryExtensionsString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxQueryExtensionsString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7372,14 +7372,14 @@ static void glxQueryExtensionsString_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 16;
 }
 
-static void glxQueryServerString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxQueryServerString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_QueryServerString_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_QueryServerString_name, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxQueryServerString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxQueryServerString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_str_len;
@@ -7405,7 +7405,7 @@ static void glxQueryServerString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfByte(tvb, offsetp, t, hf_x11_glx_QueryServerString_reply_string, f_str_len, byte_order);
 }
 
-static void glxClientInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxClientInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_str_len;
     proto_tree_add_item(t, hf_x11_glx_ClientInfo_major_version, tvb, *offsetp, 4, byte_order);
@@ -7419,12 +7419,12 @@ static void glxClientInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     length -= f_str_len * 1;
 }
 
-static void glxGetFBConfigs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetFBConfigs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetFBConfigs_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetFBConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetFBConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -7450,7 +7450,7 @@ static void glxGetFBConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetFBConfigs_reply_property_list, hf_x11_glx_GetFBConfigs_reply_property_list_item, f_length, byte_order);
 }
 
-static void glxCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_attribs;
     proto_tree_add_item(t, hf_x11_glx_CreatePixmap_screen, tvb, *offsetp, 4, byte_order);
@@ -7468,13 +7468,13 @@ static void glxCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     length -= (f_num_attribs * 2) * 4;
 }
 
-static void glxDestroyPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDestroyPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_DestroyPixmap_glx_pixmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxCreateNewContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreateNewContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_CreateNewContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7492,12 +7492,12 @@ static void glxCreateNewContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 3;
 }
 
-static void glxQueryContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxQueryContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_QueryContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxQueryContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxQueryContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_attribs;
@@ -7521,7 +7521,7 @@ static void glxQueryContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     listOfCard32(tvb, offsetp, t, hf_x11_glx_QueryContext_reply_attribs, hf_x11_glx_QueryContext_reply_attribs_item, (f_num_attribs * 2), byte_order);
 }
 
-static void glxMakeContextCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxMakeContextCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_MakeContextCurrent_old_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7532,7 +7532,7 @@ static void glxMakeContextCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     proto_tree_add_item(t, hf_x11_glx_MakeContextCurrent_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxMakeContextCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxMakeContextCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7553,7 +7553,7 @@ static void glxMakeContextCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 20;
 }
 
-static void glxCreatePbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreatePbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_attribs;
     proto_tree_add_item(t, hf_x11_glx_CreatePbuffer_screen, tvb, *offsetp, 4, byte_order);
@@ -7569,18 +7569,18 @@ static void glxCreatePbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     length -= (f_num_attribs * 2) * 4;
 }
 
-static void glxDestroyPbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDestroyPbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_DestroyPbuffer_pbuffer, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxGetDrawableAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetDrawableAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetDrawableAttributes_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetDrawableAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetDrawableAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_attribs;
@@ -7604,7 +7604,7 @@ static void glxGetDrawableAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetDrawableAttributes_reply_attribs, hf_x11_glx_GetDrawableAttributes_reply_attribs_item, (f_num_attribs * 2), byte_order);
 }
 
-static void glxChangeDrawableAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxChangeDrawableAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_attribs;
     proto_tree_add_item(t, hf_x11_glx_ChangeDrawableAttributes_drawable, tvb, *offsetp, 4, byte_order);
@@ -7616,7 +7616,7 @@ static void glxChangeDrawableAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, i
     length -= (f_num_attribs * 2) * 4;
 }
 
-static void glxCreateWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreateWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_attribs;
     proto_tree_add_item(t, hf_x11_glx_CreateWindow_screen, tvb, *offsetp, 4, byte_order);
@@ -7634,13 +7634,13 @@ static void glxCreateWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     length -= (f_num_attribs * 2) * 4;
 }
 
-static void glxDeleteWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDeleteWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_DeleteWindow_glxwindow, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxSetClientInfoARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxSetClientInfoARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_versions;
     int f_gl_str_len;
@@ -7671,7 +7671,7 @@ static void glxSetClientInfoARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     length -= f_glx_str_len * 1;
 }
 
-static void glxCreateContextAttribsARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxCreateContextAttribsARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_attribs;
     proto_tree_add_item(t, hf_x11_glx_CreateContextAttribsARB_context, tvb, *offsetp, 4, byte_order);
@@ -7693,7 +7693,7 @@ static void glxCreateContextAttribsARB(tvbuff_t *tvb, packet_info *pinfo _U_, in
     length -= (f_num_attribs * 2) * 4;
 }
 
-static void glxSetClientInfo2ARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxSetClientInfo2ARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_versions;
     int f_gl_str_len;
@@ -7724,7 +7724,7 @@ static void glxSetClientInfo2ARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     length -= f_glx_str_len * 1;
 }
 
-static void glxNewList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxNewList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_NewList_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7734,13 +7734,13 @@ static void glxNewList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, prot
     *offsetp += 4;
 }
 
-static void glxEndList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxEndList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_EndList_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxDeleteLists(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDeleteLists(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_DeleteLists_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7750,14 +7750,14 @@ static void glxDeleteLists(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxGenLists(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGenLists(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GenLists_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GenLists_range, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGenLists_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGenLists_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7776,7 +7776,7 @@ static void glxGenLists_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
 }
 
-static void glxFeedbackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxFeedbackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_FeedbackBuffer_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7786,7 +7786,7 @@ static void glxFeedbackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 4;
 }
 
-static void glxSelectBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxSelectBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_SelectBuffer_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7794,14 +7794,14 @@ static void glxSelectBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
 }
 
-static void glxRenderMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxRenderMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_RenderMode_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_RenderMode_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -7829,12 +7829,12 @@ static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     listOfCard32(tvb, offsetp, t, hf_x11_glx_RenderMode_reply_data, hf_x11_glx_RenderMode_reply_data_item, f_n, byte_order);
 }
 
-static void glxFinish(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxFinish(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_Finish_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxFinish_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxFinish_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -7851,7 +7851,7 @@ static void glxFinish_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 4;
 }
 
-static void glxPixelStoref(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxPixelStoref(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_PixelStoref_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7861,7 +7861,7 @@ static void glxPixelStoref(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxPixelStorei(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxPixelStorei(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_PixelStorei_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7871,7 +7871,7 @@ static void glxPixelStorei(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxReadPixels(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxReadPixels(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_ReadPixels_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7892,7 +7892,7 @@ static void glxReadPixels(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     proto_tree_add_item(t, hf_x11_glx_ReadPixels_lsb_first, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxReadPixels_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxReadPixels_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -7914,14 +7914,14 @@ static void glxReadPixels_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     listOfByte(tvb, offsetp, t, hf_x11_glx_ReadPixels_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetBooleanv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetBooleanv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetBooleanv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetBooleanv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetBooleanv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetBooleanv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -7949,14 +7949,14 @@ static void glxGetBooleanv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetBooleanv_reply_data, f_n, byte_order);
 }
 
-static void glxGetClipPlane(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetClipPlane(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetClipPlane_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetClipPlane_plane, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetClipPlane_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetClipPlane_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -7978,14 +7978,14 @@ static void glxGetClipPlane_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetClipPlane_reply_data, hf_x11_glx_GetClipPlane_reply_data_item, (f_length / 2), byte_order);
 }
 
-static void glxGetDoublev(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetDoublev(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetDoublev_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetDoublev_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8013,12 +8013,12 @@ static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetDoublev_reply_data, hf_x11_glx_GetDoublev_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetError(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetError(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetError_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetError_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetError_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -8037,14 +8037,14 @@ static void glxGetError_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
 }
 
-static void glxGetFloatv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetFloatv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetFloatv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetFloatv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8072,14 +8072,14 @@ static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetFloatv_reply_data, hf_x11_glx_GetFloatv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetIntegerv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetIntegerv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetIntegerv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetIntegerv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetIntegerv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetIntegerv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8107,7 +8107,7 @@ static void glxGetIntegerv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetIntegerv_reply_data, hf_x11_glx_GetIntegerv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetLightfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetLightfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetLightfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8116,7 +8116,7 @@ static void glxGetLightfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     proto_tree_add_item(t, hf_x11_glx_GetLightfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8144,7 +8144,7 @@ static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetLightfv_reply_data, hf_x11_glx_GetLightfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetLightiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetLightiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetLightiv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8153,7 +8153,7 @@ static void glxGetLightiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     proto_tree_add_item(t, hf_x11_glx_GetLightiv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetLightiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetLightiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8181,7 +8181,7 @@ static void glxGetLightiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetLightiv_reply_data, hf_x11_glx_GetLightiv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMapdv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMapdv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMapdv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8190,7 +8190,7 @@ static void glxGetMapdv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_glx_GetMapdv_query, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8218,7 +8218,7 @@ static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetMapdv_reply_data, hf_x11_glx_GetMapdv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMapfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMapfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMapfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8227,7 +8227,7 @@ static void glxGetMapfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_glx_GetMapfv_query, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8255,7 +8255,7 @@ static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetMapfv_reply_data, hf_x11_glx_GetMapfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMapiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMapiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMapiv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8264,7 +8264,7 @@ static void glxGetMapiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_glx_GetMapiv_query, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMapiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMapiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8292,7 +8292,7 @@ static void glxGetMapiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetMapiv_reply_data, hf_x11_glx_GetMapiv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMaterialfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMaterialfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMaterialfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8301,7 +8301,7 @@ static void glxGetMaterialfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_glx_GetMaterialfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8329,7 +8329,7 @@ static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetMaterialfv_reply_data, hf_x11_glx_GetMaterialfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMaterialiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMaterialiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMaterialiv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8338,7 +8338,7 @@ static void glxGetMaterialiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_glx_GetMaterialiv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMaterialiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMaterialiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8366,14 +8366,14 @@ static void glxGetMaterialiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetMaterialiv_reply_data, hf_x11_glx_GetMaterialiv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetPixelMapfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetPixelMapfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapfv_map, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8401,14 +8401,14 @@ static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetPixelMapfv_reply_data, hf_x11_glx_GetPixelMapfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetPixelMapuiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetPixelMapuiv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapuiv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapuiv_map, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetPixelMapuiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetPixelMapuiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8436,14 +8436,14 @@ static void glxGetPixelMapuiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetPixelMapuiv_reply_data, hf_x11_glx_GetPixelMapuiv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetPixelMapusv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetPixelMapusv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapusv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapusv_map, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetPixelMapusv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetPixelMapusv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8471,14 +8471,14 @@ static void glxGetPixelMapusv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     listOfCard16(tvb, offsetp, t, hf_x11_glx_GetPixelMapusv_reply_data, hf_x11_glx_GetPixelMapusv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetPolygonStipple(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetPolygonStipple(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetPolygonStipple_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPolygonStipple_lsb_first, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetPolygonStipple_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetPolygonStipple_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -8500,14 +8500,14 @@ static void glxGetPolygonStipple_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetPolygonStipple_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetString_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetString_name, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8533,7 +8533,7 @@ static void glxGetString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetString_reply_string, f_n, byte_order);
 }
 
-static void glxGetTexEnvfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexEnvfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexEnvfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8542,7 +8542,7 @@ static void glxGetTexEnvfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_GetTexEnvfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8570,7 +8570,7 @@ static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexEnvfv_reply_data, hf_x11_glx_GetTexEnvfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexEnviv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexEnviv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexEnviv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8579,7 +8579,7 @@ static void glxGetTexEnviv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_GetTexEnviv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexEnviv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexEnviv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8607,7 +8607,7 @@ static void glxGetTexEnviv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexEnviv_reply_data, hf_x11_glx_GetTexEnviv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexGendv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexGendv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexGendv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8616,7 +8616,7 @@ static void glxGetTexGendv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_GetTexGendv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8644,7 +8644,7 @@ static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetTexGendv_reply_data, hf_x11_glx_GetTexGendv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexGenfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexGenfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexGenfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8653,7 +8653,7 @@ static void glxGetTexGenfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_GetTexGenfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8681,7 +8681,7 @@ static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexGenfv_reply_data, hf_x11_glx_GetTexGenfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexGeniv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexGeniv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexGeniv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8690,7 +8690,7 @@ static void glxGetTexGeniv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_GetTexGeniv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexGeniv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexGeniv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8718,7 +8718,7 @@ static void glxGetTexGeniv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexGeniv_reply_data, hf_x11_glx_GetTexGeniv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexImage_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8733,7 +8733,7 @@ static void glxGetTexImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_glx_GetTexImage_swap_bytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetTexImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -8763,7 +8763,7 @@ static void glxGetTexImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetTexImage_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetTexParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexParameterfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8772,7 +8772,7 @@ static void glxGetTexParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_glx_GetTexParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8800,7 +8800,7 @@ static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexParameterfv_reply_data, hf_x11_glx_GetTexParameterfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexParameteriv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8809,7 +8809,7 @@ static void glxGetTexParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_glx_GetTexParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8837,7 +8837,7 @@ static void glxGetTexParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexParameteriv_reply_data, hf_x11_glx_GetTexParameteriv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexLevelParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexLevelParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameterfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8848,7 +8848,7 @@ static void glxGetTexLevelParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8876,7 +8876,7 @@ static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexLevelParameterfv_reply_data, hf_x11_glx_GetTexLevelParameterfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetTexLevelParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetTexLevelParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameteriv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -8887,7 +8887,7 @@ static void glxGetTexLevelParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetTexLevelParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetTexLevelParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -8915,14 +8915,14 @@ static void glxGetTexLevelParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexLevelParameteriv_reply_data, hf_x11_glx_GetTexLevelParameteriv_reply_data_item, f_n, byte_order);
 }
 
-static void glxIsEnabled(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxIsEnabled(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_IsEnabled_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_IsEnabled_capability, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxIsEnabled_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxIsEnabled_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -8941,14 +8941,14 @@ static void glxIsEnabled_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxIsList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxIsList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_IsList_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_IsList_list, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxIsList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxIsList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -8967,13 +8967,13 @@ static void glxIsList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 4;
 }
 
-static void glxFlush(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxFlush(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_Flush_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void glxAreTexturesResident(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxAreTexturesResident(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n;
     proto_tree_add_item(t, hf_x11_glx_AreTexturesResident_context_tag, tvb, *offsetp, 4, byte_order);
@@ -8984,7 +8984,7 @@ static void glxAreTexturesResident(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     listOfCard32(tvb, offsetp, t, hf_x11_glx_AreTexturesResident_textures, hf_x11_glx_AreTexturesResident_textures_item, f_n, byte_order);
     length -= f_n * 4;
 }
-static void glxAreTexturesResident_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxAreTexturesResident_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9008,7 +9008,7 @@ static void glxAreTexturesResident_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfByte(tvb, offsetp, t, hf_x11_glx_AreTexturesResident_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxDeleteTextures(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDeleteTextures(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n;
     proto_tree_add_item(t, hf_x11_glx_DeleteTextures_context_tag, tvb, *offsetp, 4, byte_order);
@@ -9020,14 +9020,14 @@ static void glxDeleteTextures(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     length -= f_n * 4;
 }
 
-static void glxGenTextures(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGenTextures(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GenTextures_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GenTextures_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGenTextures_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGenTextures_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9049,14 +9049,14 @@ static void glxGenTextures_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GenTextures_reply_data, hf_x11_glx_GenTextures_reply_data_item, f_length, byte_order);
 }
 
-static void glxIsTexture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxIsTexture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_IsTexture_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_IsTexture_texture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxIsTexture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxIsTexture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -9075,7 +9075,7 @@ static void glxIsTexture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     *offsetp += 4;
 }
 
-static void glxGetColorTable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetColorTable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetColorTable_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9088,7 +9088,7 @@ static void glxGetColorTable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_glx_GetColorTable_swap_bytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetColorTable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetColorTable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9114,7 +9114,7 @@ static void glxGetColorTable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetColorTable_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetColorTableParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetColorTableParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameterfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9123,7 +9123,7 @@ static void glxGetColorTableParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9151,7 +9151,7 @@ static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetColorTableParameterfv_reply_data, hf_x11_glx_GetColorTableParameterfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetColorTableParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetColorTableParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameteriv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9160,7 +9160,7 @@ static void glxGetColorTableParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetColorTableParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetColorTableParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9188,7 +9188,7 @@ static void glxGetColorTableParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetColorTableParameteriv_reply_data, hf_x11_glx_GetColorTableParameteriv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetConvolutionFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetConvolutionFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionFilter_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9201,7 +9201,7 @@ static void glxGetConvolutionFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionFilter_swap_bytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetConvolutionFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetConvolutionFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9229,7 +9229,7 @@ static void glxGetConvolutionFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetConvolutionFilter_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetConvolutionParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetConvolutionParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameterfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9238,7 +9238,7 @@ static void glxGetConvolutionParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9266,7 +9266,7 @@ static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetConvolutionParameterfv_reply_data, hf_x11_glx_GetConvolutionParameterfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetConvolutionParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetConvolutionParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameteriv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9275,7 +9275,7 @@ static void glxGetConvolutionParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetConvolutionParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetConvolutionParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9303,7 +9303,7 @@ static void glxGetConvolutionParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetConvolutionParameteriv_reply_data, hf_x11_glx_GetConvolutionParameteriv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetSeparableFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetSeparableFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetSeparableFilter_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9316,7 +9316,7 @@ static void glxGetSeparableFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     proto_tree_add_item(t, hf_x11_glx_GetSeparableFilter_swap_bytes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetSeparableFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetSeparableFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9344,7 +9344,7 @@ static void glxGetSeparableFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetSeparableFilter_reply_rows_and_cols, (f_length * 4), byte_order);
 }
 
-static void glxGetHistogram(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetHistogram(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetHistogram_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9359,7 +9359,7 @@ static void glxGetHistogram(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_glx_GetHistogram_reset, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetHistogram_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetHistogram_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9385,7 +9385,7 @@ static void glxGetHistogram_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetHistogram_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetHistogramParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetHistogramParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameterfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9394,7 +9394,7 @@ static void glxGetHistogramParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9422,7 +9422,7 @@ static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetHistogramParameterfv_reply_data, hf_x11_glx_GetHistogramParameterfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetHistogramParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetHistogramParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameteriv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9431,7 +9431,7 @@ static void glxGetHistogramParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetHistogramParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetHistogramParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9459,7 +9459,7 @@ static void glxGetHistogramParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetHistogramParameteriv_reply_data, hf_x11_glx_GetHistogramParameteriv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMinmax(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMinmax(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMinmax_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9474,7 +9474,7 @@ static void glxGetMinmax(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
     proto_tree_add_item(t, hf_x11_glx_GetMinmax_reset, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void glxGetMinmax_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMinmax_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9496,7 +9496,7 @@ static void glxGetMinmax_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetMinmax_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxGetMinmaxParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMinmaxParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameterfv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9505,7 +9505,7 @@ static void glxGetMinmaxParameterfv(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameterfv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9533,7 +9533,7 @@ static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetMinmaxParameterfv_reply_data, hf_x11_glx_GetMinmaxParameterfv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetMinmaxParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetMinmaxParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameteriv_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9542,7 +9542,7 @@ static void glxGetMinmaxParameteriv(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameteriv_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetMinmaxParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetMinmaxParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9570,7 +9570,7 @@ static void glxGetMinmaxParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetMinmaxParameteriv_reply_data, hf_x11_glx_GetMinmaxParameteriv_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetCompressedTexImageARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetCompressedTexImageARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetCompressedTexImageARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9579,7 +9579,7 @@ static void glxGetCompressedTexImageARB(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_glx_GetCompressedTexImageARB_level, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetCompressedTexImageARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetCompressedTexImageARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9605,7 +9605,7 @@ static void glxGetCompressedTexImageARB_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetCompressedTexImageARB_reply_data, (f_length * 4), byte_order);
 }
 
-static void glxDeleteQueriesARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxDeleteQueriesARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n;
     proto_tree_add_item(t, hf_x11_glx_DeleteQueriesARB_context_tag, tvb, *offsetp, 4, byte_order);
@@ -9617,14 +9617,14 @@ static void glxDeleteQueriesARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     length -= f_n * 4;
 }
 
-static void glxGenQueriesARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGenQueriesARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GenQueriesARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GenQueriesARB_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGenQueriesARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGenQueriesARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -9646,14 +9646,14 @@ static void glxGenQueriesARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GenQueriesARB_reply_data, hf_x11_glx_GenQueriesARB_reply_data_item, f_length, byte_order);
 }
 
-static void glxIsQueryARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxIsQueryARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_IsQueryARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_IsQueryARB_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxIsQueryARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxIsQueryARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -9672,7 +9672,7 @@ static void glxIsQueryARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     *offsetp += 4;
 }
 
-static void glxGetQueryivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetQueryivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetQueryivARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9681,7 +9681,7 @@ static void glxGetQueryivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_glx_GetQueryivARB_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetQueryivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetQueryivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9709,7 +9709,7 @@ static void glxGetQueryivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetQueryivARB_reply_data, hf_x11_glx_GetQueryivARB_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetQueryObjectivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetQueryObjectivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectivARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9718,7 +9718,7 @@ static void glxGetQueryObjectivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectivARB_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetQueryObjectivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetQueryObjectivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9746,7 +9746,7 @@ static void glxGetQueryObjectivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetQueryObjectivARB_reply_data, hf_x11_glx_GetQueryObjectivARB_reply_data_item, f_n, byte_order);
 }
 
-static void glxGetQueryObjectuivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void glxGetQueryObjectuivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectuivARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -9755,7 +9755,7 @@ static void glxGetQueryObjectuivARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectuivARB_pname, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void glxGetQueryObjectuivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void glxGetQueryObjectuivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_n;
@@ -9961,7 +9961,7 @@ static const x11_reply_info glx_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_glx(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_glx(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(glx_extension_minor);
@@ -10284,7 +10284,7 @@ static void register_glx(void)
     set_handler("GLX", dispatch_glx, glx_errors, glx_events, NULL, glx_replies);
 }
 
-static void struct_randr_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10304,7 +10304,7 @@ static void struct_randr_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static int struct_size_randr_RefreshRates(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_randr_RefreshRates(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_nRates;
@@ -10313,7 +10313,7 @@ static int struct_size_randr_RefreshRates(tvbuff_t *tvb _U_, int *offsetp _U_, g
     return size + 2;
 }
 
-static void struct_randr_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10330,7 +10330,7 @@ static void struct_randr_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10387,7 +10387,7 @@ static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10430,7 +10430,7 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10469,7 +10469,7 @@ static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_randr_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10492,7 +10492,7 @@ static void struct_randr_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void struct_randr_ProviderChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_ProviderChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10512,7 +10512,7 @@ static void struct_randr_ProviderChange(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void struct_randr_ProviderProperty(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_ProviderProperty(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10536,7 +10536,7 @@ static void struct_randr_ProviderProperty(tvbuff_t *tvb, int *offsetp, proto_tre
     }
 }
 
-static void struct_randr_ResourceChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_ResourceChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10554,7 +10554,7 @@ static void struct_randr_ResourceChange(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static int struct_size_randr_MonitorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_randr_MonitorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_nOutput;
@@ -10563,7 +10563,7 @@ static int struct_size_randr_MonitorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, gu
     return size + 24;
 }
 
-static void struct_randr_MonitorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_MonitorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10598,7 +10598,7 @@ static void struct_randr_MonitorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_randr_LeaseNotify(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_randr_LeaseNotify(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10620,7 +10620,7 @@ static void struct_randr_LeaseNotify(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_sync_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_sync_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10636,7 +10636,7 @@ static void struct_sync_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static int struct_size_sync_SYSTEMCOUNTER(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_sync_SYSTEMCOUNTER(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_name_len;
@@ -10646,7 +10646,7 @@ static int struct_size_sync_SYSTEMCOUNTER(tvbuff_t *tvb _U_, int *offsetp _U_, g
     return size + 14;
 }
 
-static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10670,7 +10670,7 @@ static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_sync_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_sync_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10687,7 +10687,7 @@ static void struct_sync_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_sync_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_sync_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10701,7 +10701,7 @@ static void struct_sync_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_present_Notify(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_present_Notify(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10717,14 +10717,14 @@ static void struct_present_Notify(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void presentQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void presentQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_present_QueryVersion_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_QueryVersion_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void presentQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void presentQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -10745,7 +10745,7 @@ static void presentQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
 }
 
-static void presentPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void presentPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_present_Pixmap_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -10780,7 +10780,7 @@ static void presentPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     struct_present_Notify(tvb, offsetp, t, byte_order, (length - 72) / 8);
 }
 
-static void presentNotifyMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void presentNotifyMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_present_NotifyMSC_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -10796,7 +10796,7 @@ static void presentNotifyMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 8;
 }
 
-static void presentSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void presentSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_present_SelectInput_eid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -10815,12 +10815,12 @@ static void presentSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void presentQueryCapabilities(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void presentQueryCapabilities(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_present_QueryCapabilities_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void presentQueryCapabilities_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void presentQueryCapabilities_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -10839,7 +10839,7 @@ static void presentQueryCapabilities_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 4;
 }
 
-static void presentPixmapSynced(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void presentPixmapSynced(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_present_PixmapSynced_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -10878,7 +10878,7 @@ static void presentPixmapSynced(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     struct_present_Notify(tvb, offsetp, t, byte_order, (length - 88) / 8);
 }
 
-static void presentCompleteNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void presentCompleteNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 1,
                                "CompleteNotify (1)");
@@ -10897,7 +10897,7 @@ static void presentCompleteNotify(tvbuff_t *tvb, int length _U_, int *offsetp, p
 }
 
 
-static void presentIdleNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void presentIdleNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 2,
                                "IdleNotify (2)");
@@ -10916,7 +10916,7 @@ static void presentIdleNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto
 }
 
 
-static void presentRedirectNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void presentRedirectNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 3,
                                "RedirectNotify (3)");
@@ -10988,7 +10988,7 @@ static const x11_reply_info present_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_present(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_present(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(present_extension_minor);
@@ -11026,14 +11026,14 @@ static void register_present(void)
     set_handler("Present", dispatch_present, present_errors, present_events, present_generic_events, present_replies);
 }
 
-static void randrQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_QueryVersion_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_QueryVersion_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11056,7 +11056,7 @@ static void randrQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 16;
 }
 
-static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11084,7 +11084,7 @@ static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void randrSetScreenConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrSetScreenConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11109,7 +11109,7 @@ static void randrSetScreenConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 10;
 }
 
-static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SelectInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11132,12 +11132,12 @@ static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 2;
 }
 
-static void randrGetScreenInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetScreenInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_nSizes;
@@ -11200,12 +11200,12 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     struct_randr_RefreshRates(tvb, offsetp, t, byte_order, (f_nInfo - f_nSizes));
 }
 
-static void randrGetScreenSizeRange(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetScreenSizeRange(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetScreenSizeRange_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetScreenSizeRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetScreenSizeRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11232,7 +11232,7 @@ static void randrGetScreenSizeRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 16;
 }
 
-static void randrSetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetScreenSize_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11246,12 +11246,12 @@ static void randrSetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void randrGetScreenResources(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetScreenResources(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_crtcs;
@@ -11294,14 +11294,14 @@ static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetScreenResources_reply_names, f_names_len, byte_order);
 }
 
-static void randrGetOutputInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetOutputInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_config_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetOutputInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetOutputInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_crtcs;
@@ -11349,12 +11349,12 @@ static void randrGetOutputInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetOutputInfo_reply_name, f_name_len, byte_order);
 }
 
-static void randrListOutputProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrListOutputProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_ListOutputProperties_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrListOutputProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrListOutputProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_atoms;
@@ -11378,14 +11378,14 @@ static void randrListOutputProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     listOfCard32(tvb, offsetp, t, hf_x11_randr_ListOutputProperties_reply_atoms, hf_x11_randr_ListOutputProperties_reply_atoms_item, f_num_atoms, byte_order);
 }
 
-static void randrQueryOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrQueryOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_QueryOutputProperty_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_QueryOutputProperty_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrQueryOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrQueryOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -11413,7 +11413,7 @@ static void randrQueryOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     listOfInt32(tvb, offsetp, t, hf_x11_randr_QueryOutputProperty_reply_validValues, hf_x11_randr_QueryOutputProperty_reply_validValues_item, f_length, byte_order);
 }
 
-static void randrConfigureOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrConfigureOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_ConfigureOutputProperty_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11428,7 +11428,7 @@ static void randrConfigureOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, 
     listOfInt32(tvb, offsetp, t, hf_x11_randr_ConfigureOutputProperty_values, hf_x11_randr_ConfigureOutputProperty_values_item, (length - 16) / 4, byte_order);
 }
 
-static void randrChangeOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrChangeOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_format;
     int f_num_units;
@@ -11451,7 +11451,7 @@ static void randrChangeOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int
     length -= ((f_num_units * f_format) / 8) * 1;
 }
 
-static void randrDeleteOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrDeleteOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_DeleteOutputProperty_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11459,7 +11459,7 @@ static void randrDeleteOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 4;
 }
 
-static void randrGetOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetOutputProperty_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11477,7 +11477,7 @@ static void randrGetOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_format;
@@ -11506,14 +11506,14 @@ static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetOutputProperty_reply_data, (f_num_items * (f_format / 8)), byte_order);
 }
 
-static void randrCreateMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrCreateMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_CreateMode_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_randr_ModeInfo(tvb, offsetp, t, byte_order, 1);
     listOfByte(tvb, offsetp, t, hf_x11_randr_CreateMode_name, (length - 40) / 1, byte_order);
 }
-static void randrCreateMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrCreateMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11534,13 +11534,13 @@ static void randrCreateMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 20;
 }
 
-static void randrDestroyMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrDestroyMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_DestroyMode_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void randrAddOutputMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrAddOutputMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_AddOutputMode_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11548,7 +11548,7 @@ static void randrAddOutputMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void randrDeleteOutputMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrDeleteOutputMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_DeleteOutputMode_output, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11556,14 +11556,14 @@ static void randrDeleteOutputMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
 }
 
-static void randrGetCrtcInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetCrtcInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_config_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_outputs;
@@ -11627,7 +11627,7 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetCrtcInfo_reply_possible, hf_x11_randr_GetCrtcInfo_reply_possible_item, f_num_possible_outputs, byte_order);
 }
 
-static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetCrtcConfig_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11658,7 +11658,7 @@ static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_SetCrtcConfig_outputs, hf_x11_randr_SetCrtcConfig_outputs_item, (length - 28) / 4, byte_order);
 }
-static void randrSetCrtcConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrSetCrtcConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11678,12 +11678,12 @@ static void randrSetCrtcConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 20;
 }
 
-static void randrGetCrtcGammaSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetCrtcGammaSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetCrtcGammaSize_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetCrtcGammaSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetCrtcGammaSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11704,12 +11704,12 @@ static void randrGetCrtcGammaSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 22;
 }
 
-static void randrGetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetCrtcGamma_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetCrtcGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetCrtcGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_size;
@@ -11735,7 +11735,7 @@ static void randrGetCrtcGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     listOfCard16(tvb, offsetp, t, hf_x11_randr_GetCrtcGamma_reply_blue, hf_x11_randr_GetCrtcGamma_reply_blue_item, f_size, byte_order);
 }
 
-static void randrSetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_size;
     proto_tree_add_item(t, hf_x11_randr_SetCrtcGamma_crtc, tvb, *offsetp, 4, byte_order);
@@ -11753,12 +11753,12 @@ static void randrSetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     length -= f_size * 2;
 }
 
-static void randrGetScreenResourcesCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetScreenResourcesCurrent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_crtcs;
@@ -11801,7 +11801,7 @@ static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pin
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetScreenResourcesCurrent_reply_names, f_names_len, byte_order);
 }
 
-static void randrSetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_filter_len;
     proto_tree_add_item(t, hf_x11_randr_SetCrtcTransform_crtc, tvb, *offsetp, 4, byte_order);
@@ -11822,12 +11822,12 @@ static void randrSetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     listOfInt32(tvb, offsetp, t, hf_x11_randr_SetCrtcTransform_filter_params, hf_x11_randr_SetCrtcTransform_filter_params_item, (length - 48) / 4, byte_order);
 }
 
-static void randrGetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_pending_len;
@@ -11880,12 +11880,12 @@ static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     listOfInt32(tvb, offsetp, t, hf_x11_randr_GetCrtcTransform_reply_current_params, hf_x11_randr_GetCrtcTransform_reply_current_params_item, f_current_nparams, byte_order);
 }
 
-static void randrGetPanning(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetPanning(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetPanning_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11927,7 +11927,7 @@ static void randrGetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
 }
 
-static void randrSetPanning(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetPanning(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetPanning_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11958,7 +11958,7 @@ static void randrSetPanning(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_randr_SetPanning_border_bottom, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void randrSetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrSetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -11976,7 +11976,7 @@ static void randrSetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
 }
 
-static void randrSetOutputPrimary(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetOutputPrimary(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetOutputPrimary_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11984,12 +11984,12 @@ static void randrSetOutputPrimary(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
 }
 
-static void randrGetOutputPrimary(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetOutputPrimary(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetOutputPrimary_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetOutputPrimary_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetOutputPrimary_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -12008,12 +12008,12 @@ static void randrGetOutputPrimary_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
 }
 
-static void randrGetProviders(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetProviders(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetProviders_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_providers;
@@ -12039,14 +12039,14 @@ static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetProviders_reply_providers, hf_x11_randr_GetProviders_reply_providers_item, f_num_providers, byte_order);
 }
 
-static void randrGetProviderInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetProviderInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_config_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_crtcs;
@@ -12099,7 +12099,7 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetProviderInfo_reply_name, f_name_len, byte_order);
 }
 
-static void randrSetProviderOffloadSink(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetProviderOffloadSink(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetProviderOffloadSink_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12109,7 +12109,7 @@ static void randrSetProviderOffloadSink(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 4;
 }
 
-static void randrSetProviderOutputSource(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetProviderOutputSource(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetProviderOutputSource_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12119,12 +12119,12 @@ static void randrSetProviderOutputSource(tvbuff_t *tvb, packet_info *pinfo _U_, 
     *offsetp += 4;
 }
 
-static void randrListProviderProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrListProviderProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_ListProviderProperties_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrListProviderProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrListProviderProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_atoms;
@@ -12148,14 +12148,14 @@ static void randrListProviderProperties_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfCard32(tvb, offsetp, t, hf_x11_randr_ListProviderProperties_reply_atoms, hf_x11_randr_ListProviderProperties_reply_atoms_item, f_num_atoms, byte_order);
 }
 
-static void randrQueryProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrQueryProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_QueryProviderProperty_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_QueryProviderProperty_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void randrQueryProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrQueryProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -12183,7 +12183,7 @@ static void randrQueryProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfInt32(tvb, offsetp, t, hf_x11_randr_QueryProviderProperty_reply_valid_values, hf_x11_randr_QueryProviderProperty_reply_valid_values_item, f_length, byte_order);
 }
 
-static void randrConfigureProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrConfigureProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_ConfigureProviderProperty_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12198,7 +12198,7 @@ static void randrConfigureProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_
     listOfInt32(tvb, offsetp, t, hf_x11_randr_ConfigureProviderProperty_values, hf_x11_randr_ConfigureProviderProperty_values_item, (length - 16) / 4, byte_order);
 }
 
-static void randrChangeProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrChangeProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_format;
     int f_num_items;
@@ -12222,7 +12222,7 @@ static void randrChangeProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, i
     length -= (f_num_items * (f_format / 8)) * 1;
 }
 
-static void randrDeleteProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrDeleteProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_DeleteProviderProperty_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12230,7 +12230,7 @@ static void randrDeleteProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 4;
 }
 
-static void randrGetProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetProviderProperty_provider, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12249,7 +12249,7 @@ static void randrGetProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_format;
@@ -12279,14 +12279,14 @@ static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetProviderProperty_reply_data, (f_num_items * (f_format / 8)), byte_order);
 }
 
-static void randrGetMonitors(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrGetMonitors(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_GetMonitors_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetMonitors_get_active, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_nMonitors;
@@ -12314,14 +12314,14 @@ static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     struct_randr_MonitorInfo(tvb, offsetp, t, byte_order, f_nMonitors);
 }
 
-static void randrSetMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrSetMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_SetMonitor_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_randr_MonitorInfo(tvb, offsetp, t, byte_order, 1);
 }
 
-static void randrDeleteMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrDeleteMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_DeleteMonitor_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12329,7 +12329,7 @@ static void randrDeleteMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void randrCreateLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrCreateLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_crtcs;
     int f_num_outputs;
@@ -12348,7 +12348,7 @@ static void randrCreateLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     listOfCard32(tvb, offsetp, t, hf_x11_randr_CreateLease_outputs, hf_x11_randr_CreateLease_outputs_item, f_num_outputs, byte_order);
     length -= f_num_outputs * 4;
 }
-static void randrCreateLease_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void randrCreateLease_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -12367,7 +12367,7 @@ static void randrCreateLease_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 24;
 }
 
-static void randrFreeLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void randrFreeLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_randr_FreeLease_lid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12375,7 +12375,7 @@ static void randrFreeLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 1;
 }
 
-static void struct_randr_NotifyData(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_randr_NotifyData(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order, int count)
 {
     int i;
     int base = *offsetp;
@@ -12404,7 +12404,7 @@ static void struct_randr_NotifyData(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     *offsetp = base;
 }
 
-static void randrNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void randrNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     field8(tvb, offsetp, t, hf_x11_randr_Notify_subCode, byte_order);
     CARD16(event_sequencenumber);
@@ -12493,7 +12493,7 @@ static const x11_reply_info randr_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_randr(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_randr(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(randr_extension_minor);
@@ -12648,7 +12648,7 @@ static void register_randr(void)
     set_handler("RANDR", dispatch_randr, randr_errors, randr_events, NULL, randr_replies);
 }
 
-static void struct_record_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_record_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12664,7 +12664,7 @@ static void struct_record_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_record_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_record_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12680,7 +12680,7 @@ static void struct_record_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_record_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_record_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12694,7 +12694,7 @@ static void struct_record_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_record_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_record_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12717,7 +12717,7 @@ static void struct_record_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static int struct_size_record_ClientInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_record_ClientInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_num_ranges;
@@ -12726,7 +12726,7 @@ static int struct_size_record_ClientInfo(tvbuff_t *tvb _U_, int *offsetp _U_, gu
     return size + 8;
 }
 
-static void struct_record_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_record_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12745,14 +12745,14 @@ static void struct_record_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void recordQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_record_QueryVersion_major_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_record_QueryVersion_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void recordQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void recordQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -12773,7 +12773,7 @@ static void recordQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 2;
 }
 
-static void recordCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_client_specs;
     int f_num_ranges;
@@ -12795,7 +12795,7 @@ static void recordCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     length -= f_num_ranges * 24;
 }
 
-static void recordRegisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordRegisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_client_specs;
     int f_num_ranges;
@@ -12817,7 +12817,7 @@ static void recordRegisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     length -= f_num_ranges * 24;
 }
 
-static void recordUnregisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordUnregisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_client_specs;
     proto_tree_add_item(t, hf_x11_record_UnregisterClients_context, tvb, *offsetp, 4, byte_order);
@@ -12829,12 +12829,12 @@ static void recordUnregisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     length -= f_num_client_specs * 4;
 }
 
-static void recordGetContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordGetContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_record_GetContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void recordGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void recordGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_intercepted_clients;
@@ -12862,12 +12862,12 @@ static void recordGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     struct_record_ClientInfo(tvb, offsetp, t, byte_order, f_num_intercepted_clients);
 }
 
-static void recordEnableContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordEnableContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_record_EnableContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void recordEnableContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void recordEnableContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -12901,13 +12901,13 @@ static void recordEnableContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     listOfByte(tvb, offsetp, t, hf_x11_record_EnableContext_reply_data, (f_length * 4), byte_order);
 }
 
-static void recordDisableContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordDisableContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_record_DisableContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void recordFreeContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void recordFreeContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_record_FreeContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -12933,7 +12933,7 @@ static const x11_reply_info record_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_record(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_record(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(record_extension_minor);
@@ -12977,14 +12977,14 @@ static void register_record(void)
     set_handler("RECORD", dispatch_record, record_errors, record_events, NULL, record_replies);
 }
 
-static void renderQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_QueryVersion_client_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_QueryVersion_client_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void renderQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void renderQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -13007,10 +13007,10 @@ static void renderQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 16;
 }
 
-static void renderQueryPictFormats(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void renderQueryPictFormats(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void renderQueryPictFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void renderQueryPictFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_formats;
@@ -13048,12 +13048,12 @@ static void renderQueryPictFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfCard32(tvb, offsetp, t, hf_x11_render_QueryPictFormats_reply_subpixels, hf_x11_render_QueryPictFormats_reply_subpixels_item, f_num_subpixel, byte_order);
 }
 
-static void renderQueryPictIndexValues(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderQueryPictIndexValues(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_QueryPictIndexValues_format, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void renderQueryPictIndexValues_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void renderQueryPictIndexValues_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_values;
@@ -13077,7 +13077,7 @@ static void renderQueryPictIndexValues_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     struct_render_INDEXVALUE(tvb, offsetp, t, byte_order, f_num_values);
 }
 
-static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_render_CreatePicture_pid, tvb, *offsetp, 4, byte_order);
@@ -13157,7 +13157,7 @@ static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     }
 }
 
-static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_render_ChangePicture_picture, tvb, *offsetp, 4, byte_order);
@@ -13233,7 +13233,7 @@ static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     }
 }
 
-static void renderSetPictureClipRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderSetPictureClipRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_SetPictureClipRectangles_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -13244,13 +13244,13 @@ static void renderSetPictureClipRectangles(tvbuff_t *tvb, packet_info *pinfo _U_
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (length - 12) / 8);
 }
 
-static void renderFreePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderFreePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_FreePicture_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void renderComposite(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderComposite(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_Composite_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13278,7 +13278,7 @@ static void renderComposite(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
 }
 
-static void renderTrapezoids(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderTrapezoids(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_Trapezoids_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13296,7 +13296,7 @@ static void renderTrapezoids(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     struct_render_TRAPEZOID(tvb, offsetp, t, byte_order, (length - 24) / 40);
 }
 
-static void renderTriangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderTriangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_Triangles_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13314,7 +13314,7 @@ static void renderTriangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     struct_render_TRIANGLE(tvb, offsetp, t, byte_order, (length - 24) / 24);
 }
 
-static void renderTriStrip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderTriStrip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_TriStrip_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13332,7 +13332,7 @@ static void renderTriStrip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     struct_render_POINTFIX(tvb, offsetp, t, byte_order, (length - 24) / 8);
 }
 
-static void renderTriFan(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderTriFan(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_TriFan_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13350,7 +13350,7 @@ static void renderTriFan(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
     struct_render_POINTFIX(tvb, offsetp, t, byte_order, (length - 24) / 8);
 }
 
-static void renderCreateGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_CreateGlyphSet_gsid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -13358,7 +13358,7 @@ static void renderCreateGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 4;
 }
 
-static void renderReferenceGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderReferenceGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_ReferenceGlyphSet_gsid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -13366,13 +13366,13 @@ static void renderReferenceGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 4;
 }
 
-static void renderFreeGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderFreeGlyphSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_FreeGlyphSet_glyphset, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void renderAddGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderAddGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_glyphs_len;
     proto_tree_add_item(t, hf_x11_render_AddGlyphs_glyphset, tvb, *offsetp, 4, byte_order);
@@ -13387,14 +13387,14 @@ static void renderAddGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     listOfByte(tvb, offsetp, t, hf_x11_render_AddGlyphs_data, (length - 12) / 1, byte_order);
 }
 
-static void renderFreeGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderFreeGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_FreeGlyphs_glyphset, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_render_FreeGlyphs_glyphs, hf_x11_render_FreeGlyphs_glyphs_item, (length - 8) / 4, byte_order);
 }
 
-static void renderCompositeGlyphs8(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCompositeGlyphs8(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_CompositeGlyphs8_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13414,7 +13414,7 @@ static void renderCompositeGlyphs8(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     listOfByte(tvb, offsetp, t, hf_x11_render_CompositeGlyphs8_glyphcmds, (length - 28) / 1, byte_order);
 }
 
-static void renderCompositeGlyphs16(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCompositeGlyphs16(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_CompositeGlyphs16_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13434,7 +13434,7 @@ static void renderCompositeGlyphs16(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     listOfByte(tvb, offsetp, t, hf_x11_render_CompositeGlyphs16_glyphcmds, (length - 28) / 1, byte_order);
 }
 
-static void renderCompositeGlyphs32(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCompositeGlyphs32(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_CompositeGlyphs32_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13454,7 +13454,7 @@ static void renderCompositeGlyphs32(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     listOfByte(tvb, offsetp, t, hf_x11_render_CompositeGlyphs32_glyphcmds, (length - 28) / 1, byte_order);
 }
 
-static void renderFillRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderFillRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_FillRectangles_op, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -13465,7 +13465,7 @@ static void renderFillRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (length - 20) / 8);
 }
 
-static void renderCreateCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_CreateCursor_cid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -13477,19 +13477,19 @@ static void renderCreateCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 2;
 }
 
-static void renderSetPictureTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderSetPictureTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_SetPictureTransform_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_render_TRANSFORM(tvb, offsetp, t, byte_order, 1);
 }
 
-static void renderQueryFilters(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderQueryFilters(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_QueryFilters_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void renderQueryFilters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void renderQueryFilters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_aliases;
@@ -13518,7 +13518,7 @@ static void renderQueryFilters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     struct_xproto_STR(tvb, offsetp, t, byte_order, f_num_filters);
 }
 
-static void renderSetPictureFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderSetPictureFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_filter_len;
     proto_tree_add_item(t, hf_x11_render_SetPictureFilter_picture, tvb, *offsetp, 4, byte_order);
@@ -13538,14 +13538,14 @@ static void renderSetPictureFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     listOfInt32(tvb, offsetp, t, hf_x11_render_SetPictureFilter_values, hf_x11_render_SetPictureFilter_values_item, (length - 12) / 4, byte_order);
 }
 
-static void renderCreateAnimCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateAnimCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_CreateAnimCursor_cid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_render_ANIMCURSORELT(tvb, offsetp, t, byte_order, (length - 8) / 8);
 }
 
-static void renderAddTraps(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderAddTraps(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_AddTraps_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -13556,14 +13556,14 @@ static void renderAddTraps(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     struct_render_TRAP(tvb, offsetp, t, byte_order, (length - 12) / 24);
 }
 
-static void renderCreateSolidFill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateSolidFill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_render_CreateSolidFill_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_render_COLOR(tvb, offsetp, t, byte_order, 1);
 }
 
-static void renderCreateLinearGradient(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateLinearGradient(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_stops;
     proto_tree_add_item(t, hf_x11_render_CreateLinearGradient_picture, tvb, *offsetp, 4, byte_order);
@@ -13579,7 +13579,7 @@ static void renderCreateLinearGradient(tvbuff_t *tvb, packet_info *pinfo _U_, in
     length -= f_num_stops * 8;
 }
 
-static void renderCreateRadialGradient(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateRadialGradient(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_stops;
     proto_tree_add_item(t, hf_x11_render_CreateRadialGradient_picture, tvb, *offsetp, 4, byte_order);
@@ -13599,7 +13599,7 @@ static void renderCreateRadialGradient(tvbuff_t *tvb, packet_info *pinfo _U_, in
     length -= f_num_stops * 8;
 }
 
-static void renderCreateConicalGradient(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void renderCreateConicalGradient(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_stops;
     proto_tree_add_item(t, hf_x11_render_CreateConicalGradient_picture, tvb, *offsetp, 4, byte_order);
@@ -13660,7 +13660,7 @@ static const x11_reply_info render_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(render_extension_minor);
@@ -13773,7 +13773,7 @@ static void register_render(void)
     set_handler("RENDER", dispatch_render, render_errors, render_events, NULL, render_replies);
 }
 
-static void struct_res_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13789,7 +13789,7 @@ static void struct_res_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_res_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13805,7 +13805,7 @@ static void struct_res_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     }
 }
 
-static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13828,7 +13828,7 @@ static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static int struct_size_res_ClientIdValue(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_res_ClientIdValue(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_length;
@@ -13837,7 +13837,7 @@ static int struct_size_res_ClientIdValue(tvbuff_t *tvb _U_, int *offsetp _U_, gu
     return size + 12;
 }
 
-static void struct_res_ClientIdValue(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_ClientIdValue(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13855,7 +13855,7 @@ static void struct_res_ClientIdValue(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_res_ResourceIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_ResourceIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13871,7 +13871,7 @@ static void struct_res_ResourceIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_res_ResourceSizeSpec(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_ResourceSizeSpec(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13890,7 +13890,7 @@ static void struct_res_ResourceSizeSpec(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static int struct_size_res_ResourceSizeValue(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_res_ResourceSizeValue(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_num_cross_references;
@@ -13899,7 +13899,7 @@ static int struct_size_res_ResourceSizeValue(tvbuff_t *tvb _U_, int *offsetp _U_
     return size + 24;
 }
 
-static void struct_res_ResourceSizeValue(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_res_ResourceSizeValue(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13917,14 +13917,14 @@ static void struct_res_ResourceSizeValue(tvbuff_t *tvb, int *offsetp, proto_tree
     }
 }
 
-static void resQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void resQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_res_QueryVersion_client_major, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_res_QueryVersion_client_minor, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void resQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void resQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -13945,10 +13945,10 @@ static void resQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
 }
 
-static void resQueryClients(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void resQueryClients(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void resQueryClients_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void resQueryClients_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_clients;
@@ -13972,12 +13972,12 @@ static void resQueryClients_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     struct_res_Client(tvb, offsetp, t, byte_order, f_num_clients);
 }
 
-static void resQueryClientResources(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void resQueryClientResources(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_res_QueryClientResources_xid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void resQueryClientResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void resQueryClientResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_types;
@@ -14001,12 +14001,12 @@ static void resQueryClientResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     struct_res_Type(tvb, offsetp, t, byte_order, f_num_types);
 }
 
-static void resQueryClientPixmapBytes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void resQueryClientPixmapBytes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_res_QueryClientPixmapBytes_xid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void resQueryClientPixmapBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void resQueryClientPixmapBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14027,7 +14027,7 @@ static void resQueryClientPixmapBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 4;
 }
 
-static void resQueryClientIds(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void resQueryClientIds(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_specs;
     f_num_specs = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -14036,7 +14036,7 @@ static void resQueryClientIds(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     struct_res_ClientIdSpec(tvb, offsetp, t, byte_order, f_num_specs);
     length -= f_num_specs * 8;
 }
-static void resQueryClientIds_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void resQueryClientIds_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_ids;
@@ -14060,7 +14060,7 @@ static void resQueryClientIds_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     struct_res_ClientIdValue(tvb, offsetp, t, byte_order, f_num_ids);
 }
 
-static void resQueryResourceBytes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void resQueryResourceBytes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_specs;
     proto_tree_add_item(t, hf_x11_res_QueryResourceBytes_client, tvb, *offsetp, 4, byte_order);
@@ -14071,7 +14071,7 @@ static void resQueryResourceBytes(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     struct_res_ResourceIdSpec(tvb, offsetp, t, byte_order, f_num_specs);
     length -= f_num_specs * 8;
 }
-static void resQueryResourceBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void resQueryResourceBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_sizes;
@@ -14116,7 +14116,7 @@ static const x11_reply_info res_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_res(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_res(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(res_extension_minor);
@@ -14154,7 +14154,7 @@ static void register_res(void)
     set_handler("X-Resource", dispatch_res, res_errors, res_events, NULL, res_replies);
 }
 
-static void screensaverQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void screensaverQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_screensaver_QueryVersion_client_major_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -14163,7 +14163,7 @@ static void screensaverQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14186,12 +14186,12 @@ static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 20;
 }
 
-static void screensaverQueryInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void screensaverQueryInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_screensaver_QueryInfo_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void screensaverQueryInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void screensaverQueryInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14219,7 +14219,7 @@ static void screensaverQueryInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 7;
 }
 
-static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_screensaver_SelectInput_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14234,7 +14234,7 @@ static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
 }
 
-static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_drawable, tvb, *offsetp, 4, byte_order);
@@ -14392,13 +14392,13 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     }
 }
 
-static void screensaverUnsetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void screensaverUnsetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_screensaver_UnsetAttributes_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void screensaverSuspend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void screensaverSuspend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_screensaver_Suspend_suspend, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14421,7 +14421,7 @@ static const x11_reply_info screensaver_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_screensaver(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_screensaver(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(screensaver_extension_minor);
@@ -14459,10 +14459,10 @@ static void register_screensaver(void)
     set_handler("MIT-SCREEN-SAVER", dispatch_screensaver, screensaver_errors, screensaver_events, NULL, screensaver_replies);
 }
 
-static void shapeQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void shapeQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void shapeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shapeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14483,7 +14483,7 @@ static void shapeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 2;
 }
 
-static void shapeRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_shape_Rectangles_operation, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Rectangles_destination_kind, byte_order);
@@ -14499,7 +14499,7 @@ static void shapeRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (length - 16) / 8);
 }
 
-static void shapeMask(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeMask(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_shape_Mask_operation, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Mask_destination_kind, byte_order);
@@ -14514,7 +14514,7 @@ static void shapeMask(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     field32(tvb, offsetp, t, hf_x11_shape_Mask_source_bitmap, byte_order);
 }
 
-static void shapeCombine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeCombine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_shape_Combine_operation, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Combine_destination_kind, byte_order);
@@ -14531,7 +14531,7 @@ static void shapeCombine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
     *offsetp += 4;
 }
 
-static void shapeOffset(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeOffset(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_shape_Offset_destination_kind, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -14544,12 +14544,12 @@ static void shapeOffset(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 2;
 }
 
-static void shapeQueryExtents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeQueryExtents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shape_QueryExtents_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void shapeQueryExtents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shapeQueryExtents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14588,7 +14588,7 @@ static void shapeQueryExtents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 2;
 }
 
-static void shapeSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shape_SelectInput_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14598,12 +14598,12 @@ static void shapeSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 3;
 }
 
-static void shapeInputSelected(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeInputSelected(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shape_InputSelected_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void shapeInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shapeInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14620,7 +14620,7 @@ static void shapeInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
 }
 
-static void shapeGetRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shapeGetRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shape_GetRectangles_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14628,7 +14628,7 @@ static void shapeGetRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void shapeGetRectangles_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shapeGetRectangles_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_rectangles_len;
@@ -14673,7 +14673,7 @@ static const x11_reply_info shape_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_shape(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_shape(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(shape_extension_minor);
@@ -14720,10 +14720,10 @@ static void register_shape(void)
     set_handler("SHAPE", dispatch_shape, shape_errors, shape_events, NULL, shape_replies);
 }
 
-static void shmQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void shmQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void shmQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shmQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14752,7 +14752,7 @@ static void shmQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 15;
 }
 
-static void shmAttach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmAttach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_Attach_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14764,13 +14764,13 @@ static void shmAttach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 3;
 }
 
-static void shmDetach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmDetach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_Detach_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void shmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_PutImage_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14806,7 +14806,7 @@ static void shmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
 }
 
-static void shmGetImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmGetImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_GetImage_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14829,7 +14829,7 @@ static void shmGetImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_shm_GetImage_offset, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void shmGetImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shmGetImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14850,7 +14850,7 @@ static void shmGetImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
 }
 
-static void shmCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_CreatePixmap_pid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14870,7 +14870,7 @@ static void shmCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
 }
 
-static void shmAttachFd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmAttachFd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_AttachFd_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14880,7 +14880,7 @@ static void shmAttachFd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 3;
 }
 
-static void shmCreateSegment(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void shmCreateSegment(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_shm_CreateSegment_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -14891,7 +14891,7 @@ static void shmCreateSegment(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void shmCreateSegment_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void shmCreateSegment_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -14930,7 +14930,7 @@ static const x11_reply_info shm_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_shm(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_shm(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(shm_extension_minor);
@@ -14974,14 +14974,14 @@ static void register_shm(void)
     set_handler("MIT-SHM", dispatch_shm, shm_errors, shm_events, NULL, shm_replies);
 }
 
-static void syncInitialize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncInitialize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_Initialize_desired_major_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_sync_Initialize_desired_minor_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void syncInitialize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void syncInitialize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15004,10 +15004,10 @@ static void syncInitialize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 22;
 }
 
-static void syncListSystemCounters(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void syncListSystemCounters(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void syncListSystemCounters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void syncListSystemCounters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_counters_len;
@@ -15031,25 +15031,25 @@ static void syncListSystemCounters_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_sync_SYSTEMCOUNTER(tvb, offsetp, t, byte_order, f_counters_len);
 }
 
-static void syncCreateCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncCreateCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_CreateCounter_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
 }
 
-static void syncDestroyCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncDestroyCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_DestroyCounter_counter, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void syncQueryCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncQueryCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_QueryCounter_counter, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void syncQueryCounter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void syncQueryCounter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15067,26 +15067,26 @@ static void syncQueryCounter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
 }
 
-static void syncAwait(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncAwait(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     struct_sync_WAITCONDITION(tvb, offsetp, t, byte_order, (length - 4) / 28);
 }
 
-static void syncChangeCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncChangeCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_ChangeCounter_counter, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
 }
 
-static void syncSetCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncSetCounter(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_SetCounter_counter, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
 }
 
-static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_sync_CreateAlarm_id, tvb, *offsetp, 4, byte_order);
@@ -15127,7 +15127,7 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
 }
 
-static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_id, tvb, *offsetp, 4, byte_order);
@@ -15168,18 +15168,18 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
 }
 
-static void syncDestroyAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncDestroyAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_DestroyAlarm_alarm, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void syncQueryAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncQueryAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_QueryAlarm_alarm, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void syncQueryAlarm_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void syncQueryAlarm_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15203,7 +15203,7 @@ static void syncQueryAlarm_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 2;
 }
 
-static void syncSetPriority(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncSetPriority(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_SetPriority_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15211,12 +15211,12 @@ static void syncSetPriority(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
 }
 
-static void syncGetPriority(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncGetPriority(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_GetPriority_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void syncGetPriority_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void syncGetPriority_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15235,7 +15235,7 @@ static void syncGetPriority_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
 }
 
-static void syncCreateFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncCreateFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_CreateFence_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15245,30 +15245,30 @@ static void syncCreateFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 1;
 }
 
-static void syncTriggerFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncTriggerFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_TriggerFence_fence, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void syncResetFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncResetFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_ResetFence_fence, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void syncDestroyFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncDestroyFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_DestroyFence_fence, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void syncQueryFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncQueryFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_sync_QueryFence_fence, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void syncQueryFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void syncQueryFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15289,12 +15289,12 @@ static void syncQueryFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 23;
 }
 
-static void syncAwaitFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void syncAwaitFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     listOfCard32(tvb, offsetp, t, hf_x11_sync_AwaitFence_fence_list, hf_x11_sync_AwaitFence_fence_list_item, (length - 4) / 4, byte_order);
 }
 
-static void syncAlarmNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void syncAlarmNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_sync_AlarmNotify_kind, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -15347,7 +15347,7 @@ static const x11_reply_info sync_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_sync(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_sync(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(sync_extension_minor);
@@ -15427,14 +15427,14 @@ static void register_sync(void)
     set_handler("SYNC", dispatch_sync, sync_errors, sync_events, NULL, sync_replies);
 }
 
-static void xc_miscGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xc_miscGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xc_misc_GetVersion_client_major_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xc_misc_GetVersion_client_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xc_miscGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xc_miscGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15455,10 +15455,10 @@ static void xc_miscGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 2;
 }
 
-static void xc_miscGetXIDRange(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xc_miscGetXIDRange(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xc_miscGetXIDRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xc_miscGetXIDRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15479,12 +15479,12 @@ static void xc_miscGetXIDRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
 }
 
-static void xc_miscGetXIDList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xc_miscGetXIDList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xc_misc_GetXIDList_count, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xc_miscGetXIDList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xc_miscGetXIDList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_ids_len;
@@ -15523,7 +15523,7 @@ static const x11_reply_info xc_misc_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xc_misc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xc_misc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xc_misc_extension_minor);
@@ -15552,14 +15552,14 @@ static void register_xc_misc(void)
     set_handler("XC-MISC", dispatch_xc_misc, xc_misc_errors, xc_misc_events, NULL, xc_misc_replies);
 }
 
-static void xevieQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xevieQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xevie_QueryVersion_client_major_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xevie_QueryVersion_client_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xevieQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xevieQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15582,12 +15582,12 @@ static void xevieQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 20;
 }
 
-static void xevieStart(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xevieStart(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xevie_Start_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xevieStart_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xevieStart_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15606,12 +15606,12 @@ static void xevieStart_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     *offsetp += 24;
 }
 
-static void xevieEnd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xevieEnd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xevie_End_cmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xevieEnd_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xevieEnd_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15630,7 +15630,7 @@ static void xevieEnd_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     *offsetp += 24;
 }
 
-static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -15644,7 +15644,7 @@ static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void xevieSend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xevieSend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     struct_xevie_Event(tvb, offsetp, t, byte_order, 1);
     proto_tree_add_item(t, hf_x11_xevie_Send_data_type, tvb, *offsetp, 4, byte_order);
@@ -15652,7 +15652,7 @@ static void xevieSend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 64, ENC_NA);
     *offsetp += 64;
 }
-static void xevieSend_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xevieSend_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15671,12 +15671,12 @@ static void xevieSend_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 24;
 }
 
-static void xevieSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xevieSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xevie_SelectInput_event_mask, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xevieSelectInput_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xevieSelectInput_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15714,7 +15714,7 @@ static const x11_reply_info xevie_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xevie(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xevie(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xevie_extension_minor);
@@ -15749,7 +15749,7 @@ static void register_xevie(void)
     set_handler("XEVIE", dispatch_xevie, xevie_errors, xevie_events, NULL, xevie_replies);
 }
 
-static void struct_xf86dri_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xf86dri_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -15769,10 +15769,10 @@ static void struct_xf86dri_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void xf86driQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xf86driQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xf86driQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15795,12 +15795,12 @@ static void xf86driQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
 }
 
-static void xf86driQueryDirectRenderingCapable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driQueryDirectRenderingCapable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_QueryDirectRenderingCapable_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driQueryDirectRenderingCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driQueryDirectRenderingCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15819,12 +15819,12 @@ static void xf86driQueryDirectRenderingCapable_Reply(tvbuff_t *tvb, packet_info 
     *offsetp += 1;
 }
 
-static void xf86driOpenConnection(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driOpenConnection(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_OpenConnection_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_bus_id_len;
@@ -15852,18 +15852,18 @@ static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     listOfByte(tvb, offsetp, t, hf_x11_xf86dri_OpenConnection_reply_bus_id, f_bus_id_len, byte_order);
 }
 
-static void xf86driCloseConnection(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driCloseConnection(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_CloseConnection_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xf86driGetClientDriverName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driGetClientDriverName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_GetClientDriverName_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_client_driver_name_len;
@@ -15893,7 +15893,7 @@ static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfByte(tvb, offsetp, t, hf_x11_xf86dri_GetClientDriverName_reply_client_driver_name, f_client_driver_name_len, byte_order);
 }
 
-static void xf86driCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_CreateContext_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15902,7 +15902,7 @@ static void xf86driCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_xf86dri_CreateContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15921,7 +15921,7 @@ static void xf86driCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
 }
 
-static void xf86driDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_DestroyContext_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15929,14 +15929,14 @@ static void xf86driDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
 }
 
-static void xf86driCreateDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driCreateDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_CreateDrawable_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_CreateDrawable_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driCreateDrawable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driCreateDrawable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -15955,7 +15955,7 @@ static void xf86driCreateDrawable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
 }
 
-static void xf86driDestroyDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driDestroyDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_DestroyDrawable_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15963,14 +15963,14 @@ static void xf86driDestroyDrawable(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
 }
 
-static void xf86driGetDrawableInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driGetDrawableInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driGetDrawableInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driGetDrawableInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_clip_rects;
@@ -16013,12 +16013,12 @@ static void xf86driGetDrawableInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_xf86dri_DrmClipRect(tvb, offsetp, t, byte_order, f_num_back_clip_rects);
 }
 
-static void xf86driGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_GetDeviceInfo_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_device_private_size;
@@ -16050,14 +16050,14 @@ static void xf86driGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfCard32(tvb, offsetp, t, hf_x11_xf86dri_GetDeviceInfo_reply_device_private, hf_x11_xf86dri_GetDeviceInfo_reply_device_private_item, f_device_private_size, byte_order);
 }
 
-static void xf86driAuthConnection(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86driAuthConnection(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86dri_AuthConnection_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_AuthConnection_magic, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xf86driAuthConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86driAuthConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -16106,7 +16106,7 @@ static const x11_reply_info xf86dri_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xf86dri(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xf86dri(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xf86dri_extension_minor);
@@ -16162,7 +16162,7 @@ static void register_xf86dri(void)
     set_handler("XFree86-DRI", dispatch_xf86dri, xf86dri_errors, xf86dri_events, NULL, xf86dri_replies);
 }
 
-static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -16220,10 +16220,10 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void xf86vidmodeQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xf86vidmodeQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xf86vidmodeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -16244,14 +16244,14 @@ static void xf86vidmodeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 2;
 }
 
-static void xf86vidmodeGetModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetModeLine_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_privsize;
@@ -16317,7 +16317,7 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_GetModeLine_reply_private, f_privsize, byte_order);
 }
 
-static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_privsize;
     proto_tree_add_item(t, hf_x11_xf86vidmode_ModModeLine_screen, tvb, *offsetp, 4, byte_order);
@@ -16371,7 +16371,7 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     length -= f_privsize * 1;
 }
 
-static void xf86vidmodeSwitchMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeSwitchMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_SwitchMode_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -16379,14 +16379,14 @@ static void xf86vidmodeSwitchMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 2;
 }
 
-static void xf86vidmodeGetMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_vendor_length;
@@ -16426,7 +16426,7 @@ static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_GetMonitor_reply_model, f_model_length, byte_order);
 }
 
-static void xf86vidmodeLockModeSwitch(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeLockModeSwitch(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_LockModeSwitch_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -16434,14 +16434,14 @@ static void xf86vidmodeLockModeSwitch(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 2;
 }
 
-static void xf86vidmodeGetAllModeLines(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetAllModeLines(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetAllModeLines_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_modecount;
@@ -16465,7 +16465,7 @@ static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     struct_xf86vidmode_ModeInfo(tvb, offsetp, t, byte_order, f_modecount);
 }
 
-static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_privsize;
     proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_screen, tvb, *offsetp, 4, byte_order);
@@ -16565,7 +16565,7 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     length -= f_privsize * 1;
 }
 
-static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_privsize;
     proto_tree_add_item(t, hf_x11_xf86vidmode_DeleteModeLine_screen, tvb, *offsetp, 4, byte_order);
@@ -16621,7 +16621,7 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
     length -= f_privsize * 1;
 }
 
-static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_privsize;
     proto_tree_add_item(t, hf_x11_xf86vidmode_ValidateModeLine_screen, tvb, *offsetp, 4, byte_order);
@@ -16676,7 +16676,7 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_ValidateModeLine_private, f_privsize, byte_order);
     length -= f_privsize * 1;
 }
-static void xf86vidmodeValidateModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeValidateModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -16697,7 +16697,7 @@ static void xf86vidmodeValidateModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 20;
 }
 
-static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_privsize;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SwitchToMode_screen, tvb, *offsetp, 4, byte_order);
@@ -16753,14 +16753,14 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     length -= f_privsize * 1;
 }
 
-static void xf86vidmodeGetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetViewPort_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -16783,7 +16783,7 @@ static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 16;
 }
 
-static void xf86vidmodeSetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeSetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetViewPort_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -16795,14 +16795,14 @@ static void xf86vidmodeSetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
 }
 
-static void xf86vidmodeGetDotClocks(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetDotClocks(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetDotClocks_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_flags;
@@ -16838,7 +16838,7 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfCard32(tvb, offsetp, t, hf_x11_xf86vidmode_GetDotClocks_reply_clock, hf_x11_xf86vidmode_GetDotClocks_reply_clock_item, ((1 - (f_flags & 1)) * f_clocks), byte_order);
 }
 
-static void xf86vidmodeSetClientVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeSetClientVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetClientVersion_major, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -16846,7 +16846,7 @@ static void xf86vidmodeSetClientVersion(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 2;
 }
 
-static void xf86vidmodeSetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeSetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGamma_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -16862,14 +16862,14 @@ static void xf86vidmodeSetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 12;
 }
 
-static void xf86vidmodeGetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGamma_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 26, ENC_NA);
     *offsetp += 26;
 }
-static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -16894,14 +16894,14 @@ static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 12;
 }
 
-static void xf86vidmodeGetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRamp_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRamp_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xf86vidmodeGetGammaRamp_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetGammaRamp_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_size;
@@ -16927,7 +16927,7 @@ static void xf86vidmodeGetGammaRamp_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfCard16(tvb, offsetp, t, hf_x11_xf86vidmode_GetGammaRamp_reply_blue, hf_x11_xf86vidmode_GetGammaRamp_reply_blue_item, ((f_size + 1) & (~1)), byte_order);
 }
 
-static void xf86vidmodeSetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeSetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_size;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGammaRamp_screen, tvb, *offsetp, 2, byte_order);
@@ -16943,14 +16943,14 @@ static void xf86vidmodeSetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     length -= ((f_size + 1) & (~1)) * 2;
 }
 
-static void xf86vidmodeGetGammaRampSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetGammaRampSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRampSize_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -16971,14 +16971,14 @@ static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 22;
 }
 
-static void xf86vidmodeGetPermissions(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xf86vidmodeGetPermissions(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetPermissions_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17047,7 +17047,7 @@ static const x11_reply_info xf86vidmode_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xf86vidmode(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xf86vidmode(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xf86vidmode_extension_minor);
@@ -17130,14 +17130,14 @@ static void register_xf86vidmode(void)
     set_handler("XFree86-VidModeExtension", dispatch_xf86vidmode, xf86vidmode_errors, xf86vidmode_events, NULL, xf86vidmode_replies);
 }
 
-static void xfixesQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_QueryVersion_client_major_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xfixes_QueryVersion_client_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xfixesQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17160,7 +17160,7 @@ static void xfixesQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 16;
 }
 
-static void xfixesChangeSaveSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesChangeSaveSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_xfixes_ChangeSaveSet_mode, byte_order);
     field8(tvb, offsetp, t, hf_x11_xfixes_ChangeSaveSet_target, byte_order);
@@ -17171,7 +17171,7 @@ static void xfixesChangeSaveSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
 }
 
-static void xfixesSelectSelectionInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSelectSelectionInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SelectSelectionInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17189,7 +17189,7 @@ static void xfixesSelectSelectionInput(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 4;
 }
 
-static void xfixesCursorNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesCursorNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     field8(tvb, offsetp, t, hf_x11_xfixes_CursorNotify_subtype, byte_order);
     CARD16(event_sequencenumber);
@@ -17205,7 +17205,7 @@ static void xfixesCursorNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
 }
 
 
-static void xfixesSelectCursorInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSelectCursorInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SelectCursorInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17219,10 +17219,10 @@ static void xfixesSelectCursorInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 4;
 }
 
-static void xfixesGetCursorImage(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xfixesGetCursorImage(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_width;
@@ -17260,14 +17260,14 @@ static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfCard32(tvb, offsetp, t, hf_x11_xfixes_GetCursorImage_reply_cursor_image, hf_x11_xfixes_GetCursorImage_reply_cursor_image_item, (f_width * f_height), byte_order);
 }
 
-static void xfixesCreateRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCreateRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_CreateRegion_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (length - 8) / 8);
 }
 
-static void xfixesCreateRegionFromBitmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCreateRegionFromBitmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_CreateRegionFromBitmap_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17275,7 +17275,7 @@ static void xfixesCreateRegionFromBitmap(tvbuff_t *tvb, packet_info *pinfo _U_, 
     *offsetp += 4;
 }
 
-static void xfixesCreateRegionFromWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCreateRegionFromWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_CreateRegionFromWindow_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17286,7 +17286,7 @@ static void xfixesCreateRegionFromWindow(tvbuff_t *tvb, packet_info *pinfo _U_, 
     *offsetp += 3;
 }
 
-static void xfixesCreateRegionFromGC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCreateRegionFromGC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_CreateRegionFromGC_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17294,7 +17294,7 @@ static void xfixesCreateRegionFromGC(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 4;
 }
 
-static void xfixesCreateRegionFromPicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCreateRegionFromPicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_CreateRegionFromPicture_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17302,20 +17302,20 @@ static void xfixesCreateRegionFromPicture(tvbuff_t *tvb, packet_info *pinfo _U_,
     *offsetp += 4;
 }
 
-static void xfixesDestroyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesDestroyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_DestroyRegion_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xfixesSetRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSetRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SetRegion_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (length - 8) / 8);
 }
 
-static void xfixesCopyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCopyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_CopyRegion_source, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17323,7 +17323,7 @@ static void xfixesCopyRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
 }
 
-static void xfixesUnionRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesUnionRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_UnionRegion_source1, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17333,7 +17333,7 @@ static void xfixesUnionRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 4;
 }
 
-static void xfixesIntersectRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesIntersectRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_IntersectRegion_source1, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17343,7 +17343,7 @@ static void xfixesIntersectRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
 }
 
-static void xfixesSubtractRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSubtractRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SubtractRegion_source1, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17353,7 +17353,7 @@ static void xfixesSubtractRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 4;
 }
 
-static void xfixesInvertRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesInvertRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_InvertRegion_source, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17362,7 +17362,7 @@ static void xfixesInvertRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void xfixesTranslateRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesTranslateRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_TranslateRegion_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17372,7 +17372,7 @@ static void xfixesTranslateRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 2;
 }
 
-static void xfixesRegionExtents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesRegionExtents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_RegionExtents_source, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17380,12 +17380,12 @@ static void xfixesRegionExtents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
 }
 
-static void xfixesFetchRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesFetchRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_FetchRegion_region, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xfixesFetchRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesFetchRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -17408,7 +17408,7 @@ static void xfixesFetchRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (f_length / 2));
 }
 
-static void xfixesSetGCClipRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSetGCClipRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SetGCClipRegion_gc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17419,7 +17419,7 @@ static void xfixesSetGCClipRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 2;
 }
 
-static void xfixesSetWindowShapeRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSetWindowShapeRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SetWindowShapeRegion_dest, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17433,7 +17433,7 @@ static void xfixesSetWindowShapeRegion(tvbuff_t *tvb, packet_info *pinfo _U_, in
     field32(tvb, offsetp, t, hf_x11_xfixes_SetWindowShapeRegion_region, byte_order);
 }
 
-static void xfixesSetPictureClipRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSetPictureClipRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_SetPictureClipRegion_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17444,7 +17444,7 @@ static void xfixesSetPictureClipRegion(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 2;
 }
 
-static void xfixesSetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_nbytes;
     proto_tree_add_item(t, hf_x11_xfixes_SetCursorName_cursor, tvb, *offsetp, 4, byte_order);
@@ -17458,12 +17458,12 @@ static void xfixesSetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     length -= f_nbytes * 1;
 }
 
-static void xfixesGetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesGetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorName_cursor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xfixesGetCursorName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesGetCursorName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_nbytes;
@@ -17488,10 +17488,10 @@ static void xfixesGetCursorName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     listOfByte(tvb, offsetp, t, hf_x11_xfixes_GetCursorName_reply_name, f_nbytes, byte_order);
 }
 
-static void xfixesGetCursorImageAndName(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xfixesGetCursorImageAndName(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_width;
@@ -17535,7 +17535,7 @@ static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfByte(tvb, offsetp, t, hf_x11_xfixes_GetCursorImageAndName_reply_name, f_nbytes, byte_order);
 }
 
-static void xfixesChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_ChangeCursor_source, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17543,7 +17543,7 @@ static void xfixesChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void xfixesChangeCursorByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesChangeCursorByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_nbytes;
     proto_tree_add_item(t, hf_x11_xfixes_ChangeCursorByName_src, tvb, *offsetp, 4, byte_order);
@@ -17557,7 +17557,7 @@ static void xfixesChangeCursorByName(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     length -= f_nbytes * 1;
 }
 
-static void xfixesExpandRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesExpandRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_ExpandRegion_source, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -17573,19 +17573,19 @@ static void xfixesExpandRegion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 2;
 }
 
-static void xfixesHideCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesHideCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_HideCursor_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xfixesShowCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesShowCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_ShowCursor_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_devices;
     proto_tree_add_item(t, hf_x11_xfixes_CreatePointerBarrier_barrier, tvb, *offsetp, 4, byte_order);
@@ -17620,13 +17620,13 @@ static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
     length -= f_num_devices * 2;
 }
 
-static void xfixesDeletePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesDeletePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xfixes_DeletePointerBarrier_barrier, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xfixesSetClientDisconnectMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xfixesSetClientDisconnectMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     {
         static int* const disconnect_mode_bits [] = {
@@ -17638,10 +17638,10 @@ static void xfixesSetClientDisconnectMode(tvbuff_t *tvb, packet_info *pinfo _U_,
     *offsetp += 4;
 }
 
-static void xfixesGetClientDisconnectMode(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xfixesGetClientDisconnectMode(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xfixesGetClientDisconnectMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xfixesGetClientDisconnectMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17719,7 +17719,7 @@ static const x11_reply_info xfixes_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xfixes(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xfixes(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xfixes_extension_minor);
@@ -17844,7 +17844,7 @@ static void register_xfixes(void)
     set_handler("XFIXES", dispatch_xfixes, xfixes_errors, xfixes_events, NULL, xfixes_replies);
 }
 
-static void struct_xinerama_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinerama_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -17864,14 +17864,14 @@ static void struct_xinerama_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void xineramaQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xineramaQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinerama_QueryVersion_major, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinerama_QueryVersion_minor, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void xineramaQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xineramaQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17892,12 +17892,12 @@ static void xineramaQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 2;
 }
 
-static void xineramaGetState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xineramaGetState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinerama_GetState_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xineramaGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xineramaGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17916,12 +17916,12 @@ static void xineramaGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
 }
 
-static void xineramaGetScreenCount(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xineramaGetScreenCount(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinerama_GetScreenCount_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xineramaGetScreenCount_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xineramaGetScreenCount_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17940,14 +17940,14 @@ static void xineramaGetScreenCount_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 4;
 }
 
-static void xineramaGetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xineramaGetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinerama_GetScreenSize_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinerama_GetScreenSize_screen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xineramaGetScreenSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xineramaGetScreenSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17972,10 +17972,10 @@ static void xineramaGetScreenSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
 }
 
-static void xineramaIsActive(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xineramaIsActive(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xineramaIsActive_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xineramaIsActive_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -17994,10 +17994,10 @@ static void xineramaIsActive_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
 }
 
-static void xineramaQueryScreens(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xineramaQueryScreens(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xineramaQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xineramaQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_number;
@@ -18042,7 +18042,7 @@ static const x11_reply_info xinerama_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xinerama(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xinerama(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xinerama_extension_minor);
@@ -18080,7 +18080,7 @@ static void register_xinerama(void)
     set_handler("XINERAMA", dispatch_xinerama, xinerama_errors, xinerama_events, NULL, xinerama_replies);
 }
 
-static void struct_xinput_FP3232(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_FP3232(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18096,7 +18096,7 @@ static void struct_xinput_FP3232(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void xinputGetExtensionVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetExtensionVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_name_len;
     f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
@@ -18107,7 +18107,7 @@ static void xinputGetExtensionVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int
     listOfByte(tvb, offsetp, t, hf_x11_xinput_GetExtensionVersion_name, f_name_len, byte_order);
     length -= f_name_len * 1;
 }
-static void xinputGetExtensionVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetExtensionVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -18132,7 +18132,7 @@ static void xinputGetExtensionVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 19;
 }
 
-static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18153,7 +18153,7 @@ static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_xinput_AxisInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_AxisInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18171,13 +18171,13 @@ static void struct_xinput_AxisInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static int struct_size_xinput_InputInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_InputInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 2;
 }
 
-static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18217,10 +18217,10 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void xinputListInputDevices(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xinputListInputDevices(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xinputListInputDevices_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputListInputDevices_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_devices_len;
@@ -18251,7 +18251,7 @@ static void xinputListInputDevices_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     }
 }
 
-static void struct_xinput_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18266,14 +18266,14 @@ static void struct_xinput_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree
     }
 }
 
-static void xinputOpenDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputOpenDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_OpenDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputOpenDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputOpenDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_classes;
@@ -18301,7 +18301,7 @@ static void xinputOpenDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     }
 }
 
-static void xinputCloseDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputCloseDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_CloseDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -18309,7 +18309,7 @@ static void xinputCloseDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 3;
 }
 
-static void xinputSetDeviceMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSetDeviceMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceMode_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -18317,7 +18317,7 @@ static void xinputSetDeviceMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xinputSetDeviceMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputSetDeviceMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -18337,7 +18337,7 @@ static void xinputSetDeviceMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 23;
 }
 
-static void xinputSelectExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSelectExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_SelectExtensionEvent_window, tvb, *offsetp, 4, byte_order);
@@ -18351,12 +18351,12 @@ static void xinputSelectExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, in
     length -= f_num_classes * 4;
 }
 
-static void xinputGetSelectedExtensionEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetSelectedExtensionEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetSelectedExtensionEvents_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xinputGetSelectedExtensionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetSelectedExtensionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_this_classes;
@@ -18385,7 +18385,7 @@ static void xinputGetSelectedExtensionEvents_Reply(tvbuff_t *tvb, packet_info *p
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetSelectedExtensionEvents_reply_all_classes, hf_x11_xinput_GetSelectedExtensionEvents_reply_all_classes_item, f_num_all_classes, byte_order);
 }
 
-static void xinputChangeDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangeDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceDontPropagateList_window, tvb, *offsetp, 4, byte_order);
@@ -18400,12 +18400,12 @@ static void xinputChangeDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinf
     length -= f_num_classes * 4;
 }
 
-static void xinputGetDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceDontPropagateList_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xinputGetDeviceDontPropagateList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceDontPropagateList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_classes;
@@ -18429,14 +18429,14 @@ static void xinputGetDeviceDontPropagateList_Reply(tvbuff_t *tvb, packet_info *p
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetDeviceDontPropagateList_reply_classes, hf_x11_xinput_GetDeviceDontPropagateList_reply_classes_item, f_num_classes, byte_order);
 }
 
-static int struct_size_xinput_DeviceTimeCoord(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_, int p_num_axes)
+static int struct_size_xinput_DeviceTimeCoord(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_, int p_num_axes)
 {
     int size = 0;
     size += p_num_axes * 4;
     return size + 4;
 }
 
-static void struct_xinput_DeviceTimeCoord(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count, int p_num_axes)
+static void struct_xinput_DeviceTimeCoord(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count, int p_num_axes)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18451,7 +18451,7 @@ static void struct_xinput_DeviceTimeCoord(tvbuff_t *tvb, int *offsetp, proto_tre
     }
 }
 
-static void xinputGetDeviceMotionEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceMotionEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceMotionEvents_start, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -18461,7 +18461,7 @@ static void xinputGetDeviceMotionEvents(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputGetDeviceMotionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceMotionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_events;
@@ -18490,14 +18490,14 @@ static void xinputGetDeviceMotionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo,
     struct_xinput_DeviceTimeCoord(tvb, offsetp, t, byte_order, f_num_events, f_num_axes);
 }
 
-static void xinputChangeKeyboardDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangeKeyboardDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_ChangeKeyboardDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputChangeKeyboardDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputChangeKeyboardDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -18517,7 +18517,7 @@ static void xinputChangeKeyboardDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     *offsetp += 23;
 }
 
-static void xinputChangePointerDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangePointerDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_ChangePointerDevice_x_axis, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -18528,7 +18528,7 @@ static void xinputChangePointerDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
 }
-static void xinputChangePointerDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputChangePointerDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -18548,7 +18548,7 @@ static void xinputChangePointerDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 23;
 }
 
-static void xinputGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_GrabDevice_grab_window, tvb, *offsetp, 4, byte_order);
@@ -18568,7 +18568,7 @@ static void xinputGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GrabDevice_classes, hf_x11_xinput_GrabDevice_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
 }
-static void xinputGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -18588,7 +18588,7 @@ static void xinputGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 23;
 }
 
-static void xinputUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field32(tvb, offsetp, t, hf_x11_xinput_UngrabDevice_time, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_UngrabDevice_device_id, tvb, *offsetp, 1, byte_order);
@@ -18597,7 +18597,7 @@ static void xinputUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 3;
 }
 
-static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_grab_window, tvb, *offsetp, 4, byte_order);
@@ -18635,7 +18635,7 @@ static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     length -= f_num_classes * 4;
 }
 
-static void xinputUngrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputUngrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceKey_grabWindow, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -18661,7 +18661,7 @@ static void xinputUngrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 1;
 }
 
-static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_grab_window, tvb, *offsetp, 4, byte_order);
@@ -18699,7 +18699,7 @@ static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     length -= f_num_classes * 4;
 }
 
-static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceButton_grab_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -18727,7 +18727,7 @@ static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 3;
 }
 
-static void xinputAllowDeviceEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputAllowDeviceEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field32(tvb, offsetp, t, hf_x11_xinput_AllowDeviceEvents_time, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_AllowDeviceEvents_mode, byte_order);
@@ -18737,14 +18737,14 @@ static void xinputAllowDeviceEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 2;
 }
 
-static void xinputGetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceFocus_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputGetDeviceFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -18767,7 +18767,7 @@ static void xinputGetDeviceFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 15;
 }
 
-static void xinputSetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field32(tvb, offsetp, t, hf_x11_xinput_SetDeviceFocus_focus, byte_order);
     field32(tvb, offsetp, t, hf_x11_xinput_SetDeviceFocus_time, byte_order);
@@ -18778,13 +18778,13 @@ static void xinputSetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 2;
 }
 
-static int struct_size_xinput_FeedbackState(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_FeedbackState(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 4;
 }
 
-static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18864,14 +18864,14 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void xinputGetFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetFeedbackControl_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputGetFeedbackControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetFeedbackControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_feedbacks;
@@ -18895,13 +18895,13 @@ static void xinputGetFeedbackControl_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     struct_xinput_FeedbackState(tvb, offsetp, t, byte_order, f_num_feedbacks);
 }
 
-static int struct_size_xinput_FeedbackCtl(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_FeedbackCtl(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 4;
 }
 
-static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18976,7 +18976,7 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     {
         static int* const mask_bits [] = {
@@ -19002,7 +19002,7 @@ static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, i
     struct_xinput_FeedbackCtl(tvb, offsetp, t, byte_order, 1);
 }
 
-static void xinputGetDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceKeyMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -19013,7 +19013,7 @@ static void xinputGetDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
 }
-static void xinputGetDeviceKeyMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceKeyMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -19037,7 +19037,7 @@ static void xinputGetDeviceKeyMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetDeviceKeyMapping_reply_keysyms, hf_x11_xinput_GetDeviceKeyMapping_reply_keysyms_item, f_length, byte_order);
 }
 
-static void xinputChangeDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangeDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_keysyms_per_keycode;
     int f_keycode_count;
@@ -19055,14 +19055,14 @@ static void xinputChangeDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, 
     length -= (f_keycode_count * f_keysyms_per_keycode) * 4;
 }
 
-static void xinputGetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceModifierMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputGetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_keycodes_per_modifier;
@@ -19086,7 +19086,7 @@ static void xinputGetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pin
     listOfByte(tvb, offsetp, t, hf_x11_xinput_GetDeviceModifierMapping_reply_keymaps, (f_keycodes_per_modifier * 8), byte_order);
 }
 
-static void xinputSetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_keycodes_per_modifier;
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceModifierMapping_device_id, tvb, *offsetp, 1, byte_order);
@@ -19099,7 +19099,7 @@ static void xinputSetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_
     listOfByte(tvb, offsetp, t, hf_x11_xinput_SetDeviceModifierMapping_keymaps, (f_keycodes_per_modifier * 8), byte_order);
     length -= (f_keycodes_per_modifier * 8) * 1;
 }
-static void xinputSetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputSetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19119,14 +19119,14 @@ static void xinputSetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pin
     *offsetp += 23;
 }
 
-static void xinputGetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceButtonMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputGetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_map_size;
@@ -19154,7 +19154,7 @@ static void xinputGetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo
     }
 }
 
-static void xinputSetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_map_size;
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceButtonMapping_device_id, tvb, *offsetp, 1, byte_order);
@@ -19167,7 +19167,7 @@ static void xinputSetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, 
     listOfByte(tvb, offsetp, t, hf_x11_xinput_SetDeviceButtonMapping_map, f_map_size, byte_order);
     length -= f_map_size * 1;
 }
-static void xinputSetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputSetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19187,13 +19187,13 @@ static void xinputSetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo
     *offsetp += 23;
 }
 
-static int struct_size_xinput_InputState(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_InputState(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 2;
 }
 
-static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19239,14 +19239,14 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void xinputQueryDeviceState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputQueryDeviceState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_QueryDeviceState_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputQueryDeviceState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputQueryDeviceState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_classes;
@@ -19270,7 +19270,7 @@ static void xinputQueryDeviceState_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_xinput_InputState(tvb, offsetp, t, byte_order, f_num_classes);
 }
 
-static void xinputDeviceBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputDeviceBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeviceBell_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -19282,7 +19282,7 @@ static void xinputDeviceBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 1;
 }
 
-static void xinputSetDeviceValuators(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSetDeviceValuators(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_valuators;
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceValuators_device_id, tvb, *offsetp, 1, byte_order);
@@ -19297,7 +19297,7 @@ static void xinputSetDeviceValuators(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     listOfInt32(tvb, offsetp, t, hf_x11_xinput_SetDeviceValuators_valuators, hf_x11_xinput_SetDeviceValuators_valuators_item, f_num_valuators, byte_order);
     length -= f_num_valuators * 4;
 }
-static void xinputSetDeviceValuators_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputSetDeviceValuators_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19317,13 +19317,13 @@ static void xinputSetDeviceValuators_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 23;
 }
 
-static int struct_size_xinput_DeviceState(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_DeviceState(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 4;
 }
 
-static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19394,7 +19394,7 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void xinputGetDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_GetDeviceControl_control_id, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceControl_device_id, tvb, *offsetp, 1, byte_order);
@@ -19402,7 +19402,7 @@ static void xinputGetDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
 }
-static void xinputGetDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19423,13 +19423,13 @@ static void xinputGetDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_xinput_DeviceState(tvb, offsetp, t, byte_order, 1);
 }
 
-static int struct_size_xinput_DeviceCtl(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_DeviceCtl(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 4;
 }
 
-static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19500,7 +19500,7 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void xinputChangeDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangeDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceControl_control_id, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceControl_device_id, tvb, *offsetp, 1, byte_order);
@@ -19509,7 +19509,7 @@ static void xinputChangeDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 1;
     struct_xinput_DeviceCtl(tvb, offsetp, t, byte_order, 1);
 }
-static void xinputChangeDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputChangeDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19529,14 +19529,14 @@ static void xinputChangeDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 23;
 }
 
-static void xinputListDeviceProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputListDeviceProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_ListDeviceProperties_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xinputListDeviceProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputListDeviceProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_atoms;
@@ -19560,7 +19560,7 @@ static void xinputListDeviceProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_ListDeviceProperties_reply_atoms, hf_x11_xinput_ListDeviceProperties_reply_atoms_item, f_num_atoms, byte_order);
 }
 
-static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_format;
     int f_num_items;
@@ -19601,7 +19601,7 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     }
 }
 
-static void xinputDeleteDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputDeleteDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeleteDeviceProperty_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19611,7 +19611,7 @@ static void xinputDeleteDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 3;
 }
 
-static void xinputGetDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputGetDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19628,7 +19628,7 @@ static void xinputGetDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_items;
@@ -19676,7 +19676,7 @@ static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     }
 }
 
-static void struct_xinput_GroupInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_GroupInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19696,7 +19696,7 @@ static void struct_xinput_GroupInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_xinput_ModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_ModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19716,7 +19716,7 @@ static void struct_xinput_ModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void xinputXIQueryPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIQueryPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XIQueryPointer_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19724,7 +19724,7 @@ static void xinputXIQueryPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_buttons_len;
@@ -19764,7 +19764,7 @@ static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIQueryPointer_reply_buttons, hf_x11_xinput_XIQueryPointer_reply_buttons_item, f_buttons_len, byte_order);
 }
 
-static void xinputXIWarpPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIWarpPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XIWarpPointer_src_win, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19787,7 +19787,7 @@ static void xinputXIWarpPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 2;
 }
 
-static void xinputXIChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XIChangeCursor_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19798,13 +19798,13 @@ static void xinputXIChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 2;
 }
 
-static int struct_size_xinput_HierarchyChange(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_HierarchyChange(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 4;
 }
 
-static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19852,7 +19852,7 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
     }
 }
 
-static void xinputXIChangeHierarchy(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIChangeHierarchy(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_changes;
     f_num_changes = tvb_get_guint8(tvb, *offsetp);
@@ -19864,7 +19864,7 @@ static void xinputXIChangeHierarchy(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     length -= f_num_changes * 0;
 }
 
-static void xinputXISetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXISetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XISetClientPointer_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19873,12 +19873,12 @@ static void xinputXISetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 2;
 }
 
-static void xinputXIGetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIGetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XIGetClientPointer_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xinputXIGetClientPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIGetClientPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19902,7 +19902,7 @@ static void xinputXIGetClientPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 20;
 }
 
-static int struct_size_xinput_EventMask(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_EventMask(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_mask_len;
@@ -19911,7 +19911,7 @@ static int struct_size_xinput_EventMask(tvbuff_t *tvb _U_, int *offsetp _U_, gui
     return size + 4;
 }
 
-static void struct_xinput_EventMask(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_EventMask(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19929,7 +19929,7 @@ static void struct_xinput_EventMask(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void xinputXISelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXISelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_mask;
     proto_tree_add_item(t, hf_x11_xinput_XISelectEvents_window, tvb, *offsetp, 4, byte_order);
@@ -19943,14 +19943,14 @@ static void xinputXISelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     length -= f_num_mask * 0;
 }
 
-static void xinputXIQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XIQueryVersion_major_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xinput_XIQueryVersion_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xinputXIQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -19973,13 +19973,13 @@ static void xinputXIQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 20;
 }
 
-static int struct_size_xinput_DeviceClass(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_DeviceClass(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     return size + 6;
 }
 
-static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20054,7 +20054,7 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static int struct_size_xinput_XIDeviceInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xinput_XIDeviceInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int i, off;
@@ -20071,7 +20071,7 @@ static int struct_size_xinput_XIDeviceInfo(tvbuff_t *tvb _U_, int *offsetp _U_, 
     return size + 12;
 }
 
-static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20104,13 +20104,13 @@ static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void xinputXIQueryDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIQueryDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIQueryDevice_deviceid, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_infos;
@@ -20134,7 +20134,7 @@ static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     struct_xinput_XIDeviceInfo(tvb, offsetp, t, byte_order, f_num_infos);
 }
 
-static void xinputXISetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXISetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XISetFocus_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -20144,13 +20144,13 @@ static void xinputXISetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 2;
 }
 
-static void xinputXIGetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIGetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIGetFocus_deviceid, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -20171,7 +20171,7 @@ static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 20;
 }
 
-static void xinputXIGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_mask_len;
     proto_tree_add_item(t, hf_x11_xinput_XIGrabDevice_window, tvb, *offsetp, 4, byte_order);
@@ -20191,7 +20191,7 @@ static void xinputXIGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_mask, hf_x11_xinput_XIGrabDevice_mask_item, f_mask_len, byte_order);
     length -= f_mask_len * 4;
 }
-static void xinputXIGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -20211,7 +20211,7 @@ static void xinputXIGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 23;
 }
 
-static void xinputXIUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field32(tvb, offsetp, t, hf_x11_xinput_XIUngrabDevice_time, byte_order);
     field16(tvb, offsetp, t, hf_x11_xinput_XIUngrabDevice_deviceid, byte_order);
@@ -20219,7 +20219,7 @@ static void xinputXIUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 2;
 }
 
-static void xinputXIAllowEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIAllowEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field32(tvb, offsetp, t, hf_x11_xinput_XIAllowEvents_time, byte_order);
     field16(tvb, offsetp, t, hf_x11_xinput_XIAllowEvents_deviceid, byte_order);
@@ -20232,7 +20232,7 @@ static void xinputXIAllowEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
 }
 
-static void struct_xinput_GrabModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_GrabModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20248,7 +20248,7 @@ static void struct_xinput_GrabModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tr
     }
 }
 
-static void xinputXIPassiveGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIPassiveGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_modifiers;
     int f_mask_len;
@@ -20277,7 +20277,7 @@ static void xinputXIPassiveGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_modifiers, hf_x11_xinput_XIPassiveGrabDevice_modifiers_item, f_num_modifiers, byte_order);
     length -= f_num_modifiers * 4;
 }
-static void xinputXIPassiveGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIPassiveGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_modifiers;
@@ -20301,7 +20301,7 @@ static void xinputXIPassiveGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     struct_xinput_GrabModifierInfo(tvb, offsetp, t, byte_order, f_num_modifiers);
 }
 
-static void xinputXIPassiveUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIPassiveUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_modifiers;
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveUngrabDevice_grab_window, tvb, *offsetp, 4, byte_order);
@@ -20319,13 +20319,13 @@ static void xinputXIPassiveUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, i
     length -= f_num_modifiers * 4;
 }
 
-static void xinputXIListProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIListProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIListProperties_deviceid, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_properties;
@@ -20349,7 +20349,7 @@ static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIListProperties_reply_properties, hf_x11_xinput_XIListProperties_reply_properties_item, f_num_properties, byte_order);
 }
 
-static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_format;
     int f_num_items;
@@ -20387,7 +20387,7 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     }
 }
 
-static void xinputXIDeleteProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIDeleteProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIDeleteProperty_deviceid, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -20396,7 +20396,7 @@ static void xinputXIDeleteProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
 }
 
-static void xinputXIGetProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIGetProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_deviceid, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_delete, tvb, *offsetp, 1, byte_order);
@@ -20412,7 +20412,7 @@ static void xinputXIGetProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_items;
@@ -20458,12 +20458,12 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     }
 }
 
-static void xinputXIGetSelectedEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIGetSelectedEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_XIGetSelectedEvents_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xinputXIGetSelectedEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputXIGetSelectedEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_masks;
@@ -20487,7 +20487,7 @@ static void xinputXIGetSelectedEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     struct_xinput_EventMask(tvb, offsetp, t, byte_order, f_num_masks);
 }
 
-static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20507,7 +20507,7 @@ static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp,
     }
 }
 
-static void xinputXIBarrierReleasePointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputXIBarrierReleasePointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_barriers;
     f_num_barriers = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -20517,7 +20517,7 @@ static void xinputXIBarrierReleasePointer(tvbuff_t *tvb, packet_info *pinfo _U_,
     length -= f_num_barriers * 12;
 }
 
-static void xinputDeviceKeyPress(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceKeyPress(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeviceKeyPress_detail, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20564,7 +20564,7 @@ static void xinputDeviceKeyPress(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
 }
 
 
-static void xinputDeviceFocusIn(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceFocusIn(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     field8(tvb, offsetp, t, hf_x11_xinput_DeviceFocusIn_detail, byte_order);
     CARD16(event_sequencenumber);
@@ -20580,7 +20580,7 @@ static void xinputDeviceFocusIn(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
 }
 
 
-static void xinputDeviceStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeviceStateNotify_device_id, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20611,7 +20611,7 @@ static void xinputDeviceStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
 }
 
 
-static void xinputDeviceMappingNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceMappingNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeviceMappingNotify_device_id, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20630,7 +20630,7 @@ static void xinputDeviceMappingNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t
 }
 
 
-static void xinputChangeDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputChangeDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceNotify_device_id, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20643,7 +20643,7 @@ static void xinputChangeDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 }
 
 
-static void xinputDeviceKeyStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceKeyStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeviceKeyStateNotify_device_id, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20652,7 +20652,7 @@ static void xinputDeviceKeyStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *
 }
 
 
-static void xinputDeviceButtonStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceButtonStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xinput_DeviceButtonStateNotify_device_id, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20661,7 +20661,7 @@ static void xinputDeviceButtonStateNotify(tvbuff_t *tvb, int *offsetp, proto_tre
 }
 
 
-static void xinputDevicePresenceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDevicePresenceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -20678,7 +20678,7 @@ static void xinputDevicePresenceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *
 }
 
 
-static void xinputDevicePropertyNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDevicePropertyNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     field8(tvb, offsetp, t, hf_x11_xinput_DevicePropertyNotify_state, byte_order);
     CARD16(event_sequencenumber);
@@ -20693,7 +20693,7 @@ static void xinputDevicePropertyNotify(tvbuff_t *tvb, int *offsetp, proto_tree *
 }
 
 
-static void xinputDeviceChanged(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputDeviceChanged(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_num_classes;
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 1,
@@ -20711,7 +20711,7 @@ static void xinputDeviceChanged(tvbuff_t *tvb, int length _U_, int *offsetp, pro
 }
 
 
-static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_buttons_len;
     int f_valuators_len;
@@ -20767,7 +20767,7 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
 }
 
 
-static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_buttons_len;
     int f_valuators_len;
@@ -20823,7 +20823,7 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
 }
 
 
-static void xinputEnter(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputEnter(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_buttons_len;
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 7,
@@ -20860,7 +20860,7 @@ static void xinputEnter(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree 
 }
 
 
-static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20894,7 +20894,7 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_num_infos;
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 11,
@@ -20925,7 +20925,7 @@ static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_t
 }
 
 
-static void xinputProperty(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputProperty(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 12,
                                "Property (12)");
@@ -20939,7 +20939,7 @@ static void xinputProperty(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
 }
 
 
-static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_valuators_len;
     int sumof_valuator_mask = 0;
@@ -20976,7 +20976,7 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
 }
 
 
-static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_valuators_len;
     int sumof_valuator_mask = 0;
@@ -21013,7 +21013,7 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
 }
 
 
-static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_buttons_len;
     int f_valuators_len;
@@ -21070,7 +21070,7 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
 }
 
 
-static void xinputTouchOwnership(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputTouchOwnership(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 21,
                                "TouchOwnership (21)");
@@ -21093,7 +21093,7 @@ static void xinputTouchOwnership(tvbuff_t *tvb, int length _U_, int *offsetp, pr
 }
 
 
-static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int f_valuators_len;
     int sumof_valuator_mask = 0;
@@ -21131,7 +21131,7 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
 }
 
 
-static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 25,
                                "BarrierHit (25)");
@@ -21168,7 +21168,7 @@ static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
 }
 
 
-static void xinputGesturePinchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGesturePinchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 27,
                                "GesturePinchBegin (27)");
@@ -21218,7 +21218,7 @@ static void xinputGesturePinchBegin(tvbuff_t *tvb, int length _U_, int *offsetp,
 }
 
 
-static void xinputGestureSwipeBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void xinputGestureSwipeBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 30,
                                "GestureSwipeBegin (30)");
@@ -21264,7 +21264,7 @@ static void xinputGestureSwipeBegin(tvbuff_t *tvb, int length _U_, int *offsetp,
 }
 
 
-static void xinputSendExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xinputSendExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_classes;
     int f_num_events;
@@ -21417,7 +21417,7 @@ static const x11_reply_info xinput_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xinput(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xinput(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xinput_extension_minor);
@@ -21620,7 +21620,7 @@ static void register_xinput(void)
     set_handler("XInputExtension", dispatch_xinput, xinput_errors, xinput_events, xinput_generic_events, xinput_replies);
 }
 
-static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21711,7 +21711,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21778,7 +21778,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_xkb_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21791,7 +21791,7 @@ static void struct_xkb_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_xkb_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21805,7 +21805,7 @@ static void struct_xkb_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static int struct_size_xkb_CountedString16(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xkb_CountedString16(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_length;
@@ -21815,7 +21815,7 @@ static int struct_size_xkb_CountedString16(tvbuff_t *tvb _U_, int *offsetp _U_, 
     return size + 2;
 }
 
-static void struct_xkb_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21833,7 +21833,7 @@ static void struct_xkb_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21906,7 +21906,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static int struct_size_xkb_KeyType(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xkb_KeyType(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_hasPreserve;
@@ -21918,7 +21918,7 @@ static int struct_size_xkb_KeyType(tvbuff_t *tvb _U_, int *offsetp _U_, guint by
     return size + 8;
 }
 
-static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21999,7 +21999,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static int struct_size_xkb_KeySymMap(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xkb_KeySymMap(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_nSyms;
@@ -22008,7 +22008,7 @@ static int struct_size_xkb_KeySymMap(tvbuff_t *tvb _U_, int *offsetp _U_, guint 
     return size + 8;
 }
 
-static void struct_xkb_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22030,7 +22030,7 @@ static void struct_xkb_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_xkb_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22046,7 +22046,7 @@ static void struct_xkb_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_xkb_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22062,7 +22062,7 @@ static void struct_xkb_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_xkb_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22078,7 +22078,7 @@ static void struct_xkb_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tre
     }
 }
 
-static void struct_xkb_OverlayBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_OverlayBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22094,7 +22094,7 @@ static void struct_xkb_OverlayBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_xkb_Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_xkb_Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order, int count)
 {
     int i;
     int base = *offsetp;
@@ -22132,7 +22132,7 @@ static void struct_xkb_Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     *offsetp = base;
 }
 
-static void struct_xkb_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22149,7 +22149,7 @@ static void struct_xkb_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22178,7 +22178,7 @@ static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22208,7 +22208,7 @@ static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22247,7 +22247,7 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22300,7 +22300,7 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static int struct_size_xkb_SetKeyType(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xkb_SetKeyType(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_nMapEntries;
@@ -22312,7 +22312,7 @@ static int struct_size_xkb_SetKeyType(tvbuff_t *tvb _U_, int *offsetp _U_, guint
     return size + 8;
 }
 
-static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22393,7 +22393,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static int struct_size_xkb_Listing(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xkb_Listing(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_length;
@@ -22403,7 +22403,7 @@ static int struct_size_xkb_Listing(tvbuff_t *tvb _U_, int *offsetp _U_, guint by
     return size + 4;
 }
 
-static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22426,7 +22426,7 @@ static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static int struct_size_xkb_DeviceLedInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xkb_DeviceLedInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_mapsPresent;
@@ -22438,7 +22438,7 @@ static int struct_size_xkb_DeviceLedInfo(tvbuff_t *tvb _U_, int *offsetp _U_, gu
     return size + 20;
 }
 
-static void struct_xkb_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22466,7 +22466,7 @@ static void struct_xkb_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_xkb_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22481,7 +22481,7 @@ static void struct_xkb_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22568,7 +22568,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22595,7 +22595,7 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22628,7 +22628,7 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_xkb_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22649,7 +22649,7 @@ static void struct_xkb_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_xkb_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22670,7 +22670,7 @@ static void struct_xkb_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22705,7 +22705,7 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22804,7 +22804,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_xkb_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22819,7 +22819,7 @@ static void struct_xkb_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_xkb_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22838,7 +22838,7 @@ static void struct_xkb_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22882,7 +22882,7 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -22906,7 +22906,7 @@ static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -23013,7 +23013,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void struct_xkb_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -23036,7 +23036,7 @@ static void struct_xkb_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -23066,7 +23066,7 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
     }
 }
 
-static void struct_xkb_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -23091,7 +23091,7 @@ static void struct_xkb_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree 
     }
 }
 
-static void struct_xkb_SIAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SIAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -23105,7 +23105,7 @@ static void struct_xkb_SIAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -23154,7 +23154,7 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_xkb_Action(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_xkb_Action(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order, int count)
 {
     int i;
     int base = *offsetp;
@@ -23213,14 +23213,14 @@ static void struct_xkb_Action(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     *offsetp = base;
 }
 
-static void xkbUseExtension(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbUseExtension(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_UseExtension_wantedMajor, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_UseExtension_wantedMinor, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xkbUseExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbUseExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -23243,7 +23243,7 @@ static void xkbUseExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 20;
 }
 
-static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_affectWhich;
     int f_clear;
@@ -23578,7 +23578,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
 }
 
-static void xkbBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_Bell_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -23606,14 +23606,14 @@ static void xkbBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_t
     *offsetp += 4;
 }
 
-static void xkbGetState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -23804,7 +23804,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 6;
 }
 
-static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_LatchLockState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -23869,14 +23869,14 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 2;
 }
 
-static void xkbGetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetControls_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -24151,7 +24151,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     listOfByte(tvb, offsetp, t, hf_x11_xkb_GetControls_reply_perKeyRepeat, 32, byte_order);
 }
 
-static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_SetControls_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -24490,7 +24490,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     length -= 32 * 1;
 }
 
-static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -24578,7 +24578,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_present;
@@ -24744,7 +24744,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     }
 }
 
-static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_present;
     int f_nTypes;
@@ -24905,7 +24905,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     }
 }
 
-static void xkbGetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -24927,7 +24927,7 @@ static void xkbGetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_nSI, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_groupsRtrn;
@@ -24971,7 +24971,7 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     struct_xkb_ModDef(tvb, offsetp, t, byte_order, ws_count_ones(f_groupsRtrn));
 }
 
-static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_groups;
     int f_nSI;
@@ -25008,14 +25008,14 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     length -= ws_count_ones(f_groups) * 4;
 }
 
-static void xkbGetIndicatorState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetIndicatorState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
 }
-static void xkbGetIndicatorState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetIndicatorState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -25036,7 +25036,7 @@ static void xkbGetIndicatorState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 20;
 }
 
-static void xkbGetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -25045,7 +25045,7 @@ static void xkbGetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_which, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xkbGetIndicatorMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetIndicatorMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_which;
@@ -25073,7 +25073,7 @@ static void xkbGetIndicatorMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, ws_count_ones(f_which));
 }
 
-static void xkbSetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_which;
     proto_tree_add_item(t, hf_x11_xkb_SetIndicatorMap_deviceSpec, tvb, *offsetp, 2, byte_order);
@@ -25087,7 +25087,7 @@ static void xkbSetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     length -= ws_count_ones(f_which) * 12;
 }
 
-static void xkbGetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -25098,7 +25098,7 @@ static void xkbGetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_indicator, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -25246,7 +25246,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 3;
 }
 
-static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -25369,7 +25369,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 4;
 }
 
-static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetNames_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -25397,7 +25397,7 @@ static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     }
     *offsetp += 4;
 }
-static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_which;
@@ -25565,7 +25565,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
 }
 
-static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_virtualMods;
     int f_which;
@@ -25734,7 +25734,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     }
 }
 
-static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -25825,7 +25825,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     }
     *offsetp += 4;
 }
-static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -25908,14 +25908,14 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 8;
 }
 
-static void xkbListComponents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbListComponents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_maxNames, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xkbListComponents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbListComponents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_nKeymaps;
@@ -25966,7 +25966,7 @@ static void xkbListComponents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     struct_xkb_Listing(tvb, offsetp, t, byte_order, f_nGeometries);
 }
 
-static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -26005,7 +26005,7 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
 }
-static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_reported;
@@ -26479,7 +26479,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     }
 }
 
-static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -26506,7 +26506,7 @@ static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     field16(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_ledClass, byte_order);
     field16(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_ledID, byte_order);
 }
-static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_nDeviceLedFBs;
@@ -26594,7 +26594,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     struct_xkb_DeviceLedInfo(tvb, offsetp, t, byte_order, f_nDeviceLedFBs);
 }
 
-static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_nBtns;
     int f_nDeviceLedFBs;
@@ -26626,7 +26626,7 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     length -= f_nDeviceLedFBs * 0;
 }
 
-static void xkbSetDebuggingFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xkbSetDebuggingFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_msgLength;
     f_msgLength = tvb_get_guint16(tvb, *offsetp, byte_order);
@@ -26645,7 +26645,7 @@ static void xkbSetDebuggingFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     listOfByte(tvb, offsetp, t, hf_x11_xkb_SetDebuggingFlags_message, f_msgLength, byte_order);
     length -= f_msgLength * 1;
 }
-static void xkbSetDebuggingFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbSetDebuggingFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -26672,7 +26672,7 @@ static void xkbSetDebuggingFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 8;
 }
 
-static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_MapNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -26758,7 +26758,7 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
 }
 
 
-static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_StateNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -26969,7 +26969,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
 }
 
 
-static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27047,7 +27047,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
 }
 
 
-static void xkbIndicatorStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbIndicatorStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_IndicatorStateNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27067,7 +27067,7 @@ static void xkbIndicatorStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
 }
 
 
-static void xkbIndicatorMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbIndicatorMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_IndicatorMapNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27087,7 +27087,7 @@ static void xkbIndicatorMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, gu
 }
 
 
-static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27178,7 +27178,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
 }
 
 
-static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_CompatMapNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27209,7 +27209,7 @@ static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
 }
 
 
-static void xkbBellNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbBellNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_BellNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27238,7 +27238,7 @@ static void xkbBellNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
 }
 
 
-static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_ActionMessage_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27276,7 +27276,7 @@ static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
 }
 
 
-static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_AccessXNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27310,7 +27310,7 @@ static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
 }
 
 
-static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_xkbType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27431,7 +27431,7 @@ static const x11_reply_info xkb_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xkb(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xkb(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xkb_extension_minor);
@@ -27523,7 +27523,7 @@ static void register_xkb(void)
     set_handler("XKEYBOARD", dispatch_xkb, xkb_errors, xkb_events, NULL, xkb_replies);
 }
 
-static int struct_size_xprint_PRINTER(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xprint_PRINTER(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_descLen;
@@ -27537,7 +27537,7 @@ static int struct_size_xprint_PRINTER(tvbuff_t *tvb _U_, int *offsetp _U_, guint
     return size + 8;
 }
 
-static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -27567,10 +27567,10 @@ static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void xprintPrintQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xprintPrintQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xprintPrintQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -27591,7 +27591,7 @@ static void xprintPrintQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 2;
 }
 
-static void xprintPrintGetPrinterList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintGetPrinterList(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_printerNameLen;
     int f_localeLen;
@@ -27611,7 +27611,7 @@ static void xprintPrintGetPrinterList(tvbuff_t *tvb, packet_info *pinfo _U_, int
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetPrinterList_locale, f_localeLen, byte_order);
     length -= f_localeLen * 1;
 }
-static void xprintPrintGetPrinterList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetPrinterList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_listCount;
@@ -27635,11 +27635,11 @@ static void xprintPrintGetPrinterList_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     struct_xprint_PRINTER(tvb, offsetp, t, byte_order, f_listCount);
 }
 
-static void xprintPrintRehashPrinterList(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xprintPrintRehashPrinterList(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
 
-static void xprintCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_printerNameLen;
     int f_localeLen;
@@ -27662,16 +27662,16 @@ static void xprintCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     length -= f_localeLen * 1;
 }
 
-static void xprintPrintSetContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintSetContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintSetContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xprintPrintGetContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xprintPrintGetContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xprintPrintGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -27690,16 +27690,16 @@ static void xprintPrintGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
 }
 
-static void xprintPrintDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintDestroyContext_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xprintPrintGetScreenOfContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xprintPrintGetScreenOfContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xprintPrintGetScreenOfContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetScreenOfContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -27718,31 +27718,31 @@ static void xprintPrintGetScreenOfContext_Reply(tvbuff_t *tvb, packet_info *pinf
     *offsetp += 4;
 }
 
-static void xprintPrintStartJob(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintStartJob(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintStartJob_output_mode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
 
-static void xprintPrintEndJob(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintEndJob(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintEndJob_cancel, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
 
-static void xprintPrintStartDoc(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintStartDoc(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintStartDoc_driver_mode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
 
-static void xprintPrintEndDoc(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintEndDoc(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintEndDoc_cancel, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
 
-static void xprintPrintPutDocumentData(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintPutDocumentData(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_len_data;
     int f_len_fmt;
@@ -27776,14 +27776,14 @@ static void xprintPrintPutDocumentData(tvbuff_t *tvb, packet_info *pinfo _U_, in
     length -= f_len_options * 1;
 }
 
-static void xprintPrintGetDocumentData(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintGetDocumentData(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintGetDocumentData_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetDocumentData_max_bytes, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_dataLen;
@@ -27811,13 +27811,13 @@ static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetDocumentData_reply_data, f_dataLen, byte_order);
 }
 
-static void xprintPrintStartPage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintStartPage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintStartPage_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xprintPrintEndPage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintEndPage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintEndPage_cancel, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -27825,7 +27825,7 @@ static void xprintPrintEndPage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 3;
 }
 
-static void xprintPrintSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintSelectInput_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -27833,12 +27833,12 @@ static void xprintPrintSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
 }
 
-static void xprintPrintInputSelected(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintInputSelected(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintInputSelected_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xprintPrintInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -27859,7 +27859,7 @@ static void xprintPrintInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 4;
 }
 
-static void xprintPrintGetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintGetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintGetAttributes_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -27868,7 +27868,7 @@ static void xprintPrintGetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_stringLen;
@@ -27892,7 +27892,7 @@ static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetAttributes_reply_attributes, f_stringLen, byte_order);
 }
 
-static void xprintPrintGetOneAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintGetOneAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_nameLen;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_context, tvb, *offsetp, 4, byte_order);
@@ -27907,7 +27907,7 @@ static void xprintPrintGetOneAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, i
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetOneAttributes_name, f_nameLen, byte_order);
     length -= f_nameLen * 1;
 }
-static void xprintPrintGetOneAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetOneAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_valueLen;
@@ -27931,7 +27931,7 @@ static void xprintPrintGetOneAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetOneAttributes_reply_value, f_valueLen, byte_order);
 }
 
-static void xprintPrintSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintSetAttributes_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -27946,12 +27946,12 @@ static void xprintPrintSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintSetAttributes_attributes, (length - 16) / 1, byte_order);
 }
 
-static void xprintPrintGetPageDimensions(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintGetPageDimensions(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintGetPageDimensions_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xprintPrintGetPageDimensions_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetPageDimensions_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -27980,10 +27980,10 @@ static void xprintPrintGetPageDimensions_Reply(tvbuff_t *tvb, packet_info *pinfo
     *offsetp += 2;
 }
 
-static void xprintPrintQueryScreens(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xprintPrintQueryScreens(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xprintPrintQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_listCount;
@@ -28007,14 +28007,14 @@ static void xprintPrintQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     listOfCard32(tvb, offsetp, t, hf_x11_xprint_PrintQueryScreens_reply_roots, hf_x11_xprint_PrintQueryScreens_reply_roots_item, f_listCount, byte_order);
 }
 
-static void xprintPrintSetImageResolution(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintSetImageResolution(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintSetImageResolution_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xprint_PrintSetImageResolution_image_resolution, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xprintPrintSetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintSetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -28033,12 +28033,12 @@ static void xprintPrintSetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinf
     *offsetp += 2;
 }
 
-static void xprintPrintGetImageResolution(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xprintPrintGetImageResolution(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintGetImageResolution_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xprintPrintGetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintPrintGetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -28057,7 +28057,7 @@ static void xprintPrintGetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinf
     *offsetp += 2;
 }
 
-static void xprintAttributNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xprintAttributNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_xprint_AttributNotify_detail, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -28114,7 +28114,7 @@ static const x11_reply_info xprint_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xprint(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xprint(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xprint_extension_minor);
@@ -28209,14 +28209,14 @@ static void register_xprint(void)
     set_handler("XpExtension", dispatch_xprint, xprint_errors, xprint_events, NULL, xprint_replies);
 }
 
-static void xselinuxQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_QueryVersion_client_major, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xselinux_QueryVersion_client_minor, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
-static void xselinuxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -28237,7 +28237,7 @@ static void xselinuxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 2;
 }
 
-static void xselinuxSetDeviceCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetDeviceCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -28247,10 +28247,10 @@ static void xselinuxSetDeviceCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetDeviceCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxGetDeviceCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxGetDeviceCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetDeviceCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28274,7 +28274,7 @@ static void xselinuxGetDeviceCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetDeviceCreateContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxSetDeviceContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetDeviceContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     proto_tree_add_item(t, hf_x11_xselinux_SetDeviceContext_device, tvb, *offsetp, 4, byte_order);
@@ -28286,12 +28286,12 @@ static void xselinuxSetDeviceContext(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetDeviceContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetDeviceContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetDeviceContext_device, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28315,7 +28315,7 @@ static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetDeviceContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxSetWindowCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetWindowCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -28325,10 +28325,10 @@ static void xselinuxSetWindowCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetWindowCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxGetWindowCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxGetWindowCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetWindowCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28352,12 +28352,12 @@ static void xselinuxGetWindowCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetWindowCreateContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxGetWindowContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetWindowContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetWindowContext_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28381,7 +28381,7 @@ static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetWindowContext_reply_context, f_context_len, byte_order);
 }
 
-static int struct_size_xselinux_ListItem(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xselinux_ListItem(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_data_context_len;
@@ -28395,7 +28395,7 @@ static int struct_size_xselinux_ListItem(tvbuff_t *tvb _U_, int *offsetp _U_, gu
     return size + 12;
 }
 
-static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28427,7 +28427,7 @@ static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     }
 }
 
-static void xselinuxSetPropertyCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetPropertyCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -28437,10 +28437,10 @@ static void xselinuxSetPropertyCreateContext(tvbuff_t *tvb, packet_info *pinfo _
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetPropertyCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxGetPropertyCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28464,7 +28464,7 @@ static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *p
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyCreateContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxSetPropertyUseContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetPropertyUseContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -28474,10 +28474,10 @@ static void xselinuxSetPropertyUseContext(tvbuff_t *tvb, packet_info *pinfo _U_,
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetPropertyUseContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxGetPropertyUseContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxGetPropertyUseContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetPropertyUseContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28501,14 +28501,14 @@ static void xselinuxGetPropertyUseContext_Reply(tvbuff_t *tvb, packet_info *pinf
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyUseContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxGetPropertyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetPropertyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyContext_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyContext_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetPropertyContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetPropertyContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28532,14 +28532,14 @@ static void xselinuxGetPropertyContext_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxGetPropertyDataContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetPropertyDataContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyDataContext_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyDataContext_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetPropertyDataContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetPropertyDataContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28563,12 +28563,12 @@ static void xselinuxGetPropertyDataContext_Reply(tvbuff_t *tvb, packet_info *pin
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyDataContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxListProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxListProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_ListProperties_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_properties_len;
@@ -28592,7 +28592,7 @@ static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_xselinux_ListItem(tvb, offsetp, t, byte_order, f_properties_len);
 }
 
-static void xselinuxSetSelectionCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetSelectionCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -28602,10 +28602,10 @@ static void xselinuxSetSelectionCreateContext(tvbuff_t *tvb, packet_info *pinfo 
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetSelectionCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxGetSelectionCreateContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28629,7 +28629,7 @@ static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionCreateContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxSetSelectionUseContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxSetSelectionUseContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
     f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
@@ -28639,10 +28639,10 @@ static void xselinuxSetSelectionUseContext(tvbuff_t *tvb, packet_info *pinfo _U_
     length -= f_context_len * 1;
 }
 
-static void xselinuxGetSelectionUseContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxGetSelectionUseContext(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxGetSelectionUseContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetSelectionUseContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28666,12 +28666,12 @@ static void xselinuxGetSelectionUseContext_Reply(tvbuff_t *tvb, packet_info *pin
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionUseContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxGetSelectionContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetSelectionContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionContext_selection, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetSelectionContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetSelectionContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28695,12 +28695,12 @@ static void xselinuxGetSelectionContext_Reply(tvbuff_t *tvb, packet_info *pinfo,
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxGetSelectionDataContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetSelectionDataContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionDataContext_selection, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetSelectionDataContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetSelectionDataContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28724,10 +28724,10 @@ static void xselinuxGetSelectionDataContext_Reply(tvbuff_t *tvb, packet_info *pi
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionDataContext_reply_context, f_context_len, byte_order);
 }
 
-static void xselinuxListSelections(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xselinuxListSelections(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xselinuxListSelections_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxListSelections_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_selections_len;
@@ -28751,12 +28751,12 @@ static void xselinuxListSelections_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_xselinux_ListItem(tvb, offsetp, t, byte_order, f_selections_len);
 }
 
-static void xselinuxGetClientContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xselinuxGetClientContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xselinux_GetClientContext_resource, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xselinuxGetClientContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xselinuxGetClientContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_context_len;
@@ -28828,7 +28828,7 @@ static const x11_reply_info xselinux_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xselinux(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xselinux(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xselinux_extension_minor);
@@ -28917,7 +28917,7 @@ static void register_xselinux(void)
     set_handler("SELinux", dispatch_xselinux, xselinux_errors, xselinux_events, NULL, xselinux_replies);
 }
 
-static void xtestGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xtestGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xtest_GetVersion_major_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -28926,7 +28926,7 @@ static void xtestGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_xtest_GetVersion_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xtestGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xtestGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -28945,14 +28945,14 @@ static void xtestGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
 }
 
-static void xtestCompareCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xtestCompareCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xtest_CompareCursor_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xtest_CompareCursor_cursor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xtestCompareCursor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xtestCompareCursor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -28969,7 +28969,7 @@ static void xtestCompareCursor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
 }
 
-static void xtestFakeInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xtestFakeInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_type, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -28993,7 +28993,7 @@ static void xtestFakeInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 1;
 }
 
-static void xtestGrabControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xtestGrabControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xtest_GrabControl_impervious, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
@@ -29016,7 +29016,7 @@ static const x11_reply_info xtest_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xtest(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xtest(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xtest_extension_minor);
@@ -29048,7 +29048,7 @@ static void register_xtest(void)
     set_handler("XTEST", dispatch_xtest, xtest_errors, xtest_events, NULL, xtest_replies);
 }
 
-static void struct_xv_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xv_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29064,7 +29064,7 @@ static void struct_xv_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_xv_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xv_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29082,7 +29082,7 @@ static void struct_xv_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static int struct_size_xv_AdaptorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xv_AdaptorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_name_size;
@@ -29095,7 +29095,7 @@ static int struct_size_xv_AdaptorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint
     return size + 12;
 }
 
-static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29139,7 +29139,7 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static int struct_size_xv_EncodingInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xv_EncodingInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_name_size;
@@ -29149,7 +29149,7 @@ static int struct_size_xv_EncodingInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guin
     return size + 20;
 }
 
-static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29179,7 +29179,7 @@ static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static int struct_size_xv_AttributeInfo(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
+static int struct_size_xv_AttributeInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_)
 {
     int size = 0;
     int f_size;
@@ -29189,7 +29189,7 @@ static int struct_size_xv_AttributeInfo(tvbuff_t *tvb _U_, int *offsetp _U_, gui
     return size + 16;
 }
 
-static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29223,7 +29223,7 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29283,7 +29283,7 @@ static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void xvPortNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void xvPortNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
@@ -29299,10 +29299,10 @@ static void xvPortNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
 }
 
 
-static void xvQueryExtension(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xvQueryExtension(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xvQueryExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvQueryExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -29323,12 +29323,12 @@ static void xvQueryExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 2;
 }
 
-static void xvQueryAdaptors(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvQueryAdaptors(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_QueryAdaptors_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvQueryAdaptors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvQueryAdaptors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_adaptors;
@@ -29352,12 +29352,12 @@ static void xvQueryAdaptors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     struct_xv_AdaptorInfo(tvb, offsetp, t, byte_order, f_num_adaptors);
 }
 
-static void xvQueryEncodings(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvQueryEncodings(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_QueryEncodings_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvQueryEncodings_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvQueryEncodings_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_encodings;
@@ -29381,13 +29381,13 @@ static void xvQueryEncodings_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     struct_xv_EncodingInfo(tvb, offsetp, t, byte_order, f_num_encodings);
 }
 
-static void xvGrabPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvGrabPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_GrabPort_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xv_GrabPort_time, byte_order);
 }
-static void xvGrabPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvGrabPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -29403,14 +29403,14 @@ static void xvGrabPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     *offsetp += 4;
 }
 
-static void xvUngrabPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvUngrabPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_UngrabPort_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xv_UngrabPort_time, byte_order);
 }
 
-static void xvPutVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvPutVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_PutVideo_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29436,7 +29436,7 @@ static void xvPutVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, prot
     *offsetp += 2;
 }
 
-static void xvPutStill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvPutStill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_PutStill_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29462,7 +29462,7 @@ static void xvPutStill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, prot
     *offsetp += 2;
 }
 
-static void xvGetVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvGetVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_GetVideo_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29488,7 +29488,7 @@ static void xvGetVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, prot
     *offsetp += 2;
 }
 
-static void xvGetStill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvGetStill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_GetStill_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29514,7 +29514,7 @@ static void xvGetStill(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, prot
     *offsetp += 2;
 }
 
-static void xvStopVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvStopVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_StopVideo_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29522,7 +29522,7 @@ static void xvStopVideo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
 }
 
-static void xvSelectVideoNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvSelectVideoNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_SelectVideoNotify_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29532,7 +29532,7 @@ static void xvSelectVideoNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 3;
 }
 
-static void xvSelectPortNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvSelectPortNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_SelectPortNotify_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29542,7 +29542,7 @@ static void xvSelectPortNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 3;
 }
 
-static void xvQueryBestSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvQueryBestSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_QueryBestSize_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29559,7 +29559,7 @@ static void xvQueryBestSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
 }
-static void xvQueryBestSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvQueryBestSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -29580,7 +29580,7 @@ static void xvQueryBestSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
 }
 
-static void xvSetPortAttribute(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvSetPortAttribute(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_SetPortAttribute_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29590,14 +29590,14 @@ static void xvSetPortAttribute(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void xvGetPortAttribute(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvGetPortAttribute(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_GetPortAttribute_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xv_GetPortAttribute_attribute, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvGetPortAttribute_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvGetPortAttribute_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -29616,12 +29616,12 @@ static void xvGetPortAttribute_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
 }
 
-static void xvQueryPortAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvQueryPortAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_QueryPortAttributes_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvQueryPortAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvQueryPortAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_attributes;
@@ -29647,12 +29647,12 @@ static void xvQueryPortAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     struct_xv_AttributeInfo(tvb, offsetp, t, byte_order, f_num_attributes);
 }
 
-static void xvListImageFormats(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvListImageFormats(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_ListImageFormats_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvListImageFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvListImageFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_formats;
@@ -29676,7 +29676,7 @@ static void xvListImageFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     struct_xv_ImageFormatInfo(tvb, offsetp, t, byte_order, f_num_formats);
 }
 
-static void xvQueryImageAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvQueryImageAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_QueryImageAttributes_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29687,7 +29687,7 @@ static void xvQueryImageAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_xv_QueryImageAttributes_height, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xvQueryImageAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvQueryImageAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num_planes;
@@ -29718,7 +29718,7 @@ static void xvQueryImageAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     listOfCard32(tvb, offsetp, t, hf_x11_xv_QueryImageAttributes_reply_offsets, hf_x11_xv_QueryImageAttributes_reply_offsets_item, f_num_planes, byte_order);
 }
 
-static void xvPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_PutImage_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29751,7 +29751,7 @@ static void xvPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, prot
     listOfByte(tvb, offsetp, t, hf_x11_xv_PutImage_data, (length - 40) / 1, byte_order);
 }
 
-static void xvShmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvShmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xv_ShmPutImage_port, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -29830,7 +29830,7 @@ static const x11_reply_info xv_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xv(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xv(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xv_extension_minor);
@@ -29910,7 +29910,7 @@ static void register_xv(void)
     set_handler("XVideo", dispatch_xv, xv_errors, xv_events, NULL, xv_replies);
 }
 
-static void struct_xvmc_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_xvmc_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29940,10 +29940,10 @@ static void struct_xvmc_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void xvmcQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void xvmcQueryVersion(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 }
-static void xvmcQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvmcQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
 
@@ -29964,12 +29964,12 @@ static void xvmcQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
 }
 
-static void xvmcListSurfaceTypes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcListSurfaceTypes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_ListSurfaceTypes_port_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvmcListSurfaceTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvmcListSurfaceTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num;
@@ -29993,7 +29993,7 @@ static void xvmcListSurfaceTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     struct_xvmc_SurfaceInfo(tvb, offsetp, t, byte_order, f_num);
 }
 
-static void xvmcCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_CreateContext_context_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -30008,7 +30008,7 @@ static void xvmcCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     proto_tree_add_item(t, hf_x11_xvmc_CreateContext_flags, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvmcCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvmcCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -30036,20 +30036,20 @@ static void xvmcCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     listOfCard32(tvb, offsetp, t, hf_x11_xvmc_CreateContext_reply_priv_data, hf_x11_xvmc_CreateContext_reply_priv_data_item, f_length, byte_order);
 }
 
-static void xvmcDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_DestroyContext_context_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xvmcCreateSurface(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcCreateSurface(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_CreateSurface_surface_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xvmc_CreateSurface_context_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvmcCreateSurface_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvmcCreateSurface_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -30071,13 +30071,13 @@ static void xvmcCreateSurface_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     listOfCard32(tvb, offsetp, t, hf_x11_xvmc_CreateSurface_reply_priv_data, hf_x11_xvmc_CreateSurface_reply_priv_data_item, f_length, byte_order);
 }
 
-static void xvmcDestroySurface(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcDestroySurface(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_DestroySurface_surface_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xvmcCreateSubpicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcCreateSubpicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_CreateSubpicture_subpicture_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -30090,7 +30090,7 @@ static void xvmcCreateSubpicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_xvmc_CreateSubpicture_height, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
-static void xvmcCreateSubpicture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvmcCreateSubpicture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_length;
@@ -30121,20 +30121,20 @@ static void xvmcCreateSubpicture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     listOfCard32(tvb, offsetp, t, hf_x11_xvmc_CreateSubpicture_reply_priv_data, hf_x11_xvmc_CreateSubpicture_reply_priv_data_item, f_length, byte_order);
 }
 
-static void xvmcDestroySubpicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcDestroySubpicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_DestroySubpicture_subpicture_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
 
-static void xvmcListSubpictureTypes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void xvmcListSubpictureTypes(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xvmc_ListSubpictureTypes_port_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xvmc_ListSubpictureTypes_surface_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
-static void xvmcListSubpictureTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void xvmcListSubpictureTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int sequence_number;
     int f_num;
@@ -30182,7 +30182,7 @@ static const x11_reply_info xvmc_replies[] = {
     { 0, NULL }
 };
 
-static void dispatch_xvmc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_xvmc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8(xvmc_extension_minor);

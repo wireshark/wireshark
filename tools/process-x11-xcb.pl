@@ -259,13 +259,13 @@ sub mesa_function {
     # Wireshark defines _U_ to mean "Unused" (compiler specific define)
     if (!@elements) {
         print $impl <<eot
-static void mesa_$name(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void mesa_$name(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 eot
 ;
     } else {
         print $impl <<eot
-static void mesa_$name(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void mesa_$name(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
 eot
 ;
@@ -1078,7 +1078,7 @@ sub struct {
 
         print $impl <<eot
 
-static int struct_size_$name(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_$prefs)
+static int struct_size_$name(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned byte_order _U_$prefs)
 {
     int size = 0;
 eot
@@ -1160,7 +1160,7 @@ eot
 
     print $impl <<eot
 
-static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count$prefs)
+static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order _U_, int count$prefs)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -1243,7 +1243,7 @@ sub union {
 
     print $impl <<eot
 
-static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, unsigned byte_order, int count)
 {
     int i;
     int base = *offsetp;
@@ -1366,14 +1366,14 @@ sub request {
     if (!@elements) {
         print $impl <<eot
 
-static void $header$name(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
+static void $header$name(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_, int length _U_)
 {
 eot
 ;
     } else {
         print $impl <<eot
 
-static void $header$name(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
+static void $header$name(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
 eot
 ;
@@ -1411,9 +1411,9 @@ eot
 
         # Wireshark defines _U_ to mean "Unused" (compiler specific define)
         if (!@elements) {
-            say $impl "static void $header$name"."_Reply(tvbuff_t *tvb _U_, packet_info *pinfo, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_)\n{";
+            say $impl "static void $header$name"."_Reply(tvbuff_t *tvb _U_, packet_info *pinfo, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_)\n{";
         } else {
-            say $impl "static void $header$name"."_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)\n{";
+            say $impl "static void $header$name"."_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)\n{";
         }
         say $impl '    int sequence_number;' if (@elements);
 
@@ -1535,12 +1535,12 @@ sub event {
         if ($xge) {
             print $impl <<eot
 
-static void $header$name(tvbuff_t *tvb _U_, int length _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_)
+static void $header$name(tvbuff_t *tvb _U_, int length _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_)
 {
         } else {
             print $impl <<eot
 
-static void $header$name(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_)
+static void $header$name(tvbuff_t *tvb _U_, int *offsetp _U_, proto_tree *t _U_, unsigned byte_order _U_)
 {
 eot
 ;
@@ -1550,14 +1550,14 @@ eot
             $length = 10;
             print $impl <<eot
 
-static void $header$name(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, guint byte_order)
+static void $header$name(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree *t, unsigned byte_order)
 {
 eot
 ;
         } else {
             print $impl <<eot
 
-static void $header$name(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
+static void $header$name(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order)
 {
 eot
 ;
@@ -1703,7 +1703,7 @@ sub xcb {
 
     print $impl <<eot
 
-static void dispatch_$header(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
+static void dispatch_$header(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order)
 {
     int minor, length;
     minor = CARD8($lookup_name);
@@ -1848,10 +1848,10 @@ if (-e "$mesadir/gl_API.xml") {
 # Uses ett_x11_list_of_rectangle, since I am unable to see how the subtree type matters.
     print $impl <<eot
 
-static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order, int length)
+static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, unsigned byte_order, int length)
 {
     while (length >= 4) {
-        guint32 op, len;
+        uint32_t op, len;
         int next;
         proto_item *ti;
         proto_tree *tt;
