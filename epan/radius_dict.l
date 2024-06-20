@@ -359,8 +359,11 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 
 	yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
 
-	yyextra->fullpaths[yyextra->include_stack_ptr] = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-	    yyextra->directory,yytext);
+	if (g_path_is_absolute(yytext)) {
+		yyextra->fullpaths[yyextra->include_stack_ptr] = ws_strdup(yytext);
+	} else {
+		yyextra->fullpaths[yyextra->include_stack_ptr] = g_build_filename(yyextra->directory, yytext, NULL);
+	}
 
 	FILE *old_yyin = yyin;
 	yyin = ws_fopen( yyextra->fullpaths[yyextra->include_stack_ptr], "r" );
@@ -381,6 +384,19 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 		yyextra->include_stack_ptr--;
 		yyin = old_yyin;
 	} else {
+		if (g_path_is_absolute(yytext)) {
+			g_free(yyextra->directory);
+			/*
+			 * Switch the directory for any relative $INCLUDEs in
+			 * the new file.
+			 * XXX - Follow symlinks (#6466)? FreeRADIUS doesn't.
+			 * Use g_file_test() + g_file_read_link() to do so.
+			 * In that case, make sure to follow symlinks when
+			 * saving the fullpath too, for restoring the directory
+			 * at EOF.
+			 */
+			yyextra->directory = g_path_get_dirname(yytext);
+		}
 		yyextra->linenums[yyextra->include_stack_ptr] = 1;
 		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE, yyscanner), yyscanner);
 	}
@@ -394,11 +410,15 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 	fclose(yyin);
 	yyin = NULL;
 
+	g_free(yyextra->directory);
+
 	if ( --yyextra->include_stack_ptr < 0 ) {
 		yyterminate();
 	} else {
 		g_free(yyextra->fullpaths[yyextra->include_stack_ptr+1]);
 		yyextra->fullpaths[yyextra->include_stack_ptr+1] = NULL;
+
+		yyextra->directory = g_path_get_dirname(yyextra->fullpaths[yyextra->include_stack_ptr]);
 
 		Radius__delete_buffer(YY_CURRENT_BUFFER, yyscanner);
 		Radius__switch_to_buffer(yyextra->include_stack[yyextra->include_stack_ptr], yyscanner);
@@ -743,7 +763,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	state.current_vendor_evs_type = 0;
 	state.current_attr = NULL;
 
-	state.directory = dir;
+	state.directory = g_strdup(dir);
 
 	state.fullpaths[0] = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    state.directory,filename);
