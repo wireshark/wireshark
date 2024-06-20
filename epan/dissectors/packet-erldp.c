@@ -51,6 +51,7 @@
 #define NEW_FUN_EXT         'p'
 #define EXPORT_EXT          'q'
 #define FUN_EXT             'u'
+#define MAP_EXT             't'
 
 #define DIST_HEADER         'D'
 #define DIST_FRAG_HEADER    'E'
@@ -93,6 +94,7 @@ static const value_string etf_tag_vals[] = {
   { NEW_FUN_EXT         , "NEW_FUN_EXT" },
   { EXPORT_EXT          , "EXPORT_EXT" },
   { FUN_EXT             , "FUN_EXT" },
+  { MAP_EXT             , "MAP_EXT" },
   { DIST_HEADER         , "DIST_HEADER" },
   { DIST_FRAG_HEADER    , "DIST_FRAG_HEADER" },
   { ATOM_CACHE_REF      , "ATOM_CACHE_REF" },
@@ -209,6 +211,7 @@ static int hf_erldp_pid_ext_id;
 static int hf_erldp_pid_ext_serial;
 static int hf_erldp_pid_ext_creation;
 static int hf_erldp_list_ext_len;
+static int hf_erldp_map_ext_len;
 static int hf_erldp_binary_ext_len;
 static int hf_erldp_binary_ext;
 static int hf_erldp_new_ref_ext_len;
@@ -551,6 +554,17 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
         offset = dissect_etf_type(NULL, pinfo, tvb, offset, tree);
       }
       offset = dissect_etf_type("Tail", pinfo, tvb, offset, tree);
+      break;
+
+    case MAP_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_map_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+      for (i=0; i<len; i++) {
+        // key
+        offset = dissect_etf_type(NULL, pinfo, tvb, offset, tree);
+        // value
+        offset = dissect_etf_type(NULL, pinfo, tvb, offset, tree);
+      }
       break;
 
     case BINARY_EXT:
@@ -1176,6 +1190,9 @@ void proto_register_erldp(void) {
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_list_ext_len, { "Len", "erldp.list_ext.len",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_map_ext_len, { "Len", "erldp.map_ext.len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_binary_ext_len, { "Len", "erldp.binary_ext.len",
