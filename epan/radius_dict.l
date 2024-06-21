@@ -137,34 +137,34 @@ typedef struct {
 	radius_dictionary_t* dict;
 	GHashTable* value_strings; /* GArray(value_string) by attribute name */
 
-	gchar* attr_name;
-	gchar* attr_id;
+	char* attr_name;
+	char* attr_id;
 	radius_attr_dissector_t* attr_type;
-	gchar* attr_vendor;
-	gchar* vendor_name;
-	guint32 vendor_id;
-	guint vendor_type_octets;
-	guint vendor_length_octets;
-	gboolean vendor_has_flags;
-	gchar* value_repr;
-	guint encrypted;
-	gboolean has_tag;
+	char* attr_vendor;
+	char* vendor_name;
+	uint32_t vendor_id;
+	unsigned vendor_type_octets;
+	unsigned vendor_length_octets;
+	bool vendor_has_flags;
+	char* value_repr;
+	unsigned encrypted;
+	bool has_tag;
 	bool concat;
-	gchar* current_vendor;
-	guint current_vendor_evs_type;
-	gchar* current_attr;
+	char* current_vendor;
+	unsigned current_vendor_evs_type;
+	char* current_attr;
 
-	gchar* directory;
-	gchar* fullpaths[MAX_INCLUDE_DEPTH];
+	char* directory;
+	char* fullpaths[MAX_INCLUDE_DEPTH];
 	int linenums[MAX_INCLUDE_DEPTH];
 
 	GString* error;
 } Radius_scanner_state_t;
 
-static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32 id, guint type_octets, guint length_octets, gboolean has_flags);
-static gboolean add_attribute(Radius_scanner_state_t* state, const gchar*,const  gchar*, radius_attr_dissector_t,const  gchar*, guint, gboolean, bool, const gchar*);
-static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const  gchar* code, radius_attr_dissector_t type, const gchar* attr);
-static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, const  gchar* repr, guint32 value);
+static void add_vendor(Radius_scanner_state_t* state, const char* name, uint32_t id, unsigned type_octets, unsigned length_octets, bool has_flags);
+static bool add_attribute(Radius_scanner_state_t* state, const char*,const  char*, radius_attr_dissector_t,const  char*, unsigned, bool, bool, const char*);
+static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char* code, radius_attr_dissector_t type, const char* attr);
+static void add_value(Radius_scanner_state_t* state, const char* attrib_name, const  char* repr, uint32_t value);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -255,30 +255,30 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
     yyextra->vendor_name = g_strdup(yytext);
     yyextra->vendor_type_octets = 1;
     yyextra->vendor_length_octets = 1;
-    yyextra->vendor_has_flags = FALSE;
+    yyextra->vendor_has_flags = false;
     BEGIN VENDOR_W_NAME;
 }
 <VENDOR_W_NAME>[0-9]+   {
-    yyextra->vendor_id = (guint32) strtoul(yytext,NULL,10);
+    yyextra->vendor_id = (uint32_t) strtoul(yytext,NULL,10);
     BEGIN VENDOR_W_ID;
 }
 <VENDOR_W_NAME>0x[0-9a-f]+   {
-    yyextra->vendor_id = (guint32) strtoul(yytext,NULL,16);
+    yyextra->vendor_id = (uint32_t) strtoul(yytext,NULL,16);
     BEGIN VENDOR_W_ID;
 }
 <VENDOR_W_ID>format= {
     BEGIN VENDOR_W_FORMAT;
 }
 <VENDOR_W_FORMAT>[124] {
-    yyextra->vendor_type_octets = (guint) strtoul(yytext,NULL,10);
+    yyextra->vendor_type_octets = (unsigned) strtoul(yytext,NULL,10);
     BEGIN VENDOR_W_TYPE_OCTETS;
 }
 <VENDOR_W_TYPE_OCTETS>,[012] {
-    yyextra->vendor_length_octets = (guint) strtoul(yytext+1,NULL,10);
+    yyextra->vendor_length_octets = (unsigned) strtoul(yytext+1,NULL,10);
     BEGIN VENDOR_W_LENGTH_OCTETS;
 }
 <VENDOR_W_LENGTH_OCTETS>,c {
-    yyextra->vendor_has_flags = TRUE;
+    yyextra->vendor_has_flags = true;
     BEGIN VENDOR_W_CONTINUATION;
 }
 <VENDOR_W_FORMAT>\n |
@@ -291,7 +291,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
     BEGIN WS_OUT;
 }
 
-<ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = FALSE; yyextra->concat = false; BEGIN ATTR_W_NAME; }
+<ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = false; yyextra->concat = false; BEGIN ATTR_W_NAME; }
 <ATTR_W_NAME>[0-9.]+			{ yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
 <ATTR_W_NAME>0x[0-9a-f]+		{ yyextra->attr_id = ws_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer			{ yyextra->attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
@@ -311,8 +311,8 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 <ATTR_W_ID>combo-ip			{ yyextra->attr_type = radius_combo_ip;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>tlv				{ yyextra->attr_type = radius_tlv;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>[0-9a-z_-]+			{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_TYPE>has_tag[,]?		{ yyextra->has_tag = TRUE; }
-<ATTR_W_TYPE>encrypt=[123][,]?		{ yyextra->encrypted = (guint) strtoul(yytext+8,NULL,10); }
+<ATTR_W_TYPE>has_tag[,]?		{ yyextra->has_tag = true; }
+<ATTR_W_TYPE>encrypt=[123][,]?		{ yyextra->encrypted = (unsigned) strtoul(yytext+8,NULL,10); }
 <ATTR_W_TYPE>concat			{ yyextra->concat = true; }
 <ATTR_W_TYPE>[0-9a-z_-]+=([^\n]*)	;
 <ATTR_W_TYPE>[0-9a-z_-]+		{
@@ -326,7 +326,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
      * following the type being the vendor name; this notation is deprecated
      * in favor of BEGIN-VENDOR/END-VENDOR blocks.
      */
-    gboolean attribute_ok;
+    bool attribute_ok;
 
     yyextra->attr_vendor = g_strdup(yytext);
     attribute_ok = add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->current_attr);
@@ -346,16 +346,16 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
     g_free(yyextra->attr_id);
     g_free(yyextra->attr_name);
     yyextra->linenums[yyextra->include_stack_ptr]++;
-    yyextra->has_tag = FALSE;
-    yyextra->encrypted=FALSE;
+    yyextra->has_tag = false;
+    yyextra->encrypted=false;
     yyextra->concat = false;
     BEGIN WS_OUT;
 }
 
 <VALUE>[0-9a-z_/-]+				{ yyextra->attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
 <VALUE_W_ATTR>[^[:blank:]]+			{ yyextra->value_repr = g_strdup(yytext); BEGIN VALUE_W_NAME; }
-<VALUE_W_NAME>[0-9]+				{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (guint32) strtoul(yytext,NULL,10));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
-<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (guint32) strtoul(yytext,NULL,16));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
+<VALUE_W_NAME>[0-9]+				{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,10));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
+<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,16));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
 
 <INCLUDE>[^[:blank:]\n]+   {
 	if ( yyextra->include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
@@ -443,7 +443,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
  */
 DIAG_ON_FLEX()
 
-static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32 id, guint type_octets, guint length_octets, gboolean has_flags) {
+static void add_vendor(Radius_scanner_state_t* state, const char* name, uint32_t id, unsigned type_octets, unsigned length_octets, bool has_flags) {
 	radius_vendor_info_t* v;
 
 	v = (radius_vendor_info_t *)g_hash_table_lookup(state->dict->vendors_by_id, GUINT_TO_POINTER(id));
@@ -464,7 +464,7 @@ static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32
 		v->has_flags = has_flags;
 
 		g_hash_table_insert(state->dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
-		g_hash_table_insert(state->dict->vendors_by_name, (gpointer) v->name, v);
+		g_hash_table_insert(state->dict->vendors_by_name, (void *) v->name, v);
 	} else {
 		/*
 		 * This vendor is already in the table.
@@ -493,20 +493,20 @@ static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32
 			 * Yes.  Remove the entry from the by-name hash table
 			 * and re-insert it with the new name.
 			 */
-			g_hash_table_remove(state->dict->vendors_by_name, (gpointer) v->name);
-			g_free((gpointer) v->name);
+			g_hash_table_remove(state->dict->vendors_by_name, (void *) v->name);
+			g_free((void *) v->name);
 			v->name = g_strdup(name);
-			g_hash_table_insert(state->dict->vendors_by_name, (gpointer) v->name, v);
+			g_hash_table_insert(state->dict->vendors_by_name, (void *) v->name, v);
 		}
 	}
 }
 
-static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint encrypted_flag, gboolean tagged, bool concat, const gchar* attr) {
+static bool add_attribute(Radius_scanner_state_t* state, const char* name, const  char* codestr, radius_attr_dissector_t type, const  char* vendor, unsigned encrypted_flag, bool tagged, bool concat, const char* attr) {
 	radius_attr_info_t* a;
 	GHashTable* by_id;
 	radius_attr_type_t code;
-	guint8 code0 = 0, code1 = 0;
-	gchar *dot, *buf = NULL;
+	uint8_t code0 = 0, code1 = 0;
+	char *dot, *buf = NULL;
 
 	if (attr){
 		return add_tlv(state, name, codestr, type, attr);
@@ -516,15 +516,15 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 	dot = strchr(codestr, '.');
 	if (dot)
 		*dot = '\0';
-	code0 = (guint8) strtoul(buf, NULL, 10);
+	code0 = (uint8_t) strtoul(buf, NULL, 10);
 	if (dot)
-		code1 = (guint8) strtoul(dot + 1, NULL, 10);
+		code1 = (uint8_t) strtoul(dot + 1, NULL, 10);
 	g_free(buf);
 
 	memset(&code, 0, sizeof(code));
 	if (vendor) {
 		if (state->current_vendor_evs_type) {
-			code.u8_code[0] = (guint8) state->current_vendor_evs_type;
+			code.u8_code[0] = (uint8_t) state->current_vendor_evs_type;
 			code.u8_code[1] = code0;
 		} else {
 			code.u8_code[0] = code0;
@@ -534,7 +534,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		radius_vendor_info_t* v = (radius_vendor_info_t *)g_hash_table_lookup(state->dict->vendors_by_name,vendor);
 		if (! v) {
 			g_string_append_printf(state->error, "Vendor: '%s', does not exist in %s:%i \n", vendor, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr] );
-			return FALSE;
+			return false;
 		} else {
 			by_id = v->attrs_by_id;
 		}
@@ -575,7 +575,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		a->ett = -1;
 		a->tlvs_by_id = NULL;
 		g_hash_table_insert(by_id, GUINT_TO_POINTER(code.value),a);
-		g_hash_table_insert(state->dict->attrs_by_name,(gpointer) (a->name),a);
+		g_hash_table_insert(state->dict->attrs_by_name,(void *) (a->name),a);
 	} else {
 		/*
 		 * This attribute is already in the table.
@@ -606,16 +606,16 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 			 * remove it - that calls the free routine, which
 			 * frees up the entry.)
 			 */
-			g_hash_table_steal(state->dict->attrs_by_name, (gpointer) (a->name));
-			g_free((gpointer) a->name);
+			g_hash_table_steal(state->dict->attrs_by_name, (void *) (a->name));
+			g_free((void *) a->name);
 			a->name = g_strdup(name);
-			g_hash_table_insert(state->dict->attrs_by_name, (gpointer) (a->name),a);
+			g_hash_table_insert(state->dict->attrs_by_name, (void *) (a->name),a);
 		}
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const gchar* attr) {
+static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char* codestr, radius_attr_dissector_t type, const char* attr) {
 	radius_attr_info_t* a;
 	radius_attr_info_t* s;
 	radius_attr_type_t code;
@@ -624,12 +624,12 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 
 	if (! a) {
 		g_string_append_printf(state->error, "Attr: '%s', does not exist in %s:%i \n", attr, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr]);
-		return FALSE;
+		return false;
 	}
 
 	if (type == radius_tlv) {
 		g_string_append_printf(state->error, "sub-TLV: '%s', sub-TLV's type is specified as tlv in %s:%i \n", name, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr]);
-		return FALSE;
+		return false;
 	}
 
 
@@ -638,7 +638,7 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 	}
 
 	memset(&code, 0, sizeof(code));
-	code.u8_code[0] = (guint8) strtoul(codestr, NULL, 10);
+	code.u8_code[0] = (uint8_t) strtoul(codestr, NULL, 10);
 
 	s = (radius_attr_info_t*)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(code.value));
 
@@ -652,8 +652,8 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 		s->dissector = NULL;
 		s->code = code;
 		s->type = type;
-		s->encrypt = FALSE;
-		s->tagged = FALSE;
+		s->encrypt = false;
+		s->tagged = false;
 		s->concat = false;
 		s->dissector = NULL;
 		s->vs = NULL;
@@ -665,7 +665,7 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 		s->tlvs_by_id = NULL;
 
 		g_hash_table_insert(a->tlvs_by_id,GUINT_TO_POINTER(s->code.value),s);
-		g_hash_table_insert(state->dict->tlvs_by_name,(gpointer) (s->name),s);
+		g_hash_table_insert(state->dict->tlvs_by_name,(void *) (s->name),s);
 	}
 
 	/*
@@ -677,16 +677,16 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 	 *
 	 * XXX - report the duplicate entries?
 	 */
-	return TRUE;
+	return true;
 }
 
-void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, const gchar* repr, guint32 value) {
+void add_value(Radius_scanner_state_t* state, const char* attrib_name, const char* repr, uint32_t value) {
 	value_string v;
 	GArray* a = (GArray*)g_hash_table_lookup(state->value_strings,attrib_name);
 
 	if (! a) {
 		/* Ensure that the array is zero terminated. */
-		a = g_array_new(TRUE, TRUE, sizeof(value_string));
+		a = g_array_new(true, true, sizeof(value_string));
 		g_hash_table_insert(state->value_strings, g_strdup(attrib_name), a);
 	}
 
@@ -696,36 +696,36 @@ void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, const gc
 	g_array_append_val(a,v);
 }
 
-static void setup_tlvs(gpointer k _U_, gpointer v, gpointer p) {
+static void setup_tlvs(void *k _U_, void *v, void *p) {
 	radius_attr_info_t* s = (radius_attr_info_t*)v;
 	Radius_scanner_state_t* state = (Radius_scanner_state_t*)p;
-	gpointer key;
+	void *key;
 
 	union {
 		GArray* a;
-		gpointer p;
+		void *p;
 	} vs;
 
 	if (g_hash_table_lookup_extended(state->value_strings, s->name, &key, &vs.p)) {
 		g_hash_table_steal(state->value_strings, key);
-		s->vs = (value_string*)(void *)g_array_free(vs.a, FALSE);
+		s->vs = (value_string*)(void *)g_array_free(vs.a, false);
 		g_free(key);
 	}
 }
 
-static void setup_attrs(gpointer k _U_, gpointer v, gpointer p) {
+static void setup_attrs(void *k _U_, void *v, void *p) {
 	radius_attr_info_t* a = (radius_attr_info_t*)v;
 	Radius_scanner_state_t* state = (Radius_scanner_state_t*)p;
-	gpointer key;
+	void *key;
 
 	union {
 		GArray* a;
-		gpointer p;
+		void *p;
 	} vs;
 
 	if (g_hash_table_lookup_extended(state->value_strings, a->name, &key, &vs.p) ) {
 		g_hash_table_steal(state->value_strings, key);
-		a->vs = (value_string*)(void *)g_array_free(vs.a, FALSE);
+		a->vs = (value_string*)(void *)g_array_free(vs.a, false);
 		g_free(key);
 	}
 
@@ -734,23 +734,23 @@ static void setup_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	}
 }
 
-static void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
+static void setup_vendors(void *k _U_, void *v, void *p) {
 	radius_vendor_info_t* vnd = (radius_vendor_info_t*)v;
 
 	g_hash_table_foreach(vnd->attrs_by_id,setup_attrs,p);
 }
 
-static void destroy_value_strings(gpointer v) {
+static void destroy_value_strings(void *v) {
 	value_string* vs = (value_string*)(void *)(((GArray*)v)->data);
 
 	for (;vs->strptr;vs++) {
 		g_free((void*)vs->strptr);
 	}
 
-	g_array_free((GArray*)v,TRUE);
+	g_array_free((GArray*)v,true);
 }
 
-gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar* filename, gchar** err_str) {
+bool radius_load_dictionary (radius_dictionary_t* d, char* dir, const char* filename, char** err_str) {
 	FILE *in;
 	yyscan_t scanner;
 	Radius_scanner_state_t state;
@@ -769,10 +769,10 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	state.vendor_id = 0;
 	state.vendor_type_octets = 1;
 	state.vendor_length_octets = 1;
-	state.vendor_has_flags = FALSE;
+	state.vendor_has_flags = false;
 	state.value_repr = NULL;
 	state.encrypted = 0;
-	state.has_tag = FALSE;
+	state.has_tag = false;
 	state.concat = false;
 	state.current_vendor = NULL;
 	state.current_vendor_evs_type = 0;
@@ -795,8 +795,8 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	if (!in) {
 		g_string_append_printf(state.error, "Could not open file: '%s', error: %s\n", state.fullpaths[0], g_strerror(errno));
 		g_free(state.fullpaths[0]);
-		*err_str = g_string_free(state.error,FALSE);
-		return FALSE;
+		*err_str = g_string_free(state.error,false);
+		return false;
 	}
 
 	state.value_strings = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, destroy_value_strings);
@@ -806,8 +806,8 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 		    strerror(errno));
 		fclose(in);
 		g_free(state.fullpaths[0]);
-		*err_str = g_string_free(state.error,FALSE);
-		return FALSE;
+		*err_str = g_string_free(state.error,false);
+		return false;
 	}
 
 	Radius_set_in(in, scanner);
@@ -832,12 +832,12 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	g_hash_table_destroy(state.value_strings);
 
 	if (state.error->len > 0) {
-		*err_str = g_string_free(state.error,FALSE);
-		return FALSE;
+		*err_str = g_string_free(state.error,false);
+		return false;
 	} else {
 		*err_str = NULL;
-		g_string_free(state.error,TRUE);
-		return TRUE;
+		g_string_free(state.error,true);
+		return true;
 	}
 }
 
