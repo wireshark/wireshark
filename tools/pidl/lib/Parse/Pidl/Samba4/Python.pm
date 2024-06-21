@@ -817,7 +817,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("}");
 	$self->pidl("");
 
-	$self->pidl("static PyObject *py_$name\_ndr_print_in(PyObject *py_obj)");
+	$self->pidl("static PyObject *py_$name\_ndr_print_in(PyObject *py_obj, PyObject *py_obj2)");
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("return py_$name\_ndr_print(py_obj, \"$name\_in\", NDR_IN);");
@@ -825,7 +825,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("}");
 	$self->pidl("");
 
-	$self->pidl("static PyObject *py_$name\_ndr_print_out(PyObject *py_obj)");
+	$self->pidl("static PyObject *py_$name\_ndr_print_out(PyObject *py_obj, PyObject *py_obj2)");
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("return py_$name\_ndr_print(py_obj, \"$name\_out\", NDR_OUT);");
@@ -1726,7 +1726,7 @@ sub ConvertObjectFromPythonData($$$$$$;$$)
 		$self->indent;
 		$self->pidl("long test_var;");
 		$self->pidl("test_var = PyInt_AsLong($cvar);");
-		$self->pidl("if (test_var < 0 || test_var > uint_max) {");
+		$self->pidl("if (test_var < 0 || (unsigned long long)test_var > uint_max) {");
 		$self->indent;
 		$self->pidl("PyErr_Format(PyExc_OverflowError, \"Expected type %s or %s within range 0 - %llu, got %ld\",\\");
 		$self->pidl("  PyInt_Type.tp_name, PyLong_Type.tp_name, uint_max, test_var);");

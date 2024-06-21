@@ -2676,7 +2676,7 @@ sub ParseGeneratePipeArray($$$)
 		$self->deindent;
 		$self->pidl("},");
 	}
-	$self->pidl("{ NULL, NULL, 0, NULL, NULL, NULL }");
+	$self->pidl("{ .name = NULL }");
 	$self->deindent;
 	$self->pidl("};");
 	$self->pidl("");
@@ -2772,7 +2772,7 @@ sub FunctionTable($$)
 	foreach my $d (@{$interface->{INHERITED_FUNCTIONS}},@{$interface->{FUNCTIONS}}) {
 		$count += $self->FunctionCallEntry($d);
 	}
-	$self->pidl("\t{ NULL, 0, NULL, NULL, NULL }");
+	$self->pidl("\t{ .name = NULL }");
 	$self->pidl("};");
 	$self->pidl("");
 
