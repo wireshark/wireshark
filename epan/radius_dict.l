@@ -113,9 +113,12 @@ DIAG_OFF_FLEX()
  *	(some of these aren't documented);
  *
  *	octets[N], where N is an integer, as an attribute type
- *	(not documented in the man page);
+ *	(not documented in the man page) - we support this as the octets
+ *	type but do not enforce the length (e.g., with an expert info).
+ *	FreeRADIUS uses the length for encoding; as we're just decoding,
+ *	we take whatever is indicated in the AVP;
  *
- *	internal, array, concat, and virtual as attribute flags (not
+ *	internal, array, and virtual as attribute flags (not
  *	documented in the man page);
  *
  * We should, perhaps, adopt FreeRADIUS's dictionary-parsing code in
@@ -146,6 +149,7 @@ typedef struct {
 	gchar* value_repr;
 	guint encrypted;
 	gboolean has_tag;
+	bool concat;
 	gchar* current_vendor;
 	guint current_vendor_evs_type;
 	gchar* current_attr;
@@ -158,7 +162,7 @@ typedef struct {
 } Radius_scanner_state_t;
 
 static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32 id, guint type_octets, guint length_octets, gboolean has_flags);
-static gboolean add_attribute(Radius_scanner_state_t* state, const gchar*,const  gchar*, radius_attr_dissector_t,const  gchar*, guint, gboolean, const gchar*);
+static gboolean add_attribute(Radius_scanner_state_t* state, const gchar*,const  gchar*, radius_attr_dissector_t,const  gchar*, guint, gboolean, bool, const gchar*);
 static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const  gchar* code, radius_attr_dissector_t type, const gchar* attr);
 static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, const  gchar* repr, guint32 value);
 
@@ -287,12 +291,12 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
     BEGIN WS_OUT;
 }
 
-<ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = FALSE; BEGIN ATTR_W_NAME; }
+<ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = FALSE; yyextra->concat = false; BEGIN ATTR_W_NAME; }
 <ATTR_W_NAME>[0-9.]+			{ yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
 <ATTR_W_NAME>0x[0-9a-f]+		{ yyextra->attr_id = ws_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer			{ yyextra->attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>string			{ yyextra->attr_type = radius_string;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>octets			{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>octets(\[[1-9][0-9]*\])?	{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipaddr			{ yyextra->attr_type = radius_ipaddr;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipv6addr			{ yyextra->attr_type = radius_ipv6addr;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipv6prefix			{ yyextra->attr_type = radius_ipv6prefix;  BEGIN ATTR_W_TYPE; }
@@ -309,11 +313,12 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 <ATTR_W_ID>[0-9a-z_-]+			{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_TYPE>has_tag[,]?		{ yyextra->has_tag = TRUE; }
 <ATTR_W_TYPE>encrypt=[123][,]?		{ yyextra->encrypted = (guint) strtoul(yytext+8,NULL,10); }
+<ATTR_W_TYPE>concat			{ yyextra->concat = true; }
 <ATTR_W_TYPE>[0-9a-z_-]+=([^\n]*)	;
 <ATTR_W_TYPE>[0-9a-z_-]+		{
     /*
      * Support for "ATTRIBUTE name oid type vendor", where the token
-     * following the type matches neither has_tag nor encrypt={1,2,3},
+     * following the type matches neither has_tag, concat, nor encrypt={1,2,3},
      * but is a sequence of digits, lower-case letters, underscores,
      * and hyphens.
      *
@@ -324,7 +329,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
     gboolean attribute_ok;
 
     yyextra->attr_vendor = g_strdup(yytext);
-    attribute_ok = add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->current_attr);
+    attribute_ok = add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->current_attr);
     g_free(yyextra->attr_id);
     g_free(yyextra->attr_vendor);
     g_free(yyextra->attr_name);
@@ -337,12 +342,13 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
         BEGIN JUNK;
 }
 <ATTR_W_TYPE>\n						{
-    add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->current_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->current_attr);
+    add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->current_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->current_attr);
     g_free(yyextra->attr_id);
     g_free(yyextra->attr_name);
     yyextra->linenums[yyextra->include_stack_ptr]++;
     yyextra->has_tag = FALSE;
     yyextra->encrypted=FALSE;
+    yyextra->concat = false;
     BEGIN WS_OUT;
 }
 
@@ -495,7 +501,7 @@ static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32
 	}
 }
 
-static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint encrypted_flag, gboolean tagged, const gchar* attr) {
+static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint encrypted_flag, gboolean tagged, bool concat, const gchar* attr) {
 	radius_attr_info_t* a;
 	GHashTable* by_id;
 	radius_attr_type_t code;
@@ -539,6 +545,11 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		by_id = state->dict->attrs_by_id;
 	}
 
+	/*
+	 * XXX - FreeRADIUS dict.c enforces that concat can only be used with
+	 * type radius_octets, not with any other flags, and not with VSAs.
+	 */
+
 	a=(radius_attr_info_t*)g_hash_table_lookup(by_id, GUINT_TO_POINTER(code.value));
 
 	if (!a) {
@@ -553,6 +564,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		a->dissector = NULL;
 		a->encrypt = encrypted_flag;
 		a->tagged =  tagged;
+		a->concat =  concat;
 		a->type = type;
 		a->vs = NULL;
 		a->hf = -1;
@@ -568,9 +580,9 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		/*
 		 * This attribute is already in the table.
 		 *
-		 * Overwrite the encrypted flag, tagged property, and type;
-		 * the other properties don't get set until after we've
-		 * finished reading the dictionaries.
+		 * Overwrite the encrypted flag, tagged property, concat
+		 * property, and type; the other properties don't get set
+		 * until after we've finished reading the dictionaries.
 		 *
 		 * XXX - this could be due to the attribute being in
 		 * multiple dictionary files, rather than having been
@@ -581,6 +593,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		 */
 		a->encrypt = encrypted_flag;
 		a->tagged =  tagged;
+		a->concat =  concat;
 		a->type = type;
 
 		/*
@@ -641,6 +654,7 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 		s->type = type;
 		s->encrypt = FALSE;
 		s->tagged = FALSE;
+		s->concat = false;
 		s->dissector = NULL;
 		s->vs = NULL;
 		s->hf = -1;
@@ -759,6 +773,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	state.value_repr = NULL;
 	state.encrypted = 0;
 	state.has_tag = FALSE;
+	state.concat = false;
 	state.current_vendor = NULL;
 	state.current_vendor_evs_type = 0;
 	state.current_attr = NULL;

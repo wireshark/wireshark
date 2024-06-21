@@ -125,6 +125,7 @@ struct _radius_attr_info_t {
 	radius_attr_type_t code;
 	guint encrypt;  /* 0 or value for "encrypt=" option */
 	gboolean tagged;
+	bool concat;
 	radius_attr_dissector_t* type;
 	radius_avp_dissector_t* dissector;
 	const value_string *vs;
