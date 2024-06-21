@@ -1719,7 +1719,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 						break;
 					case CQL_RESULT_KIND_SCHEMA_CHANGE:
-						offset = parse_result_schema_change(cql_subtree, pinfo, tvb, offset);
+						/*offset = */parse_result_schema_change(cql_subtree, pinfo, tvb, offset);
 						break;
 
 					default:
@@ -1741,7 +1741,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				proto_item_append_text(cql_subtree, " (type: %s)", string_event_type);
 
 				if (strcmp(string_event_type, "SCHEMA_CHANGE") == 0) {
-					offset = parse_result_schema_change(cql_subtree, pinfo, tvb, offset);
+					/*offset = */parse_result_schema_change(cql_subtree, pinfo, tvb, offset);
 				} else {
 					/* TODO: handle "TOPOLOGY_CHANGE" and "STATUS_CHANGE" event types as well*/
 				}
