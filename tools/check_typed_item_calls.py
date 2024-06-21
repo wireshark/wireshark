@@ -590,6 +590,10 @@ class ValueString:
             global warnings_found
 
             # Check for value conflict before inserting
+            if do_extra_checks and value in self.parsed_vals and label == self.parsed_vals[value]:
+                print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with same string - ', label)
+                warnings_found += 1
+
             if value in self.parsed_vals and label != self.parsed_vals[value]:
                 print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
                     self.parsed_vals[value], 'now', label)

@@ -892,7 +892,6 @@ static const value_string errorcodes [] = {
   {ERRORCODE_RESPONSETOOLARGE,                  "Error_Response_Too_Large"},
   {ERRORCODE_CONFIGTOOOLD,                      "Error_Config_Too_Old"},
   {ERRORCODE_CONFIGTOONEW,                      "Error_Config_Too_New"},
-  {ERRORCODE_CONFIGTOONEW,                      "Error_Config_Too_New"},
   {ERRORCODE_INPROGRESS,                        "Error_In_Progress"},
   {ERRORCODE_EXP_A,                             "Error_Exp_A"},
   {ERRORCODE_EXP_B,                             "Error_Exp_B"},

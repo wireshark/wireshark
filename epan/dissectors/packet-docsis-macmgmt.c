@@ -1585,7 +1585,6 @@ static const value_string mgmt_type_vals[] = {
   {MGT_OPT_REQ,        "OFDM Downstream Profile Test Request"},
   {MGT_OPT_RSP,        "OFDM Downstream Profile Test Response"},
   {MGT_OPT_ACK,        "OFDM Downstream Profile Test Acknowledge"},
-  {MGT_OPT_ACK,        "OFDM Downstream Profile Test Acknowledge"},
   {MGT_DPT_REQ,        "DOCSIS Time Protocol Request"},
   {MGT_DPT_RSP,        "DOCSIS Time Protocol Response"},
   {MGT_DPT_ACK,        "DOCSIS Time Protocol Acknowledge"},

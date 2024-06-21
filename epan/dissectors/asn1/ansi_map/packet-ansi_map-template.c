@@ -2440,7 +2440,6 @@ static const value_string ansi_map_SSDUpdateReport_vals[]  = {
     {   32579, "TDMA Segmented Over-the-Air Activation Teleservice (OATS)"},
     {   32580, "TDMA Segmented Over-the-Air Programming Teleservice (OPTS)."},
     {   32581, "TDMA Segmented General UDP Transport Service (GUTS)"},
-    {   32576, "Reserved"},
     {       0, NULL }
 };
 

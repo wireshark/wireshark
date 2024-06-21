@@ -342,7 +342,6 @@ static const value_string opt_vals[] = {
 	{ PGM_OPT_PGMCC_FEEDBACK, "CcFeedBack" },
 	{ PGM_OPT_NAK_BO_IVL,	  "NakBackOffIvl" },
 	{ PGM_OPT_NAK_BO_RNG,	  "NakBackOffRng" },
-	{ PGM_OPT_FRAGMENT,	  "Fragment" },
 	{ 0,                   NULL }
 };
 
