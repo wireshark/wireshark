@@ -101,7 +101,7 @@ static $tn dcom_proxy_$interface->{NAME}_$name(struct $interface->{NAME} *d, TAL
 		return status;
 	}
 
-	ZERO_STRUCT(r.in.ORPCthis);
+	NDR_ZERO_STRUCT(r.in.ORPCthis);
 	r.in.ORPCthis.version.MajorVersion = COM_MAJOR_VERSION;
 	r.in.ORPCthis.version.MinorVersion = COM_MINOR_VERSION;
 ";

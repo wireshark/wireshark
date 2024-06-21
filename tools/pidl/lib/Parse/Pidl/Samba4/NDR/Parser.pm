@@ -1134,7 +1134,7 @@ sub ParseElementPullLevel
 	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		$self->pidl("/* [skip] '$var_name' */");
 		if (not has_property($e, "skip_noinit")) {
-			$self->pidl("ZERO_STRUCT($var_name);");
+			$self->pidl("NDR_ZERO_STRUCT($var_name);");
 		}
 		return;
 	}
@@ -2551,7 +2551,7 @@ sub ParseFunctionPull($$)
 	# out to be too tricky (tridge)
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless grep(/out/, @{$e->{DIRECTION}});
-		$self->pidl("ZERO_STRUCT(r->out);");
+		$self->pidl("NDR_ZERO_STRUCT(r->out);");
 		$self->pidl("");
 		last;
 	}
@@ -2600,7 +2600,7 @@ sub ParseFunctionPull($$)
 			if (grep(/in/, @{$e->{DIRECTION}})) {
 				$self->pidl("*r->out.$e->{NAME} = *r->in.$e->{NAME};");
 			} else {
-				$self->pidl("ZERO_STRUCTP(r->out.$e->{NAME});");
+				$self->pidl("NDR_ZERO_STRUCTP(r->out.$e->{NAME});");
 			}
 		}
 	}

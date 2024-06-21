@@ -496,7 +496,7 @@ sub ParseFunction_Send($$$$)
 
 	if (defined($fn->{RETURN_TYPE})) {
 		$self->pidl("/* Result */");
-		$self->pidl("ZERO_STRUCT(state->orig.out.result);");
+		$self->pidl("NDR_ZERO_STRUCT(state->orig.out.result);");
 		$self->pidl("");
 	}
 
@@ -585,7 +585,7 @@ sub ParseFunction_Done($$$$)
 	}
 
 	$self->pidl("/* Reset temporary structure */");
-	$self->pidl("ZERO_STRUCT(state->tmp);");
+	$self->pidl("NDR_ZERO_STRUCT(state->tmp);");
 	$self->pidl("");
 
 	$self->pidl("tevent_req_done(req);");
@@ -698,7 +698,7 @@ sub ParseFunction_Sync($$$$)
 
 	if (defined($fn->{RETURN_TYPE})) {
 		$self->pidl("/* Result */");
-		$self->pidl("ZERO_STRUCT(r.out.result);");
+		$self->pidl("NDR_ZERO_STRUCT(r.out.result);");
 		$self->pidl("");
 	}
 

@@ -103,7 +103,7 @@ sub CallWithStruct($$$$$$)
 		if (grep(/out/, @{$_->{DIRECTION}})) { $hasout = 1; }
 	}
 
-	pidl "ZERO_STRUCT(r->out);" if ($hasout);
+	pidl "NDR_ZERO_STRUCT(r->out);" if ($hasout);
 
 	foreach (@{$fn->{ELEMENTS}}) {
 		my @dir = @{$_->{DIRECTION}};

@@ -313,7 +313,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("{");
 		$self->indent;
 		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
-		$self->pidl("DATA_BLOB blob;");
+		$self->pidl("DATA_BLOB blob = {.data = NULL, .length = 0};");
 		$self->pidl("Py_ssize_t blob_length = 0;");
 		$self->pidl("enum ndr_err_code err;");
 		$self->pidl("const char * const kwnames[] = { \"data_blob\", \"allow_remaining\", NULL };");
@@ -1235,7 +1235,7 @@ sub PythonType($$$$)
 		$self->pidl("PyObject *in = NULL;");
 		$self->pidl("$typename *out = NULL;");
 		$self->pidl("");
-		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"OiO:import\",");
+		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"OiO:export\",");
 		$self->indent;
 		$self->pidl("discard_const_p(char *, kwnames),");
 		$self->pidl("&mem_ctx_obj,");
