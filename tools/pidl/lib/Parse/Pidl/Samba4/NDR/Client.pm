@@ -5,9 +5,10 @@
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::NDR::Client;
+use parent Parse::Pidl::Base;
 
 use Exporter;
-@ISA = qw(Exporter);
+push @ISA, qw(Exporter);
 @EXPORT_OK = qw(Parse);
 
 use Parse::Pidl qw(fatal warning error);
@@ -17,18 +18,13 @@ use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Samba4 qw(choose_header is_intree DeclLong);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
 
+
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
 
-sub indent($) { my ($self) = @_; $self->{tabs}.="\t"; }
-sub deindent($) { my ($self) = @_; $self->{tabs} = substr($self->{tabs}, 1); }
-sub pidl($$) { my ($self,$txt) = @_; $self->{res} .= $txt ? "$self->{tabs}$txt\n" : "\n"; }
-sub pidl_hdr($$) { my ($self, $txt) = @_; $self->{res_hdr} .= "$txt\n"; }
-sub pidl_both($$) { my ($self, $txt) = @_; $self->{hdr} .= "$txt\n"; $self->{res_hdr} .= "$txt\n"; }
 sub fn_declare($$) { my ($self,$n) = @_; $self->pidl($n); $self->pidl_hdr("$n;"); }
-
 sub new($)
 {
 	my ($class) = shift;

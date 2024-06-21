@@ -4,9 +4,10 @@
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::Python;
+use parent Parse::Pidl::Base;
 
 use Exporter;
-@ISA = qw(Exporter);
+push @ISA, 'Exporter';
 
 use strict;
 use Parse::Pidl qw(warning fatal error);
@@ -16,6 +17,7 @@ use Parse::Pidl::NDR qw(ReturnTypeElement GetPrevLevel GetNextLevel ContainsDefe
 use Parse::Pidl::CUtil qw(get_value_of get_pointer_to);
 use Parse::Pidl::Samba4 qw(ArrayDynamicallyAllocated);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv EnvSubstituteValue GenerateStructEnv);
+
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -32,36 +34,6 @@ sub new($) {
 				 patch_type_calls => [], prereadycode => [],
 			 	 postreadycode => []};
 	bless($self, $class);
-}
-
-sub pidl_hdr ($$)
-{
-	my $self = shift;
-	$self->{res_hdr} .= shift;
-}
-
-sub pidl($$)
-{
-	my ($self, $d) = @_;
-	if ($d) {
-		if ((!($d =~ /^#/))) {
-			$self->{res} .= $self->{tabs};
-		}
-		$self->{res} .= $d;
-	}
-	$self->{res} .= "\n";
-}
-
-sub indent($)
-{
-	my ($self) = @_;
-	$self->{tabs} .= "\t";
-}
-
-sub deindent($)
-{
-	my ($self) = @_;
-	$self->{tabs} = substr($self->{tabs}, 0, -1);
 }
 
 sub PrettifyTypeName($$)
@@ -83,7 +55,7 @@ sub Import
 	foreach (@imports) {
 		$_ = unmake_str($_);
 		s/\.idl$//;
-		$self->pidl_hdr("#include \"librpc/gen_ndr/$_\.h\"\n");
+		$self->pidl_hdr("#include \"librpc/gen_ndr/$_\.h\"");
 		$self->register_module_import("samba.dcerpc.$_");
 	}
 }
@@ -395,7 +367,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("");
 	}
 
-	$self->pidl_hdr("static PyTypeObject $name\_Type;\n");
+	$self->pidl_hdr("static PyTypeObject $name\_Type;");
 	$self->pidl("");
 	my $docstring = $self->DocString($d, $name);
 	my $typeobject = "$name\_Type";
@@ -926,7 +898,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("};");
 	$self->pidl("");
 
-	$self->pidl_hdr("static PyTypeObject $name\_Type;\n");
+	$self->pidl_hdr("static PyTypeObject $name\_Type;");
 	$self->pidl("");
 	my $docstring = $self->DocString($fn, $name);
 	my $typeobject = "$name\_Type";
@@ -1357,7 +1329,7 @@ sub PythonType($$$$)
 		$self->pidl("");
 
 		$self->pidl("");
-		$self->pidl_hdr("static PyTypeObject $typeobject;\n");
+		$self->pidl_hdr("static PyTypeObject $typeobject;");
 		$self->pidl("static PyTypeObject $typeobject = {");
 		$self->indent;
 		$self->pidl("PyVarObject_HEAD_INIT(NULL, 0)");
@@ -1412,7 +1384,7 @@ sub Interface($$$)
 	}
 
 	if (defined $interface->{PROPERTIES}->{uuid}) {
-		$self->pidl_hdr("static PyTypeObject $interface->{NAME}_InterfaceType;\n");
+		$self->pidl_hdr("static PyTypeObject $interface->{NAME}_InterfaceType;");
 		$self->pidl("");
 
 		my @fns = ();
@@ -1545,7 +1517,7 @@ sub Interface($$$)
 						     ""]);
 	}
 
-	$self->pidl_hdr("\n");
+	$self->pidl_hdr("");
 }
 
 sub register_module_method($$$$$)
@@ -2387,7 +2359,6 @@ static inline long long ndr_sizeof2intmax(size_t var_size)
 
 	return 0;
 }
-
 ");
 
 	foreach my $x (@$ndr) {
@@ -2439,7 +2410,7 @@ static inline long long ndr_sizeof2intmax(size_t var_size)
 	foreach my $h (@{$self->{type_imports}}) {
 		my $type_var = "$h->{'key'}\_Type";
 		my $module_path = $h->{'val'};
-		$self->pidl_hdr("static PyTypeObject *$type_var;\n");
+		$self->pidl_hdr("static PyTypeObject *$type_var;");
 		my $pretty_name = PrettifyTypeName($h->{'key'}, $module_path);
 		my $module_var = "dep_$module_path";
 		$module_var =~ s/\./_/g;

@@ -6,9 +6,10 @@
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::NDR::Parser;
+use parent Parse::Pidl::Base;
 
 require Exporter;
-@ISA = qw(Exporter);
+push @ISA, qw(Exporter);
 @EXPORT_OK = qw(check_null_pointer NeededFunction NeededElement NeededType $res NeededInterface TypeFunctionName ParseElementPrint);
 
 use strict;
@@ -82,20 +83,6 @@ sub has_fast_array($$)
 
 
 ####################################
-# pidl() is our basic output routine
-sub pidl($$)
-{
-	my ($self, $d) = @_;
-	if ($d) {
-		$self->{res} .= $self->{tabs};
-		$self->{res} .= $d;
-	}
-	$self->{res} .="\n";
-}
-
-sub pidl_hdr($$) { my ($self, $d) = @_; $self->{res_hdr} .= "$d\n"; }
-
-####################################
 # defer() is like pidl(), but adds to 
 # a deferred buffer which is then added to the 
 # output buffer at the end of the structure/union/function
@@ -121,18 +108,6 @@ sub add_deferred($)
 	$self->pidl($_) foreach (@{$self->{deferred}});
 	$self->{deferred} = [];
 	$self->{defer_tabs} = "";
-}
-
-sub indent($)
-{
-	my ($self) = @_;
-	$self->{tabs} .= "\t";
-}
-
-sub deindent($)
-{
-	my ($self) = @_;
-	$self->{tabs} = substr($self->{tabs}, 0, -1);
 }
 
 #####################################################################
