@@ -204,7 +204,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       proto_tree_add_item_ret_uint(vssmonitoring_tree, hf_vssmonitoring_srcport, tvb, offset, portstamp_len, ENC_BIG_ENDIAN, &vssmonitoring_srcport);
       proto_item_append_text(ti, ", Source Port: %d", vssmonitoring_srcport);
     }
-    offset += portstamp_len;
+    /*offset += portstamp_len;*/
   }
 
   return true;
