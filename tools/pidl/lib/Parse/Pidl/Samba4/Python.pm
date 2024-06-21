@@ -499,7 +499,62 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("static PyObject *py_$name\_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("return pytalloc_new($cname, type);");
+
+	# This creates a new, zeroed C structure and python object.
+	# Thse may not be valid or sensible values, but this is as
+	# well as we can do.
+
+	$self->pidl("PyObject *self = pytalloc_new($cname, type);");
+
+	# If there are any children that are ref pointers, we need to
+	# allocate something for them to point to just as the pull
+	# routine will when parsing the stucture from NDR.
+	#
+	# We then make those pointers point to zeroed memory
+	#
+	# A ref pointer is a pointer in the C structure but a scalar
+	# on the wire. It is for a remote function like:
+	#
+	# int foo(int *i)
+	#
+	# This may be called with the pointer by reference eg foo(&i)
+	#
+	# That is why this only goes as far as the next level; deeply
+	# nested pointer chains will end in a NULL.
+
+	my @ref_elements;
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		if (has_property($e, "ref") && ! has_property($e, "charset")) {
+			if (!has_property($e, 'in') && !has_property($e, 'out')) {
+				die "ref pointer that is not in or out";
+			}
+			push @ref_elements, $e;
+		}
+	}
+	if (@ref_elements) {
+		$self->pidl("$cname *_self = ($cname *)pytalloc_get_ptr(self);");
+		$self->pidl("TALLOC_CTX *mem_ctx = pytalloc_get_mem_ctx(self);");
+		foreach my $e (@ref_elements) {
+			my $ename = $e->{NAME};
+			my $t = mapTypeName($e->{TYPE});
+			my $p = $e->{ORIGINAL}->{POINTERS} // 1;
+			if ($p > 1) {
+				$self->pidl("/* a pointer to a NULL pointer */");
+				$t .= ' ' . '*' x ($p - 1);
+			}
+
+			# We checked in the loop above that each ref
+			# pointer is in or out (or both)
+			if (has_property($e, 'in')) {
+				$self->pidl("_self->in.$ename = talloc_zero(mem_ctx, $t);");
+			}
+
+			if (has_property($e, 'out')) {
+				$self->pidl("_self->out.$ename = talloc_zero(mem_ctx, $t);");
+			}
+		}
+	}
+	$self->pidl("return self;");
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");
@@ -2234,7 +2289,11 @@ sub ConvertObjectToPythonLevel($$$$$$$)
 			$self->indent;
 			my $member_var = "py_$e->{NAME}_$l->{LEVEL_INDEX}";
 			$self->pidl("PyObject *$member_var;");
-			$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail, $recurse);
+			if (ArrayDynamicallyAllocated($e, $l)) {
+				$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail, $recurse);
+			} else {
+				$self->ConvertObjectToPythonLevel($mem_ctx, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail, $recurse);
+			}
 			$self->pidl("PyList_SetItem($py_var, $counter, $member_var);");
 			$self->deindent;
 			$self->pidl("}");

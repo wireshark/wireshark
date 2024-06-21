@@ -1247,10 +1247,14 @@ sub ParseElementPullLevel
 
 		if ($deferred and ContainsDeferred($e, $l)) {
 			$self->pidl("for ($counter = 0; $counter < ($length); $counter++) {");
+			$self->defer("for ($counter = 0; $counter < ($length); $counter++) {");
+			$self->defer_indent;
 			$self->indent;
 			$self->ParseElementPullLevel($e,GetNextLevel($e,$l), $ndr, $var_name, $env, 0, 1);
 			$self->deindent;
+			$self->defer_deindent;
 			$self->pidl("}");
+			$self->defer("}");
 		}
 
 		$self->ParseMemCtxPullEnd($e, $l, $ndr);
@@ -1920,7 +1924,7 @@ sub ParseUnionPushPrimitives($$$$)
 	}
 	if (! $have_default) {
 		$self->pidl("default:");
-		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u at \%s\", level, __location__);");
+		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u\", level);");
 	}
 	$self->deindent;
 	$self->pidl("}");
@@ -1956,7 +1960,7 @@ sub ParseUnionPushDeferred($$$$)
 	}
 	if (! $have_default) {
 		$self->pidl("default:");
-		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u at \%s\", level, __location__);");
+		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u\", level);");
 	}
 	$self->deindent;
 	$self->pidl("}");
@@ -2768,7 +2772,7 @@ sub StructEntry($$)
 	$self->pidl("\t\t.struct_size = sizeof($type_decl),");
 	$self->pidl("\t\t.ndr_push = (ndr_push_flags_fn_t) ndr_push_$d->{NAME},");
 	$self->pidl("\t\t.ndr_pull = (ndr_pull_flags_fn_t) ndr_pull_$d->{NAME},");
-	$self->pidl("\t\t.ndr_print = (ndr_print_function_t) ndr_print_$d->{NAME},");
+	$self->pidl("\t\t.ndr_print = (ndr_print_function_t) ndr_print_flags_$d->{NAME},");
 	$self->pidl("\t},");
 	return 1;
 }
@@ -2788,7 +2792,6 @@ sub FunctionTable($$)
 	}
 	return if ($#{$interface->{FUNCTIONS}}+1 == 0 and
 		   $count_public_structs == 0);
-	return unless defined ($interface->{PROPERTIES}->{uuid});
 
 	foreach my $d (@{$interface->{INHERITED_FUNCTIONS}},@{$interface->{FUNCTIONS}}) {
 		$self->FunctionCallPipes($d);
@@ -2832,16 +2835,18 @@ sub FunctionTable($$)
 		$interface->{PROPERTIES}->{authservice} = "\"host\"";
 	}
 
-	$self->AuthServiceStruct($interface->{NAME}, 
+	$self->AuthServiceStruct($interface->{NAME},
 		                     $interface->{PROPERTIES}->{authservice});
 
 	$self->pidl("\nconst struct ndr_interface_table ndr_table_$interface->{NAME} = {");
 	$self->pidl("\t.name\t\t= \"$interface->{NAME}\",");
-	$self->pidl("\t.syntax_id\t= {");
-	$self->pidl("\t\t" . print_uuid($interface->{UUID}) .",");
-	$self->pidl("\t\tNDR_$uname\_VERSION");
-	$self->pidl("\t},");
-	$self->pidl("\t.helpstring\t= NDR_$uname\_HELPSTRING,");
+	if (defined $interface->{PROPERTIES}->{uuid}) {
+		$self->pidl("\t.syntax_id\t= {");
+		$self->pidl("\t\t" . print_uuid($interface->{UUID}) .",");
+		$self->pidl("\t\tNDR_$uname\_VERSION");
+		$self->pidl("\t},");
+		$self->pidl("\t.helpstring\t= NDR_$uname\_HELPSTRING,");
+	}
 	$self->pidl("\t.num_calls\t= $count,");
 	$self->pidl("\t.calls\t\t= $interface->{NAME}\_calls,");
 	$self->pidl("\t.num_public_structs\t= $count_public_structs,");
@@ -2910,7 +2915,15 @@ sub HeaderInterface($$$)
 
 		if(!defined $interface->{PROPERTIES}->{helpstring}) { $interface->{PROPERTIES}->{helpstring} = "NULL"; }
 		$self->pidl_hdr("#define NDR_$name\_HELPSTRING $interface->{PROPERTIES}->{helpstring}");
+	}
 
+	my $count_public_structs = 0;
+	foreach my $d (@{$interface->{TYPES}}) {
+	        next unless (has_property($d, "public"));
+		$count_public_structs += 1;
+	}
+	if ($#{$interface->{FUNCTIONS}}+1 > 0 or
+		   $count_public_structs > 0) {
 		$self->pidl_hdr("extern const struct ndr_interface_table ndr_table_$interface->{NAME};");
 	}
 
@@ -3014,6 +3027,18 @@ sub ParseTypePrintFunction($$$)
 
 	$self->pidl_hdr("void ".TypeFunctionName("ndr_print", $e)."(struct ndr_print *ndr, const char *name, $args);");
 
+	if (has_property($e, "public")) {
+                $self->pidl("static void ".TypeFunctionName("ndr_print_flags", $e).
+                             "(struct ndr_print *$ndr, const char *name, int unused, $args)"
+                             );
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl(TypeFunctionName("ndr_print", $e)."($ndr, name, $varname);");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+	}
+
 	return if (has_property($e, "noprint"));
 
 	$self->pidl("_PUBLIC_ void ".TypeFunctionName("ndr_print", $e)."(struct ndr_print *$ndr, const char *name, $args)");
@@ -3093,7 +3118,16 @@ sub ParseInterface($$$)
 		($needed->{"ndr_print_$d->{NAME}"}) && $self->ParseFunctionPrint($d);
 	}
 
+        # Allow compilation of generated files where replacement functions
+        # for structures declared nopull/nopush have not been provided.
+        #
+        # This makes sense when only the print functions are used
+        #
+        # Otherwise the ndr_table XXX will reference these
+
+        $self->pidl("#ifndef SKIP_NDR_TABLE_$interface->{NAME}");
 	$self->FunctionTable($interface);
+        $self->pidl("#endif /* SKIP_NDR_TABLE_$interface->{NAME} */");
 
 	$self->pidl_hdr("#endif /* _HEADER_NDR_$interface->{NAME} */");
 }
