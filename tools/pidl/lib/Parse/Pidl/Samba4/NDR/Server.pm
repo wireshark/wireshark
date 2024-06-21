@@ -81,10 +81,10 @@ sub Boilerplate_Iface($)
 	my $if_version = $interface->{VERSION};
 
 	pidl "
-static NTSTATUS $name\__op_bind(struct dcesrv_call_state *dce_call, const struct dcesrv_interface *iface, uint32_t if_version)
+static NTSTATUS $name\__op_bind(struct dcesrv_connection_context *context, const struct dcesrv_interface *iface)
 {
 #ifdef DCESRV_INTERFACE_$uname\_BIND
-	return DCESRV_INTERFACE_$uname\_BIND(dce_call,iface);
+	return DCESRV_INTERFACE_$uname\_BIND(context,iface);
 #else
 	return NT_STATUS_OK;
 #endif
@@ -223,12 +223,22 @@ sub Boilerplate_Ep_Server($)
 static NTSTATUS $name\__op_init_server(struct dcesrv_context *dce_ctx, const struct dcesrv_endpoint_server *ep_server)
 {
 	int i;
+#ifdef DCESRV_INTERFACE_$uname\_NCACN_NP_SECONDARY_ENDPOINT
+	const char *ncacn_np_secondary_endpoint =
+		DCESRV_INTERFACE_$uname\_NCACN_NP_SECONDARY_ENDPOINT;
+#else
+	const char *ncacn_np_secondary_endpoint = NULL;
+#endif
 
 	for (i=0;i<ndr_table_$name.endpoints->count;i++) {
 		NTSTATUS ret;
 		const char *name = ndr_table_$name.endpoints->names[i];
 
-		ret = dcesrv_interface_register(dce_ctx, name, &dcesrv_$name\_interface, NULL);
+		ret = dcesrv_interface_register(dce_ctx,
+						name,
+						ncacn_np_secondary_endpoint,
+						&dcesrv_$name\_interface,
+						NULL);
 		if (!NT_STATUS_IS_OK(ret)) {
 			DEBUG(1,(\"$name\_op_init_server: failed to register endpoint \'%s\'\\n\",name));
 			return ret;
