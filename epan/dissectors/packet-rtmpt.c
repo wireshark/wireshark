@@ -1772,11 +1772,9 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
         guint8      iCtl;
         guint8      iMultitrackCtl;
-        guint8      iVideoCommand;
         guint8      iVideoFrameType;
         guint8      iVideoPacketType;
         guint8      iAvMultitrackType;
-        guint8      iVideoTrackId;
         guint32     iVideoTrackLength;
         proto_item *vi;
         proto_tree *vt;
@@ -1800,14 +1798,13 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                                 val_to_str_const(iVideoFrameType, rtmpt_video_types, "Reserved frame type"),
                                 val_to_str_const(iVideoPacketType, rtmpt_video_packet_types, "Reserved packet type"));
                 vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
-                proto_tree_add_uint(vt, hf_rtmpt_video_is_ex_header, tvb, offset, 1, iCtl);
-                proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
-                proto_tree_add_uint(vt, hf_rtmpt_video_packet_type, tvb, offset, 1, iCtl);
+                proto_tree_add_item(vt, hf_rtmpt_video_is_ex_header, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(vt, hf_rtmpt_video_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(vt, hf_rtmpt_video_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
                 if (iVideoPacketType != RTMPT_IS_PACKET_TYPE_METADATA && iVideoFrameType == RTMPT_IS_FRAME_TYPE_COMMAND) {
-                        iVideoCommand = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_uint(vt, hf_rtmpt_video_command, tvb, offset, 1, iVideoCommand);
+                        proto_tree_add_item(vt, hf_rtmpt_video_command, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
                         processVideoBody = false;
                 } else if (isVideoMultitrack) {
@@ -1818,8 +1815,8 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                                 val_to_str_const(iAvMultitrackType, rtmpt_av_multitrack_types, "Reserved av multitrack type"),
                                 val_to_str_const(iMultitrackCtl & 0xf, rtmpt_video_packet_types, "Reserved video packet type"));
                         vt = proto_item_add_subtree(vi, ett_rtmpt_video_multitrack_control);
-                        proto_tree_add_uint(vt, hf_rtmpt_video_multitrack_type, tvb, offset, 1, iMultitrackCtl);
-                        proto_tree_add_uint(vt, hf_rtmpt_video_multitrack_packet_type, tvb, offset, 1, iMultitrackCtl);
+                        proto_tree_add_item(vt, hf_rtmpt_video_multitrack_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(vt, hf_rtmpt_video_multitrack_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
 
                         isOneTrack = (iAvMultitrackType & 0x0f) == RTMPT_IS_ONETRACK;
@@ -1835,8 +1832,7 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 
                 while (processVideoBody && tvb_reported_length_remaining(tvb, offset) > 0){
                         if (isVideoMultitrack) {
-                                iVideoTrackId = tvb_get_guint8(tvb, offset);
-                                vi = proto_tree_add_uint(rtmpt_tree, hf_rtmpt_video_track_id, tvb, offset, 1, iVideoTrackId);
+                                vi = proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_track_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 vt = proto_item_add_subtree(vi, ett_rtmpt_video_multitrack_track);
                                 if (isManyTracksManyCodecs) {
                                         proto_tree_add_item(vt, hf_rtmpt_video_fourcc, tvb, offset, 4, ENC_ASCII);
@@ -1845,7 +1841,7 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                                 offset += 1;
                                 if (!isOneTrack) {
                                         iVideoTrackLength = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
-                                        proto_tree_add_uint(vt, hf_rtmpt_video_track_length, tvb, offset, 3, iVideoTrackLength);
+                                        proto_tree_add_item(vt, hf_rtmpt_video_track_length, tvb, offset, 3, ENC_BIG_ENDIAN);
                                         offset += 3;
                                         proto_tree_add_item(vt, hf_rtmpt_video_data, tvb, offset, iVideoTrackLength, ENC_NA);
                                         offset += iVideoTrackLength;
@@ -1865,13 +1861,12 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                                             val_to_str_const(iCtl & 0x0f, rtmpt_video_codecs, "Unknown codec"));
 
             vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
-            proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
-            proto_tree_add_uint(vt, hf_rtmpt_video_format, tvb, offset, 1, iCtl);
+            proto_tree_add_item(vt, hf_rtmpt_video_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(vt, hf_rtmpt_video_format, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             if (iVideoFrameType == RTMPT_IS_FRAME_TYPE_COMMAND) {
-                    iVideoCommand = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(vt, hf_rtmpt_video_command, tvb, offset, 1, iVideoCommand);
+                    proto_tree_add_item(vt, hf_rtmpt_video_command, tvb, offset, 1, ENC_BIG_ENDIAN);
             } else {
                     proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset, -1, ENC_NA);
             }
@@ -2800,7 +2795,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(amf_tree, hf_amf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         header_count = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(amf_tree, hf_amf_header_count, tvb, offset, 2, header_count);
+        proto_tree_add_item(amf_tree, hf_amf_header_count, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         if (header_count != 0) {
                 headers_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_headers, NULL, "Headers");
@@ -2814,7 +2809,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                         if (header_length == 0xFFFFFFFF)
                                 proto_tree_add_uint_format_value(headers_tree, hf_amf_header_length, tvb, offset, 4, header_length, "Unknown");
                         else
-                                proto_tree_add_uint(headers_tree, hf_amf_header_length, tvb, offset, 4, header_length);
+                                proto_tree_add_item(headers_tree, hf_amf_header_length, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                         if (amf3_encoding)
                                 offset = dissect_amf3_value_type(tvb, pinfo, offset, headers_tree, NULL);
@@ -2823,7 +2818,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 }
         }
         message_count = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(amf_tree, hf_amf_message_count, tvb, offset, 2, message_count);
+        proto_tree_add_item(amf_tree, hf_amf_message_count, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         if (message_count != 0) {
                 messages_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_messages, NULL, "Messages");
@@ -2838,7 +2833,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                         if (message_length == 0xFFFFFFFF)
                                 proto_tree_add_uint_format_value(messages_tree, hf_amf_message_length, tvb, offset, 4, message_length, "Unknown");
                         else
-                                proto_tree_add_uint(messages_tree, hf_amf_message_length, tvb, offset, 4, message_length);
+                                proto_tree_add_item(messages_tree, hf_amf_message_length, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                         offset = dissect_rtmpt_body_command(tvb, pinfo, offset, messages_tree, FALSE);
                 }
