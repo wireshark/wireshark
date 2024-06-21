@@ -1833,6 +1833,9 @@ sub ParseStructNdrSize($$$$)
 sub DeclStruct($$$$)
 {
 	my ($e,$t,$name,$varname) = @_;
+	if ($t eq "base") {
+	        return "struct $name $varname";
+	}
 	return ($t ne "pull"?"const ":"") . "struct $name *$varname";
 }
 
@@ -2175,6 +2178,9 @@ sub ParseUnionPull($$$$)
 sub DeclUnion($$$$)
 {
 	my ($e,$t,$name,$varname) = @_;
+	if ($t eq "base") {
+	        return "union $name $varname";
+	}
 	return ($t ne "pull"?"const ":"") . "union $name *$varname";
 }
 
@@ -2752,20 +2758,51 @@ sub FunctionCallEntry($$)
 	return 1;
 }
 
+sub StructEntry($$)
+{
+	my ($self, $d) = @_;
+	my $type_decl = $typefamily{$d->{TYPE}}->{DECL}->($d, "base", $d->{NAME}, "");
+
+	$self->pidl("\t{");
+	$self->pidl("\t\t.name = \"$d->{NAME}\",");
+	$self->pidl("\t\t.struct_size = sizeof($type_decl),");
+	$self->pidl("\t\t.ndr_push = (ndr_push_flags_fn_t) ndr_push_$d->{NAME},");
+	$self->pidl("\t\t.ndr_pull = (ndr_pull_flags_fn_t) ndr_pull_$d->{NAME},");
+	$self->pidl("\t\t.ndr_print = (ndr_print_function_t) ndr_print_$d->{NAME},");
+	$self->pidl("\t},");
+	return 1;
+}
+
 #####################################################################
 # produce a function call table
 sub FunctionTable($$)
 {
 	my($self,$interface) = @_;
 	my $count = 0;
+	my $count_public_structs = 0;
 	my $uname = uc $interface->{NAME};
 
-	return if ($#{$interface->{FUNCTIONS}}+1 == 0);
+	foreach my $d (@{$interface->{TYPES}}) {
+	        next unless (has_property($d, "public"));
+		$count_public_structs += 1;
+	}
+	return if ($#{$interface->{FUNCTIONS}}+1 == 0 and
+		   $count_public_structs == 0);
 	return unless defined ($interface->{PROPERTIES}->{uuid});
 
 	foreach my $d (@{$interface->{INHERITED_FUNCTIONS}},@{$interface->{FUNCTIONS}}) {
 		$self->FunctionCallPipes($d);
 	}
+
+	$self->pidl("static const struct ndr_interface_public_struct $interface->{NAME}\_public_structs[] = {");
+
+	foreach my $d (@{$interface->{TYPES}}) {
+	        next unless (has_property($d, "public"));
+		$self->StructEntry($d)
+	}
+	$self->pidl("\t{ .name = NULL }");
+	$self->pidl("};");
+	$self->pidl("");
 
 	$self->pidl("static const struct ndr_interface_call $interface->{NAME}\_calls[] = {");
 
@@ -2807,6 +2844,8 @@ sub FunctionTable($$)
 	$self->pidl("\t.helpstring\t= NDR_$uname\_HELPSTRING,");
 	$self->pidl("\t.num_calls\t= $count,");
 	$self->pidl("\t.calls\t\t= $interface->{NAME}\_calls,");
+	$self->pidl("\t.num_public_structs\t= $count_public_structs,");
+	$self->pidl("\t.public_structs\t\t= $interface->{NAME}\_public_structs,");
 	$self->pidl("\t.endpoints\t= &$interface->{NAME}\_endpoints,");
 	$self->pidl("\t.authservices\t= &$interface->{NAME}\_authservices");
 	$self->pidl("};");
