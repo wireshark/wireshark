@@ -240,6 +240,11 @@ static NTSTATUS $name\__op_init_server(struct dcesrv_context *dce_ctx, const str
 	return NT_STATUS_OK;
 }
 
+static NTSTATUS $name\__op_shutdown_server(struct dcesrv_context *dce_ctx, const struct dcesrv_endpoint_server *ep_server)
+{
+	return NT_STATUS_OK;
+}
+
 static bool $name\__op_interface_by_uuid(struct dcesrv_interface *iface, const struct GUID *uuid, uint32_t if_version)
 {
 	if (dcesrv_$name\_interface.syntax_id.if_version == if_version &&
@@ -268,11 +273,19 @@ NTSTATUS dcerpc_server_$name\_init(TALLOC_CTX *ctx)
 	    /* fill in our name */
 	    .name = \"$name\",
 
+	    /* Initialization flag */
+	    .initialized = false,
+
 	    /* fill in all the operations */
 #ifdef DCESRV_INTERFACE_$uname\_INIT_SERVER
 	    .init_server = DCESRV_INTERFACE_$uname\_INIT_SERVER,
 #else
 	    .init_server = $name\__op_init_server,
+#endif
+#ifdef DCESRV_INTERFACE_$uname\_SHUTDOWN_SERVER
+	    .shutdown_server = DCESRV_INTERFACE_$uname\_SHUTDOWN_SERVER,
+#else
+	    .shutdown_server = $name\__op_shutdown_server,
 #endif
 	    .interface_by_uuid = $name\__op_interface_by_uuid,
 	    .interface_by_name = $name\__op_interface_by_name

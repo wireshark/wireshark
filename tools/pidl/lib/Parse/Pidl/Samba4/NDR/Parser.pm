@@ -88,6 +88,18 @@ sub has_fast_array($$)
 	return ($t->{NAME} eq "uint8");
 }
 
+sub is_public_struct
+{
+	my ($d) = @_;
+	if (!has_property($d, "public")) {
+		return 0;
+	}
+	my $t = $d;
+	if ($d->{TYPE} eq "TYPEDEF") {
+		$t = $d->{DATA};
+	}
+	return $t->{TYPE} eq "STRUCT";
+}
 
 ####################################
 # defer() is like pidl(), but adds to 
@@ -2604,6 +2616,31 @@ sub ParseFunctionPull($$)
 	$self->pidl("if (flags & NDR_OUT) {");
 	$self->indent;
 
+	$self->pidl("#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION");
+
+	# This for fuzzers of ndr_pull where the out elements refer to
+	# in elements in size_is or length_is.
+	#
+	# Not actually very harmful but also not useful outsie a fuzzer
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		next unless (grep(/in/, @{$e->{DIRECTION}}));
+		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and
+		             $e->{LEVELS}[0]->{POINTER_TYPE} eq "ref");
+		next if (($e->{LEVELS}[1]->{TYPE} eq "DATA") and
+				 ($e->{LEVELS}[1]->{DATA_TYPE} eq "string"));
+		next if ($e->{LEVELS}[1]->{TYPE} eq "PIPE");
+		next if ($e->{LEVELS}[1]->{TYPE} eq "ARRAY");
+
+		$self->pidl("if (r->in.$e->{NAME} == NULL) {");
+		$self->indent;
+		$self->pidl("NDR_PULL_ALLOC($ndr, r->in.$e->{NAME});");
+		$self->pidl("NDR_ZERO_STRUCTP(r->in.$e->{NAME});");
+		$self->deindent;
+		$self->pidl("}");
+	}
+
+	$self->pidl("#endif /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */");
+
 	$env = GenerateFunctionOutEnv($fn);
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless grep(/out/, @{$e->{DIRECTION}});
@@ -2769,7 +2806,7 @@ sub FunctionTable($$)
 	my $uname = uc $interface->{NAME};
 
 	foreach my $d (@{$interface->{TYPES}}) {
-	        next unless (has_property($d, "public"));
+	        next unless (is_public_struct($d));
 		$count_public_structs += 1;
 	}
 	return if ($#{$interface->{FUNCTIONS}}+1 == 0 and
@@ -2782,8 +2819,8 @@ sub FunctionTable($$)
 	$self->pidl("static const struct ndr_interface_public_struct $interface->{NAME}\_public_structs[] = {");
 
 	foreach my $d (@{$interface->{TYPES}}) {
-	        next unless (has_property($d, "public"));
-		$self->StructEntry($d)
+	        next unless (is_public_struct($d));
+		$self->StructEntry($d);
 	}
 	$self->pidl("\t{ .name = NULL }");
 	$self->pidl("};");
@@ -3009,7 +3046,7 @@ sub ParseTypePrintFunction($$$)
 
 	$self->pidl_hdr("void ".TypeFunctionName("ndr_print", $e)."(struct ndr_print *ndr, const char *name, $args);");
 
-	if (has_property($e, "public")) {
+	if (is_public_struct($e)) {
                 $self->pidl("static void ".TypeFunctionName("ndr_print_flags", $e).
                              "(struct ndr_print *$ndr, const char *name, int unused, $args)"
                              );
