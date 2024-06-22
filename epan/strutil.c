@@ -32,12 +32,12 @@
  * buffer.
  * Return a pointer to the EOL character(s) in "*eol".
  */
-const guchar *
-find_line_end(const guchar *data, const guchar *dataend, const guchar **eol)
+const unsigned char *
+find_line_end(const unsigned char *data, const unsigned char *dataend, const unsigned char **eol)
 {
-    const guchar *lineend;
+    const unsigned char *lineend;
 
-    lineend = (guchar *)memchr(data, '\n', dataend - data);
+    lineend = (unsigned char *)memchr(data, '\n', dataend - data);
     if (lineend == NULL) {
         /*
          * No LF - line is probably continued in next TCP segment.
@@ -97,10 +97,10 @@ find_line_end(const guchar *data, const guchar *dataend, const guchar **eol)
  * Return 0 if there is no next token.
  */
 int
-get_token_len(const guchar *linep, const guchar *lineend,
-        const guchar **next_token)
+get_token_len(const unsigned char *linep, const unsigned char *lineend,
+        const unsigned char **next_token)
 {
-    const guchar *tokenp;
+    const unsigned char *tokenp;
     int token_len;
 
     tokenp = linep;
@@ -123,8 +123,8 @@ get_token_len(const guchar *linep, const guchar *lineend,
     return token_len;
 }
 
-static gboolean
-is_byte_sep(guint8 c)
+static bool
+is_byte_sep(uint8_t c)
 {
     return (c == '-' || c == ':' || c == '.');
 }
@@ -136,18 +136,18 @@ is_byte_sep(guint8 c)
  * It allows the separator to change from one character to another,
  * or to and from no separator if force_separators is false.
  */
-gboolean
-hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separators)
+bool
+hex_str_to_bytes(const char *hex_str, GByteArray *bytes, bool force_separators)
 {
-    guint8        val;
-    const gchar    *p, *q, *r, *s, *punct;
+    uint8_t       val;
+    const char     *p, *q, *r, *s, *punct;
     char        four_digits_first_half[3];
     char        four_digits_second_half[3];
     char        two_digits[3];
     char        one_digit[2];
 
     if (! hex_str || ! bytes) {
-        return FALSE;
+        return false;
     }
     g_byte_array_set_size(bytes, 0);
     p = hex_str;
@@ -167,7 +167,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
              * by themselves or after a separator.
              */
             if (!g_ascii_isxdigit(*s)) {
-                return FALSE;
+                return false;
             }
             four_digits_first_half[0] = *p;
             four_digits_first_half[1] = *q;
@@ -179,9 +179,9 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             /*
              * Four or more hex digits in a row.
              */
-            val = (guint8) strtoul(four_digits_first_half, NULL, 16);
+            val = (uint8_t) strtoul(four_digits_first_half, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
-            val = (guint8) strtoul(four_digits_second_half, NULL, 16);
+            val = (uint8_t) strtoul(four_digits_second_half, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
 
             punct = s + 1;
@@ -198,7 +198,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
                     continue;
                 }
                 else if (force_separators) {
-                    return FALSE;
+                    return false;
                 }
             }
             p = punct;
@@ -212,7 +212,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             /*
              * Two hex digits in a row.
              */
-            val = (guint8) strtoul(two_digits, NULL, 16);
+            val = (uint8_t) strtoul(two_digits, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
             punct = q + 1;
             if (*punct) {
@@ -228,7 +228,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
                     continue;
                 }
                 else if (force_separators) {
-                    return FALSE;
+                    return false;
                 }
             }
             p = punct;
@@ -241,7 +241,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             /*
              * Only one hex digit (not at the end of the string)
              */
-            val = (guint8) strtoul(one_digit, NULL, 16);
+            val = (uint8_t) strtoul(one_digit, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
             p = q + 1;
             continue;
@@ -253,22 +253,22 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             /*
              * Only one hex digit (at the end of the string)
              */
-            val = (guint8) strtoul(one_digit, NULL, 16);
+            val = (uint8_t) strtoul(one_digit, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
             p = q;
             continue;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
-static inline gchar
-get_valid_byte_sep(gchar c, const guint encoding)
+static inline char
+get_valid_byte_sep(char c, const unsigned encoding)
 {
-    gchar retval = -1; /* -1 means failure */
+    char retval = -1; /* -1 means failure */
 
     switch (c) {
         case ':':
@@ -304,22 +304,22 @@ get_valid_byte_sep(gchar c, const guint encoding)
 /* Turn a string of hex digits with optional separators (defined by is_byte_sep())
  * into a byte array. Unlike hex_str_to_bytes(), this will read as many hex-char
  * pairs as possible and not error if it hits a non-hex-char; instead it just ends
- * there. (i.e., like strtol()/atoi()/etc.) Unless fail_if_partial is TRUE.
+ * there. (i.e., like strtol()/atoi()/etc.) Unless fail_if_partial is true.
  *
  * The **endptr, if not NULL, is set to the char after the last hex character.
  */
-gboolean
-hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar **endptr,
-                          const guint encoding, const gboolean fail_if_partial)
+bool
+hex_str_to_bytes_encoding(const char *hex_str, GByteArray *bytes, const char **endptr,
+                          const unsigned encoding, const bool fail_if_partial)
 {
-    gint8 c, d;
-    guint8 val;
-    const gchar *end = hex_str;
-    gboolean retval = FALSE;
-    gchar sep = -1;
+    int8_t c, d;
+    uint8_t val;
+    const char *end = hex_str;
+    bool retval = false;
+    char sep = -1;
 
     /* a map from ASCII hex chars to their value */
-    static const gint8 str_to_nibble[256] = {
+    static const int8_t str_to_nibble[256] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -340,7 +340,7 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
 
     /* we must see two hex chars at the beginning, or fail */
     if (bytes && *end && g_ascii_isxdigit(*end) && g_ascii_isxdigit(*(end+1))) {
-        retval = TRUE;
+        retval = true;
 
         /* set the separator character we'll allow; if this returns a -1, it means something's
          * invalid after the hex, but we'll let the while-loop grab the first hex-pair anyway
@@ -348,29 +348,29 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
         sep = get_valid_byte_sep(*(end+2), encoding);
 
         while (*end) {
-            c = str_to_nibble[(guchar)*end];
+            c = str_to_nibble[(unsigned char)*end];
             if (c < 0) {
-                if (fail_if_partial) retval = FALSE;
+                if (fail_if_partial) retval = false;
                 break;
             }
 
-            d = str_to_nibble[(guchar)*(end+1)];
+            d = str_to_nibble[(unsigned char)*(end+1)];
             if (d < 0) {
-                if (fail_if_partial) retval = FALSE;
+                if (fail_if_partial) retval = false;
                 break;
             }
-            val = ((guint8)c * 16) + d;
+            val = ((uint8_t)c * 16) + d;
             g_byte_array_append(bytes, &val, 1);
             end += 2;
 
             /* check for separator and peek at next char to make sure we should keep going */
-            if (sep > 0 && *end == sep && str_to_nibble[(guchar)*(end+1)] > -1) {
+            if (sep > 0 && *end == sep && str_to_nibble[(unsigned char)*(end+1)] > -1) {
                 /* yes, it's the right sep and followed by more hex, so skip the sep */
                 ++end;
             } else if (sep != 0 && *end) {
                 /* we either need a separator, but we don't see one; or the get_valid_byte_sep()
                    earlier didn't find a valid one to begin with */
-                if (fail_if_partial) retval = FALSE;
+                if (fail_if_partial) retval = false;
                 break;
             }
             /* otherwise, either no separator allowed, or *end is null, or *end is an invalid
@@ -398,43 +398,43 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
  * glib >= 2.66
  */
 #define HEX_DIGIT_BUF_LEN 3
-gboolean
+bool
 uri_to_bytes(const char *uri_str, GByteArray *bytes, size_t len)
 {
-    guint8        val;
-    const gchar  *p;
-    const gchar  *uri_end = uri_str + len;
-    gchar         hex_digit[HEX_DIGIT_BUF_LEN];
+    uint8_t       val;
+    const char   *p;
+    const char   *uri_end = uri_str + len;
+    char          hex_digit[HEX_DIGIT_BUF_LEN];
 
     g_byte_array_set_size(bytes, 0);
     if (! uri_str) {
-        return FALSE;
+        return false;
     }
 
     p = uri_str;
 
     while (p < uri_end) {
         if (!g_ascii_isprint(*p))
-            return FALSE;
+            return false;
         if (*p == '%') {
             p++;
-            if (*p == '\0') return FALSE;
+            if (*p == '\0') return false;
             hex_digit[0] = *p;
             p++;
-            if (*p == '\0') return FALSE;
+            if (*p == '\0') return false;
             hex_digit[1] = *p;
             hex_digit[2] = '\0';
             if (! g_ascii_isxdigit(hex_digit[0]) || ! g_ascii_isxdigit(hex_digit[1]))
-                return FALSE;
-            val = (guint8) strtoul(hex_digit, NULL, 16);
+                return false;
+            val = (uint8_t) strtoul(hex_digit, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
         } else {
-            g_byte_array_append(bytes, (const guint8 *) p, 1);
+            g_byte_array_append(bytes, (const uint8_t *) p, 1);
         }
         p++;
 
     }
-    return TRUE;
+    return true;
 }
 
 /*
@@ -442,7 +442,7 @@ uri_to_bytes(const char *uri_str, GByteArray *bytes, size_t len)
  * XXX - We don't check for reserved characters.
  * XXX - Just use g_uri_unescape_string instead?
  */
-gboolean
+bool
 uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
 {
     return uri_to_bytes(uri_str, bytes, strlen(uri_str));
@@ -469,17 +469,17 @@ byte_array_dup(const GByteArray *ba)
 }
 
 #define SUBID_BUF_LEN 5
-gboolean
+bool
 oid_str_to_bytes(const char *oid_str, GByteArray *bytes)
 {
-    return rel_oid_str_to_bytes(oid_str, bytes, TRUE);
+    return rel_oid_str_to_bytes(oid_str, bytes, true);
 }
-gboolean
-rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolute)
+bool
+rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, bool is_absolute)
 {
-    guint32 subid0, subid, sicnt, i;
+    uint32_t subid0, subid, sicnt, i;
     const char *p, *dot;
-    guint8 buf[SUBID_BUF_LEN];
+    uint8_t buf[SUBID_BUF_LEN];
 
     g_byte_array_set_size(bytes, 0);
 
@@ -487,16 +487,16 @@ rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolut
     p = oid_str;
     dot = NULL;
     while (*p) {
-        if (!g_ascii_isdigit(*p) && (*p != '.')) return FALSE;
+        if (!g_ascii_isdigit(*p) && (*p != '.')) return false;
         if (*p == '.') {
-            if (p == oid_str && is_absolute) return FALSE;
-            if (!*(p+1)) return FALSE;
-            if ((p-1) == dot) return FALSE;
+            if (p == oid_str && is_absolute) return false;
+            if (!*(p+1)) return false;
+            if ((p-1) == dot) return false;
             dot = p;
         }
         p++;
     }
-    if (!dot) return FALSE;
+    if (!dot) return false;
 
     p = oid_str;
     sicnt = is_absolute ? 0 : 2;
@@ -511,9 +511,9 @@ rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolut
         }
         if (sicnt == 0) {
             subid0 = subid;
-            if (subid0 > 2) return FALSE;
+            if (subid0 > 2) return false;
         } else if (sicnt == 1) {
-            if ((subid0 < 2) && (subid > 39)) return FALSE;
+            if ((subid0 < 2) && (subid > 39)) return false;
             subid += 40 * subid0;
         }
         if (sicnt) {
@@ -530,7 +530,7 @@ rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolut
         if (*p) p++;
     }
 
-    return TRUE;
+    return true;
 }
 
 /**
@@ -539,35 +539,35 @@ rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolut
  * @param ba1 A byte array
  * @param ba2 A byte array
  * @return If both arrays are non-NULL and their lengths are equal and
- *         their contents are equal, returns TRUE.  Otherwise, returns
- *         FALSE.
+ *         their contents are equal, returns true.  Otherwise, returns
+ *         false.
  *
  * XXX - Should this be in strutil.c?
  */
-gboolean
+bool
 byte_array_equal(GByteArray *ba1, GByteArray *ba2)
 {
     if (!ba1 || !ba2)
-        return FALSE;
+        return false;
 
     if (ba1->len != ba2->len)
-        return FALSE;
+        return false;
 
     if (memcmp(ba1->data, ba2->data, ba1->len) != 0)
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 
 /* Return a XML escaped representation of the unescaped string.
  * The returned string must be freed when no longer in use. */
-gchar *
-xml_escape(const gchar *unescaped)
+char *
+xml_escape(const char *unescaped)
 {
     GString *buffer = g_string_sized_new(128);
-    const gchar *p;
-    gchar c;
+    const char *p;
+    char c;
 
     p = unescaped;
     while ( (c = *p++) ) {
@@ -609,20 +609,20 @@ xml_escape(const gchar *unescaped)
     /* Return the string value contained within the GString
      * after getting rid of the GString structure.
      * This is the way to do this, see the GLib reference. */
-    return g_string_free(buffer, FALSE);
+    return g_string_free(buffer, false);
 }
 
 /*
  * Scan the search string to make sure it's valid hex.  Return the
  * number of bytes in nbytes.
  */
-guint8 *
+uint8_t *
 convert_string_to_hex(const char *string, size_t *nbytes)
 {
     size_t n_bytes;
     const char *p;
-    gchar c;
-    guint8 *bytes, *q, byte_val;
+    char c;
+    uint8_t *bytes, *q, byte_val;
 
     n_bytes = 0;
     p = &string[0];
@@ -663,7 +663,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
      * OK, it's valid, and it generates "n_bytes" bytes; generate the
      * raw byte array.
      */
-    bytes = (guint8 *)g_malloc(n_bytes);
+    bytes = (uint8_t *)g_malloc(n_bytes);
     p = &string[0];
     q = &bytes[0];
     for (;;) {
@@ -693,7 +693,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
  * a case-insensitive search.
  */
 char *
-convert_string_case(const char *string, gboolean case_insensitive)
+convert_string_case(const char *string, bool case_insensitive)
 {
 
     if (case_insensitive) {
@@ -753,7 +753,7 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
 
 /* chars allowed: lower case letters, digits, '-', "_", and ".". */
 static
-const guint8 module_valid_chars_lower_case[128] = {
+const uint8_t module_valid_chars_lower_case[128] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'      */
@@ -766,7 +766,7 @@ const guint8 module_valid_chars_lower_case[128] = {
 
 /* chars allowed: alphanumerics, '-', "_", and ".". */
 static
-const guint8 module_valid_chars[128] = {
+const uint8_t module_valid_chars[128] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'      */
@@ -777,12 +777,12 @@ const guint8 module_valid_chars[128] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'       */
 };
 
-guchar
-module_check_valid_name(const char *name, gboolean lower_only)
+unsigned char
+module_check_valid_name(const char *name, bool lower_only)
 {
     const char *p = name;
-    guchar c = '.', lastc;
-    const guint8 *chars;
+    unsigned char c = '.', lastc;
+    const uint8_t *chars;
 
     /* First character cannot be '-'. */
     if (name[0] == '-')

@@ -34,7 +34,7 @@ typedef struct unit_name_string {
  * @param[in] units The unit_name_string containing the relevant strings
  * @return          Pointer to the appropriate string
  */
-WS_DLL_PUBLIC const char* unit_name_string_get_value(guint32 value, const unit_name_string* units);
+WS_DLL_PUBLIC const char* unit_name_string_get_value(uint32_t value, const unit_name_string* units);
 
 /** Returns the unit string appropriate for the 64 bit value.
  *
@@ -43,7 +43,7 @@ WS_DLL_PUBLIC const char* unit_name_string_get_value(guint32 value, const unit_n
  * @param[in] units The unit_name_string containing the relevant strings
  * @return          Pointer to the appropriate string
  */
-WS_DLL_PUBLIC const char* unit_name_string_get_value64(guint64 value, const unit_name_string* units);
+WS_DLL_PUBLIC const char* unit_name_string_get_value64(uint64_t value, const unit_name_string* units);
 
 /** Returns the unit string appropriate for the double value.
  *

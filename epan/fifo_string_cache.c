@@ -12,7 +12,7 @@
 #include "fifo_string_cache.h"
 
 void
-fifo_string_cache_init(fifo_string_cache_t *fcache, guint max_entries, GDestroyNotify string_free_func)
+fifo_string_cache_init(fifo_string_cache_t *fcache, unsigned max_entries, GDestroyNotify string_free_func)
 {
     fcache->set = g_hash_table_new_full(g_str_hash, g_str_equal, string_free_func, NULL);
     fcache->head = NULL;
@@ -34,14 +34,14 @@ fifo_string_cache_free(fifo_string_cache_t *fcache)
     }
 }
 
-gboolean
-fifo_string_cache_contains(fifo_string_cache_t *fcache, const gchar *entry)
+bool
+fifo_string_cache_contains(fifo_string_cache_t *fcache, const char *entry)
 {
     return g_hash_table_contains(fcache->set, entry);
 }
 
-gboolean
-fifo_string_cache_insert(fifo_string_cache_t *fcache, const gchar *entry)
+bool
+fifo_string_cache_insert(fifo_string_cache_t *fcache, const char *entry)
 {
     GSList *prev_head;
     GSList *new_start_of_tail;
@@ -50,10 +50,10 @@ fifo_string_cache_insert(fifo_string_cache_t *fcache, const gchar *entry)
     // need (did the entry exist already?). But, if we're not using that
     // version, we need to first check if the entry exists. So we just check
     // the hash all the time, regardless of GLIB version.
-    gboolean exists;
+    bool exists;
     exists = g_hash_table_contains(fcache->set, entry);
     if (exists) {
-        return TRUE;
+        return true;
     }
 
     // Shall we remove one item?
@@ -73,11 +73,11 @@ fifo_string_cache_insert(fifo_string_cache_t *fcache, const gchar *entry)
         }
     }
 
-    g_hash_table_insert(fcache->set, (gpointer) entry, /*value=*/NULL);
+    g_hash_table_insert(fcache->set, (void *) entry, /*value=*/NULL);
     // Do we need to constrain the number of entries?
     if (fcache->max_entries > 0) {
         // Keep track of the new entry at the end of the queue
-        new_start_of_tail = g_slist_append(fcache->tail, (gpointer) entry);
+        new_start_of_tail = g_slist_append(fcache->tail, (void *) entry);
         // Set the new tail
         if (fcache->tail == NULL) {
             fcache->tail = new_start_of_tail;
@@ -88,5 +88,5 @@ fifo_string_cache_insert(fifo_string_cache_t *fcache, const gchar *entry)
         }
     }
 
-    return FALSE;
+    return false;
 }
