@@ -193,6 +193,7 @@ static const struct dcesrv_interface dcesrv\_$name\_interface = {
 	.dispatch	    = $name\__op_dispatch,
 	.reply		    = $name\__op_reply,
 	.ndr_push	    = $name\__op_ndr_push,
+	.local		    = NULL,
 #ifdef DCESRV_INTERFACE_$uname\_FLAGS
 	.flags              = DCESRV_INTERFACE_$uname\_FLAGS
 #else

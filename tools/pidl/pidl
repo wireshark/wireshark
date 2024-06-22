@@ -475,6 +475,7 @@ my($opt_template) = 0;
 my($opt_client);
 my($opt_typelib);
 my($opt_server);
+my($opt_server_compat);
 my($opt_ndr_parser);
 my($opt_tdr_parser);
 my($opt_ws_parser);
@@ -560,6 +561,7 @@ my $result = GetOptions (
 		'samba3-template' => \$opt_samba3_template,
 		'header:s' => \$opt_header,
 		'server:s' => \$opt_server,
+		'server-compat:s' => \$opt_server_compat,
 		'typelib:s' => \$opt_typelib,
 		'tdr-parser:s' => \$opt_tdr_parser,
 		'template' => \$opt_template,
@@ -670,6 +672,7 @@ sub process_file($)
 	if (defined($opt_ws_parser) or
 		defined($opt_client) or
 		defined($opt_server) or
+		defined($opt_server_compat) or
 		defined($opt_header) or
 		defined($opt_ndr_parser) or
 		defined($opt_python) or
@@ -798,6 +801,19 @@ sub process_file($)
 		FileSave($header, $h_code);
 	}
 
+	if (defined($opt_server_compat)) {
+		require Parse::Pidl::Samba4::NDR::ServerCompat;
+
+		my $c_scompat = ($opt_server_compat or "$outputdir/ndr_$basename\_scompat.c");
+		my $h_scompat = $c_scompat;
+		$h_scompat =~ s/\.c$/.h/;
+
+		my $generator = new Parse::Pidl::Samba4::NDR::ServerCompat();
+		my ($source, $header) = $generator->Parse($ndr, $h_scompat, $h_filename);
+
+		FileSave($c_scompat, $source);
+		FileSave($h_scompat, $header);
+	}
 }
 
 if (scalar(@ARGV) == 0) {
