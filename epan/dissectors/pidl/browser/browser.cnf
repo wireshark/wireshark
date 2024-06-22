@@ -1,0 +1,8 @@
+# Conformance file for Browser
+
+# Avoid conflict with SMB Browser
+PROTOCOL browser "RPC Browser" "RPC_BROWSER" "rpc_browser"
+
+IMPORT srvsvc_NetSrvInfo100 offset = srvsvc_dissect_struct_NetSrvInfo100(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo100Ctr_entries, 0);
+
+IMPORT srvsvc_NetSrvInfo101 offset = srvsvc_dissect_struct_NetSrvInfo101(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo100Ctr_entries, 0);

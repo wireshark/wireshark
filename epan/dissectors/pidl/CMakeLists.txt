@@ -9,6 +9,7 @@
 
 set(PIDL_DISSECTOR_NAMES
 	atsvc
+	browser
 	clusapi
 	dfs
 	dnsserver
@@ -40,6 +41,9 @@ set(PIDL_DISSECTOR_NAMES
 	wzcsvc
 )
 
+set(PIDL_DISSECTOR_browser_EXTRA_DEPS
+	srvsvc/srvsvc.idl
+)
 set(PIDL_DISSECTOR_clusapi_EXTRA_DEPS
 	clusapi/clusapi.idl
 )
