@@ -1706,7 +1706,7 @@ sub ConvertU16StringFromPythonData($$$$$)
 
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("uint16_t *str = NULL;");
+	$self->pidl("unsigned char *str = NULL;");
 	$self->pidl("");
 	$self->pidl("str = PyUtf16String_FromBytes(");
 	$self->pidl("	$mem_ctx, $py_var);");

@@ -603,7 +603,8 @@ sub ParseSubcontextPullStart($$$$$)
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("struct ndr_pull *$subndr;");
-	$self->pidl("NDR_CHECK(ndr_pull_subcontext_start($ndr, &$subndr, $l->{HEADER_SIZE}, $subcontext_size));");
+	$self->pidl("ssize_t sub_size = $subcontext_size;");
+	$self->pidl("NDR_CHECK(ndr_pull_subcontext_start($ndr, &$subndr, $l->{HEADER_SIZE}, sub_size));");
 
 	if (defined $l->{COMPRESSION}) {
 		$subndr = $self->ParseCompressionPullStart($e, $l, $subndr, $env);
@@ -622,7 +623,7 @@ sub ParseSubcontextPullEnd($$$$$)
 		$self->ParseCompressionPullEnd($e, $l, $subndr, $env);
 	}
 
-	$self->pidl("NDR_CHECK(ndr_pull_subcontext_end($ndr, $subndr, $l->{HEADER_SIZE}, $subcontext_size));");
+	$self->pidl("NDR_CHECK(ndr_pull_subcontext_end($ndr, $subndr, $l->{HEADER_SIZE}, sub_size));");
 	$self->deindent;
 	$self->pidl("}");
 }
