@@ -169,7 +169,7 @@ sub PythonElementGetSet($$$$$$) {
 	$self->pidl("static PyObject *py_$name\_get_$e->{NAME}(PyObject *obj, void *closure)");
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(obj);");
+	$self->pidl("$cname *object = pytalloc_get_ptr(obj);");
 	$self->pidl("PyObject *py_$e->{NAME};");
 	my $l = $e->{LEVELS}[0];
 	if ($l->{TYPE} eq "POINTER") {
@@ -188,7 +188,7 @@ sub PythonElementGetSet($$$$$$) {
 	$self->pidl("static int py_$name\_set_$e->{NAME}(PyObject *py_obj, PyObject *value, void *closure)");
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
+	$self->pidl("$cname *object = pytalloc_get_ptr(py_obj);");
 	my $mem_ctx = "pytalloc_get_mem_ctx(py_obj)";
 	my $nl = GetNextLevel($e, $l);
 	if ($l->{TYPE} eq "POINTER" and
@@ -259,7 +259,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyObject *py_$name\_ndr_pack(PyObject *py_obj,  PyObject *Py_UNUSED(ignored))");
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
+		$self->pidl("$cname *object = pytalloc_get_ptr(py_obj);");
 		$self->pidl("PyObject *ret = NULL;");
 		$self->pidl("DATA_BLOB blob;");
 		$self->pidl("enum ndr_err_code err;");
@@ -289,7 +289,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyObject *py_$name\_ndr_unpack(PyObject *py_obj, PyObject *args, PyObject *kwargs)");
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
+		$self->pidl("$cname *object = pytalloc_get_ptr(py_obj);");
 		$self->pidl("DATA_BLOB blob = {.data = NULL, .length = 0};");
 		$self->pidl("Py_ssize_t blob_length = 0;");
 		$self->pidl("enum ndr_err_code err;");
@@ -339,7 +339,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyObject *py_$name\_ndr_print(PyObject *py_obj, PyObject *Py_UNUSED(ignored))");
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
+		$self->pidl("$cname *object = pytalloc_get_ptr(py_obj);");
 		$self->pidl("PyObject *ret;");
 		$self->pidl("char *retstr;");
 		$self->pidl("");
@@ -531,7 +531,7 @@ sub PythonFunctionStruct($$$$)
 	my $py_methods = "NULL";
 
 	my $ndr_call = "const struct ndr_interface_call *call = NULL;";
-	my $object_ptr = "$cname *object = ($cname *)pytalloc_get_ptr(py_obj);";
+	my $object_ptr = "$cname *object = pytalloc_get_ptr(py_obj);";
 
 	$self->pidl("static PyObject *py_$name\_ndr_opnum(PyTypeObject *type, PyObject *Py_UNUSED(ignored))");
 	$self->pidl("{");
@@ -2015,9 +2015,9 @@ sub ConvertObjectFromPythonLevel($$$$$$$$$)
 			$self->pidl("for ($counter = 0; $counter < PyList_GET_SIZE($py_var); $counter++) {");
 			$self->indent;
 			if (ArrayDynamicallyAllocated($e, $l)) {
-				$self->ConvertObjectFromPythonLevel($env, $var_name, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail, 0);
+				$self->ConvertObjectFromPythonLevel($env, $var_name, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, "($var_name)"."[$counter]", $fail, 0);
 			} else {
-				$self->ConvertObjectFromPythonLevel($env, $mem_ctx, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail, 0);
+				$self->ConvertObjectFromPythonLevel($env, $mem_ctx, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, "($var_name)"."[$counter]", $fail, 0);
 			}
 			$self->deindent;
 			$self->pidl("}");
@@ -2082,11 +2082,11 @@ sub ConvertScalarToPython($$$$)
 	# possibly 64 bit unsigned long.  (enums are signed in C,
 	# unsigned in NDR)
 	if ($ctypename =~ /^(uint32|uint3264)$/) {
-		return "PyLong_FromUnsignedLongLong((uint32_t)$cvar)";
+		return "PyLong_FromUnsignedLongLong((uint32_t)($cvar))";
 	}
 
 	if ($ctypename =~ /^(uint|uint8|uint16|uint1632)$/) {
-		return "PyLong_FromLong((uint16_t)$cvar)";
+		return "PyLong_FromLong((uint16_t)($cvar))";
 	}
 
 	if ($ctypename eq "DATA_BLOB") {
@@ -2272,9 +2272,9 @@ sub ConvertObjectToPythonLevel($$$$$$$)
 			my $member_var = "py_$e->{NAME}_$l->{LEVEL_INDEX}";
 			$self->pidl("PyObject *$member_var;");
 			if (ArrayDynamicallyAllocated($e, $l)) {
-				$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail, $recurse);
+				$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, "($var_name)"."[$counter]", $member_var, $fail, $recurse);
 			} else {
-				$self->ConvertObjectToPythonLevel($mem_ctx, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail, $recurse);
+				$self->ConvertObjectToPythonLevel($mem_ctx, $env, $e, $nl, "($var_name)"."[$counter]", $member_var, $fail, $recurse);
 			}
 			$self->pidl("PyList_SetItem($py_var, $counter, $member_var);");
 			$self->deindent;
