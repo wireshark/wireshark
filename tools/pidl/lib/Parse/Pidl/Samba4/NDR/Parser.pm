@@ -340,19 +340,26 @@ sub ParseArrayPullGetSize($$$$$$)
 
 	my $size;
 
-	if ($l->{IS_CONFORMANT}) {
-		$size = "ndr_get_array_size($ndr, " . get_pointer_to($var_name) . ")";
+	my $array_size = "size_$e->{NAME}_$l->{LEVEL_INDEX}";
+
+	if ($l->{IS_CONFORMANT} and (defined($l->{SIZE_IS}) or not $l->{IS_ZERO_TERMINATED})) {
+		$self->pidl("NDR_CHECK(ndr_get_array_size($ndr, (void*)" . get_pointer_to($var_name) . ", &$array_size));");
+
+	} elsif ($l->{IS_CONFORMANT}) {
+		# This will be the last use of the array_size token
+		$self->pidl("NDR_CHECK(ndr_steal_array_size($ndr, (void*)" . get_pointer_to($var_name) . ", &$array_size));");
+
 	} elsif ($l->{IS_ZERO_TERMINATED} and $l->{SIZE_IS} == 0 and $l->{LENGTH_IS} == 0) { # Noheader arrays
 		$size = "ndr_get_string_size($ndr, sizeof(*$var_name))";
+		$self->pidl("$array_size = $size;");
+
 	} else {
 		$size = ParseExprExt($l->{SIZE_IS}, $env, $e->{ORIGINAL},
 			check_null_pointer($e, $env, sub { $self->pidl(shift); },
 					   "return ndr_pull_error($ndr, NDR_ERR_INVALID_POINTER, \"NULL Pointer for size_is()\");"),
 			check_fully_dereferenced($e, $env));
+		$self->pidl("$array_size = $size;");
 	}
-
-	$self->pidl("size_$e->{NAME}_$l->{LEVEL_INDEX} = $size;");
-	my $array_size = "size_$e->{NAME}_$l->{LEVEL_INDEX}";
 
 	if (my $range = has_property($e, "range")) {
 		my ($low, $high) = parse_range($range);
@@ -385,9 +392,13 @@ sub ParseArrayPullGetLength($$$$$$;$)
 		return $array_size;
 	}
 
-	my $length = "ndr_get_array_length($ndr, " . get_pointer_to($var_name) .")";
-	$self->pidl("length_$e->{NAME}_$l->{LEVEL_INDEX} = $length;");
 	my $array_length = "length_$e->{NAME}_$l->{LEVEL_INDEX}";
+	if ($l->{IS_VARYING} and (defined($l->{LENGTH_IS}) or not $l->{IS_ZERO_TERMINATED})) {
+		$self->pidl("NDR_CHECK(ndr_get_array_length($ndr, (void*)" . get_pointer_to($var_name) . ", &$array_length));");
+	} else {
+		# This will be the last use of the array_length token
+		$self->pidl("NDR_CHECK(ndr_steal_array_length($ndr, (void*)" . get_pointer_to($var_name) . ", &$array_length));");
+	}
 
 	if (my $range = has_property($e, "range")) {
 		my ($low, $high) = parse_range($range);
@@ -438,7 +449,14 @@ sub ParseArrayPullHeader($$$$$$)
 			check_null_pointer($e, $env, sub { $self->defer(shift); },
 					   "return ndr_pull_error($ndr, NDR_ERR_INVALID_POINTER, \"NULL Pointer for size_is()\");"),
 			check_fully_dereferenced($e, $env));
-		$self->defer("NDR_CHECK(ndr_check_array_size($ndr, (void*)" . get_pointer_to($var_name) . ", $size));");
+		if (ContainsDeferred($e, $l)) {
+			# We will be needing the array_size token in
+			# the NDR_BUFFERS call, so don't steal it now
+			$self->defer("NDR_CHECK(ndr_check_array_size($ndr, (void*)" . get_pointer_to($var_name) . ", $size));");
+		} else {
+			# This will be deferred until after the last ndr_get_array_size()
+			$self->defer("NDR_CHECK(ndr_check_steal_array_size($ndr, (void*)" . get_pointer_to($var_name) . ", $size));");
+		}
 		$self->defer_deindent;
 		$self->defer("}");
 	}
@@ -450,7 +468,8 @@ sub ParseArrayPullHeader($$$$$$)
 			check_null_pointer($e, $env, sub { $self->defer(shift); },
 					   "return ndr_pull_error($ndr, NDR_ERR_INVALID_POINTER, \"NULL Pointer for length_is()\");"),
 			check_fully_dereferenced($e, $env));
-		$self->defer("NDR_CHECK(ndr_check_array_length($ndr, (void*)" . get_pointer_to($var_name) . ", $length));");
+		# This will be deferred until after the last ndr_get_array_length()
+		$self->defer("NDR_CHECK(ndr_check_steal_array_length($ndr, (void*)" . get_pointer_to($var_name) . ", $length));");
 		$self->defer_deindent;
 		$self->defer("}");
 	}
