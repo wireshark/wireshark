@@ -543,7 +543,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("}");
 	$self->pidl("");
 
-	$self->pidl("static PyObject *py_$name\_ndr_pack(PyObject *py_obj, int ndr_inout_flags, uint32_t ndr_push_flags)");
+	$self->pidl("static PyObject *py_$name\_ndr_pack(PyObject *py_obj, ndr_flags_type ndr_inout_flags, libndr_flags ndr_push_flags)");
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("$ndr_call");
@@ -594,7 +594,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("const char * const kwnames[] = { \"bigendian\", \"ndr64\", NULL };");
 	$self->pidl("PyObject *bigendian_obj = NULL;");
 	$self->pidl("PyObject *ndr64_obj = NULL;");
-	$self->pidl("uint32_t ndr_push_flags = 0;");
+	$self->pidl("libndr_flags ndr_push_flags = 0;");
 	$self->pidl("");
 	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"|OO:__ndr_pack_in__\",");
 	$self->indent;
@@ -629,7 +629,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("const char * const kwnames[] = { \"bigendian\", \"ndr64\", NULL };");
 	$self->pidl("PyObject *bigendian_obj = NULL;");
 	$self->pidl("PyObject *ndr64_obj = NULL;");
-	$self->pidl("uint32_t ndr_push_flags = 0;");
+	$self->pidl("libndr_flags ndr_push_flags = 0;");
 	$self->pidl("");
 	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"|OO:__ndr_pack_out__\",");
 	$self->indent;
@@ -658,7 +658,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("}");
 	$self->pidl("");
 
-	$self->pidl("static PyObject *py_$name\_ndr_unpack(PyObject *py_obj, const DATA_BLOB *blob, int ndr_inout_flags, uint32_t ndr_pull_flags, bool allow_remaining)");
+	$self->pidl("static PyObject *py_$name\_ndr_unpack(PyObject *py_obj, const DATA_BLOB *blob, ndr_flags_type ndr_inout_flags, libndr_flags ndr_pull_flags, bool allow_remaining)");
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("$ndr_call");
@@ -735,7 +735,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("const char * const kwnames[] = { \"data_blob\", \"bigendian\", \"ndr64\", \"allow_remaining\", NULL };");
 	$self->pidl("PyObject *bigendian_obj = NULL;");
 	$self->pidl("PyObject *ndr64_obj = NULL;");
-	$self->pidl("uint32_t ndr_pull_flags = LIBNDR_FLAG_REF_ALLOC;");
+	$self->pidl("libndr_flags ndr_pull_flags = LIBNDR_FLAG_REF_ALLOC;");
 	$self->pidl("PyObject *allow_remaining_obj = NULL;");
 	$self->pidl("bool allow_remaining = false;");
 	$self->pidl("");
@@ -783,7 +783,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("const char * const kwnames[] = { \"data_blob\", \"bigendian\", \"ndr64\", \"allow_remaining\", NULL };");
 	$self->pidl("PyObject *bigendian_obj = NULL;");
 	$self->pidl("PyObject *ndr64_obj = NULL;");
-	$self->pidl("uint32_t ndr_pull_flags = LIBNDR_FLAG_REF_ALLOC;");
+	$self->pidl("libndr_flags ndr_pull_flags = LIBNDR_FLAG_REF_ALLOC;");
 	$self->pidl("PyObject *allow_remaining_obj = NULL;");
 	$self->pidl("bool allow_remaining = false;");
 	$self->pidl("");
@@ -823,7 +823,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("}");
 	$self->pidl("");
 
-	$self->pidl("static PyObject *py_$name\_ndr_print(PyObject *py_obj, const char *name, int ndr_inout_flags)");
+	$self->pidl("static PyObject *py_$name\_ndr_print(PyObject *py_obj, const char *name, ndr_flags_type ndr_inout_flags)");
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("$ndr_call");

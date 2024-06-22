@@ -84,6 +84,8 @@ my $scalar_alignment = {
 	'dnsp_name' => 1,
 	'dnsp_string' => 1,
 	'HRESULT' => 4,
+	'libndr_flags' => 8,
+	'ndr_flags_type' => 4,
 };
 
 sub GetElementLevelTable($$$)

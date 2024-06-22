@@ -159,7 +159,7 @@ sub start_flags($$$)
 	if (defined $flags) {
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("uint32_t _flags_save_$e->{TYPE} = $ndr->flags;");
+		$self->pidl("libndr_flags _flags_save_$e->{TYPE} = $ndr->flags;");
 		$self->pidl("ndr_set_flags(&$ndr->flags, $flags);");
 	}
 }
@@ -1892,7 +1892,7 @@ sub DeclStruct($$$$)
 sub ArgsStructNdrSize($$$)
 {
 	my ($d, $name, $varname) = @_;
-	return "const struct $name *$varname, int flags";
+	return "const struct $name *$varname, libndr_flags flags";
 }
 
 $typefamily{STRUCT} = {
@@ -2254,7 +2254,7 @@ sub DeclUnion($$$$)
 sub ArgsUnionNdrSize($$)
 {
 	my ($d,$name) = @_;
-	return "const union $name *r, uint32_t level, int flags";
+	return "const union $name *r, uint32_t level, libndr_flags flags";
 }
 
 $typefamily{UNION} = {
@@ -2346,7 +2346,7 @@ sub ParsePipePushChunk($$)
 
 	my $args = $typefamily{$struct->{TYPE}}->{DECL}->($struct, "push", $name, $varname);
 
-	$self->fn_declare("push", $struct, "enum ndr_err_code ndr_push_$name(struct ndr_push *$ndr, int ndr_flags, $args)") or return;
+	$self->fn_declare("push", $struct, "enum ndr_err_code ndr_push_$name(struct ndr_push *$ndr, ndr_flags_type ndr_flags, $args)") or return;
 
 	return if has_property($t, "nopush");
 
@@ -2379,7 +2379,7 @@ sub ParsePipePullChunk($$)
 
 	my $args = $typefamily{$struct->{TYPE}}->{DECL}->($struct, "pull", $name, $varname);
 
-	$self->fn_declare("pull", $struct, "enum ndr_err_code ndr_pull_$name(struct ndr_pull *$ndr, int ndr_flags, $args)") or return;
+	$self->fn_declare("pull", $struct, "enum ndr_err_code ndr_pull_$name(struct ndr_pull *$ndr, ndr_flags_type ndr_flags, $args)") or return;
 
 	return if has_property($struct, "nopull");
 
@@ -2432,11 +2432,11 @@ sub ParseFunctionPrint($$)
 	my($self, $fn) = @_;
 	my $ndr = "ndr";
 
-	$self->pidl_hdr("void ndr_print_$fn->{NAME}(struct ndr_print *$ndr, const char *name, int flags, const struct $fn->{NAME} *r);");
+	$self->pidl_hdr("void ndr_print_$fn->{NAME}(struct ndr_print *$ndr, const char *name, ndr_flags_type flags, const struct $fn->{NAME} *r);");
 
 	return if has_property($fn, "noprint");
 
-	$self->pidl("_PUBLIC_ void ndr_print_$fn->{NAME}(struct ndr_print *$ndr, const char *name, int flags, const struct $fn->{NAME} *r)");
+	$self->pidl("_PUBLIC_ void ndr_print_$fn->{NAME}(struct ndr_print *$ndr, const char *name, ndr_flags_type flags, const struct $fn->{NAME} *r)");
 	$self->pidl("{");
 	$self->indent;
 
@@ -2499,7 +2499,7 @@ sub ParseFunctionPush($$)
 	my($self, $fn) = @_;
 	my $ndr = "ndr";
 
-	$self->fn_declare("push", $fn, "enum ndr_err_code ndr_push_$fn->{NAME}(struct ndr_push *$ndr, int flags, const struct $fn->{NAME} *r)") or return;
+	$self->fn_declare("push", $fn, "enum ndr_err_code ndr_push_$fn->{NAME}(struct ndr_push *$ndr, ndr_flags_type flags, const struct $fn->{NAME} *r)") or return;
 
 	return if has_property($fn, "nopush");
 
@@ -2594,7 +2594,7 @@ sub ParseFunctionPull($$)
 	my $ndr = "ndr";
 
 	# pull function args
-	$self->fn_declare("pull", $fn, "enum ndr_err_code ndr_pull_$fn->{NAME}(struct ndr_pull *$ndr, int flags, struct $fn->{NAME} *r)") or return;
+	$self->fn_declare("pull", $fn, "enum ndr_err_code ndr_pull_$fn->{NAME}(struct ndr_pull *$ndr, ndr_flags_type flags, struct $fn->{NAME} *r)") or return;
 
 	$self->pidl("{");
 	$self->indent;
@@ -3059,7 +3059,7 @@ sub ParseTypePushFunction($$$)
 
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "push", $e->{NAME}, $varname);
 
-	$self->fn_declare("push", $e, "enum ndr_err_code ".TypeFunctionName("ndr_push", $e)."(struct ndr_push *$ndr, int ndr_flags, $args)") or return;
+	$self->fn_declare("push", $e, "enum ndr_err_code ".TypeFunctionName("ndr_push", $e)."(struct ndr_push *$ndr, ndr_flags_type ndr_flags, $args)") or return;
 
 	$self->pidl("{");
 	$self->indent;
@@ -3088,7 +3088,7 @@ sub ParseTypePullFunction($$)
 
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "pull", $e->{NAME}, $varname);
 
-	$self->fn_declare("pull", $e, "enum ndr_err_code ".TypeFunctionName("ndr_pull", $e)."(struct ndr_pull *$ndr, int ndr_flags, $args)") or return;
+	$self->fn_declare("pull", $e, "enum ndr_err_code ".TypeFunctionName("ndr_pull", $e)."(struct ndr_pull *$ndr, ndr_flags_type ndr_flags, $args)") or return;
 
 	$self->pidl("{");
 	$self->indent;
@@ -3117,7 +3117,7 @@ sub ParseTypePrintFunction($$$)
 
 	if (is_public_struct($e)) {
                 $self->pidl("static void ".TypeFunctionName("ndr_print_flags", $e).
-                             "(struct ndr_print *$ndr, const char *name, int unused, $args)"
+                             "(struct ndr_print *$ndr, const char *name, ndr_flags_type unused, $args)"
                              );
 		$self->pidl("{");
 		$self->indent;
