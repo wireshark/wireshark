@@ -138,8 +138,18 @@ sub resolveType($)
 	my ($ctype) = @_;
 
 	if (not hasType($ctype)) {
-		# assume struct typedef
-		return { TYPE => "TYPEDEF", NAME => $ctype, DATA => { TYPE => "STRUCT" } };
+		if (! ref $ctype) {
+			# it looks like a name.
+			# assume struct typedef
+			return { TYPE => "TYPEDEF", NAME => $ctype, DATA => { TYPE => "STRUCT" } };
+		}
+		if ($ctype->{NAME} && ($ctype->{TYPE} eq "STRUCT")) {
+			return {
+				TYPE => "TYPEDEF",
+				NAME => $ctype->{NAME},
+				DATA => $ctype
+			};
+		}
 	} else {
 		return getType($ctype);
 	}
