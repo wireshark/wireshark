@@ -14,7 +14,7 @@ push @ISA, qw(Exporter);
 
 use strict;
 use warnings;
-use Parse::Pidl::Typelist qw(hasType getType mapTypeName typeHasBody);
+use Parse::Pidl::Typelist qw(hasType getType mapTypeName mapTypeSpecifier typeHasBody);
 use Parse::Pidl::Util qw(has_property
 			 ParseExpr
 			 ParseExprExt
@@ -371,7 +371,8 @@ sub ParseArrayPullGetSize($$$$$$)
 		} else {
 			$self->pidl("if ($array_size < $low || $array_size > $high) {");
 		}
-		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_RANGE, \"value out of range\");");
+		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_RANGE, \"value (%\"PRIu32\") out of range (%\"PRIu32\" - %\"PRIu32\")\", $array_size, (uint32_t)($low), (uint32_t)($high));");
+
 		$self->pidl("}");
 	}
 
@@ -410,7 +411,7 @@ sub ParseArrayPullGetLength($$$$$$;$)
 		} else {
 			$self->pidl("if ($array_length < $low || $array_length > $high) {");
 		}
-		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_RANGE, \"value out of range\");");
+		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_RANGE, \"value (%\"PRIu32\") out of range (%\"PRIu32\" - %\"PRIu32\")\", $array_length, (uint32_t)($low), (uint32_t)($high));");
 		$self->pidl("}");
 	}
 
@@ -437,7 +438,7 @@ sub ParseArrayPullHeader($$$$$$)
 	if ($array_length ne $array_size) {
 		$self->pidl("if ($array_length > $array_size) {");
 		$self->indent;
-		$self->pidl("return ndr_pull_error($ndr, NDR_ERR_ARRAY_SIZE, \"Bad array size %u should exceed array length %u\", $array_size, $array_length);");
+		$self->pidl("return ndr_pull_error($ndr, NDR_ERR_ARRAY_SIZE, \"Bad array size %\"PRIu32\": should exceed array length %\"PRIu32\"\", $array_size, $array_length);");
 		$self->deindent;
 		$self->pidl("}");
 	}
@@ -925,7 +926,7 @@ sub ParseElementPrint($$$$$)
 			} else {
 				my $counter = "cntr_$e->{NAME}_$l->{LEVEL_INDEX}";
 
-				$self->pidl("$ndr->print($ndr, \"\%s: ARRAY(\%d)\", \"$e->{NAME}\", (int)$length);");
+				$self->pidl("$ndr->print($ndr, \"%s: ARRAY(%\"PRIu32\")\", \"$e->{NAME}\", (uint32_t)($length));");
 				$self->pidl("$ndr->depth++;");
 				$self->pidl("for ($counter = 0; $counter < ($length); $counter++) {");
 				$self->indent;
@@ -1036,7 +1037,20 @@ sub ParseDataPull($$$$$$$)
 			} else {
 				$self->pidl("if ($var_name < $low || $var_name > $high) {");
 			}
-			$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_RANGE, \"value out of range\");");
+
+			my $data_type = mapTypeName($l->{DATA_TYPE});
+			my $fmt = mapTypeSpecifier($data_type);
+
+			if (!defined($fmt)) {
+				if (getType($l->{DATA_TYPE})->{DATA}->{TYPE} eq "ENUM") {
+					$data_type = "int";
+					$fmt = "d";
+				} else {
+					die("Format ($data_type) not supported");
+				}
+			}
+
+			$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_RANGE, \"value (%$fmt) out of range (%$fmt - %$fmt)\", ($data_type)($var_name), ($data_type)($low), ($data_type)($high));");
 			$self->pidl("}");
 		}
 	} else {
@@ -1954,7 +1968,7 @@ sub ParseUnionPushPrimitives($$$$)
 	}
 	if (! $have_default) {
 		$self->pidl("default:");
-		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u\", level);");
+		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %\"PRIu32, level);");
 	}
 	$self->deindent;
 	$self->pidl("}");
@@ -1989,7 +2003,7 @@ sub ParseUnionPushDeferred($$$$)
 	}
 	if (! $have_default) {
 		$self->pidl("default:");
-		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u\", level);");
+		$self->pidl("\treturn ndr_push_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %\"PRIu32, level);");
 	}
 	$self->deindent;
 	$self->pidl("}");
@@ -2085,9 +2099,17 @@ sub ParseUnionPullPrimitives($$$$$)
 			$self->pidl("NDR_CHECK(ndr_pull_union_align($ndr, $e->{ALIGN}));");
 		}
 
+		my $data_type = mapTypeName($switch_type);
+		my $fmt = mapTypeSpecifier($data_type);
+
+		if (!defined($fmt)) {
+			$data_type = "int";
+			$fmt = "%d";
+		}
+
 		$self->pidl("NDR_CHECK(ndr_pull_$switch_type($ndr, NDR_SCALARS, &_level));");
 		$self->pidl("if (_level != level) {"); 
-		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %u for $varname at \%s\", _level, __location__);");
+		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %$fmt for $varname at \%s\", ($data_type)_level, __location__);");
 		$self->pidl("}");
 	}
 
@@ -2124,7 +2146,7 @@ sub ParseUnionPullPrimitives($$$$$)
 	}
 	if (! $have_default) {
 		$self->pidl("default:");
-		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u at \%s\", level, __location__);");
+		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %\"PRIu32\" at %s\", level, __location__);");
 	}
 	$self->deindent;
 	$self->pidl("}");
@@ -2158,7 +2180,7 @@ sub ParseUnionPullDeferred($$$$)
 	}
 	if (! $have_default) {
 		$self->pidl("default:");
-		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value \%u at \%s\", level, __location__);");
+		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %\"PRIu32\" at %s\", level, __location__);");
 	}
 	$self->deindent;
 	$self->pidl("}");

@@ -7,7 +7,7 @@ package Parse::Pidl::Typelist;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(hasType getType resolveType mapTypeName scalar_is_reference expandAlias
+@EXPORT_OK = qw(hasType getType resolveType mapTypeName mapTypeSpecifier scalar_is_reference expandAlias
 	mapScalarType addType typeIs is_signed is_scalar enum_type_fn
 	bitmap_type_fn mapType typeHasBody is_fixed_size_scalar
 );
@@ -87,6 +87,18 @@ my %aliases = (
 	"short" => "int16",
 	"HYPER_T" => "hyper",
         "mode_t"        => "uint32",
+);
+
+my %format_specifiers = (
+	"char"		=> "c",
+	"int8_t",	=> "\"PRId8\"",
+	"int16_t",	=> "\"PRId16\"",
+	"int32_t",	=> "\"PRId32\"",
+	"int64_t",	=> "\"PRId64\"",
+	"uint8_t",	=> "\"PRIu8\"",
+	"uint16_t",	=> "\"PRIu16\"",
+	"uint32_t",	=> "\"PRIu32\"",
+	"uint64_t",	=> "\"PRIu64\""
 );
 
 sub expandAlias($)
@@ -314,6 +326,14 @@ sub mapTypeName($)
 		return "struct $t";
 	}
 
+}
+
+sub mapTypeSpecifier($)
+{
+	my $t = shift;
+	return undef unless defined($t);
+
+	return $format_specifiers{$t};
 }
 
 sub LoadIdl($;$)
