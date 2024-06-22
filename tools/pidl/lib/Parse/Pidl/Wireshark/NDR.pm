@@ -1106,6 +1106,7 @@ sub Initialize($$)
 
 	$self->register_type("uint3264", "offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, \@HF\@, NULL);", "FT_UINT32", "BASE_DEC", 0, "NULL", 8);
 	$self->register_type("hyper", "offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, \@HF\@, NULL);", "FT_UINT64", "BASE_DEC", 0, "NULL", 8);
+	$self->register_type("int64", "offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, \@HF\@, NULL);", "FT_INT64", "BASE_DEC", 0, "NULL", 8);
 	$self->register_type("udlong", "offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, di, drep, \@HF\@, NULL);", "FT_UINT64", "BASE_DEC", 0, "NULL", 4);
 	$self->register_type("bool8", "offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, \@HF\@, \@PARAM\@);","FT_INT8", "BASE_DEC", 0, "NULL", 1);
 	$self->register_type("char", "offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, \@HF\@, \@PARAM\@);","FT_INT8", "BASE_DEC", 0, "NULL", 1);

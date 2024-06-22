@@ -46,6 +46,7 @@ my %scalars = (
 	"int3264"	=> "int32_t",
 	"uint3264"	=> "uint32_t",
 	"hyper"		=> "uint64_t",
+	"int64"		=> "int64_t",
 	"dlong"		=> "int64_t",
 	"udlong"	=> "uint64_t",
 	"udlongr"	=> "uint64_t",

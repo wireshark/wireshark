@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 56;
+use Test::More tests => 57;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -21,6 +21,7 @@ is("int32", expandAlias("int32"));
 is("uint32_t", mapScalarType("uint32"));
 is("void", mapScalarType("void"));
 is("uint64_t", mapScalarType("hyper"));
+is("int64_t", mapScalarType("int64"));
 is("double", mapScalarType("double"));
 
 my $x = { TYPE => "ENUM", NAME => "foo", EXTRADATA => 1 };
