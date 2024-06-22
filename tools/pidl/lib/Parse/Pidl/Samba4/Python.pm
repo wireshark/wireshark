@@ -1700,6 +1700,27 @@ sub ConvertStringFromPythonData($$$$$)
 	$self->pidl("}");
 }
 
+sub ConvertU16StringFromPythonData($$$$$)
+{
+	my ($self, $mem_ctx, $py_var, $target, $fail) = @_;
+
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("uint16_t *str = NULL;");
+	$self->pidl("");
+	$self->pidl("str = PyUtf16String_FromBytes(");
+	$self->pidl("	$mem_ctx, $py_var);");
+	$self->pidl("if (str == NULL) {");
+	$self->indent;
+	$self->pidl("$fail");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("$target = str;");
+	$self->deindent;
+	$self->pidl("}");
+}
+
 sub ConvertObjectFromPythonData($$$$$$;$$)
 {
 	my ($self, $mem_ctx, $cvar, $ctype, $target, $fail, $location, $switch) = @_;
@@ -1851,6 +1872,12 @@ sub ConvertObjectFromPythonData($$$$$$;$$)
 		 or $actual_ctype->{NAME} eq "ipv6address"
 		 or $actual_ctype->{NAME} eq "dnsp_name")) {
 	        $self->ConvertStringFromPythonData($mem_ctx, $cvar, $target, $fail);
+		return;
+	}
+
+	if ($actual_ctype->{TYPE} eq "SCALAR" and
+		$actual_ctype->{NAME} eq "u16string") {
+	        $self->ConvertU16StringFromPythonData($mem_ctx, $cvar, $target, $fail);
 		return;
 	}
 
@@ -2084,6 +2111,10 @@ sub ConvertScalarToPython($$$$)
 
 	if (($ctypename eq "dns_string" or $ctypename eq "dns_name")) {
 		return "PyString_FromStringOrNULL($cvar)";
+	}
+
+	if ($ctypename eq "u16string") {
+		return "PyBytes_FromUtf16StringOrNULL($cvar)";
 	}
 
 	# Not yet supported

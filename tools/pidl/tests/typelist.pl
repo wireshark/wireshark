@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 57;
+use Test::More tests => 58;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -67,6 +67,7 @@ is(1, is_scalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM" }}));
 is(1, is_scalar("mytypedef"));
 
 is(1, scalar_is_reference("string"));
+is(1, scalar_is_reference("u16string"));
 is(0, scalar_is_reference("uint32"));
 is(0, scalar_is_reference({TYPE => "STRUCT", NAME => "echo_foobar"}));
 

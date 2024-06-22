@@ -66,6 +66,7 @@ my $scalar_alignment = {
 	'udlongr' => 4,
 	'DATA_BLOB' => 4,
 	'string' => 4,
+	'u16string' => 4,
 	'string_array' => 4, #???
 	'time_t' => 4,
 	'uid_t' => 8,
