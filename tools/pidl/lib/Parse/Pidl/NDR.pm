@@ -1101,6 +1101,7 @@ my %property_list = (
 	"gensize"		=> ["TYPEDEF", "STRUCT", "UNION"],
 	"value"			=> ["ELEMENT"],
 	"flag"			=> ["ELEMENT", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
+	"max_recursion"		=> ["ELEMENT"],
 
 	# generic
 	"public"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],

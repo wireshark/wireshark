@@ -993,7 +993,14 @@ sub ParseDataPull($$$$$$$)
 
 		$var_name = get_pointer_to($var_name);
 
+		if (my $depth = has_property($e, "max_recursion")) {
+			my $d = parse_int($depth);
+			$self->pidl("NDR_RECURSION_CHECK($ndr, $d);");
+		}
 		$self->pidl("NDR_CHECK(".TypeFunctionName("ndr_pull", $l->{DATA_TYPE})."($ndr, $ndr_flags, $var_name));");
+		if (has_property($e, "max_recursion")) {
+			$self->pidl("NDR_RECURSION_UNWIND($ndr);");
+		}
 
 		my $pl = GetPrevLevel($e, $l);
 
