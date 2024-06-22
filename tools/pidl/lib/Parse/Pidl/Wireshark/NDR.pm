@@ -583,7 +583,7 @@ sub Function($$$)
 	my %dissectornames;
 
 	foreach (@{$fn->{ELEMENTS}}) {
-	    $dissectornames{$_->{NAME}} = $self->Element($_, $fn->{NAME}, $ifname, undef, undef) if not defined($dissectornames{$_->{NAME}});
+	    $dissectornames{$_->{NAME}} = $self->Element($_, $fn->{NAME}, $ifname, undef, ()) if not defined($dissectornames{$_->{NAME}});
 	}
 
 	my $fn_name = $_->{NAME};
@@ -813,7 +813,7 @@ sub Union($$$$)
 	foreach (@{$e->{ELEMENTS}}) {
 		$res.="\n\t\t$_->{CASE}:\n";
 		if ($_->{TYPE} ne "EMPTY") {
-			$res.="\t\t\t".$self->Element($_, $name, $ifname, undef, undef)."\n";
+			$res.="\t\t\t".$self->Element($_, $name, $ifname, undef, ())."\n";
 		}
 		$res.="\t\tbreak;\n";
 	}
