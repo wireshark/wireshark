@@ -1947,6 +1947,11 @@ sub ConvertObjectFromPythonLevel($$$$$$$$$)
 		if ($need_deref == 1) {
 			my $ndr_pointer_typename = $self->import_type_variable("samba.dcerpc.base", "ndr_pointer");
 			$self->pidl("$py_var = py_dcerpc_ndr_pointer_deref($ndr_pointer_typename, $py_var);");
+			$self->pidl("if ($py_var == NULL) {");
+			$self->indent;
+                        $self->pidl($fail);
+			$self->deindent;
+			$self->pidl("}");
 		}
 		unless ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE})) {
 			$var_name = get_value_of($var_name);
@@ -1983,7 +1988,11 @@ sub ConvertObjectFromPythonLevel($$$$$$$$$)
 			}
 			$self->pidl("for ($counter = 0; $counter < PyList_GET_SIZE($py_var); $counter++) {");
 			$self->indent;
-			$self->ConvertObjectFromPythonLevel($env, $var_name, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail, 0);
+			if (ArrayDynamicallyAllocated($e, $l)) {
+				$self->ConvertObjectFromPythonLevel($env, $var_name, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail, 0);
+			} else {
+				$self->ConvertObjectFromPythonLevel($env, $mem_ctx, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail, 0);
+			}
 			$self->deindent;
 			$self->pidl("}");
 			$self->deindent;
@@ -2299,10 +2308,12 @@ $ndr_hdr_include
  * functions
  */
 #ifndef _MAYBE_UNUSED_
-#ifdef HAVE___ATTRIBUTE__
+#ifdef __has_attribute
+#if __has_attribute(unused)
 #define _MAYBE_UNUSED_ __attribute__ ((unused))
 #else
 #define _MAYBE_UNUSED_
+#endif
 #endif
 #endif
 /*
