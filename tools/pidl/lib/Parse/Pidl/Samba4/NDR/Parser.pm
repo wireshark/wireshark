@@ -2665,10 +2665,10 @@ sub ParseFunctionPull($$)
 
 	$self->pidl("#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION");
 
-	# This for fuzzers of ndr_pull where the out elements refer to
+	# This is for fuzzers of ndr_pull where the out elements refer to
 	# in elements in size_is or length_is.
 	#
-	# Not actually very harmful but also not useful outsie a fuzzer
+	# Not actually very harmful but also not useful outside a fuzzer
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/in/, @{$e->{DIRECTION}}));
 		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and

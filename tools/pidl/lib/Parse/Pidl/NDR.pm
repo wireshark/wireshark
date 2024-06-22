@@ -394,10 +394,10 @@ sub GetTypedefLevelTable($$$$)
 
 #####################################################################
 # see if a type contains any deferred data 
-sub can_contain_deferred($)
+sub can_contain_deferred
 {
-	sub can_contain_deferred($);
-	my ($type) = @_;
+	sub can_contain_deferred;
+	my ($type, @types_visited) = @_;
 
 	return 1 unless (hasType($type)); # assume the worst
 
@@ -405,15 +405,29 @@ sub can_contain_deferred($)
 
 	return 0 if (Parse::Pidl::Typelist::is_scalar($type));
 
-	return can_contain_deferred($type->{DATA}) if ($type->{TYPE} eq "TYPEDEF");
+	foreach (@types_visited) {
+		if ($_ == $type) {
+			# we have already encountered this
+			# type, avoid recursion loop here
+			# and return
+			return 0;
+		}
+	}
+
+	return can_contain_deferred($type->{DATA},
+		@types_visited) if ($type->{TYPE} eq "TYPEDEF");
 
 	return 0 unless defined($type->{ELEMENTS});
 
 	foreach (@{$type->{ELEMENTS}}) {
 		return 1 if ($_->{POINTERS});
-		return 1 if (can_contain_deferred ($_->{TYPE}));
+		push(@types_visited,$type);
+		if (can_contain_deferred ($_->{TYPE},@types_visited)) {
+			pop(@types_visited);
+			return 1;
+		}
+		pop(@types_visited);
 	}
-	
 	return 0;
 }
 
@@ -436,14 +450,13 @@ sub pointer_type($)
 
 #####################################################################
 # work out the correct alignment for a structure or union
-sub find_largest_alignment($)
+sub find_largest_alignment
 {
-	my $s = shift;
+	my ($s, @types_visited) = @_;
 
 	my $align = 1;
 	for my $e (@{$s->{ELEMENTS}}) {
 		my $a = 1;
-
 		if ($e->{POINTERS}) {
 			# this is a hack for NDR64
 			# the NDR layer translates this into
@@ -452,9 +465,10 @@ sub find_largest_alignment($)
 		} elsif (has_property($e, "subcontext")) { 
 			$a = 1;
 		} elsif (has_property($e, "transmit_as")) {
-			$a = align_type($e->{PROPERTIES}->{transmit_as});
+			$a = align_type($e->{PROPERTIES}->{transmit_as},
+				@types_visited);
 		} else {
-			$a = align_type($e->{TYPE}); 
+			$a = align_type($e->{TYPE}, @types_visited);
 		}
 
 		$align = $a if ($align < $a);
@@ -465,11 +479,10 @@ sub find_largest_alignment($)
 
 #####################################################################
 # align a type
-sub align_type($)
+sub align_type
 {
-	sub align_type($);
-	my ($e) = @_;
-
+	sub align_type;
+	my ($e, @types_visited) = @_;
 	if (ref($e) eq "HASH" and $e->{TYPE} eq "SCALAR") {
 		my $ret = $scalar_alignment->{$e->{NAME}};
 		if (not defined $ret) {
@@ -486,21 +499,51 @@ sub align_type($)
 		# warning($e, "assuming alignment of unknown type '$e' is 4");
 	    return 4;
 	}
-
 	my $dt = getType($e);
 
+	foreach (@types_visited) {
+		if ($_ == $dt) {
+			# Chapt 14 of the DCE 1.1: Remote Procedure Call
+			# specification (available from pubs.opengroup.org)
+			# states:
+			# "The alignment of a structure in the octet stream is
+			# the largest of the alignments of the fields it
+			# contains. These fields may also be constructed types.
+			# The same alignment rules apply recursively to
+			# nested constructed types. "
+			#
+			# in the worst case scenario
+			# struct c1 {
+			#   membertypea mema;
+			#   membertypeb memb;
+			#   struct c1 memc;
+			# }
+			# the nested struct c1 memc when encountered
+			# returns 0 ensuring the alignment will be calculated
+			# based on the other fields
+			return 0;
+		}
+	}
+
+
 	if ($dt->{TYPE} eq "TYPEDEF") {
-		return align_type($dt->{DATA});
+		return align_type($dt->{DATA}, @types_visited);
 	} elsif ($dt->{TYPE} eq "CONFORMANCE") {
 		return $dt->{DATA}->{ALIGN};
 	} elsif ($dt->{TYPE} eq "ENUM") {
-		return align_type(Parse::Pidl::Typelist::enum_type_fn($dt));
+		return align_type(Parse::Pidl::Typelist::enum_type_fn($dt),
+			@types_visited);
 	} elsif ($dt->{TYPE} eq "BITMAP") {
-		return align_type(Parse::Pidl::Typelist::bitmap_type_fn($dt));
+		return align_type(Parse::Pidl::Typelist::bitmap_type_fn($dt),
+			@types_visited);
 	} elsif (($dt->{TYPE} eq "STRUCT") or ($dt->{TYPE} eq "UNION")) {
 		# Struct/union without body: assume 4
 		return 4 unless (defined($dt->{ELEMENTS}));
-		return find_largest_alignment($dt);
+		my $res;
+		push(@types_visited, $dt);
+		$res = find_largest_alignment($dt, @types_visited);
+		pop(@types_visited);
+		return $res
 	} elsif (($dt->{TYPE} eq "PIPE")) {
 		return 5;
 	}
