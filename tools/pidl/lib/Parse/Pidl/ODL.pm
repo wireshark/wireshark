@@ -1,5 +1,5 @@
 ##########################################
-# Converts ODL stuctures to IDL structures
+# Converts ODL structures to IDL structures
 # (C) 2004-2005, 2008 Jelmer Vernooij <jelmer@samba.org>
 
 package Parse::Pidl::ODL;

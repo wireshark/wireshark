@@ -514,8 +514,8 @@ sub ParseCompressionPushStart($$$$$)
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("struct ndr_push *$comndr;");
-	$self->pidl("NDR_CHECK(ndr_push_compression_state_init($ndr, $alg, &$ndr->cstate));");
-	$self->pidl("NDR_CHECK(ndr_push_compression_start($ndr, &$comndr, $alg));");
+	$self->pidl("NDR_CHECK(ndr_push_compression_state_init($ndr, $alg));");
+	$self->pidl("NDR_CHECK(ndr_push_compression_start($ndr, &$comndr));");
 
 	return $comndr;
 }
@@ -526,7 +526,7 @@ sub ParseCompressionPushEnd($$$$$)
 	my $comndr = "$ndr\_compressed";
 	my $alg = compression_alg($e, $l, $env);
 
-	$self->pidl("NDR_CHECK(ndr_push_compression_end($ndr, $comndr, $alg));");
+	$self->pidl("NDR_CHECK(ndr_push_compression_end($ndr, $comndr));");
 	$self->pidl("TALLOC_FREE($ndr->cstate);");
 	$self->deindent;
 	$self->pidl("}");
