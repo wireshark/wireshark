@@ -1419,7 +1419,7 @@ sub Interface($$$)
 			my ($infn, $outfn, $callfn, $prettyname, $docstring, $opnum) = @$d;
 			$self->pidl("{ \"$prettyname\", $docstring, (py_dcerpc_call_fn)$callfn, (py_data_pack_fn)$infn, (py_data_unpack_fn)$outfn, $opnum, &ndr_table_$interface->{NAME} },");
 		}
-		$self->pidl("{ NULL }");
+		$self->pidl("{0}");
 		$self->deindent;
 		$self->pidl("};");
 		$self->pidl("");
@@ -2295,6 +2295,17 @@ sub Parse($$$$$)
 $ndr_hdr_include
 
 /*
+ * Suppress compiler warnings if the generated code does not call these
+ * functions
+ */
+#ifndef _MAYBE_UNUSED_
+#ifdef HAVE___ATTRIBUTE__
+#define _MAYBE_UNUSED_ __attribute__ ((unused))
+#else
+#define _MAYBE_UNUSED_
+#endif
+#endif
+/*
  * These functions are here to ensure they can be optimized out by
  * the compiler based on the constant input values
  */
@@ -2315,7 +2326,7 @@ static inline unsigned long long ndr_sizeof2uintmax(size_t var_size)
 	return 0;
 }
 
-static inline long long ndr_sizeof2intmax(size_t var_size)
+static inline _MAYBE_UNUSED_ long long ndr_sizeof2intmax(size_t var_size)
 {
 	switch (var_size) {
 	case 8:
