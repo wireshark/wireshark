@@ -10,6 +10,7 @@
 package Parse::Pidl::Expr;
 use vars qw ( @ISA );
 use strict;
+use warnings;
 
 @ISA= qw ( Parse::Yapp::Driver );
 use Parse::Yapp::Driver;

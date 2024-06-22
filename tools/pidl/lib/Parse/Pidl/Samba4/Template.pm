@@ -11,6 +11,7 @@ $VERSION = '0.01';
 use Parse::Pidl::Util qw(genpad);
 
 use strict;
+use warnings;
 
 my($res);
 

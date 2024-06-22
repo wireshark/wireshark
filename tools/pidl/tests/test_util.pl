@@ -2,6 +2,7 @@
 # (C) 2007 Jelmer Vernooij <jelmer@samba.org>
 # Published under the GNU General Public License
 use strict;
+use warnings;
 
 use Test::More tests => 6;
 use FindBin qw($RealBin);

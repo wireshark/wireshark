@@ -21,6 +21,7 @@ use Exporter;
 @EXPORT_OK = qw(field2name %res PrintIdl StripPrefixes RegisterInterfaceHandoff register_hf_field CheckUsed ProcessImport ProcessInclude find_type DumpEttList DumpEttDeclaration DumpHfList DumpHfDeclaration DumpFunctionTable register_type register_ett);
 
 use strict;
+use warnings;
 use Parse::Pidl qw(error warning);
 use Parse::Pidl::Typelist qw(getType);
 use Parse::Pidl::Util qw(has_property property_matches make_str);

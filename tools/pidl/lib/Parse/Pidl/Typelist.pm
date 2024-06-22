@@ -16,6 +16,7 @@ $VERSION = '0.01';
 
 use Parse::Pidl::Util qw(has_property);
 use strict;
+use warnings;
 
 my %types = ();
 

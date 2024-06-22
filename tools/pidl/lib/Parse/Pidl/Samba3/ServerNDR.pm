@@ -11,6 +11,7 @@ use Exporter;
 @EXPORT_OK = qw(DeclLevel);
 
 use strict;
+use warnings;
 use Parse::Pidl qw(warning error fatal);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use Parse::Pidl::Util qw(ParseExpr has_property is_constant);

@@ -10,6 +10,7 @@ use Parse::Pidl::Util qw(has_property unmake_str);
 use Parse::Pidl::Typelist qw(hasType getType);
 use File::Basename;
 use strict;
+use warnings;
 
 use vars qw($VERSION);
 $VERSION = '0.01';

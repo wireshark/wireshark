@@ -19,6 +19,7 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
+use warnings;
 
 sub fn_declare($$) { my ($self,$n) = @_; $self->pidl($n); $self->pidl_hdr("$n;"); }
 sub new($)

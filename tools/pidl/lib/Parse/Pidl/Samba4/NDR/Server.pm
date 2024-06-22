@@ -7,6 +7,7 @@
 package Parse::Pidl::Samba4::NDR::Server;
 
 use strict;
+use warnings;
 use Parse::Pidl::Util;
 
 use vars qw($VERSION);

@@ -38,6 +38,7 @@ $VERSION = '0.01';
 @EXPORT_OK = qw(GetElementLevelTable ParseElement ReturnTypeElement ValidElement align_type mapToScalar ParseType can_contain_deferred is_charset_array);
 
 use strict;
+use warnings;
 use Parse::Pidl qw(warning fatal);
 use Parse::Pidl::Typelist qw(hasType getType typeIs expandAlias mapScalarType is_fixed_size_scalar);
 use Parse::Pidl::Util qw(has_property property_matches);
@@ -80,7 +81,8 @@ my $scalar_alignment = {
 	'ipv4address' => 4,
 	'ipv6address' => 4, #16?
 	'dnsp_name' => 1,
-	'dnsp_string' => 1
+	'dnsp_string' => 1,
+	'HRESULT' => 4,
 };
 
 sub GetElementLevelTable($$$)
@@ -115,7 +117,7 @@ sub GetElementLevelTable($$$)
 		warning($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
 	}
 
-	my $allow_pipe = ($e->{PARENT}->{TYPE} eq "FUNCTION");
+	my $allow_pipe = (($e->{PARENT}->{TYPE} // '') eq "FUNCTION");
 	my $is_pipe = typeIs($e->{TYPE}, "PIPE");
 
 	if ($is_pipe) {
@@ -468,7 +470,12 @@ sub align_type($)
 	my ($e) = @_;
 
 	if (ref($e) eq "HASH" and $e->{TYPE} eq "SCALAR") {
-		return $scalar_alignment->{$e->{NAME}};
+		my $ret = $scalar_alignment->{$e->{NAME}};
+		if (not defined $ret) {
+			warning($e, "no scalar alignment for $e->{NAME}!");
+			return 0;
+		}
+		return $ret;
 	}
 
 	return 0 if ($e eq "EMPTY");
@@ -903,7 +910,7 @@ sub ParseInterface($)
 
 	return { 
 		NAME => $idl->{NAME},
-		UUID => lc(has_property($idl, "uuid")),
+		UUID => lc(has_property($idl, "uuid") // ''),
 		VERSION => $version,
 		TYPE => "INTERFACE",
 		PROPERTIES => $idl->{PROPERTIES},

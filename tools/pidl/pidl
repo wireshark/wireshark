@@ -402,6 +402,7 @@ pidl README by Andrew Tridgell.
 
 
 use strict;
+use warnings;
 use FindBin qw($RealBin $Script);
 use lib "$RealBin/lib";
 use Getopt::Long;

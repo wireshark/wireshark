@@ -27,6 +27,7 @@ $VERSION = '0.01';
 @EXPORT_OK = qw(DumpType DumpTypedef DumpStruct DumpEnum DumpBitmap DumpUnion DumpFunction);
 
 use strict;
+use warnings;
 use Parse::Pidl::Util qw(has_property);
 
 my($res);

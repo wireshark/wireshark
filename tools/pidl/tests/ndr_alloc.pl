@@ -2,6 +2,7 @@
 # NDR allocation tests
 # (C) 2005 Jelmer Vernooij. Published under the GNU GPL
 use strict;
+use warnings;
 
 use Test::More tests => 5 * 8;
 use FindBin qw($RealBin);

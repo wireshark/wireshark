@@ -11,6 +11,7 @@ require Exporter;
 @EXPORT_OK = qw(GenerateFunctionInEnv GenerateFunctionOutEnv EnvSubstituteValue GenerateStructEnv);
 
 use strict;
+use warnings;
 use Parse::Pidl qw(fatal);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use Parse::Pidl::Util qw(has_property is_constant unmake_str ParseExpr);

@@ -12,7 +12,7 @@ require Exporter;
 @EXPORT_OK = qw(warning error fatal $VERSION);
 
 use strict;
-
+use warnings;
 use vars qw ( $VERSION );
 
 $VERSION = '0.02';

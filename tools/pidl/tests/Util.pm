@@ -9,6 +9,7 @@ require Exporter;
 @EXPORT = qw(test_samba4_ndr test_warnings test_errors);
 
 use strict;
+use warnings;
 
 use FindBin qw($RealBin);
 use lib "$RealBin/../lib";

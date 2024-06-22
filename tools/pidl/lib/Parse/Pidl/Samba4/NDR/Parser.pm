@@ -13,8 +13,15 @@ push @ISA, qw(Exporter);
 @EXPORT_OK = qw(check_null_pointer NeededFunction NeededElement NeededType $res NeededInterface TypeFunctionName ParseElementPrint);
 
 use strict;
+use warnings;
 use Parse::Pidl::Typelist qw(hasType getType mapTypeName typeHasBody);
-use Parse::Pidl::Util qw(has_property ParseExpr ParseExprExt print_uuid unmake_str);
+use Parse::Pidl::Util qw(has_property
+			 ParseExpr
+			 ParseExprExt
+			 print_uuid
+			 unmake_str
+			 parse_int
+			 parse_range);
 use Parse::Pidl::CUtil qw(get_pointer_to get_value_of get_array_element);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsPipe is_charset_array);
 use Parse::Pidl::Samba4 qw(is_intree choose_header ArrayDynamicallyAllocated);
@@ -77,8 +84,8 @@ sub has_fast_array($$)
 
 	my $t = getType($nl->{DATA_TYPE});
 
-	# Only uint8 and string have fast array functions at the moment
-	return ($t->{NAME} eq "uint8") or ($t->{NAME} eq "string");
+	# Only uint8 has a fast array function at the moment
+	return ($t->{NAME} eq "uint8");
 }
 
 
@@ -336,7 +343,7 @@ sub ParseArrayPullGetSize($$$$$$)
 	my $array_size = "size_$e->{NAME}_$l->{LEVEL_INDEX}";
 
 	if (my $range = has_property($e, "range")) {
-		my ($low, $high) = split(/,/, $range, 2);
+		my ($low, $high) = parse_range($range);
 		if ($low < 0) {
 			warning(0, "$low is invalid for the range of an array size");
 		}
@@ -371,7 +378,7 @@ sub ParseArrayPullGetLength($$$$$$;$)
 	my $array_length = "length_$e->{NAME}_$l->{LEVEL_INDEX}";
 
 	if (my $range = has_property($e, "range")) {
-		my ($low, $high) = split(/,/, $range, 2);
+		my ($low, $high) = parse_range($range);
 		if ($low < 0) {
 			warning(0, "$low is invalid for the range of an array size");
 		}
@@ -973,10 +980,10 @@ sub ParseDataPull($$$$$$$)
 		my $pl = GetPrevLevel($e, $l);
 
 		my $range = has_property($e, "range");
-		if ($range and $pl->{TYPE} ne "ARRAY") {
+		if ($range and (not $pl or $pl->{TYPE} ne "ARRAY")) {
 			$var_name = get_value_of($var_name);
 			my $signed = Parse::Pidl::Typelist::is_signed($l->{DATA_TYPE});
-			my ($low, $high) = split(/,/, $range, 2);
+			my ($low, $high) = parse_range($range);
 			if ($low < 0 and not $signed) {
 				warning(0, "$low is invalid for the range of an unsigned type");
 			}

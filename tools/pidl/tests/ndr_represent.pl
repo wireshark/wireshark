@@ -2,6 +2,7 @@
 # NDR represent_as() / transmit_as() tests
 # (C) 2006 Jelmer Vernooij. Published under the GNU GPL
 use strict;
+use warnings;
 
 use Test::More tests => 2 * 8;
 use FindBin qw($RealBin);

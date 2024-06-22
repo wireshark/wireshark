@@ -9,6 +9,7 @@ package Parse::Pidl::Samba3::ClientNDR;
 use base Parse::Pidl::Base;
 
 use strict;
+use warnings;
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property ParseExpr genpad);
 use Parse::Pidl::NDR qw(ContainsPipe);

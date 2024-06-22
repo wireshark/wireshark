@@ -2,7 +2,7 @@
 # Support for tagged types
 # (C) 2005 Jelmer Vernooij. Published under the GNU GPL
 use strict;
-
+use warnings;
 use Test::More tests => 3 * 8;
 use FindBin qw($RealBin);
 use lib "$RealBin";

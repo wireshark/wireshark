@@ -9,6 +9,7 @@ package Parse::Pidl::Samba4::COM::Stub;
 
 use Parse::Pidl::Util qw(has_property);
 use strict;
+use warnings;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
