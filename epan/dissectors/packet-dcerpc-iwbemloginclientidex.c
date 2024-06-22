@@ -22,28 +22,28 @@ void proto_register_dcerpc_IWbemLoginClientIDEx(void);
 void proto_reg_handoff_dcerpc_IWbemLoginClientIDEx(void);
 
 /* Ett declarations */
-static gint ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
-static gint ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat;
-static gint ett_dcerpc_IWbemLoginClientIDEx;
-static gint ett_IWbemLoginClientIDEx_ORPCTHIS;
-static gint ett_IWbemLoginClientIDEx_ORPCTHAT;
-static gint ett_IWbemLoginClientIDEx_FILETIME;
+static int ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
+static int ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat;
+static int ett_dcerpc_IWbemLoginClientIDEx;
+static int ett_IWbemLoginClientIDEx_ORPCTHIS;
+static int ett_IWbemLoginClientIDEx_ORPCTHAT;
+static int ett_IWbemLoginClientIDEx_FILETIME;
 
 
 /* Header field declarations */
-static gint hf_IWbemLoginClientIDEx_FILETIME_dwHighDateTime;
-static gint hf_IWbemLoginClientIDEx_FILETIME_dwLowDateTime;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcId;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcessCreationTime;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_Reserved;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
-static gint hf_IWbemLoginClientIDEx_opnum;
-static gint hf_IWbemLoginClientIDEx_werror;
+static int hf_IWbemLoginClientIDEx_FILETIME_dwHighDateTime;
+static int hf_IWbemLoginClientIDEx_FILETIME_dwLowDateTime;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcId;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcessCreationTime;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_Reserved;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat;
+static int hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
+static int hf_IWbemLoginClientIDEx_opnum;
+static int hf_IWbemLoginClientIDEx_werror;
 
-static gint proto_dcerpc_IWbemLoginClientIDEx = -1;
+static int proto_dcerpc_IWbemLoginClientIDEx = -1;
 /* Version information */
 
 
@@ -51,20 +51,20 @@ static e_guid_t uuid_dcerpc_IWbemLoginClientIDEx = {
 	0x9f6c78ef, 0xfce5, 0x42fa,
 	{ 0xab, 0xea, 0x3e, 0x7d, 0xf9, 0x19, 0x21, 0xdc }
 };
-static guint16 ver_dcerpc_IWbemLoginClientIDEx = 0;
+static uint16_t ver_dcerpc_IWbemLoginClientIDEx = 0;
 
-static int IWbemLoginClientIDEx_dissect_element_FILETIME_dwLowDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_FILETIME_dwHighDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcessCreationTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_FILETIME_dwLowDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_FILETIME_dwHighDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcessCreationTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 	#include "packet-dcom.h"
 /* SetClientInfoEx */
 static int
@@ -93,7 +93,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat_(tvbuff_t *tvb _U_
 /* IDL: } */
 
 int
-IWbemLoginClientIDEx_dissect_struct_ORPCTHIS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+IWbemLoginClientIDEx_dissect_struct_ORPCTHIS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	int old_offset;
@@ -116,7 +116,7 @@ IWbemLoginClientIDEx_dissect_struct_ORPCTHIS(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-IWbemLoginClientIDEx_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+IWbemLoginClientIDEx_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	int old_offset;
@@ -141,7 +141,7 @@ IWbemLoginClientIDEx_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 static int
-IWbemLoginClientIDEx_dissect_element_FILETIME_dwLowDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_FILETIME_dwLowDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientIDEx_FILETIME_dwLowDateTime, 0);
 
@@ -149,7 +149,7 @@ IWbemLoginClientIDEx_dissect_element_FILETIME_dwLowDateTime(tvbuff_t *tvb _U_, i
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_FILETIME_dwHighDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_FILETIME_dwHighDateTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientIDEx_FILETIME_dwHighDateTime, 0);
 
@@ -157,7 +157,7 @@ IWbemLoginClientIDEx_dissect_element_FILETIME_dwHighDateTime(tvbuff_t *tvb _U_, 
 }
 
 int
-IWbemLoginClientIDEx_dissect_struct_FILETIME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+IWbemLoginClientIDEx_dissect_struct_FILETIME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -192,7 +192,7 @@ IWbemLoginClientIDEx_dissect_struct_FILETIME(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -206,7 +206,7 @@ IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_response(tvbuff_t *tvb 
 }
 
 static int
-IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="iwbemloginclientidex_opnum0";
 	return offset;
@@ -217,7 +217,7 @@ IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_request(tvbuff_t *tvb _
 /* IDL: ); */
 
 static int
-IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -231,7 +231,7 @@ IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum1_response(tvbuff_t *tvb 
 }
 
 static int
-IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum1_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum1_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="iwbemloginclientidex_opnum1";
 	return offset;
@@ -242,7 +242,7 @@ IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum1_request(tvbuff_t *tvb _
 /* IDL: ); */
 
 static int
-IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -256,14 +256,14 @@ IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum2_response(tvbuff_t *tvb 
 }
 
 static int
-IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="iwbemloginclientidex_opnum2";
 	return offset;
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine_, NDR_POINTER_UNIQUE, "Pointer to ClientMachine (uint16)",hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine);
 
@@ -271,18 +271,18 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine(tvbuff_t *tvb
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN_, NDR_POINTER_UNIQUE, "Pointer to ClientMachineFQDN (uint16)",hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN);
 
@@ -290,18 +290,18 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN(tvbuff_t 
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcId, 0);
 
@@ -309,7 +309,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcId(tvbuff_t *tvb 
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcessCreationTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcessCreationTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = IWbemLoginClientIDEx_dissect_struct_FILETIME(tvb,offset,pinfo,tree,di,drep,hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcessCreationTime,0);
 
@@ -317,7 +317,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientProcessCreationTime(t
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientIDEx_SetClientInfoEx_Reserved, 0);
 
@@ -325,7 +325,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_Reserved(tvbuff_t *tvb _U_,
 }
 
 static int
-IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat_, NDR_POINTER_REF, "Pointer to Orpcthat (ORPCTHAT)",hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat);
 
@@ -343,7 +343,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthat(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-IWbemLoginClientIDEx_dissect_SetClientInfoEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_SetClientInfoEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -360,7 +360,7 @@ IWbemLoginClientIDEx_dissect_SetClientInfoEx_response(tvbuff_t *tvb _U_, int off
 }
 
 static int
-IWbemLoginClientIDEx_dissect_SetClientInfoEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientIDEx_dissect_SetClientInfoEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="SetClientInfoEx";
 	offset = IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_orpcthis(tvb, offset, pinfo, tree, di, drep);
@@ -419,7 +419,7 @@ void proto_register_dcerpc_IWbemLoginClientIDEx(void)
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis,
 		&ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat,
 		&ett_dcerpc_IWbemLoginClientIDEx,

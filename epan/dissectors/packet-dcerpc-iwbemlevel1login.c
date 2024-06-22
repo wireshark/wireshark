@@ -22,51 +22,51 @@ void proto_register_dcerpc_IWbemLevel1Login(void);
 void proto_reg_handoff_dcerpc_IWbemLevel1Login(void);
 
 /* Ett declarations */
-static gint ett_IWbemLevel1Login_EstablishPosition_orpcthis;
-static gint ett_IWbemLevel1Login_EstablishPosition_orpcthat;
-static gint ett_IWbemLevel1Login_RequestChallenge_orpcthis;
-static gint ett_IWbemLevel1Login_RequestChallenge_orpcthat;
-static gint ett_IWbemLevel1Login_WBEMLogin_orpcthis;
-static gint ett_IWbemLevel1Login_WBEMLogin_orpcthat;
-static gint ett_IWbemLevel1Login_NTLMLogin_orpcthis;
-static gint ett_IWbemLevel1Login_NTLMLogin_orpcthat;
-static gint ett_dcerpc_IWbemLevel1Login;
-static gint ett_IWbemLevel1Login_ORPCTHIS;
-static gint ett_IWbemLevel1Login_ORPCTHAT;
-static gint ett_IWbemLevel1Login_IWbemServices;
+static int ett_IWbemLevel1Login_EstablishPosition_orpcthis;
+static int ett_IWbemLevel1Login_EstablishPosition_orpcthat;
+static int ett_IWbemLevel1Login_RequestChallenge_orpcthis;
+static int ett_IWbemLevel1Login_RequestChallenge_orpcthat;
+static int ett_IWbemLevel1Login_WBEMLogin_orpcthis;
+static int ett_IWbemLevel1Login_WBEMLogin_orpcthat;
+static int ett_IWbemLevel1Login_NTLMLogin_orpcthis;
+static int ett_IWbemLevel1Login_NTLMLogin_orpcthat;
+static int ett_dcerpc_IWbemLevel1Login;
+static int ett_IWbemLevel1Login_ORPCTHIS;
+static int ett_IWbemLevel1Login_ORPCTHAT;
+static int ett_IWbemLevel1Login_IWbemServices;
 
 
 /* Header field declarations */
-static gint hf_IWbemLevel1Login_EstablishPosition_LocaleVersion;
-static gint hf_IWbemLevel1Login_EstablishPosition_orpcthat;
-static gint hf_IWbemLevel1Login_EstablishPosition_orpcthis;
-static gint hf_IWbemLevel1Login_EstablishPosition_reserved1;
-static gint hf_IWbemLevel1Login_EstablishPosition_reserved2;
-static gint hf_IWbemLevel1Login_IWbemServices_count;
-static gint hf_IWbemLevel1Login_IWbemServices_services;
-static gint hf_IWbemLevel1Login_NTLMLogin_lFlags;
-static gint hf_IWbemLevel1Login_NTLMLogin_orpcthat;
-static gint hf_IWbemLevel1Login_NTLMLogin_orpcthis;
-static gint hf_IWbemLevel1Login_NTLMLogin_pCtx;
-static gint hf_IWbemLevel1Login_NTLMLogin_ppNamespace;
-static gint hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource;
-static gint hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale;
-static gint hf_IWbemLevel1Login_RequestChallenge_orpcthat;
-static gint hf_IWbemLevel1Login_RequestChallenge_orpcthis;
-static gint hf_IWbemLevel1Login_RequestChallenge_reserved1;
-static gint hf_IWbemLevel1Login_RequestChallenge_reserved2;
-static gint hf_IWbemLevel1Login_RequestChallenge_reserved3;
-static gint hf_IWbemLevel1Login_WBEMLogin_orpcthat;
-static gint hf_IWbemLevel1Login_WBEMLogin_orpcthis;
-static gint hf_IWbemLevel1Login_WBEMLogin_ppNamespace;
-static gint hf_IWbemLevel1Login_WBEMLogin_reserved1;
-static gint hf_IWbemLevel1Login_WBEMLogin_reserved2;
-static gint hf_IWbemLevel1Login_WBEMLogin_reserved3;
-static gint hf_IWbemLevel1Login_WBEMLogin_reserved4;
-static gint hf_IWbemLevel1Login_opnum;
-static gint hf_IWbemLevel1Login_werror;
+static int hf_IWbemLevel1Login_EstablishPosition_LocaleVersion;
+static int hf_IWbemLevel1Login_EstablishPosition_orpcthat;
+static int hf_IWbemLevel1Login_EstablishPosition_orpcthis;
+static int hf_IWbemLevel1Login_EstablishPosition_reserved1;
+static int hf_IWbemLevel1Login_EstablishPosition_reserved2;
+static int hf_IWbemLevel1Login_IWbemServices_count;
+static int hf_IWbemLevel1Login_IWbemServices_services;
+static int hf_IWbemLevel1Login_NTLMLogin_lFlags;
+static int hf_IWbemLevel1Login_NTLMLogin_orpcthat;
+static int hf_IWbemLevel1Login_NTLMLogin_orpcthis;
+static int hf_IWbemLevel1Login_NTLMLogin_pCtx;
+static int hf_IWbemLevel1Login_NTLMLogin_ppNamespace;
+static int hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource;
+static int hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale;
+static int hf_IWbemLevel1Login_RequestChallenge_orpcthat;
+static int hf_IWbemLevel1Login_RequestChallenge_orpcthis;
+static int hf_IWbemLevel1Login_RequestChallenge_reserved1;
+static int hf_IWbemLevel1Login_RequestChallenge_reserved2;
+static int hf_IWbemLevel1Login_RequestChallenge_reserved3;
+static int hf_IWbemLevel1Login_WBEMLogin_orpcthat;
+static int hf_IWbemLevel1Login_WBEMLogin_orpcthis;
+static int hf_IWbemLevel1Login_WBEMLogin_ppNamespace;
+static int hf_IWbemLevel1Login_WBEMLogin_reserved1;
+static int hf_IWbemLevel1Login_WBEMLogin_reserved2;
+static int hf_IWbemLevel1Login_WBEMLogin_reserved3;
+static int hf_IWbemLevel1Login_WBEMLogin_reserved4;
+static int hf_IWbemLevel1Login_opnum;
+static int hf_IWbemLevel1Login_werror;
 
-static gint proto_dcerpc_IWbemLevel1Login = -1;
+static int proto_dcerpc_IWbemLevel1Login = -1;
 /* Version information */
 
 
@@ -74,55 +74,55 @@ static e_guid_t uuid_dcerpc_IWbemLevel1Login = {
 	0xf309ad18, 0xd86a, 0x11d0,
 	{ 0xa0, 0x75, 0x00, 0xc0, 0x4f, 0xb6, 0x88, 0x20 }
 };
-static guint16 ver_dcerpc_IWbemLevel1Login = 0;
+static uint16_t ver_dcerpc_IWbemLevel1Login = 0;
 
-static int IWbemLevel1Login_dissect_element_IWbemServices_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_IWbemServices_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved4_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_lFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_pCtx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_pCtx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int IWbemLevel1Login_dissect_element_IWbemServices_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_IWbemServices_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_reserved4_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_lFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_pCtx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_pCtx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 	#include "packet-dcom.h"
 /* EstablishPosition */
 static int
@@ -233,7 +233,7 @@ IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, int offs
 /* IDL: } */
 
 int
-IWbemLevel1Login_dissect_struct_ORPCTHIS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+IWbemLevel1Login_dissect_struct_ORPCTHIS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	int old_offset;
@@ -256,7 +256,7 @@ IWbemLevel1Login_dissect_struct_ORPCTHIS(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-IWbemLevel1Login_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+IWbemLevel1Login_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	int old_offset;
@@ -281,7 +281,7 @@ IWbemLevel1Login_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-IWbemLevel1Login_dissect_element_IWbemServices_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_IWbemServices_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_IWbemServices_count, 0);
 
@@ -289,14 +289,14 @@ IWbemLevel1Login_dissect_element_IWbemServices_count(tvbuff_t *tvb _U_, int offs
 }
 
 int
-IWbemLevel1Login_dissect_struct_IWbemServices(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+IWbemLevel1Login_dissect_struct_IWbemServices(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	gboolean oldalign = di->no_align;
+	bool oldalign = di->no_align;
 	int old_offset;
 
-	di->no_align = TRUE;
+	di->no_align = true;
 
 	old_offset = offset;
 
@@ -323,7 +323,7 @@ IWbemLevel1Login_dissect_struct_IWbemServices(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -337,7 +337,7 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_response(tvbuff_t *tvb _U_, int
 }
 
 static int
-IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="iwbemlevel1login_opnum0";
 	return offset;
@@ -348,7 +348,7 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_request(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -362,7 +362,7 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_response(tvbuff_t *tvb _U_, int
 }
 
 static int
-IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="iwbemlevel1login_opnum1";
 	return offset;
@@ -373,7 +373,7 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_request(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_iwbemlevel1login_opnum2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_iwbemlevel1login_opnum2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -387,14 +387,14 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum2_response(tvbuff_t *tvb _U_, int
 }
 
 static int
-IWbemLevel1Login_dissect_iwbemlevel1login_opnum2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_iwbemlevel1login_opnum2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="iwbemlevel1login_opnum2";
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_EstablishPosition_reserved1_, NDR_POINTER_UNIQUE, "Pointer to Reserved1 (uint16)",hf_IWbemLevel1Login_EstablishPosition_reserved1);
 
@@ -402,18 +402,18 @@ IWbemLevel1Login_dissect_element_EstablishPosition_reserved1(tvbuff_t *tvb _U_, 
 }
 
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_EstablishPosition_reserved1, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_EstablishPosition_reserved1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_EstablishPosition_reserved2, 0);
 
@@ -421,7 +421,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_reserved2(tvbuff_t *tvb _U_, 
 }
 
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat_, NDR_POINTER_REF, "Pointer to Orpcthat (ORPCTHAT)",hf_IWbemLevel1Login_EstablishPosition_orpcthat);
 
@@ -429,7 +429,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat(tvbuff_t *tvb _U_, i
 }
 
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_, NDR_POINTER_REF, "Pointer to LocaleVersion (uint32)",hf_IWbemLevel1Login_EstablishPosition_LocaleVersion);
 
@@ -437,7 +437,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion(tvbuff_t *tvb _
 }
 
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_EstablishPosition_LocaleVersion, 0);
 
@@ -453,7 +453,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_(tvbuff_t *tvb 
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_EstablishPosition_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_EstablishPosition_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -473,7 +473,7 @@ IWbemLevel1Login_dissect_EstablishPosition_response(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-IWbemLevel1Login_dissect_EstablishPosition_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_EstablishPosition_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EstablishPosition";
 	offset = IWbemLevel1Login_dissect_element_EstablishPosition_orpcthis(tvb, offset, pinfo, tree, di, drep);
@@ -486,7 +486,7 @@ IWbemLevel1Login_dissect_EstablishPosition_request(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_RequestChallenge_reserved1_, NDR_POINTER_UNIQUE, "Pointer to Reserved1 (uint16)",hf_IWbemLevel1Login_RequestChallenge_reserved1);
 
@@ -494,18 +494,18 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved1(tvbuff_t *tvb _U_, i
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_RequestChallenge_reserved1, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_RequestChallenge_reserved1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_RequestChallenge_reserved2_, NDR_POINTER_UNIQUE, "Pointer to Reserved2 (uint16)",hf_IWbemLevel1Login_RequestChallenge_reserved2);
 
@@ -513,18 +513,18 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved2(tvbuff_t *tvb _U_, i
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_RequestChallenge_reserved2, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_RequestChallenge_reserved2, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat_, NDR_POINTER_REF, "Pointer to Orpcthat (ORPCTHAT)",hf_IWbemLevel1Login_RequestChallenge_orpcthat);
 
@@ -532,7 +532,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat(tvbuff_t *tvb _U_, in
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_RequestChallenge_reserved3_, NDR_POINTER_REF, "Pointer to Reserved3 (uint8)",hf_IWbemLevel1Login_RequestChallenge_reserved3);
 
@@ -540,7 +540,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved3(tvbuff_t *tvb _U_, i
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__);
 
@@ -548,7 +548,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved3_(tvbuff_t *tvb _U_, 
 }
 
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_RequestChallenge_reserved3, 0);
 
@@ -564,7 +564,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_RequestChallenge_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_RequestChallenge_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -584,7 +584,7 @@ IWbemLevel1Login_dissect_RequestChallenge_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-IWbemLevel1Login_dissect_RequestChallenge_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_RequestChallenge_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="RequestChallenge";
 	offset = IWbemLevel1Login_dissect_element_RequestChallenge_orpcthis(tvb, offset, pinfo, tree, di, drep);
@@ -597,7 +597,7 @@ IWbemLevel1Login_dissect_RequestChallenge_request(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_reserved1_, NDR_POINTER_UNIQUE, "Pointer to Reserved1 (uint16)",hf_IWbemLevel1Login_WBEMLogin_reserved1);
 
@@ -605,18 +605,18 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved1(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_WBEMLogin_reserved1, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_WBEMLogin_reserved1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_reserved2_, NDR_POINTER_UNIQUE, "Pointer to Reserved2 (uint8)",hf_IWbemLevel1Login_WBEMLogin_reserved2);
 
@@ -624,7 +624,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved2(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_reserved2__);
 
@@ -632,7 +632,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved2_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_WBEMLogin_reserved2, 0);
 
@@ -640,7 +640,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved2__(tvbuff_t *tvb _U_, int of
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_WBEMLogin_reserved3, 0);
 
@@ -648,7 +648,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved3(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_reserved4_, NDR_POINTER_REF, "Pointer to Reserved4 (uint8)",hf_IWbemLevel1Login_WBEMLogin_reserved4);
 
@@ -656,7 +656,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved4(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_reserved4_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_reserved4_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_WBEMLogin_reserved4, 0);
 
@@ -664,7 +664,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved4_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat_, NDR_POINTER_REF, "Pointer to Orpcthat (ORPCTHAT)",hf_IWbemLevel1Login_WBEMLogin_orpcthat);
 
@@ -672,7 +672,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace_, NDR_POINTER_REF, "Pointer to PpNamespace (IWbemServices)",hf_IWbemLevel1Login_WBEMLogin_ppNamespace);
 
@@ -680,7 +680,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace(tvbuff_t *tvb _U_, int of
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__, NDR_POINTER_UNIQUE, "Pointer to PpNamespace (IWbemServices)",hf_IWbemLevel1Login_WBEMLogin_ppNamespace);
 
@@ -688,7 +688,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = IWbemLevel1Login_dissect_struct_IWbemServices(tvb,offset,pinfo,tree,di,drep,hf_IWbemLevel1Login_WBEMLogin_ppNamespace,0);
 
@@ -706,7 +706,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_WBEMLogin_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_WBEMLogin_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -726,7 +726,7 @@ IWbemLevel1Login_dissect_WBEMLogin_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-IWbemLevel1Login_dissect_WBEMLogin_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_WBEMLogin_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="WBEMLogin";
 	offset = IWbemLevel1Login_dissect_element_WBEMLogin_orpcthis(tvb, offset, pinfo, tree, di, drep);
@@ -743,7 +743,7 @@ IWbemLevel1Login_dissect_WBEMLogin_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource_, NDR_POINTER_UNIQUE, "Pointer to WszNetworkResource (uint16)",hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource);
 
@@ -751,18 +751,18 @@ IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource(tvbuff_t *tvb _U_,
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale_, NDR_POINTER_UNIQUE, "Pointer to WszPreferredLocale (uint16)",hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale);
 
@@ -770,18 +770,18 @@ IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale(tvbuff_t *tvb _U_,
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_lFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_lFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_NTLMLogin_lFlags, 0);
 
@@ -789,7 +789,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_lFlags(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_pCtx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_pCtx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_NTLMLogin_pCtx_, NDR_POINTER_UNIQUE, "Pointer to PCtx (uint8)",hf_IWbemLevel1Login_NTLMLogin_pCtx);
 
@@ -797,7 +797,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_pCtx(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_pCtx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_pCtx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_NTLMLogin_pCtx, 0);
 
@@ -805,7 +805,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_pCtx_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat_, NDR_POINTER_REF, "Pointer to Orpcthat (ORPCTHAT)",hf_IWbemLevel1Login_NTLMLogin_orpcthat);
 
@@ -813,7 +813,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace_, NDR_POINTER_REF, "Pointer to PpNamespace (IWbemServices)",hf_IWbemLevel1Login_NTLMLogin_ppNamespace);
 
@@ -821,7 +821,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace(tvbuff_t *tvb _U_, int of
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__, NDR_POINTER_UNIQUE, "Pointer to PpNamespace (IWbemServices)",hf_IWbemLevel1Login_NTLMLogin_ppNamespace);
 
@@ -829,7 +829,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = IWbemLevel1Login_dissect_struct_IWbemServices(tvb,offset,pinfo,tree,di,drep,hf_IWbemLevel1Login_NTLMLogin_ppNamespace,0);
 
@@ -847,7 +847,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-IWbemLevel1Login_dissect_NTLMLogin_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_NTLMLogin_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	guint32 status;
 
@@ -867,7 +867,7 @@ IWbemLevel1Login_dissect_NTLMLogin_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-IWbemLevel1Login_dissect_NTLMLogin_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_NTLMLogin_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="NTLMLogin";
 	offset = IWbemLevel1Login_dissect_element_NTLMLogin_orpcthis(tvb, offset, pinfo, tree, di, drep);
@@ -964,7 +964,7 @@ void proto_register_dcerpc_IWbemLevel1Login(void)
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_IWbemLevel1Login_EstablishPosition_orpcthis,
 		&ett_IWbemLevel1Login_EstablishPosition_orpcthat,
 		&ett_IWbemLevel1Login_RequestChallenge_orpcthis,

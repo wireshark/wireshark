@@ -204,18 +204,18 @@ $x->{conformance} = {types => { bla => "brainslug" } };
 is("brainslug", $x->find_type("bla"));
 
 is(DumpEttList(["ett_t1", "ett_bla"]),
-	"\tstatic gint *ett[] = {\n" .
+	"\tstatic int *ett[] = {\n" .
 	"\t\t&ett_t1,\n" .
 	"\t\t&ett_bla,\n" .
 	"\t};\n");
 
-is(DumpEttList(), "\tstatic gint *ett[] = {\n\t};\n");
-is(DumpEttList(["bla"]), "\tstatic gint *ett[] = {\n\t\t&bla,\n\t};\n");
+is(DumpEttList(), "\tstatic int *ett[] = {\n\t};\n");
+is(DumpEttList(["bla"]), "\tstatic int *ett[] = {\n\t\t&bla,\n\t};\n");
 
 is(DumpEttDeclaration(["void", "zoid"]),
 	"\n/* Ett declarations */\n" .
-	"static gint void;\n" .
-	"static gint zoid;\n" .
+	"static int void;\n" .
+	"static int zoid;\n" .
 	"\n");
 
 is(DumpEttDeclaration(), "\n/* Ett declarations */\n\n");
@@ -234,7 +234,7 @@ is($x->DumpHfList(), "\tstatic hf_register_info hf[] = {
 
 is($x->DumpHfDeclaration(), "
 /* Header field declarations */
-static gint hf_bla;
+static int hf_bla;
 
 ");
 
