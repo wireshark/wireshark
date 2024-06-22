@@ -10,6 +10,7 @@ require Exporter;
 @EXPORT_OK = qw(hasType getType resolveType mapTypeName mapTypeSpecifier scalar_is_reference expandAlias
 	mapScalarType addType typeIs is_signed is_scalar enum_type_fn
 	bitmap_type_fn mapType typeHasBody is_fixed_size_scalar
+	is_string_type
 );
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -174,7 +175,7 @@ sub hasType($)
 	my $t = shift;
 	if (ref($t) eq "HASH") {
 		return 1 if (not defined($t->{NAME}));
-		return 1 if (defined($types{$t->{NAME}}) and 
+		return 1 if (defined($types{$t->{NAME}}) and
 			$types{$t->{NAME}}->{TYPE} eq $t->{TYPE});
 		return 0;
 	}
@@ -200,13 +201,13 @@ sub is_scalar($)
 	sub is_scalar($);
 	my $type = shift;
 
-	return 1 if (ref($type) eq "HASH" and 
-		($type->{TYPE} eq "SCALAR" or $type->{TYPE} eq "ENUM" or 
+	return 1 if (ref($type) eq "HASH" and
+		($type->{TYPE} eq "SCALAR" or $type->{TYPE} eq "ENUM" or
 		 $type->{TYPE} eq "BITMAP"));
 
 	if (my $dt = getType($type)) {
 		return is_scalar($dt->{DATA}) if ($dt->{TYPE} eq "TYPEDEF");
-		return 1 if ($dt->{TYPE} eq "SCALAR" or $dt->{TYPE} eq "ENUM" or 
+		return 1 if ($dt->{TYPE} eq "SCALAR" or $dt->{TYPE} eq "ENUM" or
 			         $dt->{TYPE} eq "BITMAP");
 	}
 
@@ -228,6 +229,13 @@ sub scalar_is_reference($)
 
 	return 1 if (grep(/^$name$/, @reference_scalars));
 	return 0;
+}
+
+sub is_string_type
+{
+	my ($t) = @_;
+
+	return ($t eq "string");
 }
 
 sub RegisterScalars()

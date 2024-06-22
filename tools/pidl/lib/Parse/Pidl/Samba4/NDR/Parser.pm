@@ -57,7 +57,7 @@ sub append_prefix($$)
 			$pointers++;
 		} elsif ($l->{TYPE} eq "ARRAY") {
 			$arrays++;
-			if (($pointers == 0) and 
+			if (($pointers == 0) and
 			    (not $l->{IS_FIXED}) and
 			    (not $l->{IS_INLINE})) {
 				return get_value_of($var_name);
@@ -68,7 +68,7 @@ sub append_prefix($$)
 			}
 		}
 	}
-	
+
 	return $var_name;
 }
 
@@ -102,8 +102,8 @@ sub is_public_struct
 }
 
 ####################################
-# defer() is like pidl(), but adds to 
-# a deferred buffer which is then added to the 
+# defer() is like pidl(), but adds to
+# a deferred buffer which is then added to the
 # output buffer at the end of the structure/union/function
 # This is needed to cope with code that must be pushed back
 # to the end of a block of elements
@@ -235,7 +235,7 @@ sub check_fully_dereferenced($$)
 				last;
 			}
 		}
-		
+
 		return($origvar) unless (defined($var));
 		my $e;
 		foreach (@{$element->{PARENT}->{ELEMENTS}}) {
@@ -258,7 +258,7 @@ sub check_fully_dereferenced($$)
 		warning($element->{ORIGINAL}, "Got pointer for `$e->{NAME}', expected fully dereferenced variable") if ($nump > length($ptr));
 		return ($origvar);
 	}
-}	
+}
 
 sub check_null_pointer($$$$)
 {
@@ -279,7 +279,7 @@ sub check_null_pointer($$$$)
 				last;
 			}
 		}
-		
+
 		if (defined($var)) {
 			my $e;
 			# lookup ptr in $e
@@ -295,7 +295,7 @@ sub check_null_pointer($$$$)
 			# See if pointer at pointer level $level
 			# needs to be checked.
 			foreach my $l (@{$e->{LEVELS}}) {
-				if ($l->{TYPE} eq "POINTER" and 
+				if ($l->{TYPE} eq "POINTER" and
 					$l->{POINTER_INDEX} == length($ptr)) {
 					# No need to check ref pointers
 					$check = ($l->{POINTER_TYPE} ne "ref");
@@ -310,7 +310,7 @@ sub check_null_pointer($$$$)
 			warning($element, "unknown dereferenced expression `$expandedvar'");
 			$check = 1;
 		}
-		
+
 		$print_fn->("if ($ptr$expandedvar == NULL) $return") if $check;
 	}
 }
@@ -465,7 +465,7 @@ sub ParseArrayPullHeader($$$$$$)
 	if ($l->{IS_VARYING} and (defined($l->{LENGTH_IS}) or not $l->{IS_ZERO_TERMINATED})) {
 		$self->defer("if ($var_name) {");
 		$self->defer_indent;
-		my $length = ParseExprExt($l->{LENGTH_IS}, $env, $e->{ORIGINAL}, 
+		my $length = ParseExprExt($l->{LENGTH_IS}, $env, $e->{ORIGINAL},
 			check_null_pointer($e, $env, sub { $self->defer(shift); },
 					   "return ndr_pull_error($ndr, NDR_ERR_INVALID_POINTER, \"NULL Pointer for length_is()\");"),
 			check_fully_dereferenced($e, $env));
@@ -645,7 +645,7 @@ sub ParseElementPushLevel
 		} elsif ($l->{TYPE} eq "POINTER") {
 			$self->ParsePtrPush($e, $l, $ndr, $var_name);
 		} elsif ($l->{TYPE} eq "ARRAY") {
-			my $length = $self->ParseArrayPushHeader($e, $l, $ndr, $var_name, $env); 
+			my $length = $self->ParseArrayPushHeader($e, $l, $ndr, $var_name, $env);
 
 			my $nl = GetNextLevel($e, $l);
 
@@ -660,7 +660,7 @@ sub ParseElementPushLevel
 			} elsif (has_fast_array($e,$l)) {
 				$self->pidl("NDR_CHECK(ndr_push_array_$nl->{DATA_TYPE}($ndr, $ndr_flags, $var_name, $length));");
 				return;
-			} 
+			}
 		} elsif ($l->{TYPE} eq "DATA") {
 			$self->ParseDataPush($e, $l, $ndr, $var_name, $primitives, $deferred);
 		} elsif ($l->{TYPE} eq "TYPEDEF") {
@@ -906,13 +906,13 @@ sub ParseElementPrint($$$$$)
 			my $length;
 
 			if ($l->{IS_CONFORMANT} or $l->{IS_VARYING}) {
-				$var_name = get_pointer_to($var_name); 
+				$var_name = get_pointer_to($var_name);
 			}
-			
+
 			if ($l->{IS_ZERO_TERMINATED} and not defined($l->{LENGTH_IS})) {
 				$length = "ndr_string_length($var_name, sizeof(*$var_name))";
 			} else {
-				$length = ParseExprExt($l->{LENGTH_IS}, $env, $e->{ORIGINAL}, 
+				$length = ParseExprExt($l->{LENGTH_IS}, $env, $e->{ORIGINAL},
 							check_null_pointer($e, $env, sub { $self->pidl(shift); }, "return;"), check_fully_dereferenced($e, $env));
 			}
 
@@ -936,10 +936,10 @@ sub ParseElementPrint($$$$$)
 		} elsif ($l->{TYPE} eq "DATA") {
 			$self->ParseDataPrint($e, $l, $ndr, $var_name);
 		} elsif ($l->{TYPE} eq "SWITCH") {
-			my $switch_var = ParseExprExt($l->{SWITCH_IS}, $env, $e->{ORIGINAL}, 
+			my $switch_var = ParseExprExt($l->{SWITCH_IS}, $env, $e->{ORIGINAL},
 						check_null_pointer($e, $env, sub { $self->pidl(shift); }, "return;"), check_fully_dereferenced($e, $env));
 			$self->pidl("ndr_print_set_switch_value($ndr, " . get_pointer_to($var_name) . ", $switch_var);");
-		} 
+		}
 	}
 
 	foreach my $l (reverse @{$e->{LEVELS}}) {
@@ -976,7 +976,7 @@ sub ParseElementPrint($$$$$)
 sub ParseSwitchPull($$$$$$)
 {
 	my($self,$e,$l,$ndr,$var_name,$env) = @_;
-	my $switch_var = ParseExprExt($l->{SWITCH_IS}, $env, $e->{ORIGINAL}, 
+	my $switch_var = ParseExprExt($l->{SWITCH_IS}, $env, $e->{ORIGINAL},
 		check_null_pointer($e, $env, sub { $self->pidl(shift); },
 				   "return ndr_pull_error($ndr, NDR_ERR_INVALID_POINTER, \"NULL Pointer for switch_is()\");"),
 		check_fully_dereferenced($e, $env));
@@ -990,7 +990,7 @@ sub ParseSwitchPull($$$$$$)
 sub ParseSwitchPush($$$$$$)
 {
 	my($self,$e,$l,$ndr,$var_name,$env) = @_;
-	my $switch_var = ParseExprExt($l->{SWITCH_IS}, $env, $e->{ORIGINAL}, 
+	my $switch_var = ParseExprExt($l->{SWITCH_IS}, $env, $e->{ORIGINAL},
 		check_null_pointer($e, $env, sub { $self->pidl(shift); },
 				   "return ndr_push_error($ndr, NDR_ERR_INVALID_POINTER, \"NULL Pointer for switch_is()\");"),
 		check_fully_dereferenced($e, $env));
@@ -1084,14 +1084,14 @@ sub CalcNdrFlags($$$)
 	my $scalars = 0;
 	my $buffers = 0;
 
-	# Add NDR_SCALARS if this one is deferred 
+	# Add NDR_SCALARS if this one is deferred
 	# and deferreds may be pushed
 	$scalars = 1 if ($l->{IS_DEFERRED} and $deferred);
 
-	# Add NDR_SCALARS if this one is not deferred and 
+	# Add NDR_SCALARS if this one is not deferred and
 	# primitives may be pushed
 	$scalars = 1 if (!$l->{IS_DEFERRED} and $primitives);
-	
+
 	# Add NDR_BUFFERS if this one contains deferred stuff
 	# and deferreds may be pushed
 	$buffers = 1 if ($l->{CONTAINS_DEFERRED} and $deferred);
@@ -1119,7 +1119,7 @@ sub ParseMemCtxPullFlags($$$$)
 		my $nl = GetNextLevel($e, $l);
 		return undef if ($nl->{TYPE} eq "PIPE");
 		return undef if ($nl->{TYPE} eq "ARRAY");
-		return undef if (($nl->{TYPE} eq "DATA") and ($nl->{DATA_TYPE} eq "string"));
+		return undef if (($nl->{TYPE} eq "DATA") and (Parse::Pidl::Typelist::is_string_type($nl->{DATA_TYPE})));
 
 		if ($l->{LEVEL} eq "TOP") {
 			$mem_flags = "LIBNDR_FLAG_REF_ALLOC";
@@ -1255,7 +1255,7 @@ sub ParseElementPullLevel
 			$self->deindent;
 			$self->pidl("}");
 		}
-	} elsif ($l->{TYPE} eq "ARRAY" and 
+	} elsif ($l->{TYPE} eq "ARRAY" and
 			not has_fast_array($e,$l) and not is_charset_array($e, $l)) {
 		my $length = $array_length;
 		my $counter = "cntr_$e->{NAME}_$l->{LEVEL_INDEX}";
@@ -1357,21 +1357,21 @@ sub ParsePtrPull($$$$$)
 
 	my $nl = GetNextLevel($e, $l);
 	my $next_is_array = ($nl->{TYPE} eq "ARRAY");
-	my $next_is_string = (($nl->{TYPE} eq "DATA") and 
-						 ($nl->{DATA_TYPE} eq "string"));
+	my $next_is_string = (($nl->{TYPE} eq "DATA") and
+						 (Parse::Pidl::Typelist::is_string_type($nl->{DATA_TYPE})));
 
 	if ($l->{POINTER_TYPE} eq "ref" and $l->{LEVEL} eq "TOP") {
 
 		if (!$next_is_array and !$next_is_string) {
 			$self->pidl("if ($ndr->flags & LIBNDR_FLAG_REF_ALLOC) {");
-			$self->pidl("\tNDR_PULL_ALLOC($ndr, $var_name);"); 
+			$self->pidl("\tNDR_PULL_ALLOC($ndr, $var_name);");
 			$self->pidl("}");
 		}
 
 		return;
 	} elsif ($l->{POINTER_TYPE} eq "ref" and $l->{LEVEL} eq "EMBEDDED") {
 		$self->pidl("NDR_CHECK(ndr_pull_ref_ptr($ndr, &_ptr_$e->{NAME}));");
-	} elsif (($l->{POINTER_TYPE} eq "unique") or 
+	} elsif (($l->{POINTER_TYPE} eq "unique") or
 		 ($l->{POINTER_TYPE} eq "relative") or
 		 ($l->{POINTER_TYPE} eq "full")) {
 		$self->pidl("NDR_CHECK(ndr_pull_generic_ptr($ndr, &_ptr_$e->{NAME}));");
@@ -1393,10 +1393,10 @@ sub ParsePtrPull($$$$$)
 	        # allocation, as we forced it to NULL just above, and
 	        # we may not know the declared type anyway.
 	} else {
-	        # Don't do this for arrays, they're allocated at the actual level 
+	        # Don't do this for arrays, they're allocated at the actual level
 	        # of the array
-	        unless ($next_is_array or $next_is_string) { 
-		       $self->pidl("NDR_PULL_ALLOC($ndr, $var_name);"); 
+	        unless ($next_is_array or $next_is_string) {
+		       $self->pidl("NDR_PULL_ALLOC($ndr, $var_name);");
 		} else {
 		       # FIXME: Yes, this is nasty.
 		       # We allocate an array twice
@@ -1448,10 +1448,10 @@ sub ParseStructPushPrimitives($$$$$)
 	if (defined($struct->{SURROUNDING_ELEMENT})) {
 		my $e = $struct->{SURROUNDING_ELEMENT};
 
-		if (defined($e->{LEVELS}[0]) and 
+		if (defined($e->{LEVELS}[0]) and
 			$e->{LEVELS}[0]->{TYPE} eq "ARRAY") {
 			my $size;
-			
+
 			if ($e->{LEVELS}[0]->{IS_ZERO_TERMINATED}) {
 				if (has_property($e, "charset")) {
 					$size = "ndr_charset_length($varname->$e->{NAME}, CH_$e->{PROPERTIES}->{charset})";
@@ -1500,7 +1500,7 @@ sub ParseStructPushDeferred($$$$)
 sub ParseStructPush($$$$)
 {
 	my ($self, $struct, $ndr, $varname) = @_;
-	
+
 	return unless defined($struct->{ELEMENTS});
 
 	my $env = GenerateStructEnv($struct, $varname);
@@ -1580,7 +1580,7 @@ sub ParseEnumPrint($$$$$)
 
 	$self->deindent;
 	$self->pidl("}");
-	
+
 	$self->pidl("ndr_print_enum($ndr, name, \"$enum->{TYPE}\", val, $varname);");
 
 	$self->end_flags($enum, $ndr);
@@ -1589,7 +1589,7 @@ sub ParseEnumPrint($$$$$)
 sub DeclEnum($$$$)
 {
 	my ($e,$t,$name,$varname) = @_;
-	return "enum $name " . 
+	return "enum $name " .
 		($t eq "pull"?"*":"") . $varname;
 }
 
@@ -1672,7 +1672,7 @@ sub ParseBitmapPrint($$$$$)
 sub DeclBitmap($$$$)
 {
 	my ($e,$t,$name,$varname) = @_;
-	return mapTypeName(Parse::Pidl::Typelist::bitmap_type_fn($e)) . 
+	return mapTypeName(Parse::Pidl::Typelist::bitmap_type_fn($e)) .
 		($t eq "pull"?" *":" ") . $varname;
 }
 
@@ -1701,7 +1701,7 @@ sub ParseStructPrint($$$$$)
 	$self->start_flags($struct, $ndr);
 
 	$self->pidl("$ndr->depth++;");
-	
+
 	$self->ParseElementPrint($_, $ndr, $env->{$_->{NAME}}, $env)
 		foreach (@{$struct->{ELEMENTS}});
 	$self->pidl("$ndr->depth--;");
@@ -1719,7 +1719,7 @@ sub DeclarePtrVariables($$)
 
 	foreach my $l (@{$e->{LEVELS}}) {
 		my $size = 32;
-		if ($l->{TYPE} eq "POINTER" and 
+		if ($l->{TYPE} eq "POINTER" and
 			not ($l->{POINTER_TYPE} eq "ref" and $l->{LEVEL} eq "TOP")) {
 			if ($l->{POINTER_TYPE} eq "relative_short") {
 				$size = 16;
@@ -2108,7 +2108,7 @@ sub ParseUnionPullPrimitives($$$$$)
 		}
 
 		$self->pidl("NDR_CHECK(ndr_pull_$switch_type($ndr, NDR_SCALARS, &_level));");
-		$self->pidl("if (_level != level) {"); 
+		$self->pidl("if (_level != level) {");
 		$self->pidl("\treturn ndr_pull_error($ndr, NDR_ERR_BAD_SWITCH, \"Bad switch value %$fmt for $varname at \%s\", ($data_type)_level, __location__);");
 		$self->pidl("}");
 	}
@@ -2127,7 +2127,7 @@ sub ParseUnionPullPrimitives($$$$$)
 	foreach my $el (@{$e->{ELEMENTS}}) {
 		if ($el->{CASE} eq "default") {
 			$have_default = 1;
-		} 
+		}
 		$self->pidl("$el->{CASE}: {");
 
 		if ($el->{TYPE} ne "EMPTY") {
@@ -2162,7 +2162,7 @@ sub ParseUnionPullDeferred($$$$)
 	foreach my $el (@{$e->{ELEMENTS}}) {
 		if ($el->{CASE} eq "default") {
 			$have_default = 1;
-		} 
+		}
 
 		$self->pidl("$el->{CASE}:");
 		if ($el->{TYPE} ne "EMPTY") {
@@ -2265,7 +2265,7 @@ $typefamily{UNION} = {
 	SIZE_FN_ARGS => \&ArgsUnionNdrSize,
 	SIZE_FN_BODY => \&ParseUnionNdrSize,
 };
-	
+
 #####################################################################
 # parse a typedef - push side
 sub ParseTypedefPush($$$$)
@@ -2313,7 +2313,7 @@ sub ParseTypedefNdrSize($$$$)
 sub DeclTypedef($$$$)
 {
 	my ($e, $t, $name, $varname) = @_;
-	
+
 	return $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e->{DATA}, $t, $name, $varname);
 }
 
@@ -2467,7 +2467,7 @@ sub ParseFunctionPrint($$)
 	$self->pidl("$ndr->depth--;");
 	$self->deindent;
 	$self->pidl("}");
-	
+
 	$self->pidl("if (flags & NDR_OUT) {");
 	$self->indent;
 	$self->pidl("ndr_print_struct($ndr, \"out\", \"$fn->{NAME}\");");
@@ -2485,7 +2485,7 @@ sub ParseFunctionPrint($$)
 	$self->pidl("$ndr->depth--;");
 	$self->deindent;
 	$self->pidl("}");
-	
+
 	$self->pidl("$ndr->depth--;");
 	$self->deindent;
 	$self->pidl("}");
@@ -2495,7 +2495,7 @@ sub ParseFunctionPrint($$)
 #####################################################################
 # parse a function
 sub ParseFunctionPush($$)
-{ 
+{
 	my($self, $fn) = @_;
 	my $ndr = "ndr";
 
@@ -2506,7 +2506,7 @@ sub ParseFunctionPush($$)
 	$self->pidl("{");
 	$self->indent;
 
-	foreach my $e (@{$fn->{ELEMENTS}}) { 
+	foreach my $e (@{$fn->{ELEMENTS}}) {
 		$self->DeclareArrayVariables($e);
 	}
 
@@ -2555,7 +2555,7 @@ sub ParseFunctionPush($$)
 	if ($fn->{RETURN_TYPE}) {
 		$self->pidl("NDR_CHECK(ndr_push_$fn->{RETURN_TYPE}($ndr, NDR_SCALARS, r->out.result));");
 	}
-    
+
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("return NDR_ERR_SUCCESS;");
@@ -2569,8 +2569,8 @@ sub AllocateArrayLevel($$$$$$)
 	my ($self,$e,$l,$ndr,$var,$size) = @_;
 
 	my $pl = GetPrevLevel($e, $l);
-	if (defined($pl) and 
-	    $pl->{TYPE} eq "POINTER" and 
+	if (defined($pl) and
+	    $pl->{TYPE} eq "POINTER" and
 	    $pl->{POINTER_TYPE} eq "ref"
 	    and not $l->{IS_ZERO_TERMINATED}) {
 		$self->pidl("if ($ndr->flags & LIBNDR_FLAG_REF_ALLOC) {");
@@ -2589,7 +2589,7 @@ sub AllocateArrayLevel($$$$$$)
 #####################################################################
 # parse a function
 sub ParseFunctionPull($$)
-{ 
+{
 	my($self,$fn) = @_;
 	my $ndr = "ndr";
 
@@ -2600,7 +2600,7 @@ sub ParseFunctionPull($$)
 	$self->indent;
 
 	# declare any internal pointers we need
-	foreach my $e (@{$fn->{ELEMENTS}}) { 
+	foreach my $e (@{$fn->{ELEMENTS}}) {
 		$self->DeclarePtrVariables($e);
 		$self->DeclareArrayVariables($e, "pull");
 	}
@@ -2641,12 +2641,12 @@ sub ParseFunctionPull($$)
 
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
-		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and 
+		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and
 		             $e->{LEVELS}[0]->{POINTER_TYPE} eq "ref");
-		next if (($e->{LEVELS}[1]->{TYPE} eq "DATA") and 
-				 ($e->{LEVELS}[1]->{DATA_TYPE} eq "string"));
+		next if (($e->{LEVELS}[1]->{TYPE} eq "DATA") and
+				 (Parse::Pidl::Typelist::is_string_type($e->{LEVELS}[1]->{DATA_TYPE})));
 		next if ($e->{LEVELS}[1]->{TYPE} eq "PIPE");
-		next if (($e->{LEVELS}[1]->{TYPE} eq "ARRAY") 
+		next if (($e->{LEVELS}[1]->{TYPE} eq "ARRAY")
 			and   $e->{LEVELS}[1]->{IS_ZERO_TERMINATED});
 
 		if ($e->{LEVELS}[1]->{TYPE} eq "ARRAY") {
@@ -2669,7 +2669,7 @@ sub ParseFunctionPull($$)
 			}
 		} else {
 			$self->pidl("NDR_PULL_ALLOC($ndr, r->out.$e->{NAME});");
-		
+
 			if (grep(/in/, @{$e->{DIRECTION}})) {
 				$self->pidl("*r->out.$e->{NAME} = *r->in.$e->{NAME};");
 			} else {
@@ -2681,7 +2681,7 @@ sub ParseFunctionPull($$)
 	$self->add_deferred();
 	$self->deindent;
 	$self->pidl("}");
-	
+
 	$self->pidl("if (flags & NDR_OUT) {");
 	$self->indent;
 
@@ -2696,7 +2696,7 @@ sub ParseFunctionPull($$)
 		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and
 		             $e->{LEVELS}[0]->{POINTER_TYPE} eq "ref");
 		next if (($e->{LEVELS}[1]->{TYPE} eq "DATA") and
-				 ($e->{LEVELS}[1]->{DATA_TYPE} eq "string"));
+				 (Parse::Pidl::Typelist::is_string_type($e->{LEVELS}[1]->{DATA_TYPE})));
 		next if ($e->{LEVELS}[1]->{TYPE} eq "PIPE");
 		next if ($e->{LEVELS}[1]->{TYPE} eq "ARRAY");
 
@@ -2909,7 +2909,7 @@ sub FunctionTable($$)
 		$self->pidl("\t$ep, ");
 	}
 	my $endpoint_count = $#{$interface->{ENDPOINTS}}+1;
-	
+
 	$self->pidl("};");
 	$self->pidl("");
 
@@ -2972,7 +2972,7 @@ sub HeaderInclude
 
 #####################################################################
 # generate prototypes and defines for the interface definitions
-# FIXME: these prototypes are for the DCE/RPC client functions, not the 
+# FIXME: these prototypes are for the DCE/RPC client functions, not the
 # NDR parser and so do not belong here, technically speaking
 sub HeaderInterface($$$)
 {
@@ -2994,7 +2994,7 @@ sub HeaderInterface($$$)
 
 	if (defined $interface->{PROPERTIES}->{uuid}) {
 		my $name = uc $interface->{NAME};
-		$self->pidl_hdr("#define NDR_$name\_UUID " . 
+		$self->pidl_hdr("#define NDR_$name\_UUID " .
 		Parse::Pidl::Util::make_str(lc($interface->{UUID})));
 
 		$self->pidl_hdr("#define NDR_$name\_VERSION $interface->{VERSION}");
@@ -3019,12 +3019,12 @@ sub HeaderInterface($$$)
 		next if has_property($_, "noopnum");
 		next if grep(/^$_->{NAME}$/,@{$interface->{INHERITED_FUNCTIONS}});
 		my $u_name = uc $_->{NAME};
-	
+
 		my $val = sprintf("0x%02x", $count);
 		if (defined($interface->{BASE})) {
 			$val .= " + NDR_" . uc $interface->{BASE} . "_CALL_COUNT";
 		}
-		
+
 		$self->pidl_hdr("#define NDR_$u_name ($val)");
 
 		$self->pidl_hdr("");
@@ -3192,8 +3192,8 @@ sub ParseInterface($$$)
 		($needed->{TypeFunctionName("ndr_print", $d)}) && $self->ParseTypePrintFunction($d, "r");
 
 		# Make sure we don't generate a function twice...
-		$needed->{TypeFunctionName("ndr_push", $d)} = 
-		    $needed->{TypeFunctionName("ndr_pull", $d)} = 
+		$needed->{TypeFunctionName("ndr_push", $d)} =
+		    $needed->{TypeFunctionName("ndr_pull", $d)} =
 			$needed->{TypeFunctionName("ndr_print", $d)} = 0;
 
 		($needed->{"ndr_size_$d->{NAME}"}) && $self->ParseTypeNdrSize($d);
@@ -3277,7 +3277,7 @@ sub NeededElement($$$)
 
 	return if ($e->{TYPE} eq "EMPTY");
 
-	return if (ref($e->{TYPE}) eq "HASH" and 
+	return if (ref($e->{TYPE}) eq "HASH" and
 		       not defined($e->{TYPE}->{NAME}));
 
 	my ($t, $rt);
@@ -3341,7 +3341,7 @@ sub NeededType($$$)
 		return unless defined($t->{ELEMENTS});
 		for my $e (@{$t->{ELEMENTS}}) {
 			$e->{PARENT} = $t;
-			if (has_property($e, "compression")) { 
+			if (has_property($e, "compression")) {
 				$needed->{"compression"} = 1;
 			}
 			NeededElement($e, $req, $needed);
@@ -3359,7 +3359,7 @@ sub NeededInterface($$)
 	foreach (reverse @{$interface->{TYPES}}) {
 
 		if (has_property($_, "public")) {
-			$needed->{TypeFunctionName("ndr_pull", $_)} = $needed->{TypeFunctionName("ndr_push", $_)} = 
+			$needed->{TypeFunctionName("ndr_pull", $_)} = $needed->{TypeFunctionName("ndr_push", $_)} =
 				$needed->{TypeFunctionName("ndr_print", $_)} = 1;
 		}
 
@@ -3376,7 +3376,7 @@ sub TypeFunctionName($$)
 {
 	my ($prefix, $t) = @_;
 
-	return "$prefix\_$t->{NAME}" if (ref($t) eq "HASH" and 
+	return "$prefix\_$t->{NAME}" if (ref($t) eq "HASH" and
 			$t->{TYPE} eq "TYPEDEF");
 	return "$prefix\_$t->{TYPE}_$t->{NAME}" if (ref($t) eq "HASH");
 	return "$prefix\_$t";

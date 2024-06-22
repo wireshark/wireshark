@@ -494,7 +494,7 @@ sub EnvSubstituteValue($$)
 	# Substitute the value() values in the env
 	foreach my $e (@{$s->{ELEMENTS}}) {
 		next unless (defined(my $v = has_property($e, "value")));
-		
+
 		$env->{$e->{NAME}} = ParseExpr($v, $env, $e);
 	}
 
