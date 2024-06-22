@@ -11,10 +11,6 @@ use Parse::Pidl::Typelist qw(mapTypeName);
 
 use base Parse::Pidl::Base;
 
-use Exporter;
-push @ISA, qw(Exporter);
-@EXPORT_OK = qw(ParserType $res $res_hdr);
-
 use vars qw($VERSION);
 $VERSION = '0.01';
 

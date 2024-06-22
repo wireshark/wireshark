@@ -9,7 +9,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
-use Parse::Pidl::Samba3::ClientNDR qw(ParseFunction);
+use Parse::Pidl::Samba3::ClientNDR;
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
 
 # Make sure GenerateFunctionInEnv and GenerateFunctionOutEnv work

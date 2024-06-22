@@ -8,10 +8,6 @@
 package Parse::Pidl::Samba3::ClientNDR;
 use base Parse::Pidl::Base;
 
-use Exporter;
-push @ISA, qw(Exporter);
-@EXPORT_OK = qw(ParseFunction $res $res_hdr);
-
 use strict;
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property ParseExpr genpad);
