@@ -1490,6 +1490,8 @@ static const value_string ieee1905_backhaul_status_vals[] = {
 static const value_string ieee1905_association_control_vals[] = {
   { 0x00, "Block" },
   { 0x01, "Unblock" },
+  { 0x02, "Timed block" },
+  { 0x03, "Indefinite block" },
   { 0, NULL }
 };
 
