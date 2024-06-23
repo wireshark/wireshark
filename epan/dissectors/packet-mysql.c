@@ -2846,14 +2846,13 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, stmt_id);
 		if (stmt_data != NULL) {
 			guint64 param_count = stmt_data->param_metas.count;
-			if ((param_count != 0)
-					|| ((conn_data->clnt_caps_ext & MYSQL_CAPS_QA)
-						&& (exec_flags & MYSQL_PARAMETER_COUNT_AVAILABLE))) {
-				if (conn_data->clnt_caps_ext & MYSQL_CAPS_QA) {
-					guint8 lenfle = tvb_get_fle(tvb, req_tree, offset, &param_count, NULL);
-					proto_tree_add_uint64(req_tree, hf_mysql_num_params, tvb, offset, lenfle, param_count);
-					offset += lenfle;
-				}
+			if ((conn_data->clnt_caps_ext & MYSQL_CAPS_QA)
+					&& (exec_flags & MYSQL_PARAMETER_COUNT_AVAILABLE)) {
+				guint8 lenfle = tvb_get_fle(tvb, req_tree, offset, &param_count, NULL);
+				proto_tree_add_uint64(req_tree, hf_mysql_num_params, tvb, offset, lenfle, param_count);
+				offset += lenfle;
+			}
+			if (param_count != 0) {
 				guint8 stmt_bound;
 				offset += (param_count + 7) / 8; /* NULL bitmap */
 				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_NA);
