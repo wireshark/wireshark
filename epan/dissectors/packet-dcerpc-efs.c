@@ -265,7 +265,7 @@ efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_(tvbuff_t *
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -556,7 +556,7 @@ efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcOpenFileRaw_FileName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcOpenFileRaw_FileName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -734,7 +734,7 @@ efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcEncryptFileSrv_Filename, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcEncryptFileSrv_Filename, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -772,7 +772,7 @@ efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcDecryptFileSrv_FileName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcDecryptFileSrv_FileName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -821,7 +821,7 @@ efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcQueryUsersOnFile_FileName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcQueryUsersOnFile_FileName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -887,7 +887,7 @@ efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcQueryRecoveryAgents_FileName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcQueryRecoveryAgents_FileName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -953,7 +953,7 @@ efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcRemoveUsersFromFile_FileName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcRemoveUsersFromFile_FileName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -991,7 +991,7 @@ efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_efs_EfsRpcAddUsersToFile_FileName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_efs_EfsRpcAddUsersToFile_FileName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

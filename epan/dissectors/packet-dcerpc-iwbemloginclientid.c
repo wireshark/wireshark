@@ -212,7 +212,7 @@ IWbemLoginClientID_dissect_element_SetClientInfo_wszClientMachine_(tvbuff_t *tvb
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientID_SetClientInfo_wszClientMachine, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLoginClientID_SetClientInfo_wszClientMachine, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

@@ -1228,7 +1228,7 @@ svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_SERVICE_LOCK_STATUS_lock_owner, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_SERVICE_LOCK_STATUS_lock_owner, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2037,7 +2037,7 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_QUERY_SERVICE_CONFIG_executablepath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_QUERY_SERVICE_CONFIG_executablepath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2056,7 +2056,7 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_QUERY_SERVICE_CONFIG_loadordergroup, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_QUERY_SERVICE_CONFIG_loadordergroup, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2083,7 +2083,7 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_QUERY_SERVICE_CONFIG_dependencies, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_QUERY_SERVICE_CONFIG_dependencies, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2102,7 +2102,7 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_QUERY_SERVICE_CONFIG_startname, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_QUERY_SERVICE_CONFIG_startname, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2121,7 +2121,7 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_QUERY_SERVICE_CONFIG_displayname, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_QUERY_SERVICE_CONFIG_displayname, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2190,7 +2190,7 @@ svcctl_dissect_element_ArgumentString_string_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ArgumentString_string, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ArgumentString_string, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2243,7 +2243,7 @@ svcctl_dissect_element_ArgumentStringA_string_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_ArgumentStringA_string, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_ArgumentStringA_string, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2932,7 +2932,7 @@ svcctl_dissect_element_NotifyBootConfigStatus_machine_name_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_NotifyBootConfigStatus_machine_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_NotifyBootConfigStatus_machine_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3029,7 +3029,7 @@ svcctl_dissect_element_SCSetServiceBitsW_lpString_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_SCSetServiceBitsW_lpString, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_SCSetServiceBitsW_lpString, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3127,7 +3127,7 @@ svcctl_dissect_element_ChangeServiceConfigW_binary_path_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ChangeServiceConfigW_binary_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ChangeServiceConfigW_binary_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3146,7 +3146,7 @@ svcctl_dissect_element_ChangeServiceConfigW_load_order_group_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ChangeServiceConfigW_load_order_group, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ChangeServiceConfigW_load_order_group, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3181,7 +3181,7 @@ svcctl_dissect_element_ChangeServiceConfigW_dependencies_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ChangeServiceConfigW_dependencies, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ChangeServiceConfigW_dependencies, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3208,7 +3208,7 @@ svcctl_dissect_element_ChangeServiceConfigW_service_start_name_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ChangeServiceConfigW_service_start_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ChangeServiceConfigW_service_start_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3227,7 +3227,7 @@ svcctl_dissect_element_ChangeServiceConfigW_password_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ChangeServiceConfigW_password, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ChangeServiceConfigW_password, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3254,7 +3254,7 @@ svcctl_dissect_element_ChangeServiceConfigW_display_name_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_ChangeServiceConfigW_display_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_ChangeServiceConfigW_display_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3347,7 +3347,7 @@ svcctl_dissect_element_CreateServiceW_ServiceName(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceW_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceW_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3366,7 +3366,7 @@ svcctl_dissect_element_CreateServiceW_DisplayName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceW_DisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceW_DisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3409,7 +3409,7 @@ svcctl_dissect_element_CreateServiceW_binary_path(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceW_binary_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceW_binary_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3428,7 +3428,7 @@ svcctl_dissect_element_CreateServiceW_LoadOrderGroup_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceW_LoadOrderGroup, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceW_LoadOrderGroup, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3495,7 +3495,7 @@ svcctl_dissect_element_CreateServiceW_service_start_name_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceW_service_start_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceW_service_start_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3855,7 +3855,7 @@ svcctl_dissect_element_OpenSCManagerW_MachineName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_OpenSCManagerW_MachineName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_OpenSCManagerW_MachineName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3874,7 +3874,7 @@ svcctl_dissect_element_OpenSCManagerW_DatabaseName_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_OpenSCManagerW_DatabaseName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_OpenSCManagerW_DatabaseName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3962,7 +3962,7 @@ svcctl_dissect_element_OpenServiceW_ServiceName(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_OpenServiceW_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_OpenServiceW_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4327,7 +4327,7 @@ svcctl_dissect_element_GetServiceDisplayNameW_service_name_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_GetServiceDisplayNameW_service_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_GetServiceDisplayNameW_service_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4354,7 +4354,7 @@ svcctl_dissect_element_GetServiceDisplayNameW_display_name__(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_GetServiceDisplayNameW_display_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_GetServiceDisplayNameW_display_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4445,7 +4445,7 @@ svcctl_dissect_element_GetServiceKeyNameW_display_name_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_GetServiceKeyNameW_display_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_GetServiceKeyNameW_display_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4472,7 +4472,7 @@ svcctl_dissect_element_GetServiceKeyNameW_service_name__(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_GetServiceKeyNameW_service_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_GetServiceKeyNameW_service_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4587,7 +4587,7 @@ svcctl_dissect_element_SCSetServiceBitsA_lpString_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_SCSetServiceBitsA_lpString, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_SCSetServiceBitsA_lpString, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4865,7 +4865,7 @@ svcctl_dissect_element_CreateServiceA_ServiceName(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceA_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceA_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4884,7 +4884,7 @@ svcctl_dissect_element_CreateServiceA_DisplayName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceA_DisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceA_DisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4927,7 +4927,7 @@ svcctl_dissect_element_CreateServiceA_binary_path(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceA_binary_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceA_binary_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4946,7 +4946,7 @@ svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceA_LoadOrderGroupKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceA_LoadOrderGroupKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5013,7 +5013,7 @@ svcctl_dissect_element_CreateServiceA_service_start_name_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceA_service_start_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceA_service_start_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5439,7 +5439,7 @@ svcctl_dissect_element_OpenSCManagerA_MachineName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_OpenSCManagerA_MachineName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_OpenSCManagerA_MachineName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5458,7 +5458,7 @@ svcctl_dissect_element_OpenSCManagerA_DatabaseName_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_OpenSCManagerA_DatabaseName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_OpenSCManagerA_DatabaseName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5546,7 +5546,7 @@ svcctl_dissect_element_OpenServiceA_ServiceName(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_OpenServiceA_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_OpenServiceA_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5935,7 +5935,7 @@ svcctl_dissect_element_GetServiceDisplayNameA_display_name__(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_GetServiceDisplayNameA_display_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_GetServiceDisplayNameA_display_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6050,7 +6050,7 @@ svcctl_dissect_element_GetServiceKeyNameA_key_name__(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_GetServiceKeyNameA_key_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_GetServiceKeyNameA_key_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6141,7 +6141,7 @@ svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_GetCurrentGroupeStateW_lpLoadOrderGroup, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_GetCurrentGroupeStateW_lpLoadOrderGroup, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6314,7 +6314,7 @@ svcctl_dissect_element_EnumServiceGroupW_pszGroupName_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_EnumServiceGroupW_pszGroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_EnumServiceGroupW_pszGroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6987,7 +6987,7 @@ svcctl_dissect_element_EnumServicesStatusExA_group_name__(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_EnumServicesStatusExA_group_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_EnumServicesStatusExA_group_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7187,7 +7187,7 @@ svcctl_dissect_element_EnumServicesStatusExW_group_name_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_EnumServicesStatusExW_group_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_EnumServicesStatusExW_group_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7299,7 +7299,7 @@ svcctl_dissect_element_CreateServiceWOW64A_ServiceName(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceWOW64A_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceWOW64A_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7318,7 +7318,7 @@ svcctl_dissect_element_CreateServiceWOW64A_DisplayName_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceWOW64A_DisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceWOW64A_DisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7361,7 +7361,7 @@ svcctl_dissect_element_CreateServiceWOW64A_binary_path(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceWOW64A_binary_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceWOW64A_binary_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7380,7 +7380,7 @@ svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceWOW64A_LoadOrderGroupKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceWOW64A_LoadOrderGroupKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7447,7 +7447,7 @@ svcctl_dissect_element_CreateServiceWOW64A_service_start_name_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_svcctl_svcctl_CreateServiceWOW64A_service_start_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_CreateServiceWOW64A_service_start_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7598,7 +7598,7 @@ svcctl_dissect_element_CreateServiceWOW64W_ServiceName(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceWOW64W_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceWOW64W_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7617,7 +7617,7 @@ svcctl_dissect_element_CreateServiceWOW64W_DisplayName_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceWOW64W_DisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceWOW64W_DisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7660,7 +7660,7 @@ svcctl_dissect_element_CreateServiceWOW64W_binary_path(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceWOW64W_binary_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceWOW64W_binary_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7679,7 +7679,7 @@ svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceWOW64W_LoadOrderGroupKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceWOW64W_LoadOrderGroupKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7746,7 +7746,7 @@ svcctl_dissect_element_CreateServiceWOW64W_service_start_name_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateServiceWOW64W_service_start_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateServiceWOW64W_service_start_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8276,7 +8276,7 @@ svcctl_dissect_element_CreateWowService_ServiceName(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateWowService_ServiceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateWowService_ServiceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8295,7 +8295,7 @@ svcctl_dissect_element_CreateWowService_DisplayName_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateWowService_DisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateWowService_DisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8338,7 +8338,7 @@ svcctl_dissect_element_CreateWowService_binary_path(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateWowService_binary_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateWowService_binary_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8357,7 +8357,7 @@ svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateWowService_LoadOrderGroupKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateWowService_LoadOrderGroupKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8424,7 +8424,7 @@ svcctl_dissect_element_CreateWowService_service_start_name_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_CreateWowService_service_start_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_CreateWowService_service_start_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8653,7 +8653,7 @@ svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_svcctl_svcctl_OpenSCManager2_database_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_svcctl_svcctl_OpenSCManager2_database_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

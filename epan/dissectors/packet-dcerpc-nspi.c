@@ -8212,7 +8212,7 @@ nspi_dissect_element_NAME_STRING_str_(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_nspi_NAME_STRING_str, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_nspi_NAME_STRING_str, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9010,7 +9010,7 @@ nspi_dissect_element_SPropValue_CTR_lpszA_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_nspi_SPropValue_CTR_lpszA, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_nspi_SPropValue_CTR_lpszA, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9037,7 +9037,7 @@ nspi_dissect_element_SPropValue_CTR_lpszW_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_nspi_SPropValue_CTR_lpszW, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_nspi_SPropValue_CTR_lpszW, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

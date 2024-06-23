@@ -657,7 +657,7 @@ frstrans_dissect_element_Update_name(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	char *data;
 
-	offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frstrans_frstrans_Update_name, false, &data);
+	offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frstrans_frstrans_Update_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

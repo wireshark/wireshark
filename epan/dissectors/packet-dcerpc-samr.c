@@ -13906,7 +13906,7 @@ samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_samr_samr_Connect2_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_samr_samr_Connect2_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14195,7 +14195,7 @@ samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_samr_samr_Connect3_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_samr_samr_Connect3_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14283,7 +14283,7 @@ samr_dissect_element_Connect4_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_samr_samr_Connect4_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_samr_samr_Connect4_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14595,7 +14595,7 @@ samr_dissect_element_Connect5_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_samr_samr_Connect5_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_samr_samr_Connect5_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

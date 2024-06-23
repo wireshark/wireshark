@@ -611,7 +611,7 @@ netdfs_dissect_element_dfs_Info1_path_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info1_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info1_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -709,7 +709,7 @@ netdfs_dissect_element_dfs_Info2_path_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info2_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info2_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -728,7 +728,7 @@ netdfs_dissect_element_dfs_Info2_comment_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info2_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info2_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -849,7 +849,7 @@ netdfs_dissect_element_dfs_StorageInfo_server_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_StorageInfo_server, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_StorageInfo_server, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -868,7 +868,7 @@ netdfs_dissect_element_dfs_StorageInfo_share_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_StorageInfo_share, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_StorageInfo_share, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -929,7 +929,7 @@ netdfs_dissect_element_dfs_Info3_path_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info3_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info3_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -948,7 +948,7 @@ netdfs_dissect_element_dfs_Info3_comment_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info3_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info3_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1055,7 +1055,7 @@ netdfs_dissect_element_dfs_Info4_path_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info4_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info4_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1074,7 +1074,7 @@ netdfs_dissect_element_dfs_Info4_comment_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info4_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info4_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1242,7 +1242,7 @@ netdfs_dissect_element_dfs_Info5_path_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info5_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info5_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1261,7 +1261,7 @@ netdfs_dissect_element_dfs_Info5_comment_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info5_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info5_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1525,7 +1525,7 @@ netdfs_dissect_element_dfs_Info6_entry_path_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info6_entry_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info6_entry_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1544,7 +1544,7 @@ netdfs_dissect_element_dfs_Info6_comment_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info6_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info6_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1727,7 +1727,7 @@ netdfs_dissect_element_dfs_Info100_comment_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info100_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info100_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1952,7 +1952,7 @@ netdfs_dissect_element_dfs_Info105_comment_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info105_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info105_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2098,7 +2098,7 @@ netdfs_dissect_element_dfs_Info200_dom_root_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info200_dom_root, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info200_dom_root, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2180,7 +2180,7 @@ netdfs_dissect_element_dfs_Info300_dom_root_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Info300_dom_root, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Info300_dom_root, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3205,7 +3205,7 @@ netdfs_dissect_element_dfs_UnknownStruct_unknown2_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_UnknownStruct_unknown2, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_UnknownStruct_unknown2, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3292,7 +3292,7 @@ netdfs_dissect_element_dfs_Add_path_(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Add_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Add_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3311,7 +3311,7 @@ netdfs_dissect_element_dfs_Add_server_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Add_server, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Add_server, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3330,7 +3330,7 @@ netdfs_dissect_element_dfs_Add_share_(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Add_share, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Add_share, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3349,7 +3349,7 @@ netdfs_dissect_element_dfs_Add_comment_(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Add_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Add_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3415,7 +3415,7 @@ netdfs_dissect_element_dfs_Remove_dfs_entry_path_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Remove_dfs_entry_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Remove_dfs_entry_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3434,7 +3434,7 @@ netdfs_dissect_element_dfs_Remove_servername_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Remove_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Remove_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3453,7 +3453,7 @@ netdfs_dissect_element_dfs_Remove_sharename_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_Remove_sharename, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_Remove_sharename, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3497,7 +3497,7 @@ netdfs_dissect_element_dfs_SetInfo_dfs_entry_path(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_SetInfo_dfs_entry_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_SetInfo_dfs_entry_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3516,7 +3516,7 @@ netdfs_dissect_element_dfs_SetInfo_servername_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_SetInfo_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_SetInfo_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3535,7 +3535,7 @@ netdfs_dissect_element_dfs_SetInfo_sharename_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_SetInfo_sharename, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_SetInfo_sharename, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3609,7 +3609,7 @@ netdfs_dissect_element_dfs_GetInfo_dfs_entry_path(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_GetInfo_dfs_entry_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_GetInfo_dfs_entry_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3628,7 +3628,7 @@ netdfs_dissect_element_dfs_GetInfo_servername_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_GetInfo_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_GetInfo_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3647,7 +3647,7 @@ netdfs_dissect_element_dfs_GetInfo_sharename_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_GetInfo_sharename, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_GetInfo_sharename, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3912,7 +3912,7 @@ netdfs_dissect_element_dfs_AddFtRoot_servername(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddFtRoot_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3923,7 +3923,7 @@ netdfs_dissect_element_dfs_AddFtRoot_dns_servername(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_dns_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddFtRoot_dns_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3934,7 +3934,7 @@ netdfs_dissect_element_dfs_AddFtRoot_dfsname(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_dfsname, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddFtRoot_dfsname, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3945,7 +3945,7 @@ netdfs_dissect_element_dfs_AddFtRoot_rootshare(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_rootshare, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddFtRoot_rootshare, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3956,7 +3956,7 @@ netdfs_dissect_element_dfs_AddFtRoot_comment(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddFtRoot_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3967,7 +3967,7 @@ netdfs_dissect_element_dfs_AddFtRoot_dfs_config_dn(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_dfs_config_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddFtRoot_dfs_config_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4072,7 +4072,7 @@ netdfs_dissect_element_dfs_RemoveFtRoot_servername(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_RemoveFtRoot_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4083,7 +4083,7 @@ netdfs_dissect_element_dfs_RemoveFtRoot_dns_servername(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_dns_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_RemoveFtRoot_dns_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4094,7 +4094,7 @@ netdfs_dissect_element_dfs_RemoveFtRoot_dfsname(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_dfsname, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_RemoveFtRoot_dfsname, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4105,7 +4105,7 @@ netdfs_dissect_element_dfs_RemoveFtRoot_rootshare(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_rootshare, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_RemoveFtRoot_rootshare, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4193,7 +4193,7 @@ netdfs_dissect_element_dfs_AddStdRoot_servername(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRoot_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRoot_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4204,7 +4204,7 @@ netdfs_dissect_element_dfs_AddStdRoot_rootshare(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRoot_rootshare, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRoot_rootshare, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4215,7 +4215,7 @@ netdfs_dissect_element_dfs_AddStdRoot_comment(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRoot_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRoot_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4270,7 +4270,7 @@ netdfs_dissect_element_dfs_RemoveStdRoot_servername(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_RemoveStdRoot_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_RemoveStdRoot_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4281,7 +4281,7 @@ netdfs_dissect_element_dfs_RemoveStdRoot_rootshare(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_RemoveStdRoot_rootshare, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_RemoveStdRoot_rootshare, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4341,7 +4341,7 @@ netdfs_dissect_element_dfs_ManagerInitialize_servername_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_ManagerInitialize_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_ManagerInitialize_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4390,7 +4390,7 @@ netdfs_dissect_element_dfs_AddStdRootForced_servername(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRootForced_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRootForced_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4401,7 +4401,7 @@ netdfs_dissect_element_dfs_AddStdRootForced_rootshare(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRootForced_rootshare, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRootForced_rootshare, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4412,7 +4412,7 @@ netdfs_dissect_element_dfs_AddStdRootForced_comment(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRootForced_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRootForced_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4423,7 +4423,7 @@ netdfs_dissect_element_dfs_AddStdRootForced_store(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_AddStdRootForced_store, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_AddStdRootForced_store, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4520,7 +4520,7 @@ netdfs_dissect_element_dfs_FlushFtTable_servername(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_FlushFtTable_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_FlushFtTable_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4531,7 +4531,7 @@ netdfs_dissect_element_dfs_FlushFtTable_rootshare(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_FlushFtTable_rootshare, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_FlushFtTable_rootshare, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4622,7 +4622,7 @@ netdfs_dissect_element_dfs_EnumEx_dfs_name(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_netdfs_dfs_EnumEx_dfs_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_netdfs_dfs_EnumEx_dfs_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

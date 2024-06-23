@@ -406,7 +406,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_reserved1_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_EstablishPosition_reserved1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLevel1Login_EstablishPosition_reserved1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -498,7 +498,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved1_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_RequestChallenge_reserved1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLevel1Login_RequestChallenge_reserved1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -517,7 +517,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved2_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_RequestChallenge_reserved2, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLevel1Login_RequestChallenge_reserved2, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -609,7 +609,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_reserved1_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_WBEMLogin_reserved1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLevel1Login_WBEMLogin_reserved1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -755,7 +755,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_wszNetworkResource_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLevel1Login_NTLMLogin_wszNetworkResource, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -774,7 +774,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_wszPreferredLocale_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLevel1Login_NTLMLogin_wszPreferredLocale, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

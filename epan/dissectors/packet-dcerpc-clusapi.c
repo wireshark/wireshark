@@ -3289,7 +3289,7 @@ clusapi_dissect_element_ENUM_ENTRY_Name_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_ENUM_ENTRY_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_ENUM_ENTRY_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3413,7 +3413,7 @@ clusapi_dissect_element_GROUP_ENUM_ENTRY_Name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_GROUP_ENUM_ENTRY_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_GROUP_ENUM_ENTRY_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3432,7 +3432,7 @@ clusapi_dissect_element_GROUP_ENUM_ENTRY_Id_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_GROUP_ENUM_ENTRY_Id, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_GROUP_ENUM_ENTRY_Id, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3459,7 +3459,7 @@ clusapi_dissect_element_GROUP_ENUM_ENTRY_Owner_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_GROUP_ENUM_ENTRY_Owner, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_GROUP_ENUM_ENTRY_Owner, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3607,7 +3607,7 @@ clusapi_dissect_element_RESOURCE_ENUM_ENTRY_Name_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_RESOURCE_ENUM_ENTRY_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_RESOURCE_ENUM_ENTRY_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3626,7 +3626,7 @@ clusapi_dissect_element_RESOURCE_ENUM_ENTRY_Id_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_RESOURCE_ENUM_ENTRY_Id, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_RESOURCE_ENUM_ENTRY_Id, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3645,7 +3645,7 @@ clusapi_dissect_element_RESOURCE_ENUM_ENTRY_OwnerName_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_RESOURCE_ENUM_ENTRY_OwnerName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_RESOURCE_ENUM_ENTRY_OwnerName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3664,7 +3664,7 @@ clusapi_dissect_element_RESOURCE_ENUM_ENTRY_OwnerId_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_RESOURCE_ENUM_ENTRY_OwnerId, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_RESOURCE_ENUM_ENTRY_OwnerId, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4621,7 +4621,7 @@ clusapi_dissect_element_NOTIFICATION_DATA_RPC_ObjectId_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_NOTIFICATION_DATA_RPC_ObjectId, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_NOTIFICATION_DATA_RPC_ObjectId, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4640,7 +4640,7 @@ clusapi_dissect_element_NOTIFICATION_DATA_RPC_ParentId_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_NOTIFICATION_DATA_RPC_ParentId, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_NOTIFICATION_DATA_RPC_ParentId, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4659,7 +4659,7 @@ clusapi_dissect_element_NOTIFICATION_DATA_RPC_Name_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_NOTIFICATION_DATA_RPC_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_NOTIFICATION_DATA_RPC_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4678,7 +4678,7 @@ clusapi_dissect_element_NOTIFICATION_DATA_RPC_Type_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_NOTIFICATION_DATA_RPC_Type, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_NOTIFICATION_DATA_RPC_Type, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4870,7 +4870,7 @@ clusapi_dissect_element_CLUSTER_MRR_NODE_RESPONSE_pszNodeName_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_CLUSTER_MRR_NODE_RESPONSE_pszNodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_CLUSTER_MRR_NODE_RESPONSE_pszNodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5056,7 +5056,7 @@ clusapi_dissect_element_NOTIFICATION_DATA_ASYNC_RPC_Name_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_NOTIFICATION_DATA_ASYNC_RPC_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_NOTIFICATION_DATA_ASYNC_RPC_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5729,7 +5729,7 @@ clusapi_dissect_element_SetClusterName_NewClusterName_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetClusterName_NewClusterName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetClusterName_NewClusterName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5803,7 +5803,7 @@ clusapi_dissect_element_GetClusterName_ClusterName__(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetClusterName_ClusterName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetClusterName_ClusterName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5830,7 +5830,7 @@ clusapi_dissect_element_GetClusterName_NodeName__(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetClusterName_NodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetClusterName_NodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5937,7 +5937,7 @@ clusapi_dissect_element_GetClusterVersion_lpszVendorId__(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetClusterVersion_lpszVendorId, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetClusterVersion_lpszVendorId, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5964,7 +5964,7 @@ clusapi_dissect_element_GetClusterVersion_lpszCSDVersion__(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetClusterVersion_lpszCSDVersion, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetClusterVersion_lpszCSDVersion, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6035,7 +6035,7 @@ clusapi_dissect_element_GetQuorumResource_lpszResourceName__(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetQuorumResource_lpszResourceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetQuorumResource_lpszResourceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6062,7 +6062,7 @@ clusapi_dissect_element_GetQuorumResource_lpszDeviceName__(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetQuorumResource_lpszDeviceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetQuorumResource_lpszDeviceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6161,7 +6161,7 @@ clusapi_dissect_element_SetQuorumResource_lpszDeviceName_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetQuorumResource_lpszDeviceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetQuorumResource_lpszDeviceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6324,7 +6324,7 @@ clusapi_dissect_element_OpenResource_lpszResourceName_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenResource_lpszResourceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenResource_lpszResourceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6431,7 +6431,7 @@ clusapi_dissect_element_CreateResource_lpszResourceName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateResource_lpszResourceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateResource_lpszResourceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6450,7 +6450,7 @@ clusapi_dissect_element_CreateResource_lpszResourceType_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateResource_lpszResourceType, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateResource_lpszResourceType, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6699,7 +6699,7 @@ clusapi_dissect_element_GetResourceState_NodeName__(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetResourceState_NodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetResourceState_NodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6726,7 +6726,7 @@ clusapi_dissect_element_GetResourceState_GroupName__(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetResourceState_GroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetResourceState_GroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6812,7 +6812,7 @@ clusapi_dissect_element_SetResourceName_lpszResourceName_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetResourceName_lpszResourceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetResourceName_lpszResourceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6897,7 +6897,7 @@ clusapi_dissect_element_GetResourceId_pGuid__(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetResourceId_pGuid, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetResourceId_pGuid, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6983,7 +6983,7 @@ clusapi_dissect_element_GetResourceType_lpszResourceType__(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetResourceType_lpszResourceType, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetResourceType_lpszResourceType, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7708,7 +7708,7 @@ clusapi_dissect_element_CreateResourceType_lpszTypeName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateResourceType_lpszTypeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateResourceType_lpszTypeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7727,7 +7727,7 @@ clusapi_dissect_element_CreateResourceType_lpszDisplayName_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateResourceType_lpszDisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateResourceType_lpszDisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7746,7 +7746,7 @@ clusapi_dissect_element_CreateResourceType_lpszDllName_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateResourceType_lpszDllName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateResourceType_lpszDllName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7840,7 +7840,7 @@ clusapi_dissect_element_DeleteResourceType_lpszTypeName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_DeleteResourceType_lpszTypeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_DeleteResourceType_lpszTypeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8002,7 +8002,7 @@ clusapi_dissect_element_CreateKey_lpSubKey_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateKey_lpSubKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateKey_lpSubKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8173,7 +8173,7 @@ clusapi_dissect_element_OpenKey_lpSubKey_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenKey_lpSubKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenKey_lpSubKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8310,7 +8310,7 @@ clusapi_dissect_element_EnumKey_KeyName__(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_EnumKey_KeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_EnumKey_KeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8411,7 +8411,7 @@ clusapi_dissect_element_SetValue_lpValueName_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetValue_lpValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetValue_lpValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8537,7 +8537,7 @@ clusapi_dissect_element_DeleteValue_lpValueName_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_DeleteValue_lpValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_DeleteValue_lpValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8614,7 +8614,7 @@ clusapi_dissect_element_QueryValue_lpValueName_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_QueryValue_lpValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_QueryValue_lpValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8770,7 +8770,7 @@ clusapi_dissect_element_DeleteKey_lpSubKey_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_DeleteKey_lpSubKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_DeleteKey_lpSubKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8863,7 +8863,7 @@ clusapi_dissect_element_EnumValue_lpValueName__(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_EnumValue_lpValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_EnumValue_lpValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9440,7 +9440,7 @@ clusapi_dissect_element_OpenGroup_lpszGroupName_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenGroup_lpszGroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenGroup_lpszGroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9539,7 +9539,7 @@ clusapi_dissect_element_CreateGroup_lpszGroupName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateGroup_lpszGroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateGroup_lpszGroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9782,7 +9782,7 @@ clusapi_dissect_element_GetGroupState_NodeName__(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetGroupState_NodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetGroupState_NodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9864,7 +9864,7 @@ clusapi_dissect_element_SetGroupName_lpszGroupName_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetGroupName_lpszGroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetGroupName_lpszGroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9949,7 +9949,7 @@ clusapi_dissect_element_GetGroupId_pGuid__(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetGroupId_pGuid, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetGroupId_pGuid, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10035,7 +10035,7 @@ clusapi_dissect_element_GetNodeId_pGuid__(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNodeId_pGuid, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNodeId_pGuid, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -11518,7 +11518,7 @@ clusapi_dissect_element_GetNotify_Name__(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNotify_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNotify_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -11600,7 +11600,7 @@ clusapi_dissect_element_OpenNode_lpszNodeName_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenNode_lpszNodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenNode_lpszNodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -12370,7 +12370,7 @@ clusapi_dissect_element_NodeResourceTypeControl_lpszResourceTypeName_(tvbuff_t *
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_NodeResourceTypeControl_lpszResourceTypeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_NodeResourceTypeControl_lpszResourceTypeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -12586,7 +12586,7 @@ clusapi_dissect_element_ResourceTypeControl_lpszResourceTypeName_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_ResourceTypeControl_lpszResourceTypeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_ResourceTypeControl_lpszResourceTypeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13562,7 +13562,7 @@ clusapi_dissect_element_OpenNetwork_lpszNetworkName_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenNetwork_lpszNetworkName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenNetwork_lpszNetworkName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13790,7 +13790,7 @@ clusapi_dissect_element_SetNetworkName_lpszNetworkName_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetNetworkName_lpszNetworkName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetNetworkName_lpszNetworkName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13969,7 +13969,7 @@ clusapi_dissect_element_GetNetworkId_pGuid__(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNetworkId_pGuid, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNetworkId_pGuid, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14039,7 +14039,7 @@ clusapi_dissect_element_SetNetworkPriorityOrder_NetworkIdList(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetNetworkPriorityOrder_NetworkIdList, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetNetworkPriorityOrder_NetworkIdList, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14692,7 +14692,7 @@ clusapi_dissect_element_OpenNetInterface_lpszNetInterfaceName_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenNetInterface_lpszNetInterfaceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenNetInterface_lpszNetInterfaceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14912,7 +14912,7 @@ clusapi_dissect_element_GetNetInterface_lpszNodeName_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNetInterface_lpszNodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNetInterface_lpszNodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14931,7 +14931,7 @@ clusapi_dissect_element_GetNetInterface_lpszNetworkName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNetInterface_lpszNetworkName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNetInterface_lpszNetworkName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14958,7 +14958,7 @@ clusapi_dissect_element_GetNetInterface_lppszInterfaceName__(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNetInterface_lppszInterfaceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNetInterface_lppszInterfaceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15047,7 +15047,7 @@ clusapi_dissect_element_GetNetInterfaceId_pGuid__(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetNetInterfaceId_pGuid, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetNetInterfaceId_pGuid, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15851,7 +15851,7 @@ clusapi_dissect_element_GetClusterVersion2_lpszVendorId__(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetClusterVersion2_lpszVendorId, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetClusterVersion2_lpszVendorId, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15878,7 +15878,7 @@ clusapi_dissect_element_GetClusterVersion2_lpszCSDVersion__(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetClusterVersion2_lpszCSDVersion, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetClusterVersion2_lpszCSDVersion, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15989,7 +15989,7 @@ clusapi_dissect_element_CreateResTypeEnum_lpszTypeName_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateResTypeEnum_lpszTypeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateResTypeEnum_lpszTypeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16094,7 +16094,7 @@ clusapi_dissect_element_BackupClusterDatabase_lpszPathName_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_BackupClusterDatabase_lpszPathName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_BackupClusterDatabase_lpszPathName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16572,7 +16572,7 @@ clusapi_dissect_element_SetServiceAccountPassword_lpszNewPassword_(tvbuff_t *tvb
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetServiceAccountPassword_lpszNewPassword, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetServiceAccountPassword_lpszNewPassword, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16708,7 +16708,7 @@ clusapi_dissect_element_SetResourceDependencyExpression_lpszDependencyExpression
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetResourceDependencyExpression_lpszDependencyExpression, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetResourceDependencyExpression_lpszDependencyExpression, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16793,7 +16793,7 @@ clusapi_dissect_element_GetResourceDependencyExpression_lpszDependencyExpression
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetResourceDependencyExpression_lpszDependencyExpression, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetResourceDependencyExpression_lpszDependencyExpression, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16904,7 +16904,7 @@ clusapi_dissect_element_GetResourceNetworkName_lpszName__(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_GetResourceNetworkName_lpszName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_GetResourceNetworkName_lpszName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17387,7 +17387,7 @@ clusapi_dissect_element_OpenNodeEx_lpszNodeName_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenNodeEx_lpszNodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenNodeEx_lpszNodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17517,7 +17517,7 @@ clusapi_dissect_element_OpenGroupEx_lpszGroupName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenGroupEx_lpszGroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenGroupEx_lpszGroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17647,7 +17647,7 @@ clusapi_dissect_element_OpenResourceEx_lpszResourceName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenResourceEx_lpszResourceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenResourceEx_lpszResourceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17777,7 +17777,7 @@ clusapi_dissect_element_OpenNetworkEx_lpszNetworkName_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenNetworkEx_lpszNetworkName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenNetworkEx_lpszNetworkName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17907,7 +17907,7 @@ clusapi_dissect_element_OpenNetInterfaceEx_lpszNetInterfaceName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenNetInterfaceEx_lpszNetInterfaceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenNetInterfaceEx_lpszNetInterfaceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18600,7 +18600,7 @@ clusapi_dissect_element_CreateGroupEx_lpszGroupName_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateGroupEx_lpszGroupName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateGroupEx_lpszGroupName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -19888,7 +19888,7 @@ clusapi_dissect_element_StmFindDisk_ppszDeviceName__(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_StmFindDisk_ppszDeviceName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_StmFindDisk_ppszDeviceName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -20988,7 +20988,7 @@ clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_AddNotifyResourceTypeV2_resTypeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_AddNotifyResourceTypeV2_resTypeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -21384,7 +21384,7 @@ clusapi_dissect_element_CreateGroupSet_lpszGroupSetName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateGroupSet_lpszGroupSetName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateGroupSet_lpszGroupSetName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -21483,7 +21483,7 @@ clusapi_dissect_element_OpenGroupSet_lpszGroupSetName_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenGroupSet_lpszGroupSetName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_OpenGroupSet_lpszGroupSetName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -22412,7 +22412,7 @@ clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetGroupDependencyExpression_lpszDependencyExpression, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetGroupDependencyExpression_lpszDependencyExpression, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -22555,7 +22555,7 @@ clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetGroupSetDependencyExpression_lpszDependencyExpression, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_SetGroupSetDependencyExpression_lpszDependencyExpression, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -22847,7 +22847,7 @@ clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNodeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNodeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -22866,7 +22866,7 @@ clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNetworkName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNetworkName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -22982,7 +22982,7 @@ clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_ChangeCsvStateEx_lpszVolumeName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_clusapi_clusapi_ChangeCsvStateEx_lpszVolumeName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

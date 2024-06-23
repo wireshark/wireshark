@@ -2869,7 +2869,7 @@ frsrpc_dissect_element_FrsVerifyPromotionParent_parent_account_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_account, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_account, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2888,7 +2888,7 @@ frsrpc_dissect_element_FrsVerifyPromotionParent_parent_password_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_password, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_password, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2907,7 +2907,7 @@ frsrpc_dissect_element_FrsVerifyPromotionParent_replica_set_name_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2926,7 +2926,7 @@ frsrpc_dissect_element_FrsVerifyPromotionParent_replica_set_type_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3003,7 +3003,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_parent_account_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_account, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_account, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3022,7 +3022,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_parent_password_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_password, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_password, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3041,7 +3041,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_replica_set_name_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3060,7 +3060,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_replica_set_type_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_type, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_type, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3079,7 +3079,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_connection_name_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3098,7 +3098,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_partner_name_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3117,7 +3117,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_partner_princ_name_(tvbuff_t *tvb
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_princ_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_princ_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

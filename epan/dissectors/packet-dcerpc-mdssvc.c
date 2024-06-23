@@ -266,7 +266,7 @@ mdssvc_dissect_element_open_share_mount_path(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mdssvc_mdssvc_open_share_mount_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mdssvc_mdssvc_open_share_mount_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -277,7 +277,7 @@ mdssvc_dissect_element_open_share_name(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mdssvc_mdssvc_open_share_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mdssvc_mdssvc_open_share_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -288,7 +288,7 @@ mdssvc_dissect_element_open_share_path(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mdssvc_mdssvc_open_share_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mdssvc_mdssvc_open_share_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

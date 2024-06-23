@@ -255,7 +255,7 @@ fsrvp_dissect_element_fssagent_share_mapping_1_ShareNameUNC_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fssagent_share_mapping_1_ShareNameUNC, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fssagent_share_mapping_1_ShareNameUNC, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -274,7 +274,7 @@ fsrvp_dissect_element_fssagent_share_mapping_1_ShadowCopyShareName_(tvbuff_t *tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fssagent_share_mapping_1_ShadowCopyShareName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fssagent_share_mapping_1_ShadowCopyShareName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -541,7 +541,7 @@ fsrvp_dissect_element_AddToShadowCopySet_ShareName_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fsrvp_AddToShadowCopySet_ShareName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fsrvp_AddToShadowCopySet_ShareName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -722,7 +722,7 @@ fsrvp_dissect_element_IsPathSupported_ShareName_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fsrvp_IsPathSupported_ShareName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fsrvp_IsPathSupported_ShareName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -765,7 +765,7 @@ fsrvp_dissect_element_IsPathSupported_OwnerMachineName__(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fsrvp_IsPathSupported_OwnerMachineName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fsrvp_IsPathSupported_OwnerMachineName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -819,7 +819,7 @@ fsrvp_dissect_element_IsPathShadowCopied_ShareName_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fsrvp_IsPathShadowCopied_ShareName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fsrvp_IsPathShadowCopied_ShareName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -921,7 +921,7 @@ fsrvp_dissect_element_GetShareMapping_ShareName_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fsrvp_GetShareMapping_ShareName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fsrvp_GetShareMapping_ShareName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1005,7 +1005,7 @@ fsrvp_dissect_element_DeleteShareMapping_ShareName_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_fsrvp_fsrvp_DeleteShareMapping_ShareName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_fsrvp_fsrvp_DeleteShareMapping_ShareName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

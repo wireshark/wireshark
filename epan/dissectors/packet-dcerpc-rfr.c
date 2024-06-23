@@ -248,7 +248,7 @@ rfr_dissect_element_RfrGetNewDSA_pUserDN_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_pUserDN, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_rfr_RfrGetNewDSA_pUserDN, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -275,7 +275,7 @@ rfr_dissect_element_RfrGetNewDSA_ppszUnused__(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_ppszUnused, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_rfr_RfrGetNewDSA_ppszUnused, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -302,7 +302,7 @@ rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_ppszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_rfr_RfrGetNewDSA_ppszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -378,7 +378,7 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -405,7 +405,7 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

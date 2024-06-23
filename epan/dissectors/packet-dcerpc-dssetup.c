@@ -230,7 +230,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -249,7 +249,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_dns_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_dns_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -268,7 +268,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_forest, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_forest, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

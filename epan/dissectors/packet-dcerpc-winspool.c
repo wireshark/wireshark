@@ -1169,7 +1169,7 @@ iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyString, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyString, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1370,7 +1370,7 @@ iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_PrintNamedProperty_propertyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_PrintNamedProperty_propertyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1565,7 +1565,7 @@ iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_(tvbuff_t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncOpenPrinter_pPrinterName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncOpenPrinter_pPrinterName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1600,7 +1600,7 @@ iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_(tvbuff_t *t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncOpenPrinter_pDatatype, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncOpenPrinter_pDatatype, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1702,7 +1702,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_(tvbuff_t *tvb _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPrinter_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPrinter_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2900,7 +2900,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterData_pValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterData_pValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3036,7 +3036,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pKeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pKeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3055,7 +3055,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_(tvbuf
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3194,7 +3194,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSetPrinterData_pValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSetPrinterData_pValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3300,7 +3300,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pKeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pKeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3319,7 +3319,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_(tvbuf
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3528,7 +3528,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeleteForm_pFormName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeleteForm_pFormName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3585,7 +3585,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetForm_pFormName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetForm_pFormName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3714,7 +3714,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSetForm_pFormName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSetForm_pFormName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3917,7 +3917,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_(tvb
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4292,7 +4292,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_(tvbuff
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pKeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pKeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4428,7 +4428,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_(tvbuff_t 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pKeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pKeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4544,7 +4544,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbu
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterData_pValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterData_pValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4601,7 +4601,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_(tvbu
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_pKeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_pKeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4620,7 +4620,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_pValueName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_pValueName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4680,7 +4680,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterKey_pKeyName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterKey_pKeyName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4737,7 +4737,7 @@ iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_(tvbuff_t *tvb
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncXcvData_pszDataName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncXcvData_pszDataName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4913,7 +4913,7 @@ iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_(tvbuff_t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSendRecvBidiData_pAction, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSendRecvBidiData_pAction, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5260,7 +5260,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrinters_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrinters_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5401,7 +5401,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_(tvbuff_t *
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPrinterDriver_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPrinterDriver_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5477,7 +5477,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_(tvbuff_t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5496,7 +5496,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5637,7 +5637,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5656,7 +5656,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnviron
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5777,7 +5777,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5796,7 +5796,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_(
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5815,7 +5815,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pDriverName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pDriverName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5867,7 +5867,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_(tvbuf
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5886,7 +5886,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5905,7 +5905,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pDriverName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pDriverName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5979,7 +5979,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_(tvbuff_t 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5998,7 +5998,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_(tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6017,7 +6017,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_(tvbuf
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pPathName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pPathName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6036,7 +6036,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorN
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pPrintProcessorName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pPrintProcessorName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6091,7 +6091,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6110,7 +6110,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_(
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6251,7 +6251,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_(
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6270,7 +6270,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnviro
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6391,7 +6391,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPorts_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPorts_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6529,7 +6529,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumMonitors_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumMonitors_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6667,7 +6667,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPort_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPort_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6718,7 +6718,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPort_pMonitorName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPort_pMonitorName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6773,7 +6773,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSetPort_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSetPort_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6792,7 +6792,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncSetPort_pPortName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncSetPort_pPortName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6860,7 +6860,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddMonitor_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddMonitor_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6925,7 +6925,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeleteMonitor_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeleteMonitor_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6944,7 +6944,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_(tvbuff
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeleteMonitor_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeleteMonitor_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6963,7 +6963,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeleteMonitor_pMonitorName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeleteMonitor_pMonitorName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7015,7 +7015,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_(tvbuff_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_Name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_Name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7034,7 +7034,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_pEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_pEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7053,7 +7053,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcess
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_pPrintProcessorName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_pPrintProcessorName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7105,7 +7105,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7124,7 +7124,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrint
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7265,7 +7265,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7284,7 +7284,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterNa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pPrinterName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pPrinterName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7303,7 +7303,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServ
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pPrintServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pPrintServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7322,7 +7322,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pProvider, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pProvider, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7377,7 +7377,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePerMachineConnection_pServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePerMachineConnection_pServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7396,7 +7396,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinte
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePerMachineConnection_pPrinterName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePerMachineConnection_pPrinterName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7445,7 +7445,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7837,7 +7837,7 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7856,7 +7856,7 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7875,7 +7875,7 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7894,7 +7894,7 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7960,7 +7960,7 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServ
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7979,7 +7979,7 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfP
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszInfPath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszInfPath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7998,7 +7998,7 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvi
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8113,7 +8113,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8132,7 +8132,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironme
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8258,7 +8258,7 @@ iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServ
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8277,7 +8277,7 @@ iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvi
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8379,7 +8379,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszSer
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8398,7 +8398,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8417,7 +8417,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLan
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8436,7 +8436,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8552,7 +8552,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServ
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszServer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszServer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8571,7 +8571,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfP
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszInfPath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszInfPath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8590,7 +8590,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvi
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8744,7 +8744,7 @@ iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_(tvbuff_t *
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncResetPrinter_pDatatype, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncResetPrinter_pDatatype, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8828,7 +8828,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_(
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncGetJobNamedPropertyValue_pszName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncGetJobNamedPropertyValue_pszName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8981,7 +8981,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_iremotewinspool_winspool_AsyncDeleteJobNamedProperty_pszName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_iremotewinspool_winspool_AsyncDeleteJobNamedProperty_pszName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

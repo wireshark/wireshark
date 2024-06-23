@@ -1129,7 +1129,7 @@ IWbemServices_dissect_element_ExecMethod_strObjectPath_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemServices_ExecMethod_strObjectPath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemServices_ExecMethod_strObjectPath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1148,7 +1148,7 @@ IWbemServices_dissect_element_ExecMethod_strMethodName_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemServices_ExecMethod_strMethodName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemServices_ExecMethod_strMethodName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

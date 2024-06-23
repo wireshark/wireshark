@@ -275,7 +275,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachine_(tvbuff_t *tv
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -294,7 +294,7 @@ IWbemLoginClientIDEx_dissect_element_SetClientInfoEx_ClientMachineFQDN_(tvbuff_t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

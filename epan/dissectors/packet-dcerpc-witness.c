@@ -1106,7 +1106,7 @@ witness_dissect_element_Register_net_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_Register_net_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_Register_net_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1125,7 +1125,7 @@ witness_dissect_element_Register_ip_address_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_Register_ip_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_Register_ip_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1144,7 +1144,7 @@ witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_Register_client_computer_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_Register_client_computer_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1325,7 +1325,7 @@ witness_dissect_element_RegisterEx_net_name_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_RegisterEx_net_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_RegisterEx_net_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1344,7 +1344,7 @@ witness_dissect_element_RegisterEx_share_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_RegisterEx_share_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_RegisterEx_share_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1363,7 +1363,7 @@ witness_dissect_element_RegisterEx_ip_address_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_RegisterEx_ip_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_RegisterEx_ip_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1382,7 +1382,7 @@ witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_witness_witness_RegisterEx_client_computer_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_witness_witness_RegisterEx_client_computer_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

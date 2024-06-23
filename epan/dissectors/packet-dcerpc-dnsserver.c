@@ -1471,7 +1471,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1490,7 +1490,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1573,7 +1573,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1592,7 +1592,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1611,7 +1611,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1630,7 +1630,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1649,7 +1649,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_(t
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1668,7 +1668,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1687,7 +1687,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1706,7 +1706,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1725,7 +1725,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1744,7 +1744,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1763,7 +1763,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2579,7 +2579,7 @@ dnsserver_dissect_element_DnssrvQuery2_server_name_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dnsserver_DnssrvQuery2_server_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dnsserver_DnssrvQuery2_server_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2598,7 +2598,7 @@ dnsserver_dissect_element_DnssrvQuery2_zone_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvQuery2_zone, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvQuery2_zone, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2617,7 +2617,7 @@ dnsserver_dissect_element_DnssrvQuery2_operation_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvQuery2_operation, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvQuery2_operation, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2756,7 +2756,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_server_name_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_dnsserver_DnssrvEnumRecords2_server_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_dnsserver_DnssrvEnumRecords2_server_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2775,7 +2775,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_zone_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvEnumRecords2_zone, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvEnumRecords2_zone, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2794,7 +2794,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_node_name_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvEnumRecords2_node_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvEnumRecords2_node_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2813,7 +2813,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_start_child_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvEnumRecords2_start_child, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvEnumRecords2_start_child, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2848,7 +2848,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvEnumRecords2_filter_start, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvEnumRecords2_filter_start, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2867,7 +2867,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_dnsserver_DnssrvEnumRecords2_filter_stop, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_dnsserver_DnssrvEnumRecords2_filter_stop, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

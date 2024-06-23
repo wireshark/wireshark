@@ -2832,7 +2832,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_object_name_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_lsa_ObjectAttribute_object_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_lsa_ObjectAttribute_object_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6403,7 +6403,7 @@ lsarpc_dissect_element_lsa_RightAttribute_name_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_lsa_RightAttribute_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_lsa_RightAttribute_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -11871,7 +11871,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_system_name_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_lsa_OpenPolicy2_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_lsa_OpenPolicy2_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -11967,7 +11967,7 @@ lsarpc_dissect_element_lsa_GetUserName_system_name_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_lsa_GetUserName_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_lsa_GetUserName_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15457,7 +15457,7 @@ lsarpc_dissect_element_lsa_OpenPolicy3_system_name_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_lsa_OpenPolicy3_system_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_lsa_OpenPolicy3_system_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

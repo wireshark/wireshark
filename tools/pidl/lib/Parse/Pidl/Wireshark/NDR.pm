@@ -23,7 +23,7 @@ use Exporter;
 use strict;
 use warnings;
 use Parse::Pidl qw(error warning);
-use Parse::Pidl::Typelist qw(getType);
+use Parse::Pidl::Typelist qw(getType mapScalarType);
 use Parse::Pidl::Util qw(has_property property_matches make_str);
 use Parse::Pidl::NDR qw(ContainsString GetNextLevel);
 use Parse::Pidl::Dump qw(DumpType DumpFunction);
@@ -336,9 +336,10 @@ sub ElementLevel($$$$$$$$)
 				$self->pidl_code("offset = dissect_ndr_u" . $type . "array(tvb, offset, pinfo, tree, di, drep, $myname\_);");
 			} else {
 				my $nl = GetNextLevel($e,$l);
+				my $nl_ctype = mapScalarType($nl->{DATA_TYPE});
 				$self->pidl_code("char *data;");
 				$self->pidl_code("");
-				$self->pidl_code("offset = dissect_ndr_$type" . "string(tvb, offset, pinfo, tree, di, drep, sizeof(g$nl->{DATA_TYPE}), $hf, false, &data);");
+				$self->pidl_code("offset = dissect_ndr_$type" . "string(tvb, offset, pinfo, tree, di, drep, sizeof($nl_ctype), $hf, false, &data);");
 				$self->pidl_code("proto_item_append_text(tree, \": %s\", data);");
 			}
 		}

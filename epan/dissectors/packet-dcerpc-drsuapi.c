@@ -3772,7 +3772,7 @@ drsuapi_dissect_element_DsReplicaSyncRequest1_source_dsa_dns_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_drsuapi_drsuapi_DsReplicaSyncRequest1_source_dsa_dns, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_drsuapi_drsuapi_DsReplicaSyncRequest1_source_dsa_dns, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7558,7 +7558,7 @@ drsuapi_dissect_element_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name_(tvbuff_t 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_drsuapi_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_drsuapi_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7691,7 +7691,7 @@ drsuapi_dissect_element_DsReplicaAddRequest1_source_dsa_address_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAddRequest1_source_dsa_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAddRequest1_source_dsa_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7829,7 +7829,7 @@ drsuapi_dissect_element_DsReplicaAddRequest2_source_dsa_address_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAddRequest2_source_dsa_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAddRequest2_source_dsa_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7988,7 +7988,7 @@ drsuapi_dissect_element_DsReplicaDelRequest1_source_dsa_address_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_drsuapi_drsuapi_DsReplicaDelRequest1_source_dsa_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_drsuapi_drsuapi_DsReplicaDelRequest1_source_dsa_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8122,7 +8122,7 @@ drsuapi_dissect_element_DsReplicaModRequest1_source_dra_address_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaModRequest1_source_dra_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaModRequest1_source_dra_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9132,7 +9132,7 @@ drsuapi_dissect_element_DsNameString_str_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsNameString_str, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsNameString_str, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9358,7 +9358,7 @@ drsuapi_dissect_element_DsNameInfo1_dns_domain_name_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsNameInfo1_dns_domain_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsNameInfo1_dns_domain_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9377,7 +9377,7 @@ drsuapi_dissect_element_DsNameInfo1_result_name_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsNameInfo1_result_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsNameInfo1_result_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9591,7 +9591,7 @@ drsuapi_dissect_element_DsWriteAccountSpnRequest1_object_dn_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsWriteAccountSpnRequest1_object_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsWriteAccountSpnRequest1_object_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9806,7 +9806,7 @@ drsuapi_dissect_element_DsRemoveDSServerRequest1_server_dn_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsRemoveDSServerRequest1_server_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsRemoveDSServerRequest1_server_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9825,7 +9825,7 @@ drsuapi_dissect_element_DsRemoveDSServerRequest1_domain_dn_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsRemoveDSServerRequest1_domain_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsRemoveDSServerRequest1_domain_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10033,7 +10033,7 @@ drsuapi_dissect_element_DsGetDCInfoRequest1_domain_name_(tvbuff_t *tvb _U_, int 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfoRequest1_domain_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfoRequest1_domain_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10141,7 +10141,7 @@ drsuapi_dissect_element_DsGetDCInfo1_netbios_name_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo1_netbios_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo1_netbios_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10160,7 +10160,7 @@ drsuapi_dissect_element_DsGetDCInfo1_dns_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo1_dns_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo1_dns_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10179,7 +10179,7 @@ drsuapi_dissect_element_DsGetDCInfo1_site_name_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo1_site_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo1_site_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10198,7 +10198,7 @@ drsuapi_dissect_element_DsGetDCInfo1_computer_dn_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo1_computer_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo1_computer_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10217,7 +10217,7 @@ drsuapi_dissect_element_DsGetDCInfo1_server_dn_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo1_server_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo1_server_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10380,7 +10380,7 @@ drsuapi_dissect_element_DsGetDCInfo2_netbios_name_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_netbios_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_netbios_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10399,7 +10399,7 @@ drsuapi_dissect_element_DsGetDCInfo2_dns_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_dns_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_dns_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10418,7 +10418,7 @@ drsuapi_dissect_element_DsGetDCInfo2_site_name_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_site_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_site_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10437,7 +10437,7 @@ drsuapi_dissect_element_DsGetDCInfo2_site_dn_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_site_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_site_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10456,7 +10456,7 @@ drsuapi_dissect_element_DsGetDCInfo2_computer_dn_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_computer_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_computer_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10475,7 +10475,7 @@ drsuapi_dissect_element_DsGetDCInfo2_server_dn_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_server_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_server_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10494,7 +10494,7 @@ drsuapi_dissect_element_DsGetDCInfo2_ntds_dn_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo2_ntds_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo2_ntds_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10712,7 +10712,7 @@ drsuapi_dissect_element_DsGetDCInfo3_netbios_name_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_netbios_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_netbios_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10731,7 +10731,7 @@ drsuapi_dissect_element_DsGetDCInfo3_dns_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_dns_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_dns_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10750,7 +10750,7 @@ drsuapi_dissect_element_DsGetDCInfo3_site_name_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_site_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_site_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10769,7 +10769,7 @@ drsuapi_dissect_element_DsGetDCInfo3_site_dn_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_site_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_site_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10788,7 +10788,7 @@ drsuapi_dissect_element_DsGetDCInfo3_computer_dn_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_computer_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_computer_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10807,7 +10807,7 @@ drsuapi_dissect_element_DsGetDCInfo3_server_dn_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_server_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_server_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -10826,7 +10826,7 @@ drsuapi_dissect_element_DsGetDCInfo3_ntds_dn_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCInfo3_ntds_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCInfo3_ntds_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -11094,7 +11094,7 @@ drsuapi_dissect_element_DsGetDCConnection01_client_account_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsGetDCConnection01_client_account, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsGetDCConnection01_client_account, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13298,7 +13298,7 @@ drsuapi_dissect_element_DsReplicaGetInfoRequest1_object_dn_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest1_object_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest1_object_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13377,7 +13377,7 @@ drsuapi_dissect_element_DsReplicaGetInfoRequest2_object_dn_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest2_object_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest2_object_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13412,7 +13412,7 @@ drsuapi_dissect_element_DsReplicaGetInfoRequest2_attribute_name_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest2_attribute_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest2_attribute_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13431,7 +13431,7 @@ drsuapi_dissect_element_DsReplicaGetInfoRequest2_value_dn_str_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest2_value_dn_str, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaGetInfoRequest2_value_dn_str, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13571,7 +13571,7 @@ drsuapi_dissect_element_DsReplicaNeighbour_naming_context_dn_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaNeighbour_naming_context_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaNeighbour_naming_context_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13590,7 +13590,7 @@ drsuapi_dissect_element_DsReplicaNeighbour_source_dsa_obj_dn_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaNeighbour_source_dsa_obj_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaNeighbour_source_dsa_obj_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13609,7 +13609,7 @@ drsuapi_dissect_element_DsReplicaNeighbour_source_dsa_address_(tvbuff_t *tvb _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaNeighbour_source_dsa_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaNeighbour_source_dsa_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13628,7 +13628,7 @@ drsuapi_dissect_element_DsReplicaNeighbour_transport_obj_dn_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaNeighbour_transport_obj_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaNeighbour_transport_obj_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13956,7 +13956,7 @@ drsuapi_dissect_element_DsReplicaObjMetaData_attribute_name_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaObjMetaData_attribute_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaObjMetaData_attribute_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14135,7 +14135,7 @@ drsuapi_dissect_element_DsReplicaKccDsaFailure_dsa_obj_dn_(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaKccDsaFailure_dsa_obj_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaKccDsaFailure_dsa_obj_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14372,7 +14372,7 @@ drsuapi_dissect_element_DsReplicaOp_nc_dn_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaOp_nc_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaOp_nc_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14391,7 +14391,7 @@ drsuapi_dissect_element_DsReplicaOp_remote_dsa_obj_dn_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaOp_remote_dsa_obj_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaOp_remote_dsa_obj_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14410,7 +14410,7 @@ drsuapi_dissect_element_DsReplicaOp_remote_dsa_address_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaOp_remote_dsa_address, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaOp_remote_dsa_address, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14579,7 +14579,7 @@ drsuapi_dissect_element_DsReplicaAttrValMetaData_attribute_name_(tvbuff_t *tvb _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData_attribute_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData_attribute_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14598,7 +14598,7 @@ drsuapi_dissect_element_DsReplicaAttrValMetaData_object_dn_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData_object_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData_object_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14922,7 +14922,7 @@ drsuapi_dissect_element_DsReplicaCursor3_source_dsa_obj_dn_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaCursor3_source_dsa_obj_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaCursor3_source_dsa_obj_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15059,7 +15059,7 @@ drsuapi_dissect_element_DsReplicaObjMetaData2_attribute_name_(tvbuff_t *tvb _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaObjMetaData2_attribute_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaObjMetaData2_attribute_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15118,7 +15118,7 @@ drsuapi_dissect_element_DsReplicaObjMetaData2_originating_dsa_dn_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaObjMetaData2_originating_dsa_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaObjMetaData2_originating_dsa_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15266,7 +15266,7 @@ drsuapi_dissect_element_DsReplicaAttrValMetaData2_attribute_name_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData2_attribute_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData2_attribute_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15285,7 +15285,7 @@ drsuapi_dissect_element_DsReplicaAttrValMetaData2_object_dn_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData2_object_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData2_object_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15384,7 +15384,7 @@ drsuapi_dissect_element_DsReplicaAttrValMetaData2_originating_dsa_dn_(tvbuff_t *
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData2_originating_dsa_dn, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplicaAttrValMetaData2_originating_dsa_dn, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15718,7 +15718,7 @@ drsuapi_dissect_element_DsReplica06_str1_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_DsReplica06_str1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_DsReplica06_str1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16661,7 +16661,7 @@ drsuapi_dissect_element_QuerySitesByCostRequest1_site_from_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_QuerySitesByCostRequest1_site_from, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_QuerySitesByCostRequest1_site_from, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16704,7 +16704,7 @@ drsuapi_dissect_element_QuerySitesByCostRequest1_site_to___(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_QuerySitesByCostRequest1_site_to, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_QuerySitesByCostRequest1_site_to, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16810,7 +16810,7 @@ drsuapi_dissect_element_ReadNgcKeyReqV1_pwszAccount_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_drsuapi_drsuapi_ReadNgcKeyReqV1_pwszAccount, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_drsuapi_drsuapi_ReadNgcKeyReqV1_pwszAccount, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16920,7 +16920,7 @@ drsuapi_dissect_element_ReadNgcKeyReplyV1_pNgcKey_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_drsuapi_drsuapi_ReadNgcKeyReplyV1_pNgcKey, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_drsuapi_drsuapi_ReadNgcKeyReplyV1_pNgcKey, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

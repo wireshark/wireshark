@@ -552,7 +552,7 @@ atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_atsvc_atsvc_JobInfo_command, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_atsvc_atsvc_JobInfo_command, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -658,7 +658,7 @@ atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_atsvc_atsvc_JobEnumInfo_command, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_atsvc_atsvc_JobEnumInfo_command, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -785,7 +785,7 @@ atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_atsvc_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_atsvc_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -870,7 +870,7 @@ atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_atsvc_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_atsvc_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -938,7 +938,7 @@ atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_atsvc_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_atsvc_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -1059,7 +1059,7 @@ atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_atsvc_servername, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_atsvc_servername, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

@@ -707,7 +707,7 @@ winreg_dissect_element_String_name_(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_winreg_winreg_String_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_winreg_winreg_String_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

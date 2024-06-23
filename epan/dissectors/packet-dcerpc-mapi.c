@@ -14215,7 +14215,7 @@ mapi_dissect_element_SPropValue_CTR_lpszA_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_SPropValue_CTR_lpszA, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_SPropValue_CTR_lpszA, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14250,7 +14250,7 @@ mapi_dissect_element_SPropValue_CTR_lpszW_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_mapi_mapi_SPropValue_CTR_lpszW, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_mapi_mapi_SPropValue_CTR_lpszW, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -43669,7 +43669,7 @@ mapi_dissect_element_EcDoConnect_szDNPrefix__(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcDoConnect_szDNPrefix, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_EcDoConnect_szDNPrefix, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -43696,7 +43696,7 @@ mapi_dissect_element_EcDoConnect_szDisplayName__(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcDoConnect_szDisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_EcDoConnect_szDisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -44385,7 +44385,7 @@ mapi_dissect_element_EcRGetDCName_szDomainName_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcRGetDCName_szDomainName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_EcRGetDCName_szDomainName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -44459,7 +44459,7 @@ mapi_dissect_element_EcRNetGetDCName_szDomainName_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcRNetGetDCName_szDomainName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_EcRNetGetDCName_szDomainName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -44861,7 +44861,7 @@ mapi_dissect_element_EcDoConnectEx_szDNPrefix__(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcDoConnectEx_szDNPrefix, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_EcDoConnectEx_szDNPrefix, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -44888,7 +44888,7 @@ mapi_dissect_element_EcDoConnectEx_szDisplayName__(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcDoConnectEx_szDisplayName, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_mapi_mapi_EcDoConnectEx_szDisplayName, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;

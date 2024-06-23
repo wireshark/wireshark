@@ -2256,7 +2256,7 @@ srvsvc_dissect_element_NetCharDevInfo0_device_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevInfo0_device, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevInfo0_device, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2381,7 +2381,7 @@ srvsvc_dissect_element_NetCharDevInfo1_device_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevInfo1_device, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevInfo1_device, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2408,7 +2408,7 @@ srvsvc_dissect_element_NetCharDevInfo1_user_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevInfo1_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevInfo1_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2742,7 +2742,7 @@ srvsvc_dissect_element_NetCharDevQInfo0_device_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQInfo0_device, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQInfo0_device, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2868,7 +2868,7 @@ srvsvc_dissect_element_NetCharDevQInfo1_device_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQInfo1_device, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQInfo1_device, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -2895,7 +2895,7 @@ srvsvc_dissect_element_NetCharDevQInfo1_devices_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQInfo1_devices, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQInfo1_devices, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3396,7 +3396,7 @@ srvsvc_dissect_element_NetConnInfo1_user_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnInfo1_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetConnInfo1_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3415,7 +3415,7 @@ srvsvc_dissect_element_NetConnInfo1_share_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnInfo1_share, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetConnInfo1_share, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3814,7 +3814,7 @@ srvsvc_dissect_element_NetFileInfo3_path_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileInfo3_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileInfo3_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -3833,7 +3833,7 @@ srvsvc_dissect_element_NetFileInfo3_user_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileInfo3_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileInfo3_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4161,7 +4161,7 @@ srvsvc_dissect_element_NetSessInfo0_client_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo0_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo0_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4288,7 +4288,7 @@ srvsvc_dissect_element_NetSessInfo1_client_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo1_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo1_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4307,7 +4307,7 @@ srvsvc_dissect_element_NetSessInfo1_user_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo1_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo1_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4477,7 +4477,7 @@ srvsvc_dissect_element_NetSessInfo2_client_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo2_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo2_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4496,7 +4496,7 @@ srvsvc_dissect_element_NetSessInfo2_user_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo2_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo2_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4547,7 +4547,7 @@ srvsvc_dissect_element_NetSessInfo2_client_type_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo2_client_type, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo2_client_type, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4684,7 +4684,7 @@ srvsvc_dissect_element_NetSessInfo10_client_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo10_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo10_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4703,7 +4703,7 @@ srvsvc_dissect_element_NetSessInfo10_user_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo10_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo10_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4854,7 +4854,7 @@ srvsvc_dissect_element_NetSessInfo502_client_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo502_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo502_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4873,7 +4873,7 @@ srvsvc_dissect_element_NetSessInfo502_user_(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo502_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo502_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4924,7 +4924,7 @@ srvsvc_dissect_element_NetSessInfo502_client_type_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo502_client_type, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo502_client_type, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -4943,7 +4943,7 @@ srvsvc_dissect_element_NetSessInfo502_transport_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessInfo502_transport, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessInfo502_transport, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5326,7 +5326,7 @@ srvsvc_dissect_element_NetShareInfo0_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo0_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo0_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5450,7 +5450,7 @@ srvsvc_dissect_element_NetShareInfo1_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo1_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo1_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5477,7 +5477,7 @@ srvsvc_dissect_element_NetShareInfo1_comment_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo1_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo1_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5610,7 +5610,7 @@ srvsvc_dissect_element_NetShareInfo2_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo2_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo2_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5637,7 +5637,7 @@ srvsvc_dissect_element_NetShareInfo2_comment_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo2_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo2_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5680,7 +5680,7 @@ srvsvc_dissect_element_NetShareInfo2_path_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo2_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo2_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5699,7 +5699,7 @@ srvsvc_dissect_element_NetShareInfo2_password_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo2_password, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo2_password, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5838,7 +5838,7 @@ srvsvc_dissect_element_NetShareInfo501_name_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo501_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo501_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -5865,7 +5865,7 @@ srvsvc_dissect_element_NetShareInfo501_comment_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo501_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo501_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6009,7 +6009,7 @@ srvsvc_dissect_element_NetShareInfo502_name_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo502_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo502_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6036,7 +6036,7 @@ srvsvc_dissect_element_NetShareInfo502_comment_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo502_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo502_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6079,7 +6079,7 @@ srvsvc_dissect_element_NetShareInfo502_path_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo502_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo502_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6098,7 +6098,7 @@ srvsvc_dissect_element_NetShareInfo502_password_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo502_password, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo502_password, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6236,7 +6236,7 @@ srvsvc_dissect_element_NetShareInfo1004_comment_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo1004_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo1004_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -6645,7 +6645,7 @@ srvsvc_dissect_element_NetShareInfo1007_alternate_directory_name_(tvbuff_t *tvb 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareInfo1007_alternate_directory_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareInfo1007_alternate_directory_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7380,7 +7380,7 @@ srvsvc_dissect_element_NetSrvInfo100_server_name_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo100_server_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo100_server_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7448,7 +7448,7 @@ srvsvc_dissect_element_NetSrvInfo101_server_name_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo101_server_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo101_server_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7483,7 +7483,7 @@ srvsvc_dissect_element_NetSrvInfo101_comment_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo101_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo101_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7566,7 +7566,7 @@ srvsvc_dissect_element_NetSrvInfo102_server_name_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo102_server_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo102_server_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7601,7 +7601,7 @@ srvsvc_dissect_element_NetSrvInfo102_comment_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo102_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo102_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7668,7 +7668,7 @@ srvsvc_dissect_element_NetSrvInfo102_userpath_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo102_userpath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo102_userpath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7799,7 +7799,7 @@ srvsvc_dissect_element_NetSrvInfo402_alerts_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo402_alerts, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo402_alerts, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -7842,7 +7842,7 @@ srvsvc_dissect_element_NetSrvInfo402_guestaccount_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo402_guestaccount, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo402_guestaccount, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8037,7 +8037,7 @@ srvsvc_dissect_element_NetSrvInfo402_srvheuristics_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo402_srvheuristics, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo402_srvheuristics, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8207,7 +8207,7 @@ srvsvc_dissect_element_NetSrvInfo403_alerts_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo403_alerts, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo403_alerts, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8250,7 +8250,7 @@ srvsvc_dissect_element_NetSrvInfo403_guestaccount_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo403_guestaccount, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo403_guestaccount, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8445,7 +8445,7 @@ srvsvc_dissect_element_NetSrvInfo403_srvheuristics_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo403_srvheuristics, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo403_srvheuristics, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -8480,7 +8480,7 @@ srvsvc_dissect_element_NetSrvInfo403_autopath_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo403_autopath, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo403_autopath, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9013,7 +9013,7 @@ srvsvc_dissect_element_NetSrvInfo503_domain_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo503_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo503_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9530,7 +9530,7 @@ srvsvc_dissect_element_NetSrvInfo599_domain_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo599_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo599_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -9979,7 +9979,7 @@ srvsvc_dissect_element_NetSrvInfo1005_comment_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvInfo1005_comment, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvInfo1005_comment, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13393,7 +13393,7 @@ srvsvc_dissect_element_NetDiskInfo0_disk(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetDiskInfo0_disk, false, &data);
+	offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetDiskInfo0_disk, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13745,7 +13745,7 @@ srvsvc_dissect_element_NetTransportInfo0_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo0_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo0_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13796,7 +13796,7 @@ srvsvc_dissect_element_NetTransportInfo0_net_addr_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo0_net_addr, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo0_net_addr, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13939,7 +13939,7 @@ srvsvc_dissect_element_NetTransportInfo1_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo1_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo1_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -13990,7 +13990,7 @@ srvsvc_dissect_element_NetTransportInfo1_net_addr_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo1_net_addr, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo1_net_addr, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14009,7 +14009,7 @@ srvsvc_dissect_element_NetTransportInfo1_domain_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo1_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo1_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14155,7 +14155,7 @@ srvsvc_dissect_element_NetTransportInfo2_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo2_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo2_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14206,7 +14206,7 @@ srvsvc_dissect_element_NetTransportInfo2_net_addr_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo2_net_addr, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo2_net_addr, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14225,7 +14225,7 @@ srvsvc_dissect_element_NetTransportInfo2_domain_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo2_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo2_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14383,7 +14383,7 @@ srvsvc_dissect_element_NetTransportInfo3_name_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo3_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo3_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14434,7 +14434,7 @@ srvsvc_dissect_element_NetTransportInfo3_net_addr_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo3_net_addr, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo3_net_addr, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -14453,7 +14453,7 @@ srvsvc_dissect_element_NetTransportInfo3_domain_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportInfo3_domain, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportInfo3_domain, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15029,7 +15029,7 @@ srvsvc_dissect_element_NetCharDevEnum_server_unc_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15150,7 +15150,7 @@ srvsvc_dissect_element_NetCharDevGetInfo_server_unc_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevGetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevGetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15161,7 +15161,7 @@ srvsvc_dissect_element_NetCharDevGetInfo_device_name(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevGetInfo_device_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevGetInfo_device_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15241,7 +15241,7 @@ srvsvc_dissect_element_NetCharDevControl_server_unc_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevControl_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevControl_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15252,7 +15252,7 @@ srvsvc_dissect_element_NetCharDevControl_device_name(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevControl_device_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevControl_device_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15312,7 +15312,7 @@ srvsvc_dissect_element_NetCharDevQEnum_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15331,7 +15331,7 @@ srvsvc_dissect_element_NetCharDevQEnum_user_(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQEnum_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQEnum_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15455,7 +15455,7 @@ srvsvc_dissect_element_NetCharDevQGetInfo_server_unc_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQGetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQGetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15466,7 +15466,7 @@ srvsvc_dissect_element_NetCharDevQGetInfo_queue_name(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQGetInfo_queue_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQGetInfo_queue_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15477,7 +15477,7 @@ srvsvc_dissect_element_NetCharDevQGetInfo_user(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQGetInfo_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQGetInfo_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15560,7 +15560,7 @@ srvsvc_dissect_element_NetCharDevQSetInfo_server_unc_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQSetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQSetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15571,7 +15571,7 @@ srvsvc_dissect_element_NetCharDevQSetInfo_queue_name(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQSetInfo_queue_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQSetInfo_queue_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15664,7 +15664,7 @@ srvsvc_dissect_element_NetCharDevQPurge_server_unc_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQPurge_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQPurge_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15675,7 +15675,7 @@ srvsvc_dissect_element_NetCharDevQPurge_queue_name(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQPurge_queue_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQPurge_queue_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15724,7 +15724,7 @@ srvsvc_dissect_element_NetCharDevQPurgeSelf_server_unc_(tvbuff_t *tvb _U_, int o
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15735,7 +15735,7 @@ srvsvc_dissect_element_NetCharDevQPurgeSelf_queue_name(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_queue_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_queue_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15746,7 +15746,7 @@ srvsvc_dissect_element_NetCharDevQPurgeSelf_computer_name(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_computer_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_computer_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15798,7 +15798,7 @@ srvsvc_dissect_element_NetConnEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetConnEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15817,7 +15817,7 @@ srvsvc_dissect_element_NetConnEnum_path_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnEnum_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetConnEnum_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15941,7 +15941,7 @@ srvsvc_dissect_element_NetFileEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15960,7 +15960,7 @@ srvsvc_dissect_element_NetFileEnum_path_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileEnum_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileEnum_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -15979,7 +15979,7 @@ srvsvc_dissect_element_NetFileEnum_user_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileEnum_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileEnum_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16106,7 +16106,7 @@ srvsvc_dissect_element_NetFileGetInfo_server_unc_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileGetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileGetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16194,7 +16194,7 @@ srvsvc_dissect_element_NetFileClose_server_unc_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileClose_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetFileClose_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16251,7 +16251,7 @@ srvsvc_dissect_element_NetSessEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16270,7 +16270,7 @@ srvsvc_dissect_element_NetSessEnum_client_(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessEnum_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessEnum_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16289,7 +16289,7 @@ srvsvc_dissect_element_NetSessEnum_user_(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessEnum_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessEnum_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16416,7 +16416,7 @@ srvsvc_dissect_element_NetSessDel_server_unc_(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessDel_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessDel_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16435,7 +16435,7 @@ srvsvc_dissect_element_NetSessDel_client_(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessDel_client, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessDel_client, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16454,7 +16454,7 @@ srvsvc_dissect_element_NetSessDel_user_(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSessDel_user, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSessDel_user, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16506,7 +16506,7 @@ srvsvc_dissect_element_NetShareAdd_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareAdd_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareAdd_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16604,7 +16604,7 @@ srvsvc_dissect_element_NetShareEnumAll_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareEnumAll_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareEnumAll_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16725,7 +16725,7 @@ srvsvc_dissect_element_NetShareGetInfo_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareGetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareGetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16736,7 +16736,7 @@ srvsvc_dissect_element_NetShareGetInfo_share_name(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareGetInfo_share_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareGetInfo_share_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16816,7 +16816,7 @@ srvsvc_dissect_element_NetShareSetInfo_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareSetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareSetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16827,7 +16827,7 @@ srvsvc_dissect_element_NetShareSetInfo_share_name(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareSetInfo_share_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareSetInfo_share_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16928,7 +16928,7 @@ srvsvc_dissect_element_NetShareDel_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDel_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareDel_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16939,7 +16939,7 @@ srvsvc_dissect_element_NetShareDel_share_name(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDel_share_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareDel_share_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -16999,7 +16999,7 @@ srvsvc_dissect_element_NetShareDelSticky_server_unc_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDelSticky_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareDelSticky_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17010,7 +17010,7 @@ srvsvc_dissect_element_NetShareDelSticky_share_name(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDelSticky_share_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareDelSticky_share_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17070,7 +17070,7 @@ srvsvc_dissect_element_NetShareCheck_server_unc_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareCheck_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareCheck_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17081,7 +17081,7 @@ srvsvc_dissect_element_NetShareCheck_device_name(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareCheck_device_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareCheck_device_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17150,7 +17150,7 @@ srvsvc_dissect_element_NetSrvGetInfo_server_unc_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvGetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvGetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17227,7 +17227,7 @@ srvsvc_dissect_element_NetSrvSetInfo_server_unc_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSrvSetInfo_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSrvSetInfo_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17325,7 +17325,7 @@ srvsvc_dissect_element_NetDiskEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetDiskEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetDiskEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17457,7 +17457,7 @@ srvsvc_dissect_element_NetServerStatisticsGet_server_unc_(tvbuff_t *tvb _U_, int
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetServerStatisticsGet_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetServerStatisticsGet_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17476,7 +17476,7 @@ srvsvc_dissect_element_NetServerStatisticsGet_service_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetServerStatisticsGet_service, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetServerStatisticsGet_service, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17575,7 +17575,7 @@ srvsvc_dissect_element_NetTransportAdd_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportAdd_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportAdd_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17643,7 +17643,7 @@ srvsvc_dissect_element_NetTransportEnum_server_unc_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17764,7 +17764,7 @@ srvsvc_dissect_element_NetTransportDel_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetTransportDel_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetTransportDel_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17840,7 +17840,7 @@ srvsvc_dissect_element_NetRemoteTOD_server_unc_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetRemoteTOD_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetRemoteTOD_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17914,7 +17914,7 @@ srvsvc_dissect_element_NetSetServiceBits_server_unc_(tvbuff_t *tvb _U_, int offs
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSetServiceBits_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSetServiceBits_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -17933,7 +17933,7 @@ srvsvc_dissect_element_NetSetServiceBits_transport_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSetServiceBits_transport, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSetServiceBits_transport, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18004,7 +18004,7 @@ srvsvc_dissect_element_NetPathType_server_unc_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathType_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathType_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18015,7 +18015,7 @@ srvsvc_dissect_element_NetPathType_path(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathType_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathType_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18095,7 +18095,7 @@ srvsvc_dissect_element_NetPathCanonicalize_server_unc_(tvbuff_t *tvb _U_, int of
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathCanonicalize_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathCanonicalize_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18106,7 +18106,7 @@ srvsvc_dissect_element_NetPathCanonicalize_path(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathCanonicalize_path, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathCanonicalize_path, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18141,7 +18141,7 @@ srvsvc_dissect_element_NetPathCanonicalize_prefix(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathCanonicalize_prefix, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathCanonicalize_prefix, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18233,7 +18233,7 @@ srvsvc_dissect_element_NetPathCompare_server_unc_(tvbuff_t *tvb _U_, int offset 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathCompare_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathCompare_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18244,7 +18244,7 @@ srvsvc_dissect_element_NetPathCompare_path1(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathCompare_path1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathCompare_path1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18255,7 +18255,7 @@ srvsvc_dissect_element_NetPathCompare_path2(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPathCompare_path2, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPathCompare_path2, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18329,7 +18329,7 @@ srvsvc_dissect_element_NetNameValidate_server_unc_(tvbuff_t *tvb _U_, int offset
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetNameValidate_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetNameValidate_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18340,7 +18340,7 @@ srvsvc_dissect_element_NetNameValidate_name(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetNameValidate_name, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetNameValidate_name, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18436,7 +18436,7 @@ srvsvc_dissect_element_NetPRNameCompare_server_unc_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPRNameCompare_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPRNameCompare_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18447,7 +18447,7 @@ srvsvc_dissect_element_NetPRNameCompare_name1(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPRNameCompare_name1, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPRNameCompare_name1, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18458,7 +18458,7 @@ srvsvc_dissect_element_NetPRNameCompare_name2(tvbuff_t *tvb _U_, int offset _U_,
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetPRNameCompare_name2, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetPRNameCompare_name2, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18532,7 +18532,7 @@ srvsvc_dissect_element_NetShareEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareEnum_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareEnum_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18653,7 +18653,7 @@ srvsvc_dissect_element_NetShareDelStart_server_unc_(tvbuff_t *tvb _U_, int offse
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDelStart_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareDelStart_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18672,7 +18672,7 @@ srvsvc_dissect_element_NetShareDelStart_share_(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDelStart_share, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetShareDelStart_share, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18798,7 +18798,7 @@ srvsvc_dissect_element_NetGetFileSecurity_server_unc_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetGetFileSecurity_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetGetFileSecurity_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18817,7 +18817,7 @@ srvsvc_dissect_element_NetGetFileSecurity_share_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetGetFileSecurity_share, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetGetFileSecurity_share, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18828,7 +18828,7 @@ srvsvc_dissect_element_NetGetFileSecurity_file(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetGetFileSecurity_file, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetGetFileSecurity_file, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18895,7 +18895,7 @@ srvsvc_dissect_element_NetSetFileSecurity_server_unc_(tvbuff_t *tvb _U_, int off
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSetFileSecurity_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSetFileSecurity_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18914,7 +18914,7 @@ srvsvc_dissect_element_NetSetFileSecurity_share_(tvbuff_t *tvb _U_, int offset _
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSetFileSecurity_share, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSetFileSecurity_share, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18925,7 +18925,7 @@ srvsvc_dissect_element_NetSetFileSecurity_file(tvbuff_t *tvb _U_, int offset _U_
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetSetFileSecurity_file, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetSetFileSecurity_file, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -18983,7 +18983,7 @@ srvsvc_dissect_element_NetServerTransportAddEx_server_unc_(tvbuff_t *tvb _U_, in
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetServerTransportAddEx_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetServerTransportAddEx_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -19051,7 +19051,7 @@ srvsvc_dissect_element_NetServerSetServiceBitsEx_server_unc_(tvbuff_t *tvb _U_, 
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -19070,7 +19070,7 @@ srvsvc_dissect_element_NetServerSetServiceBitsEx_emulated_server_unc_(tvbuff_t *
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_emulated_server_unc, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_emulated_server_unc, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -19089,7 +19089,7 @@ srvsvc_dissect_element_NetServerSetServiceBitsEx_transport_(tvbuff_t *tvb _U_, i
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_transport, false, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_transport, false, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
