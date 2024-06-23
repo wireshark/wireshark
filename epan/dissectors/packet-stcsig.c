@@ -340,12 +340,10 @@ proto_register_stcsig(void)
 
 	proto_stcsig = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "stcsig");
 
-	register_dissector("stcsig", dissect_stcsig, proto_stcsig);
-
 	proto_register_field_array(proto_stcsig, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	stcsig_handle = register_dissector(PROTO_SHORT_NAME, dissect_stcsig, proto_stcsig);
+	stcsig_handle = register_dissector("stcsig", dissect_stcsig, proto_stcsig);
 	register_postdissector(stcsig_handle);
 
 	/* STCSIG is a rarely used case, disable it by default for performance reasons. */
