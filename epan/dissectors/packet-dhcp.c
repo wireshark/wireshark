@@ -643,6 +643,7 @@ static int hf_dhcp_option_portparams_psid;				/* 159 */
 static int hf_dhcp_option_mudurl;					/* 161 */
 static int hf_dhcp_option_pxe_config_file;				/* 209 */
 static int hf_dhcp_option_pxe_path_prefix;				/* 210 */
+static int hf_dhcp_option_pxe_reboot_time;				/* 211 */
 static int hf_dhcp_option_6RD_ipv4_mask_len;			/* 212 */
 static int hf_dhcp_option_6RD_prefix_len;				/* 212 */
 static int hf_dhcp_option_6RD_prefix;				/* 212 */
@@ -1425,7 +1426,7 @@ static const string_string option242_avaya_static_vals[] = {
 #define DHCP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_dhcpopt_basic_type() */
-#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,108,112-113,116,118,136-138,142,150,153,156-157,161,209-210,252"
+#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,62,64-76,86-87,91-92,100-101,108,112-113,116,118,136-138,142,147-148,150,153,156-157,161,209-211,252"
 
 /* Re-define structure.	 Values to be updated by dhcp_init_protocol */
 static struct opt_info dhcp_opt[DHCP_OPT_NUM];
@@ -1642,7 +1643,7 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 208 */ { "PXELINUX Magic",				opaque, NULL },
 /* 209 */ { "PXE Configuration file",			string, &hf_dhcp_option_pxe_config_file },
 /* 210 */ { "PXE Path Prefix",				string, &hf_dhcp_option_pxe_path_prefix },
-/* 211 */ { "Reboot Time",				opaque, NULL },
+/* 211 */ { "Reboot Time",				time_in_u_secs, &hf_dhcp_option_pxe_reboot_time },
 /* 212 */ { "6RD",					opaque, NULL },
 /* 213 */ { "V4 Access Domain",				opaque, NULL },
 /* 214 */ { "Unassigned",				opaque, NULL },
@@ -10065,6 +10066,11 @@ proto_register_dhcp(void)
 		  { "PXELINUX path prefix", "dhcp.option.pxe_path_prefix",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Option 210: PXE Path Prefix", HFILL }},
+
+		{ &hf_dhcp_option_pxe_reboot_time,
+		  { "PXELINUX Reboot Time", "dhcp.option.pxe_reboot_time",
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
+		    "Option 211: PXE Reboot Time", HFILL }},
 
 		{ &hf_dhcp_option_captive_portal,
 		  { "Captive Portal", "dhcp.option.captive_portal",
