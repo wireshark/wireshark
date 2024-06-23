@@ -4072,35 +4072,28 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <oldsource>Remove this graph.</oldsource>
-        <translation type="unfinished">Rimuovi questo grafico.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>Aggiungi un nuovo grafico.</translation>
-    </message>
-    <message>
-        <source>Duplicate the selected graph(s).</source>
-        <oldsource>Duplicate this graph.</oldsource>
-        <translation type="unfinished">Duplica questo grafico.</translation>
-    </message>
-    <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Cancella tutti i grafici.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <oldsource>Move this graph upwards.</oldsource>
-        <translation type="unfinished">Sposta questo grafico verso l&apos;alto.</translation>
+        <source>Remove the selected graph(s).</source>
+        <translation>Rimuovi i grafici selezionati.</translation>
     </message>
     <message>
-        <source>Move this graph downwards.</source>
-        <translation type="vanished">Sposta questo grafico verso il basso.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <translation>Duplica i grafici selezionati.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation>Sposta i grafici selezionati in alto.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) downwards.</source>
+        <translation>Sposta questo grafico verso il basso.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4477,7 +4470,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>All Execs</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti gli eseguibili</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -6779,6 +6772,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
             <numerusform>%Ln byte</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation>Byte %1</translation>
@@ -7404,6 +7404,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>
             <numerusform>%Ln byte</numerusform>
             <numerusform>%Ln byte</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -12571,23 +12578,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">Rimuovi questa voce.</translation>
+        <translation>Rimuovi le voci selezionate.</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">Copia questa voce.</translation>
+        <translation>Copia le voci selezionate.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">Sposta su la voce.</translation>
+        <translation>Sposta le voci selezionate in alto.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">Sposta giù la voce.</translation>
+        <translation>Sposta le voci selezionate in basso.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12614,23 +12617,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">Rimuovi questa voce.</translation>
+        <translation>Rimuovi le voci selezionate.</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">Copia questa voce.</translation>
+        <translation>Copia le voci selezionate.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">Sposta su la voce.</translation>
+        <translation>Sposta le voci selezionate in alto.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">Sposta giù la voce.</translation>
+        <translation>Sposta le voci selezionate in basso.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

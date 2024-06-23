@@ -39,9 +39,9 @@ Wireshark 4.3.0 Release Notes
   Many improvements and fixes to the graphing dialogs, including I/O
   Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
 
-  Possibillity to use zlib-ng to open and write zip compressed files.
-  Zlib-ng is substantionally faster. Windows and macOS brew packages
-  have this feature included.
+  Possibility to use zlib-ng to open and write zip compressed files.
+  Zlib-ng is substantially faster. Windows and macOS brew packages have
+  this feature included.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
@@ -388,16 +388,16 @@ Wireshark 4.3.0 Release Notes
 
   New Protocol Support
 
-   Allied Telesis Resiliency Link (AT RL), ATN Security Label, Bus
-   Mirroring Protocol, EGNOS Message Server (EMS) file format, Galileo
-   E1-B I/NAV navigation messages, IBM i RDMA Endpoint (iRDMA-EDP),
-   IWBEMSERVICES, MAC NR Framed (mac-nr-framed), Matter Bluetooth
-   Transport Protocol (MatterBTP), MiWi P2P Star, Monero, NMEA 0183,
-   PLDM, RDP authentication redirection virtual channel protocol
-   (rdpear), RF4CE Network Layer (RF4CE), RF4CE Profile (RF4CE Profile),
-   RK512, SAP Remote Function Call (SAPRFC), SBAS L1 Navigation Message,
-   Scanner Access Now Easy (SANE), TREL, WMIO, and ZeroMQ Message
-   Transport Protocol (ZMTP)
+   Allied Telesis Resiliency Link (AT RL), ATN Security Label, Bit Index
+   Explicit Replication (BIER), Bus Mirroring Protocol, EGNOS Message
+   Server (EMS) file format, Galileo E1-B I/NAV navigation messages, IBM
+   i RDMA Endpoint (iRDMA-EDP), IWBEMSERVICES, MAC NR Framed
+   (mac-nr-framed), Matter Bluetooth Transport Protocol (MatterBTP),
+   MiWi P2P Star, Monero, NMEA 0183, PLDM, RDP authentication
+   redirection virtual channel protocol (rdpear), RF4CE Network Layer
+   (RF4CE), RF4CE Profile (RF4CE Profile), RK512, SAP Remote Function
+   Call (SAPRFC), SBAS L1 Navigation Message, Scanner Access Now Easy
+   (SANE), TREL, WMIO, and ZeroMQ Message Transport Protocol (ZMTP)
 
   Updated Protocol Support
 

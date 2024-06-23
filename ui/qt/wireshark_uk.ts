@@ -4029,30 +4029,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <oldsource>Remove this graph.</oldsource>
-        <translation type="unfinished">Видалити цей графік.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>Додати новий графік.</translation>
-    </message>
-    <message>
-        <source>Duplicate the selected graph(s).</source>
-        <oldsource>Duplicate this graph.</oldsource>
-        <translation type="unfinished">Продублювати цей графік.</translation>
-    </message>
-    <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Remove the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Move the selected graph(s) downwards.</source>
-        <oldsource>Move this graph upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6710,6 +6707,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform></numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
@@ -7333,6 +7338,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -12434,22 +12447,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12477,22 +12486,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

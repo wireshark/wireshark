@@ -4054,35 +4054,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <oldsource>Remove this graph.</oldsource>
-        <translation type="unfinished">このグラフを削除します</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>新規グラフを追加します</translation>
-    </message>
-    <message>
-        <source>Duplicate the selected graph(s).</source>
-        <oldsource>Duplicate this graph.</oldsource>
-        <translation type="unfinished">このグラフを複製します</translation>
-    </message>
-    <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>すべてのグラフをクリア</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <oldsource>Move this graph upwards.</oldsource>
-        <translation type="unfinished">このグラフを上に移動します</translation>
+        <source>Remove the selected graph(s).</source>
+        <translation>選択したグラフを削除します</translation>
     </message>
     <message>
-        <source>Move this graph downwards.</source>
-        <translation type="vanished">このグラフを下に移動します</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <translation>選択したグラフを複製します</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation>選択したグラフを上に移動します</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) downwards.</source>
+        <translation>選択したグラフを下に移動します</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6762,6 +6755,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>%Ln バイト</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation>%1 バイト</translation>
@@ -7385,6 +7384,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>%Ln byte(s)</source>
         <translation>
             <numerusform>%Ln バイト</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -12546,23 +12551,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">このエントリを削除します</translation>
+        <translation>選択したエントリを削除します</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">このエントリをコピーします</translation>
+        <translation>選択したエントリをコピーします</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">エントリを上に移動します</translation>
+        <translation>選択したエントリを上に移動します</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">エントリを下に移動します</translation>
+        <translation>選択したエントリを下に移動します</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12589,23 +12590,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">このエントリを削除します</translation>
+        <translation>選択したエントリを削除します</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">このエントリをコピーします</translation>
+        <translation>選択したエントリをコピーします</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">エントリを上に移動します</translation>
+        <translation>選択したエントリを上に移動します</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">エントリを下に移動します</translation>
+        <translation>選択したエントリを下に移動します</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

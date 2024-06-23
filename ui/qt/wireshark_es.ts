@@ -4031,30 +4031,27 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <oldsource>Remove this graph.</oldsource>
-        <translation type="unfinished">Elimina esta gráfica.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>Añade una nueva gráfica.</translation>
-    </message>
-    <message>
-        <source>Duplicate the selected graph(s).</source>
-        <oldsource>Duplicate this graph.</oldsource>
-        <translation type="unfinished">Duplica esta gráfica.</translation>
-    </message>
-    <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Vacía todas las gráficas.</translation>
     </message>
     <message>
+        <source>Remove the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Move the selected graph(s) downwards.</source>
-        <oldsource>Move this graph upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6709,6 +6706,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
             <numerusform>%Ln bytes</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation>Byte %1</translation>
@@ -7334,6 +7338,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">
             <numerusform>%Ln byte</numerusform>
             <numerusform>%Ln bytes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -12431,23 +12442,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">Elimina esta entrada.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">Copia esta entrada.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">Mueve entrada hacia arriba.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">Mueve entrada hacia abajo.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12474,23 +12481,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">Elimina esta entrada.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">Copia esta entrada.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">Mueve entrada hacia arriba.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">Mueve entrada hacia abajo.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

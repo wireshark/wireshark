@@ -4070,30 +4070,27 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <oldsource>Remove this graph.</oldsource>
-        <translation type="unfinished">Enlever ce graphique.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>Ajouter un nouveau graphique.</translation>
-    </message>
-    <message>
-        <source>Duplicate the selected graph(s).</source>
-        <oldsource>Duplicate this graph.</oldsource>
-        <translation type="unfinished">Dupliquer ce graphique.</translation>
-    </message>
-    <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Effacer tous les graphiques.</translation>
     </message>
     <message>
+        <source>Remove the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Move the selected graph(s) downwards.</source>
-        <oldsource>Move this graph upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6772,6 +6769,13 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
             <numerusform>%Ln octets</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation>Octet %1</translation>
@@ -7397,6 +7401,13 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished">
             <numerusform>%Ln octets</numerusform>
             <numerusform>%Ln octets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -12568,23 +12579,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">Supprimer cette entrée.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">Copier cette entrée.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">Déplacer l&apos;entrée vers le haut.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">Déplacer l&apos;entrée vers le bas.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12611,23 +12618,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <oldsource>Remove this entry.</oldsource>
-        <translation type="unfinished">Supprimer cette entrée.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <oldsource>Copy this entry.</oldsource>
-        <translation type="unfinished">Copier cette entrée.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <oldsource>Move entry up.</oldsource>
-        <translation type="unfinished">Déplacer l&apos;entrée vers le haut.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <oldsource>Move entry down.</oldsource>
-        <translation type="unfinished">Déplacer l&apos;entrée vers le bas.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>
