@@ -18,6 +18,10 @@ Wireshark 4.2.6 Release Notes
    If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will
    need to download and install[2] Wireshark 4.2.6 or later by hand.
 
+   A regression in the TCP Stream Graph "Time Sequence (tcptrace)"
+   receive window line behavior introduced in 4.0.15 and 4.2.5 has been
+   fixed. Issue 19846[3]
+
    The following bugs have been fixed:
 
   New and Updated Features
@@ -44,17 +48,17 @@ Wireshark 4.2.6 Release Notes
   4.2.6. You can find release notes for prior versions at the following
   locations:
 
-    • Wireshark 4.2.5[3]
+    • Wireshark 4.2.5[4]
 
-    • Wireshark 4.2.4[4]
+    • Wireshark 4.2.4[5]
 
-    • Wireshark 4.2.3[5]
+    • Wireshark 4.2.3[6]
 
-    • Wireshark 4.2.2[6]
+    • Wireshark 4.2.2[7]
 
-    • Wireshark 4.2.1[7]
+    • Wireshark 4.2.1[8]
 
-    • Wireshark 4.2.0[8]
+    • Wireshark 4.2.0[9]
 
  Getting Wireshark
 
@@ -66,7 +70,7 @@ Wireshark 4.2.6 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[9] on the Wireshark web site.
+   be found on the download page[10] on the Wireshark web site.
 
  File Locations
 
@@ -81,39 +85,40 @@ Wireshark 4.2.6 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[10] and on the
+  Community support is available on Wireshark’s Q&A site[11] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[11].
+  for all of Wireshark’s mailing lists can be found on the web site[12].
 
-  Bugs and feature requests can be reported on the issue tracker[12].
+  Bugs and feature requests can be reported on the issue tracker[13].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[13].
+  SharkFest[14].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[14].
+  at wiresharkfoundation.org[15].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[15].
+  A complete FAQ is available on the Wireshark web site[16].
 
  References
 
    1. https://wiresharkfoundation.org
    2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/docs/relnotes/wireshark-4.2.5.html
-   4. https://www.wireshark.org/docs/relnotes/wireshark-4.2.4.html
-   5. https://www.wireshark.org/docs/relnotes/wireshark-4.2.3.html
-   6. https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html
-   7. https://www.wireshark.org/docs/relnotes/wireshark-4.2.1.html
-   8. https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html
-   9. https://www.wireshark.org/download.html
-  10. https://ask.wireshark.org/
-  11. https://www.wireshark.org/lists/
-  12. https://gitlab.com/wireshark/wireshark/-/issues
-  13. https://sharkfest.wireshark.org
-  14. https://wiresharkfoundation.org
-  15. https://www.wireshark.org/faq.html
+   3. https://gitlab.com/wireshark/wireshark/-/issues/19846
+   4. https://www.wireshark.org/docs/relnotes/wireshark-4.2.5.html
+   5. https://www.wireshark.org/docs/relnotes/wireshark-4.2.4.html
+   6. https://www.wireshark.org/docs/relnotes/wireshark-4.2.3.html
+   7. https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html
+   8. https://www.wireshark.org/docs/relnotes/wireshark-4.2.1.html
+   9. https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html
+  10. https://www.wireshark.org/download.html
+  11. https://ask.wireshark.org/
+  12. https://www.wireshark.org/lists/
+  13. https://gitlab.com/wireshark/wireshark/-/issues
+  14. https://sharkfest.wireshark.org
+  15. https://wiresharkfoundation.org
+  16. https://www.wireshark.org/faq.html
