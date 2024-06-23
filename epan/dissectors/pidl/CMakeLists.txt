@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-# TODO fix srvsvc wkssvc
 set(PIDL_DISSECTOR_NAMES
 	atsvc
 	clusapi
@@ -32,12 +31,12 @@ set(PIDL_DISSECTOR_NAMES
 	nspi
 	rfr
 	samr
-	#srvsvc
+	srvsvc
 	svcctl
 	winreg
 	winspool
 	witness
-	#wkssvc
+	wkssvc
 	wzcsvc
 )
 
