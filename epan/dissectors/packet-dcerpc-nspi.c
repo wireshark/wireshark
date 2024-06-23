@@ -164,7 +164,7 @@ static int hf_nspi_instance_key_value;
 static int hf_nspi_opnum;
 static int hf_nspi_property_type;
 
-static int proto_dcerpc_nspi = -1;
+static int proto_dcerpc_nspi;
 /* Version information */
 
 

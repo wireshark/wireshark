@@ -38,7 +38,7 @@ static int hf_IWbemLoginClientID_SetClientInfo_wszClientMachine;
 static int hf_IWbemLoginClientID_opnum;
 static int hf_IWbemLoginClientID_werror;
 
-static int proto_dcerpc_IWbemLoginClientID = -1;
+static int proto_dcerpc_IWbemLoginClientID;
 /* Version information */
 
 

@@ -1010,7 +1010,7 @@ sub ProcessInterface($$)
 	$self->pidl_hdr("#define $define");
 	$self->pidl_hdr("");
 
-	$self->pidl_def("static int proto_dcerpc_$x->{NAME} = -1;");
+	$self->pidl_def("static int proto_dcerpc_$x->{NAME};");
 	$self->register_ett("ett_dcerpc_$x->{NAME}");
 	$self->register_hf_field("hf_$x->{NAME}_opnum", "Operation", "$x->{NAME}.opnum", "FT_UINT16", "BASE_DEC", "NULL", 0, "");
 

@@ -379,7 +379,7 @@ static int hf_iremotewinspool_winspool_SyncUnRegisterForRemoteNotifications_phRp
 static int hf_iremotewinspool_winspool_UploadPrinterDriverPackageFlags_UPDP_CHECK_DRIVERSTORE;
 static int hf_iremotewinspool_winspool_UploadPrinterDriverPackageFlags_UPDP_UPLOAD_ALWAYS;
 
-static int proto_dcerpc_iremotewinspool = -1;
+static int proto_dcerpc_iremotewinspool;
 /* Version information */
 
 

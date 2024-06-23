@@ -183,7 +183,7 @@ static int hf_dnsserver_IP4_ARRAY_AddrCount;
 static int hf_dnsserver_opnum;
 static int hf_dnsserver_status;
 
-static int proto_dcerpc_dnsserver = -1;
+static int proto_dcerpc_dnsserver;
 /* Version information */
 
 

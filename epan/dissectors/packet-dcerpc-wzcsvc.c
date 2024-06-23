@@ -28,7 +28,7 @@ static int ett_dcerpc_wzcsvc;
 /* Header field declarations */
 static int hf_wzcsvc_opnum;
 
-static int proto_dcerpc_wzcsvc = -1;
+static int proto_dcerpc_wzcsvc;
 /* Version information */
 
 

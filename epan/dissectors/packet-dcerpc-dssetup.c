@@ -52,7 +52,7 @@ static int hf_dssetup_dssetup_DsRoleUpgradeStatus_upgrading;
 static int hf_dssetup_opnum;
 static int hf_dssetup_werror;
 
-static int proto_dcerpc_dssetup = -1;
+static int proto_dcerpc_dssetup;
 /* Version information */
 
 

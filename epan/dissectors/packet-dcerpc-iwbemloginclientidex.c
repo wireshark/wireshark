@@ -43,7 +43,7 @@ static int hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
 static int hf_IWbemLoginClientIDEx_opnum;
 static int hf_IWbemLoginClientIDEx_werror;
 
-static int proto_dcerpc_IWbemLoginClientIDEx = -1;
+static int proto_dcerpc_IWbemLoginClientIDEx;
 /* Version information */
 
 

@@ -37,7 +37,7 @@ static int hf_rfr_RfrGetNewDSA_ppszUnused;
 static int hf_rfr_RfrGetNewDSA_ulFlags;
 static int hf_rfr_opnum;
 
-static int proto_dcerpc_rfr = -1;
+static int proto_dcerpc_rfr;
 /* Version information */
 
 

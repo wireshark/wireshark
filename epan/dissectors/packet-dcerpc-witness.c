@@ -92,7 +92,7 @@ static int hf_witness_witness_notifyResponse_messages_;
 static int hf_witness_witness_notifyResponse_num;
 static int hf_witness_witness_notifyResponse_type;
 
-static int proto_dcerpc_witness = -1;
+static int proto_dcerpc_witness;
 /* Version information */
 
 

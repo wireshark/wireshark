@@ -229,7 +229,7 @@ static int hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE;
 static int hf_netdfs_opnum;
 static int hf_netdfs_werror;
 
-static int proto_dcerpc_netdfs = -1;
+static int proto_dcerpc_netdfs;
 /* Version information */
 
 

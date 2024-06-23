@@ -123,7 +123,7 @@ static int hf_eventlog_eventlog_ReportEventW_time;
 static int hf_eventlog_opnum;
 static int hf_eventlog_status;
 
-static int proto_dcerpc_eventlog = -1;
+static int proto_dcerpc_eventlog;
 /* Version information */
 
 

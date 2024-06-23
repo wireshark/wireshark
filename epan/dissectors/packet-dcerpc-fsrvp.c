@@ -68,7 +68,7 @@ static int hf_fsrvp_fssagent_share_mapping_ShareMapping1;
 static int hf_fsrvp_opnum;
 static int hf_fsrvp_status;
 
-static int proto_dcerpc_fsrvp = -1;
+static int proto_dcerpc_fsrvp;
 /* Version information */
 
 

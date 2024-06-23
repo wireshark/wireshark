@@ -1910,7 +1910,7 @@ static int hf_mapi_ulMessageStatus_MSGSTATUS_REMOTE_DOWNLOAD;
 static int hf_mapi_ulMessageStatus_MSGSTATUS_TAGGED;
 static int hf_mapi_werror;
 
-static int proto_dcerpc_mapi = -1;
+static int proto_dcerpc_mapi;
 /* Version information */
 
 

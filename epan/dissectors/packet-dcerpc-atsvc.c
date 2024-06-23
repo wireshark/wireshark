@@ -99,7 +99,7 @@ static int hf_atsvc_opnum;
 static int hf_atsvc_servername;
 static int hf_atsvc_status;
 
-static int proto_dcerpc_atsvc = -1;
+static int proto_dcerpc_atsvc;
 /* Version information */
 
 

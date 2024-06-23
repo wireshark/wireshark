@@ -388,7 +388,7 @@ static int hf_svcctl_svcctl_StartServiceW_service_handle;
 static int hf_svcctl_svcctl_UnlockServiceDatabase_lock_handle;
 static int hf_svcctl_werror;
 
-static int proto_dcerpc_svcctl = -1;
+static int proto_dcerpc_svcctl;
 /* Version information */
 
 

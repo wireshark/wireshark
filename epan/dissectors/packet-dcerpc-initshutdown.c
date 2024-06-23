@@ -44,7 +44,7 @@ static int hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_USER_DEFIN
 static int hf_initshutdown_opnum;
 static int hf_initshutdown_werror;
 
-static int proto_dcerpc_initshutdown = -1;
+static int proto_dcerpc_initshutdown;
 /* Version information */
 
 

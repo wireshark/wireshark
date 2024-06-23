@@ -72,7 +72,7 @@ static int hf_mdssvc_mdssvc_unknown1_unkn4;
 static int hf_mdssvc_mdssvc_unknown1_unkn7;
 static int hf_mdssvc_opnum;
 
-static int proto_dcerpc_mdssvc = -1;
+static int proto_dcerpc_mdssvc;
 /* Version information */
 
 

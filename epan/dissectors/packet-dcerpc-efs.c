@@ -64,7 +64,7 @@ static int hf_efs_EfsRpcWriteFileRaw_pvContext;
 static int hf_efs_opnum;
 static int hf_efs_werror;
 
-static int proto_dcerpc_efs = -1;
+static int proto_dcerpc_efs;
 /* Version information */
 
 

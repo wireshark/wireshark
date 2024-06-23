@@ -137,7 +137,7 @@ static int hf_frstrans_frstrans_VersionVector_low;
 static int hf_frstrans_opnum;
 static int hf_frstrans_werror;
 
-static int proto_dcerpc_frstrans = -1;
+static int proto_dcerpc_frstrans;
 /* Version information */
 
 

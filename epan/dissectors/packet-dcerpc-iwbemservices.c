@@ -57,7 +57,7 @@ static int hf_IWbemServices_MInterfacePointer_ulCntData;
 static int hf_IWbemServices_opnum;
 static int hf_IWbemServices_werror;
 
-static int proto_dcerpc_IWbemServices = -1;
+static int proto_dcerpc_IWbemServices;
 /* Version information */
 
 

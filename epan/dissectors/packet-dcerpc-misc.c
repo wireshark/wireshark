@@ -44,7 +44,7 @@ static int hf_misc_opnum;
 static int hf_misc_policy_handle_handle_type;
 static int hf_misc_policy_handle_uuid;
 
-static int proto_dcerpc_misc = -1;
+static int proto_dcerpc_misc;
 /* Version information */
 
 

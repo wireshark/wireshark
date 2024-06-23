@@ -188,7 +188,7 @@ static int hf_winreg_winreg_ValNameBuf_length;
 static int hf_winreg_winreg_ValNameBuf_name;
 static int hf_winreg_winreg_ValNameBuf_size;
 
-static int proto_dcerpc_winreg = -1;
+static int proto_dcerpc_winreg;
 /* Version information */
 
 

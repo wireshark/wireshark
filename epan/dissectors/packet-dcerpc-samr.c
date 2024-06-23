@@ -683,7 +683,7 @@ static int hf_samr_userPwdChangeFailureInformation_filterModuleName;
 static int hf_samr_user_access_mask;
 static int hf_samr_user_handle;
 
-static int proto_dcerpc_samr = -1;
+static int proto_dcerpc_samr;
 /* Version information */
 
 

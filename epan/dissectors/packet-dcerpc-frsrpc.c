@@ -217,7 +217,7 @@ static int hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type;
 static int hf_frsrpc_opnum;
 static int hf_frsrpc_werror;
 
-static int proto_dcerpc_frsrpc = -1;
+static int proto_dcerpc_frsrpc;
 /* Version information */
 
 

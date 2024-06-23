@@ -977,7 +977,7 @@ static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_XP
 static int hf_drsuapi_opnum;
 static int hf_drsuapi_werror;
 
-static int proto_dcerpc_drsuapi = -1;
+static int proto_dcerpc_drsuapi;
 /* Version information */
 
 

@@ -664,7 +664,7 @@ static int hf_lsarpc_sec_desc_buf_len;
 static int hf_lsarpc_secret_access_mask;
 static int hf_lsarpc_status;
 
-static int proto_dcerpc_lsarpc = -1;
+static int proto_dcerpc_lsarpc;
 /* Version information */
 
 

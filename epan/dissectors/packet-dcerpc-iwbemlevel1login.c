@@ -66,7 +66,7 @@ static int hf_IWbemLevel1Login_WBEMLogin_reserved4;
 static int hf_IWbemLevel1Login_opnum;
 static int hf_IWbemLevel1Login_werror;
 
-static int proto_dcerpc_IWbemLevel1Login = -1;
+static int proto_dcerpc_IWbemLevel1Login;
 /* Version information */
 
 

@@ -896,7 +896,7 @@ static int hf_clusapi_clusapi_UnblockGetNotifyCall_hNotify;
 static int hf_clusapi_opnum;
 static int hf_clusapi_werror;
 
-static int proto_dcerpc_clusapi = -1;
+static int proto_dcerpc_clusapi;
 /* Version information */
 
 
