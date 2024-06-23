@@ -390,6 +390,11 @@ uncompressed_fill_out_buffer(FILE_T state)
     return true;
 }
 
+/*
+ * Gzipped files, using compression from zlib or zlib-ng.
+ *
+ * https://tools.ietf.org/html/rfc1952 (RFC 1952)
+ */
 #ifdef USE_ZLIB_OR_ZLIBNG
 
 /* Get next byte from input, or -1 if end or error.
@@ -569,7 +574,10 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, int
     }
 }
 
-static void /* gz_decomp */
+/*
+ * Based on what gz_decomp() in zlib does.
+ */
+static void
 zlib_fill_out_buffer(FILE_T state)
 {
     int ret = 0;        /* XXX */
@@ -709,96 +717,16 @@ DIAG_ON(cast-qual)
 }
 #endif /* USE_ZLIB_OR_ZLIBNG */
 
-#ifdef HAVE_ZSTD
-static bool
-zstd_fill_out_buffer(FILE_T state)
-{
-    ws_assert(state->out.avail == 0);
-
-    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
-        return false;
-
-    ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
-    ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
-    const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
-    if (ZSTD_isError(ret)) {
-        state->err = WTAP_ERR_DECOMPRESS;
-        state->err_info = ZSTD_getErrorName(ret);
-        return false;
-    }
-
-    state->in.next = state->in.next + input.pos;
-    state->in.avail -= (unsigned)input.pos;
-
-    state->out.next = output.dst;
-    state->out.avail = (unsigned)output.pos;
-
-    if (ret == 0) {
-        state->last_compression = state->compression;
-        state->compression = UNKNOWN;
-    }
-    return true;
-}
-#endif /* HAVE_ZSTD */
-
-#ifdef USE_LZ4
-static bool
-lz4_fill_out_buffer(FILE_T state)
-{
-    ws_assert(state->out.avail == 0);
-
-    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
-        return false;
-
-    size_t outBufSize = state->size << 1;
-    size_t inBufSize = state->in.avail;
-    const size_t ret = LZ4F_decompress(state->lz4_dctx, state->out.buf, &outBufSize, state->in.next, &inBufSize, NULL);
-    if (LZ4F_isError(ret)) {
-        state->err = WTAP_ERR_DECOMPRESS;
-        state->err_info = LZ4F_getErrorName(ret);
-        return false;
-    }
-
-    /*
-     * We assume LZ4F_decompress() will not set inBufSize to a
-     * value > state->in.avail.
-     */
-    state->in.next = state->in.next + inBufSize;
-    state->in.avail -= (unsigned)inBufSize;
-
-    state->out.next = state->out.buf;
-    state->out.avail = (unsigned)outBufSize;
-
-    if (ret == 0) {
-        state->last_compression = state->compression;
-        state->compression = UNKNOWN;
-    }
-    return true;
-}
-#endif /* USE_LZ4 */
-
 /*
- * Used when we haven't yet determined whether we have a compressed file
- * and, if we do, what sort of compressed file it is.
+ * Check for a gzip header.
+ *
+ * Based on the gzip-specific stuff gz_head() from zlib does.
  */
 static int
-check_for_compression(FILE_T state)
+check_for_zlib_compression(FILE_T state)
 {
-    unsigned already_read;
-
-    /* get some data in the input buffer */
-    if (state->in.avail == 0) {
-        if (fill_in_buffer(state) == -1)
-            return -1;
-        if (state->in.avail == 0)
-            return 0;
-    }
-
     /*
-     * Look for the gzip header.  The first two bytes are 31 and 139:
-     *
-     * https://tools.ietf.org/html/rfc1952 (RFC 1952)
-     *
+     * Look for the gzip header.  The first two bytes are 31 and 139,
      * and if we find it, return success if we support gzip and an
      * error if we don't.
      */
@@ -923,7 +851,7 @@ check_for_compression(FILE_T state)
                     fast_seek_header(state, state->raw_pos - state->in.avail, state->pos, GZIP_AFTER_HEADER);
                 }
 #endif /* Z_BLOCK */
-                return 0;
+                return 1;
 #else /* USE_ZLIB_OR_ZLIBNG */
                 state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
                 state->err_info = "reading gzip-compressed files isn't supported";
@@ -950,32 +878,56 @@ check_for_compression(FILE_T state)
             state->in.next--;
         }
     }
+    return 0;
+}
 
-    /*
-     * Some other compressed file formats we might want to support:
-     *
-     *   XZ format:
-     *     https://tukaani.org/xz/
-     *     https://github.com/tukaani-project/xz
-     *     https://github.com/tukaani-project/xz/blob/master/doc/xz-file-format.txt
-     *
-     *    Bzip2 format:
-     *      https://www.sourceware.org/bzip2/
-     *      https://gitlab.com/bzip2/bzip2/
-     *      https://github.com/dsnet/compress/blob/master/doc/bzip2-format.pdf
-     *        (GitHub won't render it; download and open it)
-     *
-     *    Lzip format:
-     *      https://www.nongnu.org/lzip/
-     */
 
+/*
+ * Zstandard compression.
+ *
+ * https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
+ */
+#ifdef HAVE_ZSTD
+static bool
+zstd_fill_out_buffer(FILE_T state)
+{
+    ws_assert(state->out.avail == 0);
+
+    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+        return false;
+
+    ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
+    ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
+    const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
+    if (ZSTD_isError(ret)) {
+        state->err = WTAP_ERR_DECOMPRESS;
+        state->err_info = ZSTD_getErrorName(ret);
+        return false;
+    }
+
+    state->in.next = state->in.next + input.pos;
+    state->in.avail -= (unsigned)input.pos;
+
+    state->out.next = output.dst;
+    state->out.avail = (unsigned)output.pos;
+
+    if (ret == 0) {
+        state->last_compression = state->compression;
+        state->compression = UNKNOWN;
+    }
+    return true;
+}
+#endif /* HAVE_ZSTD */
+
+/*
+ * Check for a Zstandard header.
+ */
+static int
+check_for_zstd_compression(FILE_T state)
+{
     /*
-     * Look for the Zstandard header.
-     *
-     * https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
-     *
-     * and if we find it, return success if we support Zstandard and an
-     * error if we don't.
+     * Look for the Zstandard header, and, if we find it, return
+     * success if we support Zstandard and an error if we don't.
      */
     if (state->in.avail >= 4
         && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
@@ -990,21 +942,66 @@ check_for_compression(FILE_T state)
 
         state->compression = ZSTD;
         state->is_compressed = true;
-        return 0;
+        return 1;
 #else /* HAVE_ZSTD */
         state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
         state->err_info = "reading zstd-compressed files isn't supported";
         return -1;
 #endif /* HAVE_ZSTD */
     }
+    return 0;
+}
+
+/*
+ * lz4 compression.
+ *
+ * https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md
+ */
+#ifdef USE_LZ4
+static bool
+lz4_fill_out_buffer(FILE_T state)
+{
+    ws_assert(state->out.avail == 0);
+
+    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+        return false;
+
+    size_t outBufSize = state->size << 1;
+    size_t inBufSize = state->in.avail;
+    const size_t ret = LZ4F_decompress(state->lz4_dctx, state->out.buf, &outBufSize, state->in.next, &inBufSize, NULL);
+    if (LZ4F_isError(ret)) {
+        state->err = WTAP_ERR_DECOMPRESS;
+        state->err_info = LZ4F_getErrorName(ret);
+        return false;
+    }
 
     /*
-     * Look for the lz4 header.
-     *
-     * https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md
-     *
-     * and if we find it, return success if we support lz4 and an
-     * error if we don't.
+     * We assume LZ4F_decompress() will not set inBufSize to a
+     * value > state->in.avail.
+     */
+    state->in.next = state->in.next + inBufSize;
+    state->in.avail -= (unsigned)inBufSize;
+
+    state->out.next = state->out.buf;
+    state->out.avail = (unsigned)outBufSize;
+
+    if (ret == 0) {
+        state->last_compression = state->compression;
+        state->compression = UNKNOWN;
+    }
+    return true;
+}
+#endif /* USE_LZ4 */
+
+/*
+ * Check for an lz4 header.
+ */
+static int
+check_for_lz4_compression(FILE_T state)
+{
+    /*
+     * Look for the lz4 header, and, if we find it, return success
+     * if we support lz4 and an error if we don't.
      */
     if (state->in.avail >= 4
         && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
@@ -1023,13 +1020,73 @@ check_for_compression(FILE_T state)
 #endif /* LZ4_VERSION_NUMBER >= 10800 */
         state->compression = LZ4;
         state->is_compressed = true;
-        return 0;
+        return 1;
 #else /* USE_LZ4 */
         state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
         state->err_info = "reading lz4-compressed files isn't supported";
         return -1;
 #endif /* USE_LZ4 */
     }
+    return 0;
+}
+
+typedef int (*compression_type_test)(FILE_T);
+
+static compression_type_test const compression_type_tests[] = {
+    check_for_zlib_compression,
+    check_for_zstd_compression,
+    check_for_lz4_compression,
+};
+
+/*
+ * Used when we haven't yet determined whether we have a compressed file
+ * and, if we do, what sort of compressed file it is.
+ *
+ * Based on the non-gzip-specific stuff that gz_head() from zlib does.
+ */
+static int
+check_for_compression(FILE_T state)
+{
+    unsigned already_read;
+
+    /* get some data in the input buffer */
+    if (state->in.avail == 0) {
+        if (fill_in_buffer(state) == -1)
+            return -1;
+        if (state->in.avail == 0)
+            return 0;
+    }
+
+    /*
+     * Check for the compression types we support.
+     */
+    for (size_t i = 0; i < G_N_ELEMENTS(compression_type_tests); i++) {
+        int ret;
+
+        ret = compression_type_tests[i](state);
+        if (ret == -1)
+            return -1;    /* error */
+        if (ret == 1)
+            return 0;     /* found it */
+    }
+
+    /*
+     * Some other compressed file formats we might want to support:
+     *
+     *   XZ format:
+     *     https://tukaani.org/xz/
+     *     https://github.com/tukaani-project/xz
+     *     https://github.com/tukaani-project/xz/blob/master/doc/xz-file-format.txt
+     *
+     *    Bzip2 format:
+     *      https://www.sourceware.org/bzip2/
+     *      https://gitlab.com/bzip2/bzip2/
+     *      https://github.com/dsnet/compress/blob/master/doc/bzip2-format.pdf
+     *        (GitHub won't render it; download and open it)
+     *
+     *    Lzip format:
+     *      https://www.nongnu.org/lzip/
+     */
 
     /*
      * We didn't see anything that looks like a header for any type of
@@ -1062,7 +1119,10 @@ check_for_compression(FILE_T state)
     return 0;
 }
 
-static int /* gz_make */
+/*
+ * Based on what gz_make() in zlib does.
+ */
+static int
 fill_out_buffer(FILE_T state)
 {
     if (state->compression == UNKNOWN) {
