@@ -40,6 +40,8 @@ type_map = {
     'gdouble': 'double',
     'gpointer ': 'void *', # 'void *foo' instead of 'void * foo'
     'gpointer': 'void *',
+    'gconstpointer ': 'const void *', # 'void *foo' instead of 'void * foo'
+    'gconstpointer': 'const void *',
     # Is gsize the same as size_t on the platforms we support?
     # https://gitlab.gnome.org/GNOME/glib/-/issues/2493
     'gsize': 'size_t',
