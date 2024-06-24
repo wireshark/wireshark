@@ -293,7 +293,8 @@ QDir MainApplication::openDialogInitialDir() {
 
 void MainApplication::setLastOpenDirFromFilename(const QString file_name)
 {
-    QString directory = QFileInfo(file_name).absolutePath();
+    /* XXX - Use canonicalPath() instead of absolutePath()? */
+    QString directory = QDir::toNativeSeparators(QFileInfo(file_name).absolutePath());
     /* XXX - printable? */
     set_last_open_dir(qUtf8Printable(directory));
 }
