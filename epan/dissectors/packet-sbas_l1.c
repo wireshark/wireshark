@@ -454,7 +454,7 @@ static int hf_sbas_l1_mt25_h1_v1_delta_a_f0;
 static int hf_sbas_l1_mt25_h1_v1_delta_x_vel;
 static int hf_sbas_l1_mt25_h1_v1_delta_y_vel;
 static int hf_sbas_l1_mt25_h1_v1_delta_z_vel;
-static int hf_sbas_l1_mt25_h1_v1_delta_a_f0_rate;
+static int hf_sbas_l1_mt25_h1_v1_delta_a_f1;
 static int hf_sbas_l1_mt25_h1_v1_t_lt;
 static int hf_sbas_l1_mt25_h1_v1_iodp;
 static int hf_sbas_l1_mt25_h2_velocity_code;
@@ -481,7 +481,7 @@ static int hf_sbas_l1_mt25_h2_v1_delta_a_f0;
 static int hf_sbas_l1_mt25_h2_v1_delta_x_vel;
 static int hf_sbas_l1_mt25_h2_v1_delta_y_vel;
 static int hf_sbas_l1_mt25_h2_v1_delta_z_vel;
-static int hf_sbas_l1_mt25_h2_v1_delta_a_f0_rate;
+static int hf_sbas_l1_mt25_h2_v1_delta_a_f1;
 static int hf_sbas_l1_mt25_h2_v1_t_lt;
 static int hf_sbas_l1_mt25_h2_v1_iodp;
 
@@ -1125,7 +1125,7 @@ static int dissect_sbas_l1_mt25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 tvb, 9, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h1_v1_delta_z_vel,
                 tvb, 10, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h1_v1_delta_a_f0_rate,
+        proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h1_v1_delta_a_f1,
                 tvb, 11, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h1_v1_t_lt,
                 tvb, 12, 2, ENC_BIG_ENDIAN);
@@ -1186,7 +1186,7 @@ static int dissect_sbas_l1_mt25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 tvb, 22, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h2_v1_delta_z_vel,
                 tvb, 23, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h2_v1_delta_a_f0_rate,
+        proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h2_v1_delta_a_f1,
                 tvb, 24, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sbas_l1_mt25_tree, hf_sbas_l1_mt25_h2_v1_t_lt,
                 tvb, 25, 2, ENC_BIG_ENDIAN);
@@ -1591,7 +1591,7 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt25_h1_v1_delta_x_vel,     {"dx_vel_i",                 "sbas_l1.mt25.h1.v1.dx_vel",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_velo_correction),      0x7f800000, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h1_v1_delta_y_vel,     {"dy_vel_i",                 "sbas_l1.mt25.h1.v1.dy_vel",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_velo_correction),      0x7f800000, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h1_v1_delta_z_vel,     {"dz_vel_i",                 "sbas_l1.mt25.h1.v1.dz_vel",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_velo_correction),      0x7f800000, NULL, HFILL}},
-        {&hf_sbas_l1_mt25_h1_v1_delta_a_f0_rate, {"da_i_f0_rate",             "sbas_l1.mt25.h1.v1.da_f0_rate",    FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_clk_rate_correction),  0x7f800000, NULL, HFILL}},
+        {&hf_sbas_l1_mt25_h1_v1_delta_a_f1,      {"da_i_f1",                  "sbas_l1.mt25.h1.v1.da_f1",         FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_clk_rate_correction),  0x7f800000, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h1_v1_t_lt,            {"t_i_lt",                   "sbas_l1.mt25.h1.v1.t_lt",          FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_time_of_applicability),0x7ffc,     NULL, HFILL}},
         {&hf_sbas_l1_mt25_h1_v1_iodp,            {"Issue of Data - PRN (IODP)", "sbas_l1.mt25.h1.v1.iodp",          FT_UINT8,  BASE_DEC,    NULL,                               0x03,       NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_velocity_code,      {"Velocity Code",            "sbas_l1.mt25.h2.velocity_code",    FT_UINT8,  BASE_DEC,    NULL,                               0x80,       NULL, HFILL}},
@@ -1618,7 +1618,7 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt25_h2_v1_delta_x_vel,     {"dx_vel_i",                 "sbas_l1.mt25.h2.v1.dx_vel",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_velo_correction),      0x1fe00000, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_v1_delta_y_vel,     {"dy_vel_i",                 "sbas_l1.mt25.h2.v1.dy_vel",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_velo_correction),      0x1fe00000, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_v1_delta_z_vel,     {"dz_vel_i",                 "sbas_l1.mt25.h2.v1.dz_vel",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_velo_correction),      0x1fe00000, NULL, HFILL}},
-        {&hf_sbas_l1_mt25_h2_v1_delta_a_f0_rate, {"da_i_f0_rate",             "sbas_l1.mt25.h2.v1.da_f0_rate",    FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_clk_rate_correction),  0x1fe00000, NULL, HFILL}},
+        {&hf_sbas_l1_mt25_h2_v1_delta_a_f1,      {"da_i_f1",                  "sbas_l1.mt25.h2.v1.da_f1",         FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_clk_rate_correction),  0x1fe00000, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_v1_t_lt,            {"t_i_lt",                   "sbas_l1.mt25.h2.v1.t_lt",          FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_time_of_applicability),0x1fff,     NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_v1_iodp,            {"Issue of Data PRN (IODP)", "sbas_l1.mt25.h2.v1.iodp",          FT_UINT8,  BASE_DEC,    NULL,                               0xc0,       NULL, HFILL}},
 
