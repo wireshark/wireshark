@@ -624,9 +624,9 @@ static void fmt_velo_correction(gchar *label, gint32 c) {
     }
 }
 
-/* Format clock rate corrections with 2^-32 s/s resolution */
+/* Format clock rate corrections with 2^-39 s/s resolution */
 static void fmt_clk_rate_correction(gchar *label, gint32 c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-32s/s", c);
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-39s/s", c);
 }
 
 /* Format time of applicability with 16s resolution */
