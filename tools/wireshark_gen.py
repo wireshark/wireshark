@@ -2363,7 +2363,7 @@ proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
-#include <epan/dissectors/packet-giop.h>
+#include "packet-giop.h"
 #include <epan/expert.h>
 
 #include "ws_diag_control.h"
