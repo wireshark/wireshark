@@ -583,24 +583,17 @@ void
 prefs_register_module_alias(const char *name, module_t *module)
 {
     module_alias_t *alias;
-    const char *p;
-    unsigned char c;
 
     /*
-     * Yes.
-     * Make sure that only ASCII letters, numbers, underscores, hyphens,
-     * and dots appear in the name.  We allow upper-case letters, to
-     * handle the Diameter dissector having used "Diameter" rather
+     * Accept any name that can occur in protocol names. We allow upper-case
+     * letters, to handle the Diameter dissector having used "Diameter" rather
      * than "diameter" as its preference module name in the past.
      *
-     * Crash if there is, as that's an error in the code, but the name
-     * can be used on the command line, and shouldn't require quoting,
-     * etc.
+     * Crash if the name is invalid, as that's an error in the code, but the name
+     * can be used on the command line, and shouldn't require quoting, etc.
      */
-    for (p = name; (c = *p) != '\0'; p++) {
-        if (!(g_ascii_isalpha(c) || g_ascii_isdigit(c) || c == '_' ||
-              c == '-' || c == '.'))
-            ws_error("Preference module alias \"%s\" contains invalid characters", name);
+    if (module_check_valid_name(name, false) != '\0') {
+        ws_error("Preference module alias \"%s\" contains invalid characters", name);
     }
 
     /*
