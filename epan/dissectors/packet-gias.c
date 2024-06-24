@@ -46,223 +46,228 @@ void proto_reg_handoff_giop_gias(void);
 
 /* Initialise the protocol and subtree pointers */
 static int proto_gias;
-static gint ett_gias;
+static int ett_gias;
+static int ett_giop_struct;
+static int ett_giop_sequence;
+static int ett_giop_array;
+static int ett_giop_union;
 
 
 /* Initialise the initial Alignment */
-static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
+static uint32_t boundary = GIOP_HEADER_SIZE;  /* initial value */
 
 static int hf_operationrequest;/* Request_Operation field */
 
         /* Operation filters */
-static int hf_CB_Callback_notify_theState;
-static int hf_GIAS_Library_get_manager_types_return_loop;
-static int hf_GIAS_Library_get_manager_types_return;
-static int hf_GIAS_Library_get_manager_manager_type;
-static int hf_GIAS_Library_get_other_libraries_return_loop;
-static int hf_GIAS_LibraryManager_get_property_names_return_loop;
-static int hf_GIAS_LibraryManager_get_property_names_return;
-static int hf_GIAS_LibraryManager_get_property_values_return_loop;
-static int hf_GIAS_LibraryManager_get_property_values_desired_properties_loop;
-static int hf_GIAS_LibraryManager_get_property_values_desired_properties;
-static int hf_GIAS_LibraryManager_get_libraries_return_loop;
-static int hf_GIAS_RequestManager_get_active_requests_return_loop;
-static int hf_GIAS_RequestManager_get_default_timeout_return;
-static int hf_GIAS_RequestManager_set_default_timeout_new_default;
-static int hf_GIAS_RequestManager_get_timeout_return;
-static int hf_GIAS_RequestManager_set_timeout_new_lifetime;
-static int hf_GIAS_AccessManager_get_use_modes_return_loop;
-static int hf_GIAS_AccessManager_get_use_modes_return;
-static int hf_GIAS_AccessManager_is_available_return;
-static int hf_GIAS_AccessManager_is_available_use_mode;
-static int hf_GIAS_AccessManager_query_availability_delay_return;
-static int hf_GIAS_AccessManager_query_availability_delay_availability_requirement;
-static int hf_GIAS_AccessManager_query_availability_delay_use_mode;
-static int hf_GIAS_AccessManager_get_number_of_priorities_return;
-static int hf_GIAS_AccessManager_set_availability_products_loop;
-static int hf_GIAS_AccessManager_set_availability_availability_requirement;
-static int hf_GIAS_AccessManager_set_availability_use_mode;
-static int hf_GIAS_AccessManager_set_availability_priority;
-static int hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop;
-static int hf_GIAS_QueryOrderMgr_submit_query_order_o_type;
-static int hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop;
-static int hf_GIAS_OrderMgr_get_package_specifications_return_loop;
-static int hf_GIAS_OrderMgr_get_package_specifications_return;
-static int hf_GIAS_OrderMgr_validate_order_properties_loop;
-static int hf_GIAS_OrderMgr_order_properties_loop;
-static int hf_GIAS_DataModelMgr_get_data_model_date_properties_loop;
-static int hf_GIAS_DataModelMgr_get_alias_categories_return_loop;
-static int hf_GIAS_DataModelMgr_get_alias_categories_return;
-static int hf_GIAS_DataModelMgr_get_alias_categories_properties_loop;
-static int hf_GIAS_DataModelMgr_get_logical_aliases_return_loop;
-static int hf_GIAS_DataModelMgr_get_logical_aliases_category;
-static int hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop;
-static int hf_GIAS_DataModelMgr_get_logical_attribute_name_return;
-static int hf_GIAS_DataModelMgr_get_logical_attribute_name_view_name;
-static int hf_GIAS_DataModelMgr_get_logical_attribute_name_attribute_type;
-static int hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop;
-static int hf_GIAS_DataModelMgr_get_view_names_return_loop;
-static int hf_GIAS_DataModelMgr_get_view_names_properties_loop;
-static int hf_GIAS_DataModelMgr_get_attributes_return_loop;
-static int hf_GIAS_DataModelMgr_get_attributes_view_name;
-static int hf_GIAS_DataModelMgr_get_attributes_properties_loop;
-static int hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop;
-static int hf_GIAS_DataModelMgr_get_queryable_attributes_view_name;
-static int hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop;
-static int hf_GIAS_DataModelMgr_get_entities_view_name;
-static int hf_GIAS_DataModelMgr_get_entities_properties_loop;
-static int hf_GIAS_DataModelMgr_get_entity_attributes_return_loop;
-static int hf_GIAS_DataModelMgr_get_entity_attributes_aEntity;
-static int hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop;
-static int hf_GIAS_DataModelMgr_get_associations_return_loop;
-static int hf_GIAS_DataModelMgr_get_associations_properties_loop;
-static int hf_GIAS_DataModelMgr_get_max_vertices_return;
-static int hf_GIAS_DataModelMgr_get_max_vertices_properties_loop;
-static int hf_GIAS_CreationMgr_create_new_product_loop;
-static int hf_GIAS_CreationMgr_create_related_files_loop;
-static int hf_GIAS_CreationMgr_create_properties_loop;
-static int hf_GIAS_CreationMgr_create_metadata_view_name;
-static int hf_GIAS_CreationMgr_create_metadata_related_files_loop;
-static int hf_GIAS_CreationMgr_create_metadata_properties_loop;
-static int hf_GIAS_CreationMgr_create_association_assoc_name;
-static int hf_GIAS_CreationMgr_create_association_view_b_objects_loop;
-static int hf_GIAS_CreationMgr_create_association_assoc_info_loop;
-static int hf_GIAS_UpdateMgr_update_view;
-static int hf_GIAS_UpdateMgr_update_changes_loop;
-static int hf_GIAS_UpdateMgr_update_relfiles_loop;
-static int hf_GIAS_UpdateMgr_update_properties_loop;
-static int hf_GIAS_UpdateMgr_update_by_query_properties_loop;
-static int hf_GIAS_CatalogMgr_submit_query_result_attributes_loop;
-static int hf_GIAS_CatalogMgr_submit_query_result_attributes;
-static int hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop;
-static int hf_GIAS_CatalogMgr_submit_query_properties_loop;
-static int hf_GIAS_CatalogMgr_hit_count_properties_loop;
-static int hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop;
+static int hf_GIAS_UpdateByQueryRequest_complete_return;
+static int hf_GIAS_CreateAssociationRequest_complete_return;
+static int hf_GIAS_GetRelatedFilesRequest_complete_return;
+static int hf_GIAS_GetRelatedFilesRequest_complete_locations_loop;
+static int hf_GIAS_GetRelatedFilesRequest_complete_locations;
+static int hf_GIAS_IngestRequest_complete_return;
+static int hf_GIAS_GetParametersRequest_complete_StringDAG_return;
+static int hf_GIAS_GetParametersRequest_complete_return;
+static int hf_GIAS_HitCountRequest_complete_return;
+static int hf_GIAS_HitCountRequest_complete_number_of_hits;
+static int hf_GIAS_SetAvailabilityRequest_complete_return;
+static int hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_return;
+static int hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_results;
+static int hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_return;
+static int hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop;
+static int hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_return;
+static int hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop;
+static int hf_GIAS_SubmitStandingQueryRequest_clear_intervals_num_intervals;
+static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_intervals_return;
+static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_return;
+static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_interval;
+static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_return;
+static int hf_GIAS_SubmitStandingQueryRequest_set_number_of_hits_hits;
+static int hf_GIAS_SubmitQueryRequest_complete_XML_results_return;
+static int hf_GIAS_SubmitQueryRequest_complete_XML_results_results;
+static int hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_return;
+static int hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop;
+static int hf_GIAS_SubmitQueryRequest_complete_DAG_results_return;
+static int hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop;
+static int hf_GIAS_SubmitQueryRequest_set_number_of_hits_hits;
+static int hf_GIAS_UpdateRequest_complete_return;
+static int hf_GIAS_CreateMetaDataRequest_complete_return;
+static int hf_GIAS_CreateRequest_complete_return;
+static int hf_GIAS_CreateRequest_complete_new_products_loop;
+static int hf_GIAS_SubmitQueryOrderRequest_complete_return;
+static int hf_GIAS_SubmitQueryOrderRequest_complete_list_return;
+static int hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop;
+static int hf_GIAS_OrderRequest_complete_return;
+static int hf_GIAS_Request_free_callback_id;
+static int hf_GIAS_Request_register_callback_return;
+static int hf_GIAS_Request_set_user_info_message;
+static int hf_GIAS_IngestMgr_bulk_push_property_list_loop;
+static int hf_GIAS_IngestMgr_bulk_pull_property_list_loop;
+static int hf_GIAS_ProductMgr_get_related_files_products_loop;
+static int hf_GIAS_ProductMgr_get_related_files_type;
+static int hf_GIAS_ProductMgr_get_related_files_properties_loop;
+static int hf_GIAS_ProductMgr_get_related_file_types_return_loop;
+static int hf_GIAS_ProductMgr_get_related_file_types_return;
+static int hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop;
+static int hf_GIAS_ProductMgr_get_parameters_desired_parameters;
+static int hf_GIAS_ProductMgr_get_parameters_properties_loop;
 static int hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes_loop;
 static int hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
 static int hf_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes_loop;
 static int hf_GIAS_StandingQueryMgr_submit_standing_query_properties_loop;
-static int hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop;
-static int hf_GIAS_ProductMgr_get_parameters_desired_parameters;
-static int hf_GIAS_ProductMgr_get_parameters_properties_loop;
-static int hf_GIAS_ProductMgr_get_related_file_types_return_loop;
-static int hf_GIAS_ProductMgr_get_related_file_types_return;
-static int hf_GIAS_ProductMgr_get_related_files_products_loop;
-static int hf_GIAS_ProductMgr_get_related_files_type;
-static int hf_GIAS_ProductMgr_get_related_files_properties_loop;
-static int hf_GIAS_IngestMgr_bulk_pull_property_list_loop;
-static int hf_GIAS_IngestMgr_bulk_push_property_list_loop;
-static int hf_GIAS_Request_set_user_info_message;
-static int hf_GIAS_Request_register_callback_return;
-static int hf_GIAS_Request_free_callback_id;
-static int hf_GIAS_OrderRequest_complete_return;
-static int hf_GIAS_SubmitQueryOrderRequest_complete_list_return;
-static int hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop;
-static int hf_GIAS_SubmitQueryOrderRequest_complete_return;
-static int hf_GIAS_CreateRequest_complete_return;
-static int hf_GIAS_CreateRequest_complete_new_products_loop;
-static int hf_GIAS_CreateMetaDataRequest_complete_return;
-static int hf_GIAS_UpdateRequest_complete_return;
-static int hf_GIAS_SubmitQueryRequest_set_number_of_hits_hits;
-static int hf_GIAS_SubmitQueryRequest_complete_DAG_results_return;
-static int hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop;
-static int hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_return;
-static int hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop;
-static int hf_GIAS_SubmitQueryRequest_complete_XML_results_return;
-static int hf_GIAS_SubmitQueryRequest_complete_XML_results_results;
-static int hf_GIAS_SubmitStandingQueryRequest_set_number_of_hits_hits;
-static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_return;
-static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_return;
-static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_interval;
-static int hf_GIAS_SubmitStandingQueryRequest_get_number_of_intervals_return;
-static int hf_GIAS_SubmitStandingQueryRequest_clear_intervals_num_intervals;
-static int hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_return;
-static int hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop;
-static int hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_return;
-static int hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop;
-static int hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_return;
-static int hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_results;
-static int hf_GIAS_SetAvailabilityRequest_complete_return;
-static int hf_GIAS_HitCountRequest_complete_return;
-static int hf_GIAS_HitCountRequest_complete_number_of_hits;
-static int hf_GIAS_GetParametersRequest_complete_return;
-static int hf_GIAS_GetParametersRequest_complete_StringDAG_return;
-static int hf_GIAS_IngestRequest_complete_return;
-static int hf_GIAS_GetRelatedFilesRequest_complete_return;
-static int hf_GIAS_GetRelatedFilesRequest_complete_locations_loop;
-static int hf_GIAS_GetRelatedFilesRequest_complete_locations;
-static int hf_GIAS_CreateAssociationRequest_complete_return;
-static int hf_GIAS_UpdateByQueryRequest_complete_return;
+static int hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop;
+static int hf_GIAS_CatalogMgr_hit_count_properties_loop;
+static int hf_GIAS_CatalogMgr_submit_query_result_attributes_loop;
+static int hf_GIAS_CatalogMgr_submit_query_result_attributes;
+static int hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop;
+static int hf_GIAS_CatalogMgr_submit_query_properties_loop;
+static int hf_GIAS_UpdateMgr_update_by_query_properties_loop;
+static int hf_GIAS_UpdateMgr_update_view;
+static int hf_GIAS_UpdateMgr_update_changes_loop;
+static int hf_GIAS_UpdateMgr_update_relfiles_loop;
+static int hf_GIAS_UpdateMgr_update_properties_loop;
+static int hf_GIAS_CreationMgr_create_association_assoc_name;
+static int hf_GIAS_CreationMgr_create_association_view_b_objects_loop;
+static int hf_GIAS_CreationMgr_create_association_assoc_info_loop;
+static int hf_GIAS_CreationMgr_create_metadata_view_name;
+static int hf_GIAS_CreationMgr_create_metadata_related_files_loop;
+static int hf_GIAS_CreationMgr_create_metadata_properties_loop;
+static int hf_GIAS_CreationMgr_create_new_product_loop;
+static int hf_GIAS_CreationMgr_create_related_files_loop;
+static int hf_GIAS_CreationMgr_create_properties_loop;
+static int hf_GIAS_DataModelMgr_get_max_vertices_return;
+static int hf_GIAS_DataModelMgr_get_max_vertices_properties_loop;
+static int hf_GIAS_DataModelMgr_get_associations_return_loop;
+static int hf_GIAS_DataModelMgr_get_associations_properties_loop;
+static int hf_GIAS_DataModelMgr_get_entity_attributes_return_loop;
+static int hf_GIAS_DataModelMgr_get_entity_attributes_aEntity;
+static int hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop;
+static int hf_GIAS_DataModelMgr_get_entities_view_name;
+static int hf_GIAS_DataModelMgr_get_entities_properties_loop;
+static int hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop;
+static int hf_GIAS_DataModelMgr_get_queryable_attributes_view_name;
+static int hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop;
+static int hf_GIAS_DataModelMgr_get_attributes_return_loop;
+static int hf_GIAS_DataModelMgr_get_attributes_view_name;
+static int hf_GIAS_DataModelMgr_get_attributes_properties_loop;
+static int hf_GIAS_DataModelMgr_get_view_names_return_loop;
+static int hf_GIAS_DataModelMgr_get_view_names_properties_loop;
+static int hf_GIAS_DataModelMgr_get_logical_attribute_name_return;
+static int hf_GIAS_DataModelMgr_get_logical_attribute_name_view_name;
+static int hf_GIAS_DataModelMgr_get_logical_attribute_name_attribute_type;
+static int hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop;
+static int hf_GIAS_DataModelMgr_get_logical_aliases_return_loop;
+static int hf_GIAS_DataModelMgr_get_logical_aliases_category;
+static int hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop;
+static int hf_GIAS_DataModelMgr_get_alias_categories_return_loop;
+static int hf_GIAS_DataModelMgr_get_alias_categories_return;
+static int hf_GIAS_DataModelMgr_get_alias_categories_properties_loop;
+static int hf_GIAS_DataModelMgr_get_data_model_date_properties_loop;
+static int hf_GIAS_OrderMgr_order_properties_loop;
+static int hf_GIAS_OrderMgr_validate_order_properties_loop;
+static int hf_GIAS_OrderMgr_get_package_specifications_return_loop;
+static int hf_GIAS_OrderMgr_get_package_specifications_return;
+static int hf_GIAS_QueryOrderMgr_submit_query_order_o_type;
+static int hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop;
+static int hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop;
+static int hf_GIAS_AccessManager_set_availability_products_loop;
+static int hf_GIAS_AccessManager_set_availability_availability_requirement;
+static int hf_GIAS_AccessManager_set_availability_use_mode;
+static int hf_GIAS_AccessManager_set_availability_priority;
+static int hf_GIAS_AccessManager_get_number_of_priorities_return;
+static int hf_GIAS_AccessManager_query_availability_delay_return;
+static int hf_GIAS_AccessManager_query_availability_delay_availability_requirement;
+static int hf_GIAS_AccessManager_query_availability_delay_use_mode;
+static int hf_GIAS_AccessManager_is_available_return;
+static int hf_GIAS_AccessManager_is_available_use_mode;
+static int hf_GIAS_AccessManager_get_use_modes_return_loop;
+static int hf_GIAS_AccessManager_get_use_modes_return;
+static int hf_GIAS_RequestManager_set_timeout_new_lifetime;
+static int hf_GIAS_RequestManager_get_timeout_return;
+static int hf_GIAS_RequestManager_set_default_timeout_new_default;
+static int hf_GIAS_RequestManager_get_default_timeout_return;
+static int hf_GIAS_RequestManager_get_active_requests_return_loop;
+static int hf_GIAS_LibraryManager_get_libraries_return_loop;
+static int hf_GIAS_LibraryManager_get_property_values_return_loop;
+static int hf_GIAS_LibraryManager_get_property_values_desired_properties_loop;
+static int hf_GIAS_LibraryManager_get_property_values_desired_properties;
+static int hf_GIAS_LibraryManager_get_property_names_return_loop;
+static int hf_GIAS_LibraryManager_get_property_names_return;
+static int hf_GIAS_Library_get_other_libraries_return_loop;
+static int hf_GIAS_Library_get_manager_manager_type;
+static int hf_GIAS_Library_get_manager_types_return_loop;
+static int hf_GIAS_Library_get_manager_types_return;
+static int hf_CB_Callback_notify_theState;
         /* Struct filters */
-static int hf_UCO_NameName_name1;
-static int hf_UCO_NameName_name2;
-static int hf_UCO_NameValue_aname;
-static int hf_UCO_Ratio_numerator;
-static int hf_UCO_Ratio_denominator;
-static int hf_UCO_FileLocation_user_name;
-static int hf_UCO_FileLocation_password;
-static int hf_UCO_FileLocation_host_name;
-static int hf_UCO_FileLocation_path_name;
-static int hf_UCO_FileLocation_file_name;
-static int hf_UCO_DirectAccessLocation_access_protocol;
-static int hf_UCO_Date_year;
-static int hf_UCO_Date_month;
-static int hf_UCO_Date_day;
-static int hf_UCO_Time_hour;
-static int hf_UCO_Time_minute;
-static int hf_UCO_Time_second;
-static int hf_UCO_Node_id;
-static int hf_UCO_Node_node_type;
-static int hf_UCO_Node_attribute_name;
-static int hf_UCO_Edge_start_node;
-static int hf_UCO_Edge_end_node;
-static int hf_UCO_Edge_relationship_type;
-static int hf_UCO_DAG_nodes_loop;
-static int hf_UCO_DAG_edges_loop;
-static int hf_UCO_StringNode_id;
-static int hf_UCO_StringNode_node_type;
-static int hf_UCO_StringNode_attribute_name;
-static int hf_UCO_StringNode_value;
-static int hf_UCO_StringDAG_nodes_loop;
-static int hf_UCO_StringDAG_edges_loop;
-static int hf_UCO_Change_changed_node;
-static int hf_UCO_Change_change_type;
-static int hf_UCO_UpdateDAG_changes_loop;
-static int hf_UCO_RequestDescription_user_info;
-static int hf_UCO_RequestDescription_request_type;
-static int hf_UCO_RequestDescription_request_info;
-static int hf_UCO_RequestDescription_request_details_loop;
-static int hf_UCO_Coordinate2d_x;
-static int hf_UCO_Coordinate2d_y;
-static int hf_UCO_Coordinate3d_x;
-static int hf_UCO_Coordinate3d_y;
-static int hf_UCO_Coordinate3d_z;
-static int hf_UCO_LinearDimension_dimension;
-static int hf_UCO_LinearDimension_reference_system;
-static int hf_UCO_Ellipse_north_angle;
-static int hf_UCO_SimpleGSImage_width;
-static int hf_UCO_SimpleGSImage_height;
-static int hf_UCO_SimpleCImage_width;
-static int hf_UCO_SimpleCImage_height;
-static int hf_UCO_CompressedImage_width;
-static int hf_UCO_CompressedImage_height;
-static int hf_UCO_CompressedImage_compression_form;
-static int hf_UCO_CompressedImage_data_loop;
-static int hf_UCO_CompressedImage_data;
-static int hf_UCO_Status_completion_state;
-static int hf_UCO_Status_warning;
-static int hf_UCO_Status_status_message;
-static int hf_UCO_EntityNode_id;
-static int hf_UCO_EntityNode_entity_name;
-static int hf_UCO_EntityRelationship_start_node;
-static int hf_UCO_EntityRelationship_end_node;
-static int hf_UCO_EntityRelationship_start_to_end_card;
-static int hf_UCO_EntityRelationship_end_to_start_card;
-static int hf_UCO_EntityGraph_nodes_loop;
-static int hf_UCO_EntityGraph_relationship_loop;
-static int hf_UCO_exception_details_exception_name;
-static int hf_UCO_exception_details_standard_exception_name;
-static int hf_UCO_exception_details_exception_desc;
+static int hf_GIAS_DeliveryManifest_package_name;
+static int hf_GIAS_DeliveryManifest_elements_loop;
+static int hf_GIAS_PackageElement_files_loop;
+static int hf_GIAS_PackageElement_files;
+static int hf_GIAS_AccessCriteria_userID;
+static int hf_GIAS_AccessCriteria_password;
+static int hf_GIAS_AccessCriteria_licenseKey;
+static int hf_GIAS_QueryOrderContents_originator;
+static int hf_GIAS_QueryOrderContents_operatorNote;
+static int hf_GIAS_QueryOrderContents_orderPriority;
+static int hf_GIAS_QueryOrderContents_del_list_loop;
+static int hf_GIAS_OrderContents_originator;
+static int hf_GIAS_OrderContents_operatorNote;
+static int hf_GIAS_OrderContents_orderPriority;
+static int hf_GIAS_OrderContents_prod_list_loop;
+static int hf_GIAS_OrderContents_del_list_loop;
+static int hf_GIAS_DeliveryDetails_receiver;
+static int hf_GIAS_DeliveryDetails_shipmentMode;
+static int hf_GIAS_ProductDetails_mTypes_loop;
+static int hf_GIAS_ProductDetails_benums_loop;
+static int hf_GIAS_ProductDetails_benums;
+static int hf_GIAS_ProductDetails_info_system_name;
+static int hf_GIAS_DelayEstimate_time_delay;
+static int hf_GIAS_DelayEstimate_valid_time_delay;
+static int hf_GIAS_SortAttribute_attribute_name;
+static int hf_GIAS_SortAttribute_sort_polarity;
+static int hf_GIAS_QueryLifeSpan_frequency_loop;
+static int hf_GIAS_DayEventTime_day_event;
+static int hf_GIAS_Event_event_name;
+static int hf_GIAS_Event_event_type;
+static int hf_GIAS_Event_event_description;
+static int hf_GIAS_Query_view;
+static int hf_GIAS_Query_bqs_query;
+static int hf_GIAS_LibraryDescription_library_name;
+static int hf_GIAS_LibraryDescription_library_description;
+static int hf_GIAS_LibraryDescription_library_version_number;
+static int hf_GIAS_Association_name;
+static int hf_GIAS_Association_view_a;
+static int hf_GIAS_Association_view_b;
+static int hf_GIAS_Association_description;
+static int hf_GIAS_Association_card;
+static int hf_GIAS_Association_attribute_info_loop;
+static int hf_GIAS_AttributeInformation_attribute_name;
+static int hf_GIAS_AttributeInformation_attribute_type;
+static int hf_GIAS_AttributeInformation_attribute_units;
+static int hf_GIAS_AttributeInformation_attribute_reference;
+static int hf_GIAS_AttributeInformation_mode;
+static int hf_GIAS_AttributeInformation_description;
+static int hf_GIAS_AttributeInformation_sortable;
+static int hf_GIAS_AttributeInformation_updateable;
+static int hf_GIAS_FloatingPointRange_lower_bound;
+static int hf_GIAS_FloatingPointRange_upper_bound;
+static int hf_GIAS_IntegerRange_lower_bound;
+static int hf_GIAS_IntegerRange_upper_bound;
+static int hf_GIAS_View_view_name;
+static int hf_GIAS_View_orderable;
+static int hf_GIAS_View_sub_views_loop;
+static int hf_GIAS_View_sub_views;
+static int hf_GIAS_RelatedFile_file_type;
+static int hf_GIAS_ValidationResults_valid;
+static int hf_GIAS_ValidationResults_warning;
+static int hf_GIAS_ValidationResults_details;
+static int hf_GIAS_PhysicalDelivery_address;
+static int hf_GIAS_MediaType_media_type;
+static int hf_GIAS_MediaType_quantity;
+static int hf_GIAS_TailoringSpec_specs_loop;
+static int hf_GIAS_PackagingSpec_package_identifier;
+static int hf_GIAS_PackagingSpec_packaging_format_and_compression;
+static int hf_GIAS_AlterationSpec_pf;
+static int hf_GIAS_AlterationSpec_geo_region_type;
 static int hf_GIAS_ImageSpec_imgform;
 static int hf_GIAS_ImageSpec_imageid;
 static int hf_GIAS_ImageSpec_comp;
@@ -272,80 +277,95 @@ static int hf_GIAS_ImageSpec_rrds_loop;
 static int hf_GIAS_ImageSpec_rrds;
 static int hf_GIAS_ImageSpec_geo_region_type;
 static int hf_GIAS_ImageSpec_encoding;
-static int hf_GIAS_AlterationSpec_pf;
-static int hf_GIAS_AlterationSpec_geo_region_type;
-static int hf_GIAS_PackagingSpec_package_identifier;
-static int hf_GIAS_PackagingSpec_packaging_format_and_compression;
-static int hf_GIAS_TailoringSpec_specs_loop;
-static int hf_GIAS_MediaType_media_type;
-static int hf_GIAS_MediaType_quantity;
-static int hf_GIAS_PhysicalDelivery_address;
-static int hf_GIAS_ValidationResults_valid;
-static int hf_GIAS_ValidationResults_warning;
-static int hf_GIAS_ValidationResults_details;
-static int hf_GIAS_RelatedFile_file_type;
-static int hf_GIAS_View_view_name;
-static int hf_GIAS_View_orderable;
-static int hf_GIAS_View_sub_views_loop;
-static int hf_GIAS_View_sub_views;
-static int hf_GIAS_IntegerRange_lower_bound;
-static int hf_GIAS_IntegerRange_upper_bound;
-static int hf_GIAS_FloatingPointRange_lower_bound;
-static int hf_GIAS_FloatingPointRange_upper_bound;
-static int hf_GIAS_AttributeInformation_attribute_name;
-static int hf_GIAS_AttributeInformation_attribute_type;
-static int hf_GIAS_AttributeInformation_attribute_units;
-static int hf_GIAS_AttributeInformation_attribute_reference;
-static int hf_GIAS_AttributeInformation_mode;
-static int hf_GIAS_AttributeInformation_description;
-static int hf_GIAS_AttributeInformation_sortable;
-static int hf_GIAS_AttributeInformation_updateable;
-static int hf_GIAS_Association_name;
-static int hf_GIAS_Association_view_a;
-static int hf_GIAS_Association_view_b;
-static int hf_GIAS_Association_description;
-static int hf_GIAS_Association_card;
-static int hf_GIAS_Association_attribute_info_loop;
-static int hf_GIAS_LibraryDescription_library_name;
-static int hf_GIAS_LibraryDescription_library_description;
-static int hf_GIAS_LibraryDescription_library_version_number;
-static int hf_GIAS_Query_view;
-static int hf_GIAS_Query_bqs_query;
-static int hf_GIAS_Event_event_name;
-static int hf_GIAS_Event_event_type;
-static int hf_GIAS_Event_event_description;
-static int hf_GIAS_DayEventTime_day_event;
-static int hf_GIAS_QueryLifeSpan_frequency_loop;
-static int hf_GIAS_SortAttribute_attribute_name;
-static int hf_GIAS_SortAttribute_sort_polarity;
-static int hf_GIAS_DelayEstimate_time_delay;
-static int hf_GIAS_DelayEstimate_valid_time_delay;
-static int hf_GIAS_ProductDetails_mTypes_loop;
-static int hf_GIAS_ProductDetails_benums_loop;
-static int hf_GIAS_ProductDetails_benums;
-static int hf_GIAS_ProductDetails_info_system_name;
-static int hf_GIAS_DeliveryDetails_receiver;
-static int hf_GIAS_DeliveryDetails_shipmentMode;
-static int hf_GIAS_OrderContents_originator;
-static int hf_GIAS_OrderContents_operatorNote;
-static int hf_GIAS_OrderContents_orderPriority;
-static int hf_GIAS_OrderContents_prod_list_loop;
-static int hf_GIAS_OrderContents_del_list_loop;
-static int hf_GIAS_QueryOrderContents_originator;
-static int hf_GIAS_QueryOrderContents_operatorNote;
-static int hf_GIAS_QueryOrderContents_orderPriority;
-static int hf_GIAS_QueryOrderContents_del_list_loop;
-static int hf_GIAS_AccessCriteria_userID;
-static int hf_GIAS_AccessCriteria_password;
-static int hf_GIAS_AccessCriteria_licenseKey;
-static int hf_GIAS_PackageElement_files_loop;
-static int hf_GIAS_PackageElement_files;
-static int hf_GIAS_DeliveryManifest_package_name;
-static int hf_GIAS_DeliveryManifest_elements_loop;
+static int hf_UCO_exception_details_exception_name;
+static int hf_UCO_exception_details_standard_exception_name;
+static int hf_UCO_exception_details_exception_desc;
+static int hf_UCO_EntityGraph_nodes_loop;
+static int hf_UCO_EntityGraph_relationship_loop;
+static int hf_UCO_EntityRelationship_start_node;
+static int hf_UCO_EntityRelationship_end_node;
+static int hf_UCO_EntityRelationship_start_to_end_card;
+static int hf_UCO_EntityRelationship_end_to_start_card;
+static int hf_UCO_EntityNode_id;
+static int hf_UCO_EntityNode_entity_name;
+static int hf_UCO_Status_completion_state;
+static int hf_UCO_Status_warning;
+static int hf_UCO_Status_status_message;
+static int hf_UCO_CompressedImage_width;
+static int hf_UCO_CompressedImage_height;
+static int hf_UCO_CompressedImage_compression_form;
+static int hf_UCO_CompressedImage_data_loop;
+static int hf_UCO_CompressedImage_data;
+static int hf_UCO_SimpleCImage_width;
+static int hf_UCO_SimpleCImage_height;
+static int hf_UCO_SimpleGSImage_width;
+static int hf_UCO_SimpleGSImage_height;
+static int hf_UCO_Ellipse_north_angle;
+static int hf_UCO_LinearDimension_dimension;
+static int hf_UCO_LinearDimension_reference_system;
+static int hf_UCO_Coordinate3d_x;
+static int hf_UCO_Coordinate3d_y;
+static int hf_UCO_Coordinate3d_z;
+static int hf_UCO_Coordinate2d_x;
+static int hf_UCO_Coordinate2d_y;
+static int hf_UCO_RequestDescription_user_info;
+static int hf_UCO_RequestDescription_request_type;
+static int hf_UCO_RequestDescription_request_info;
+static int hf_UCO_RequestDescription_request_details_loop;
+static int hf_UCO_UpdateDAG_changes_loop;
+static int hf_UCO_Change_changed_node;
+static int hf_UCO_Change_change_type;
+static int hf_UCO_StringDAG_nodes_loop;
+static int hf_UCO_StringDAG_edges_loop;
+static int hf_UCO_StringNode_id;
+static int hf_UCO_StringNode_node_type;
+static int hf_UCO_StringNode_attribute_name;
+static int hf_UCO_StringNode_value;
+static int hf_UCO_DAG_nodes_loop;
+static int hf_UCO_DAG_edges_loop;
+static int hf_UCO_Edge_start_node;
+static int hf_UCO_Edge_end_node;
+static int hf_UCO_Edge_relationship_type;
+static int hf_UCO_Node_id;
+static int hf_UCO_Node_node_type;
+static int hf_UCO_Node_attribute_name;
+static int hf_UCO_Time_hour;
+static int hf_UCO_Time_minute;
+static int hf_UCO_Time_second;
+static int hf_UCO_Date_year;
+static int hf_UCO_Date_month;
+static int hf_UCO_Date_day;
+static int hf_UCO_DirectAccessLocation_access_protocol;
+static int hf_UCO_FileLocation_user_name;
+static int hf_UCO_FileLocation_password;
+static int hf_UCO_FileLocation_host_name;
+static int hf_UCO_FileLocation_path_name;
+static int hf_UCO_FileLocation_file_name;
+static int hf_UCO_Ratio_numerator;
+static int hf_UCO_Ratio_denominator;
+static int hf_UCO_NameValue_aname;
+static int hf_UCO_NameName_name1;
+static int hf_UCO_NameName_name2;
         /* User exception filters */
 static int hf_UCO_InvalidInputParameter_badInputParameters;
 static int hf_UCO_InvalidInputParameter_badInputParameters_loop;
         /* Union filters */
+static int hf_GIAS_LifeEvent_LifeEvent;
+static int hf_GIAS_LifeEvent_ev;
+static int hf_GIAS_Domain_Domain;
+static int hf_GIAS_Domain_t;
+static int hf_GIAS_Domain_is_loop;
+static int hf_GIAS_Domain_fps_loop;
+static int hf_GIAS_Domain_l_loop;
+static int hf_GIAS_Domain_l;
+static int hf_GIAS_Domain_ol_loop;
+static int hf_GIAS_Domain_ol;
+static int hf_GIAS_Domain_gs_loop;
+static int hf_GIAS_Domain_bd_loop;
+static int hf_GIAS_Domain_bd;
+static int hf_GIAS_Domain_bv;
+static int hf_GIAS_Destination_Destination;
+static int hf_GIAS_Destination_e_dest;
 static int hf_UCO_Buffer_Buffer;
 static int hf_UCO_Buffer_octet_buffer_loop;
 static int hf_UCO_Buffer_octet_buffer;
@@ -363,22 +383,6 @@ static int hf_UCO_Buffer_float_buffer_loop;
 static int hf_UCO_Buffer_float_buffer;
 static int hf_UCO_Buffer_double_buffer_loop;
 static int hf_UCO_Buffer_double_buffer;
-static int hf_GIAS_Destination_Destination;
-static int hf_GIAS_Destination_e_dest;
-static int hf_GIAS_Domain_Domain;
-static int hf_GIAS_Domain_t;
-static int hf_GIAS_Domain_is_loop;
-static int hf_GIAS_Domain_fps_loop;
-static int hf_GIAS_Domain_l_loop;
-static int hf_GIAS_Domain_l;
-static int hf_GIAS_Domain_ol_loop;
-static int hf_GIAS_Domain_ol;
-static int hf_GIAS_Domain_gs_loop;
-static int hf_GIAS_Domain_bd_loop;
-static int hf_GIAS_Domain_bd;
-static int hf_GIAS_Domain_bv;
-static int hf_GIAS_LifeEvent_LifeEvent;
-static int hf_GIAS_LifeEvent_ev;
         /* Expert info filters */
 static expert_field ei_gias_unknown_giop_msg;
 static expert_field ei_gias_unknown_exception;
@@ -390,198 +394,198 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /* Struct prototype declaration Start */
 
-/* Struct = IDL:UCO/NameName:1.0 */
-static void decode_UCO_NameName_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/NameValue:1.0 */
-static void decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Ratio:1.0 */
-static void decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/FileLocation:1.0 */
-static void decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/DirectAccessLocation:1.0 */
-static void decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Date:1.0 */
-static void decode_UCO_Date_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Time:1.0 */
-static void decode_UCO_Time_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/AbsTime:1.0 */
-static void decode_UCO_AbsTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Node:1.0 */
-static void decode_UCO_Node_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Edge:1.0 */
-static void decode_UCO_Edge_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/DAG:1.0 */
-static void decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/StringNode:1.0 */
-static void decode_UCO_StringNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/StringDAG:1.0 */
-static void decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Change:1.0 */
-static void decode_UCO_Change_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/UpdateDAG:1.0 */
-static void decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/RequestDescription:1.0 */
-static void decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Coordinate2d:1.0 */
-static void decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Coordinate3d:1.0 */
-static void decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/LinearDimension:1.0 */
-static void decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Circle:1.0 */
-static void decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Ellipse:1.0 */
-static void decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Rectangle:1.0 */
-static void decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/SimpleGSImage:1.0 */
-static void decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/SimpleCImage:1.0 */
-static void decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/CompressedImage:1.0 */
-static void decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/Status:1.0 */
-static void decode_UCO_Status_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/EntityNode:1.0 */
-static void decode_UCO_EntityNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/EntityRelationship:1.0 */
-static void decode_UCO_EntityRelationship_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/EntityGraph:1.0 */
-static void decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:UCO/exception_details:1.0 */
-static void decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/ImageSpec:1.0 */
-static void decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/AlterationSpec:1.0 */
-static void decode_GIAS_AlterationSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/PackagingSpec:1.0 */
-static void decode_GIAS_PackagingSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/TailoringSpec:1.0 */
-static void decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/MediaType:1.0 */
-static void decode_GIAS_MediaType_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/PhysicalDelivery:1.0 */
-static void decode_GIAS_PhysicalDelivery_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/ValidationResults:1.0 */
-static void decode_GIAS_ValidationResults_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/RelatedFile:1.0 */
-static void decode_GIAS_RelatedFile_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/View:1.0 */
-static void decode_GIAS_View_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/DateRange:1.0 */
-static void decode_GIAS_DateRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/IntegerRange:1.0 */
-static void decode_GIAS_IntegerRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/FloatingPointRange:1.0 */
-static void decode_GIAS_FloatingPointRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/AttributeInformation:1.0 */
-static void decode_GIAS_AttributeInformation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/Association:1.0 */
-static void decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/LibraryDescription:1.0 */
-static void decode_GIAS_LibraryDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/Query:1.0 */
-static void decode_GIAS_Query_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/Event:1.0 */
-static void decode_GIAS_Event_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/DayEventTime:1.0 */
-static void decode_GIAS_DayEventTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/QueryLifeSpan:1.0 */
-static void decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/SortAttribute:1.0 */
-static void decode_GIAS_SortAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/DelayEstimate:1.0 */
-static void decode_GIAS_DelayEstimate_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/ProductDetails:1.0 */
-static void decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/DeliveryDetails:1.0 */
-static void decode_GIAS_DeliveryDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/OrderContents:1.0 */
-static void decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/QueryOrderContents:1.0 */
-static void decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:GIAS/AccessCriteria:1.0 */
-static void decode_GIAS_AccessCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+/* Struct = IDL:GIAS/DeliveryManifest:1.0 */
+static void decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 /* Struct = IDL:GIAS/PackageElement:1.0 */
-static void decode_GIAS_PackageElement_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+static void decode_GIAS_PackageElement_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
-/* Struct = IDL:GIAS/DeliveryManifest:1.0 */
-static void decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+/* Struct = IDL:GIAS/AccessCriteria:1.0 */
+static void decode_GIAS_AccessCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/QueryOrderContents:1.0 */
+static void decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/OrderContents:1.0 */
+static void decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/DeliveryDetails:1.0 */
+static void decode_GIAS_DeliveryDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/ProductDetails:1.0 */
+static void decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/DelayEstimate:1.0 */
+static void decode_GIAS_DelayEstimate_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/SortAttribute:1.0 */
+static void decode_GIAS_SortAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/QueryLifeSpan:1.0 */
+static void decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/DayEventTime:1.0 */
+static void decode_GIAS_DayEventTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/Event:1.0 */
+static void decode_GIAS_Event_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/Query:1.0 */
+static void decode_GIAS_Query_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/LibraryDescription:1.0 */
+static void decode_GIAS_LibraryDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/Association:1.0 */
+static void decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/AttributeInformation:1.0 */
+static void decode_GIAS_AttributeInformation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/FloatingPointRange:1.0 */
+static void decode_GIAS_FloatingPointRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/IntegerRange:1.0 */
+static void decode_GIAS_IntegerRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/DateRange:1.0 */
+static void decode_GIAS_DateRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/View:1.0 */
+static void decode_GIAS_View_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/RelatedFile:1.0 */
+static void decode_GIAS_RelatedFile_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/ValidationResults:1.0 */
+static void decode_GIAS_ValidationResults_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/PhysicalDelivery:1.0 */
+static void decode_GIAS_PhysicalDelivery_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/MediaType:1.0 */
+static void decode_GIAS_MediaType_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/TailoringSpec:1.0 */
+static void decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/PackagingSpec:1.0 */
+static void decode_GIAS_PackagingSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/AlterationSpec:1.0 */
+static void decode_GIAS_AlterationSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:GIAS/ImageSpec:1.0 */
+static void decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/exception_details:1.0 */
+static void decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/EntityGraph:1.0 */
+static void decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/EntityRelationship:1.0 */
+static void decode_UCO_EntityRelationship_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/EntityNode:1.0 */
+static void decode_UCO_EntityNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Status:1.0 */
+static void decode_UCO_Status_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/CompressedImage:1.0 */
+static void decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/SimpleCImage:1.0 */
+static void decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/SimpleGSImage:1.0 */
+static void decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Rectangle:1.0 */
+static void decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Ellipse:1.0 */
+static void decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Circle:1.0 */
+static void decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/LinearDimension:1.0 */
+static void decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Coordinate3d:1.0 */
+static void decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Coordinate2d:1.0 */
+static void decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/RequestDescription:1.0 */
+static void decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/UpdateDAG:1.0 */
+static void decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Change:1.0 */
+static void decode_UCO_Change_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/StringDAG:1.0 */
+static void decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/StringNode:1.0 */
+static void decode_UCO_StringNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/DAG:1.0 */
+static void decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Edge:1.0 */
+static void decode_UCO_Edge_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Node:1.0 */
+static void decode_UCO_Node_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/AbsTime:1.0 */
+static void decode_UCO_AbsTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Time:1.0 */
+static void decode_UCO_Time_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Date:1.0 */
+static void decode_UCO_Date_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/DirectAccessLocation:1.0 */
+static void decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/FileLocation:1.0 */
+static void decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/Ratio:1.0 */
+static void decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/NameValue:1.0 */
+static void decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:UCO/NameName:1.0 */
+static void decode_UCO_NameName_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 /* Struct prototype declaration End */
 
 /* Union prototype declaration Start */
 
-/* Union = IDL:UCO/Buffer:1.0 */
-static void decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-
-/* Union = IDL:GIAS/Destination:1.0 */
-static void decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+/* Union = IDL:GIAS/LifeEvent:1.0 */
+static void decode_GIAS_LifeEvent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 
 /* Union = IDL:GIAS/Domain:1.0 */
-static void decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+static void decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 
-/* Union = IDL:GIAS/LifeEvent:1.0 */
-static void decode_GIAS_LifeEvent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+/* Union = IDL:GIAS/Destination:1.0 */
+static void decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+
+/* Union = IDL:UCO/Buffer:1.0 */
+static void decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 /* Union prototype declaration End */
 /*
@@ -589,178 +593,62 @@ static void decode_GIAS_LifeEvent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  */
 
 /*
- * Enum = IDL:UCO/Protocol:1.0
+ * Enum = IDL:GIAS/Polarity:1.0
  */
-static const value_string UCO_Protocol[] = {
+static const value_string GIAS_Polarity[] = {
 
-    { 0, "HTTP" },
-    { 1, "FTP" },
-    { 2, "FILE" },
+    { 0, "ASCENDING" },
+    { 1, "DESCENDING" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:UCO/NodeType:1.0
+ * Enum = IDL:GIAS/LifeEventType:1.0
  */
-static const value_string UCO_NodeType[] = {
+static const value_string GIAS_LifeEventType[] = {
 
-    { 0, "ROOT_NODE" },
-    { 1, "ENTITY_NODE" },
-    { 2, "RECORD_NODE" },
-    { 3, "ATTRIBUTE_NODE" },
+    { 0, "ABSOLUTE_TIME" },
+    { 1, "DAY_EVENT_TIME" },
+    { 2, "NAMED_EVENT" },
+    { 3, "RELATIVE_TIME" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:UCO/Cardinality:1.0
+ * Enum = IDL:GIAS/DayEvent:1.0
  */
-static const value_string UCO_Cardinality[] = {
+static const value_string GIAS_DayEvent[] = {
 
-    { 0, "ONE_TO_ONE" },
-    { 1, "ONE_TO_MANY" },
-    { 2, "MANY_TO_ONE" },
-    { 3, "MANY_TO_MANY" },
-    { 4, "ONE_TO_ZERO_OR_MORE" },
-    { 5, "ONE_TO_ONE_OR_MORE" },
-    { 6, "ONE_TO_ZERO_OR_ONE" },
+    { 0, "MON" },
+    { 1, "TUE" },
+    { 2, "WED" },
+    { 3, "THU" },
+    { 4, "FRI" },
+    { 5, "SAT" },
+    { 6, "SUN" },
+    { 7, "FIRST_OF_MONTH" },
+    { 8, "END_OF_MONTH" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:UCO/ChangeType:1.0
+ * Enum = IDL:GIAS/NamedEventType:1.0
  */
-static const value_string UCO_ChangeType[] = {
+static const value_string GIAS_NamedEventType[] = {
 
-    { 0, "ADD_CHANGE" },
-    { 1, "UPDATE_CHANGE" },
-    { 2, "DELETE_CHANGE" },
+    { 0, "START_EVENT" },
+    { 1, "STOP_EVENT" },
+    { 2, "FREQUENCY_EVENT" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:UCO/BufferType:1.0
+ * Enum = IDL:GIAS/RequirementMode:1.0
  */
-static const value_string UCO_BufferType[] = {
+static const value_string GIAS_RequirementMode[] = {
 
-    { 0, "OCTET_DATA" },
-    { 1, "CHAR_DATA" },
-    { 2, "SHORT_DATA" },
-    { 3, "USHORT_DATA" },
-    { 4, "LONG_DATA" },
-    { 5, "ULONG_DATA" },
-    { 6, "FLOAT_DATA" },
-    { 7, "DOUBLE_DATA" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:UCO/State:1.0
- */
-static const value_string UCO_State[] = {
-
-    { 0, "COMPLETED" },
-    { 1, "IN_PROGRESS" },
-    { 2, "ABORTED" },
-    { 3, "CANCELED" },
-    { 4, "PENDING" },
-    { 5, "SUSPENDED" },
-    { 6, "RESULTS_AVAILABLE" },
-    { 7, "TRANSFER_COMPLETE" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/GeoRegionType:1.0
- */
-static const value_string GIAS_GeoRegionType[] = {
-
-    { 0, "LINE_SAMPLE_FULL" },
-    { 1, "LINE_SAMPLE_CHIP" },
-    { 2, "LAT_LON" },
-    { 3, "ALL" },
-    { 4, "NULL_REGION" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/AvailabilityRequirement:1.0
- */
-static const value_string GIAS_AvailabilityRequirement[] = {
-
-    { 0, "REQUIRED" },
-    { 1, "NOT_REQUIRED" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/OrderType:1.0
- */
-static const value_string GIAS_OrderType[] = {
-
-    { 0, "STANDING" },
-    { 1, "IMMEDIATE" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/SupportDataEncoding:1.0
- */
-static const value_string GIAS_SupportDataEncoding[] = {
-
-    { 0, "ASCII" },
-    { 1, "EBCDIC" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/DestinationType:1.0
- */
-static const value_string GIAS_DestinationType[] = {
-
-    { 0, "FTP" },
-    { 1, "EMAIL" },
-    { 2, "PHYSICAL" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/ConceptualAttributeType:1.0
- */
-static const value_string GIAS_ConceptualAttributeType[] = {
-
-    { 0, "FOOTPRINT" },
-    { 1, "CLASSIFICATION" },
-    { 2, "OVERVIEW" },
-    { 3, "THUMBNAIL" },
-    { 4, "DATASETTYPE" },
-    { 5, "MODIFICATIONDATE" },
-    { 6, "PRODUCTTITLE" },
-    { 7, "DIRECTACCESS" },
-    { 8, "DIRECTACCESSPROTOCOL" },
-    { 9, "UNIQUEIDENTIFIER" },
-    { 10, "DATASIZE" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:GIAS/DomainType:1.0
- */
-static const value_string GIAS_DomainType[] = {
-
-    { 0, "DATE_VALUE" },
-    { 1, "TEXT_VALUE" },
-    { 2, "INTEGER_VALUE" },
-    { 3, "FLOATING_POINT_VALUE" },
-    { 4, "LIST" },
-    { 5, "ORDERED_LIST" },
-    { 6, "INTEGER_RANGE" },
-    { 7, "FLOATING_POINT_RANGE" },
-    { 8, "GEOGRAPHIC" },
-    { 9, "INTEGER_SET" },
-    { 10, "FLOATING_POINT_SET" },
-    { 11, "GEOGRAPHIC_SET" },
-    { 12, "BINARY_DATA" },
-    { 13, "BOOLEAN_VALUE" },
+    { 0, "MANDATORY" },
+    { 1, "OPTIONAL" },
     { 0,       NULL },
 };
 
@@ -799,62 +687,178 @@ static const value_string GIAS_AttributeType[] = {
 };
 
 /*
- * Enum = IDL:GIAS/RequirementMode:1.0
+ * Enum = IDL:GIAS/DomainType:1.0
  */
-static const value_string GIAS_RequirementMode[] = {
+static const value_string GIAS_DomainType[] = {
 
-    { 0, "MANDATORY" },
-    { 1, "OPTIONAL" },
+    { 0, "DATE_VALUE" },
+    { 1, "TEXT_VALUE" },
+    { 2, "INTEGER_VALUE" },
+    { 3, "FLOATING_POINT_VALUE" },
+    { 4, "LIST" },
+    { 5, "ORDERED_LIST" },
+    { 6, "INTEGER_RANGE" },
+    { 7, "FLOATING_POINT_RANGE" },
+    { 8, "GEOGRAPHIC" },
+    { 9, "INTEGER_SET" },
+    { 10, "FLOATING_POINT_SET" },
+    { 11, "GEOGRAPHIC_SET" },
+    { 12, "BINARY_DATA" },
+    { 13, "BOOLEAN_VALUE" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:GIAS/NamedEventType:1.0
+ * Enum = IDL:GIAS/ConceptualAttributeType:1.0
  */
-static const value_string GIAS_NamedEventType[] = {
+static const value_string GIAS_ConceptualAttributeType[] = {
 
-    { 0, "START_EVENT" },
-    { 1, "STOP_EVENT" },
-    { 2, "FREQUENCY_EVENT" },
+    { 0, "FOOTPRINT" },
+    { 1, "CLASSIFICATION" },
+    { 2, "OVERVIEW" },
+    { 3, "THUMBNAIL" },
+    { 4, "DATASETTYPE" },
+    { 5, "MODIFICATIONDATE" },
+    { 6, "PRODUCTTITLE" },
+    { 7, "DIRECTACCESS" },
+    { 8, "DIRECTACCESSPROTOCOL" },
+    { 9, "UNIQUEIDENTIFIER" },
+    { 10, "DATASIZE" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:GIAS/DayEvent:1.0
+ * Enum = IDL:GIAS/DestinationType:1.0
  */
-static const value_string GIAS_DayEvent[] = {
+static const value_string GIAS_DestinationType[] = {
 
-    { 0, "MON" },
-    { 1, "TUE" },
-    { 2, "WED" },
-    { 3, "THU" },
-    { 4, "FRI" },
-    { 5, "SAT" },
-    { 6, "SUN" },
-    { 7, "FIRST_OF_MONTH" },
-    { 8, "END_OF_MONTH" },
+    { 0, "FTP" },
+    { 1, "EMAIL" },
+    { 2, "PHYSICAL" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:GIAS/LifeEventType:1.0
+ * Enum = IDL:GIAS/SupportDataEncoding:1.0
  */
-static const value_string GIAS_LifeEventType[] = {
+static const value_string GIAS_SupportDataEncoding[] = {
 
-    { 0, "ABSOLUTE_TIME" },
-    { 1, "DAY_EVENT_TIME" },
-    { 2, "NAMED_EVENT" },
-    { 3, "RELATIVE_TIME" },
+    { 0, "ASCII" },
+    { 1, "EBCDIC" },
     { 0,       NULL },
 };
 
 /*
- * Enum = IDL:GIAS/Polarity:1.0
+ * Enum = IDL:GIAS/OrderType:1.0
  */
-static const value_string GIAS_Polarity[] = {
+static const value_string GIAS_OrderType[] = {
 
-    { 0, "ASCENDING" },
-    { 1, "DESCENDING" },
+    { 0, "STANDING" },
+    { 1, "IMMEDIATE" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:GIAS/AvailabilityRequirement:1.0
+ */
+static const value_string GIAS_AvailabilityRequirement[] = {
+
+    { 0, "REQUIRED" },
+    { 1, "NOT_REQUIRED" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:GIAS/GeoRegionType:1.0
+ */
+static const value_string GIAS_GeoRegionType[] = {
+
+    { 0, "LINE_SAMPLE_FULL" },
+    { 1, "LINE_SAMPLE_CHIP" },
+    { 2, "LAT_LON" },
+    { 3, "ALL" },
+    { 4, "NULL_REGION" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:UCO/State:1.0
+ */
+static const value_string UCO_State[] = {
+
+    { 0, "COMPLETED" },
+    { 1, "IN_PROGRESS" },
+    { 2, "ABORTED" },
+    { 3, "CANCELED" },
+    { 4, "PENDING" },
+    { 5, "SUSPENDED" },
+    { 6, "RESULTS_AVAILABLE" },
+    { 7, "TRANSFER_COMPLETE" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:UCO/BufferType:1.0
+ */
+static const value_string UCO_BufferType[] = {
+
+    { 0, "OCTET_DATA" },
+    { 1, "CHAR_DATA" },
+    { 2, "SHORT_DATA" },
+    { 3, "USHORT_DATA" },
+    { 4, "LONG_DATA" },
+    { 5, "ULONG_DATA" },
+    { 6, "FLOAT_DATA" },
+    { 7, "DOUBLE_DATA" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:UCO/ChangeType:1.0
+ */
+static const value_string UCO_ChangeType[] = {
+
+    { 0, "ADD_CHANGE" },
+    { 1, "UPDATE_CHANGE" },
+    { 2, "DELETE_CHANGE" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:UCO/Cardinality:1.0
+ */
+static const value_string UCO_Cardinality[] = {
+
+    { 0, "ONE_TO_ONE" },
+    { 1, "ONE_TO_MANY" },
+    { 2, "MANY_TO_ONE" },
+    { 3, "MANY_TO_MANY" },
+    { 4, "ONE_TO_ZERO_OR_MORE" },
+    { 5, "ONE_TO_ONE_OR_MORE" },
+    { 6, "ONE_TO_ZERO_OR_ONE" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:UCO/NodeType:1.0
+ */
+static const value_string UCO_NodeType[] = {
+
+    { 0, "ROOT_NODE" },
+    { 1, "ENTITY_NODE" },
+    { 2, "RECORD_NODE" },
+    { 3, "ATTRIBUTE_NODE" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:UCO/Protocol:1.0
+ */
+static const value_string UCO_Protocol[] = {
+
+    { 0, "HTTP" },
+    { 1, "FTP" },
+    { 2, "FILE" },
     { 0,       NULL },
 };
 
@@ -865,51 +869,65 @@ static const value_string GIAS_Polarity[] = {
 /*  Begin Exception Helper Functions  */
 
 
-/* Exception = IDL:UCO/InvalidInputParameter:1.0 */
-static void
-decode_ex_UCO_InvalidInputParameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item = NULL;
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_InvalidInputParameter_badInputParameters;
-    guint32   i_UCO_InvalidInputParameter_badInputParameters;
-    /* Operation specific Variable declarations End */
-
-    /*  Begin struct "UCO_exception_details"  */
-    decode_UCO_exception_details_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_exception_details"  */
-    u_octet4_loop_UCO_InvalidInputParameter_badInputParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_InvalidInputParameter_badInputParameters_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_InvalidInputParameter_badInputParameters);
-
-    for (i_UCO_InvalidInputParameter_badInputParameters=0; i_UCO_InvalidInputParameter_badInputParameters < u_octet4_loop_UCO_InvalidInputParameter_badInputParameters; i_UCO_InvalidInputParameter_badInputParameters++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_InvalidInputParameter_badInputParameters);
-
-    }
-
-}
-
 /* Exception = IDL:UCO/ProcessingFault:1.0 */
 static void
-decode_ex_UCO_ProcessingFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_UCO_ProcessingFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item *item = NULL;
 
-    /*  Begin struct "UCO_exception_details"  */
-    decode_UCO_exception_details_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_exception_details"  */
+    proto_item *item = wmem_new0(pinfo->pool, proto_item);
+
+    { /*  Begin struct "UCO_exception_details"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_exception_details");
+
+    decode_UCO_exception_details_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_exception_details"  */
 }
 
 /* Exception = IDL:UCO/SystemFault:1.0 */
 static void
-decode_ex_UCO_SystemFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_UCO_SystemFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item *item = NULL;
 
-    /*  Begin struct "UCO_exception_details"  */
-    decode_UCO_exception_details_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_exception_details"  */
+    proto_item *item = wmem_new0(pinfo->pool, proto_item);
+
+    { /*  Begin struct "UCO_exception_details"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_exception_details");
+
+    decode_UCO_exception_details_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_exception_details"  */
+}
+
+/* Exception = IDL:UCO/InvalidInputParameter:1.0 */
+static void
+decode_ex_UCO_InvalidInputParameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_item *item = wmem_new0(pinfo->pool, proto_item);
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_UCO_InvalidInputParameter_badInputParameters;
+    uint32_t  i_UCO_InvalidInputParameter_badInputParameters;
+    /* Operation specific Variable declarations End */
+
+    { /*  Begin struct "UCO_exception_details"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_exception_details");
+
+    decode_UCO_exception_details_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_exception_details"  */
+    u_octet4_loop_UCO_InvalidInputParameter_badInputParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_InvalidInputParameter_badInputParameters_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_InvalidInputParameter_badInputParameters);
+
+    {
+        proto_tree *tree_bak_BvgfeZ0bv0qS = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_InvalidInputParameter_badInputParameters");
+        for (i_UCO_InvalidInputParameter_badInputParameters=0; i_UCO_InvalidInputParameter_badInputParameters < u_octet4_loop_UCO_InvalidInputParameter_badInputParameters; i_UCO_InvalidInputParameter_badInputParameters++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_InvalidInputParameter_badInputParameters);
+
+        }
+        tree = tree_bak_BvgfeZ0bv0qS;
+    }
+
 }
 
 
@@ -919,59 +937,54 @@ decode_ex_UCO_SystemFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
  * Main delegator for exception handling
  *
  */
-static gboolean
-decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+static bool
+decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_tree *tree _U_;
 
     if (!header->exception_id)
-        return FALSE;
-
-    if (strcmp(header->exception_id, "IDL:UCO/InvalidInputParameter:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_UCO_InvalidInputParameter(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:UCO/InvalidInputParameter:1.0  */
-        return TRUE;
-    }
+        return false;
 
     if (strcmp(header->exception_id, "IDL:UCO/ProcessingFault:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
         decode_ex_UCO_ProcessingFault(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:UCO/ProcessingFault:1.0  */
-        return TRUE;
+        return true;
     }
 
     if (strcmp(header->exception_id, "IDL:UCO/SystemFault:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
         decode_ex_UCO_SystemFault(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:UCO/SystemFault:1.0  */
-        return TRUE;
+        return true;
+    }
+
+    if (strcmp(header->exception_id, "IDL:UCO/InvalidInputParameter:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_UCO_InvalidInputParameter(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:UCO/InvalidInputParameter:1.0  */
+        return true;
     }
 
 
-    return FALSE;    /* user exception not found */
+    return false;    /* user exception not found */
 }
 
 /*
- * IDL:CB/Callback/notify:1.0
+ * IDL:GIAS/UpdateByQueryRequest/complete:1.0
  */
 static void
-decode_CB_Callback_notify(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_UpdateByQueryRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_CB_Callback_notify_theState, tvb, *offset-4, 4, u_octet4);
-
-        /*  Begin struct "UCO_RequestDescription"  */
-        decode_UCO_RequestDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_RequestDescription"  */
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            /* Function returns void */
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_UpdateByQueryRequest_complete_return, tvb, *offset-4, 4, u_octet4);
 
             break;
         case USER_EXCEPTION:
@@ -991,18 +1004,23 @@ decode_CB_Callback_notify(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 }
 
 /*
- * IDL:CB/Callback/release:1.0
+ * IDL:GIAS/CreateAssociationRequest/complete:1.0
  */
 static void
-decode_CB_Callback_release(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_CreateAssociationRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
     switch(header->message_type) {
     case Request:
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            /* Function returns void */
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_CreateAssociationRequest_complete_return, tvb, *offset-4, 4, u_octet4);
 
             break;
         case USER_EXCEPTION:
@@ -1022,14 +1040,15 @@ decode_CB_Callback_release(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 }
 
 /*
- * IDL:GIAS/Library/get_manager_types:1.0
+ * IDL:GIAS/GetRelatedFilesRequest/complete:1.0
  */
 static void
-decode_GIAS_Library_get_manager_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_GetRelatedFilesRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_Library_get_manager_types_return;
-    guint32   i_GIAS_Library_get_manager_types_return;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations;
+    uint32_t  i_GIAS_GetRelatedFilesRequest_complete_locations;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
@@ -1038,13 +1057,21 @@ decode_GIAS_Library_get_manager_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_GIAS_Library_get_manager_types_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_Library_get_manager_types_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Library_get_manager_types_return);
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_GetRelatedFilesRequest_complete_return, tvb, *offset-4, 4, u_octet4);
 
-            for (i_GIAS_Library_get_manager_types_return=0; i_GIAS_Library_get_manager_types_return < u_octet4_loop_GIAS_Library_get_manager_types_return; i_GIAS_Library_get_manager_types_return++) {
+            u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_GetRelatedFilesRequest_complete_locations_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations);
 
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Library_get_manager_types_return);
+            {
+                proto_tree *tree_bak_AqsKG9XiGHCd = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_GetRelatedFilesRequest_complete_locations");
+                for (i_GIAS_GetRelatedFilesRequest_complete_locations=0; i_GIAS_GetRelatedFilesRequest_complete_locations < u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations; i_GIAS_GetRelatedFilesRequest_complete_locations++) {
 
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_GetRelatedFilesRequest_complete_locations);
+
+                }
+                tree = tree_bak_AqsKG9XiGHCd;
             }
 
             break;
@@ -1065,18 +1092,1217 @@ decode_GIAS_Library_get_manager_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 /*
- * IDL:GIAS/Library/get_manager:1.0
+ * IDL:GIAS/IngestRequest/complete:1.0
  */
 static void
-decode_GIAS_Library_get_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_IngestRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_IngestRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/GetParametersRequest/complete_StringDAG:1.0
+ */
+static void
+decode_GIAS_GetParametersRequest_complete_StringDAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_GetParametersRequest_complete_StringDAG_return, tvb, *offset-4, 4, u_octet4);
+
+            { /*  Begin struct "UCO_StringDAG"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_StringDAG");
+
+            decode_UCO_StringDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_StringDAG"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/GetParametersRequest/complete:1.0
+ */
+static void
+decode_GIAS_GetParametersRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_GetParametersRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            { /*  Begin struct "UCO_DAG"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_DAG");
+
+            decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_DAG"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/HitCountRequest/complete:1.0
+ */
+static void
+decode_GIAS_HitCountRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_HitCountRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            proto_tree_add_uint(tree, hf_GIAS_HitCountRequest_complete_number_of_hits, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SetAvailabilityRequest/complete:1.0
+ */
+static void
+decode_GIAS_SetAvailabilityRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SetAvailabilityRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/complete_XML_results:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_complete_XML_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_return, tvb, *offset-4, 4, u_octet4);
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_results);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/complete_stringDAG_results:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results;
+    uint32_t  i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_return, tvb, *offset-4, 4, u_octet4);
+
+            u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results);
+
+            {
+                proto_tree *tree_bak_uNgxCuWTQvLk = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results");
+                for (i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results=0; i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results < u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results; i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results++) {
+
+                    { /*  Begin struct "UCO_StringDAG"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_StringDAG");
+
+                    decode_UCO_StringDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "UCO_StringDAG"  */
+                }
+                tree = tree_bak_uNgxCuWTQvLk;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/complete_DAG_results:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results;
+    uint32_t  i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_return, tvb, *offset-4, 4, u_octet4);
+
+            u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results);
+
+            {
+                proto_tree *tree_bak_C5IZj37UGrw1 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitStandingQueryRequest_complete_DAG_results_results");
+                for (i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results=0; i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results < u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results; i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results++) {
+
+                    { /*  Begin struct "UCO_DAG"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_DAG");
+
+                    decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "UCO_DAG"  */
+                }
+                tree = tree_bak_C5IZj37UGrw1;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/get_time_next_execution:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_get_time_next_execution(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     switch(header->message_type) {
     case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Library_get_manager_manager_type);
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "UCO_AbsTime"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
 
-        /*  Begin struct "GIAS_AccessCriteria"  */
-        decode_GIAS_AccessCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_AccessCriteria"  */
+            decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_AbsTime"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/get_time_last_executed:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_get_time_last_executed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "UCO_AbsTime"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
+
+            decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_AbsTime"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/resume:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_resume(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/pause:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_pause(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/clear_before:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_clear_before(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "UCO_Time"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Time");
+
+        decode_UCO_Time_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_Time"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/clear_intervals:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_clear_intervals(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_clear_intervals_num_intervals, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/clear_all:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_clear_all(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/get_number_of_intervals:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_get_number_of_intervals(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_intervals_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/get_number_of_hits_in_interval:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_interval, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/get_number_of_hits:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitStandingQueryRequest/set_number_of_hits:1.0
+ */
+static void
+decode_GIAS_SubmitStandingQueryRequest_set_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_set_number_of_hits_hits, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryRequest/complete_XML_results:1.0
+ */
+static void
+decode_GIAS_SubmitQueryRequest_complete_XML_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_XML_results_return, tvb, *offset-4, 4, u_octet4);
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_SubmitQueryRequest_complete_XML_results_results);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryRequest/complete_stringDAG_results:1.0
+ */
+static void
+decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results;
+    uint32_t  i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_return, tvb, *offset-4, 4, u_octet4);
+
+            u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results);
+
+            {
+                proto_tree *tree_bak_BKnVMePZXtbh = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitQueryRequest_complete_stringDAG_results_results");
+                for (i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results=0; i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results < u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results; i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results++) {
+
+                    { /*  Begin struct "UCO_StringDAG"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_StringDAG");
+
+                    decode_UCO_StringDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "UCO_StringDAG"  */
+                }
+                tree = tree_bak_BKnVMePZXtbh;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryRequest/complete_DAG_results:1.0
+ */
+static void
+decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results;
+    uint32_t  i_GIAS_SubmitQueryRequest_complete_DAG_results_results;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_DAG_results_return, tvb, *offset-4, 4, u_octet4);
+
+            u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results);
+
+            {
+                proto_tree *tree_bak_PC2mFJ2r0iY3 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitQueryRequest_complete_DAG_results_results");
+                for (i_GIAS_SubmitQueryRequest_complete_DAG_results_results=0; i_GIAS_SubmitQueryRequest_complete_DAG_results_results < u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results; i_GIAS_SubmitQueryRequest_complete_DAG_results_results++) {
+
+                    { /*  Begin struct "UCO_DAG"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_DAG");
+
+                    decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "UCO_DAG"  */
+                }
+                tree = tree_bak_PC2mFJ2r0iY3;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryRequest/set_number_of_hits:1.0
+ */
+static void
+decode_GIAS_SubmitQueryRequest_set_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_set_number_of_hits_hits, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/UpdateRequest/complete:1.0
+ */
+static void
+decode_GIAS_UpdateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_UpdateRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/CreateMetaDataRequest/complete:1.0
+ */
+static void
+decode_GIAS_CreateMetaDataRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_CreateMetaDataRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/CreateRequest/complete:1.0
+ */
+static void
+decode_GIAS_CreateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_CreateRequest_complete_new_products;
+    uint32_t  i_GIAS_CreateRequest_complete_new_products;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_CreateRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            u_octet4_loop_GIAS_CreateRequest_complete_new_products = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_CreateRequest_complete_new_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreateRequest_complete_new_products);
+
+            {
+                proto_tree *tree_bak_nD9BPXJyhSPP = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreateRequest_complete_new_products");
+                for (i_GIAS_CreateRequest_complete_new_products=0; i_GIAS_CreateRequest_complete_new_products < u_octet4_loop_GIAS_CreateRequest_complete_new_products; i_GIAS_CreateRequest_complete_new_products++) {
+
+                    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+                }
+                tree = tree_bak_nD9BPXJyhSPP;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryOrderRequest/complete:1.0
+ */
+static void
+decode_GIAS_SubmitQueryOrderRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            { /*  Begin struct "GIAS_DeliveryManifest"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DeliveryManifest");
+
+            decode_GIAS_DeliveryManifest_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_DeliveryManifest"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryOrderRequest/complete_list:1.0
+ */
+static void
+decode_GIAS_SubmitQueryOrderRequest_complete_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods;
+    uint32_t  i_GIAS_SubmitQueryOrderRequest_complete_list_prods;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_list_return, tvb, *offset-4, 4, u_octet4);
+
+            u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods);
+
+            {
+                proto_tree *tree_bak_PqNVwTKcU5vh = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitQueryOrderRequest_complete_list_prods");
+                for (i_GIAS_SubmitQueryOrderRequest_complete_list_prods=0; i_GIAS_SubmitQueryOrderRequest_complete_list_prods < u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods; i_GIAS_SubmitQueryOrderRequest_complete_list_prods++) {
+
+                    { /*  Begin struct "GIAS_DeliveryManifest"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DeliveryManifest");
+
+                    decode_GIAS_DeliveryManifest_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_DeliveryManifest"  */
+                }
+                tree = tree_bak_PqNVwTKcU5vh;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryOrderRequest/resume:1.0
+ */
+static void
+decode_GIAS_SubmitQueryOrderRequest_resume(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/SubmitQueryOrderRequest/pause:1.0
+ */
+static void
+decode_GIAS_SubmitQueryOrderRequest_pause(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/OrderRequest/complete:1.0
+ */
+static void
+decode_GIAS_OrderRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_OrderRequest_complete_return, tvb, *offset-4, 4, u_octet4);
+
+            { /*  Begin struct "GIAS_DeliveryManifest"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DeliveryManifest");
+
+            decode_GIAS_DeliveryManifest_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_DeliveryManifest"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Request/get_request_manager:1.0
+ */
+static void
+decode_GIAS_Request_get_request_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
         break;
     case Reply:
         switch(header->rep_status) {
@@ -1101,20 +2327,21 @@ decode_GIAS_Library_get_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 /*
- * IDL:GIAS/Library/get_library_description:1.0
+ * IDL:GIAS/Request/free_callback:1.0
  */
 static void
-decode_GIAS_Library_get_library_description(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_Request_free_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     switch(header->message_type) {
     case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Request_free_callback_id);
+
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            /*  Begin struct "GIAS_LibraryDescription"  */
-            decode_GIAS_LibraryDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_LibraryDescription"  */
+            /* Function returns void */
+
             break;
         case USER_EXCEPTION:
             break;
@@ -1133,132 +2360,249 @@ decode_GIAS_Library_get_library_description(tvbuff_t *tvb _U_, packet_info *pinf
 }
 
 /*
- * IDL:GIAS/Library/get_other_libraries:1.0
+ * IDL:GIAS/Request/register_callback:1.0
  */
 static void
-decode_GIAS_Library_get_other_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_Request_register_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_Library_get_other_libraries_return;
-    guint32   i_GIAS_Library_get_other_libraries_return;
-    /* Operation specific Variable declarations End */
-
     switch(header->message_type) {
     case Request:
-        /*  Begin struct "GIAS_AccessCriteria"  */
-        decode_GIAS_AccessCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_AccessCriteria"  */
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_GIAS_Library_get_other_libraries_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_Library_get_other_libraries_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Library_get_other_libraries_return);
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Request_register_callback_return);
 
-            for (i_GIAS_Library_get_other_libraries_return=0; i_GIAS_Library_get_other_libraries_return < u_octet4_loop_GIAS_Library_get_other_libraries_return; i_GIAS_Library_get_other_libraries_return++) {
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
 
-                /*  Begin struct "GIAS_LibraryDescription"  */
-                decode_GIAS_LibraryDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_LibraryDescription"  */
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Request/cancel:1.0
+ */
+static void
+decode_GIAS_Request_cancel(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Request/get_remaining_delay:1.0
+ */
+static void
+decode_GIAS_Request_get_remaining_delay(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "GIAS_DelayEstimate"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DelayEstimate");
+
+            decode_GIAS_DelayEstimate_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_DelayEstimate"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Request/get_status:1.0
+ */
+static void
+decode_GIAS_Request_get_status(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "UCO_Status"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Status");
+
+            decode_UCO_Status_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_Status"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Request/set_user_info:1.0
+ */
+static void
+decode_GIAS_Request_set_user_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Request_set_user_info_message);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Request/get_request_description:1.0
+ */
+static void
+decode_GIAS_Request_get_request_description(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "UCO_RequestDescription"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_RequestDescription");
+
+            decode_UCO_RequestDescription_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_RequestDescription"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/IngestMgr/bulk_push:1.0
+ */
+static void
+decode_GIAS_IngestMgr_bulk_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list;
+    uint32_t  i_GIAS_IngestMgr_bulk_push_property_list;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_Query"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Query");
+
+        decode_GIAS_Query_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_Query"  */
+        { /*  Begin struct "UCO_FileLocation"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+        decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_FileLocation"  */
+        u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_IngestMgr_bulk_push_property_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list);
+
+        {
+            proto_tree *tree_bak_bcH1KUOjy4Wm = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_IngestMgr_bulk_push_property_list");
+            for (i_GIAS_IngestMgr_bulk_push_property_list=0; i_GIAS_IngestMgr_bulk_push_property_list < u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list; i_GIAS_IngestMgr_bulk_push_property_list++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
             }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/LibraryManager/get_property_names:1.0
- */
-static void
-decode_GIAS_LibraryManager_get_property_names(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_LibraryManager_get_property_names_return;
-    guint32   i_GIAS_LibraryManager_get_property_names_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_LibraryManager_get_property_names_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_names_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_names_return);
-
-            for (i_GIAS_LibraryManager_get_property_names_return=0; i_GIAS_LibraryManager_get_property_names_return < u_octet4_loop_GIAS_LibraryManager_get_property_names_return; i_GIAS_LibraryManager_get_property_names_return++) {
-
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryManager_get_property_names_return);
-
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/LibraryManager/get_property_values:1.0
- */
-static void
-decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties;
-    guint32   i_GIAS_LibraryManager_get_property_values_desired_properties;
-    guint32   u_octet4_loop_GIAS_LibraryManager_get_property_values_return;
-    guint32   i_GIAS_LibraryManager_get_property_values_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_values_desired_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties);
-
-        for (i_GIAS_LibraryManager_get_property_values_desired_properties=0; i_GIAS_LibraryManager_get_property_values_desired_properties < u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties; i_GIAS_LibraryManager_get_property_values_desired_properties++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryManager_get_property_values_desired_properties);
-
+            tree = tree_bak_bcH1KUOjy4Wm;
         }
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_GIAS_LibraryManager_get_property_values_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_values_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_values_return);
-
-            for (i_GIAS_LibraryManager_get_property_values_return=0; i_GIAS_LibraryManager_get_property_values_return < u_octet4_loop_GIAS_LibraryManager_get_property_values_return; i_GIAS_LibraryManager_get_property_values_return++) {
-
-                /*  Begin struct "UCO_NameValue"  */
-                decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "UCO_NameValue"  */
-            }
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             break;
         case USER_EXCEPTION:
@@ -1278,30 +2622,121 @@ decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *p
 }
 
 /*
- * IDL:GIAS/LibraryManager/get_libraries:1.0
+ * IDL:GIAS/IngestMgr/bulk_pull:1.0
  */
 static void
-decode_GIAS_LibraryManager_get_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_IngestMgr_bulk_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_LibraryManager_get_libraries_return;
-    guint32   i_GIAS_LibraryManager_get_libraries_return;
+    uint32_t  u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list;
+    uint32_t  i_GIAS_IngestMgr_bulk_pull_property_list;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
+        { /*  Begin struct "UCO_FileLocation"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+        decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_FileLocation"  */
+        u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_IngestMgr_bulk_pull_property_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list);
+
+        {
+            proto_tree *tree_bak_pHlpTbcRtbUJ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_IngestMgr_bulk_pull_property_list");
+            for (i_GIAS_IngestMgr_bulk_pull_property_list=0; i_GIAS_IngestMgr_bulk_pull_property_list < u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list; i_GIAS_IngestMgr_bulk_pull_property_list++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_pHlpTbcRtbUJ;
+        }
+
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_GIAS_LibraryManager_get_libraries_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_libraries_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_libraries_return);
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-            for (i_GIAS_LibraryManager_get_libraries_return=0; i_GIAS_LibraryManager_get_libraries_return < u_octet4_loop_GIAS_LibraryManager_get_libraries_return; i_GIAS_LibraryManager_get_libraries_return++) {
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/ProductMgr/get_related_files:1.0
+ */
+static void
+decode_GIAS_ProductMgr_get_related_files(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_ProductMgr_get_related_files_products;
+    uint32_t  i_GIAS_ProductMgr_get_related_files_products;
+    uint32_t  u_octet4_loop_GIAS_ProductMgr_get_related_files_properties;
+    uint32_t  i_GIAS_ProductMgr_get_related_files_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_ProductMgr_get_related_files_products = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_files_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_files_products);
+
+        {
+            proto_tree *tree_bak_Qjh1O2FkzpUF = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_related_files_products");
+            for (i_GIAS_ProductMgr_get_related_files_products=0; i_GIAS_ProductMgr_get_related_files_products < u_octet4_loop_GIAS_ProductMgr_get_related_files_products; i_GIAS_ProductMgr_get_related_files_products++) {
 
                 get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             }
+            tree = tree_bak_Qjh1O2FkzpUF;
+        }
+
+        { /*  Begin struct "UCO_FileLocation"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+        decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_FileLocation"  */
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_related_files_type);
+
+        u_octet4_loop_GIAS_ProductMgr_get_related_files_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_files_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_files_properties);
+
+        {
+            proto_tree *tree_bak_hb39D8HCxHd9 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_related_files_properties");
+            for (i_GIAS_ProductMgr_get_related_files_properties=0; i_GIAS_ProductMgr_get_related_files_properties < u_octet4_loop_GIAS_ProductMgr_get_related_files_properties; i_GIAS_ProductMgr_get_related_files_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_hb39D8HCxHd9;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             break;
         case USER_EXCEPTION:
@@ -1321,14 +2756,233 @@ decode_GIAS_LibraryManager_get_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _
 }
 
 /*
- * IDL:GIAS/RequestManager/get_active_requests:1.0
+ * IDL:GIAS/ProductMgr/get_related_file_types:1.0
  */
 static void
-decode_GIAS_RequestManager_get_active_requests(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_ProductMgr_get_related_file_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_RequestManager_get_active_requests_return;
-    guint32   i_GIAS_RequestManager_get_active_requests_return;
+    uint32_t  u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return;
+    uint32_t  i_GIAS_ProductMgr_get_related_file_types_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_file_types_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return);
+
+            {
+                proto_tree *tree_bak_FuW7fOXMFJBl = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_related_file_types_return");
+                for (i_GIAS_ProductMgr_get_related_file_types_return=0; i_GIAS_ProductMgr_get_related_file_types_return < u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return; i_GIAS_ProductMgr_get_related_file_types_return++) {
+
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_related_file_types_return);
+
+                }
+                tree = tree_bak_FuW7fOXMFJBl;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/ProductMgr/get_parameters:1.0
+ */
+static void
+decode_GIAS_ProductMgr_get_parameters(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters;
+    uint32_t  i_GIAS_ProductMgr_get_parameters_desired_parameters;
+    uint32_t  u_octet4_loop_GIAS_ProductMgr_get_parameters_properties;
+    uint32_t  i_GIAS_ProductMgr_get_parameters_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters);
+
+        {
+            proto_tree *tree_bak_ZosekAIH2yjI = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_parameters_desired_parameters");
+            for (i_GIAS_ProductMgr_get_parameters_desired_parameters=0; i_GIAS_ProductMgr_get_parameters_desired_parameters < u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters; i_GIAS_ProductMgr_get_parameters_desired_parameters++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_parameters_desired_parameters);
+
+            }
+            tree = tree_bak_ZosekAIH2yjI;
+        }
+
+        u_octet4_loop_GIAS_ProductMgr_get_parameters_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_parameters_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_parameters_properties);
+
+        {
+            proto_tree *tree_bak_7dTawkRRrTga = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_parameters_properties");
+            for (i_GIAS_ProductMgr_get_parameters_properties=0; i_GIAS_ProductMgr_get_parameters_properties < u_octet4_loop_GIAS_ProductMgr_get_parameters_properties; i_GIAS_ProductMgr_get_parameters_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_7dTawkRRrTga;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/StandingQueryMgr/submit_standing_query:1.0
+ */
+static void
+decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
+    uint32_t  i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
+    uint32_t  u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes;
+    uint32_t  i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes;
+    uint32_t  u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties;
+    uint32_t  i_GIAS_StandingQueryMgr_submit_standing_query_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_Query"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Query");
+
+        decode_GIAS_Query_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_Query"  */
+        u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes);
+
+        {
+            proto_tree *tree_bak_AP7L3BT16cn3 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_submit_standing_query_result_attributes");
+            for (i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes=0; i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes; i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes);
+
+            }
+            tree = tree_bak_AP7L3BT16cn3;
+        }
+
+        u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes);
+
+        {
+            proto_tree *tree_bak_cF4S9Cpj6rTh = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_submit_standing_query_sort_attributes");
+            for (i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes=0; i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes; i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes++) {
+
+                { /*  Begin struct "GIAS_SortAttribute"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_SortAttribute");
+
+                decode_GIAS_SortAttribute_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_SortAttribute"  */
+            }
+            tree = tree_bak_cF4S9Cpj6rTh;
+        }
+
+        { /*  Begin struct "GIAS_QueryLifeSpan"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_QueryLifeSpan");
+
+        decode_GIAS_QueryLifeSpan_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_QueryLifeSpan"  */
+        u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties);
+
+        {
+            proto_tree *tree_bak_KFHQ5H7mUU8O = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_submit_standing_query_properties");
+            for (i_GIAS_StandingQueryMgr_submit_standing_query_properties=0; i_GIAS_StandingQueryMgr_submit_standing_query_properties < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties; i_GIAS_StandingQueryMgr_submit_standing_query_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_KFHQ5H7mUU8O;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/StandingQueryMgr/get_event_descriptions:1.0
+ */
+static void
+decode_GIAS_StandingQueryMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return;
+    uint32_t  i_GIAS_StandingQueryMgr_get_event_descriptions_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
@@ -1337,78 +2991,501 @@ decode_GIAS_RequestManager_get_active_requests(tvbuff_t *tvb _U_, packet_info *p
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_GIAS_RequestManager_get_active_requests_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_active_requests_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_RequestManager_get_active_requests_return);
+            u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return);
 
-            for (i_GIAS_RequestManager_get_active_requests_return=0; i_GIAS_RequestManager_get_active_requests_return < u_octet4_loop_GIAS_RequestManager_get_active_requests_return; i_GIAS_RequestManager_get_active_requests_return++) {
+            {
+                proto_tree *tree_bak_N7TYg2TUGG6w = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_get_event_descriptions_return");
+                for (i_GIAS_StandingQueryMgr_get_event_descriptions_return=0; i_GIAS_StandingQueryMgr_get_event_descriptions_return < u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return; i_GIAS_StandingQueryMgr_get_event_descriptions_return++) {
+
+                    { /*  Begin struct "GIAS_Event"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Event");
+
+                    decode_GIAS_Event_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_Event"  */
+                }
+                tree = tree_bak_N7TYg2TUGG6w;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/CatalogMgr/hit_count:1.0
+ */
+static void
+decode_GIAS_CatalogMgr_hit_count(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_CatalogMgr_hit_count_properties;
+    uint32_t  i_GIAS_CatalogMgr_hit_count_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_Query"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Query");
+
+        decode_GIAS_Query_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_Query"  */
+        u_octet4_loop_GIAS_CatalogMgr_hit_count_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_hit_count_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_hit_count_properties);
+
+        {
+            proto_tree *tree_bak_utUoF2RwynCZ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_hit_count_properties");
+            for (i_GIAS_CatalogMgr_hit_count_properties=0; i_GIAS_CatalogMgr_hit_count_properties < u_octet4_loop_GIAS_CatalogMgr_hit_count_properties; i_GIAS_CatalogMgr_hit_count_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_utUoF2RwynCZ;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/CatalogMgr/submit_query:1.0
+ */
+static void
+decode_GIAS_CatalogMgr_submit_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes;
+    uint32_t  i_GIAS_CatalogMgr_submit_query_result_attributes;
+    uint32_t  u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes;
+    uint32_t  i_GIAS_CatalogMgr_submit_query_sort_attributes;
+    uint32_t  u_octet4_loop_GIAS_CatalogMgr_submit_query_properties;
+    uint32_t  i_GIAS_CatalogMgr_submit_query_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_Query"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Query");
+
+        decode_GIAS_Query_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_Query"  */
+        u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_result_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes);
+
+        {
+            proto_tree *tree_bak_xr0IrPfIBaHm = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_submit_query_result_attributes");
+            for (i_GIAS_CatalogMgr_submit_query_result_attributes=0; i_GIAS_CatalogMgr_submit_query_result_attributes < u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes; i_GIAS_CatalogMgr_submit_query_result_attributes++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CatalogMgr_submit_query_result_attributes);
+
+            }
+            tree = tree_bak_xr0IrPfIBaHm;
+        }
+
+        u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes);
+
+        {
+            proto_tree *tree_bak_lImwg4uTilCZ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_submit_query_sort_attributes");
+            for (i_GIAS_CatalogMgr_submit_query_sort_attributes=0; i_GIAS_CatalogMgr_submit_query_sort_attributes < u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes; i_GIAS_CatalogMgr_submit_query_sort_attributes++) {
+
+                { /*  Begin struct "GIAS_SortAttribute"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_SortAttribute");
+
+                decode_GIAS_SortAttribute_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_SortAttribute"  */
+            }
+            tree = tree_bak_lImwg4uTilCZ;
+        }
+
+        u_octet4_loop_GIAS_CatalogMgr_submit_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_properties);
+
+        {
+            proto_tree *tree_bak_tAwom7MGBdaJ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_submit_query_properties");
+            for (i_GIAS_CatalogMgr_submit_query_properties=0; i_GIAS_CatalogMgr_submit_query_properties < u_octet4_loop_GIAS_CatalogMgr_submit_query_properties; i_GIAS_CatalogMgr_submit_query_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_tAwom7MGBdaJ;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/UpdateMgr/delete_product:1.0
+ */
+static void
+decode_GIAS_UpdateMgr_delete_product(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/UpdateMgr/release_lock:1.0
+ */
+static void
+decode_GIAS_UpdateMgr_release_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/UpdateMgr/update_by_query:1.0
+ */
+static void
+decode_GIAS_UpdateMgr_update_by_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties;
+    uint32_t  i_GIAS_UpdateMgr_update_by_query_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "UCO_NameValue"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+        decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_NameValue"  */
+        { /*  Begin struct "GIAS_Query"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Query");
+
+        decode_GIAS_Query_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_Query"  */
+        u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_by_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties);
+
+        {
+            proto_tree *tree_bak_maDCOZQMVGIN = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_by_query_properties");
+            for (i_GIAS_UpdateMgr_update_by_query_properties=0; i_GIAS_UpdateMgr_update_by_query_properties < u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties; i_GIAS_UpdateMgr_update_by_query_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_maDCOZQMVGIN;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/UpdateMgr/update:1.0
+ */
+static void
+decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_UpdateMgr_update_changes;
+    uint32_t  i_GIAS_UpdateMgr_update_changes;
+    uint32_t  u_octet4_loop_GIAS_UpdateMgr_update_relfiles;
+    uint32_t  i_GIAS_UpdateMgr_update_relfiles;
+    uint32_t  u_octet4_loop_GIAS_UpdateMgr_update_properties;
+    uint32_t  i_GIAS_UpdateMgr_update_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_UpdateMgr_update_view);
+
+        u_octet4_loop_GIAS_UpdateMgr_update_changes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_changes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_changes);
+
+        {
+            proto_tree *tree_bak_CY86wCvDcYUK = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_changes");
+            for (i_GIAS_UpdateMgr_update_changes=0; i_GIAS_UpdateMgr_update_changes < u_octet4_loop_GIAS_UpdateMgr_update_changes; i_GIAS_UpdateMgr_update_changes++) {
+
+                { /*  Begin struct "UCO_UpdateDAG"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_UpdateDAG");
+
+                decode_UCO_UpdateDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_UpdateDAG"  */
+            }
+            tree = tree_bak_CY86wCvDcYUK;
+        }
+
+        u_octet4_loop_GIAS_UpdateMgr_update_relfiles = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_relfiles_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_relfiles);
+
+        {
+            proto_tree *tree_bak_NJNWPYmhTymy = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_relfiles");
+            for (i_GIAS_UpdateMgr_update_relfiles=0; i_GIAS_UpdateMgr_update_relfiles < u_octet4_loop_GIAS_UpdateMgr_update_relfiles; i_GIAS_UpdateMgr_update_relfiles++) {
+
+                { /*  Begin struct "GIAS_RelatedFile"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_RelatedFile");
+
+                decode_GIAS_RelatedFile_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_RelatedFile"  */
+            }
+            tree = tree_bak_NJNWPYmhTymy;
+        }
+
+        u_octet4_loop_GIAS_UpdateMgr_update_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_properties);
+
+        {
+            proto_tree *tree_bak_eE3zVjBeQYPt = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_properties");
+            for (i_GIAS_UpdateMgr_update_properties=0; i_GIAS_UpdateMgr_update_properties < u_octet4_loop_GIAS_UpdateMgr_update_properties; i_GIAS_UpdateMgr_update_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_eE3zVjBeQYPt;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/UpdateMgr/set_lock:1.0
+ */
+static void
+decode_GIAS_UpdateMgr_set_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/CreationMgr/create_association:1.0
+ */
+static void
+decode_GIAS_CreationMgr_create_association(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects;
+    uint32_t  i_GIAS_CreationMgr_create_association_view_b_objects;
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info;
+    uint32_t  i_GIAS_CreationMgr_create_association_assoc_info;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CreationMgr_create_association_assoc_name);
+
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_association_view_b_objects_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects);
+
+        {
+            proto_tree *tree_bak_vzn0TcOJ5BXh = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_association_view_b_objects");
+            for (i_GIAS_CreationMgr_create_association_view_b_objects=0; i_GIAS_CreationMgr_create_association_view_b_objects < u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects; i_GIAS_CreationMgr_create_association_view_b_objects++) {
 
                 get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             }
+            tree = tree_bak_vzn0TcOJ5BXh;
+        }
 
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
+        u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_association_assoc_info_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info);
 
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
+        {
+            proto_tree *tree_bak_Q7GJa89Cfv3E = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_association_assoc_info");
+            for (i_GIAS_CreationMgr_create_association_assoc_info=0; i_GIAS_CreationMgr_create_association_assoc_info < u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info; i_GIAS_CreationMgr_create_association_assoc_info++) {
 
-/*
- * IDL:GIAS/RequestManager/get_default_timeout:1.0
- */
-static void
-decode_GIAS_RequestManager_get_default_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_default_timeout_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
 
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/RequestManager/set_default_timeout:1.0
- */
-static void
-decode_GIAS_RequestManager_set_default_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        proto_tree_add_uint(tree, hf_GIAS_RequestManager_set_default_timeout_new_default, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_Q7GJa89Cfv3E;
+        }
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            /* Function returns void */
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             break;
         case USER_EXCEPTION:
@@ -1428,130 +3505,284 @@ decode_GIAS_RequestManager_set_default_timeout(tvbuff_t *tvb _U_, packet_info *p
 }
 
 /*
- * IDL:GIAS/RequestManager/get_timeout:1.0
+ * IDL:GIAS/CreationMgr/create_metadata:1.0
  */
 static void
-decode_GIAS_RequestManager_get_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_timeout_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/RequestManager/set_timeout:1.0
- */
-static void
-decode_GIAS_RequestManager_set_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        proto_tree_add_uint(tree, hf_GIAS_RequestManager_set_timeout_new_lifetime, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/RequestManager/delete_request:1.0
- */
-static void
-decode_GIAS_RequestManager_delete_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/AccessManager/get_use_modes:1.0
- */
-static void
-decode_GIAS_AccessManager_get_use_modes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_CreationMgr_create_metadata(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_AccessManager_get_use_modes_return;
-    guint32   i_GIAS_AccessManager_get_use_modes_return;
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files;
+    uint32_t  i_GIAS_CreationMgr_create_metadata_related_files;
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_metadata_properties;
+    uint32_t  i_GIAS_CreationMgr_create_metadata_properties;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
+        { /*  Begin struct "UCO_DAG"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_DAG");
+
+        decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_DAG"  */
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CreationMgr_create_metadata_view_name);
+
+        u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_metadata_related_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files);
+
+        {
+            proto_tree *tree_bak_iCQmkkHz20Ic = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_metadata_related_files");
+            for (i_GIAS_CreationMgr_create_metadata_related_files=0; i_GIAS_CreationMgr_create_metadata_related_files < u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files; i_GIAS_CreationMgr_create_metadata_related_files++) {
+
+                { /*  Begin struct "GIAS_RelatedFile"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_RelatedFile");
+
+                decode_GIAS_RelatedFile_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_RelatedFile"  */
+            }
+            tree = tree_bak_iCQmkkHz20Ic;
+        }
+
+        u_octet4_loop_GIAS_CreationMgr_create_metadata_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_metadata_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_metadata_properties);
+
+        {
+            proto_tree *tree_bak_1lAmGPZ6DU1s = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_metadata_properties");
+            for (i_GIAS_CreationMgr_create_metadata_properties=0; i_GIAS_CreationMgr_create_metadata_properties < u_octet4_loop_GIAS_CreationMgr_create_metadata_properties; i_GIAS_CreationMgr_create_metadata_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_1lAmGPZ6DU1s;
+        }
+
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_GIAS_AccessManager_get_use_modes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_AccessManager_get_use_modes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_AccessManager_get_use_modes_return);
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-            for (i_GIAS_AccessManager_get_use_modes_return=0; i_GIAS_AccessManager_get_use_modes_return < u_octet4_loop_GIAS_AccessManager_get_use_modes_return; i_GIAS_AccessManager_get_use_modes_return++) {
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
 
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_get_use_modes_return);
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
 
+/*
+ * IDL:GIAS/CreationMgr/create:1.0
+ */
+static void
+decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_new_product;
+    uint32_t  i_GIAS_CreationMgr_create_new_product;
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_related_files;
+    uint32_t  i_GIAS_CreationMgr_create_related_files;
+    uint32_t  u_octet4_loop_GIAS_CreationMgr_create_properties;
+    uint32_t  i_GIAS_CreationMgr_create_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_CreationMgr_create_new_product = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_new_product_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_new_product);
+
+        {
+            proto_tree *tree_bak_OG5BaLT20iMn = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_new_product");
+            for (i_GIAS_CreationMgr_create_new_product=0; i_GIAS_CreationMgr_create_new_product < u_octet4_loop_GIAS_CreationMgr_create_new_product; i_GIAS_CreationMgr_create_new_product++) {
+
+                { /*  Begin struct "UCO_FileLocation"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+                decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_FileLocation"  */
+            }
+            tree = tree_bak_OG5BaLT20iMn;
+        }
+
+        u_octet4_loop_GIAS_CreationMgr_create_related_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_related_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_related_files);
+
+        {
+            proto_tree *tree_bak_TY8G8UFP2cdG = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_related_files");
+            for (i_GIAS_CreationMgr_create_related_files=0; i_GIAS_CreationMgr_create_related_files < u_octet4_loop_GIAS_CreationMgr_create_related_files; i_GIAS_CreationMgr_create_related_files++) {
+
+                { /*  Begin struct "GIAS_RelatedFile"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_RelatedFile");
+
+                decode_GIAS_RelatedFile_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_RelatedFile"  */
+            }
+            tree = tree_bak_TY8G8UFP2cdG;
+        }
+
+        { /*  Begin struct "UCO_DAG"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_DAG");
+
+        decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_DAG"  */
+        u_octet4_loop_GIAS_CreationMgr_create_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_properties);
+
+        {
+            proto_tree *tree_bak_AYqN849KRM36 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_properties");
+            for (i_GIAS_CreationMgr_create_properties=0; i_GIAS_CreationMgr_create_properties < u_octet4_loop_GIAS_CreationMgr_create_properties; i_GIAS_CreationMgr_create_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_AYqN849KRM36;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_max_vertices:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_max_vertices(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_max_vertices_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_max_vertices_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties);
+
+        {
+            proto_tree *tree_bak_ZZHLWXFgmUKd = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_max_vertices_properties");
+            for (i_GIAS_DataModelMgr_get_max_vertices_properties=0; i_GIAS_DataModelMgr_get_max_vertices_properties < u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties; i_GIAS_DataModelMgr_get_max_vertices_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_ZZHLWXFgmUKd;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_max_vertices_return, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_associations:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_associations_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_associations_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_associations_return;
+    uint32_t  i_GIAS_DataModelMgr_get_associations_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_DataModelMgr_get_associations_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_associations_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_associations_properties);
+
+        {
+            proto_tree *tree_bak_AMuNI9c5k0IS = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_associations_properties");
+            for (i_GIAS_DataModelMgr_get_associations_properties=0; i_GIAS_DataModelMgr_get_associations_properties < u_octet4_loop_GIAS_DataModelMgr_get_associations_properties; i_GIAS_DataModelMgr_get_associations_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_AMuNI9c5k0IS;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_DataModelMgr_get_associations_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_associations_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_associations_return);
+
+            {
+                proto_tree *tree_bak_o4IPKUhfGYCQ = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_associations_return");
+                for (i_GIAS_DataModelMgr_get_associations_return=0; i_GIAS_DataModelMgr_get_associations_return < u_octet4_loop_GIAS_DataModelMgr_get_associations_return; i_GIAS_DataModelMgr_get_associations_return++) {
+
+                    { /*  Begin struct "GIAS_Association"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Association");
+
+                    decode_GIAS_Association_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_Association"  */
+                }
+                tree = tree_bak_o4IPKUhfGYCQ;
             }
 
             break;
@@ -1572,22 +3803,964 @@ decode_GIAS_AccessManager_get_use_modes(tvbuff_t *tvb _U_, packet_info *pinfo _U
 }
 
 /*
- * IDL:GIAS/AccessManager/is_available:1.0
+ * IDL:GIAS/DataModelMgr/get_entity_attributes:1.0
  */
 static void
-decode_GIAS_AccessManager_is_available(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_entity_attributes_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return;
+    uint32_t  i_GIAS_DataModelMgr_get_entity_attributes_return;
+    /* Operation specific Variable declarations End */
+
     switch(header->message_type) {
     case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_entity_attributes_aEntity);
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_is_available_use_mode);
+        u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties);
+
+        {
+            proto_tree *tree_bak_leqrbLE3wqNv = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_entity_attributes_properties");
+            for (i_GIAS_DataModelMgr_get_entity_attributes_properties=0; i_GIAS_DataModelMgr_get_entity_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties; i_GIAS_DataModelMgr_get_entity_attributes_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_leqrbLE3wqNv;
+        }
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_boolean(tree, hf_GIAS_AccessManager_is_available_return, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+            u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entity_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return);
+
+            {
+                proto_tree *tree_bak_rVRIBOj1Aq9s = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_entity_attributes_return");
+                for (i_GIAS_DataModelMgr_get_entity_attributes_return=0; i_GIAS_DataModelMgr_get_entity_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return; i_GIAS_DataModelMgr_get_entity_attributes_return++) {
+
+                    { /*  Begin struct "GIAS_AttributeInformation"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AttributeInformation");
+
+                    decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_AttributeInformation"  */
+                }
+                tree = tree_bak_rVRIBOj1Aq9s;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_entities:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_entities(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_entities_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_entities_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_entities_view_name);
+
+        u_octet4_loop_GIAS_DataModelMgr_get_entities_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entities_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entities_properties);
+
+        {
+            proto_tree *tree_bak_xgzKbpUMniAb = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_entities_properties");
+            for (i_GIAS_DataModelMgr_get_entities_properties=0; i_GIAS_DataModelMgr_get_entities_properties < u_octet4_loop_GIAS_DataModelMgr_get_entities_properties; i_GIAS_DataModelMgr_get_entities_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_xgzKbpUMniAb;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "UCO_EntityGraph"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_EntityGraph");
+
+            decode_UCO_EntityGraph_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_EntityGraph"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_queryable_attributes:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_queryable_attributes_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return;
+    uint32_t  i_GIAS_DataModelMgr_get_queryable_attributes_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_queryable_attributes_view_name);
+
+        u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties);
+
+        {
+            proto_tree *tree_bak_0QFaRLEyTcnl = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_queryable_attributes_properties");
+            for (i_GIAS_DataModelMgr_get_queryable_attributes_properties=0; i_GIAS_DataModelMgr_get_queryable_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties; i_GIAS_DataModelMgr_get_queryable_attributes_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_0QFaRLEyTcnl;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return);
+
+            {
+                proto_tree *tree_bak_QglhMYy8sk7u = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_queryable_attributes_return");
+                for (i_GIAS_DataModelMgr_get_queryable_attributes_return=0; i_GIAS_DataModelMgr_get_queryable_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return; i_GIAS_DataModelMgr_get_queryable_attributes_return++) {
+
+                    { /*  Begin struct "GIAS_AttributeInformation"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AttributeInformation");
+
+                    decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_AttributeInformation"  */
+                }
+                tree = tree_bak_QglhMYy8sk7u;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_attributes:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_attributes_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_attributes_return;
+    uint32_t  i_GIAS_DataModelMgr_get_attributes_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_attributes_view_name);
+
+        u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties);
+
+        {
+            proto_tree *tree_bak_Jazadil2zXSw = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_attributes_properties");
+            for (i_GIAS_DataModelMgr_get_attributes_properties=0; i_GIAS_DataModelMgr_get_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties; i_GIAS_DataModelMgr_get_attributes_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_Jazadil2zXSw;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_DataModelMgr_get_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_attributes_return);
+
+            {
+                proto_tree *tree_bak_hnNPF4sKfu74 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_attributes_return");
+                for (i_GIAS_DataModelMgr_get_attributes_return=0; i_GIAS_DataModelMgr_get_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_attributes_return; i_GIAS_DataModelMgr_get_attributes_return++) {
+
+                    { /*  Begin struct "GIAS_AttributeInformation"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AttributeInformation");
+
+                    decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_AttributeInformation"  */
+                }
+                tree = tree_bak_hnNPF4sKfu74;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_view_names:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_view_names_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_view_names_return;
+    uint32_t  i_GIAS_DataModelMgr_get_view_names_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_view_names_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties);
+
+        {
+            proto_tree *tree_bak_1RYFK6Wyk9dO = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_view_names_properties");
+            for (i_GIAS_DataModelMgr_get_view_names_properties=0; i_GIAS_DataModelMgr_get_view_names_properties < u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties; i_GIAS_DataModelMgr_get_view_names_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_1RYFK6Wyk9dO;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_DataModelMgr_get_view_names_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_view_names_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_view_names_return);
+
+            {
+                proto_tree *tree_bak_VzerWwpAaiLr = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_view_names_return");
+                for (i_GIAS_DataModelMgr_get_view_names_return=0; i_GIAS_DataModelMgr_get_view_names_return < u_octet4_loop_GIAS_DataModelMgr_get_view_names_return; i_GIAS_DataModelMgr_get_view_names_return++) {
+
+                    { /*  Begin struct "GIAS_View"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_View");
+
+                    decode_GIAS_View_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_View"  */
+                }
+                tree = tree_bak_VzerWwpAaiLr;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_logical_attribute_name:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_logical_attribute_name(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_logical_attribute_name_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_logical_attribute_name_view_name);
+
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_attribute_name_attribute_type, tvb, *offset-4, 4, u_octet4);
+
+        u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties);
+
+        {
+            proto_tree *tree_bak_tHYi7qwawcKh = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_logical_attribute_name_properties");
+            for (i_GIAS_DataModelMgr_get_logical_attribute_name_properties=0; i_GIAS_DataModelMgr_get_logical_attribute_name_properties < u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties; i_GIAS_DataModelMgr_get_logical_attribute_name_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_tHYi7qwawcKh;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_logical_attribute_name_return);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_logical_aliases:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_logical_aliases_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return;
+    uint32_t  i_GIAS_DataModelMgr_get_logical_aliases_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_logical_aliases_category);
+
+        u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties);
+
+        {
+            proto_tree *tree_bak_7esbNxtfmdRt = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_logical_aliases_properties");
+            for (i_GIAS_DataModelMgr_get_logical_aliases_properties=0; i_GIAS_DataModelMgr_get_logical_aliases_properties < u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties; i_GIAS_DataModelMgr_get_logical_aliases_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_7esbNxtfmdRt;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_aliases_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return);
+
+            {
+                proto_tree *tree_bak_XhAmx5dpZxRZ = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_logical_aliases_return");
+                for (i_GIAS_DataModelMgr_get_logical_aliases_return=0; i_GIAS_DataModelMgr_get_logical_aliases_return < u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return; i_GIAS_DataModelMgr_get_logical_aliases_return++) {
+
+                    { /*  Begin struct "UCO_NameName"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameName");
+
+                    decode_UCO_NameName_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "UCO_NameName"  */
+                }
+                tree = tree_bak_XhAmx5dpZxRZ;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_alias_categories:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_alias_categories(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_alias_categories_properties;
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return;
+    uint32_t  i_GIAS_DataModelMgr_get_alias_categories_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_alias_categories_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties);
+
+        {
+            proto_tree *tree_bak_asXCjEj1TZHc = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_alias_categories_properties");
+            for (i_GIAS_DataModelMgr_get_alias_categories_properties=0; i_GIAS_DataModelMgr_get_alias_categories_properties < u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties; i_GIAS_DataModelMgr_get_alias_categories_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_asXCjEj1TZHc;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_alias_categories_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return);
+
+            {
+                proto_tree *tree_bak_ZotAO36GFoF6 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_alias_categories_return");
+                for (i_GIAS_DataModelMgr_get_alias_categories_return=0; i_GIAS_DataModelMgr_get_alias_categories_return < u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return; i_GIAS_DataModelMgr_get_alias_categories_return++) {
+
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_alias_categories_return);
+
+                }
+                tree = tree_bak_ZotAO36GFoF6;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/DataModelMgr/get_data_model_date:1.0
+ */
+static void
+decode_GIAS_DataModelMgr_get_data_model_date(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties;
+    uint32_t  i_GIAS_DataModelMgr_get_data_model_date_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_data_model_date_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties);
+
+        {
+            proto_tree *tree_bak_uZCgxQLDoPQs = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_data_model_date_properties");
+            for (i_GIAS_DataModelMgr_get_data_model_date_properties=0; i_GIAS_DataModelMgr_get_data_model_date_properties < u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties; i_GIAS_DataModelMgr_get_data_model_date_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_uZCgxQLDoPQs;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "UCO_AbsTime"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
+
+            decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_AbsTime"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/OrderMgr/order:1.0
+ */
+static void
+decode_GIAS_OrderMgr_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_OrderMgr_order_properties;
+    uint32_t  i_GIAS_OrderMgr_order_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_OrderContents"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_OrderContents");
+
+        decode_GIAS_OrderContents_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_OrderContents"  */
+        u_octet4_loop_GIAS_OrderMgr_order_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_OrderMgr_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_order_properties);
+
+        {
+            proto_tree *tree_bak_SKL370VU8Upn = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderMgr_order_properties");
+            for (i_GIAS_OrderMgr_order_properties=0; i_GIAS_OrderMgr_order_properties < u_octet4_loop_GIAS_OrderMgr_order_properties; i_GIAS_OrderMgr_order_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_SKL370VU8Upn;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/OrderMgr/validate_order:1.0
+ */
+static void
+decode_GIAS_OrderMgr_validate_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_OrderMgr_validate_order_properties;
+    uint32_t  i_GIAS_OrderMgr_validate_order_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_OrderContents"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_OrderContents");
+
+        decode_GIAS_OrderContents_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_OrderContents"  */
+        u_octet4_loop_GIAS_OrderMgr_validate_order_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_OrderMgr_validate_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_validate_order_properties);
+
+        {
+            proto_tree *tree_bak_GPFAZhvZYwhU = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderMgr_validate_order_properties");
+            for (i_GIAS_OrderMgr_validate_order_properties=0; i_GIAS_OrderMgr_validate_order_properties < u_octet4_loop_GIAS_OrderMgr_validate_order_properties; i_GIAS_OrderMgr_validate_order_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_GPFAZhvZYwhU;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "GIAS_ValidationResults"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_ValidationResults");
+
+            decode_GIAS_ValidationResults_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_ValidationResults"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/OrderMgr/get_package_specifications:1.0
+ */
+static void
+decode_GIAS_OrderMgr_get_package_specifications(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return;
+    uint32_t  i_GIAS_OrderMgr_get_package_specifications_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_OrderMgr_get_package_specifications_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return);
+
+            {
+                proto_tree *tree_bak_XUaXUZV2oRIh = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderMgr_get_package_specifications_return");
+                for (i_GIAS_OrderMgr_get_package_specifications_return=0; i_GIAS_OrderMgr_get_package_specifications_return < u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return; i_GIAS_OrderMgr_get_package_specifications_return++) {
+
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderMgr_get_package_specifications_return);
+
+                }
+                tree = tree_bak_XUaXUZV2oRIh;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/QueryOrderMgr/submit_query_order:1.0
+ */
+static void
+decode_GIAS_QueryOrderMgr_submit_query_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties;
+    uint32_t  i_GIAS_QueryOrderMgr_submit_query_order_properties;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_Query"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Query");
+
+        decode_GIAS_Query_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_Query"  */
+        { /*  Begin struct "GIAS_QueryLifeSpan"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_QueryLifeSpan");
+
+        decode_GIAS_QueryLifeSpan_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_QueryLifeSpan"  */
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_submit_query_order_o_type, tvb, *offset-4, 4, u_octet4);
+
+        { /*  Begin struct "GIAS_QueryOrderContents"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_QueryOrderContents");
+
+        decode_GIAS_QueryOrderContents_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_QueryOrderContents"  */
+        u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties);
+
+        {
+            proto_tree *tree_bak_8JFciinq0N6y = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryOrderMgr_submit_query_order_properties");
+            for (i_GIAS_QueryOrderMgr_submit_query_order_properties=0; i_GIAS_QueryOrderMgr_submit_query_order_properties < u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties; i_GIAS_QueryOrderMgr_submit_query_order_properties++) {
+
+                { /*  Begin struct "UCO_NameValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_NameValue"  */
+            }
+            tree = tree_bak_8JFciinq0N6y;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/QueryOrderMgr/get_event_descriptions:1.0
+ */
+static void
+decode_GIAS_QueryOrderMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return;
+    uint32_t  i_GIAS_QueryOrderMgr_get_event_descriptions_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return);
+
+            {
+                proto_tree *tree_bak_a8SLSkbKxonZ = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryOrderMgr_get_event_descriptions_return");
+                for (i_GIAS_QueryOrderMgr_get_event_descriptions_return=0; i_GIAS_QueryOrderMgr_get_event_descriptions_return < u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return; i_GIAS_QueryOrderMgr_get_event_descriptions_return++) {
+
+                    { /*  Begin struct "GIAS_Event"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_Event");
+
+                    decode_GIAS_Event_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_Event"  */
+                }
+                tree = tree_bak_a8SLSkbKxonZ;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/AccessManager/set_availability:1.0
+ */
+static void
+decode_GIAS_AccessManager_set_availability(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_AccessManager_set_availability_products;
+    uint32_t  i_GIAS_AccessManager_set_availability_products;
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_AccessManager_set_availability_products = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_AccessManager_set_availability_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_AccessManager_set_availability_products);
+
+        {
+            proto_tree *tree_bak_fVk5sazQLwa7 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_AccessManager_set_availability_products");
+            for (i_GIAS_AccessManager_set_availability_products=0; i_GIAS_AccessManager_set_availability_products < u_octet4_loop_GIAS_AccessManager_set_availability_products; i_GIAS_AccessManager_set_availability_products++) {
+
+                get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            }
+            tree = tree_bak_fVk5sazQLwa7;
+        }
+
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_AccessManager_set_availability_availability_requirement, tvb, *offset-4, 4, u_octet4);
+
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_set_availability_use_mode);
+
+        proto_tree_add_int(tree, hf_GIAS_AccessManager_set_availability_priority, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/AccessManager/get_number_of_priorities:1.0
+ */
+static void
+decode_GIAS_AccessManager_get_number_of_priorities(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_int(tree, hf_GIAS_AccessManager_get_number_of_priorities_return, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -1610,10 +4783,10 @@ decode_GIAS_AccessManager_is_available(tvbuff_t *tvb _U_, packet_info *pinfo _U_
  * IDL:GIAS/AccessManager/query_availability_delay:1.0
  */
 static void
-decode_GIAS_AccessManager_query_availability_delay(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_AccessManager_query_availability_delay(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
@@ -1649,18 +4822,22 @@ decode_GIAS_AccessManager_query_availability_delay(tvbuff_t *tvb _U_, packet_inf
 }
 
 /*
- * IDL:GIAS/AccessManager/get_number_of_priorities:1.0
+ * IDL:GIAS/AccessManager/is_available:1.0
  */
 static void
-decode_GIAS_AccessManager_get_number_of_priorities(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_AccessManager_is_available(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     switch(header->message_type) {
     case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_is_available_use_mode);
+
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_int(tree, hf_GIAS_AccessManager_get_number_of_priorities_return, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_boolean(tree, hf_GIAS_AccessManager_is_available_return, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
             break;
         case USER_EXCEPTION:
@@ -1680,1103 +4857,656 @@ decode_GIAS_AccessManager_get_number_of_priorities(tvbuff_t *tvb _U_, packet_inf
 }
 
 /*
- * IDL:GIAS/AccessManager/set_availability:1.0
+ * IDL:GIAS/AccessManager/get_use_modes:1.0
  */
 static void
-decode_GIAS_AccessManager_set_availability(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_AccessManager_get_use_modes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_AccessManager_set_availability_products;
-    guint32   i_GIAS_AccessManager_set_availability_products;
-    guint32   u_octet4;
+    uint32_t  u_octet4_loop_GIAS_AccessManager_get_use_modes_return;
+    uint32_t  i_GIAS_AccessManager_get_use_modes_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        u_octet4_loop_GIAS_AccessManager_set_availability_products = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_AccessManager_set_availability_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_AccessManager_set_availability_products);
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_AccessManager_get_use_modes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_AccessManager_get_use_modes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_AccessManager_get_use_modes_return);
 
-        for (i_GIAS_AccessManager_set_availability_products=0; i_GIAS_AccessManager_set_availability_products < u_octet4_loop_GIAS_AccessManager_set_availability_products; i_GIAS_AccessManager_set_availability_products++) {
+            {
+                proto_tree *tree_bak_PVfmcpGF3ODm = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_AccessManager_get_use_modes_return");
+                for (i_GIAS_AccessManager_get_use_modes_return=0; i_GIAS_AccessManager_get_use_modes_return < u_octet4_loop_GIAS_AccessManager_get_use_modes_return; i_GIAS_AccessManager_get_use_modes_return++) {
 
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_get_use_modes_return);
 
+                }
+                tree = tree_bak_PVfmcpGF3ODm;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/RequestManager/delete_request:1.0
+ */
+static void
+decode_GIAS_RequestManager_delete_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/RequestManager/set_timeout:1.0
+ */
+static void
+decode_GIAS_RequestManager_set_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        proto_tree_add_uint(tree, hf_GIAS_RequestManager_set_timeout_new_lifetime, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/RequestManager/get_timeout:1.0
+ */
+static void
+decode_GIAS_RequestManager_get_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_timeout_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/RequestManager/set_default_timeout:1.0
+ */
+static void
+decode_GIAS_RequestManager_set_default_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        proto_tree_add_uint(tree, hf_GIAS_RequestManager_set_default_timeout_new_default, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/RequestManager/get_default_timeout:1.0
+ */
+static void
+decode_GIAS_RequestManager_get_default_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_default_timeout_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/RequestManager/get_active_requests:1.0
+ */
+static void
+decode_GIAS_RequestManager_get_active_requests(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_RequestManager_get_active_requests_return;
+    uint32_t  i_GIAS_RequestManager_get_active_requests_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_RequestManager_get_active_requests_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_active_requests_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_RequestManager_get_active_requests_return);
+
+            {
+                proto_tree *tree_bak_RaaZ5uMuHdV4 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_RequestManager_get_active_requests_return");
+                for (i_GIAS_RequestManager_get_active_requests_return=0; i_GIAS_RequestManager_get_active_requests_return < u_octet4_loop_GIAS_RequestManager_get_active_requests_return; i_GIAS_RequestManager_get_active_requests_return++) {
+
+                    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+                }
+                tree = tree_bak_RaaZ5uMuHdV4;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/LibraryManager/get_libraries:1.0
+ */
+static void
+decode_GIAS_LibraryManager_get_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_LibraryManager_get_libraries_return;
+    uint32_t  i_GIAS_LibraryManager_get_libraries_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_LibraryManager_get_libraries_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_libraries_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_libraries_return);
+
+            {
+                proto_tree *tree_bak_dSlpzol29lHK = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_libraries_return");
+                for (i_GIAS_LibraryManager_get_libraries_return=0; i_GIAS_LibraryManager_get_libraries_return < u_octet4_loop_GIAS_LibraryManager_get_libraries_return; i_GIAS_LibraryManager_get_libraries_return++) {
+
+                    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+                }
+                tree = tree_bak_dSlpzol29lHK;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/LibraryManager/get_property_values:1.0
+ */
+static void
+decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties;
+    uint32_t  i_GIAS_LibraryManager_get_property_values_desired_properties;
+    uint32_t  u_octet4_loop_GIAS_LibraryManager_get_property_values_return;
+    uint32_t  i_GIAS_LibraryManager_get_property_values_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_values_desired_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties);
+
+        {
+            proto_tree *tree_bak_SU25zgv0YLlK = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_property_values_desired_properties");
+            for (i_GIAS_LibraryManager_get_property_values_desired_properties=0; i_GIAS_LibraryManager_get_property_values_desired_properties < u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties; i_GIAS_LibraryManager_get_property_values_desired_properties++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryManager_get_property_values_desired_properties);
+
+            }
+            tree = tree_bak_SU25zgv0YLlK;
         }
 
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_LibraryManager_get_property_values_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_values_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_values_return);
+
+            {
+                proto_tree *tree_bak_PIEtl10njIaY = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_property_values_return");
+                for (i_GIAS_LibraryManager_get_property_values_return=0; i_GIAS_LibraryManager_get_property_values_return < u_octet4_loop_GIAS_LibraryManager_get_property_values_return; i_GIAS_LibraryManager_get_property_values_return++) {
+
+                    { /*  Begin struct "UCO_NameValue"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+                    decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "UCO_NameValue"  */
+                }
+                tree = tree_bak_PIEtl10njIaY;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/LibraryManager/get_property_names:1.0
+ */
+static void
+decode_GIAS_LibraryManager_get_property_names(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_LibraryManager_get_property_names_return;
+    uint32_t  i_GIAS_LibraryManager_get_property_names_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_LibraryManager_get_property_names_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_names_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_names_return);
+
+            {
+                proto_tree *tree_bak_QORxJPMfV9XA = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_property_names_return");
+                for (i_GIAS_LibraryManager_get_property_names_return=0; i_GIAS_LibraryManager_get_property_names_return < u_octet4_loop_GIAS_LibraryManager_get_property_names_return; i_GIAS_LibraryManager_get_property_names_return++) {
+
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryManager_get_property_names_return);
+
+                }
+                tree = tree_bak_QORxJPMfV9XA;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Library/get_other_libraries:1.0
+ */
+static void
+decode_GIAS_Library_get_other_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_Library_get_other_libraries_return;
+    uint32_t  i_GIAS_Library_get_other_libraries_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "GIAS_AccessCriteria"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AccessCriteria");
+
+        decode_GIAS_AccessCriteria_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_AccessCriteria"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_Library_get_other_libraries_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_Library_get_other_libraries_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Library_get_other_libraries_return);
+
+            {
+                proto_tree *tree_bak_f7jAjSHQuo3s = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Library_get_other_libraries_return");
+                for (i_GIAS_Library_get_other_libraries_return=0; i_GIAS_Library_get_other_libraries_return < u_octet4_loop_GIAS_Library_get_other_libraries_return; i_GIAS_Library_get_other_libraries_return++) {
+
+                    { /*  Begin struct "GIAS_LibraryDescription"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_LibraryDescription");
+
+                    decode_GIAS_LibraryDescription_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "GIAS_LibraryDescription"  */
+                }
+                tree = tree_bak_f7jAjSHQuo3s;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Library/get_library_description:1.0
+ */
+static void
+decode_GIAS_Library_get_library_description(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "GIAS_LibraryDescription"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_LibraryDescription");
+
+            decode_GIAS_LibraryDescription_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_LibraryDescription"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Library/get_manager:1.0
+ */
+static void
+decode_GIAS_Library_get_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Library_get_manager_manager_type);
+
+        { /*  Begin struct "GIAS_AccessCriteria"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AccessCriteria");
+
+        decode_GIAS_AccessCriteria_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_AccessCriteria"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:GIAS/Library/get_manager_types:1.0
+ */
+static void
+decode_GIAS_Library_get_manager_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_Library_get_manager_types_return;
+    uint32_t  i_GIAS_Library_get_manager_types_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_GIAS_Library_get_manager_types_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_GIAS_Library_get_manager_types_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Library_get_manager_types_return);
+
+            {
+                proto_tree *tree_bak_DlXQIsjDV9c9 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Library_get_manager_types_return");
+                for (i_GIAS_Library_get_manager_types_return=0; i_GIAS_Library_get_manager_types_return < u_octet4_loop_GIAS_Library_get_manager_types_return; i_GIAS_Library_get_manager_types_return++) {
+
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Library_get_manager_types_return);
+
+                }
+                tree = tree_bak_DlXQIsjDV9c9;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:CB/Callback/release:1.0
+ */
+static void
+decode_CB_Callback_release(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:CB/Callback/notify:1.0
+ */
+static void
+decode_CB_Callback_notify(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_AccessManager_set_availability_availability_requirement, tvb, *offset-4, 4, u_octet4);
+        proto_tree_add_uint(tree, hf_CB_Callback_notify_theState, tvb, *offset-4, 4, u_octet4);
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_set_availability_use_mode);
+        { /*  Begin struct "UCO_RequestDescription"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_RequestDescription");
 
-        proto_tree_add_int(tree, hf_GIAS_AccessManager_set_availability_priority, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/QueryOrderMgr/get_event_descriptions:1.0
- */
-static void
-decode_GIAS_QueryOrderMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return;
-    guint32   i_GIAS_QueryOrderMgr_get_event_descriptions_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return);
-
-            for (i_GIAS_QueryOrderMgr_get_event_descriptions_return=0; i_GIAS_QueryOrderMgr_get_event_descriptions_return < u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return; i_GIAS_QueryOrderMgr_get_event_descriptions_return++) {
-
-                /*  Begin struct "GIAS_Event"  */
-                decode_GIAS_Event_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_Event"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/QueryOrderMgr/submit_query_order:1.0
- */
-static void
-decode_GIAS_QueryOrderMgr_submit_query_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties;
-    guint32   i_GIAS_QueryOrderMgr_submit_query_order_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_Query"  */
-        decode_GIAS_Query_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_Query"  */
-        /*  Begin struct "GIAS_QueryLifeSpan"  */
-        decode_GIAS_QueryLifeSpan_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_QueryLifeSpan"  */
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_submit_query_order_o_type, tvb, *offset-4, 4, u_octet4);
-
-        /*  Begin struct "GIAS_QueryOrderContents"  */
-        decode_GIAS_QueryOrderContents_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_QueryOrderContents"  */
-        u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties);
-
-        for (i_GIAS_QueryOrderMgr_submit_query_order_properties=0; i_GIAS_QueryOrderMgr_submit_query_order_properties < u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties; i_GIAS_QueryOrderMgr_submit_query_order_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/OrderMgr/get_package_specifications:1.0
- */
-static void
-decode_GIAS_OrderMgr_get_package_specifications(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return;
-    guint32   i_GIAS_OrderMgr_get_package_specifications_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_OrderMgr_get_package_specifications_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return);
-
-            for (i_GIAS_OrderMgr_get_package_specifications_return=0; i_GIAS_OrderMgr_get_package_specifications_return < u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return; i_GIAS_OrderMgr_get_package_specifications_return++) {
-
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderMgr_get_package_specifications_return);
-
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/OrderMgr/validate_order:1.0
- */
-static void
-decode_GIAS_OrderMgr_validate_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_OrderMgr_validate_order_properties;
-    guint32   i_GIAS_OrderMgr_validate_order_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_OrderContents"  */
-        decode_GIAS_OrderContents_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_OrderContents"  */
-        u_octet4_loop_GIAS_OrderMgr_validate_order_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_OrderMgr_validate_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_validate_order_properties);
-
-        for (i_GIAS_OrderMgr_validate_order_properties=0; i_GIAS_OrderMgr_validate_order_properties < u_octet4_loop_GIAS_OrderMgr_validate_order_properties; i_GIAS_OrderMgr_validate_order_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "GIAS_ValidationResults"  */
-            decode_GIAS_ValidationResults_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_ValidationResults"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/OrderMgr/order:1.0
- */
-static void
-decode_GIAS_OrderMgr_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_OrderMgr_order_properties;
-    guint32   i_GIAS_OrderMgr_order_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_OrderContents"  */
-        decode_GIAS_OrderContents_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_OrderContents"  */
-        u_octet4_loop_GIAS_OrderMgr_order_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_OrderMgr_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_order_properties);
-
-        for (i_GIAS_OrderMgr_order_properties=0; i_GIAS_OrderMgr_order_properties < u_octet4_loop_GIAS_OrderMgr_order_properties; i_GIAS_OrderMgr_order_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_data_model_date:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_data_model_date(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties;
-    guint32   i_GIAS_DataModelMgr_get_data_model_date_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_data_model_date_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties);
-
-        for (i_GIAS_DataModelMgr_get_data_model_date_properties=0; i_GIAS_DataModelMgr_get_data_model_date_properties < u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties; i_GIAS_DataModelMgr_get_data_model_date_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "UCO_AbsTime"  */
-            decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_AbsTime"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_alias_categories:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_alias_categories(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties;
-    guint32   i_GIAS_DataModelMgr_get_alias_categories_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return;
-    guint32   i_GIAS_DataModelMgr_get_alias_categories_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_alias_categories_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties);
-
-        for (i_GIAS_DataModelMgr_get_alias_categories_properties=0; i_GIAS_DataModelMgr_get_alias_categories_properties < u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties; i_GIAS_DataModelMgr_get_alias_categories_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_alias_categories_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return);
-
-            for (i_GIAS_DataModelMgr_get_alias_categories_return=0; i_GIAS_DataModelMgr_get_alias_categories_return < u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return; i_GIAS_DataModelMgr_get_alias_categories_return++) {
-
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_alias_categories_return);
-
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_logical_aliases:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties;
-    guint32   i_GIAS_DataModelMgr_get_logical_aliases_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return;
-    guint32   i_GIAS_DataModelMgr_get_logical_aliases_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_logical_aliases_category);
-
-        u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties);
-
-        for (i_GIAS_DataModelMgr_get_logical_aliases_properties=0; i_GIAS_DataModelMgr_get_logical_aliases_properties < u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties; i_GIAS_DataModelMgr_get_logical_aliases_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_aliases_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return);
-
-            for (i_GIAS_DataModelMgr_get_logical_aliases_return=0; i_GIAS_DataModelMgr_get_logical_aliases_return < u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return; i_GIAS_DataModelMgr_get_logical_aliases_return++) {
-
-                /*  Begin struct "UCO_NameName"  */
-                decode_UCO_NameName_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "UCO_NameName"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_logical_attribute_name:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_logical_attribute_name(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties;
-    guint32   i_GIAS_DataModelMgr_get_logical_attribute_name_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_logical_attribute_name_view_name);
-
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_attribute_name_attribute_type, tvb, *offset-4, 4, u_octet4);
-
-        u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties);
-
-        for (i_GIAS_DataModelMgr_get_logical_attribute_name_properties=0; i_GIAS_DataModelMgr_get_logical_attribute_name_properties < u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties; i_GIAS_DataModelMgr_get_logical_attribute_name_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_logical_attribute_name_return);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_view_names:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties;
-    guint32   i_GIAS_DataModelMgr_get_view_names_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_view_names_return;
-    guint32   i_GIAS_DataModelMgr_get_view_names_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_view_names_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties);
-
-        for (i_GIAS_DataModelMgr_get_view_names_properties=0; i_GIAS_DataModelMgr_get_view_names_properties < u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties; i_GIAS_DataModelMgr_get_view_names_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_view_names_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_view_names_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_view_names_return);
-
-            for (i_GIAS_DataModelMgr_get_view_names_return=0; i_GIAS_DataModelMgr_get_view_names_return < u_octet4_loop_GIAS_DataModelMgr_get_view_names_return; i_GIAS_DataModelMgr_get_view_names_return++) {
-
-                /*  Begin struct "GIAS_View"  */
-                decode_GIAS_View_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_View"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_attributes:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties;
-    guint32   i_GIAS_DataModelMgr_get_attributes_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_attributes_return;
-    guint32   i_GIAS_DataModelMgr_get_attributes_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_attributes_view_name);
-
-        u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties);
-
-        for (i_GIAS_DataModelMgr_get_attributes_properties=0; i_GIAS_DataModelMgr_get_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties; i_GIAS_DataModelMgr_get_attributes_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_attributes_return);
-
-            for (i_GIAS_DataModelMgr_get_attributes_return=0; i_GIAS_DataModelMgr_get_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_attributes_return; i_GIAS_DataModelMgr_get_attributes_return++) {
-
-                /*  Begin struct "GIAS_AttributeInformation"  */
-                decode_GIAS_AttributeInformation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_AttributeInformation"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_queryable_attributes:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties;
-    guint32   i_GIAS_DataModelMgr_get_queryable_attributes_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return;
-    guint32   i_GIAS_DataModelMgr_get_queryable_attributes_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_queryable_attributes_view_name);
-
-        u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties);
-
-        for (i_GIAS_DataModelMgr_get_queryable_attributes_properties=0; i_GIAS_DataModelMgr_get_queryable_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties; i_GIAS_DataModelMgr_get_queryable_attributes_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return);
-
-            for (i_GIAS_DataModelMgr_get_queryable_attributes_return=0; i_GIAS_DataModelMgr_get_queryable_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return; i_GIAS_DataModelMgr_get_queryable_attributes_return++) {
-
-                /*  Begin struct "GIAS_AttributeInformation"  */
-                decode_GIAS_AttributeInformation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_AttributeInformation"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_entities:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_entities(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_entities_properties;
-    guint32   i_GIAS_DataModelMgr_get_entities_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_entities_view_name);
-
-        u_octet4_loop_GIAS_DataModelMgr_get_entities_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entities_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entities_properties);
-
-        for (i_GIAS_DataModelMgr_get_entities_properties=0; i_GIAS_DataModelMgr_get_entities_properties < u_octet4_loop_GIAS_DataModelMgr_get_entities_properties; i_GIAS_DataModelMgr_get_entities_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "UCO_EntityGraph"  */
-            decode_UCO_EntityGraph_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_EntityGraph"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_entity_attributes:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties;
-    guint32   i_GIAS_DataModelMgr_get_entity_attributes_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return;
-    guint32   i_GIAS_DataModelMgr_get_entity_attributes_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_entity_attributes_aEntity);
-
-        u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties);
-
-        for (i_GIAS_DataModelMgr_get_entity_attributes_properties=0; i_GIAS_DataModelMgr_get_entity_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties; i_GIAS_DataModelMgr_get_entity_attributes_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entity_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return);
-
-            for (i_GIAS_DataModelMgr_get_entity_attributes_return=0; i_GIAS_DataModelMgr_get_entity_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return; i_GIAS_DataModelMgr_get_entity_attributes_return++) {
-
-                /*  Begin struct "GIAS_AttributeInformation"  */
-                decode_GIAS_AttributeInformation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_AttributeInformation"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_associations:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_associations_properties;
-    guint32   i_GIAS_DataModelMgr_get_associations_properties;
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_associations_return;
-    guint32   i_GIAS_DataModelMgr_get_associations_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_DataModelMgr_get_associations_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_associations_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_associations_properties);
-
-        for (i_GIAS_DataModelMgr_get_associations_properties=0; i_GIAS_DataModelMgr_get_associations_properties < u_octet4_loop_GIAS_DataModelMgr_get_associations_properties; i_GIAS_DataModelMgr_get_associations_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_DataModelMgr_get_associations_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_associations_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_associations_return);
-
-            for (i_GIAS_DataModelMgr_get_associations_return=0; i_GIAS_DataModelMgr_get_associations_return < u_octet4_loop_GIAS_DataModelMgr_get_associations_return; i_GIAS_DataModelMgr_get_associations_return++) {
-
-                /*  Begin struct "GIAS_Association"  */
-                decode_GIAS_Association_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_Association"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/DataModelMgr/get_max_vertices:1.0
- */
-static void
-decode_GIAS_DataModelMgr_get_max_vertices(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties;
-    guint32   i_GIAS_DataModelMgr_get_max_vertices_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_max_vertices_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties);
-
-        for (i_GIAS_DataModelMgr_get_max_vertices_properties=0; i_GIAS_DataModelMgr_get_max_vertices_properties < u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties; i_GIAS_DataModelMgr_get_max_vertices_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_max_vertices_return, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CreationMgr/create:1.0
- */
-static void
-decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_new_product;
-    guint32   i_GIAS_CreationMgr_create_new_product;
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_related_files;
-    guint32   i_GIAS_CreationMgr_create_related_files;
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_properties;
-    guint32   i_GIAS_CreationMgr_create_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_CreationMgr_create_new_product = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_new_product_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_new_product);
-
-        for (i_GIAS_CreationMgr_create_new_product=0; i_GIAS_CreationMgr_create_new_product < u_octet4_loop_GIAS_CreationMgr_create_new_product; i_GIAS_CreationMgr_create_new_product++) {
-
-            /*  Begin struct "UCO_FileLocation"  */
-            decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_FileLocation"  */
-        }
-
-        u_octet4_loop_GIAS_CreationMgr_create_related_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_related_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_related_files);
-
-        for (i_GIAS_CreationMgr_create_related_files=0; i_GIAS_CreationMgr_create_related_files < u_octet4_loop_GIAS_CreationMgr_create_related_files; i_GIAS_CreationMgr_create_related_files++) {
-
-            /*  Begin struct "GIAS_RelatedFile"  */
-            decode_GIAS_RelatedFile_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_RelatedFile"  */
-        }
-
-        /*  Begin struct "UCO_DAG"  */
-        decode_UCO_DAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_DAG"  */
-        u_octet4_loop_GIAS_CreationMgr_create_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_properties);
-
-        for (i_GIAS_CreationMgr_create_properties=0; i_GIAS_CreationMgr_create_properties < u_octet4_loop_GIAS_CreationMgr_create_properties; i_GIAS_CreationMgr_create_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CreationMgr/create_metadata:1.0
- */
-static void
-decode_GIAS_CreationMgr_create_metadata(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files;
-    guint32   i_GIAS_CreationMgr_create_metadata_related_files;
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_metadata_properties;
-    guint32   i_GIAS_CreationMgr_create_metadata_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "UCO_DAG"  */
-        decode_UCO_DAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_DAG"  */
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CreationMgr_create_metadata_view_name);
-
-        u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_metadata_related_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files);
-
-        for (i_GIAS_CreationMgr_create_metadata_related_files=0; i_GIAS_CreationMgr_create_metadata_related_files < u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files; i_GIAS_CreationMgr_create_metadata_related_files++) {
-
-            /*  Begin struct "GIAS_RelatedFile"  */
-            decode_GIAS_RelatedFile_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_RelatedFile"  */
-        }
-
-        u_octet4_loop_GIAS_CreationMgr_create_metadata_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_metadata_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_metadata_properties);
-
-        for (i_GIAS_CreationMgr_create_metadata_properties=0; i_GIAS_CreationMgr_create_metadata_properties < u_octet4_loop_GIAS_CreationMgr_create_metadata_properties; i_GIAS_CreationMgr_create_metadata_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CreationMgr/create_association:1.0
- */
-static void
-decode_GIAS_CreationMgr_create_association(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects;
-    guint32   i_GIAS_CreationMgr_create_association_view_b_objects;
-    guint32   u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info;
-    guint32   i_GIAS_CreationMgr_create_association_assoc_info;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CreationMgr_create_association_assoc_name);
-
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_association_view_b_objects_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects);
-
-        for (i_GIAS_CreationMgr_create_association_view_b_objects=0; i_GIAS_CreationMgr_create_association_view_b_objects < u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects; i_GIAS_CreationMgr_create_association_view_b_objects++) {
-
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        }
-
-        u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_association_assoc_info_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info);
-
-        for (i_GIAS_CreationMgr_create_association_assoc_info=0; i_GIAS_CreationMgr_create_association_assoc_info < u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info; i_GIAS_CreationMgr_create_association_assoc_info++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/UpdateMgr/set_lock:1.0
- */
-static void
-decode_GIAS_UpdateMgr_set_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
+        decode_UCO_RequestDescription_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_RequestDescription"  */
         break;
     case Reply:
         switch(header->rep_status) {
@@ -2800,2653 +5530,821 @@ decode_GIAS_UpdateMgr_set_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
     } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/UpdateMgr/update:1.0
- */
+/* Struct = IDL:GIAS/DeliveryManifest:1.0 */
 static void
-decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_UpdateMgr_update_changes;
-    guint32   i_GIAS_UpdateMgr_update_changes;
-    guint32   u_octet4_loop_GIAS_UpdateMgr_update_relfiles;
-    guint32   i_GIAS_UpdateMgr_update_relfiles;
-    guint32   u_octet4_loop_GIAS_UpdateMgr_update_properties;
-    guint32   i_GIAS_UpdateMgr_update_properties;
+    uint32_t  u_octet4_loop_GIAS_DeliveryManifest_elements;
+    uint32_t  i_GIAS_DeliveryManifest_elements;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_UpdateMgr_update_view);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DeliveryManifest_package_name);
 
-        u_octet4_loop_GIAS_UpdateMgr_update_changes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_changes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_changes);
+    u_octet4_loop_GIAS_DeliveryManifest_elements = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_DeliveryManifest_elements_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DeliveryManifest_elements);
 
-        for (i_GIAS_UpdateMgr_update_changes=0; i_GIAS_UpdateMgr_update_changes < u_octet4_loop_GIAS_UpdateMgr_update_changes; i_GIAS_UpdateMgr_update_changes++) {
+    {
+        proto_tree *tree_bak_LxzwRPRxCwc1 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DeliveryManifest_elements");
+        for (i_GIAS_DeliveryManifest_elements=0; i_GIAS_DeliveryManifest_elements < u_octet4_loop_GIAS_DeliveryManifest_elements; i_GIAS_DeliveryManifest_elements++) {
 
-            /*  Begin struct "UCO_UpdateDAG"  */
-            decode_UCO_UpdateDAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_UpdateDAG"  */
+            { /*  Begin struct "GIAS_PackageElement"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_PackageElement");
+
+            decode_GIAS_PackageElement_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_PackageElement"  */
         }
+        tree = tree_bak_LxzwRPRxCwc1;
+    }
 
-        u_octet4_loop_GIAS_UpdateMgr_update_relfiles = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_relfiles_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_relfiles);
-
-        for (i_GIAS_UpdateMgr_update_relfiles=0; i_GIAS_UpdateMgr_update_relfiles < u_octet4_loop_GIAS_UpdateMgr_update_relfiles; i_GIAS_UpdateMgr_update_relfiles++) {
-
-            /*  Begin struct "GIAS_RelatedFile"  */
-            decode_GIAS_RelatedFile_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_RelatedFile"  */
-        }
-
-        u_octet4_loop_GIAS_UpdateMgr_update_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_properties);
-
-        for (i_GIAS_UpdateMgr_update_properties=0; i_GIAS_UpdateMgr_update_properties < u_octet4_loop_GIAS_UpdateMgr_update_properties; i_GIAS_UpdateMgr_update_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/UpdateMgr/update_by_query:1.0
- */
+/* Struct = IDL:GIAS/PackageElement:1.0 */
 static void
-decode_GIAS_UpdateMgr_update_by_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_PackageElement_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties;
-    guint32   i_GIAS_UpdateMgr_update_by_query_properties;
+    uint32_t  u_octet4_loop_GIAS_PackageElement_files;
+    uint32_t  i_GIAS_PackageElement_files;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "UCO_NameValue"  */
-        decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_NameValue"  */
-        /*  Begin struct "GIAS_Query"  */
-        decode_GIAS_Query_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_Query"  */
-        u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_by_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties);
+    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-        for (i_GIAS_UpdateMgr_update_by_query_properties=0; i_GIAS_UpdateMgr_update_by_query_properties < u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties; i_GIAS_UpdateMgr_update_by_query_properties++) {
+    u_octet4_loop_GIAS_PackageElement_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_PackageElement_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_PackageElement_files);
 
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
+    {
+        proto_tree *tree_bak_2sW9Pn99uMS9 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_PackageElement_files");
+        for (i_GIAS_PackageElement_files=0; i_GIAS_PackageElement_files < u_octet4_loop_GIAS_PackageElement_files; i_GIAS_PackageElement_files++) {
 
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/UpdateMgr/release_lock:1.0
- */
-static void
-decode_GIAS_UpdateMgr_release_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/UpdateMgr/delete_product:1.0
- */
-static void
-decode_GIAS_UpdateMgr_delete_product(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CatalogMgr/submit_query:1.0
- */
-static void
-decode_GIAS_CatalogMgr_submit_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes;
-    guint32   i_GIAS_CatalogMgr_submit_query_result_attributes;
-    guint32   u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes;
-    guint32   i_GIAS_CatalogMgr_submit_query_sort_attributes;
-    guint32   u_octet4_loop_GIAS_CatalogMgr_submit_query_properties;
-    guint32   i_GIAS_CatalogMgr_submit_query_properties;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_Query"  */
-        decode_GIAS_Query_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_Query"  */
-        u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_result_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes);
-
-        for (i_GIAS_CatalogMgr_submit_query_result_attributes=0; i_GIAS_CatalogMgr_submit_query_result_attributes < u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes; i_GIAS_CatalogMgr_submit_query_result_attributes++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CatalogMgr_submit_query_result_attributes);
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackageElement_files);
 
         }
+        tree = tree_bak_2sW9Pn99uMS9;
+    }
 
-        u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes);
-
-        for (i_GIAS_CatalogMgr_submit_query_sort_attributes=0; i_GIAS_CatalogMgr_submit_query_sort_attributes < u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes; i_GIAS_CatalogMgr_submit_query_sort_attributes++) {
-
-            /*  Begin struct "GIAS_SortAttribute"  */
-            decode_GIAS_SortAttribute_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_SortAttribute"  */
-        }
-
-        u_octet4_loop_GIAS_CatalogMgr_submit_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_properties);
-
-        for (i_GIAS_CatalogMgr_submit_query_properties=0; i_GIAS_CatalogMgr_submit_query_properties < u_octet4_loop_GIAS_CatalogMgr_submit_query_properties; i_GIAS_CatalogMgr_submit_query_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/CatalogMgr/hit_count:1.0
- */
+/* Struct = IDL:GIAS/AccessCriteria:1.0 */
 static void
-decode_GIAS_CatalogMgr_hit_count(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_AccessCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_CatalogMgr_hit_count_properties;
-    guint32   i_GIAS_CatalogMgr_hit_count_properties;
-    /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_Query"  */
-        decode_GIAS_Query_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_Query"  */
-        u_octet4_loop_GIAS_CatalogMgr_hit_count_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_hit_count_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_hit_count_properties);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessCriteria_userID);
 
-        for (i_GIAS_CatalogMgr_hit_count_properties=0; i_GIAS_CatalogMgr_hit_count_properties < u_octet4_loop_GIAS_CatalogMgr_hit_count_properties; i_GIAS_CatalogMgr_hit_count_properties++) {
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessCriteria_password);
 
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessCriteria_licenseKey);
 
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/StandingQueryMgr/get_event_descriptions:1.0
- */
+/* Struct = IDL:GIAS/QueryOrderContents:1.0 */
 static void
-decode_GIAS_StandingQueryMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return;
-    guint32   i_GIAS_StandingQueryMgr_get_event_descriptions_return;
+    uint32_t  u_octet4_loop_GIAS_QueryOrderContents_del_list;
+    uint32_t  i_GIAS_QueryOrderContents_del_list;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_QueryOrderContents_originator);
 
-            for (i_GIAS_StandingQueryMgr_get_event_descriptions_return=0; i_GIAS_StandingQueryMgr_get_event_descriptions_return < u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return; i_GIAS_StandingQueryMgr_get_event_descriptions_return++) {
+    { /*  Begin struct "GIAS_TailoringSpec"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_TailoringSpec");
 
-                /*  Begin struct "GIAS_Event"  */
-                decode_GIAS_Event_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_Event"  */
-            }
+    decode_GIAS_TailoringSpec_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "GIAS_TailoringSpec"  */
+    { /*  Begin struct "GIAS_PackagingSpec"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_PackagingSpec");
 
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
+    decode_GIAS_PackagingSpec_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "GIAS_PackagingSpec"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_QueryOrderContents_operatorNote);
 
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
+    proto_tree_add_int(tree, hf_GIAS_QueryOrderContents_orderPriority, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+
+    { /*  Begin struct "GIAS_AlterationSpec"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AlterationSpec");
+
+    decode_GIAS_AlterationSpec_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "GIAS_AlterationSpec"  */
+    u_octet4_loop_GIAS_QueryOrderContents_del_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_QueryOrderContents_del_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderContents_del_list);
+
+    {
+        proto_tree *tree_bak_GaYnTi8nI3aE = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryOrderContents_del_list");
+        for (i_GIAS_QueryOrderContents_del_list=0; i_GIAS_QueryOrderContents_del_list < u_octet4_loop_GIAS_QueryOrderContents_del_list; i_GIAS_QueryOrderContents_del_list++) {
+
+            { /*  Begin struct "GIAS_DeliveryDetails"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DeliveryDetails");
+
+            decode_GIAS_DeliveryDetails_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_DeliveryDetails"  */
+        }
+        tree = tree_bak_GaYnTi8nI3aE;
+    }
+
 }
 
-/*
- * IDL:GIAS/StandingQueryMgr/submit_standing_query:1.0
- */
+/* Struct = IDL:GIAS/OrderContents:1.0 */
 static void
-decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
-    guint32   i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
-    guint32   u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes;
-    guint32   i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes;
-    guint32   u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties;
-    guint32   i_GIAS_StandingQueryMgr_submit_standing_query_properties;
+    uint32_t  u_octet4_loop_GIAS_OrderContents_prod_list;
+    uint32_t  i_GIAS_OrderContents_prod_list;
+    uint32_t  u_octet4_loop_GIAS_OrderContents_del_list;
+    uint32_t  i_GIAS_OrderContents_del_list;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_Query"  */
-        decode_GIAS_Query_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_Query"  */
-        u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderContents_originator);
 
-        for (i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes=0; i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes; i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes++) {
+    { /*  Begin struct "GIAS_TailoringSpec"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_TailoringSpec");
 
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes);
+    decode_GIAS_TailoringSpec_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "GIAS_TailoringSpec"  */
+    { /*  Begin struct "GIAS_PackagingSpec"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_PackagingSpec");
 
+    decode_GIAS_PackagingSpec_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "GIAS_PackagingSpec"  */
+    { /*  Begin struct "UCO_AbsTime"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
+
+    decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_AbsTime"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderContents_operatorNote);
+
+    proto_tree_add_int(tree, hf_GIAS_OrderContents_orderPriority, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+
+    u_octet4_loop_GIAS_OrderContents_prod_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_OrderContents_prod_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderContents_prod_list);
+
+    {
+        proto_tree *tree_bak_NBLQjbeQfFOR = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderContents_prod_list");
+        for (i_GIAS_OrderContents_prod_list=0; i_GIAS_OrderContents_prod_list < u_octet4_loop_GIAS_OrderContents_prod_list; i_GIAS_OrderContents_prod_list++) {
+
+            { /*  Begin struct "GIAS_ProductDetails"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_ProductDetails");
+
+            decode_GIAS_ProductDetails_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_ProductDetails"  */
         }
+        tree = tree_bak_NBLQjbeQfFOR;
+    }
 
-        u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes);
+    u_octet4_loop_GIAS_OrderContents_del_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_OrderContents_del_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderContents_del_list);
 
-        for (i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes=0; i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes; i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes++) {
+    {
+        proto_tree *tree_bak_GbpY5DH8Dvei = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderContents_del_list");
+        for (i_GIAS_OrderContents_del_list=0; i_GIAS_OrderContents_del_list < u_octet4_loop_GIAS_OrderContents_del_list; i_GIAS_OrderContents_del_list++) {
 
-            /*  Begin struct "GIAS_SortAttribute"  */
-            decode_GIAS_SortAttribute_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_SortAttribute"  */
+            { /*  Begin struct "GIAS_DeliveryDetails"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DeliveryDetails");
+
+            decode_GIAS_DeliveryDetails_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_DeliveryDetails"  */
         }
+        tree = tree_bak_GbpY5DH8Dvei;
+    }
 
-        /*  Begin struct "GIAS_QueryLifeSpan"  */
-        decode_GIAS_QueryLifeSpan_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_QueryLifeSpan"  */
-        u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties);
-
-        for (i_GIAS_StandingQueryMgr_submit_standing_query_properties=0; i_GIAS_StandingQueryMgr_submit_standing_query_properties < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties; i_GIAS_StandingQueryMgr_submit_standing_query_properties++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/ProductMgr/get_parameters:1.0
- */
+/* Struct = IDL:GIAS/DeliveryDetails:1.0 */
 static void
-decode_GIAS_ProductMgr_get_parameters(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_DeliveryDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
+    { /*  Begin union "GIAS_Destination"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union GIAS_Destination");
+
+    decode_GIAS_Destination_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "GIAS_Destination"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DeliveryDetails_receiver);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DeliveryDetails_shipmentMode);
+
+}
+
+/* Struct = IDL:GIAS/ProductDetails:1.0 */
+static void
+decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters;
-    guint32   i_GIAS_ProductMgr_get_parameters_desired_parameters;
-    guint32   u_octet4_loop_GIAS_ProductMgr_get_parameters_properties;
-    guint32   i_GIAS_ProductMgr_get_parameters_properties;
+    uint32_t  u_octet4_loop_GIAS_ProductDetails_mTypes;
+    uint32_t  i_GIAS_ProductDetails_mTypes;
+    uint32_t  u_octet4_loop_GIAS_ProductDetails_benums;
+    uint32_t  i_GIAS_ProductDetails_benums;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+    u_octet4_loop_GIAS_ProductDetails_mTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_ProductDetails_mTypes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductDetails_mTypes);
 
-        u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters);
+    {
+        proto_tree *tree_bak_zC6fCd3tXtT7 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductDetails_mTypes");
+        for (i_GIAS_ProductDetails_mTypes=0; i_GIAS_ProductDetails_mTypes < u_octet4_loop_GIAS_ProductDetails_mTypes; i_GIAS_ProductDetails_mTypes++) {
 
-        for (i_GIAS_ProductMgr_get_parameters_desired_parameters=0; i_GIAS_ProductMgr_get_parameters_desired_parameters < u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters; i_GIAS_ProductMgr_get_parameters_desired_parameters++) {
+            { /*  Begin struct "GIAS_MediaType"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_MediaType");
 
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_parameters_desired_parameters);
+            decode_GIAS_MediaType_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_MediaType"  */
+        }
+        tree = tree_bak_zC6fCd3tXtT7;
+    }
+
+    u_octet4_loop_GIAS_ProductDetails_benums = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_ProductDetails_benums_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductDetails_benums);
+
+    {
+        proto_tree *tree_bak_8tZVVNWAbkob = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductDetails_benums");
+        for (i_GIAS_ProductDetails_benums=0; i_GIAS_ProductDetails_benums < u_octet4_loop_GIAS_ProductDetails_benums; i_GIAS_ProductDetails_benums++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductDetails_benums);
 
         }
+        tree = tree_bak_8tZVVNWAbkob;
+    }
 
-        u_octet4_loop_GIAS_ProductMgr_get_parameters_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_parameters_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_parameters_properties);
+    { /*  Begin struct "GIAS_AlterationSpec"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AlterationSpec");
 
-        for (i_GIAS_ProductMgr_get_parameters_properties=0; i_GIAS_ProductMgr_get_parameters_properties < u_octet4_loop_GIAS_ProductMgr_get_parameters_properties; i_GIAS_ProductMgr_get_parameters_properties++) {
+    decode_GIAS_AlterationSpec_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "GIAS_AlterationSpec"  */
+    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductDetails_info_system_name);
+
+}
+
+/* Struct = IDL:GIAS/DelayEstimate:1.0 */
+static void
+decode_GIAS_DelayEstimate_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_uint(tree, hf_GIAS_DelayEstimate_time_delay, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_boolean(tree, hf_GIAS_DelayEstimate_valid_time_delay, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+}
+
+/* Struct = IDL:GIAS/SortAttribute:1.0 */
+static void
+decode_GIAS_SortAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_SortAttribute_attribute_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_SortAttribute_sort_polarity, tvb, *offset-4, 4, u_octet4);
+
+}
+
+/* Struct = IDL:GIAS/QueryLifeSpan:1.0 */
+static void
+decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_QueryLifeSpan_frequency;
+    uint32_t  i_GIAS_QueryLifeSpan_frequency;
+    /* Operation specific Variable declarations End */
+
+    { /*  Begin union "GIAS_LifeEvent"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union GIAS_LifeEvent");
+
+    decode_GIAS_LifeEvent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "GIAS_LifeEvent"  */
+    { /*  Begin union "GIAS_LifeEvent"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union GIAS_LifeEvent");
+
+    decode_GIAS_LifeEvent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "GIAS_LifeEvent"  */
+    u_octet4_loop_GIAS_QueryLifeSpan_frequency = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_QueryLifeSpan_frequency_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryLifeSpan_frequency);
+
+    {
+        proto_tree *tree_bak_JQr0p2e3kymM = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryLifeSpan_frequency");
+        for (i_GIAS_QueryLifeSpan_frequency=0; i_GIAS_QueryLifeSpan_frequency < u_octet4_loop_GIAS_QueryLifeSpan_frequency; i_GIAS_QueryLifeSpan_frequency++) {
+
+            { /*  Begin union "GIAS_LifeEvent"  */
+            proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union GIAS_LifeEvent");
+
+            decode_GIAS_LifeEvent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+            } /*  End union "GIAS_LifeEvent"  */
         }
+        tree = tree_bak_JQr0p2e3kymM;
+    }
 
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/ProductMgr/get_related_file_types:1.0
- */
+/* Struct = IDL:GIAS/DayEventTime:1.0 */
 static void
-decode_GIAS_ProductMgr_get_related_file_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_DayEventTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return;
-    guint32   i_GIAS_ProductMgr_get_related_file_types_return;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_DayEventTime_day_event, tvb, *offset-4, 4, u_octet4);
 
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_file_types_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return);
+    { /*  Begin struct "UCO_Time"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Time");
 
-            for (i_GIAS_ProductMgr_get_related_file_types_return=0; i_GIAS_ProductMgr_get_related_file_types_return < u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return; i_GIAS_ProductMgr_get_related_file_types_return++) {
-
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_related_file_types_return);
-
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
+    decode_UCO_Time_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Time"  */
 }
 
-/*
- * IDL:GIAS/ProductMgr/get_related_files:1.0
- */
+/* Struct = IDL:GIAS/Event:1.0 */
 static void
-decode_GIAS_ProductMgr_get_related_files(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_Event_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_ProductMgr_get_related_files_products;
-    guint32   i_GIAS_ProductMgr_get_related_files_products;
-    guint32   u_octet4_loop_GIAS_ProductMgr_get_related_files_properties;
-    guint32   i_GIAS_ProductMgr_get_related_files_properties;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_GIAS_ProductMgr_get_related_files_products = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_files_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_files_products);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Event_event_name);
 
-        for (i_GIAS_ProductMgr_get_related_files_products=0; i_GIAS_ProductMgr_get_related_files_products < u_octet4_loop_GIAS_ProductMgr_get_related_files_products; i_GIAS_ProductMgr_get_related_files_products++) {
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_Event_event_type, tvb, *offset-4, 4, u_octet4);
 
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Event_event_description);
+
+}
+
+/* Struct = IDL:GIAS/Query:1.0 */
+static void
+decode_GIAS_Query_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Query_view);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Query_bqs_query);
+
+}
+
+/* Struct = IDL:GIAS/LibraryDescription:1.0 */
+static void
+decode_GIAS_LibraryDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryDescription_library_name);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryDescription_library_description);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryDescription_library_version_number);
+
+}
+
+/* Struct = IDL:GIAS/Association:1.0 */
+static void
+decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_GIAS_Association_attribute_info;
+    uint32_t  i_GIAS_Association_attribute_info;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_name);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_view_a);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_view_b);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_description);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_Association_card, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4_loop_GIAS_Association_attribute_info = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_Association_attribute_info_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Association_attribute_info);
+
+    {
+        proto_tree *tree_bak_sMqB6dC0o2G1 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Association_attribute_info");
+        for (i_GIAS_Association_attribute_info=0; i_GIAS_Association_attribute_info < u_octet4_loop_GIAS_Association_attribute_info; i_GIAS_Association_attribute_info++) {
+
+            { /*  Begin struct "GIAS_AttributeInformation"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_AttributeInformation");
+
+            decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "GIAS_AttributeInformation"  */
+        }
+        tree = tree_bak_sMqB6dC0o2G1;
+    }
+
+}
+
+/* Struct = IDL:GIAS/AttributeInformation:1.0 */
+static void
+decode_GIAS_AttributeInformation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_attribute_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_AttributeInformation_attribute_type, tvb, *offset-4, 4, u_octet4);
+
+    { /*  Begin union "GIAS_Domain"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union GIAS_Domain");
+
+    decode_GIAS_Domain_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "GIAS_Domain"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_attribute_units);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_attribute_reference);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_AttributeInformation_mode, tvb, *offset-4, 4, u_octet4);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_description);
+
+    proto_tree_add_boolean(tree, hf_GIAS_AttributeInformation_sortable, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+    proto_tree_add_boolean(tree, hf_GIAS_AttributeInformation_updateable, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+}
+
+/* Struct = IDL:GIAS/FloatingPointRange:1.0 */
+static void
+decode_GIAS_FloatingPointRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_double(tree, hf_GIAS_FloatingPointRange_lower_bound, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_double(tree, hf_GIAS_FloatingPointRange_upper_bound, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:GIAS/IntegerRange:1.0 */
+static void
+decode_GIAS_IntegerRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_int(tree, hf_GIAS_IntegerRange_lower_bound, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_GIAS_IntegerRange_upper_bound, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:GIAS/DateRange:1.0 */
+static void
+decode_GIAS_DateRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    { /*  Begin struct "UCO_AbsTime"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
+
+    decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_AbsTime"  */
+    { /*  Begin struct "UCO_AbsTime"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
+
+    decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_AbsTime"  */
+}
+
+/* Struct = IDL:GIAS/View:1.0 */
+static void
+decode_GIAS_View_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_View_sub_views;
+    uint32_t  i_GIAS_View_sub_views;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_View_view_name);
+
+    proto_tree_add_boolean(tree, hf_GIAS_View_orderable, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+    u_octet4_loop_GIAS_View_sub_views = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_View_sub_views_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_View_sub_views);
+
+    {
+        proto_tree *tree_bak_CCEzoUFvuOYw = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_View_sub_views");
+        for (i_GIAS_View_sub_views=0; i_GIAS_View_sub_views < u_octet4_loop_GIAS_View_sub_views; i_GIAS_View_sub_views++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_View_sub_views);
 
         }
+        tree = tree_bak_CCEzoUFvuOYw;
+    }
 
-        /*  Begin struct "UCO_FileLocation"  */
-        decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_FileLocation"  */
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_related_files_type);
+}
 
-        u_octet4_loop_GIAS_ProductMgr_get_related_files_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_files_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_files_properties);
+/* Struct = IDL:GIAS/RelatedFile:1.0 */
+static void
+decode_GIAS_RelatedFile_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
 
-        for (i_GIAS_ProductMgr_get_related_files_properties=0; i_GIAS_ProductMgr_get_related_files_properties < u_octet4_loop_GIAS_ProductMgr_get_related_files_properties; i_GIAS_ProductMgr_get_related_files_properties++) {
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_RelatedFile_file_type);
 
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
+    { /*  Begin struct "UCO_FileLocation"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+    decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_FileLocation"  */
+}
+
+/* Struct = IDL:GIAS/ValidationResults:1.0 */
+static void
+decode_GIAS_ValidationResults_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_boolean(tree, hf_GIAS_ValidationResults_valid, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+    proto_tree_add_boolean(tree, hf_GIAS_ValidationResults_warning, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ValidationResults_details);
+
+}
+
+/* Struct = IDL:GIAS/PhysicalDelivery:1.0 */
+static void
+decode_GIAS_PhysicalDelivery_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PhysicalDelivery_address);
+
+}
+
+/* Struct = IDL:GIAS/MediaType:1.0 */
+static void
+decode_GIAS_MediaType_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_MediaType_media_type);
+
+    proto_tree_add_uint(tree, hf_GIAS_MediaType_quantity, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:GIAS/TailoringSpec:1.0 */
+static void
+decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_GIAS_TailoringSpec_specs;
+    uint32_t  i_GIAS_TailoringSpec_specs;
+    /* Operation specific Variable declarations End */
+
+    u_octet4_loop_GIAS_TailoringSpec_specs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_TailoringSpec_specs_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_TailoringSpec_specs);
+
+    {
+        proto_tree *tree_bak_1FnV26aJ4ZcA = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_TailoringSpec_specs");
+        for (i_GIAS_TailoringSpec_specs=0; i_GIAS_TailoringSpec_specs < u_octet4_loop_GIAS_TailoringSpec_specs; i_GIAS_TailoringSpec_specs++) {
+
+            { /*  Begin struct "UCO_NameName"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameName");
+
+            decode_UCO_NameName_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_NameName"  */
         }
+        tree = tree_bak_1FnV26aJ4ZcA;
+    }
 
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
 }
 
-/*
- * IDL:GIAS/IngestMgr/bulk_pull:1.0
- */
+/* Struct = IDL:GIAS/PackagingSpec:1.0 */
 static void
-decode_GIAS_IngestMgr_bulk_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_PackagingSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackagingSpec_package_identifier);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackagingSpec_packaging_format_and_compression);
+
+}
+
+/* Struct = IDL:GIAS/AlterationSpec:1.0 */
+static void
+decode_GIAS_AlterationSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list;
-    guint32   i_GIAS_IngestMgr_bulk_pull_property_list;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "UCO_FileLocation"  */
-        decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_FileLocation"  */
-        u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_IngestMgr_bulk_pull_property_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list);
-
-        for (i_GIAS_IngestMgr_bulk_pull_property_list=0; i_GIAS_IngestMgr_bulk_pull_property_list < u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list; i_GIAS_IngestMgr_bulk_pull_property_list++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/IngestMgr/bulk_push:1.0
- */
-static void
-decode_GIAS_IngestMgr_bulk_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list;
-    guint32   i_GIAS_IngestMgr_bulk_push_property_list;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "GIAS_Query"  */
-        decode_GIAS_Query_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_Query"  */
-        /*  Begin struct "UCO_FileLocation"  */
-        decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_FileLocation"  */
-        u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_GIAS_IngestMgr_bulk_push_property_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list);
-
-        for (i_GIAS_IngestMgr_bulk_push_property_list=0; i_GIAS_IngestMgr_bulk_push_property_list < u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list; i_GIAS_IngestMgr_bulk_push_property_list++) {
-
-            /*  Begin struct "UCO_NameValue"  */
-            decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_NameValue"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/get_request_description:1.0
- */
-static void
-decode_GIAS_Request_get_request_description(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "UCO_RequestDescription"  */
-            decode_UCO_RequestDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_RequestDescription"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/set_user_info:1.0
- */
-static void
-decode_GIAS_Request_set_user_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Request_set_user_info_message);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/get_status:1.0
- */
-static void
-decode_GIAS_Request_get_status(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "UCO_Status"  */
-            decode_UCO_Status_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_Status"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/get_remaining_delay:1.0
- */
-static void
-decode_GIAS_Request_get_remaining_delay(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "GIAS_DelayEstimate"  */
-            decode_GIAS_DelayEstimate_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_DelayEstimate"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/cancel:1.0
- */
-static void
-decode_GIAS_Request_cancel(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/register_callback:1.0
- */
-static void
-decode_GIAS_Request_register_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Request_register_callback_return);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/free_callback:1.0
- */
-static void
-decode_GIAS_Request_free_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Request_free_callback_id);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/Request/get_request_manager:1.0
- */
-static void
-decode_GIAS_Request_get_request_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/OrderRequest/complete:1.0
- */
-static void
-decode_GIAS_OrderRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_OrderRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            /*  Begin struct "GIAS_DeliveryManifest"  */
-            decode_GIAS_DeliveryManifest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_DeliveryManifest"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryOrderRequest/pause:1.0
- */
-static void
-decode_GIAS_SubmitQueryOrderRequest_pause(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryOrderRequest/resume:1.0
- */
-static void
-decode_GIAS_SubmitQueryOrderRequest_resume(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryOrderRequest/complete_list:1.0
- */
-static void
-decode_GIAS_SubmitQueryOrderRequest_complete_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods;
-    guint32   i_GIAS_SubmitQueryOrderRequest_complete_list_prods;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_list_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods);
-
-            for (i_GIAS_SubmitQueryOrderRequest_complete_list_prods=0; i_GIAS_SubmitQueryOrderRequest_complete_list_prods < u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods; i_GIAS_SubmitQueryOrderRequest_complete_list_prods++) {
-
-                /*  Begin struct "GIAS_DeliveryManifest"  */
-                decode_GIAS_DeliveryManifest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "GIAS_DeliveryManifest"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryOrderRequest/complete:1.0
- */
-static void
-decode_GIAS_SubmitQueryOrderRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            /*  Begin struct "GIAS_DeliveryManifest"  */
-            decode_GIAS_DeliveryManifest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_DeliveryManifest"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CreateRequest/complete:1.0
- */
-static void
-decode_GIAS_CreateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_CreateRequest_complete_new_products;
-    guint32   i_GIAS_CreateRequest_complete_new_products;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_CreateRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_CreateRequest_complete_new_products = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_CreateRequest_complete_new_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreateRequest_complete_new_products);
-
-            for (i_GIAS_CreateRequest_complete_new_products=0; i_GIAS_CreateRequest_complete_new_products < u_octet4_loop_GIAS_CreateRequest_complete_new_products; i_GIAS_CreateRequest_complete_new_products++) {
-
-                get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CreateMetaDataRequest/complete:1.0
- */
-static void
-decode_GIAS_CreateMetaDataRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_CreateMetaDataRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/UpdateRequest/complete:1.0
- */
-static void
-decode_GIAS_UpdateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_UpdateRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryRequest/set_number_of_hits:1.0
- */
-static void
-decode_GIAS_SubmitQueryRequest_set_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_set_number_of_hits_hits, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryRequest/complete_DAG_results:1.0
- */
-static void
-decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results;
-    guint32   i_GIAS_SubmitQueryRequest_complete_DAG_results_results;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_DAG_results_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results);
-
-            for (i_GIAS_SubmitQueryRequest_complete_DAG_results_results=0; i_GIAS_SubmitQueryRequest_complete_DAG_results_results < u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results; i_GIAS_SubmitQueryRequest_complete_DAG_results_results++) {
-
-                /*  Begin struct "UCO_DAG"  */
-                decode_UCO_DAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "UCO_DAG"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryRequest/complete_stringDAG_results:1.0
- */
-static void
-decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results;
-    guint32   i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results);
-
-            for (i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results=0; i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results < u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results; i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results++) {
-
-                /*  Begin struct "UCO_StringDAG"  */
-                decode_UCO_StringDAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "UCO_StringDAG"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitQueryRequest/complete_XML_results:1.0
- */
-static void
-decode_GIAS_SubmitQueryRequest_complete_XML_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_XML_results_return, tvb, *offset-4, 4, u_octet4);
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_SubmitQueryRequest_complete_XML_results_results);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/set_number_of_hits:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_set_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_set_number_of_hits_hits, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/get_number_of_hits:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/get_number_of_hits_in_interval:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_interval, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/get_number_of_intervals:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_get_number_of_intervals(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_get_number_of_intervals_return, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/clear_all:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_clear_all(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/clear_intervals:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_clear_intervals(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_clear_intervals_num_intervals, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/clear_before:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_clear_before(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "UCO_Time"  */
-        decode_UCO_Time_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Time"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/pause:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_pause(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/resume:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_resume(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/get_time_last_executed:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_get_time_last_executed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "UCO_AbsTime"  */
-            decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_AbsTime"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/get_time_next_execution:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_get_time_next_execution(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "UCO_AbsTime"  */
-            decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_AbsTime"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/complete_DAG_results:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results;
-    guint32   i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results);
-
-            for (i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results=0; i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results < u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results; i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results++) {
-
-                /*  Begin struct "UCO_DAG"  */
-                decode_UCO_DAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "UCO_DAG"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/complete_stringDAG_results:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results;
-    guint32   i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results);
-
-            for (i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results=0; i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results < u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results; i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results++) {
-
-                /*  Begin struct "UCO_StringDAG"  */
-                decode_UCO_StringDAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "UCO_StringDAG"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SubmitStandingQueryRequest/complete_XML_results:1.0
- */
-static void
-decode_GIAS_SubmitStandingQueryRequest_complete_XML_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_return, tvb, *offset-4, 4, u_octet4);
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_results);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/SetAvailabilityRequest/complete:1.0
- */
-static void
-decode_GIAS_SetAvailabilityRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_SetAvailabilityRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/HitCountRequest/complete:1.0
- */
-static void
-decode_GIAS_HitCountRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_HitCountRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            proto_tree_add_uint(tree, hf_GIAS_HitCountRequest_complete_number_of_hits, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/GetParametersRequest/complete:1.0
- */
-static void
-decode_GIAS_GetParametersRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_GetParametersRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            /*  Begin struct "UCO_DAG"  */
-            decode_UCO_DAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_DAG"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/GetParametersRequest/complete_StringDAG:1.0
- */
-static void
-decode_GIAS_GetParametersRequest_complete_StringDAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_GetParametersRequest_complete_StringDAG_return, tvb, *offset-4, 4, u_octet4);
-
-            /*  Begin struct "UCO_StringDAG"  */
-            decode_UCO_StringDAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_StringDAG"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/IngestRequest/complete:1.0
- */
-static void
-decode_GIAS_IngestRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_IngestRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/GetRelatedFilesRequest/complete:1.0
- */
-static void
-decode_GIAS_GetRelatedFilesRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations;
-    guint32   i_GIAS_GetRelatedFilesRequest_complete_locations;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_GetRelatedFilesRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_GetRelatedFilesRequest_complete_locations_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations);
-
-            for (i_GIAS_GetRelatedFilesRequest_complete_locations=0; i_GIAS_GetRelatedFilesRequest_complete_locations < u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations; i_GIAS_GetRelatedFilesRequest_complete_locations++) {
-
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_GetRelatedFilesRequest_complete_locations);
-
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/CreateAssociationRequest/complete:1.0
- */
-static void
-decode_GIAS_CreateAssociationRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_CreateAssociationRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:GIAS/UpdateByQueryRequest/complete:1.0
- */
-static void
-decode_GIAS_UpdateByQueryRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_GIAS_UpdateByQueryRequest_complete_return, tvb, *offset-4, 4, u_octet4);
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_gias_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_gias_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/* Struct = IDL:UCO/NameName:1.0 */
-static void
-decode_UCO_NameName_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_NameName_name1);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_NameName_name2);
-
-}
-
-/* Struct = IDL:UCO/NameValue:1.0 */
-static void
-decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_NameValue_aname);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AlterationSpec_pf);
 
     get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-}
+    { /*  Begin struct "UCO_Rectangle"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Rectangle");
 
-/* Struct = IDL:UCO/Ratio:1.0 */
-static void
-decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_double(tree, hf_UCO_Ratio_numerator, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_double(tree, hf_UCO_Ratio_denominator, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+    decode_UCO_Rectangle_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Rectangle"  */
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_AlterationSpec_geo_region_type, tvb, *offset-4, 4, u_octet4);
 
 }
 
-/* Struct = IDL:UCO/FileLocation:1.0 */
+/* Struct = IDL:GIAS/ImageSpec:1.0 */
 static void
-decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_user_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_password);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_host_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_path_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_file_name);
-
-}
-
-/* Struct = IDL:UCO/DirectAccessLocation:1.0 */
-static void
-decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4_loop_GIAS_ImageSpec_rrds;
+    uint32_t  i_GIAS_ImageSpec_rrds;
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_imgform);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_imageid);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_comp);
+
+    proto_tree_add_int(tree, hf_GIAS_ImageSpec_bpp, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_algo);
+
+    u_octet4_loop_GIAS_ImageSpec_rrds = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_ImageSpec_rrds_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ImageSpec_rrds);
+
+    {
+        proto_tree *tree_bak_ixFxYa6sPmgQ = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ImageSpec_rrds");
+        for (i_GIAS_ImageSpec_rrds=0; i_GIAS_ImageSpec_rrds < u_octet4_loop_GIAS_ImageSpec_rrds; i_GIAS_ImageSpec_rrds++) {
+
+            proto_tree_add_int(tree, hf_GIAS_ImageSpec_rrds, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+
+        }
+        tree = tree_bak_ixFxYa6sPmgQ;
+    }
+
+    { /*  Begin struct "UCO_Rectangle"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Rectangle");
+
+    decode_UCO_Rectangle_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Rectangle"  */
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_ImageSpec_geo_region_type, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_GIAS_ImageSpec_encoding, tvb, *offset-4, 4, u_octet4);
+
+}
+
+/* Struct = IDL:UCO/exception_details:1.0 */
+static void
+decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_exception_details_exception_name);
+
+    proto_tree_add_boolean(tree, hf_UCO_exception_details_standard_exception_name, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_exception_details_exception_desc);
+
+}
+
+/* Struct = IDL:UCO/EntityGraph:1.0 */
+static void
+decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_UCO_EntityGraph_nodes;
+    uint32_t  i_UCO_EntityGraph_nodes;
+    uint32_t  u_octet4_loop_UCO_EntityGraph_relationship;
+    uint32_t  i_UCO_EntityGraph_relationship;
+    /* Operation specific Variable declarations End */
+
+    u_octet4_loop_UCO_EntityGraph_nodes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_EntityGraph_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_EntityGraph_nodes);
+
+    {
+        proto_tree *tree_bak_wEXocYr6FYcK = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_EntityGraph_nodes");
+        for (i_UCO_EntityGraph_nodes=0; i_UCO_EntityGraph_nodes < u_octet4_loop_UCO_EntityGraph_nodes; i_UCO_EntityGraph_nodes++) {
+
+            { /*  Begin struct "UCO_EntityNode"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_EntityNode");
+
+            decode_UCO_EntityNode_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_EntityNode"  */
+        }
+        tree = tree_bak_wEXocYr6FYcK;
+    }
+
+    u_octet4_loop_UCO_EntityGraph_relationship = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_EntityGraph_relationship_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_EntityGraph_relationship);
+
+    {
+        proto_tree *tree_bak_z8nSSziGD8tY = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_EntityGraph_relationship");
+        for (i_UCO_EntityGraph_relationship=0; i_UCO_EntityGraph_relationship < u_octet4_loop_UCO_EntityGraph_relationship; i_UCO_EntityGraph_relationship++) {
+
+            { /*  Begin struct "UCO_EntityRelationship"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_EntityRelationship");
+
+            decode_UCO_EntityRelationship_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_EntityRelationship"  */
+        }
+        tree = tree_bak_z8nSSziGD8tY;
+    }
+
+}
+
+/* Struct = IDL:UCO/EntityRelationship:1.0 */
+static void
+decode_UCO_EntityRelationship_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_start_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_end_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_start_to_end_card, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_end_to_start_card, tvb, *offset-4, 4, u_octet4);
+
+}
+
+/* Struct = IDL:UCO/EntityNode:1.0 */
+static void
+decode_UCO_EntityNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_uint(tree, hf_UCO_EntityNode_id, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_EntityNode_entity_name);
+
+}
+
+/* Struct = IDL:UCO/Status:1.0 */
+static void
+decode_UCO_Status_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_DirectAccessLocation_access_protocol, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_UCO_Status_completion_state, tvb, *offset-4, 4, u_octet4);
 
-    /*  Begin struct "UCO_FileLocation"  */
-    decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_FileLocation"  */
-}
+    proto_tree_add_boolean(tree, hf_UCO_Status_warning, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-/* Struct = IDL:UCO/Date:1.0 */
-static void
-decode_UCO_Date_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_Status_status_message);
 
-    proto_tree_add_uint(tree, hf_UCO_Date_year, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_UCO_Date_month, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_UCO_Date_day, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:UCO/Time:1.0 */
-static void
-decode_UCO_Time_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_uint(tree, hf_UCO_Time_hour, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_UCO_Time_minute, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_float(tree, hf_UCO_Time_second, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:UCO/AbsTime:1.0 */
-static void
-decode_UCO_AbsTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /*  Begin struct "UCO_Date"  */
-    decode_UCO_Date_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Date"  */
-    /*  Begin struct "UCO_Time"  */
-    decode_UCO_Time_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Time"  */
-}
-
-/* Struct = IDL:UCO/Node:1.0 */
-static void
-decode_UCO_Node_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    proto_tree_add_uint(tree, hf_UCO_Node_id, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_Node_node_type, tvb, *offset-4, 4, u_octet4);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_Node_attribute_name);
-
-    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
-
-}
-
-/* Struct = IDL:UCO/Edge:1.0 */
-static void
-decode_UCO_Edge_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_uint(tree, hf_UCO_Edge_start_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_UCO_Edge_end_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_Edge_relationship_type);
-
-}
-
-/* Struct = IDL:UCO/DAG:1.0 */
-static void
-decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_DAG_nodes;
-    guint32   i_UCO_DAG_nodes;
-    guint32   u_octet4_loop_UCO_DAG_edges;
-    guint32   i_UCO_DAG_edges;
-    /* Operation specific Variable declarations End */
-
-    u_octet4_loop_UCO_DAG_nodes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_DAG_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_DAG_nodes);
-
-    for (i_UCO_DAG_nodes=0; i_UCO_DAG_nodes < u_octet4_loop_UCO_DAG_nodes; i_UCO_DAG_nodes++) {
-
-        /*  Begin struct "UCO_Node"  */
-        decode_UCO_Node_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Node"  */
-    }
-
-    u_octet4_loop_UCO_DAG_edges = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_DAG_edges_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_DAG_edges);
-
-    for (i_UCO_DAG_edges=0; i_UCO_DAG_edges < u_octet4_loop_UCO_DAG_edges; i_UCO_DAG_edges++) {
-
-        /*  Begin struct "UCO_Edge"  */
-        decode_UCO_Edge_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Edge"  */
-    }
-
-}
-
-/* Struct = IDL:UCO/StringNode:1.0 */
-static void
-decode_UCO_StringNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    proto_tree_add_uint(tree, hf_UCO_StringNode_id, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_StringNode_node_type, tvb, *offset-4, 4, u_octet4);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_StringNode_attribute_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_StringNode_value);
-
-}
-
-/* Struct = IDL:UCO/StringDAG:1.0 */
-static void
-decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_StringDAG_nodes;
-    guint32   i_UCO_StringDAG_nodes;
-    guint32   u_octet4_loop_UCO_StringDAG_edges;
-    guint32   i_UCO_StringDAG_edges;
-    /* Operation specific Variable declarations End */
-
-    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
-
-    u_octet4_loop_UCO_StringDAG_nodes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_StringDAG_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_StringDAG_nodes);
-
-    for (i_UCO_StringDAG_nodes=0; i_UCO_StringDAG_nodes < u_octet4_loop_UCO_StringDAG_nodes; i_UCO_StringDAG_nodes++) {
-
-        /*  Begin struct "UCO_StringNode"  */
-        decode_UCO_StringNode_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_StringNode"  */
-    }
-
-    u_octet4_loop_UCO_StringDAG_edges = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_StringDAG_edges_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_StringDAG_edges);
-
-    for (i_UCO_StringDAG_edges=0; i_UCO_StringDAG_edges < u_octet4_loop_UCO_StringDAG_edges; i_UCO_StringDAG_edges++) {
-
-        /*  Begin struct "UCO_Edge"  */
-        decode_UCO_Edge_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Edge"  */
-    }
-
-}
-
-/* Struct = IDL:UCO/Change:1.0 */
-static void
-decode_UCO_Change_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    proto_tree_add_uint(tree, hf_UCO_Change_changed_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_Change_change_type, tvb, *offset-4, 4, u_octet4);
-
-}
-
-/* Struct = IDL:UCO/UpdateDAG:1.0 */
-static void
-decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_UpdateDAG_changes;
-    guint32   i_UCO_UpdateDAG_changes;
-    /* Operation specific Variable declarations End */
-
-    /*  Begin struct "UCO_DAG"  */
-    decode_UCO_DAG_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_DAG"  */
-    u_octet4_loop_UCO_UpdateDAG_changes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_UpdateDAG_changes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_UpdateDAG_changes);
-
-    for (i_UCO_UpdateDAG_changes=0; i_UCO_UpdateDAG_changes < u_octet4_loop_UCO_UpdateDAG_changes; i_UCO_UpdateDAG_changes++) {
-
-        /*  Begin struct "UCO_Change"  */
-        decode_UCO_Change_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Change"  */
-    }
-
-}
-
-/* Struct = IDL:UCO/RequestDescription:1.0 */
-static void
-decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_RequestDescription_request_details;
-    guint32   i_UCO_RequestDescription_request_details;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_RequestDescription_user_info);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_RequestDescription_request_type);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_RequestDescription_request_info);
-
-    u_octet4_loop_UCO_RequestDescription_request_details = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_RequestDescription_request_details_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_RequestDescription_request_details);
-
-    for (i_UCO_RequestDescription_request_details=0; i_UCO_RequestDescription_request_details < u_octet4_loop_UCO_RequestDescription_request_details; i_UCO_RequestDescription_request_details++) {
-
-        /*  Begin struct "UCO_NameValue"  */
-        decode_UCO_NameValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_NameValue"  */
-    }
-
-}
-
-/* Struct = IDL:UCO/Coordinate2d:1.0 */
-static void
-decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_double(tree, hf_UCO_Coordinate2d_x, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_double(tree, hf_UCO_Coordinate2d_y, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:UCO/Coordinate3d:1.0 */
-static void
-decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_double(tree, hf_UCO_Coordinate3d_x, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_double(tree, hf_UCO_Coordinate3d_y, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_double(tree, hf_UCO_Coordinate3d_z, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:UCO/LinearDimension:1.0 */
-static void
-decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_double(tree, hf_UCO_LinearDimension_dimension, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_LinearDimension_reference_system);
-
-}
-
-/* Struct = IDL:UCO/Circle:1.0 */
-static void
-decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /*  Begin struct "UCO_Coordinate2d"  */
-    decode_UCO_Coordinate2d_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Coordinate2d"  */
-    /*  Begin struct "UCO_LinearDimension"  */
-    decode_UCO_LinearDimension_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_LinearDimension"  */
-}
-
-/* Struct = IDL:UCO/Ellipse:1.0 */
-static void
-decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /*  Begin struct "UCO_Coordinate2d"  */
-    decode_UCO_Coordinate2d_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Coordinate2d"  */
-    /*  Begin struct "UCO_LinearDimension"  */
-    decode_UCO_LinearDimension_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_LinearDimension"  */
-    /*  Begin struct "UCO_LinearDimension"  */
-    decode_UCO_LinearDimension_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_LinearDimension"  */
-    proto_tree_add_double(tree, hf_UCO_Ellipse_north_angle, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:UCO/Rectangle:1.0 */
-static void
-decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /*  Begin struct "UCO_Coordinate2d"  */
-    decode_UCO_Coordinate2d_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Coordinate2d"  */
-    /*  Begin struct "UCO_Coordinate2d"  */
-    decode_UCO_Coordinate2d_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Coordinate2d"  */
-}
-
-/* Struct = IDL:UCO/SimpleGSImage:1.0 */
-static void
-decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_uint(tree, hf_UCO_SimpleGSImage_width, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_UCO_SimpleGSImage_height, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    /*  Begin union "UCO_Buffer"  */
-    decode_UCO_Buffer_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-    /*  End union "UCO_Buffer"  */
-}
-
-/* Struct = IDL:UCO/SimpleCImage:1.0 */
-static void
-decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_uint(tree, hf_UCO_SimpleCImage_width, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_UCO_SimpleCImage_height, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    /*  Begin union "UCO_Buffer"  */
-    decode_UCO_Buffer_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-    /*  End union "UCO_Buffer"  */
-    /*  Begin union "UCO_Buffer"  */
-    decode_UCO_Buffer_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-    /*  End union "UCO_Buffer"  */
-    /*  Begin union "UCO_Buffer"  */
-    decode_UCO_Buffer_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-    /*  End union "UCO_Buffer"  */
 }
 
 /* Struct = IDL:UCO/CompressedImage:1.0 */
 static void
-decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_CompressedImage_data;
-    const guint8 * binary_seq_UCO_CompressedImage_data;
-    gchar * text_seq_UCO_CompressedImage_data;
+    uint32_t  u_octet4_loop_UCO_CompressedImage_data;
+    const uint8_t * binary_seq_UCO_CompressedImage_data;
+    char * text_seq_UCO_CompressedImage_data;
     /* Operation specific Variable declarations End */
 
     proto_tree_add_uint(tree, hf_UCO_CompressedImage_width, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
@@ -5469,889 +6367,551 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree 
 
 }
 
-/* Struct = IDL:UCO/Status:1.0 */
+/* Struct = IDL:UCO/SimpleCImage:1.0 */
 static void
-decode_UCO_Status_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
+    proto_tree_add_uint(tree, hf_UCO_SimpleCImage_width, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_Status_completion_state, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_UCO_SimpleCImage_height, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_boolean(tree, hf_UCO_Status_warning, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+    { /*  Begin union "UCO_Buffer"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union UCO_Buffer");
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_Status_status_message);
+    decode_UCO_Buffer_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "UCO_Buffer"  */
+    { /*  Begin union "UCO_Buffer"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union UCO_Buffer");
+
+    decode_UCO_Buffer_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "UCO_Buffer"  */
+    { /*  Begin union "UCO_Buffer"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union UCO_Buffer");
+
+    decode_UCO_Buffer_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "UCO_Buffer"  */
+}
+
+/* Struct = IDL:UCO/SimpleGSImage:1.0 */
+static void
+decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_uint(tree, hf_UCO_SimpleGSImage_width, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_uint(tree, hf_UCO_SimpleGSImage_height, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+    { /*  Begin union "UCO_Buffer"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union UCO_Buffer");
+
+    decode_UCO_Buffer_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "UCO_Buffer"  */
+}
+
+/* Struct = IDL:UCO/Rectangle:1.0 */
+static void
+decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    { /*  Begin struct "UCO_Coordinate2d"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Coordinate2d");
+
+    decode_UCO_Coordinate2d_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Coordinate2d"  */
+    { /*  Begin struct "UCO_Coordinate2d"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Coordinate2d");
+
+    decode_UCO_Coordinate2d_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Coordinate2d"  */
+}
+
+/* Struct = IDL:UCO/Ellipse:1.0 */
+static void
+decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    { /*  Begin struct "UCO_Coordinate2d"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Coordinate2d");
+
+    decode_UCO_Coordinate2d_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Coordinate2d"  */
+    { /*  Begin struct "UCO_LinearDimension"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_LinearDimension");
+
+    decode_UCO_LinearDimension_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_LinearDimension"  */
+    { /*  Begin struct "UCO_LinearDimension"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_LinearDimension");
+
+    decode_UCO_LinearDimension_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_LinearDimension"  */
+    proto_tree_add_double(tree, hf_UCO_Ellipse_north_angle, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
-/* Struct = IDL:UCO/EntityNode:1.0 */
+/* Struct = IDL:UCO/Circle:1.0 */
 static void
-decode_UCO_EntityNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_UCO_EntityNode_id, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+    { /*  Begin struct "UCO_Coordinate2d"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Coordinate2d");
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_EntityNode_entity_name);
+    decode_UCO_Coordinate2d_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Coordinate2d"  */
+    { /*  Begin struct "UCO_LinearDimension"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_LinearDimension");
+
+    decode_UCO_LinearDimension_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_LinearDimension"  */
+}
+
+/* Struct = IDL:UCO/LinearDimension:1.0 */
+static void
+decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_double(tree, hf_UCO_LinearDimension_dimension, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_LinearDimension_reference_system);
 
 }
 
-/* Struct = IDL:UCO/EntityRelationship:1.0 */
+/* Struct = IDL:UCO/Coordinate3d:1.0 */
 static void
-decode_UCO_EntityRelationship_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
+    proto_tree_add_double(tree, hf_UCO_Coordinate3d_x, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_start_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_double(tree, hf_UCO_Coordinate3d_y, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_end_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_start_to_end_card, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_EntityRelationship_end_to_start_card, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_double(tree, hf_UCO_Coordinate3d_z, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
-/* Struct = IDL:UCO/EntityGraph:1.0 */
+/* Struct = IDL:UCO/Coordinate2d:1.0 */
 static void
-decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_double(tree, hf_UCO_Coordinate2d_x, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_double(tree, hf_UCO_Coordinate2d_y, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:UCO/RequestDescription:1.0 */
+static void
+decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_UCO_EntityGraph_nodes;
-    guint32   i_UCO_EntityGraph_nodes;
-    guint32   u_octet4_loop_UCO_EntityGraph_relationship;
-    guint32   i_UCO_EntityGraph_relationship;
+    uint32_t  u_octet4_loop_UCO_RequestDescription_request_details;
+    uint32_t  i_UCO_RequestDescription_request_details;
     /* Operation specific Variable declarations End */
 
-    u_octet4_loop_UCO_EntityGraph_nodes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_EntityGraph_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_EntityGraph_nodes);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_RequestDescription_user_info);
 
-    for (i_UCO_EntityGraph_nodes=0; i_UCO_EntityGraph_nodes < u_octet4_loop_UCO_EntityGraph_nodes; i_UCO_EntityGraph_nodes++) {
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_RequestDescription_request_type);
 
-        /*  Begin struct "UCO_EntityNode"  */
-        decode_UCO_EntityNode_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_EntityNode"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_RequestDescription_request_info);
+
+    u_octet4_loop_UCO_RequestDescription_request_details = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_RequestDescription_request_details_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_RequestDescription_request_details);
+
+    {
+        proto_tree *tree_bak_4Mbw88sZQdmq = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_RequestDescription_request_details");
+        for (i_UCO_RequestDescription_request_details=0; i_UCO_RequestDescription_request_details < u_octet4_loop_UCO_RequestDescription_request_details; i_UCO_RequestDescription_request_details++) {
+
+            { /*  Begin struct "UCO_NameValue"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_NameValue");
+
+            decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_NameValue"  */
+        }
+        tree = tree_bak_4Mbw88sZQdmq;
     }
 
-    u_octet4_loop_UCO_EntityGraph_relationship = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_EntityGraph_relationship_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_EntityGraph_relationship);
+}
 
-    for (i_UCO_EntityGraph_relationship=0; i_UCO_EntityGraph_relationship < u_octet4_loop_UCO_EntityGraph_relationship; i_UCO_EntityGraph_relationship++) {
+/* Struct = IDL:UCO/UpdateDAG:1.0 */
+static void
+decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
 
-        /*  Begin struct "UCO_EntityRelationship"  */
-        decode_UCO_EntityRelationship_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_EntityRelationship"  */
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_UCO_UpdateDAG_changes;
+    uint32_t  i_UCO_UpdateDAG_changes;
+    /* Operation specific Variable declarations End */
+
+    { /*  Begin struct "UCO_DAG"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_DAG");
+
+    decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_DAG"  */
+    u_octet4_loop_UCO_UpdateDAG_changes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_UpdateDAG_changes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_UpdateDAG_changes);
+
+    {
+        proto_tree *tree_bak_ShuvpOsIwc1x = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_UpdateDAG_changes");
+        for (i_UCO_UpdateDAG_changes=0; i_UCO_UpdateDAG_changes < u_octet4_loop_UCO_UpdateDAG_changes; i_UCO_UpdateDAG_changes++) {
+
+            { /*  Begin struct "UCO_Change"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Change");
+
+            decode_UCO_Change_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_Change"  */
+        }
+        tree = tree_bak_ShuvpOsIwc1x;
     }
 
 }
 
-/* Struct = IDL:UCO/exception_details:1.0 */
+/* Struct = IDL:UCO/Change:1.0 */
 static void
-decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_exception_details_exception_name);
-
-    proto_tree_add_boolean(tree, hf_UCO_exception_details_standard_exception_name, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_exception_details_exception_desc);
-
-}
-
-/* Struct = IDL:GIAS/ImageSpec:1.0 */
-static void
-decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Change_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_ImageSpec_rrds;
-    guint32   i_GIAS_ImageSpec_rrds;
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_imgform);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_imageid);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_comp);
-
-    proto_tree_add_int(tree, hf_GIAS_ImageSpec_bpp, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ImageSpec_algo);
-
-    u_octet4_loop_GIAS_ImageSpec_rrds = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_ImageSpec_rrds_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ImageSpec_rrds);
-
-    for (i_GIAS_ImageSpec_rrds=0; i_GIAS_ImageSpec_rrds < u_octet4_loop_GIAS_ImageSpec_rrds; i_GIAS_ImageSpec_rrds++) {
-
-        proto_tree_add_int(tree, hf_GIAS_ImageSpec_rrds, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-
-    }
-
-    /*  Begin struct "UCO_Rectangle"  */
-    decode_UCO_Rectangle_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Rectangle"  */
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_ImageSpec_geo_region_type, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_UCO_Change_changed_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_ImageSpec_encoding, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_UCO_Change_change_type, tvb, *offset-4, 4, u_octet4);
 
 }
 
-/* Struct = IDL:GIAS/AlterationSpec:1.0 */
+/* Struct = IDL:UCO/StringDAG:1.0 */
 static void
-decode_GIAS_AlterationSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4_loop_UCO_StringDAG_nodes;
+    uint32_t  i_UCO_StringDAG_nodes;
+    uint32_t  u_octet4_loop_UCO_StringDAG_edges;
+    uint32_t  i_UCO_StringDAG_edges;
     /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AlterationSpec_pf);
 
     get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-    /*  Begin struct "UCO_Rectangle"  */
-    decode_UCO_Rectangle_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Rectangle"  */
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_AlterationSpec_geo_region_type, tvb, *offset-4, 4, u_octet4);
+    u_octet4_loop_UCO_StringDAG_nodes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_StringDAG_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_StringDAG_nodes);
 
-}
+    {
+        proto_tree *tree_bak_ssM9idAXpGCe = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_StringDAG_nodes");
+        for (i_UCO_StringDAG_nodes=0; i_UCO_StringDAG_nodes < u_octet4_loop_UCO_StringDAG_nodes; i_UCO_StringDAG_nodes++) {
 
-/* Struct = IDL:GIAS/PackagingSpec:1.0 */
-static void
-decode_GIAS_PackagingSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
+            { /*  Begin struct "UCO_StringNode"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_StringNode");
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackagingSpec_package_identifier);
+            decode_UCO_StringNode_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_StringNode"  */
+        }
+        tree = tree_bak_ssM9idAXpGCe;
+    }
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackagingSpec_packaging_format_and_compression);
+    u_octet4_loop_UCO_StringDAG_edges = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_StringDAG_edges_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_StringDAG_edges);
 
-}
+    {
+        proto_tree *tree_bak_uNbcRCvTS6rz = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_StringDAG_edges");
+        for (i_UCO_StringDAG_edges=0; i_UCO_StringDAG_edges < u_octet4_loop_UCO_StringDAG_edges; i_UCO_StringDAG_edges++) {
 
-/* Struct = IDL:GIAS/TailoringSpec:1.0 */
-static void
-decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
+            { /*  Begin struct "UCO_Edge"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Edge");
 
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_TailoringSpec_specs;
-    guint32   i_GIAS_TailoringSpec_specs;
-    /* Operation specific Variable declarations End */
-
-    u_octet4_loop_GIAS_TailoringSpec_specs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_TailoringSpec_specs_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_TailoringSpec_specs);
-
-    for (i_GIAS_TailoringSpec_specs=0; i_GIAS_TailoringSpec_specs < u_octet4_loop_GIAS_TailoringSpec_specs; i_GIAS_TailoringSpec_specs++) {
-
-        /*  Begin struct "UCO_NameName"  */
-        decode_UCO_NameName_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_NameName"  */
+            decode_UCO_Edge_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_Edge"  */
+        }
+        tree = tree_bak_uNbcRCvTS6rz;
     }
 
 }
 
-/* Struct = IDL:GIAS/MediaType:1.0 */
+/* Struct = IDL:UCO/StringNode:1.0 */
 static void
-decode_GIAS_MediaType_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_MediaType_media_type);
-
-    proto_tree_add_uint(tree, hf_GIAS_MediaType_quantity, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:GIAS/PhysicalDelivery:1.0 */
-static void
-decode_GIAS_PhysicalDelivery_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PhysicalDelivery_address);
-
-}
-
-/* Struct = IDL:GIAS/ValidationResults:1.0 */
-static void
-decode_GIAS_ValidationResults_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_boolean(tree, hf_GIAS_ValidationResults_valid, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    proto_tree_add_boolean(tree, hf_GIAS_ValidationResults_warning, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ValidationResults_details);
-
-}
-
-/* Struct = IDL:GIAS/RelatedFile:1.0 */
-static void
-decode_GIAS_RelatedFile_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_RelatedFile_file_type);
-
-    /*  Begin struct "UCO_FileLocation"  */
-    decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_FileLocation"  */
-}
-
-/* Struct = IDL:GIAS/View:1.0 */
-static void
-decode_GIAS_View_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_StringNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_View_sub_views;
-    guint32   i_GIAS_View_sub_views;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_View_view_name);
+    proto_tree_add_uint(tree, hf_UCO_StringNode_id, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_boolean(tree, hf_GIAS_View_orderable, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_StringNode_node_type, tvb, *offset-4, 4, u_octet4);
 
-    u_octet4_loop_GIAS_View_sub_views = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_View_sub_views_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_View_sub_views);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_StringNode_attribute_name);
 
-    for (i_GIAS_View_sub_views=0; i_GIAS_View_sub_views < u_octet4_loop_GIAS_View_sub_views; i_GIAS_View_sub_views++) {
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_StringNode_value);
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_View_sub_views);
+}
 
+/* Struct = IDL:UCO/DAG:1.0 */
+static void
+decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_UCO_DAG_nodes;
+    uint32_t  i_UCO_DAG_nodes;
+    uint32_t  u_octet4_loop_UCO_DAG_edges;
+    uint32_t  i_UCO_DAG_edges;
+    /* Operation specific Variable declarations End */
+
+    u_octet4_loop_UCO_DAG_nodes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_DAG_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_DAG_nodes);
+
+    {
+        proto_tree *tree_bak_7ojZmXsC1mNi = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_DAG_nodes");
+        for (i_UCO_DAG_nodes=0; i_UCO_DAG_nodes < u_octet4_loop_UCO_DAG_nodes; i_UCO_DAG_nodes++) {
+
+            { /*  Begin struct "UCO_Node"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Node");
+
+            decode_UCO_Node_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_Node"  */
+        }
+        tree = tree_bak_7ojZmXsC1mNi;
+    }
+
+    u_octet4_loop_UCO_DAG_edges = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_DAG_edges_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_DAG_edges);
+
+    {
+        proto_tree *tree_bak_vgujflUyzPfr = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_DAG_edges");
+        for (i_UCO_DAG_edges=0; i_UCO_DAG_edges < u_octet4_loop_UCO_DAG_edges; i_UCO_DAG_edges++) {
+
+            { /*  Begin struct "UCO_Edge"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Edge");
+
+            decode_UCO_Edge_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "UCO_Edge"  */
+        }
+        tree = tree_bak_vgujflUyzPfr;
     }
 
 }
 
-/* Struct = IDL:GIAS/DateRange:1.0 */
+/* Struct = IDL:UCO/Edge:1.0 */
 static void
-decode_GIAS_DateRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Edge_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    /*  Begin struct "UCO_AbsTime"  */
-    decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_AbsTime"  */
-    /*  Begin struct "UCO_AbsTime"  */
-    decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_AbsTime"  */
-}
+    proto_tree_add_uint(tree, hf_UCO_Edge_start_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
-/* Struct = IDL:GIAS/IntegerRange:1.0 */
-static void
-decode_GIAS_IntegerRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
+    proto_tree_add_uint(tree, hf_UCO_Edge_end_node, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_int(tree, hf_GIAS_IntegerRange_lower_bound, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_GIAS_IntegerRange_upper_bound, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_Edge_relationship_type);
 
 }
 
-/* Struct = IDL:GIAS/FloatingPointRange:1.0 */
+/* Struct = IDL:UCO/Node:1.0 */
 static void
-decode_GIAS_FloatingPointRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_double(tree, hf_GIAS_FloatingPointRange_lower_bound, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_double(tree, hf_GIAS_FloatingPointRange_upper_bound, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:GIAS/AttributeInformation:1.0 */
-static void
-decode_GIAS_AttributeInformation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Node_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_attribute_name);
+    proto_tree_add_uint(tree, hf_UCO_Node_id, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_AttributeInformation_attribute_type, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_UCO_Node_node_type, tvb, *offset-4, 4, u_octet4);
 
-    /*  Begin union "GIAS_Domain"  */
-    decode_GIAS_Domain_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_Node_attribute_name);
 
-    /*  End union "GIAS_Domain"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_attribute_units);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_attribute_reference);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_AttributeInformation_mode, tvb, *offset-4, 4, u_octet4);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AttributeInformation_description);
-
-    proto_tree_add_boolean(tree, hf_GIAS_AttributeInformation_sortable, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    proto_tree_add_boolean(tree, hf_GIAS_AttributeInformation_updateable, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
 }
 
-/* Struct = IDL:GIAS/Association:1.0 */
+/* Struct = IDL:UCO/AbsTime:1.0 */
 static void
-decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_AbsTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    { /*  Begin struct "UCO_Date"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Date");
+
+    decode_UCO_Date_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Date"  */
+    { /*  Begin struct "UCO_Time"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Time");
+
+    decode_UCO_Time_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_Time"  */
+}
+
+/* Struct = IDL:UCO/Time:1.0 */
+static void
+decode_UCO_Time_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_uint(tree, hf_UCO_Time_hour, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_uint(tree, hf_UCO_Time_minute, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_float(tree, hf_UCO_Time_second, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:UCO/Date:1.0 */
+static void
+decode_UCO_Date_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_uint(tree, hf_UCO_Date_year, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_uint(tree, hf_UCO_Date_month, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_uint(tree, hf_UCO_Date_day, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:UCO/DirectAccessLocation:1.0 */
+static void
+decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_GIAS_Association_attribute_info;
-    guint32   i_GIAS_Association_attribute_info;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_view_a);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_view_b);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Association_description);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_Association_card, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4_loop_GIAS_Association_attribute_info = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_Association_attribute_info_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Association_attribute_info);
-
-    for (i_GIAS_Association_attribute_info=0; i_GIAS_Association_attribute_info < u_octet4_loop_GIAS_Association_attribute_info; i_GIAS_Association_attribute_info++) {
-
-        /*  Begin struct "GIAS_AttributeInformation"  */
-        decode_GIAS_AttributeInformation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_AttributeInformation"  */
-    }
-
-}
-
-/* Struct = IDL:GIAS/LibraryDescription:1.0 */
-static void
-decode_GIAS_LibraryDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryDescription_library_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryDescription_library_description);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryDescription_library_version_number);
-
-}
-
-/* Struct = IDL:GIAS/Query:1.0 */
-static void
-decode_GIAS_Query_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Query_view);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Query_bqs_query);
-
-}
-
-/* Struct = IDL:GIAS/Event:1.0 */
-static void
-decode_GIAS_Event_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Event_event_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_Event_event_type, tvb, *offset-4, 4, u_octet4);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Event_event_description);
-
-}
-
-/* Struct = IDL:GIAS/DayEventTime:1.0 */
-static void
-decode_GIAS_DayEventTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_DayEventTime_day_event, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_UCO_DirectAccessLocation_access_protocol, tvb, *offset-4, 4, u_octet4);
 
-    /*  Begin struct "UCO_Time"  */
-    decode_UCO_Time_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_Time"  */
+    { /*  Begin struct "UCO_FileLocation"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+    decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "UCO_FileLocation"  */
 }
 
-/* Struct = IDL:GIAS/QueryLifeSpan:1.0 */
+/* Struct = IDL:UCO/FileLocation:1.0 */
 static void
-decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_QueryLifeSpan_frequency;
-    guint32   i_GIAS_QueryLifeSpan_frequency;
-    /* Operation specific Variable declarations End */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_user_name);
 
-    /*  Begin union "GIAS_LifeEvent"  */
-    decode_GIAS_LifeEvent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_password);
 
-    /*  End union "GIAS_LifeEvent"  */
-    /*  Begin union "GIAS_LifeEvent"  */
-    decode_GIAS_LifeEvent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_host_name);
 
-    /*  End union "GIAS_LifeEvent"  */
-    u_octet4_loop_GIAS_QueryLifeSpan_frequency = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_QueryLifeSpan_frequency_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryLifeSpan_frequency);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_path_name);
 
-    for (i_GIAS_QueryLifeSpan_frequency=0; i_GIAS_QueryLifeSpan_frequency < u_octet4_loop_GIAS_QueryLifeSpan_frequency; i_GIAS_QueryLifeSpan_frequency++) {
-
-        /*  Begin union "GIAS_LifeEvent"  */
-        decode_GIAS_LifeEvent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "GIAS_LifeEvent"  */
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_FileLocation_file_name);
 
 }
 
-/* Struct = IDL:GIAS/SortAttribute:1.0 */
+/* Struct = IDL:UCO/Ratio:1.0 */
 static void
-decode_GIAS_SortAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
+    proto_tree_add_double(tree, hf_UCO_Ratio_numerator, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_SortAttribute_attribute_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_SortAttribute_sort_polarity, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_double(tree, hf_UCO_Ratio_denominator, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
-/* Struct = IDL:GIAS/DelayEstimate:1.0 */
+/* Struct = IDL:UCO/NameValue:1.0 */
 static void
-decode_GIAS_DelayEstimate_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_GIAS_DelayEstimate_time_delay, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_NameValue_aname);
 
-    proto_tree_add_boolean(tree, hf_GIAS_DelayEstimate_valid_time_delay, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
 }
 
-/* Struct = IDL:GIAS/ProductDetails:1.0 */
+/* Struct = IDL:UCO/NameName:1.0 */
 static void
-decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_NameName_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_ProductDetails_mTypes;
-    guint32   i_GIAS_ProductDetails_mTypes;
-    guint32   u_octet4_loop_GIAS_ProductDetails_benums;
-    guint32   i_GIAS_ProductDetails_benums;
-    /* Operation specific Variable declarations End */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_NameName_name1);
 
-    u_octet4_loop_GIAS_ProductDetails_mTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_ProductDetails_mTypes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductDetails_mTypes);
-
-    for (i_GIAS_ProductDetails_mTypes=0; i_GIAS_ProductDetails_mTypes < u_octet4_loop_GIAS_ProductDetails_mTypes; i_GIAS_ProductDetails_mTypes++) {
-
-        /*  Begin struct "GIAS_MediaType"  */
-        decode_GIAS_MediaType_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_MediaType"  */
-    }
-
-    u_octet4_loop_GIAS_ProductDetails_benums = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_ProductDetails_benums_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductDetails_benums);
-
-    for (i_GIAS_ProductDetails_benums=0; i_GIAS_ProductDetails_benums < u_octet4_loop_GIAS_ProductDetails_benums; i_GIAS_ProductDetails_benums++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductDetails_benums);
-
-    }
-
-    /*  Begin struct "GIAS_AlterationSpec"  */
-    decode_GIAS_AlterationSpec_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "GIAS_AlterationSpec"  */
-    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductDetails_info_system_name);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_NameName_name2);
 
 }
 
-/* Struct = IDL:GIAS/DeliveryDetails:1.0 */
+/* Union = IDL:GIAS/LifeEvent:1.0 */
 static void
-decode_GIAS_DeliveryDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /*  Begin union "GIAS_Destination"  */
-    decode_GIAS_Destination_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-    /*  End union "GIAS_Destination"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DeliveryDetails_receiver);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DeliveryDetails_shipmentMode);
-
-}
-
-/* Struct = IDL:GIAS/OrderContents:1.0 */
-static void
-decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_OrderContents_prod_list;
-    guint32   i_GIAS_OrderContents_prod_list;
-    guint32   u_octet4_loop_GIAS_OrderContents_del_list;
-    guint32   i_GIAS_OrderContents_del_list;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderContents_originator);
-
-    /*  Begin struct "GIAS_TailoringSpec"  */
-    decode_GIAS_TailoringSpec_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "GIAS_TailoringSpec"  */
-    /*  Begin struct "GIAS_PackagingSpec"  */
-    decode_GIAS_PackagingSpec_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "GIAS_PackagingSpec"  */
-    /*  Begin struct "UCO_AbsTime"  */
-    decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "UCO_AbsTime"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderContents_operatorNote);
-
-    proto_tree_add_int(tree, hf_GIAS_OrderContents_orderPriority, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-
-    u_octet4_loop_GIAS_OrderContents_prod_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_OrderContents_prod_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderContents_prod_list);
-
-    for (i_GIAS_OrderContents_prod_list=0; i_GIAS_OrderContents_prod_list < u_octet4_loop_GIAS_OrderContents_prod_list; i_GIAS_OrderContents_prod_list++) {
-
-        /*  Begin struct "GIAS_ProductDetails"  */
-        decode_GIAS_ProductDetails_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_ProductDetails"  */
-    }
-
-    u_octet4_loop_GIAS_OrderContents_del_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_OrderContents_del_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderContents_del_list);
-
-    for (i_GIAS_OrderContents_del_list=0; i_GIAS_OrderContents_del_list < u_octet4_loop_GIAS_OrderContents_del_list; i_GIAS_OrderContents_del_list++) {
-
-        /*  Begin struct "GIAS_DeliveryDetails"  */
-        decode_GIAS_DeliveryDetails_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_DeliveryDetails"  */
-    }
-
-}
-
-/* Struct = IDL:GIAS/QueryOrderContents:1.0 */
-static void
-decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_QueryOrderContents_del_list;
-    guint32   i_GIAS_QueryOrderContents_del_list;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_QueryOrderContents_originator);
-
-    /*  Begin struct "GIAS_TailoringSpec"  */
-    decode_GIAS_TailoringSpec_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "GIAS_TailoringSpec"  */
-    /*  Begin struct "GIAS_PackagingSpec"  */
-    decode_GIAS_PackagingSpec_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "GIAS_PackagingSpec"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_QueryOrderContents_operatorNote);
-
-    proto_tree_add_int(tree, hf_GIAS_QueryOrderContents_orderPriority, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-
-    /*  Begin struct "GIAS_AlterationSpec"  */
-    decode_GIAS_AlterationSpec_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "GIAS_AlterationSpec"  */
-    u_octet4_loop_GIAS_QueryOrderContents_del_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_QueryOrderContents_del_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderContents_del_list);
-
-    for (i_GIAS_QueryOrderContents_del_list=0; i_GIAS_QueryOrderContents_del_list < u_octet4_loop_GIAS_QueryOrderContents_del_list; i_GIAS_QueryOrderContents_del_list++) {
-
-        /*  Begin struct "GIAS_DeliveryDetails"  */
-        decode_GIAS_DeliveryDetails_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_DeliveryDetails"  */
-    }
-
-}
-
-/* Struct = IDL:GIAS/AccessCriteria:1.0 */
-static void
-decode_GIAS_AccessCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessCriteria_userID);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessCriteria_password);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessCriteria_licenseKey);
-
-}
-
-/* Struct = IDL:GIAS/PackageElement:1.0 */
-static void
-decode_GIAS_PackageElement_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_PackageElement_files;
-    guint32   i_GIAS_PackageElement_files;
-    /* Operation specific Variable declarations End */
-
-    get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
-
-    u_octet4_loop_GIAS_PackageElement_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_PackageElement_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_PackageElement_files);
-
-    for (i_GIAS_PackageElement_files=0; i_GIAS_PackageElement_files < u_octet4_loop_GIAS_PackageElement_files; i_GIAS_PackageElement_files++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackageElement_files);
-
-    }
-
-}
-
-/* Struct = IDL:GIAS/DeliveryManifest:1.0 */
-static void
-decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_GIAS_DeliveryManifest_elements;
-    guint32   i_GIAS_DeliveryManifest_elements;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DeliveryManifest_package_name);
-
-    u_octet4_loop_GIAS_DeliveryManifest_elements = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_DeliveryManifest_elements_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DeliveryManifest_elements);
-
-    for (i_GIAS_DeliveryManifest_elements=0; i_GIAS_DeliveryManifest_elements < u_octet4_loop_GIAS_DeliveryManifest_elements; i_GIAS_DeliveryManifest_elements++) {
-
-        /*  Begin struct "GIAS_PackageElement"  */
-        decode_GIAS_PackageElement_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_PackageElement"  */
-    }
-
-}
-
-/* Union = IDL:UCO/Buffer:1.0 */
-static void
-decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    gint32    disc_s_Buffer;
-    guint32   u_octet4_loop_UCO_Buffer_octet_buffer;
-    const guint8 * binary_seq_UCO_Buffer_octet_buffer;
-    gchar * text_seq_UCO_Buffer_octet_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_char_buffer;
-    guint32   i_UCO_Buffer_char_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_ushort_buffer;
-    guint32   i_UCO_Buffer_ushort_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_short_buffer;
-    guint32   i_UCO_Buffer_short_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_ulong_buffer;
-    guint32   i_UCO_Buffer_ulong_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_long_buffer;
-    guint32   i_UCO_Buffer_long_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_float_buffer;
-    guint32   i_UCO_Buffer_float_buffer;
-    guint32   u_octet4_loop_UCO_Buffer_double_buffer;
-    guint32   i_UCO_Buffer_double_buffer;
-    /* Operation specific Variable declarations End */
-
-    /*
-     * IDL Union Start - IDL:UCO/Buffer:1.0
-     */
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_UCO_Buffer_Buffer, tvb, *offset-4, 4, u_octet4);
-
-    /*
-     * IDL Union - Discriminant - IDL:UCO/BufferType:1.0
-     */
-
-    disc_s_Buffer = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
-
-    if (disc_s_Buffer == 0 ) {
-
-        u_octet4_loop_UCO_Buffer_octet_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_octet_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_octet_buffer);
-
-        if (u_octet4_loop_UCO_Buffer_octet_buffer > 0 && tree) {
-            get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_UCO_Buffer_octet_buffer, offset,
-                u_octet4_loop_UCO_Buffer_octet_buffer);
-            text_seq_UCO_Buffer_octet_buffer = make_printable_string(pinfo->pool, binary_seq_UCO_Buffer_octet_buffer,
-                u_octet4_loop_UCO_Buffer_octet_buffer);
-            proto_tree_add_bytes_format_value(tree, hf_UCO_Buffer_octet_buffer, tvb, *offset - u_octet4_loop_UCO_Buffer_octet_buffer,
-                u_octet4_loop_UCO_Buffer_octet_buffer, binary_seq_UCO_Buffer_octet_buffer, "%s", text_seq_UCO_Buffer_octet_buffer);
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 1 ) {
-
-        u_octet4_loop_UCO_Buffer_char_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_char_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_char_buffer);
-
-        for (i_UCO_Buffer_char_buffer=0; i_UCO_Buffer_char_buffer < u_octet4_loop_UCO_Buffer_char_buffer; i_UCO_Buffer_char_buffer++) {
-
-            proto_tree_add_uint(tree, hf_UCO_Buffer_char_buffer, tvb, *offset-1, 1, get_CDR_char(tvb,offset));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 3 ) {
-
-        u_octet4_loop_UCO_Buffer_ushort_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_ushort_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_ushort_buffer);
-
-        for (i_UCO_Buffer_ushort_buffer=0; i_UCO_Buffer_ushort_buffer < u_octet4_loop_UCO_Buffer_ushort_buffer; i_UCO_Buffer_ushort_buffer++) {
-
-            proto_tree_add_uint(tree, hf_UCO_Buffer_ushort_buffer, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 2 ) {
-
-        u_octet4_loop_UCO_Buffer_short_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_short_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_short_buffer);
-
-        for (i_UCO_Buffer_short_buffer=0; i_UCO_Buffer_short_buffer < u_octet4_loop_UCO_Buffer_short_buffer; i_UCO_Buffer_short_buffer++) {
-
-            proto_tree_add_int(tree, hf_UCO_Buffer_short_buffer, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 5 ) {
-
-        u_octet4_loop_UCO_Buffer_ulong_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_ulong_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_ulong_buffer);
-
-        for (i_UCO_Buffer_ulong_buffer=0; i_UCO_Buffer_ulong_buffer < u_octet4_loop_UCO_Buffer_ulong_buffer; i_UCO_Buffer_ulong_buffer++) {
-
-            proto_tree_add_uint(tree, hf_UCO_Buffer_ulong_buffer, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 4 ) {
-
-        u_octet4_loop_UCO_Buffer_long_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_long_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_long_buffer);
-
-        for (i_UCO_Buffer_long_buffer=0; i_UCO_Buffer_long_buffer < u_octet4_loop_UCO_Buffer_long_buffer; i_UCO_Buffer_long_buffer++) {
-
-            proto_tree_add_int(tree, hf_UCO_Buffer_long_buffer, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 6 ) {
-
-        u_octet4_loop_UCO_Buffer_float_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_float_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_float_buffer);
-
-        for (i_UCO_Buffer_float_buffer=0; i_UCO_Buffer_float_buffer < u_octet4_loop_UCO_Buffer_float_buffer; i_UCO_Buffer_float_buffer++) {
-
-            proto_tree_add_float(tree, hf_UCO_Buffer_float_buffer, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_Buffer == 7 ) {
-
-        u_octet4_loop_UCO_Buffer_double_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_UCO_Buffer_double_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_double_buffer);
-
-        for (i_UCO_Buffer_double_buffer=0; i_UCO_Buffer_double_buffer < u_octet4_loop_UCO_Buffer_double_buffer; i_UCO_Buffer_double_buffer++) {
-
-            proto_tree_add_double(tree, hf_UCO_Buffer_double_buffer, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-        }
-
-        return;     /* End Compare for this discriminant type */
-    }
-
-}
-
-/* Union = IDL:GIAS/Destination:1.0 */
-static void
-decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_LifeEvent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    gint32    disc_s_Destination;
+    uint32_t  u_octet4;
+    int32_t   disc_s_LifeEvent;
     /* Operation specific Variable declarations End */
 
     /*
-     * IDL Union Start - IDL:GIAS/Destination:1.0
+     * IDL Union Start - IDL:GIAS/LifeEvent:1.0
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_Destination_Destination, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_GIAS_LifeEvent_LifeEvent, tvb, *offset-4, 4, u_octet4);
 
     /*
-     * IDL Union - Discriminant - IDL:GIAS/DestinationType:1.0
+     * IDL Union - Discriminant - IDL:GIAS/LifeEventType:1.0
      */
 
-    disc_s_Destination = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    disc_s_LifeEvent = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
 
-    if (disc_s_Destination == 0 ) {
+    if (disc_s_LifeEvent == 0 ) {
 
-        /*  Begin struct "UCO_FileLocation"  */
-        decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_FileLocation"  */
+        { /*  Begin struct "UCO_AbsTime"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_AbsTime");
+
+        decode_UCO_AbsTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_AbsTime"  */
         return;     /* End Compare for this discriminant type */
     }
 
-    if (disc_s_Destination == 1 ) {
+    if (disc_s_LifeEvent == 1 ) {
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Destination_e_dest);
+        { /*  Begin struct "GIAS_DayEventTime"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DayEventTime");
+
+        decode_GIAS_DayEventTime_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_DayEventTime"  */
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_LifeEvent == 2 ) {
+
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LifeEvent_ev);
 
         return;     /* End Compare for this discriminant type */
     }
 
-    if (disc_s_Destination == 2 ) {
+    if (disc_s_LifeEvent == 3 ) {
 
-        /*  Begin struct "GIAS_PhysicalDelivery"  */
-        decode_GIAS_PhysicalDelivery_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_PhysicalDelivery"  */
+        { /*  Begin struct "UCO_Time"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Time");
+
+        decode_UCO_Time_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_Time"  */
         return;     /* End Compare for this discriminant type */
     }
 
@@ -6359,26 +6919,26 @@ decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 /* Union = IDL:GIAS/Domain:1.0 */
 static void
-decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    gint32    disc_s_Domain;
-    guint32   u_octet4_loop_GIAS_Domain_is;
-    guint32   i_GIAS_Domain_is;
-    guint32   u_octet4_loop_GIAS_Domain_fps;
-    guint32   i_GIAS_Domain_fps;
-    guint32   u_octet4_loop_GIAS_Domain_l;
-    guint32   i_GIAS_Domain_l;
-    guint32   u_octet4_loop_GIAS_Domain_ol;
-    guint32   i_GIAS_Domain_ol;
-    guint32   u_octet4_loop_GIAS_Domain_gs;
-    guint32   i_GIAS_Domain_gs;
-    guint32   u_octet4_loop_GIAS_Domain_bd;
-    const guint8 * binary_seq_GIAS_Domain_bd;
-    gchar * text_seq_GIAS_Domain_bd;
+    uint32_t  u_octet4;
+    int32_t   disc_s_Domain;
+    uint32_t  u_octet4_loop_GIAS_Domain_is;
+    uint32_t  i_GIAS_Domain_is;
+    uint32_t  u_octet4_loop_GIAS_Domain_fps;
+    uint32_t  i_GIAS_Domain_fps;
+    uint32_t  u_octet4_loop_GIAS_Domain_l;
+    uint32_t  i_GIAS_Domain_l;
+    uint32_t  u_octet4_loop_GIAS_Domain_ol;
+    uint32_t  i_GIAS_Domain_ol;
+    uint32_t  u_octet4_loop_GIAS_Domain_gs;
+    uint32_t  i_GIAS_Domain_gs;
+    uint32_t  u_octet4_loop_GIAS_Domain_bd;
+    const uint8_t * binary_seq_GIAS_Domain_bd;
+    char * text_seq_GIAS_Domain_bd;
     /* Operation specific Variable declarations End */
 
     /*
@@ -6392,13 +6952,15 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
      * IDL Union - Discriminant - IDL:GIAS/DomainType:1.0
      */
 
-    disc_s_Domain = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    disc_s_Domain = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
 
     if (disc_s_Domain == 0 ) {
 
-        /*  Begin struct "GIAS_DateRange"  */
-        decode_GIAS_DateRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_DateRange"  */
+        { /*  Begin struct "GIAS_DateRange"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_DateRange");
+
+        decode_GIAS_DateRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_DateRange"  */
         return;     /* End Compare for this discriminant type */
     }
 
@@ -6411,9 +6973,11 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
 
     if (disc_s_Domain == 2 ) {
 
-        /*  Begin struct "GIAS_IntegerRange"  */
-        decode_GIAS_IntegerRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_IntegerRange"  */
+        { /*  Begin struct "GIAS_IntegerRange"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_IntegerRange");
+
+        decode_GIAS_IntegerRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_IntegerRange"  */
         return;     /* End Compare for this discriminant type */
     }
 
@@ -6422,11 +6986,18 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
         u_octet4_loop_GIAS_Domain_is = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_Domain_is_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_is);
 
-        for (i_GIAS_Domain_is=0; i_GIAS_Domain_is < u_octet4_loop_GIAS_Domain_is; i_GIAS_Domain_is++) {
+        {
+            proto_tree *tree_bak_b4bTu1Sozqe4 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_is");
+            for (i_GIAS_Domain_is=0; i_GIAS_Domain_is < u_octet4_loop_GIAS_Domain_is; i_GIAS_Domain_is++) {
 
-            /*  Begin struct "GIAS_IntegerRange"  */
-            decode_GIAS_IntegerRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_IntegerRange"  */
+                { /*  Begin struct "GIAS_IntegerRange"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_IntegerRange");
+
+                decode_GIAS_IntegerRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_IntegerRange"  */
+            }
+            tree = tree_bak_b4bTu1Sozqe4;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -6434,9 +7005,11 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
 
     if (disc_s_Domain == 3 ) {
 
-        /*  Begin struct "GIAS_FloatingPointRange"  */
-        decode_GIAS_FloatingPointRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_FloatingPointRange"  */
+        { /*  Begin struct "GIAS_FloatingPointRange"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_FloatingPointRange");
+
+        decode_GIAS_FloatingPointRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_FloatingPointRange"  */
         return;     /* End Compare for this discriminant type */
     }
 
@@ -6445,11 +7018,18 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
         u_octet4_loop_GIAS_Domain_fps = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_Domain_fps_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_fps);
 
-        for (i_GIAS_Domain_fps=0; i_GIAS_Domain_fps < u_octet4_loop_GIAS_Domain_fps; i_GIAS_Domain_fps++) {
+        {
+            proto_tree *tree_bak_csRoHQFdQKVE = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_fps");
+            for (i_GIAS_Domain_fps=0; i_GIAS_Domain_fps < u_octet4_loop_GIAS_Domain_fps; i_GIAS_Domain_fps++) {
 
-            /*  Begin struct "GIAS_FloatingPointRange"  */
-            decode_GIAS_FloatingPointRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "GIAS_FloatingPointRange"  */
+                { /*  Begin struct "GIAS_FloatingPointRange"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_FloatingPointRange");
+
+                decode_GIAS_FloatingPointRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "GIAS_FloatingPointRange"  */
+            }
+            tree = tree_bak_csRoHQFdQKVE;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -6460,10 +7040,15 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
         u_octet4_loop_GIAS_Domain_l = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_Domain_l_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_l);
 
-        for (i_GIAS_Domain_l=0; i_GIAS_Domain_l < u_octet4_loop_GIAS_Domain_l; i_GIAS_Domain_l++) {
+        {
+            proto_tree *tree_bak_jsXb8odYLOYK = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_l");
+            for (i_GIAS_Domain_l=0; i_GIAS_Domain_l < u_octet4_loop_GIAS_Domain_l; i_GIAS_Domain_l++) {
 
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Domain_l);
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Domain_l);
 
+            }
+            tree = tree_bak_jsXb8odYLOYK;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -6474,10 +7059,15 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
         u_octet4_loop_GIAS_Domain_ol = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_Domain_ol_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_ol);
 
-        for (i_GIAS_Domain_ol=0; i_GIAS_Domain_ol < u_octet4_loop_GIAS_Domain_ol; i_GIAS_Domain_ol++) {
+        {
+            proto_tree *tree_bak_6CGdzCgm1bbQ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_ol");
+            for (i_GIAS_Domain_ol=0; i_GIAS_Domain_ol < u_octet4_loop_GIAS_Domain_ol; i_GIAS_Domain_ol++) {
 
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Domain_ol);
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Domain_ol);
 
+            }
+            tree = tree_bak_6CGdzCgm1bbQ;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -6485,25 +7075,31 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
 
     if (disc_s_Domain == 6 ) {
 
-        /*  Begin struct "GIAS_IntegerRange"  */
-        decode_GIAS_IntegerRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_IntegerRange"  */
+        { /*  Begin struct "GIAS_IntegerRange"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_IntegerRange");
+
+        decode_GIAS_IntegerRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_IntegerRange"  */
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_Domain == 7 ) {
 
-        /*  Begin struct "GIAS_FloatingPointRange"  */
-        decode_GIAS_FloatingPointRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_FloatingPointRange"  */
+        { /*  Begin struct "GIAS_FloatingPointRange"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_FloatingPointRange");
+
+        decode_GIAS_FloatingPointRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_FloatingPointRange"  */
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_Domain == 8 ) {
 
-        /*  Begin struct "UCO_Rectangle"  */
-        decode_UCO_Rectangle_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Rectangle"  */
+        { /*  Begin struct "UCO_Rectangle"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Rectangle");
+
+        decode_UCO_Rectangle_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_Rectangle"  */
         return;     /* End Compare for this discriminant type */
     }
 
@@ -6512,11 +7108,18 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
         u_octet4_loop_GIAS_Domain_gs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_Domain_gs_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_gs);
 
-        for (i_GIAS_Domain_gs=0; i_GIAS_Domain_gs < u_octet4_loop_GIAS_Domain_gs; i_GIAS_Domain_gs++) {
+        {
+            proto_tree *tree_bak_H8cYDzYkHtEJ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_gs");
+            for (i_GIAS_Domain_gs=0; i_GIAS_Domain_gs < u_octet4_loop_GIAS_Domain_gs; i_GIAS_Domain_gs++) {
 
-            /*  Begin struct "UCO_Rectangle"  */
-            decode_UCO_Rectangle_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "UCO_Rectangle"  */
+                { /*  Begin struct "UCO_Rectangle"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_Rectangle");
+
+                decode_UCO_Rectangle_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "UCO_Rectangle"  */
+            }
+            tree = tree_bak_H8cYDzYkHtEJ;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -6548,58 +7151,246 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U
 
 }
 
-/* Union = IDL:GIAS/LifeEvent:1.0 */
+/* Union = IDL:GIAS/Destination:1.0 */
 static void
-decode_GIAS_LifeEvent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    gint32    disc_s_LifeEvent;
+    uint32_t  u_octet4;
+    int32_t   disc_s_Destination;
     /* Operation specific Variable declarations End */
 
     /*
-     * IDL Union Start - IDL:GIAS/LifeEvent:1.0
+     * IDL Union Start - IDL:GIAS/Destination:1.0
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_GIAS_LifeEvent_LifeEvent, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_GIAS_Destination_Destination, tvb, *offset-4, 4, u_octet4);
 
     /*
-     * IDL Union - Discriminant - IDL:GIAS/LifeEventType:1.0
+     * IDL Union - Discriminant - IDL:GIAS/DestinationType:1.0
      */
 
-    disc_s_LifeEvent = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    disc_s_Destination = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
 
-    if (disc_s_LifeEvent == 0 ) {
+    if (disc_s_Destination == 0 ) {
 
-        /*  Begin struct "UCO_AbsTime"  */
-        decode_UCO_AbsTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_AbsTime"  */
+        { /*  Begin struct "UCO_FileLocation"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct UCO_FileLocation");
+
+        decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "UCO_FileLocation"  */
         return;     /* End Compare for this discriminant type */
     }
 
-    if (disc_s_LifeEvent == 1 ) {
+    if (disc_s_Destination == 1 ) {
 
-        /*  Begin struct "GIAS_DayEventTime"  */
-        decode_GIAS_DayEventTime_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "GIAS_DayEventTime"  */
-        return;     /* End Compare for this discriminant type */
-    }
-
-    if (disc_s_LifeEvent == 2 ) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LifeEvent_ev);
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Destination_e_dest);
 
         return;     /* End Compare for this discriminant type */
     }
 
-    if (disc_s_LifeEvent == 3 ) {
+    if (disc_s_Destination == 2 ) {
 
-        /*  Begin struct "UCO_Time"  */
-        decode_UCO_Time_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "UCO_Time"  */
+        { /*  Begin struct "GIAS_PhysicalDelivery"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct GIAS_PhysicalDelivery");
+
+        decode_GIAS_PhysicalDelivery_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "GIAS_PhysicalDelivery"  */
+        return;     /* End Compare for this discriminant type */
+    }
+
+}
+
+/* Union = IDL:UCO/Buffer:1.0 */
+static void
+decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    int32_t   disc_s_Buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_octet_buffer;
+    const uint8_t * binary_seq_UCO_Buffer_octet_buffer;
+    char * text_seq_UCO_Buffer_octet_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_char_buffer;
+    uint32_t  i_UCO_Buffer_char_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_ushort_buffer;
+    uint32_t  i_UCO_Buffer_ushort_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_short_buffer;
+    uint32_t  i_UCO_Buffer_short_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_ulong_buffer;
+    uint32_t  i_UCO_Buffer_ulong_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_long_buffer;
+    uint32_t  i_UCO_Buffer_long_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_float_buffer;
+    uint32_t  i_UCO_Buffer_float_buffer;
+    uint32_t  u_octet4_loop_UCO_Buffer_double_buffer;
+    uint32_t  i_UCO_Buffer_double_buffer;
+    /* Operation specific Variable declarations End */
+
+    /*
+     * IDL Union Start - IDL:UCO/Buffer:1.0
+     */
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_UCO_Buffer_Buffer, tvb, *offset-4, 4, u_octet4);
+
+    /*
+     * IDL Union - Discriminant - IDL:UCO/BufferType:1.0
+     */
+
+    disc_s_Buffer = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
+
+    if (disc_s_Buffer == 0 ) {
+
+        u_octet4_loop_UCO_Buffer_octet_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_octet_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_octet_buffer);
+
+        if (u_octet4_loop_UCO_Buffer_octet_buffer > 0 && tree) {
+            get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_UCO_Buffer_octet_buffer, offset,
+                u_octet4_loop_UCO_Buffer_octet_buffer);
+            text_seq_UCO_Buffer_octet_buffer = make_printable_string(pinfo->pool, binary_seq_UCO_Buffer_octet_buffer,
+                u_octet4_loop_UCO_Buffer_octet_buffer);
+            proto_tree_add_bytes_format_value(tree, hf_UCO_Buffer_octet_buffer, tvb, *offset - u_octet4_loop_UCO_Buffer_octet_buffer,
+                u_octet4_loop_UCO_Buffer_octet_buffer, binary_seq_UCO_Buffer_octet_buffer, "%s", text_seq_UCO_Buffer_octet_buffer);
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 1 ) {
+
+        u_octet4_loop_UCO_Buffer_char_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_char_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_char_buffer);
+
+        {
+            proto_tree *tree_bak_4HqXdBiDL9po = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_char_buffer");
+            for (i_UCO_Buffer_char_buffer=0; i_UCO_Buffer_char_buffer < u_octet4_loop_UCO_Buffer_char_buffer; i_UCO_Buffer_char_buffer++) {
+
+                proto_tree_add_uint(tree, hf_UCO_Buffer_char_buffer, tvb, *offset-1, 1, get_CDR_char(tvb,offset));
+
+            }
+            tree = tree_bak_4HqXdBiDL9po;
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 3 ) {
+
+        u_octet4_loop_UCO_Buffer_ushort_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_ushort_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_ushort_buffer);
+
+        {
+            proto_tree *tree_bak_cP28jY1DdB0N = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_ushort_buffer");
+            for (i_UCO_Buffer_ushort_buffer=0; i_UCO_Buffer_ushort_buffer < u_octet4_loop_UCO_Buffer_ushort_buffer; i_UCO_Buffer_ushort_buffer++) {
+
+                proto_tree_add_uint(tree, hf_UCO_Buffer_ushort_buffer, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+
+            }
+            tree = tree_bak_cP28jY1DdB0N;
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 2 ) {
+
+        u_octet4_loop_UCO_Buffer_short_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_short_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_short_buffer);
+
+        {
+            proto_tree *tree_bak_wshQI9Rw3qbH = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_short_buffer");
+            for (i_UCO_Buffer_short_buffer=0; i_UCO_Buffer_short_buffer < u_octet4_loop_UCO_Buffer_short_buffer; i_UCO_Buffer_short_buffer++) {
+
+                proto_tree_add_int(tree, hf_UCO_Buffer_short_buffer, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+
+            }
+            tree = tree_bak_wshQI9Rw3qbH;
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 5 ) {
+
+        u_octet4_loop_UCO_Buffer_ulong_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_ulong_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_ulong_buffer);
+
+        {
+            proto_tree *tree_bak_7cxrFgcBXlgu = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_ulong_buffer");
+            for (i_UCO_Buffer_ulong_buffer=0; i_UCO_Buffer_ulong_buffer < u_octet4_loop_UCO_Buffer_ulong_buffer; i_UCO_Buffer_ulong_buffer++) {
+
+                proto_tree_add_uint(tree, hf_UCO_Buffer_ulong_buffer, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+            }
+            tree = tree_bak_7cxrFgcBXlgu;
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 4 ) {
+
+        u_octet4_loop_UCO_Buffer_long_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_long_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_long_buffer);
+
+        {
+            proto_tree *tree_bak_luDVgoGZQPqT = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_long_buffer");
+            for (i_UCO_Buffer_long_buffer=0; i_UCO_Buffer_long_buffer < u_octet4_loop_UCO_Buffer_long_buffer; i_UCO_Buffer_long_buffer++) {
+
+                proto_tree_add_int(tree, hf_UCO_Buffer_long_buffer, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+            }
+            tree = tree_bak_luDVgoGZQPqT;
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 6 ) {
+
+        u_octet4_loop_UCO_Buffer_float_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_float_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_float_buffer);
+
+        {
+            proto_tree *tree_bak_Or8gDdRuh3DT = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_float_buffer");
+            for (i_UCO_Buffer_float_buffer=0; i_UCO_Buffer_float_buffer < u_octet4_loop_UCO_Buffer_float_buffer; i_UCO_Buffer_float_buffer++) {
+
+                proto_tree_add_float(tree, hf_UCO_Buffer_float_buffer, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
+
+            }
+            tree = tree_bak_Or8gDdRuh3DT;
+        }
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_Buffer == 7 ) {
+
+        u_octet4_loop_UCO_Buffer_double_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_UCO_Buffer_double_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_double_buffer);
+
+        {
+            proto_tree *tree_bak_QE5zZKfGokxy = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_double_buffer");
+            for (i_UCO_Buffer_double_buffer=0; i_UCO_Buffer_double_buffer < u_octet4_loop_UCO_Buffer_double_buffer; i_UCO_Buffer_double_buffer++) {
+
+                proto_tree_add_double(tree, hf_UCO_Buffer_double_buffer, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+            }
+            tree = tree_bak_QE5zZKfGokxy;
+        }
+
         return;     /* End Compare for this discriminant type */
     }
 
@@ -6634,7 +7425,7 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
 }
 
 static proto_item*
-process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, const gchar *operation)
+process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, const char *operation)
 {
     proto_item *pi;
     if(header->message_type == Reply) {
@@ -6647,12 +7438,12 @@ process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, M
     return pi;
 }
 
-static gboolean
-dissect_gias(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, const gchar *operation, gchar *idlname)
+static bool
+dissect_gias(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, const char *operation, char *idlname)
 {
     proto_item *item _U_;
     proto_tree *tree _U_;
-    gboolean stream_is_big_endian = is_big_endian(header); /* get endianess */
+    bool stream_is_big_endian = is_big_endian(header); /* get endianess */
 
     /* If we have a USER Exception, then decode it and return */
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
@@ -6664,748 +7455,12 @@ dissect_gias(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, 
     case Request:
     case Reply:
 
-        if (strcmp(operation, "notify") == 0
-            && (!idlname || strcmp(idlname, "CB/Callback") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_CB_Callback_notify(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "release") == 0
-            && (!idlname || strcmp(idlname, "CB/Callback") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_CB_Callback_release(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_manager_types") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Library_get_manager_types(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_manager") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Library_get_manager(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_library_description") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Library_get_library_description(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_other_libraries") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Library_get_other_libraries(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_property_names") == 0
-            && (!idlname || strcmp(idlname, "GIAS/LibraryManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_LibraryManager_get_property_names(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_property_values") == 0
-            && (!idlname || strcmp(idlname, "GIAS/LibraryManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_LibraryManager_get_property_values(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_libraries") == 0
-            && (!idlname || strcmp(idlname, "GIAS/LibraryManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_LibraryManager_get_libraries(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_active_requests") == 0
-            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_RequestManager_get_active_requests(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_default_timeout") == 0
-            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_RequestManager_get_default_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_default_timeout") == 0
-            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_RequestManager_set_default_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_timeout") == 0
-            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_RequestManager_get_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_timeout") == 0
-            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_RequestManager_set_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "delete_request") == 0
-            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_RequestManager_delete_request(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_use_modes") == 0
-            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_AccessManager_get_use_modes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "is_available") == 0
-            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_AccessManager_is_available(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "query_availability_delay") == 0
-            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_AccessManager_query_availability_delay(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_number_of_priorities") == 0
-            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_AccessManager_get_number_of_priorities(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_availability") == 0
-            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_AccessManager_set_availability(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_event_descriptions") == 0
-            && (!idlname || strcmp(idlname, "GIAS/QueryOrderMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_QueryOrderMgr_get_event_descriptions(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "submit_query_order") == 0
-            && (!idlname || strcmp(idlname, "GIAS/QueryOrderMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_QueryOrderMgr_submit_query_order(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_package_specifications") == 0
-            && (!idlname || strcmp(idlname, "GIAS/OrderMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_OrderMgr_get_package_specifications(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "validate_order") == 0
-            && (!idlname || strcmp(idlname, "GIAS/OrderMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_OrderMgr_validate_order(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "order") == 0
-            && (!idlname || strcmp(idlname, "GIAS/OrderMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_OrderMgr_order(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_data_model_date") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_data_model_date(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_alias_categories") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_alias_categories(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_logical_aliases") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_logical_aliases(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_logical_attribute_name") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_logical_attribute_name(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_view_names") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_view_names(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_attributes") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_queryable_attributes") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_queryable_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_entities") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_entities(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_entity_attributes") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_entity_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_associations") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_associations(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_max_vertices") == 0
-            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_DataModelMgr_get_max_vertices(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "create") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CreationMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CreationMgr_create(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "create_metadata") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CreationMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CreationMgr_create_metadata(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "create_association") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CreationMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CreationMgr_create_association(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_lock") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateMgr_set_lock(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "update") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateMgr_update(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "update_by_query") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateMgr_update_by_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "release_lock") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateMgr_release_lock(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "delete_product") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateMgr_delete_product(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "submit_query") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CatalogMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CatalogMgr_submit_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "hit_count") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CatalogMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CatalogMgr_hit_count(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_event_descriptions") == 0
-            && (!idlname || strcmp(idlname, "GIAS/StandingQueryMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_StandingQueryMgr_get_event_descriptions(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "submit_standing_query") == 0
-            && (!idlname || strcmp(idlname, "GIAS/StandingQueryMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_StandingQueryMgr_submit_standing_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_parameters") == 0
-            && (!idlname || strcmp(idlname, "GIAS/ProductMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_ProductMgr_get_parameters(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_related_file_types") == 0
-            && (!idlname || strcmp(idlname, "GIAS/ProductMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_ProductMgr_get_related_file_types(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_related_files") == 0
-            && (!idlname || strcmp(idlname, "GIAS/ProductMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_ProductMgr_get_related_files(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "bulk_pull") == 0
-            && (!idlname || strcmp(idlname, "GIAS/IngestMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_IngestMgr_bulk_pull(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "bulk_push") == 0
-            && (!idlname || strcmp(idlname, "GIAS/IngestMgr") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_IngestMgr_bulk_push(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_request_description") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_get_request_description(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_user_info") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_set_user_info(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_status") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_get_status(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_remaining_delay") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_get_remaining_delay(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "cancel") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_cancel(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "register_callback") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_register_callback(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "free_callback") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_free_callback(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_request_manager") == 0
-            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_Request_get_request_manager(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
         if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/OrderRequest") == 0)) {
+            && (!idlname || strcmp(idlname, "GIAS/UpdateByQueryRequest") == 0)) {
             item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
             tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_OrderRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "pause") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryOrderRequest_pause(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "resume") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryOrderRequest_resume(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_list") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryOrderRequest_complete_list(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryOrderRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CreateRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CreateRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/CreateMetaDataRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_CreateMetaDataRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_number_of_hits") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryRequest_set_number_of_hits(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_DAG_results") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_stringDAG_results") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_XML_results") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitQueryRequest_complete_XML_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_number_of_hits") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_set_number_of_hits(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_number_of_hits") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_number_of_hits_in_interval") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_number_of_intervals") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_get_number_of_intervals(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "clear_all") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_clear_all(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "clear_intervals") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_clear_intervals(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "clear_before") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_clear_before(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "pause") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_pause(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "resume") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_resume(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_time_last_executed") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_get_time_last_executed(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_time_next_execution") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_get_time_next_execution(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_DAG_results") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_stringDAG_results") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_XML_results") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SubmitStandingQueryRequest_complete_XML_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/SetAvailabilityRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_SetAvailabilityRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/HitCountRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_HitCountRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/GetParametersRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_GetParametersRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete_StringDAG") == 0
-            && (!idlname || strcmp(idlname, "GIAS/GetParametersRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_GetParametersRequest_complete_StringDAG(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/IngestRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_IngestRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/GetRelatedFilesRequest") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_GetRelatedFilesRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            decode_GIAS_UpdateByQueryRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
         }
 
         if (strcmp(operation, "complete") == 0
@@ -7413,15 +7468,751 @@ dissect_gias(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, 
             item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_GIAS_CreateAssociationRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
         if (strcmp(operation, "complete") == 0
-            && (!idlname || strcmp(idlname, "GIAS/UpdateByQueryRequest") == 0)) {
+            && (!idlname || strcmp(idlname, "GIAS/GetRelatedFilesRequest") == 0)) {
             item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
             tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_GIAS_UpdateByQueryRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            decode_GIAS_GetRelatedFilesRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/IngestRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_IngestRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_StringDAG") == 0
+            && (!idlname || strcmp(idlname, "GIAS/GetParametersRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_GetParametersRequest_complete_StringDAG(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/GetParametersRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_GetParametersRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/HitCountRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_HitCountRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SetAvailabilityRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SetAvailabilityRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_XML_results") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_complete_XML_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_stringDAG_results") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_DAG_results") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_time_next_execution") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_get_time_next_execution(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_time_last_executed") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_get_time_last_executed(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "resume") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_resume(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "pause") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_pause(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "clear_before") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_clear_before(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "clear_intervals") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_clear_intervals(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "clear_all") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_clear_all(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_number_of_intervals") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_get_number_of_intervals(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_number_of_hits_in_interval") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_number_of_hits") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_number_of_hits") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitStandingQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitStandingQueryRequest_set_number_of_hits(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_XML_results") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryRequest_complete_XML_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_stringDAG_results") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_DAG_results") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_number_of_hits") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryRequest_set_number_of_hits(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/UpdateRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_UpdateRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CreateMetaDataRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CreateMetaDataRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CreateRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CreateRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryOrderRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete_list") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryOrderRequest_complete_list(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "resume") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryOrderRequest_resume(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "pause") == 0
+            && (!idlname || strcmp(idlname, "GIAS/SubmitQueryOrderRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_SubmitQueryOrderRequest_pause(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "complete") == 0
+            && (!idlname || strcmp(idlname, "GIAS/OrderRequest") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_OrderRequest_complete(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_request_manager") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_get_request_manager(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "free_callback") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_free_callback(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "register_callback") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_register_callback(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "cancel") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_cancel(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_remaining_delay") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_get_remaining_delay(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_status") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_get_status(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_user_info") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_set_user_info(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_request_description") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Request") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Request_get_request_description(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "bulk_push") == 0
+            && (!idlname || strcmp(idlname, "GIAS/IngestMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_IngestMgr_bulk_push(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "bulk_pull") == 0
+            && (!idlname || strcmp(idlname, "GIAS/IngestMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_IngestMgr_bulk_pull(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_related_files") == 0
+            && (!idlname || strcmp(idlname, "GIAS/ProductMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_ProductMgr_get_related_files(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_related_file_types") == 0
+            && (!idlname || strcmp(idlname, "GIAS/ProductMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_ProductMgr_get_related_file_types(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_parameters") == 0
+            && (!idlname || strcmp(idlname, "GIAS/ProductMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_ProductMgr_get_parameters(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "submit_standing_query") == 0
+            && (!idlname || strcmp(idlname, "GIAS/StandingQueryMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_StandingQueryMgr_submit_standing_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_event_descriptions") == 0
+            && (!idlname || strcmp(idlname, "GIAS/StandingQueryMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_StandingQueryMgr_get_event_descriptions(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "hit_count") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CatalogMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CatalogMgr_hit_count(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "submit_query") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CatalogMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CatalogMgr_submit_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "delete_product") == 0
+            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_UpdateMgr_delete_product(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "release_lock") == 0
+            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_UpdateMgr_release_lock(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "update_by_query") == 0
+            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_UpdateMgr_update_by_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "update") == 0
+            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_UpdateMgr_update(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_lock") == 0
+            && (!idlname || strcmp(idlname, "GIAS/UpdateMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_UpdateMgr_set_lock(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "create_association") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CreationMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CreationMgr_create_association(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "create_metadata") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CreationMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CreationMgr_create_metadata(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "create") == 0
+            && (!idlname || strcmp(idlname, "GIAS/CreationMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_CreationMgr_create(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_max_vertices") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_max_vertices(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_associations") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_associations(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_entity_attributes") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_entity_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_entities") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_entities(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_queryable_attributes") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_queryable_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_attributes") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_view_names") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_view_names(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_logical_attribute_name") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_logical_attribute_name(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_logical_aliases") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_logical_aliases(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_alias_categories") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_alias_categories(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_data_model_date") == 0
+            && (!idlname || strcmp(idlname, "GIAS/DataModelMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_DataModelMgr_get_data_model_date(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "order") == 0
+            && (!idlname || strcmp(idlname, "GIAS/OrderMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_OrderMgr_order(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "validate_order") == 0
+            && (!idlname || strcmp(idlname, "GIAS/OrderMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_OrderMgr_validate_order(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_package_specifications") == 0
+            && (!idlname || strcmp(idlname, "GIAS/OrderMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_OrderMgr_get_package_specifications(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "submit_query_order") == 0
+            && (!idlname || strcmp(idlname, "GIAS/QueryOrderMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_QueryOrderMgr_submit_query_order(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_event_descriptions") == 0
+            && (!idlname || strcmp(idlname, "GIAS/QueryOrderMgr") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_QueryOrderMgr_get_event_descriptions(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_availability") == 0
+            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_AccessManager_set_availability(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_number_of_priorities") == 0
+            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_AccessManager_get_number_of_priorities(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "query_availability_delay") == 0
+            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_AccessManager_query_availability_delay(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "is_available") == 0
+            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_AccessManager_is_available(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_use_modes") == 0
+            && (!idlname || strcmp(idlname, "GIAS/AccessManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_AccessManager_get_use_modes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "delete_request") == 0
+            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_RequestManager_delete_request(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_timeout") == 0
+            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_RequestManager_set_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_timeout") == 0
+            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_RequestManager_get_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_default_timeout") == 0
+            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_RequestManager_set_default_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_default_timeout") == 0
+            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_RequestManager_get_default_timeout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_active_requests") == 0
+            && (!idlname || strcmp(idlname, "GIAS/RequestManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_RequestManager_get_active_requests(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_libraries") == 0
+            && (!idlname || strcmp(idlname, "GIAS/LibraryManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_LibraryManager_get_libraries(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_property_values") == 0
+            && (!idlname || strcmp(idlname, "GIAS/LibraryManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_LibraryManager_get_property_values(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_property_names") == 0
+            && (!idlname || strcmp(idlname, "GIAS/LibraryManager") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_LibraryManager_get_property_names(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_other_libraries") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Library_get_other_libraries(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_library_description") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Library_get_library_description(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_manager") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Library_get_manager(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_manager_types") == 0
+            && (!idlname || strcmp(idlname, "GIAS/Library") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_GIAS_Library_get_manager_types(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "release") == 0
+            && (!idlname || strcmp(idlname, "CB/Callback") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CB_Callback_release(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "notify") == 0
+            && (!idlname || strcmp(idlname, "CB/Callback") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CB_Callback_notify(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
         }
 
         break;
@@ -7432,15 +8223,15 @@ dissect_gias(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, 
     case CloseConnection:
     case MessageError:
     case Fragment:
-       return FALSE;      /* not handled yet */
+       return false;      /* not handled yet */
 
     default:
-       return FALSE;      /* not handled yet */
+       return false;      /* not handled yet */
 
     }   /* switch */
 
 
-    return FALSE;
+    return false;
 
 }  /* End of main dissector  */
 
@@ -7453,215 +8244,216 @@ void proto_register_giop_gias(void)
         /* field that indicates the currently ongoing request/reply exchange */
             {&hf_operationrequest, {"Request_Operation","giop-gias.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Operation filters */
-        {&hf_CB_Callback_notify_theState, {"theState","giop-gias.Callback.notify.theState",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_Library_get_manager_types_return_loop, {"Seq length of ManagerTypeList","giop-gias.Library.get_manager_types.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Library_get_manager_types_return, {"ManagerTypeList","giop-gias.Library.get_manager_types.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Library_get_manager_manager_type, {"manager_type","giop-gias.Library.get_manager.manager_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Library_get_other_libraries_return_loop, {"Seq length of LibraryDescriptionList","giop-gias.Library.get_other_libraries.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryManager_get_property_names_return_loop, {"Seq length of NameList","giop-gias.LibraryManager.get_property_names.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryManager_get_property_names_return, {"NameList","giop-gias.LibraryManager.get_property_names.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryManager_get_property_values_return_loop, {"Seq length of PropertyList","giop-gias.LibraryManager.get_property_values.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryManager_get_property_values_desired_properties_loop, {"Seq length of desired_properties","giop-gias.LibraryManager.get_property_values.desired_properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryManager_get_property_values_desired_properties, {"desired_properties","giop-gias.LibraryManager.get_property_values.desired_properties",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryManager_get_libraries_return_loop, {"Seq length of LibraryList","giop-gias.LibraryManager.get_libraries.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_RequestManager_get_active_requests_return_loop, {"Seq length of RequestList","giop-gias.RequestManager.get_active_requests.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_RequestManager_get_default_timeout_return, {"Return value","giop-gias.RequestManager.get_default_timeout.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_RequestManager_set_default_timeout_new_default, {"new_default","giop-gias.RequestManager.set_default_timeout.new_default",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_RequestManager_get_timeout_return, {"Return value","giop-gias.RequestManager.get_timeout.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_RequestManager_set_timeout_new_lifetime, {"new_lifetime","giop-gias.RequestManager.set_timeout.new_lifetime",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_get_use_modes_return_loop, {"Seq length of UseModeList","giop-gias.AccessManager.get_use_modes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_get_use_modes_return, {"UseModeList","giop-gias.AccessManager.get_use_modes.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_is_available_return, {"Return value","giop-gias.AccessManager.is_available.return",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_is_available_use_mode, {"use_mode","giop-gias.AccessManager.is_available.use_mode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_query_availability_delay_return, {"Return value","giop-gias.AccessManager.query_availability_delay.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_query_availability_delay_availability_requirement, {"availability_requirement","giop-gias.AccessManager.query_availability_delay.availability_requirement",FT_UINT32,BASE_DEC,VALS(GIAS_AvailabilityRequirement),0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_query_availability_delay_use_mode, {"use_mode","giop-gias.AccessManager.query_availability_delay.use_mode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_get_number_of_priorities_return, {"Return value","giop-gias.AccessManager.get_number_of_priorities.return",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_set_availability_products_loop, {"Seq length of products","giop-gias.AccessManager.set_availability.products.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_set_availability_availability_requirement, {"availability_requirement","giop-gias.AccessManager.set_availability.availability_requirement",FT_UINT32,BASE_DEC,VALS(GIAS_AvailabilityRequirement),0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_set_availability_use_mode, {"use_mode","giop-gias.AccessManager.set_availability.use_mode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessManager_set_availability_priority, {"priority","giop-gias.AccessManager.set_availability.priority",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop, {"Seq length of EventList","giop-gias.QueryOrderMgr.get_event_descriptions.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderMgr_submit_query_order_o_type, {"o_type","giop-gias.QueryOrderMgr.submit_query_order.o_type",FT_UINT32,BASE_DEC,VALS(GIAS_OrderType),0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop, {"Seq length of properties","giop-gias.QueryOrderMgr.submit_query_order.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderMgr_get_package_specifications_return_loop, {"Seq length of NameList","giop-gias.OrderMgr.get_package_specifications.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderMgr_get_package_specifications_return, {"NameList","giop-gias.OrderMgr.get_package_specifications.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderMgr_validate_order_properties_loop, {"Seq length of properties","giop-gias.OrderMgr.validate_order.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderMgr_order_properties_loop, {"Seq length of properties","giop-gias.OrderMgr.order.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_data_model_date_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_data_model_date.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_alias_categories_return_loop, {"Seq length of NameList","giop-gias.DataModelMgr.get_alias_categories.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_alias_categories_return, {"NameList","giop-gias.DataModelMgr.get_alias_categories.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_alias_categories_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_alias_categories.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_aliases_return_loop, {"Seq length of NameNameList","giop-gias.DataModelMgr.get_logical_aliases.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_aliases_category, {"category","giop-gias.DataModelMgr.get_logical_aliases.category",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_logical_aliases.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_return, {"Return value","giop-gias.DataModelMgr.get_logical_attribute_name.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_view_name, {"view_name","giop-gias.DataModelMgr.get_logical_attribute_name.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_attribute_type, {"attribute_type","giop-gias.DataModelMgr.get_logical_attribute_name.attribute_type",FT_UINT32,BASE_DEC,VALS(GIAS_ConceptualAttributeType),0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_logical_attribute_name.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_view_names_return_loop, {"Seq length of ViewList","giop-gias.DataModelMgr.get_view_names.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_view_names_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_view_names.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_attributes_return_loop, {"Seq length of AttributeInformationList","giop-gias.DataModelMgr.get_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_attributes_view_name, {"view_name","giop-gias.DataModelMgr.get_attributes.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_attributes_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_attributes.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop, {"Seq length of AttributeInformationList","giop-gias.DataModelMgr.get_queryable_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_queryable_attributes_view_name, {"view_name","giop-gias.DataModelMgr.get_queryable_attributes.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_queryable_attributes.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_entities_view_name, {"view_name","giop-gias.DataModelMgr.get_entities.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_entities_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_entities.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_entity_attributes_return_loop, {"Seq length of AttributeInformationList","giop-gias.DataModelMgr.get_entity_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_entity_attributes_aEntity, {"aEntity","giop-gias.DataModelMgr.get_entity_attributes.aEntity",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_entity_attributes.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_associations_return_loop, {"Seq length of AssociationList","giop-gias.DataModelMgr.get_associations.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_associations_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_associations.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_max_vertices_return, {"Return value","giop-gias.DataModelMgr.get_max_vertices.return",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DataModelMgr_get_max_vertices_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_max_vertices.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_new_product_loop, {"Seq length of new_product","giop-gias.CreationMgr.create.new_product.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_related_files_loop, {"Seq length of related_files","giop-gias.CreationMgr.create.related_files.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_properties_loop, {"Seq length of properties","giop-gias.CreationMgr.create.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_metadata_view_name, {"view_name","giop-gias.CreationMgr.create_metadata.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_metadata_related_files_loop, {"Seq length of related_files","giop-gias.CreationMgr.create_metadata.related_files.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_metadata_properties_loop, {"Seq length of properties","giop-gias.CreationMgr.create_metadata.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_association_assoc_name, {"assoc_name","giop-gias.CreationMgr.create_association.assoc_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_association_view_b_objects_loop, {"Seq length of view_b_objects","giop-gias.CreationMgr.create_association.view_b_objects.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreationMgr_create_association_assoc_info_loop, {"Seq length of assoc_info","giop-gias.CreationMgr.create_association.assoc_info.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateMgr_update_view, {"view","giop-gias.UpdateMgr.update.view",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateMgr_update_changes_loop, {"Seq length of changes","giop-gias.UpdateMgr.update.changes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateMgr_update_relfiles_loop, {"Seq length of relfiles","giop-gias.UpdateMgr.update.relfiles.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateMgr_update_properties_loop, {"Seq length of properties","giop-gias.UpdateMgr.update.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateMgr_update_by_query_properties_loop, {"Seq length of properties","giop-gias.UpdateMgr.update_by_query.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CatalogMgr_submit_query_result_attributes_loop, {"Seq length of result_attributes","giop-gias.CatalogMgr.submit_query.result_attributes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CatalogMgr_submit_query_result_attributes, {"result_attributes","giop-gias.CatalogMgr.submit_query.result_attributes",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop, {"Seq length of sort_attributes","giop-gias.CatalogMgr.submit_query.sort_attributes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CatalogMgr_submit_query_properties_loop, {"Seq length of properties","giop-gias.CatalogMgr.submit_query.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CatalogMgr_hit_count_properties_loop, {"Seq length of properties","giop-gias.CatalogMgr.hit_count.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop, {"Seq length of EventList","giop-gias.StandingQueryMgr.get_event_descriptions.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateByQueryRequest_complete_return, {"Return value","giop-gias.UpdateByQueryRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_CreateAssociationRequest_complete_return, {"Return value","giop-gias.CreateAssociationRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_GetRelatedFilesRequest_complete_return, {"Return value","giop-gias.GetRelatedFilesRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_GetRelatedFilesRequest_complete_locations_loop, {"Seq length of locations","giop-gias.GetRelatedFilesRequest.complete.locations.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_GetRelatedFilesRequest_complete_locations, {"locations","giop-gias.GetRelatedFilesRequest.complete.locations",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_IngestRequest_complete_return, {"Return value","giop-gias.IngestRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_GetParametersRequest_complete_StringDAG_return, {"Return value","giop-gias.GetParametersRequest.complete_StringDAG.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_GetParametersRequest_complete_return, {"Return value","giop-gias.GetParametersRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_HitCountRequest_complete_return, {"Return value","giop-gias.HitCountRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_HitCountRequest_complete_number_of_hits, {"number_of_hits","giop-gias.HitCountRequest.complete.number_of_hits",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SetAvailabilityRequest_complete_return, {"Return value","giop-gias.SetAvailabilityRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_return, {"Return value","giop-gias.SubmitStandingQueryRequest.complete_XML_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_results, {"results","giop-gias.SubmitStandingQueryRequest.complete_XML_results.results",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_return, {"Return value","giop-gias.SubmitStandingQueryRequest.complete_stringDAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop, {"Seq length of results","giop-gias.SubmitStandingQueryRequest.complete_stringDAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_return, {"Return value","giop-gias.SubmitStandingQueryRequest.complete_DAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop, {"Seq length of results","giop-gias.SubmitStandingQueryRequest.complete_DAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_clear_intervals_num_intervals, {"num_intervals","giop-gias.SubmitStandingQueryRequest.clear_intervals.num_intervals",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_intervals_return, {"Return value","giop-gias.SubmitStandingQueryRequest.get_number_of_intervals.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_return, {"Return value","giop-gias.SubmitStandingQueryRequest.get_number_of_hits_in_interval.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_interval, {"interval","giop-gias.SubmitStandingQueryRequest.get_number_of_hits_in_interval.interval",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_return, {"Return value","giop-gias.SubmitStandingQueryRequest.get_number_of_hits.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitStandingQueryRequest_set_number_of_hits_hits, {"hits","giop-gias.SubmitStandingQueryRequest.set_number_of_hits.hits",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_complete_XML_results_return, {"Return value","giop-gias.SubmitQueryRequest.complete_XML_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_complete_XML_results_results, {"results","giop-gias.SubmitQueryRequest.complete_XML_results.results",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_return, {"Return value","giop-gias.SubmitQueryRequest.complete_stringDAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop, {"Seq length of results","giop-gias.SubmitQueryRequest.complete_stringDAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_complete_DAG_results_return, {"Return value","giop-gias.SubmitQueryRequest.complete_DAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop, {"Seq length of results","giop-gias.SubmitQueryRequest.complete_DAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryRequest_set_number_of_hits_hits, {"hits","giop-gias.SubmitQueryRequest.set_number_of_hits.hits",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateRequest_complete_return, {"Return value","giop-gias.UpdateRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_CreateMetaDataRequest_complete_return, {"Return value","giop-gias.CreateMetaDataRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_CreateRequest_complete_return, {"Return value","giop-gias.CreateRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_CreateRequest_complete_new_products_loop, {"Seq length of new_products","giop-gias.CreateRequest.complete.new_products.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryOrderRequest_complete_return, {"Return value","giop-gias.SubmitQueryOrderRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryOrderRequest_complete_list_return, {"Return value","giop-gias.SubmitQueryOrderRequest.complete_list.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop, {"Seq length of prods","giop-gias.SubmitQueryOrderRequest.complete_list.prods.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderRequest_complete_return, {"Return value","giop-gias.OrderRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_Request_free_callback_id, {"id","giop-gias.Request.free_callback.id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Request_register_callback_return, {"CallbackID","giop-gias.Request.register_callback.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Request_set_user_info_message, {"message","giop-gias.Request.set_user_info.message",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_IngestMgr_bulk_push_property_list_loop, {"Seq length of property_list","giop-gias.IngestMgr.bulk_push.property_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_IngestMgr_bulk_pull_property_list_loop, {"Seq length of property_list","giop-gias.IngestMgr.bulk_pull.property_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_related_files_products_loop, {"Seq length of products","giop-gias.ProductMgr.get_related_files.products.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_related_files_type, {"type","giop-gias.ProductMgr.get_related_files.type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_related_files_properties_loop, {"Seq length of properties","giop-gias.ProductMgr.get_related_files.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_related_file_types_return_loop, {"Seq length of RelatedFileTypeList","giop-gias.ProductMgr.get_related_file_types.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_related_file_types_return, {"RelatedFileTypeList","giop-gias.ProductMgr.get_related_file_types.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop, {"Seq length of desired_parameters","giop-gias.ProductMgr.get_parameters.desired_parameters.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_parameters_desired_parameters, {"desired_parameters","giop-gias.ProductMgr.get_parameters.desired_parameters",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductMgr_get_parameters_properties_loop, {"Seq length of properties","giop-gias.ProductMgr.get_parameters.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes_loop, {"Seq length of result_attributes","giop-gias.StandingQueryMgr.submit_standing_query.result_attributes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes, {"result_attributes","giop-gias.StandingQueryMgr.submit_standing_query.result_attributes",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes_loop, {"Seq length of sort_attributes","giop-gias.StandingQueryMgr.submit_standing_query.sort_attributes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_StandingQueryMgr_submit_standing_query_properties_loop, {"Seq length of properties","giop-gias.StandingQueryMgr.submit_standing_query.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop, {"Seq length of desired_parameters","giop-gias.ProductMgr.get_parameters.desired_parameters.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_parameters_desired_parameters, {"desired_parameters","giop-gias.ProductMgr.get_parameters.desired_parameters",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_parameters_properties_loop, {"Seq length of properties","giop-gias.ProductMgr.get_parameters.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_related_file_types_return_loop, {"Seq length of RelatedFileTypeList","giop-gias.ProductMgr.get_related_file_types.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_related_file_types_return, {"RelatedFileTypeList","giop-gias.ProductMgr.get_related_file_types.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_related_files_products_loop, {"Seq length of products","giop-gias.ProductMgr.get_related_files.products.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_related_files_type, {"type","giop-gias.ProductMgr.get_related_files.type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductMgr_get_related_files_properties_loop, {"Seq length of properties","giop-gias.ProductMgr.get_related_files.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_IngestMgr_bulk_pull_property_list_loop, {"Seq length of property_list","giop-gias.IngestMgr.bulk_pull.property_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_IngestMgr_bulk_push_property_list_loop, {"Seq length of property_list","giop-gias.IngestMgr.bulk_push.property_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Request_set_user_info_message, {"message","giop-gias.Request.set_user_info.message",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Request_register_callback_return, {"CallbackID","giop-gias.Request.register_callback.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Request_free_callback_id, {"id","giop-gias.Request.free_callback.id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderRequest_complete_return, {"Return value","giop-gias.OrderRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryOrderRequest_complete_list_return, {"Return value","giop-gias.SubmitQueryOrderRequest.complete_list.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop, {"Seq length of prods","giop-gias.SubmitQueryOrderRequest.complete_list.prods.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryOrderRequest_complete_return, {"Return value","giop-gias.SubmitQueryOrderRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_CreateRequest_complete_return, {"Return value","giop-gias.CreateRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_CreateRequest_complete_new_products_loop, {"Seq length of new_products","giop-gias.CreateRequest.complete.new_products.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreateMetaDataRequest_complete_return, {"Return value","giop-gias.CreateMetaDataRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateRequest_complete_return, {"Return value","giop-gias.UpdateRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_set_number_of_hits_hits, {"hits","giop-gias.SubmitQueryRequest.set_number_of_hits.hits",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_complete_DAG_results_return, {"Return value","giop-gias.SubmitQueryRequest.complete_DAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop, {"Seq length of results","giop-gias.SubmitQueryRequest.complete_DAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_return, {"Return value","giop-gias.SubmitQueryRequest.complete_stringDAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop, {"Seq length of results","giop-gias.SubmitQueryRequest.complete_stringDAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_complete_XML_results_return, {"Return value","giop-gias.SubmitQueryRequest.complete_XML_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitQueryRequest_complete_XML_results_results, {"results","giop-gias.SubmitQueryRequest.complete_XML_results.results",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_set_number_of_hits_hits, {"hits","giop-gias.SubmitStandingQueryRequest.set_number_of_hits.hits",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_return, {"Return value","giop-gias.SubmitStandingQueryRequest.get_number_of_hits.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_return, {"Return value","giop-gias.SubmitStandingQueryRequest.get_number_of_hits_in_interval.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval_interval, {"interval","giop-gias.SubmitStandingQueryRequest.get_number_of_hits_in_interval.interval",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_get_number_of_intervals_return, {"Return value","giop-gias.SubmitStandingQueryRequest.get_number_of_intervals.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_clear_intervals_num_intervals, {"num_intervals","giop-gias.SubmitStandingQueryRequest.clear_intervals.num_intervals",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_return, {"Return value","giop-gias.SubmitStandingQueryRequest.complete_DAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop, {"Seq length of results","giop-gias.SubmitStandingQueryRequest.complete_DAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_return, {"Return value","giop-gias.SubmitStandingQueryRequest.complete_stringDAG_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop, {"Seq length of results","giop-gias.SubmitStandingQueryRequest.complete_stringDAG_results.results.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_return, {"Return value","giop-gias.SubmitStandingQueryRequest.complete_XML_results.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_SubmitStandingQueryRequest_complete_XML_results_results, {"results","giop-gias.SubmitStandingQueryRequest.complete_XML_results.results",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SetAvailabilityRequest_complete_return, {"Return value","giop-gias.SetAvailabilityRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_HitCountRequest_complete_return, {"Return value","giop-gias.HitCountRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_HitCountRequest_complete_number_of_hits, {"number_of_hits","giop-gias.HitCountRequest.complete.number_of_hits",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_GetParametersRequest_complete_return, {"Return value","giop-gias.GetParametersRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_GetParametersRequest_complete_StringDAG_return, {"Return value","giop-gias.GetParametersRequest.complete_StringDAG.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_IngestRequest_complete_return, {"Return value","giop-gias.IngestRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_GetRelatedFilesRequest_complete_return, {"Return value","giop-gias.GetRelatedFilesRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_GetRelatedFilesRequest_complete_locations_loop, {"Seq length of locations","giop-gias.GetRelatedFilesRequest.complete.locations.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_GetRelatedFilesRequest_complete_locations, {"locations","giop-gias.GetRelatedFilesRequest.complete.locations",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_CreateAssociationRequest_complete_return, {"Return value","giop-gias.CreateAssociationRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_GIAS_UpdateByQueryRequest_complete_return, {"Return value","giop-gias.UpdateByQueryRequest.complete.return",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop, {"Seq length of EventList","giop-gias.StandingQueryMgr.get_event_descriptions.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CatalogMgr_hit_count_properties_loop, {"Seq length of properties","giop-gias.CatalogMgr.hit_count.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CatalogMgr_submit_query_result_attributes_loop, {"Seq length of result_attributes","giop-gias.CatalogMgr.submit_query.result_attributes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CatalogMgr_submit_query_result_attributes, {"result_attributes","giop-gias.CatalogMgr.submit_query.result_attributes",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop, {"Seq length of sort_attributes","giop-gias.CatalogMgr.submit_query.sort_attributes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CatalogMgr_submit_query_properties_loop, {"Seq length of properties","giop-gias.CatalogMgr.submit_query.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateMgr_update_by_query_properties_loop, {"Seq length of properties","giop-gias.UpdateMgr.update_by_query.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateMgr_update_view, {"view","giop-gias.UpdateMgr.update.view",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateMgr_update_changes_loop, {"Seq length of changes","giop-gias.UpdateMgr.update.changes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateMgr_update_relfiles_loop, {"Seq length of relfiles","giop-gias.UpdateMgr.update.relfiles.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_UpdateMgr_update_properties_loop, {"Seq length of properties","giop-gias.UpdateMgr.update.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_association_assoc_name, {"assoc_name","giop-gias.CreationMgr.create_association.assoc_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_association_view_b_objects_loop, {"Seq length of view_b_objects","giop-gias.CreationMgr.create_association.view_b_objects.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_association_assoc_info_loop, {"Seq length of assoc_info","giop-gias.CreationMgr.create_association.assoc_info.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_metadata_view_name, {"view_name","giop-gias.CreationMgr.create_metadata.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_metadata_related_files_loop, {"Seq length of related_files","giop-gias.CreationMgr.create_metadata.related_files.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_metadata_properties_loop, {"Seq length of properties","giop-gias.CreationMgr.create_metadata.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_new_product_loop, {"Seq length of new_product","giop-gias.CreationMgr.create.new_product.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_related_files_loop, {"Seq length of related_files","giop-gias.CreationMgr.create.related_files.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_CreationMgr_create_properties_loop, {"Seq length of properties","giop-gias.CreationMgr.create.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_max_vertices_return, {"Return value","giop-gias.DataModelMgr.get_max_vertices.return",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_max_vertices_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_max_vertices.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_associations_return_loop, {"Seq length of AssociationList","giop-gias.DataModelMgr.get_associations.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_associations_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_associations.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_entity_attributes_return_loop, {"Seq length of AttributeInformationList","giop-gias.DataModelMgr.get_entity_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_entity_attributes_aEntity, {"aEntity","giop-gias.DataModelMgr.get_entity_attributes.aEntity",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_entity_attributes.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_entities_view_name, {"view_name","giop-gias.DataModelMgr.get_entities.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_entities_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_entities.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop, {"Seq length of AttributeInformationList","giop-gias.DataModelMgr.get_queryable_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_queryable_attributes_view_name, {"view_name","giop-gias.DataModelMgr.get_queryable_attributes.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_queryable_attributes.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_attributes_return_loop, {"Seq length of AttributeInformationList","giop-gias.DataModelMgr.get_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_attributes_view_name, {"view_name","giop-gias.DataModelMgr.get_attributes.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_attributes_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_attributes.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_view_names_return_loop, {"Seq length of ViewList","giop-gias.DataModelMgr.get_view_names.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_view_names_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_view_names.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_return, {"Return value","giop-gias.DataModelMgr.get_logical_attribute_name.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_view_name, {"view_name","giop-gias.DataModelMgr.get_logical_attribute_name.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_attribute_type, {"attribute_type","giop-gias.DataModelMgr.get_logical_attribute_name.attribute_type",FT_UINT32,BASE_DEC,VALS(GIAS_ConceptualAttributeType),0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_logical_attribute_name.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_aliases_return_loop, {"Seq length of NameNameList","giop-gias.DataModelMgr.get_logical_aliases.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_aliases_category, {"category","giop-gias.DataModelMgr.get_logical_aliases.category",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_logical_aliases.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_alias_categories_return_loop, {"Seq length of NameList","giop-gias.DataModelMgr.get_alias_categories.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_alias_categories_return, {"NameList","giop-gias.DataModelMgr.get_alias_categories.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_alias_categories_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_alias_categories.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DataModelMgr_get_data_model_date_properties_loop, {"Seq length of properties","giop-gias.DataModelMgr.get_data_model_date.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderMgr_order_properties_loop, {"Seq length of properties","giop-gias.OrderMgr.order.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderMgr_validate_order_properties_loop, {"Seq length of properties","giop-gias.OrderMgr.validate_order.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderMgr_get_package_specifications_return_loop, {"Seq length of NameList","giop-gias.OrderMgr.get_package_specifications.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderMgr_get_package_specifications_return, {"NameList","giop-gias.OrderMgr.get_package_specifications.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderMgr_submit_query_order_o_type, {"o_type","giop-gias.QueryOrderMgr.submit_query_order.o_type",FT_UINT32,BASE_DEC,VALS(GIAS_OrderType),0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop, {"Seq length of properties","giop-gias.QueryOrderMgr.submit_query_order.properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop, {"Seq length of EventList","giop-gias.QueryOrderMgr.get_event_descriptions.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_set_availability_products_loop, {"Seq length of products","giop-gias.AccessManager.set_availability.products.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_set_availability_availability_requirement, {"availability_requirement","giop-gias.AccessManager.set_availability.availability_requirement",FT_UINT32,BASE_DEC,VALS(GIAS_AvailabilityRequirement),0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_set_availability_use_mode, {"use_mode","giop-gias.AccessManager.set_availability.use_mode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_set_availability_priority, {"priority","giop-gias.AccessManager.set_availability.priority",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_get_number_of_priorities_return, {"Return value","giop-gias.AccessManager.get_number_of_priorities.return",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_query_availability_delay_return, {"Return value","giop-gias.AccessManager.query_availability_delay.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_query_availability_delay_availability_requirement, {"availability_requirement","giop-gias.AccessManager.query_availability_delay.availability_requirement",FT_UINT32,BASE_DEC,VALS(GIAS_AvailabilityRequirement),0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_query_availability_delay_use_mode, {"use_mode","giop-gias.AccessManager.query_availability_delay.use_mode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_is_available_return, {"Return value","giop-gias.AccessManager.is_available.return",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_is_available_use_mode, {"use_mode","giop-gias.AccessManager.is_available.use_mode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_get_use_modes_return_loop, {"Seq length of UseModeList","giop-gias.AccessManager.get_use_modes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessManager_get_use_modes_return, {"UseModeList","giop-gias.AccessManager.get_use_modes.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_RequestManager_set_timeout_new_lifetime, {"new_lifetime","giop-gias.RequestManager.set_timeout.new_lifetime",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_RequestManager_get_timeout_return, {"Return value","giop-gias.RequestManager.get_timeout.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_RequestManager_set_default_timeout_new_default, {"new_default","giop-gias.RequestManager.set_default_timeout.new_default",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_RequestManager_get_default_timeout_return, {"Return value","giop-gias.RequestManager.get_default_timeout.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_RequestManager_get_active_requests_return_loop, {"Seq length of RequestList","giop-gias.RequestManager.get_active_requests.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryManager_get_libraries_return_loop, {"Seq length of LibraryList","giop-gias.LibraryManager.get_libraries.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryManager_get_property_values_return_loop, {"Seq length of PropertyList","giop-gias.LibraryManager.get_property_values.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryManager_get_property_values_desired_properties_loop, {"Seq length of desired_properties","giop-gias.LibraryManager.get_property_values.desired_properties.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryManager_get_property_values_desired_properties, {"desired_properties","giop-gias.LibraryManager.get_property_values.desired_properties",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryManager_get_property_names_return_loop, {"Seq length of NameList","giop-gias.LibraryManager.get_property_names.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryManager_get_property_names_return, {"NameList","giop-gias.LibraryManager.get_property_names.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Library_get_other_libraries_return_loop, {"Seq length of LibraryDescriptionList","giop-gias.Library.get_other_libraries.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Library_get_manager_manager_type, {"manager_type","giop-gias.Library.get_manager.manager_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Library_get_manager_types_return_loop, {"Seq length of ManagerTypeList","giop-gias.Library.get_manager_types.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Library_get_manager_types_return, {"ManagerTypeList","giop-gias.Library.get_manager_types.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_CB_Callback_notify_theState, {"theState","giop-gias.Callback.notify.theState",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
         /* Attribute filters */
         /* Struct filters */
-        {&hf_UCO_NameName_name1, {"NameName_name1","giop-gias.NameName.name1",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_NameName_name2, {"NameName_name2","giop-gias.NameName.name2",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_NameValue_aname, {"NameValue_aname","giop-gias.NameValue.aname",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Ratio_numerator, {"Ratio_numerator","giop-gias.Ratio.numerator",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Ratio_denominator, {"Ratio_denominator","giop-gias.Ratio.denominator",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_FileLocation_user_name, {"FileLocation_user_name","giop-gias.FileLocation.user_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_FileLocation_password, {"FileLocation_password","giop-gias.FileLocation.password",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_FileLocation_host_name, {"FileLocation_host_name","giop-gias.FileLocation.host_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_FileLocation_path_name, {"FileLocation_path_name","giop-gias.FileLocation.path_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_FileLocation_file_name, {"FileLocation_file_name","giop-gias.FileLocation.file_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_DirectAccessLocation_access_protocol, {"DirectAccessLocation_access_protocol","giop-gias.DirectAccessLocation.access_protocol",FT_UINT32,BASE_DEC,VALS(UCO_Protocol),0x0,NULL,HFILL}},
-        {&hf_UCO_Date_year, {"Date_year","giop-gias.Date.year",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Date_month, {"Date_month","giop-gias.Date.month",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Date_day, {"Date_day","giop-gias.Date.day",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Time_hour, {"Time_hour","giop-gias.Time.hour",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Time_minute, {"Time_minute","giop-gias.Time.minute",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Time_second, {"Time_second","giop-gias.Time.second",FT_FLOAT,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Node_id, {"Node_id","giop-gias.Node.id",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Node_node_type, {"Node_node_type","giop-gias.Node.node_type",FT_UINT32,BASE_DEC,VALS(UCO_NodeType),0x0,NULL,HFILL}},
-        {&hf_UCO_Node_attribute_name, {"Node_attribute_name","giop-gias.Node.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Edge_start_node, {"Edge_start_node","giop-gias.Edge.start_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Edge_end_node, {"Edge_end_node","giop-gias.Edge.end_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Edge_relationship_type, {"Edge_relationship_type","giop-gias.Edge.relationship_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_DAG_nodes_loop, {"Seq length of DAG_nodes","giop-gias.DAG.nodes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_DAG_edges_loop, {"Seq length of DAG_edges","giop-gias.DAG.edges.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_StringNode_id, {"StringNode_id","giop-gias.StringNode.id",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_StringNode_node_type, {"StringNode_node_type","giop-gias.StringNode.node_type",FT_UINT32,BASE_DEC,VALS(UCO_NodeType),0x0,NULL,HFILL}},
-        {&hf_UCO_StringNode_attribute_name, {"StringNode_attribute_name","giop-gias.StringNode.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_StringNode_value, {"StringNode_value","giop-gias.StringNode.value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_StringDAG_nodes_loop, {"Seq length of StringDAG_nodes","giop-gias.StringDAG.nodes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_StringDAG_edges_loop, {"Seq length of StringDAG_edges","giop-gias.StringDAG.edges.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Change_changed_node, {"Change_changed_node","giop-gias.Change.changed_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Change_change_type, {"Change_change_type","giop-gias.Change.change_type",FT_UINT32,BASE_DEC,VALS(UCO_ChangeType),0x0,NULL,HFILL}},
-        {&hf_UCO_UpdateDAG_changes_loop, {"Seq length of UpdateDAG_changes","giop-gias.UpdateDAG.changes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_RequestDescription_user_info, {"RequestDescription_user_info","giop-gias.RequestDescription.user_info",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_RequestDescription_request_type, {"RequestDescription_request_type","giop-gias.RequestDescription.request_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_RequestDescription_request_info, {"RequestDescription_request_info","giop-gias.RequestDescription.request_info",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_RequestDescription_request_details_loop, {"Seq length of RequestDescription_request_details","giop-gias.RequestDescription.request_details.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Coordinate2d_x, {"Coordinate2d_x","giop-gias.Coordinate2d.x",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Coordinate2d_y, {"Coordinate2d_y","giop-gias.Coordinate2d.y",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Coordinate3d_x, {"Coordinate3d_x","giop-gias.Coordinate3d.x",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Coordinate3d_y, {"Coordinate3d_y","giop-gias.Coordinate3d.y",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Coordinate3d_z, {"Coordinate3d_z","giop-gias.Coordinate3d.z",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_LinearDimension_dimension, {"LinearDimension_dimension","giop-gias.LinearDimension.dimension",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_LinearDimension_reference_system, {"LinearDimension_reference_system","giop-gias.LinearDimension.reference_system",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Ellipse_north_angle, {"Ellipse_north_angle","giop-gias.Ellipse.north_angle",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_SimpleGSImage_width, {"SimpleGSImage_width","giop-gias.SimpleGSImage.width",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_SimpleGSImage_height, {"SimpleGSImage_height","giop-gias.SimpleGSImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_SimpleCImage_width, {"SimpleCImage_width","giop-gias.SimpleCImage.width",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_SimpleCImage_height, {"SimpleCImage_height","giop-gias.SimpleCImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_CompressedImage_width, {"CompressedImage_width","giop-gias.CompressedImage.width",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_CompressedImage_height, {"CompressedImage_height","giop-gias.CompressedImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_CompressedImage_compression_form, {"CompressedImage_compression_form","giop-gias.CompressedImage.compression_form",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_CompressedImage_data_loop, {"Seq length of CompressedImage_data","giop-gias.CompressedImage.data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_CompressedImage_data, {"CompressedImage_data","giop-gias.CompressedImage.data",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Status_completion_state, {"Status_completion_state","giop-gias.Status.completion_state",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
-        {&hf_UCO_Status_warning, {"Status_warning","giop-gias.Status.warning",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_UCO_Status_status_message, {"Status_status_message","giop-gias.Status.status_message",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_EntityNode_id, {"EntityNode_id","giop-gias.EntityNode.id",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_EntityNode_entity_name, {"EntityNode_entity_name","giop-gias.EntityNode.entity_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_EntityRelationship_start_node, {"EntityRelationship_start_node","giop-gias.EntityRelationship.start_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_EntityRelationship_end_node, {"EntityRelationship_end_node","giop-gias.EntityRelationship.end_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_EntityRelationship_start_to_end_card, {"EntityRelationship_start_to_end_card","giop-gias.EntityRelationship.start_to_end_card",FT_UINT32,BASE_DEC,VALS(UCO_Cardinality),0x0,NULL,HFILL}},
-        {&hf_UCO_EntityRelationship_end_to_start_card, {"EntityRelationship_end_to_start_card","giop-gias.EntityRelationship.end_to_start_card",FT_UINT32,BASE_DEC,VALS(UCO_Cardinality),0x0,NULL,HFILL}},
-        {&hf_UCO_EntityGraph_nodes_loop, {"Seq length of EntityGraph_nodes","giop-gias.EntityGraph.nodes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_EntityGraph_relationship_loop, {"Seq length of EntityGraph_relationship","giop-gias.EntityGraph.relationship.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_exception_details_exception_name, {"exception_details_exception_name","giop-gias.exception_details.exception_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_exception_details_standard_exception_name, {"exception_details_standard_exception_name","giop-gias.exception_details.standard_exception_name",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_UCO_exception_details_exception_desc, {"exception_details_exception_desc","giop-gias.exception_details.exception_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DeliveryManifest_package_name, {"DeliveryManifest_package_name","giop-gias.DeliveryManifest.package_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DeliveryManifest_elements_loop, {"Seq length of DeliveryManifest_elements","giop-gias.DeliveryManifest.elements.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_PackageElement_files_loop, {"Seq length of PackageElement_files","giop-gias.PackageElement.files.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_PackageElement_files, {"PackageElement_files","giop-gias.PackageElement.files",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessCriteria_userID, {"AccessCriteria_userID","giop-gias.AccessCriteria.userID",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessCriteria_password, {"AccessCriteria_password","giop-gias.AccessCriteria.password",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AccessCriteria_licenseKey, {"AccessCriteria_licenseKey","giop-gias.AccessCriteria.licenseKey",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderContents_originator, {"QueryOrderContents_originator","giop-gias.QueryOrderContents.originator",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderContents_operatorNote, {"QueryOrderContents_operatorNote","giop-gias.QueryOrderContents.operatorNote",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderContents_orderPriority, {"QueryOrderContents_orderPriority","giop-gias.QueryOrderContents.orderPriority",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryOrderContents_del_list_loop, {"Seq length of QueryOrderContents_del_list","giop-gias.QueryOrderContents.del_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderContents_originator, {"OrderContents_originator","giop-gias.OrderContents.originator",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderContents_operatorNote, {"OrderContents_operatorNote","giop-gias.OrderContents.operatorNote",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderContents_orderPriority, {"OrderContents_orderPriority","giop-gias.OrderContents.orderPriority",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderContents_prod_list_loop, {"Seq length of OrderContents_prod_list","giop-gias.OrderContents.prod_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_OrderContents_del_list_loop, {"Seq length of OrderContents_del_list","giop-gias.OrderContents.del_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DeliveryDetails_receiver, {"DeliveryDetails_receiver","giop-gias.DeliveryDetails.receiver",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DeliveryDetails_shipmentMode, {"DeliveryDetails_shipmentMode","giop-gias.DeliveryDetails.shipmentMode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductDetails_mTypes_loop, {"Seq length of ProductDetails_mTypes","giop-gias.ProductDetails.mTypes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductDetails_benums_loop, {"Seq length of ProductDetails_benums","giop-gias.ProductDetails.benums.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductDetails_benums, {"ProductDetails_benums","giop-gias.ProductDetails.benums",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ProductDetails_info_system_name, {"ProductDetails_info_system_name","giop-gias.ProductDetails.info_system_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DelayEstimate_time_delay, {"DelayEstimate_time_delay","giop-gias.DelayEstimate.time_delay",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DelayEstimate_valid_time_delay, {"DelayEstimate_valid_time_delay","giop-gias.DelayEstimate.valid_time_delay",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_SortAttribute_attribute_name, {"SortAttribute_attribute_name","giop-gias.SortAttribute.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_SortAttribute_sort_polarity, {"SortAttribute_sort_polarity","giop-gias.SortAttribute.sort_polarity",FT_UINT32,BASE_DEC,VALS(GIAS_Polarity),0x0,NULL,HFILL}},
+        {&hf_GIAS_QueryLifeSpan_frequency_loop, {"Seq length of QueryLifeSpan_frequency","giop-gias.QueryLifeSpan.frequency.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_DayEventTime_day_event, {"DayEventTime_day_event","giop-gias.DayEventTime.day_event",FT_UINT32,BASE_DEC,VALS(GIAS_DayEvent),0x0,NULL,HFILL}},
+        {&hf_GIAS_Event_event_name, {"Event_event_name","giop-gias.Event.event_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Event_event_type, {"Event_event_type","giop-gias.Event.event_type",FT_UINT32,BASE_DEC,VALS(GIAS_NamedEventType),0x0,NULL,HFILL}},
+        {&hf_GIAS_Event_event_description, {"Event_event_description","giop-gias.Event.event_description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Query_view, {"Query_view","giop-gias.Query.view",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Query_bqs_query, {"Query_bqs_query","giop-gias.Query.bqs_query",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryDescription_library_name, {"LibraryDescription_library_name","giop-gias.LibraryDescription.library_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryDescription_library_description, {"LibraryDescription_library_description","giop-gias.LibraryDescription.library_description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_LibraryDescription_library_version_number, {"LibraryDescription_library_version_number","giop-gias.LibraryDescription.library_version_number",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Association_name, {"Association_name","giop-gias.Association.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Association_view_a, {"Association_view_a","giop-gias.Association.view_a",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Association_view_b, {"Association_view_b","giop-gias.Association.view_b",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Association_description, {"Association_description","giop-gias.Association.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Association_card, {"Association_card","giop-gias.Association.card",FT_UINT32,BASE_DEC,VALS(UCO_Cardinality),0x0,NULL,HFILL}},
+        {&hf_GIAS_Association_attribute_info_loop, {"Seq length of Association_attribute_info","giop-gias.Association.attribute_info.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_attribute_name, {"AttributeInformation_attribute_name","giop-gias.AttributeInformation.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_attribute_type, {"AttributeInformation_attribute_type","giop-gias.AttributeInformation.attribute_type",FT_UINT32,BASE_DEC,VALS(GIAS_AttributeType),0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_attribute_units, {"AttributeInformation_attribute_units","giop-gias.AttributeInformation.attribute_units",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_attribute_reference, {"AttributeInformation_attribute_reference","giop-gias.AttributeInformation.attribute_reference",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_mode, {"AttributeInformation_mode","giop-gias.AttributeInformation.mode",FT_UINT32,BASE_DEC,VALS(GIAS_RequirementMode),0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_description, {"AttributeInformation_description","giop-gias.AttributeInformation.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_sortable, {"AttributeInformation_sortable","giop-gias.AttributeInformation.sortable",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_AttributeInformation_updateable, {"AttributeInformation_updateable","giop-gias.AttributeInformation.updateable",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_FloatingPointRange_lower_bound, {"FloatingPointRange_lower_bound","giop-gias.FloatingPointRange.lower_bound",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_FloatingPointRange_upper_bound, {"FloatingPointRange_upper_bound","giop-gias.FloatingPointRange.upper_bound",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_IntegerRange_lower_bound, {"IntegerRange_lower_bound","giop-gias.IntegerRange.lower_bound",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_IntegerRange_upper_bound, {"IntegerRange_upper_bound","giop-gias.IntegerRange.upper_bound",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_View_view_name, {"View_view_name","giop-gias.View.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_View_orderable, {"View_orderable","giop-gias.View.orderable",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_View_sub_views_loop, {"Seq length of View_sub_views","giop-gias.View.sub_views.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_View_sub_views, {"View_sub_views","giop-gias.View.sub_views",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_RelatedFile_file_type, {"RelatedFile_file_type","giop-gias.RelatedFile.file_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_ValidationResults_valid, {"ValidationResults_valid","giop-gias.ValidationResults.valid",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_ValidationResults_warning, {"ValidationResults_warning","giop-gias.ValidationResults.warning",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_ValidationResults_details, {"ValidationResults_details","giop-gias.ValidationResults.details",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_PhysicalDelivery_address, {"PhysicalDelivery_address","giop-gias.PhysicalDelivery.address",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_MediaType_media_type, {"MediaType_media_type","giop-gias.MediaType.media_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_MediaType_quantity, {"MediaType_quantity","giop-gias.MediaType.quantity",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_TailoringSpec_specs_loop, {"Seq length of TailoringSpec_specs","giop-gias.TailoringSpec.specs.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_PackagingSpec_package_identifier, {"PackagingSpec_package_identifier","giop-gias.PackagingSpec.package_identifier",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_PackagingSpec_packaging_format_and_compression, {"PackagingSpec_packaging_format_and_compression","giop-gias.PackagingSpec.packaging_format_and_compression",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AlterationSpec_pf, {"AlterationSpec_pf","giop-gias.AlterationSpec.pf",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_AlterationSpec_geo_region_type, {"AlterationSpec_geo_region_type","giop-gias.AlterationSpec.geo_region_type",FT_UINT32,BASE_DEC,VALS(GIAS_GeoRegionType),0x0,NULL,HFILL}},
         {&hf_GIAS_ImageSpec_imgform, {"ImageSpec_imgform","giop-gias.ImageSpec.imgform",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_ImageSpec_imageid, {"ImageSpec_imageid","giop-gias.ImageSpec.imageid",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_ImageSpec_comp, {"ImageSpec_comp","giop-gias.ImageSpec.comp",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -7671,80 +8463,95 @@ void proto_register_giop_gias(void)
         {&hf_GIAS_ImageSpec_rrds, {"ImageSpec_rrds","giop-gias.ImageSpec.rrds",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_ImageSpec_geo_region_type, {"ImageSpec_geo_region_type","giop-gias.ImageSpec.geo_region_type",FT_UINT32,BASE_DEC,VALS(GIAS_GeoRegionType),0x0,NULL,HFILL}},
         {&hf_GIAS_ImageSpec_encoding, {"ImageSpec_encoding","giop-gias.ImageSpec.encoding",FT_UINT32,BASE_DEC,VALS(GIAS_SupportDataEncoding),0x0,NULL,HFILL}},
-        {&hf_GIAS_AlterationSpec_pf, {"AlterationSpec_pf","giop-gias.AlterationSpec.pf",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AlterationSpec_geo_region_type, {"AlterationSpec_geo_region_type","giop-gias.AlterationSpec.geo_region_type",FT_UINT32,BASE_DEC,VALS(GIAS_GeoRegionType),0x0,NULL,HFILL}},
-        {&hf_GIAS_PackagingSpec_package_identifier, {"PackagingSpec_package_identifier","giop-gias.PackagingSpec.package_identifier",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_PackagingSpec_packaging_format_and_compression, {"PackagingSpec_packaging_format_and_compression","giop-gias.PackagingSpec.packaging_format_and_compression",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_TailoringSpec_specs_loop, {"Seq length of TailoringSpec_specs","giop-gias.TailoringSpec.specs.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_MediaType_media_type, {"MediaType_media_type","giop-gias.MediaType.media_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_MediaType_quantity, {"MediaType_quantity","giop-gias.MediaType.quantity",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_PhysicalDelivery_address, {"PhysicalDelivery_address","giop-gias.PhysicalDelivery.address",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ValidationResults_valid, {"ValidationResults_valid","giop-gias.ValidationResults.valid",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_ValidationResults_warning, {"ValidationResults_warning","giop-gias.ValidationResults.warning",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_ValidationResults_details, {"ValidationResults_details","giop-gias.ValidationResults.details",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_RelatedFile_file_type, {"RelatedFile_file_type","giop-gias.RelatedFile.file_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_View_view_name, {"View_view_name","giop-gias.View.view_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_View_orderable, {"View_orderable","giop-gias.View.orderable",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_View_sub_views_loop, {"Seq length of View_sub_views","giop-gias.View.sub_views.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_View_sub_views, {"View_sub_views","giop-gias.View.sub_views",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_IntegerRange_lower_bound, {"IntegerRange_lower_bound","giop-gias.IntegerRange.lower_bound",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_IntegerRange_upper_bound, {"IntegerRange_upper_bound","giop-gias.IntegerRange.upper_bound",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_FloatingPointRange_lower_bound, {"FloatingPointRange_lower_bound","giop-gias.FloatingPointRange.lower_bound",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_FloatingPointRange_upper_bound, {"FloatingPointRange_upper_bound","giop-gias.FloatingPointRange.upper_bound",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_attribute_name, {"AttributeInformation_attribute_name","giop-gias.AttributeInformation.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_attribute_type, {"AttributeInformation_attribute_type","giop-gias.AttributeInformation.attribute_type",FT_UINT32,BASE_DEC,VALS(GIAS_AttributeType),0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_attribute_units, {"AttributeInformation_attribute_units","giop-gias.AttributeInformation.attribute_units",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_attribute_reference, {"AttributeInformation_attribute_reference","giop-gias.AttributeInformation.attribute_reference",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_mode, {"AttributeInformation_mode","giop-gias.AttributeInformation.mode",FT_UINT32,BASE_DEC,VALS(GIAS_RequirementMode),0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_description, {"AttributeInformation_description","giop-gias.AttributeInformation.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_sortable, {"AttributeInformation_sortable","giop-gias.AttributeInformation.sortable",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_AttributeInformation_updateable, {"AttributeInformation_updateable","giop-gias.AttributeInformation.updateable",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_Association_name, {"Association_name","giop-gias.Association.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Association_view_a, {"Association_view_a","giop-gias.Association.view_a",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Association_view_b, {"Association_view_b","giop-gias.Association.view_b",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Association_description, {"Association_description","giop-gias.Association.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Association_card, {"Association_card","giop-gias.Association.card",FT_UINT32,BASE_DEC,VALS(UCO_Cardinality),0x0,NULL,HFILL}},
-        {&hf_GIAS_Association_attribute_info_loop, {"Seq length of Association_attribute_info","giop-gias.Association.attribute_info.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryDescription_library_name, {"LibraryDescription_library_name","giop-gias.LibraryDescription.library_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryDescription_library_description, {"LibraryDescription_library_description","giop-gias.LibraryDescription.library_description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_LibraryDescription_library_version_number, {"LibraryDescription_library_version_number","giop-gias.LibraryDescription.library_version_number",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Query_view, {"Query_view","giop-gias.Query.view",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Query_bqs_query, {"Query_bqs_query","giop-gias.Query.bqs_query",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Event_event_name, {"Event_event_name","giop-gias.Event.event_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Event_event_type, {"Event_event_type","giop-gias.Event.event_type",FT_UINT32,BASE_DEC,VALS(GIAS_NamedEventType),0x0,NULL,HFILL}},
-        {&hf_GIAS_Event_event_description, {"Event_event_description","giop-gias.Event.event_description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DayEventTime_day_event, {"DayEventTime_day_event","giop-gias.DayEventTime.day_event",FT_UINT32,BASE_DEC,VALS(GIAS_DayEvent),0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryLifeSpan_frequency_loop, {"Seq length of QueryLifeSpan_frequency","giop-gias.QueryLifeSpan.frequency.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SortAttribute_attribute_name, {"SortAttribute_attribute_name","giop-gias.SortAttribute.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_SortAttribute_sort_polarity, {"SortAttribute_sort_polarity","giop-gias.SortAttribute.sort_polarity",FT_UINT32,BASE_DEC,VALS(GIAS_Polarity),0x0,NULL,HFILL}},
-        {&hf_GIAS_DelayEstimate_time_delay, {"DelayEstimate_time_delay","giop-gias.DelayEstimate.time_delay",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DelayEstimate_valid_time_delay, {"DelayEstimate_valid_time_delay","giop-gias.DelayEstimate.valid_time_delay",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_ProductDetails_mTypes_loop, {"Seq length of ProductDetails_mTypes","giop-gias.ProductDetails.mTypes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductDetails_benums_loop, {"Seq length of ProductDetails_benums","giop-gias.ProductDetails.benums.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductDetails_benums, {"ProductDetails_benums","giop-gias.ProductDetails.benums",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_ProductDetails_info_system_name, {"ProductDetails_info_system_name","giop-gias.ProductDetails.info_system_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DeliveryDetails_receiver, {"DeliveryDetails_receiver","giop-gias.DeliveryDetails.receiver",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DeliveryDetails_shipmentMode, {"DeliveryDetails_shipmentMode","giop-gias.DeliveryDetails.shipmentMode",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderContents_originator, {"OrderContents_originator","giop-gias.OrderContents.originator",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderContents_operatorNote, {"OrderContents_operatorNote","giop-gias.OrderContents.operatorNote",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderContents_orderPriority, {"OrderContents_orderPriority","giop-gias.OrderContents.orderPriority",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderContents_prod_list_loop, {"Seq length of OrderContents_prod_list","giop-gias.OrderContents.prod_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_OrderContents_del_list_loop, {"Seq length of OrderContents_del_list","giop-gias.OrderContents.del_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderContents_originator, {"QueryOrderContents_originator","giop-gias.QueryOrderContents.originator",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderContents_operatorNote, {"QueryOrderContents_operatorNote","giop-gias.QueryOrderContents.operatorNote",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderContents_orderPriority, {"QueryOrderContents_orderPriority","giop-gias.QueryOrderContents.orderPriority",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_QueryOrderContents_del_list_loop, {"Seq length of QueryOrderContents_del_list","giop-gias.QueryOrderContents.del_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessCriteria_userID, {"AccessCriteria_userID","giop-gias.AccessCriteria.userID",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessCriteria_password, {"AccessCriteria_password","giop-gias.AccessCriteria.password",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_AccessCriteria_licenseKey, {"AccessCriteria_licenseKey","giop-gias.AccessCriteria.licenseKey",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_PackageElement_files_loop, {"Seq length of PackageElement_files","giop-gias.PackageElement.files.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_PackageElement_files, {"PackageElement_files","giop-gias.PackageElement.files",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DeliveryManifest_package_name, {"DeliveryManifest_package_name","giop-gias.DeliveryManifest.package_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_DeliveryManifest_elements_loop, {"Seq length of DeliveryManifest_elements","giop-gias.DeliveryManifest.elements.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_exception_details_exception_name, {"exception_details_exception_name","giop-gias.exception_details.exception_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_exception_details_standard_exception_name, {"exception_details_standard_exception_name","giop-gias.exception_details.standard_exception_name",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_UCO_exception_details_exception_desc, {"exception_details_exception_desc","giop-gias.exception_details.exception_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_EntityGraph_nodes_loop, {"Seq length of EntityGraph_nodes","giop-gias.EntityGraph.nodes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_EntityGraph_relationship_loop, {"Seq length of EntityGraph_relationship","giop-gias.EntityGraph.relationship.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_EntityRelationship_start_node, {"EntityRelationship_start_node","giop-gias.EntityRelationship.start_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_EntityRelationship_end_node, {"EntityRelationship_end_node","giop-gias.EntityRelationship.end_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_EntityRelationship_start_to_end_card, {"EntityRelationship_start_to_end_card","giop-gias.EntityRelationship.start_to_end_card",FT_UINT32,BASE_DEC,VALS(UCO_Cardinality),0x0,NULL,HFILL}},
+        {&hf_UCO_EntityRelationship_end_to_start_card, {"EntityRelationship_end_to_start_card","giop-gias.EntityRelationship.end_to_start_card",FT_UINT32,BASE_DEC,VALS(UCO_Cardinality),0x0,NULL,HFILL}},
+        {&hf_UCO_EntityNode_id, {"EntityNode_id","giop-gias.EntityNode.id",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_EntityNode_entity_name, {"EntityNode_entity_name","giop-gias.EntityNode.entity_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Status_completion_state, {"Status_completion_state","giop-gias.Status.completion_state",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
+        {&hf_UCO_Status_warning, {"Status_warning","giop-gias.Status.warning",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_UCO_Status_status_message, {"Status_status_message","giop-gias.Status.status_message",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_CompressedImage_width, {"CompressedImage_width","giop-gias.CompressedImage.width",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_CompressedImage_height, {"CompressedImage_height","giop-gias.CompressedImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_CompressedImage_compression_form, {"CompressedImage_compression_form","giop-gias.CompressedImage.compression_form",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_CompressedImage_data_loop, {"Seq length of CompressedImage_data","giop-gias.CompressedImage.data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_CompressedImage_data, {"CompressedImage_data","giop-gias.CompressedImage.data",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_SimpleCImage_width, {"SimpleCImage_width","giop-gias.SimpleCImage.width",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_SimpleCImage_height, {"SimpleCImage_height","giop-gias.SimpleCImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_SimpleGSImage_width, {"SimpleGSImage_width","giop-gias.SimpleGSImage.width",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_SimpleGSImage_height, {"SimpleGSImage_height","giop-gias.SimpleGSImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Ellipse_north_angle, {"Ellipse_north_angle","giop-gias.Ellipse.north_angle",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_LinearDimension_dimension, {"LinearDimension_dimension","giop-gias.LinearDimension.dimension",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_LinearDimension_reference_system, {"LinearDimension_reference_system","giop-gias.LinearDimension.reference_system",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Coordinate3d_x, {"Coordinate3d_x","giop-gias.Coordinate3d.x",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Coordinate3d_y, {"Coordinate3d_y","giop-gias.Coordinate3d.y",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Coordinate3d_z, {"Coordinate3d_z","giop-gias.Coordinate3d.z",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Coordinate2d_x, {"Coordinate2d_x","giop-gias.Coordinate2d.x",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Coordinate2d_y, {"Coordinate2d_y","giop-gias.Coordinate2d.y",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_RequestDescription_user_info, {"RequestDescription_user_info","giop-gias.RequestDescription.user_info",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_RequestDescription_request_type, {"RequestDescription_request_type","giop-gias.RequestDescription.request_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_RequestDescription_request_info, {"RequestDescription_request_info","giop-gias.RequestDescription.request_info",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_RequestDescription_request_details_loop, {"Seq length of RequestDescription_request_details","giop-gias.RequestDescription.request_details.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_UpdateDAG_changes_loop, {"Seq length of UpdateDAG_changes","giop-gias.UpdateDAG.changes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Change_changed_node, {"Change_changed_node","giop-gias.Change.changed_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Change_change_type, {"Change_change_type","giop-gias.Change.change_type",FT_UINT32,BASE_DEC,VALS(UCO_ChangeType),0x0,NULL,HFILL}},
+        {&hf_UCO_StringDAG_nodes_loop, {"Seq length of StringDAG_nodes","giop-gias.StringDAG.nodes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_StringDAG_edges_loop, {"Seq length of StringDAG_edges","giop-gias.StringDAG.edges.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_StringNode_id, {"StringNode_id","giop-gias.StringNode.id",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_StringNode_node_type, {"StringNode_node_type","giop-gias.StringNode.node_type",FT_UINT32,BASE_DEC,VALS(UCO_NodeType),0x0,NULL,HFILL}},
+        {&hf_UCO_StringNode_attribute_name, {"StringNode_attribute_name","giop-gias.StringNode.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_StringNode_value, {"StringNode_value","giop-gias.StringNode.value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_DAG_nodes_loop, {"Seq length of DAG_nodes","giop-gias.DAG.nodes.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_DAG_edges_loop, {"Seq length of DAG_edges","giop-gias.DAG.edges.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Edge_start_node, {"Edge_start_node","giop-gias.Edge.start_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Edge_end_node, {"Edge_end_node","giop-gias.Edge.end_node",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Edge_relationship_type, {"Edge_relationship_type","giop-gias.Edge.relationship_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Node_id, {"Node_id","giop-gias.Node.id",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Node_node_type, {"Node_node_type","giop-gias.Node.node_type",FT_UINT32,BASE_DEC,VALS(UCO_NodeType),0x0,NULL,HFILL}},
+        {&hf_UCO_Node_attribute_name, {"Node_attribute_name","giop-gias.Node.attribute_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Time_hour, {"Time_hour","giop-gias.Time.hour",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Time_minute, {"Time_minute","giop-gias.Time.minute",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Time_second, {"Time_second","giop-gias.Time.second",FT_FLOAT,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Date_year, {"Date_year","giop-gias.Date.year",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Date_month, {"Date_month","giop-gias.Date.month",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Date_day, {"Date_day","giop-gias.Date.day",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_DirectAccessLocation_access_protocol, {"DirectAccessLocation_access_protocol","giop-gias.DirectAccessLocation.access_protocol",FT_UINT32,BASE_DEC,VALS(UCO_Protocol),0x0,NULL,HFILL}},
+        {&hf_UCO_FileLocation_user_name, {"FileLocation_user_name","giop-gias.FileLocation.user_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_FileLocation_password, {"FileLocation_password","giop-gias.FileLocation.password",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_FileLocation_host_name, {"FileLocation_host_name","giop-gias.FileLocation.host_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_FileLocation_path_name, {"FileLocation_path_name","giop-gias.FileLocation.path_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_FileLocation_file_name, {"FileLocation_file_name","giop-gias.FileLocation.file_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Ratio_numerator, {"Ratio_numerator","giop-gias.Ratio.numerator",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Ratio_denominator, {"Ratio_denominator","giop-gias.Ratio.denominator",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_NameValue_aname, {"NameValue_aname","giop-gias.NameValue.aname",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_NameName_name1, {"NameName_name1","giop-gias.NameName.name1",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_NameName_name2, {"NameName_name2","giop-gias.NameName.name2",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* User exception filters */
         {&hf_UCO_InvalidInputParameter_badInputParameters_loop, {"Seq length of InvalidInputParameter_badInputParameters","giop-gias.InvalidInputParamete.InvalidInputParameter_badInputParameters.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_InvalidInputParameter_badInputParameters, {"InvalidInputParameter_badInputParameters","giop-gias.InvalidInputParamete.InvalidInputParameter_badInputParameters",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Union filters */
+        {&hf_GIAS_LifeEvent_LifeEvent, {"LifeEvent","giop-gias.GIAS.LifeEvent",FT_UINT32,BASE_DEC,VALS(GIAS_LifeEventType),0x0,NULL,HFILL}},
+        {&hf_GIAS_LifeEvent_ev, {"LifeEvent_ev","giop-gias.GIAS.LifeEvent.ev",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_Domain, {"Domain","giop-gias.GIAS.Domain",FT_UINT32,BASE_DEC,VALS(GIAS_DomainType),0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_t, {"Domain_t","giop-gias.GIAS.Domain.t",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_is_loop, {"Seq length of Domain_is","giop-gias.GIAS.Domain.is.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_fps_loop, {"Seq length of Domain_fps","giop-gias.GIAS.Domain.fps.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_l_loop, {"Seq length of Domain_l","giop-gias.GIAS.Domain.l.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_l, {"Domain_l","giop-gias.GIAS.Domain.l",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_ol_loop, {"Seq length of Domain_ol","giop-gias.GIAS.Domain.ol.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_ol, {"Domain_ol","giop-gias.GIAS.Domain.ol",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_gs_loop, {"Seq length of Domain_gs","giop-gias.GIAS.Domain.gs.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_bd_loop, {"Seq length of Domain_bd","giop-gias.GIAS.Domain.bd.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_bd, {"Domain_bd","giop-gias.GIAS.Domain.bd",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_bv, {"Domain_bv","giop-gias.GIAS.Domain.bv",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_GIAS_Destination_Destination, {"Destination","giop-gias.GIAS.Destination",FT_UINT32,BASE_DEC,VALS(GIAS_DestinationType),0x0,NULL,HFILL}},
+        {&hf_GIAS_Destination_e_dest, {"Destination_e_dest","giop-gias.GIAS.Destination.e_dest",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_Buffer, {"Buffer","giop-gias.UCO.Buffer",FT_UINT32,BASE_DEC,VALS(UCO_BufferType),0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_octet_buffer_loop, {"Seq length of Buffer_octet_buffer","giop-gias.UCO.Buffer.octet_buffer.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_octet_buffer, {"Buffer_octet_buffer","giop-gias.UCO.Buffer.octet_buffer",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -7762,22 +8569,6 @@ void proto_register_giop_gias(void)
         {&hf_UCO_Buffer_float_buffer, {"Buffer_float_buffer","giop-gias.UCO.Buffer.float_buffer",FT_FLOAT,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_double_buffer_loop, {"Seq length of Buffer_double_buffer","giop-gias.UCO.Buffer.double_buffer.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_double_buffer, {"Buffer_double_buffer","giop-gias.UCO.Buffer.double_buffer",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Destination_Destination, {"Destination","giop-gias.GIAS.Destination",FT_UINT32,BASE_DEC,VALS(GIAS_DestinationType),0x0,NULL,HFILL}},
-        {&hf_GIAS_Destination_e_dest, {"Destination_e_dest","giop-gias.GIAS.Destination.e_dest",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_Domain, {"Domain","giop-gias.GIAS.Domain",FT_UINT32,BASE_DEC,VALS(GIAS_DomainType),0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_t, {"Domain_t","giop-gias.GIAS.Domain.t",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_is_loop, {"Seq length of Domain_is","giop-gias.GIAS.Domain.is.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_fps_loop, {"Seq length of Domain_fps","giop-gias.GIAS.Domain.fps.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_l_loop, {"Seq length of Domain_l","giop-gias.GIAS.Domain.l.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_l, {"Domain_l","giop-gias.GIAS.Domain.l",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_ol_loop, {"Seq length of Domain_ol","giop-gias.GIAS.Domain.ol.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_ol, {"Domain_ol","giop-gias.GIAS.Domain.ol",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_gs_loop, {"Seq length of Domain_gs","giop-gias.GIAS.Domain.gs.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_bd_loop, {"Seq length of Domain_bd","giop-gias.GIAS.Domain.bd.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_bd, {"Domain_bd","giop-gias.GIAS.Domain.bd",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_bv, {"Domain_bv","giop-gias.GIAS.Domain.bv",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_GIAS_LifeEvent_LifeEvent, {"LifeEvent","giop-gias.GIAS.LifeEvent",FT_UINT32,BASE_DEC,VALS(GIAS_LifeEventType),0x0,NULL,HFILL}},
-        {&hf_GIAS_LifeEvent_ev, {"LifeEvent_ev","giop-gias.GIAS.LifeEvent.ev",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
     };
 
@@ -7789,15 +8580,19 @@ void proto_register_giop_gias(void)
 
     /* setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gias,
+        &ett_giop_struct,
+        &ett_giop_sequence,
+        &ett_giop_array,
+        &ett_giop_union,
     };
 
     expert_module_t* expert_gias;
 
 
     /* Register the protocol name and description */
-    proto_gias = proto_register_protocol("Gias Dissector Using GIOP API" , "GIAS", "giop-gias" );
+    proto_gias = proto_register_protocol("Gias Dissector Using GIOP API" , "GIOP/GIAS", "giop-gias" );
     proto_register_field_array(proto_gias, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

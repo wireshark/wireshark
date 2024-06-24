@@ -102,23 +102,23 @@ from omniidl import idlast, idltype, idlutil, output
 class wireshark_gen_C:
 
     # Some string constants for our templates
-    c_u_octet8 = "guint64   u_octet8;"
-    c_s_octet8 = "gint64    s_octet8;"
-    c_u_octet4 = "guint32   u_octet4;"
-    c_s_octet4 = "gint32    s_octet4;"
-    c_u_octet2 = "guint16   u_octet2;"
-    c_s_octet2 = "gint16    s_octet2;"
-    c_u_octet1 = "guint8    u_octet1;"
-    c_s_octet1 = "gint8     s_octet1;"
+    c_u_octet8 = "uint64_t  u_octet8;"
+    c_s_octet8 = "int64_t   s_octet8;"
+    c_u_octet4 = "uint32_t  u_octet4;"
+    c_s_octet4 = "int32_t   s_octet4;"
+    c_u_octet2 = "uint16_t  u_octet2;"
+    c_s_octet2 = "int16_t   s_octet2;"
+    c_u_octet1 = "uint8_t   u_octet1;"
+    c_s_octet1 = "int8_t    s_octet1;"
 
-    c_float    = "gfloat    my_float;"
-    c_double   = "gdouble   my_double;"
+    c_float    = "float     my_float;"
+    c_double   = "double    my_double;"
 
-    c_seq      = "const gchar   *seq = NULL;"  # pointer to buffer of gchars
-    c_i        = "guint32   i_"                # loop index
-    c_i_lim    = "guint32   u_octet4_loop_"    # loop limit
-    c_u_disc   = "guint32   disc_u_"           # unsigned int union discriminant variable name (enum)
-    c_s_disc   = "gint32    disc_s_"           # signed int union discriminant variable name (other cases, except Enum)
+    c_seq      = "const char    *seq = NULL;"  # pointer to buffer of chars
+    c_i        = "uint32_t  i_"                # loop index
+    c_i_lim    = "uint32_t  u_octet4_loop_"    # loop limit
+    c_u_disc   = "uint32_t  disc_u_"           # unsigned int union discriminant variable name (enum)
+    c_s_disc   = "int32_t   disc_s_"           # signed int union discriminant variable name (other cases, except Enum)
 
     def __init__(self, st, protocol_name, dissector_name, description, debug=False, aggressive=False):
         self.DEBUG = debug
@@ -1650,8 +1650,8 @@ class wireshark_gen_C:
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
         self.st.out(self.template_get_CDR_sequence_octet, seqname=pn)
         self.addvar(self.c_i_lim + pn + ";")
-        self.addvar("const guint8 * binary_seq_" + pn + ";")
-        self.addvar("gchar * text_seq_" + pn + ";")
+        self.addvar("const uint8_t * binary_seq_" + pn + ";")
+        self.addvar("char * text_seq_" + pn + ";")
 
     @staticmethod
     def namespace(node, sep):
@@ -1885,7 +1885,7 @@ class wireshark_gen_C:
 
     template_helper_function_start = """\
 static void
-decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {"""
 
     template_helper_function_end = """\
@@ -1920,12 +1920,12 @@ void proto_reg_handoff_giop_@dissector_name@(void);"""
 #    template_protocol = """
 #/* Initialise the protocol and subtree pointers */
 #static int proto_@dissector_name@;
-#static gint ett_@dissector_name@;
+#static int ett_@dissector_name@;
 #"""
     template_protocol = """
 /* Initialise the protocol and subtree pointers */
 static int proto_@dissector_name@;
-static gint ett_@dissector_name@;
+static int ett_@dissector_name@;
 static int ett_giop_struct;
 static int ett_giop_sequence;
 static int ett_giop_array;
@@ -1934,7 +1934,7 @@ static int ett_giop_union;
 
     template_init_boundary = """
 /* Initialise the initial Alignment */
-static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */"""
+static uint32_t boundary = GIOP_HEADER_SIZE;  /* initial value */"""
 
     # plugin_register and plugin_reg_handoff templates
 
@@ -1976,7 +1976,7 @@ void proto_register_giop_@dissector_name@(void)
 
     /* setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_@dissector_name@,
         &ett_giop_struct,
         &ett_giop_sequence,
@@ -2027,13 +2027,13 @@ if (strcmp(operation, "@opname@") == 0
     item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
     tree = start_dissecting(tvb, pinfo, ptree, offset);
     decode_@sname@(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    return TRUE;
+    return true;
 }
 """
     template_no_ops_to_delegate = """\
 // NOTE: this should only appear if your IDL has absolutely no operations
 if (!idlname) {
-    return FALSE;
+    return false;
 }
 """
     # Templates for the helper functions
@@ -2411,7 +2411,7 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
 }
 
 static proto_item*
-process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, const gchar *operation)
+process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, const char *operation)
 {
     proto_item *pi;
     if(header->message_type == Reply) {
@@ -2424,12 +2424,12 @@ process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, M
     return pi;
 }
 
-static gboolean
-dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, const gchar *operation, gchar *idlname)
+static bool
+dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, const char *operation, char *idlname)
 {
     proto_item *item _U_;
     proto_tree *tree _U_;
-    gboolean stream_is_big_endian = is_big_endian(header); /* get endianess */
+    bool stream_is_big_endian = is_big_endian(header); /* get endianess */
 
     /* If we have a USER Exception, then decode it and return */
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
@@ -2454,16 +2454,16 @@ case LocateReply:
 case CloseConnection:
 case MessageError:
 case Fragment:
-   return FALSE;      /* not handled yet */
+   return false;      /* not handled yet */
 
 default:
-   return FALSE;      /* not handled yet */
+   return false;      /* not handled yet */
 
 }   /* switch */
 """
     template_main_dissector_end = """\
 
-    return FALSE;
+    return false;
 
 }  /* End of main dissector  */
 """
@@ -2487,32 +2487,32 @@ default:
  * Main delegator for exception handling
  *
  */
-static gboolean
-decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+static bool
+decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_tree *tree _U_;
 
     if (!header->exception_id)
-        return FALSE;
+        return false;
 """
 
     template_ex_delegate_code = """\
 if (strcmp(header->exception_id, "@exname@") == 0) {
     tree = start_dissecting(tvb, pinfo, ptree, offset);
     decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  @exname@  */
-    return TRUE;
+    return true;
 }
 """
 
     template_main_exception_delegator_end = """
-    return FALSE;    /* user exception not found */
+    return false;    /* user exception not found */
 }
 """
 
     template_exception_helper_function_start = """\
 /* Exception = @exname@ */
 static void
-decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 """
 
@@ -2523,7 +2523,7 @@ decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
     template_struct_helper_function_start = """\
 /* Struct = @stname@ */
 static void
-decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 """
 
@@ -2534,14 +2534,14 @@ decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
     template_union_helper_function_start = """\
 /* Union = @unname@ */
 static void
-decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 """
 
     template_union_helper_function_start_with_item = """\
 /* Union = @unname@ */
 static void
-decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 """
@@ -2615,14 +2615,14 @@ static const value_string @valstringname@[] = {
 if (strcmp(operation, get_@sname@_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
     tree = start_dissecting(tvb, pinfo, ptree, offset);
     decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-    return TRUE;
+    return true;
 }
 """
     template_at_delegate_code_set = """\
 if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) ) {
     tree = start_dissecting(tvb, pinfo, ptree, offset);
     decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-    return TRUE;
+    return true;
 }
 """
     template_attribute_helpers_start = """\
@@ -2637,7 +2637,7 @@ if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) 
 
 /* Attribute = @atname@ */
 static void
-decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 """
 
@@ -2684,37 +2684,37 @@ decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 """
 
     # Cast Unions types to something appropriate
-    # Enum value cast to guint32, all others cast to gint32
+    # Enum value cast to uint32_t, all others cast to int32_t
     # as omniidl accessor returns integer or Enum.
 
     template_union_code_save_discriminant_enum = """\
-disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
 """
     template_union_code_save_discriminant_long = """\
 *offset -= 4; // rewind
-disc_s_@discname@ = (gint32) get_CDR_long(tvb,offset,stream_is_big_endian, boundary);     /* save gint32 discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) get_CDR_long(tvb,offset,stream_is_big_endian, boundary);     /* save int32_t discriminant and cast to int32_t */
 """
 
     template_union_code_save_discriminant_ulong = """\
 *offset -= 4; // rewind
-disc_s_@discname@ = (gint32) get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);     /* save guint32 discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);     /* save uint32_t discriminant and cast to int32_t */
 """
     template_union_code_save_discriminant_short = """\
 *offset -= 2; // rewind
-disc_s_@discname@ = (gint32) get_CDR_short(tvb,offset,stream_is_big_endian, boundary);     /* save gint16 discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) get_CDR_short(tvb,offset,stream_is_big_endian, boundary);     /* save int16_t discriminant and cast to int32_t */
 """
 
     template_union_code_save_discriminant_ushort = """\
 *offset -= 2; // rewind
-disc_s_@discname@ = (gint32) get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary);     /* save gint16 discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary);     /* save int16_t discriminant and cast to int32_t */
 """
     template_union_code_save_discriminant_char = """\
 *offset -= 1; // rewind
-disc_s_@discname@ = (gint32) get_CDR_char(tvb,offset);     /* save guint1 discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) get_CDR_char(tvb,offset);     /* save uint8_t discriminant and cast to int32_t */
 """
     template_union_code_save_discriminant_boolean = """\
 *offset -= 1; // rewind
-disc_s_@discname@ = (gint32) get_CDR_boolean(tvb, offset);     /* save guint1 discriminant and cast to gint32 */
+disc_s_@discname@ = (int32_t) get_CDR_boolean(tvb, offset);     /* save uint8_t discriminant and cast to int32_t */
 """
     template_comment_union_code_label_compare_start = """\
 if (disc_s_@discname@ == @labelval@) {
@@ -2754,7 +2754,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 """
     template_prototype_struct_body = """\
 /* Struct = @stname@ */
-static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 """
     template_decode_struct = """\
 decode_@name@_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);"""
@@ -2767,13 +2767,13 @@ decode_@name@_st(tvb, pinfo, struct_tree, item, offset, header, operation, strea
 
     template_prototype_union_body = """
 /* Union = @unname@ */
-static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 """
     template_decode_union = """\
 decode_@name@_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
 """
     template_proto_item = """\
-proto_item *item = (proto_item*) wmem_alloc0(pinfo->pool, sizeof(proto_item));
+proto_item *item = wmem_new0(pinfo->pool, proto_item);
 """
 
 #

@@ -46,91 +46,95 @@ void proto_reg_handoff_giop_tango(void);
 
 /* Initialise the protocol and subtree pointers */
 static int proto_tango;
-static gint ett_tango;
+static int ett_tango;
+static int ett_giop_struct;
+static int ett_giop_sequence;
+static int ett_giop_array;
+static int ett_giop_union;
 
 
 /* Initialise the initial Alignment */
-static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
+static uint32_t boundary = GIOP_HEADER_SIZE;  /* initial value */
 
 static int hf_operationrequest;/* Request_Operation field */
 
         /* Operation filters */
-static int hf_Tango_Device_command_inout_command;
-static int hf_Tango_Device_get_attribute_config_return_loop;
-static int hf_Tango_Device_get_attribute_config_names_loop;
-static int hf_Tango_Device_get_attribute_config_names;
-static int hf_Tango_Device_set_attribute_config_new_conf_loop;
-static int hf_Tango_Device_read_attributes_return_loop;
-static int hf_Tango_Device_read_attributes_names_loop;
-static int hf_Tango_Device_read_attributes_names;
-static int hf_Tango_Device_write_attributes_values_loop;
-static int hf_Tango_Device_black_box_return_loop;
-static int hf_Tango_Device_black_box_return;
-static int hf_Tango_Device_black_box_n;
-static int hf_Tango_Device_command_list_query_return_loop;
-static int hf_Tango_Device_command_query_command;
-static int hf_Tango_Device_2_command_inout_2_command;
-static int hf_Tango_Device_2_command_inout_2_source;
-static int hf_Tango_Device_2_read_attributes_2_return_loop;
-static int hf_Tango_Device_2_read_attributes_2_names_loop;
-static int hf_Tango_Device_2_read_attributes_2_names;
-static int hf_Tango_Device_2_read_attributes_2_source;
-static int hf_Tango_Device_2_get_attribute_config_2_return_loop;
-static int hf_Tango_Device_2_get_attribute_config_2_names_loop;
-static int hf_Tango_Device_2_get_attribute_config_2_names;
-static int hf_Tango_Device_2_command_list_query_2_return_loop;
-static int hf_Tango_Device_2_command_query_2_command;
-static int hf_Tango_Device_2_command_inout_history_2_return_loop;
-static int hf_Tango_Device_2_command_inout_history_2_command;
-static int hf_Tango_Device_2_command_inout_history_2_n;
-static int hf_Tango_Device_2_read_attribute_history_2_return_loop;
-static int hf_Tango_Device_2_read_attribute_history_2_name;
-static int hf_Tango_Device_2_read_attribute_history_2_n;
-static int hf_Tango_Device_3_read_attributes_3_return_loop;
-static int hf_Tango_Device_3_read_attributes_3_names_loop;
-static int hf_Tango_Device_3_read_attributes_3_names;
-static int hf_Tango_Device_3_read_attributes_3_source;
-static int hf_Tango_Device_3_write_attributes_3_values_loop;
-static int hf_Tango_Device_3_read_attribute_history_3_return_loop;
-static int hf_Tango_Device_3_read_attribute_history_3_name;
-static int hf_Tango_Device_3_read_attribute_history_3_n;
-static int hf_Tango_Device_3_get_attribute_config_3_return_loop;
-static int hf_Tango_Device_3_get_attribute_config_3_names_loop;
-static int hf_Tango_Device_3_get_attribute_config_3_names;
-static int hf_Tango_Device_3_set_attribute_config_3_new_conf_loop;
-static int hf_Tango_Device_4_read_attribute_history_4_name;
-static int hf_Tango_Device_4_read_attribute_history_4_n;
-static int hf_Tango_Device_4_command_inout_history_4_command;
-static int hf_Tango_Device_4_command_inout_history_4_n;
-static int hf_Tango_Device_4_command_inout_4_command;
-static int hf_Tango_Device_4_command_inout_4_source;
-static int hf_Tango_Device_4_read_attributes_4_return_loop;
-static int hf_Tango_Device_4_read_attributes_4_names_loop;
-static int hf_Tango_Device_4_read_attributes_4_names;
-static int hf_Tango_Device_4_read_attributes_4_source;
-static int hf_Tango_Device_4_write_attributes_4_values_loop;
-static int hf_Tango_Device_4_set_attribute_config_4_new_conf_loop;
-static int hf_Tango_Device_4_write_read_attributes_4_return_loop;
-static int hf_Tango_Device_4_write_read_attributes_4_values_loop;
-static int hf_Tango_Device_5_get_attribute_config_5_return_loop;
-static int hf_Tango_Device_5_get_attribute_config_5_names_loop;
-static int hf_Tango_Device_5_get_attribute_config_5_names;
-static int hf_Tango_Device_5_set_attribute_config_5_new_conf_loop;
-static int hf_Tango_Device_5_read_attributes_5_return_loop;
-static int hf_Tango_Device_5_read_attributes_5_names_loop;
-static int hf_Tango_Device_5_read_attributes_5_names;
-static int hf_Tango_Device_5_read_attributes_5_source;
+static int hf_Tango_Device_5_read_pipe_5_name;
+static int hf_Tango_Device_5_set_pipe_config_5_new_conf_loop;
+static int hf_Tango_Device_5_get_pipe_config_5_return_loop;
+static int hf_Tango_Device_5_get_pipe_config_5_names_loop;
+static int hf_Tango_Device_5_get_pipe_config_5_names;
+static int hf_Tango_Device_5_read_attribute_history_5_name;
+static int hf_Tango_Device_5_read_attribute_history_5_n;
 static int hf_Tango_Device_5_write_read_attributes_5_return_loop;
 static int hf_Tango_Device_5_write_read_attributes_5_values_loop;
 static int hf_Tango_Device_5_write_read_attributes_5_r_names_loop;
 static int hf_Tango_Device_5_write_read_attributes_5_r_names;
-static int hf_Tango_Device_5_read_attribute_history_5_name;
-static int hf_Tango_Device_5_read_attribute_history_5_n;
-static int hf_Tango_Device_5_get_pipe_config_5_return_loop;
-static int hf_Tango_Device_5_get_pipe_config_5_names_loop;
-static int hf_Tango_Device_5_get_pipe_config_5_names;
-static int hf_Tango_Device_5_set_pipe_config_5_new_conf_loop;
-static int hf_Tango_Device_5_read_pipe_5_name;
+static int hf_Tango_Device_5_read_attributes_5_return_loop;
+static int hf_Tango_Device_5_read_attributes_5_names_loop;
+static int hf_Tango_Device_5_read_attributes_5_names;
+static int hf_Tango_Device_5_read_attributes_5_source;
+static int hf_Tango_Device_5_set_attribute_config_5_new_conf_loop;
+static int hf_Tango_Device_5_get_attribute_config_5_return_loop;
+static int hf_Tango_Device_5_get_attribute_config_5_names_loop;
+static int hf_Tango_Device_5_get_attribute_config_5_names;
+static int hf_Tango_Device_4_write_read_attributes_4_return_loop;
+static int hf_Tango_Device_4_write_read_attributes_4_values_loop;
+static int hf_Tango_Device_4_set_attribute_config_4_new_conf_loop;
+static int hf_Tango_Device_4_write_attributes_4_values_loop;
+static int hf_Tango_Device_4_read_attributes_4_return_loop;
+static int hf_Tango_Device_4_read_attributes_4_names_loop;
+static int hf_Tango_Device_4_read_attributes_4_names;
+static int hf_Tango_Device_4_read_attributes_4_source;
+static int hf_Tango_Device_4_command_inout_4_command;
+static int hf_Tango_Device_4_command_inout_4_source;
+static int hf_Tango_Device_4_command_inout_history_4_command;
+static int hf_Tango_Device_4_command_inout_history_4_n;
+static int hf_Tango_Device_4_read_attribute_history_4_name;
+static int hf_Tango_Device_4_read_attribute_history_4_n;
+static int hf_Tango_Device_3_set_attribute_config_3_new_conf_loop;
+static int hf_Tango_Device_3_get_attribute_config_3_return_loop;
+static int hf_Tango_Device_3_get_attribute_config_3_names_loop;
+static int hf_Tango_Device_3_get_attribute_config_3_names;
+static int hf_Tango_Device_3_read_attribute_history_3_return_loop;
+static int hf_Tango_Device_3_read_attribute_history_3_name;
+static int hf_Tango_Device_3_read_attribute_history_3_n;
+static int hf_Tango_Device_3_write_attributes_3_values_loop;
+static int hf_Tango_Device_3_read_attributes_3_return_loop;
+static int hf_Tango_Device_3_read_attributes_3_names_loop;
+static int hf_Tango_Device_3_read_attributes_3_names;
+static int hf_Tango_Device_3_read_attributes_3_source;
+static int hf_Tango_Device_2_read_attribute_history_2_return_loop;
+static int hf_Tango_Device_2_read_attribute_history_2_name;
+static int hf_Tango_Device_2_read_attribute_history_2_n;
+static int hf_Tango_Device_2_command_inout_history_2_return_loop;
+static int hf_Tango_Device_2_command_inout_history_2_command;
+static int hf_Tango_Device_2_command_inout_history_2_n;
+static int hf_Tango_Device_2_command_query_2_command;
+static int hf_Tango_Device_2_command_list_query_2_return_loop;
+static int hf_Tango_Device_2_get_attribute_config_2_return_loop;
+static int hf_Tango_Device_2_get_attribute_config_2_names_loop;
+static int hf_Tango_Device_2_get_attribute_config_2_names;
+static int hf_Tango_Device_2_read_attributes_2_return_loop;
+static int hf_Tango_Device_2_read_attributes_2_names_loop;
+static int hf_Tango_Device_2_read_attributes_2_names;
+static int hf_Tango_Device_2_read_attributes_2_source;
+static int hf_Tango_Device_2_command_inout_2_command;
+static int hf_Tango_Device_2_command_inout_2_source;
+static int hf_Tango_Device_command_query_command;
+static int hf_Tango_Device_command_list_query_return_loop;
+static int hf_Tango_Device_black_box_return_loop;
+static int hf_Tango_Device_black_box_return;
+static int hf_Tango_Device_black_box_n;
+static int hf_Tango_Device_write_attributes_values_loop;
+static int hf_Tango_Device_read_attributes_return_loop;
+static int hf_Tango_Device_read_attributes_names_loop;
+static int hf_Tango_Device_read_attributes_names;
+static int hf_Tango_Device_set_attribute_config_new_conf_loop;
+static int hf_Tango_Device_get_attribute_config_return_loop;
+static int hf_Tango_Device_get_attribute_config_names_loop;
+static int hf_Tango_Device_get_attribute_config_names;
+static int hf_Tango_Device_command_inout_command;
         /* Attribute filters */
 static int hf_get_Tango_Device_name_name;
 static int hf_get_Tango_Device_description_description;
@@ -138,139 +142,79 @@ static int hf_get_Tango_Device_state_state;
 static int hf_get_Tango_Device_status_status;
 static int hf_get_Tango_Device_adm_name_adm_name;
         /* Struct filters */
-static int hf_Tango_DevVarLongStringArray_lvalue_loop;
-static int hf_Tango_DevVarLongStringArray_lvalue;
-static int hf_Tango_DevVarLongStringArray_svalue_loop;
-static int hf_Tango_DevVarLongStringArray_svalue;
-static int hf_Tango_DevVarDoubleStringArray_dvalue_loop;
-static int hf_Tango_DevVarDoubleStringArray_dvalue;
-static int hf_Tango_DevVarDoubleStringArray_svalue_loop;
-static int hf_Tango_DevVarDoubleStringArray_svalue;
-static int hf_Tango_DevEncoded_encoded_format;
-static int hf_Tango_DevEncoded_encoded_data_loop;
-static int hf_Tango_DevEncoded_encoded_data;
-static int hf_Tango_JavaClntIdent_MainClass;
-static int hf_Tango_JavaClntIdent_uuid;
-static int hf_Tango_TimeVal_tv_sec;
-static int hf_Tango_TimeVal_tv_usec;
-static int hf_Tango_TimeVal_tv_nsec;
-static int hf_Tango_DevCmdInfo_cmd_name;
-static int hf_Tango_DevCmdInfo_cmd_tag;
-static int hf_Tango_DevCmdInfo_in_type;
-static int hf_Tango_DevCmdInfo_out_type;
-static int hf_Tango_DevCmdInfo_in_type_desc;
-static int hf_Tango_DevCmdInfo_out_type_desc;
-static int hf_Tango_DevCmdInfo_2_cmd_name;
-static int hf_Tango_DevCmdInfo_2_level;
-static int hf_Tango_DevCmdInfo_2_cmd_tag;
-static int hf_Tango_DevCmdInfo_2_in_type;
-static int hf_Tango_DevCmdInfo_2_out_type;
-static int hf_Tango_DevCmdInfo_2_in_type_desc;
-static int hf_Tango_DevCmdInfo_2_out_type_desc;
-static int hf_Tango_DevError_reason;
-static int hf_Tango_DevError_severity;
-static int hf_Tango_DevError_desc;
-static int hf_Tango_DevError_origin;
-static int hf_Tango_NamedDevError_name;
-static int hf_Tango_NamedDevError_index_in_call;
-static int hf_Tango_NamedDevError_err_list_loop;
-static int hf_Tango_AttributeConfig_name;
-static int hf_Tango_AttributeConfig_writable;
-static int hf_Tango_AttributeConfig_data_format;
-static int hf_Tango_AttributeConfig_data_type;
-static int hf_Tango_AttributeConfig_max_dim_x;
-static int hf_Tango_AttributeConfig_max_dim_y;
-static int hf_Tango_AttributeConfig_description;
-static int hf_Tango_AttributeConfig_label;
-static int hf_Tango_AttributeConfig_unit;
-static int hf_Tango_AttributeConfig_standard_unit;
-static int hf_Tango_AttributeConfig_display_unit;
-static int hf_Tango_AttributeConfig_format;
-static int hf_Tango_AttributeConfig_min_value;
-static int hf_Tango_AttributeConfig_max_value;
-static int hf_Tango_AttributeConfig_min_alarm;
-static int hf_Tango_AttributeConfig_max_alarm;
-static int hf_Tango_AttributeConfig_writable_attr_name;
-static int hf_Tango_AttributeConfig_extensions_loop;
-static int hf_Tango_AttributeConfig_extensions;
-static int hf_Tango_AttributeConfig_2_name;
-static int hf_Tango_AttributeConfig_2_writable;
-static int hf_Tango_AttributeConfig_2_data_format;
-static int hf_Tango_AttributeConfig_2_data_type;
-static int hf_Tango_AttributeConfig_2_max_dim_x;
-static int hf_Tango_AttributeConfig_2_max_dim_y;
-static int hf_Tango_AttributeConfig_2_description;
-static int hf_Tango_AttributeConfig_2_label;
-static int hf_Tango_AttributeConfig_2_unit;
-static int hf_Tango_AttributeConfig_2_standard_unit;
-static int hf_Tango_AttributeConfig_2_display_unit;
-static int hf_Tango_AttributeConfig_2_format;
-static int hf_Tango_AttributeConfig_2_min_value;
-static int hf_Tango_AttributeConfig_2_max_value;
-static int hf_Tango_AttributeConfig_2_min_alarm;
-static int hf_Tango_AttributeConfig_2_max_alarm;
-static int hf_Tango_AttributeConfig_2_writable_attr_name;
-static int hf_Tango_AttributeConfig_2_level;
-static int hf_Tango_AttributeConfig_2_extensions_loop;
-static int hf_Tango_AttributeConfig_2_extensions;
-static int hf_Tango_AttributeValue_quality;
-static int hf_Tango_AttributeValue_name;
-static int hf_Tango_AttributeValue_dim_x;
-static int hf_Tango_AttributeValue_dim_y;
-static int hf_Tango_AttributeDim_dim_x;
-static int hf_Tango_AttributeDim_dim_y;
-static int hf_Tango_AttributeValue_3_quality;
-static int hf_Tango_AttributeValue_3_name;
-static int hf_Tango_AttributeValue_3_err_list_loop;
-static int hf_Tango_AttributeValue_4_quality;
-static int hf_Tango_AttributeValue_4_data_format;
-static int hf_Tango_AttributeValue_4_name;
-static int hf_Tango_AttributeValue_4_err_list_loop;
-static int hf_Tango_AttributeValue_5_quality;
-static int hf_Tango_AttributeValue_5_data_format;
-static int hf_Tango_AttributeValue_5_data_type;
-static int hf_Tango_AttributeValue_5_name;
-static int hf_Tango_AttributeValue_5_err_list_loop;
-static int hf_Tango_ChangeEventProp_rel_change;
-static int hf_Tango_ChangeEventProp_abs_change;
-static int hf_Tango_ChangeEventProp_extensions_loop;
-static int hf_Tango_ChangeEventProp_extensions;
-static int hf_Tango_PeriodicEventProp_period;
-static int hf_Tango_PeriodicEventProp_extensions_loop;
-static int hf_Tango_PeriodicEventProp_extensions;
-static int hf_Tango_ArchiveEventProp_rel_change;
-static int hf_Tango_ArchiveEventProp_abs_change;
-static int hf_Tango_ArchiveEventProp_period;
-static int hf_Tango_ArchiveEventProp_extensions_loop;
-static int hf_Tango_ArchiveEventProp_extensions;
-static int hf_Tango_AttributeAlarm_min_alarm;
-static int hf_Tango_AttributeAlarm_max_alarm;
-static int hf_Tango_AttributeAlarm_min_warning;
-static int hf_Tango_AttributeAlarm_max_warning;
-static int hf_Tango_AttributeAlarm_delta_t;
-static int hf_Tango_AttributeAlarm_delta_val;
-static int hf_Tango_AttributeAlarm_extensions_loop;
-static int hf_Tango_AttributeAlarm_extensions;
-static int hf_Tango_AttributeConfig_3_name;
-static int hf_Tango_AttributeConfig_3_writable;
-static int hf_Tango_AttributeConfig_3_data_format;
-static int hf_Tango_AttributeConfig_3_data_type;
-static int hf_Tango_AttributeConfig_3_max_dim_x;
-static int hf_Tango_AttributeConfig_3_max_dim_y;
-static int hf_Tango_AttributeConfig_3_description;
-static int hf_Tango_AttributeConfig_3_label;
-static int hf_Tango_AttributeConfig_3_unit;
-static int hf_Tango_AttributeConfig_3_standard_unit;
-static int hf_Tango_AttributeConfig_3_display_unit;
-static int hf_Tango_AttributeConfig_3_format;
-static int hf_Tango_AttributeConfig_3_min_value;
-static int hf_Tango_AttributeConfig_3_max_value;
-static int hf_Tango_AttributeConfig_3_writable_attr_name;
-static int hf_Tango_AttributeConfig_3_level;
-static int hf_Tango_AttributeConfig_3_extensions_loop;
-static int hf_Tango_AttributeConfig_3_extensions;
-static int hf_Tango_AttributeConfig_3_sys_extensions_loop;
-static int hf_Tango_AttributeConfig_3_sys_extensions;
+static int hf_Tango_ZmqCallInfo_version;
+static int hf_Tango_ZmqCallInfo_ctr;
+static int hf_Tango_ZmqCallInfo_method_name;
+static int hf_Tango_ZmqCallInfo_oid_loop;
+static int hf_Tango_ZmqCallInfo_oid;
+static int hf_Tango_ZmqCallInfo_call_is_except;
+static int hf_Tango_DevCmdHistory_4_dates_loop;
+static int hf_Tango_DevCmdHistory_4_dims_loop;
+static int hf_Tango_DevCmdHistory_4_dims_array_loop;
+static int hf_Tango_DevCmdHistory_4_errors_loop;
+static int hf_Tango_DevCmdHistory_4_errors_array_loop;
+static int hf_Tango_DevCmdHistory_4_cmd_type;
+static int hf_Tango_DevAttrHistory_5_name;
+static int hf_Tango_DevAttrHistory_5_data_format;
+static int hf_Tango_DevAttrHistory_5_data_type;
+static int hf_Tango_DevAttrHistory_5_dates_loop;
+static int hf_Tango_DevAttrHistory_5_quals_loop;
+static int hf_Tango_DevAttrHistory_5_quals;
+static int hf_Tango_DevAttrHistory_5_quals_array_loop;
+static int hf_Tango_DevAttrHistory_5_r_dims_loop;
+static int hf_Tango_DevAttrHistory_5_r_dims_array_loop;
+static int hf_Tango_DevAttrHistory_5_w_dims_loop;
+static int hf_Tango_DevAttrHistory_5_w_dims_array_loop;
+static int hf_Tango_DevAttrHistory_5_errors_loop;
+static int hf_Tango_DevAttrHistory_5_errors_array_loop;
+static int hf_Tango_DevAttrHistory_4_name;
+static int hf_Tango_DevAttrHistory_4_dates_loop;
+static int hf_Tango_DevAttrHistory_4_quals_loop;
+static int hf_Tango_DevAttrHistory_4_quals;
+static int hf_Tango_DevAttrHistory_4_quals_array_loop;
+static int hf_Tango_DevAttrHistory_4_r_dims_loop;
+static int hf_Tango_DevAttrHistory_4_r_dims_array_loop;
+static int hf_Tango_DevAttrHistory_4_w_dims_loop;
+static int hf_Tango_DevAttrHistory_4_w_dims_array_loop;
+static int hf_Tango_DevAttrHistory_4_errors_loop;
+static int hf_Tango_DevAttrHistory_4_errors_array_loop;
+static int hf_Tango_EltInArray_start;
+static int hf_Tango_EltInArray_nb_elt;
+static int hf_Tango_DevAttrHistory_3_attr_failed;
+static int hf_Tango_DevAttrHistory_attr_failed;
+static int hf_Tango_DevAttrHistory_errors_loop;
+static int hf_Tango_DevCmdHistory_cmd_failed;
+static int hf_Tango_DevCmdHistory_errors_loop;
+static int hf_Tango_DevInfo_3_dev_class;
+static int hf_Tango_DevInfo_3_server_id;
+static int hf_Tango_DevInfo_3_server_host;
+static int hf_Tango_DevInfo_3_server_version;
+static int hf_Tango_DevInfo_3_doc_url;
+static int hf_Tango_DevInfo_3_dev_type;
+static int hf_Tango_DevInfo_dev_class;
+static int hf_Tango_DevInfo_server_id;
+static int hf_Tango_DevInfo_server_host;
+static int hf_Tango_DevInfo_server_version;
+static int hf_Tango_DevInfo_doc_url;
+static int hf_Tango_DevIntrChange_dev_started;
+static int hf_Tango_DevIntrChange_cmds_loop;
+static int hf_Tango_DevIntrChange_atts_loop;
+static int hf_Tango_AttDataReady_name;
+static int hf_Tango_AttDataReady_data_type;
+static int hf_Tango_AttDataReady_ctr;
+static int hf_Tango_DevPipeData_name;
+static int hf_Tango_DevPipeBlob_name;
+static int hf_Tango_DevPipeBlob_blob_data_loop;
+static int hf_Tango_DevPipeDataElt_name;
+static int hf_Tango_DevPipeDataElt_inner_blob_loop;
+static int hf_Tango_DevPipeDataElt_inner_blob_name;
+static int hf_Tango_PipeConfig_name;
+static int hf_Tango_PipeConfig_description;
+static int hf_Tango_PipeConfig_label;
+static int hf_Tango_PipeConfig_level;
+static int hf_Tango_PipeConfig_writable;
+static int hf_Tango_PipeConfig_extensions_loop;
+static int hf_Tango_PipeConfig_extensions;
 static int hf_Tango_AttributeConfig_5_name;
 static int hf_Tango_AttributeConfig_5_writable;
 static int hf_Tango_AttributeConfig_5_data_format;
@@ -296,85 +240,143 @@ static int hf_Tango_AttributeConfig_5_extensions_loop;
 static int hf_Tango_AttributeConfig_5_extensions;
 static int hf_Tango_AttributeConfig_5_sys_extensions_loop;
 static int hf_Tango_AttributeConfig_5_sys_extensions;
-static int hf_Tango_PipeConfig_name;
-static int hf_Tango_PipeConfig_description;
-static int hf_Tango_PipeConfig_label;
-static int hf_Tango_PipeConfig_level;
-static int hf_Tango_PipeConfig_writable;
-static int hf_Tango_PipeConfig_extensions_loop;
-static int hf_Tango_PipeConfig_extensions;
-static int hf_Tango_DevPipeDataElt_name;
-static int hf_Tango_DevPipeDataElt_inner_blob_loop;
-static int hf_Tango_DevPipeDataElt_inner_blob_name;
-static int hf_Tango_DevPipeBlob_name;
-static int hf_Tango_DevPipeBlob_blob_data_loop;
-static int hf_Tango_DevPipeData_name;
-static int hf_Tango_AttDataReady_name;
-static int hf_Tango_AttDataReady_data_type;
-static int hf_Tango_AttDataReady_ctr;
-static int hf_Tango_DevIntrChange_dev_started;
-static int hf_Tango_DevIntrChange_cmds_loop;
-static int hf_Tango_DevIntrChange_atts_loop;
-static int hf_Tango_DevInfo_dev_class;
-static int hf_Tango_DevInfo_server_id;
-static int hf_Tango_DevInfo_server_host;
-static int hf_Tango_DevInfo_server_version;
-static int hf_Tango_DevInfo_doc_url;
-static int hf_Tango_DevInfo_3_dev_class;
-static int hf_Tango_DevInfo_3_server_id;
-static int hf_Tango_DevInfo_3_server_host;
-static int hf_Tango_DevInfo_3_server_version;
-static int hf_Tango_DevInfo_3_doc_url;
-static int hf_Tango_DevInfo_3_dev_type;
-static int hf_Tango_DevCmdHistory_cmd_failed;
-static int hf_Tango_DevCmdHistory_errors_loop;
-static int hf_Tango_DevAttrHistory_attr_failed;
-static int hf_Tango_DevAttrHistory_errors_loop;
-static int hf_Tango_DevAttrHistory_3_attr_failed;
-static int hf_Tango_EltInArray_start;
-static int hf_Tango_EltInArray_nb_elt;
-static int hf_Tango_DevAttrHistory_4_name;
-static int hf_Tango_DevAttrHistory_4_dates_loop;
-static int hf_Tango_DevAttrHistory_4_quals_loop;
-static int hf_Tango_DevAttrHistory_4_quals;
-static int hf_Tango_DevAttrHistory_4_quals_array_loop;
-static int hf_Tango_DevAttrHistory_4_r_dims_loop;
-static int hf_Tango_DevAttrHistory_4_r_dims_array_loop;
-static int hf_Tango_DevAttrHistory_4_w_dims_loop;
-static int hf_Tango_DevAttrHistory_4_w_dims_array_loop;
-static int hf_Tango_DevAttrHistory_4_errors_loop;
-static int hf_Tango_DevAttrHistory_4_errors_array_loop;
-static int hf_Tango_DevAttrHistory_5_name;
-static int hf_Tango_DevAttrHistory_5_data_format;
-static int hf_Tango_DevAttrHistory_5_data_type;
-static int hf_Tango_DevAttrHistory_5_dates_loop;
-static int hf_Tango_DevAttrHistory_5_quals_loop;
-static int hf_Tango_DevAttrHistory_5_quals;
-static int hf_Tango_DevAttrHistory_5_quals_array_loop;
-static int hf_Tango_DevAttrHistory_5_r_dims_loop;
-static int hf_Tango_DevAttrHistory_5_r_dims_array_loop;
-static int hf_Tango_DevAttrHistory_5_w_dims_loop;
-static int hf_Tango_DevAttrHistory_5_w_dims_array_loop;
-static int hf_Tango_DevAttrHistory_5_errors_loop;
-static int hf_Tango_DevAttrHistory_5_errors_array_loop;
-static int hf_Tango_DevCmdHistory_4_dates_loop;
-static int hf_Tango_DevCmdHistory_4_dims_loop;
-static int hf_Tango_DevCmdHistory_4_dims_array_loop;
-static int hf_Tango_DevCmdHistory_4_errors_loop;
-static int hf_Tango_DevCmdHistory_4_errors_array_loop;
-static int hf_Tango_DevCmdHistory_4_cmd_type;
-static int hf_Tango_ZmqCallInfo_version;
-static int hf_Tango_ZmqCallInfo_ctr;
-static int hf_Tango_ZmqCallInfo_method_name;
-static int hf_Tango_ZmqCallInfo_oid_loop;
-static int hf_Tango_ZmqCallInfo_oid;
-static int hf_Tango_ZmqCallInfo_call_is_except;
+static int hf_Tango_AttributeConfig_3_name;
+static int hf_Tango_AttributeConfig_3_writable;
+static int hf_Tango_AttributeConfig_3_data_format;
+static int hf_Tango_AttributeConfig_3_data_type;
+static int hf_Tango_AttributeConfig_3_max_dim_x;
+static int hf_Tango_AttributeConfig_3_max_dim_y;
+static int hf_Tango_AttributeConfig_3_description;
+static int hf_Tango_AttributeConfig_3_label;
+static int hf_Tango_AttributeConfig_3_unit;
+static int hf_Tango_AttributeConfig_3_standard_unit;
+static int hf_Tango_AttributeConfig_3_display_unit;
+static int hf_Tango_AttributeConfig_3_format;
+static int hf_Tango_AttributeConfig_3_min_value;
+static int hf_Tango_AttributeConfig_3_max_value;
+static int hf_Tango_AttributeConfig_3_writable_attr_name;
+static int hf_Tango_AttributeConfig_3_level;
+static int hf_Tango_AttributeConfig_3_extensions_loop;
+static int hf_Tango_AttributeConfig_3_extensions;
+static int hf_Tango_AttributeConfig_3_sys_extensions_loop;
+static int hf_Tango_AttributeConfig_3_sys_extensions;
+static int hf_Tango_AttributeAlarm_min_alarm;
+static int hf_Tango_AttributeAlarm_max_alarm;
+static int hf_Tango_AttributeAlarm_min_warning;
+static int hf_Tango_AttributeAlarm_max_warning;
+static int hf_Tango_AttributeAlarm_delta_t;
+static int hf_Tango_AttributeAlarm_delta_val;
+static int hf_Tango_AttributeAlarm_extensions_loop;
+static int hf_Tango_AttributeAlarm_extensions;
+static int hf_Tango_ArchiveEventProp_rel_change;
+static int hf_Tango_ArchiveEventProp_abs_change;
+static int hf_Tango_ArchiveEventProp_period;
+static int hf_Tango_ArchiveEventProp_extensions_loop;
+static int hf_Tango_ArchiveEventProp_extensions;
+static int hf_Tango_PeriodicEventProp_period;
+static int hf_Tango_PeriodicEventProp_extensions_loop;
+static int hf_Tango_PeriodicEventProp_extensions;
+static int hf_Tango_ChangeEventProp_rel_change;
+static int hf_Tango_ChangeEventProp_abs_change;
+static int hf_Tango_ChangeEventProp_extensions_loop;
+static int hf_Tango_ChangeEventProp_extensions;
+static int hf_Tango_AttributeValue_5_quality;
+static int hf_Tango_AttributeValue_5_data_format;
+static int hf_Tango_AttributeValue_5_data_type;
+static int hf_Tango_AttributeValue_5_name;
+static int hf_Tango_AttributeValue_5_err_list_loop;
+static int hf_Tango_AttributeValue_4_quality;
+static int hf_Tango_AttributeValue_4_data_format;
+static int hf_Tango_AttributeValue_4_name;
+static int hf_Tango_AttributeValue_4_err_list_loop;
+static int hf_Tango_AttributeValue_3_quality;
+static int hf_Tango_AttributeValue_3_name;
+static int hf_Tango_AttributeValue_3_err_list_loop;
+static int hf_Tango_AttributeDim_dim_x;
+static int hf_Tango_AttributeDim_dim_y;
+static int hf_Tango_AttributeValue_quality;
+static int hf_Tango_AttributeValue_name;
+static int hf_Tango_AttributeValue_dim_x;
+static int hf_Tango_AttributeValue_dim_y;
+static int hf_Tango_AttributeConfig_2_name;
+static int hf_Tango_AttributeConfig_2_writable;
+static int hf_Tango_AttributeConfig_2_data_format;
+static int hf_Tango_AttributeConfig_2_data_type;
+static int hf_Tango_AttributeConfig_2_max_dim_x;
+static int hf_Tango_AttributeConfig_2_max_dim_y;
+static int hf_Tango_AttributeConfig_2_description;
+static int hf_Tango_AttributeConfig_2_label;
+static int hf_Tango_AttributeConfig_2_unit;
+static int hf_Tango_AttributeConfig_2_standard_unit;
+static int hf_Tango_AttributeConfig_2_display_unit;
+static int hf_Tango_AttributeConfig_2_format;
+static int hf_Tango_AttributeConfig_2_min_value;
+static int hf_Tango_AttributeConfig_2_max_value;
+static int hf_Tango_AttributeConfig_2_min_alarm;
+static int hf_Tango_AttributeConfig_2_max_alarm;
+static int hf_Tango_AttributeConfig_2_writable_attr_name;
+static int hf_Tango_AttributeConfig_2_level;
+static int hf_Tango_AttributeConfig_2_extensions_loop;
+static int hf_Tango_AttributeConfig_2_extensions;
+static int hf_Tango_AttributeConfig_name;
+static int hf_Tango_AttributeConfig_writable;
+static int hf_Tango_AttributeConfig_data_format;
+static int hf_Tango_AttributeConfig_data_type;
+static int hf_Tango_AttributeConfig_max_dim_x;
+static int hf_Tango_AttributeConfig_max_dim_y;
+static int hf_Tango_AttributeConfig_description;
+static int hf_Tango_AttributeConfig_label;
+static int hf_Tango_AttributeConfig_unit;
+static int hf_Tango_AttributeConfig_standard_unit;
+static int hf_Tango_AttributeConfig_display_unit;
+static int hf_Tango_AttributeConfig_format;
+static int hf_Tango_AttributeConfig_min_value;
+static int hf_Tango_AttributeConfig_max_value;
+static int hf_Tango_AttributeConfig_min_alarm;
+static int hf_Tango_AttributeConfig_max_alarm;
+static int hf_Tango_AttributeConfig_writable_attr_name;
+static int hf_Tango_AttributeConfig_extensions_loop;
+static int hf_Tango_AttributeConfig_extensions;
+static int hf_Tango_NamedDevError_name;
+static int hf_Tango_NamedDevError_index_in_call;
+static int hf_Tango_NamedDevError_err_list_loop;
+static int hf_Tango_DevError_reason;
+static int hf_Tango_DevError_severity;
+static int hf_Tango_DevError_desc;
+static int hf_Tango_DevError_origin;
+static int hf_Tango_DevCmdInfo_2_cmd_name;
+static int hf_Tango_DevCmdInfo_2_level;
+static int hf_Tango_DevCmdInfo_2_cmd_tag;
+static int hf_Tango_DevCmdInfo_2_in_type;
+static int hf_Tango_DevCmdInfo_2_out_type;
+static int hf_Tango_DevCmdInfo_2_in_type_desc;
+static int hf_Tango_DevCmdInfo_2_out_type_desc;
+static int hf_Tango_DevCmdInfo_cmd_name;
+static int hf_Tango_DevCmdInfo_cmd_tag;
+static int hf_Tango_DevCmdInfo_in_type;
+static int hf_Tango_DevCmdInfo_out_type;
+static int hf_Tango_DevCmdInfo_in_type_desc;
+static int hf_Tango_DevCmdInfo_out_type_desc;
+static int hf_Tango_TimeVal_tv_sec;
+static int hf_Tango_TimeVal_tv_usec;
+static int hf_Tango_TimeVal_tv_nsec;
+static int hf_Tango_JavaClntIdent_MainClass;
+static int hf_Tango_JavaClntIdent_uuid;
+static int hf_Tango_DevEncoded_encoded_format;
+static int hf_Tango_DevEncoded_encoded_data_loop;
+static int hf_Tango_DevEncoded_encoded_data;
+static int hf_Tango_DevVarDoubleStringArray_dvalue_loop;
+static int hf_Tango_DevVarDoubleStringArray_dvalue;
+static int hf_Tango_DevVarDoubleStringArray_svalue_loop;
+static int hf_Tango_DevVarDoubleStringArray_svalue;
+static int hf_Tango_DevVarLongStringArray_lvalue_loop;
+static int hf_Tango_DevVarLongStringArray_lvalue;
+static int hf_Tango_DevVarLongStringArray_svalue_loop;
+static int hf_Tango_DevVarLongStringArray_svalue;
         /* User exception filters */
 static int hf_Tango_DevFailed_errors_loop;
 static int hf_Tango_MultiDevFailed_errors_loop;
         /* Union filters */
-static int hf_Tango_ClntIdent_ClntIdent;
-static int hf_Tango_ClntIdent_cpp_clnt;
 static int hf_Tango_AttrValUnion_AttrValUnion;
 static int hf_Tango_AttrValUnion_bool_att_value_loop;
 static int hf_Tango_AttrValUnion_bool_att_value;
@@ -403,6 +405,8 @@ static int hf_Tango_AttrValUnion_state_att_value;
 static int hf_Tango_AttrValUnion_dev_state_att;
 static int hf_Tango_AttrValUnion_encoded_att_value_loop;
 static int hf_Tango_AttrValUnion_union_no_data;
+static int hf_Tango_ClntIdent_ClntIdent;
+static int hf_Tango_ClntIdent_cpp_clnt;
         /* Expert info filters */
 static expert_field ei_tango_unknown_giop_msg;
 static expert_field ei_tango_unknown_exception;
@@ -414,133 +418,133 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /* Struct prototype declaration Start */
 
-/* Struct = IDL:Tango/DevVarLongStringArray:1.0 */
-static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevVarDoubleStringArray:1.0 */
-static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevEncoded:1.0 */
-static void decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/JavaClntIdent:1.0 */
-static void decode_Tango_JavaClntIdent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/TimeVal:1.0 */
-static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevCmdInfo:1.0 */
-static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevCmdInfo_2:1.0 */
-static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevError:1.0 */
-static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/NamedDevError:1.0 */
-static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeConfig:1.0 */
-static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeConfig_2:1.0 */
-static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeValue:1.0 */
-static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeDim:1.0 */
-static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeValue_3:1.0 */
-static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeValue_4:1.0 */
-static void decode_Tango_AttributeValue_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeValue_5:1.0 */
-static void decode_Tango_AttributeValue_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/ChangeEventProp:1.0 */
-static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/PeriodicEventProp:1.0 */
-static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/ArchiveEventProp:1.0 */
-static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/EventProperties:1.0 */
-static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeAlarm:1.0 */
-static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeConfig_3:1.0 */
-static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttributeConfig_5:1.0 */
-static void decode_Tango_AttributeConfig_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/PipeConfig:1.0 */
-static void decode_Tango_PipeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevPipeDataElt:1.0 */
-static void decode_Tango_DevPipeDataElt_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevPipeBlob:1.0 */
-static void decode_Tango_DevPipeBlob_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevPipeData:1.0 */
-static void decode_Tango_DevPipeData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/AttDataReady:1.0 */
-static void decode_Tango_AttDataReady_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevIntrChange:1.0 */
-static void decode_Tango_DevIntrChange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevInfo:1.0 */
-static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevInfo_3:1.0 */
-static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevCmdHistory:1.0 */
-static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevAttrHistory:1.0 */
-static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevAttrHistory_3:1.0 */
-static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/EltInArray:1.0 */
-static void decode_Tango_EltInArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevAttrHistory_4:1.0 */
-static void decode_Tango_DevAttrHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-/* Struct = IDL:Tango/DevAttrHistory_5:1.0 */
-static void decode_Tango_DevAttrHistory_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+/* Struct = IDL:Tango/ZmqCallInfo:1.0 */
+static void decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 /* Struct = IDL:Tango/DevCmdHistory_4:1.0 */
-static void decode_Tango_DevCmdHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+static void decode_Tango_DevCmdHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
-/* Struct = IDL:Tango/ZmqCallInfo:1.0 */
-static void decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+/* Struct = IDL:Tango/DevAttrHistory_5:1.0 */
+static void decode_Tango_DevAttrHistory_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevAttrHistory_4:1.0 */
+static void decode_Tango_DevAttrHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/EltInArray:1.0 */
+static void decode_Tango_EltInArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevAttrHistory_3:1.0 */
+static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevAttrHistory:1.0 */
+static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevCmdHistory:1.0 */
+static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevInfo_3:1.0 */
+static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevInfo:1.0 */
+static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevIntrChange:1.0 */
+static void decode_Tango_DevIntrChange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttDataReady:1.0 */
+static void decode_Tango_AttDataReady_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevPipeData:1.0 */
+static void decode_Tango_DevPipeData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevPipeBlob:1.0 */
+static void decode_Tango_DevPipeBlob_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevPipeDataElt:1.0 */
+static void decode_Tango_DevPipeDataElt_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/PipeConfig:1.0 */
+static void decode_Tango_PipeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeConfig_5:1.0 */
+static void decode_Tango_AttributeConfig_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeConfig_3:1.0 */
+static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeAlarm:1.0 */
+static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/EventProperties:1.0 */
+static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/ArchiveEventProp:1.0 */
+static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/PeriodicEventProp:1.0 */
+static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/ChangeEventProp:1.0 */
+static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeValue_5:1.0 */
+static void decode_Tango_AttributeValue_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeValue_4:1.0 */
+static void decode_Tango_AttributeValue_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeValue_3:1.0 */
+static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeDim:1.0 */
+static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeValue:1.0 */
+static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeConfig_2:1.0 */
+static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/AttributeConfig:1.0 */
+static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/NamedDevError:1.0 */
+static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevError:1.0 */
+static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevCmdInfo_2:1.0 */
+static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevCmdInfo:1.0 */
+static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/TimeVal:1.0 */
+static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/JavaClntIdent:1.0 */
+static void decode_Tango_JavaClntIdent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevEncoded:1.0 */
+static void decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevVarDoubleStringArray:1.0 */
+static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+/* Struct = IDL:Tango/DevVarLongStringArray:1.0 */
+static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 /* Struct prototype declaration End */
 
 /* Union prototype declaration Start */
 
-/* Union = IDL:Tango/ClntIdent:1.0 */
-static void decode_Tango_ClntIdent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
-
 /* Union = IDL:Tango/AttrValUnion:1.0 */
-static void decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+static void decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
+
+
+/* Union = IDL:Tango/ClntIdent:1.0 */
+static void decode_Tango_ClntIdent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_);
 
 /* Union prototype declaration End */
 /*
@@ -562,105 +566,13 @@ static const char get_Tango_Device_adm_name_at[] = "_get_adm_name" ;
  */
 
 /*
- * Enum = IDL:Tango/LockerLanguage:1.0
+ * Enum = IDL:Tango/PipeWriteType:1.0
  */
-static const value_string Tango_LockerLanguage[] = {
+static const value_string Tango_PipeWriteType[] = {
 
-    { 0, "CPP" },
-    { 1, "JAVA" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/AttrQuality:1.0
- */
-static const value_string Tango_AttrQuality[] = {
-
-    { 0, "ATTR_VALID" },
-    { 1, "ATTR_INVALID" },
-    { 2, "ATTR_ALARM" },
-    { 3, "ATTR_CHANGING" },
-    { 4, "ATTR_WARNING" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/AttrWriteType:1.0
- */
-static const value_string Tango_AttrWriteType[] = {
-
-    { 0, "READ" },
-    { 1, "READ_WITH_WRITE" },
-    { 2, "WRITE" },
-    { 3, "READ_WRITE" },
-    { 4, "WT_UNKNOWN" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/AttrDataFormat:1.0
- */
-static const value_string Tango_AttrDataFormat[] = {
-
-    { 0, "SCALAR" },
-    { 1, "SPECTRUM" },
-    { 2, "IMAGE" },
-    { 3, "FMT_UNKNOWN" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/DevSource:1.0
- */
-static const value_string Tango_DevSource[] = {
-
-    { 0, "DEV" },
-    { 1, "CACHE" },
-    { 2, "CACHE_DEV" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/ErrSeverity:1.0
- */
-static const value_string Tango_ErrSeverity[] = {
-
-    { 0, "WARN" },
-    { 1, "ERR" },
-    { 2, "PANIC" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/DevState:1.0
- */
-static const value_string Tango_DevState[] = {
-
-    { 0, "ON" },
-    { 1, "OFF" },
-    { 2, "CLOSE" },
-    { 3, "OPEN" },
-    { 4, "INSERT" },
-    { 5, "EXTRACT" },
-    { 6, "MOVING" },
-    { 7, "STANDBY" },
-    { 8, "FAULT" },
-    { 9, "INIT" },
-    { 10, "RUNNING" },
-    { 11, "ALARM" },
-    { 12, "DISABLE" },
-    { 13, "UNKNOWN" },
-    { 0,       NULL },
-};
-
-/*
- * Enum = IDL:Tango/DispLevel:1.0
- */
-static const value_string Tango_DispLevel[] = {
-
-    { 0, "OPERATOR" },
-    { 1, "EXPERT" },
-    { 2, "DL_UNKNOWN" },
+    { 0, "PIPE_READ" },
+    { 1, "PIPE_READ_WRITE" },
+    { 2, "PIPE_WT_UNKNOWN" },
     { 0,       NULL },
 };
 
@@ -688,13 +600,105 @@ static const value_string Tango_AttributeDataType[] = {
 };
 
 /*
- * Enum = IDL:Tango/PipeWriteType:1.0
+ * Enum = IDL:Tango/DispLevel:1.0
  */
-static const value_string Tango_PipeWriteType[] = {
+static const value_string Tango_DispLevel[] = {
 
-    { 0, "PIPE_READ" },
-    { 1, "PIPE_READ_WRITE" },
-    { 2, "PIPE_WT_UNKNOWN" },
+    { 0, "OPERATOR" },
+    { 1, "EXPERT" },
+    { 2, "DL_UNKNOWN" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/DevState:1.0
+ */
+static const value_string Tango_DevState[] = {
+
+    { 0, "ON" },
+    { 1, "OFF" },
+    { 2, "CLOSE" },
+    { 3, "OPEN" },
+    { 4, "INSERT" },
+    { 5, "EXTRACT" },
+    { 6, "MOVING" },
+    { 7, "STANDBY" },
+    { 8, "FAULT" },
+    { 9, "INIT" },
+    { 10, "RUNNING" },
+    { 11, "ALARM" },
+    { 12, "DISABLE" },
+    { 13, "UNKNOWN" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/ErrSeverity:1.0
+ */
+static const value_string Tango_ErrSeverity[] = {
+
+    { 0, "WARN" },
+    { 1, "ERR" },
+    { 2, "PANIC" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/DevSource:1.0
+ */
+static const value_string Tango_DevSource[] = {
+
+    { 0, "DEV" },
+    { 1, "CACHE" },
+    { 2, "CACHE_DEV" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/AttrDataFormat:1.0
+ */
+static const value_string Tango_AttrDataFormat[] = {
+
+    { 0, "SCALAR" },
+    { 1, "SPECTRUM" },
+    { 2, "IMAGE" },
+    { 3, "FMT_UNKNOWN" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/AttrWriteType:1.0
+ */
+static const value_string Tango_AttrWriteType[] = {
+
+    { 0, "READ" },
+    { 1, "READ_WITH_WRITE" },
+    { 2, "WRITE" },
+    { 3, "READ_WRITE" },
+    { 4, "WT_UNKNOWN" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/AttrQuality:1.0
+ */
+static const value_string Tango_AttrQuality[] = {
+
+    { 0, "ATTR_VALID" },
+    { 1, "ATTR_INVALID" },
+    { 2, "ATTR_ALARM" },
+    { 3, "ATTR_CHANGING" },
+    { 4, "ATTR_WARNING" },
+    { 0,       NULL },
+};
+
+/*
+ * Enum = IDL:Tango/LockerLanguage:1.0
+ */
+static const value_string Tango_LockerLanguage[] = {
+
+    { 0, "CPP" },
+    { 1, "JAVA" },
     { 0,       NULL },
 };
 
@@ -707,46 +711,62 @@ static const value_string Tango_PipeWriteType[] = {
 
 /* Exception = IDL:Tango/DevFailed:1.0 */
 static void
-decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item *item = NULL;
+
+    proto_item *item = wmem_new0(pinfo->pool, proto_item);
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevFailed_errors;
-    guint32   i_Tango_DevFailed_errors;
+    uint32_t  u_octet4_loop_Tango_DevFailed_errors;
+    uint32_t  i_Tango_DevFailed_errors;
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_Tango_DevFailed_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_DevFailed_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevFailed_errors);
 
-    for (i_Tango_DevFailed_errors=0; i_Tango_DevFailed_errors < u_octet4_loop_Tango_DevFailed_errors; i_Tango_DevFailed_errors++) {
+    {
+        proto_tree *tree_bak_8pTS7rLNz9iz = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevFailed_errors");
+        for (i_Tango_DevFailed_errors=0; i_Tango_DevFailed_errors < u_octet4_loop_Tango_DevFailed_errors; i_Tango_DevFailed_errors++) {
 
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
+        }
+        tree = tree_bak_8pTS7rLNz9iz;
     }
 
 }
 
 /* Exception = IDL:Tango/MultiDevFailed:1.0 */
 static void
-decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item *item = NULL;
+
+    proto_item *item = wmem_new0(pinfo->pool, proto_item);
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_MultiDevFailed_errors;
-    guint32   i_Tango_MultiDevFailed_errors;
+    uint32_t  u_octet4_loop_Tango_MultiDevFailed_errors;
+    uint32_t  i_Tango_MultiDevFailed_errors;
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_Tango_MultiDevFailed_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_MultiDevFailed_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_MultiDevFailed_errors);
 
-    for (i_Tango_MultiDevFailed_errors=0; i_Tango_MultiDevFailed_errors < u_octet4_loop_Tango_MultiDevFailed_errors; i_Tango_MultiDevFailed_errors++) {
+    {
+        proto_tree *tree_bak_PB2hSgOvbV65 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_MultiDevFailed_errors");
+        for (i_Tango_MultiDevFailed_errors=0; i_Tango_MultiDevFailed_errors < u_octet4_loop_Tango_MultiDevFailed_errors; i_Tango_MultiDevFailed_errors++) {
 
-        /*  Begin struct "Tango_NamedDevError"  */
-        decode_Tango_NamedDevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_NamedDevError"  */
+            { /*  Begin struct "Tango_NamedDevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_NamedDevError");
+
+            decode_Tango_NamedDevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_NamedDevError"  */
+        }
+        tree = tree_bak_PB2hSgOvbV65;
     }
 
 }
@@ -758,28 +778,28 @@ decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
  * Main delegator for exception handling
  *
  */
-static gboolean
-decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+static bool
+decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_tree *tree _U_;
 
     if (!header->exception_id)
-        return FALSE;
+        return false;
 
     if (strcmp(header->exception_id, "IDL:Tango/DevFailed:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
         decode_ex_Tango_DevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/DevFailed:1.0  */
-        return TRUE;
+        return true;
     }
 
     if (strcmp(header->exception_id, "IDL:Tango/MultiDevFailed:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
         decode_ex_Tango_MultiDevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/MultiDevFailed:1.0  */
-        return TRUE;
+        return true;
     }
 
 
-    return FALSE;    /* user exception not found */
+    return false;    /* user exception not found */
 }
 
 /*  Begin Attribute Helper Functions  */
@@ -787,9 +807,8 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
 
 /* Attribute = IDL:Tango/Device/name:1.0 */
 static void
-decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item* item _U_;
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_get_Tango_Device_name_name);
 
@@ -798,9 +817,8 @@ decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 /* Attribute = IDL:Tango/Device/description:1.0 */
 static void
-decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item* item _U_;
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_get_Tango_Device_description_description);
 
@@ -809,12 +827,11 @@ decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 /* Attribute = IDL:Tango/Device/state:1.0 */
 static void
-decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item* item _U_;
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -825,9 +842,8 @@ decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 /* Attribute = IDL:Tango/Device/status:1.0 */
 static void
-decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item* item _U_;
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_get_Tango_Device_status_status);
 
@@ -836,9 +852,8 @@ decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 /* Attribute = IDL:Tango/Device/adm_name:1.0 */
 static void
-decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    proto_item* item _U_;
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_get_Tango_Device_adm_name_adm_name);
 
@@ -848,17 +863,889 @@ decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 /*  End Attribute Helper Functions  */
 
 /*
- * IDL:Tango/Device/command_inout:1.0
+ * IDL:Tango/Device_5/write_read_pipe_5:1.0
  */
 static void
-decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_5_write_read_pipe_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     switch(header->message_type) {
     case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_command_inout_command);
+        { /*  Begin struct "Tango_DevPipeData"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevPipeData");
+
+        decode_Tango_DevPipeData_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "Tango_DevPipeData"  */
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevPipeData"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevPipeData");
+
+            decode_Tango_DevPipeData_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevPipeData"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/write_pipe_5:1.0
+ */
+static void
+decode_Tango_Device_5_write_pipe_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        { /*  Begin struct "Tango_DevPipeData"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevPipeData");
+
+        decode_Tango_DevPipeData_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "Tango_DevPipeData"  */
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/read_pipe_5:1.0
+ */
+static void
+decode_Tango_Device_5_read_pipe_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_read_pipe_5_name);
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevPipeData"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevPipeData");
+
+            decode_Tango_DevPipeData_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevPipeData"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/set_pipe_config_5:1.0
+ */
+static void
+decode_Tango_Device_5_set_pipe_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf;
+    uint32_t  i_Tango_Device_5_set_pipe_config_5_new_conf;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_set_pipe_config_5_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf);
+
+        {
+            proto_tree *tree_bak_RZd4VZ1TbDFq = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_set_pipe_config_5_new_conf");
+            for (i_Tango_Device_5_set_pipe_config_5_new_conf=0; i_Tango_Device_5_set_pipe_config_5_new_conf < u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf; i_Tango_Device_5_set_pipe_config_5_new_conf++) {
+
+                { /*  Begin struct "Tango_PipeConfig"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_PipeConfig");
+
+                decode_Tango_PipeConfig_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_PipeConfig"  */
+            }
+            tree = tree_bak_RZd4VZ1TbDFq;
+        }
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/get_pipe_config_5:1.0
+ */
+static void
+decode_Tango_Device_5_get_pipe_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_5_get_pipe_config_5_names;
+    uint32_t  i_Tango_Device_5_get_pipe_config_5_names;
+    uint32_t  u_octet4_loop_Tango_Device_5_get_pipe_config_5_return;
+    uint32_t  i_Tango_Device_5_get_pipe_config_5_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_5_get_pipe_config_5_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_get_pipe_config_5_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_pipe_config_5_names);
+
+        {
+            proto_tree *tree_bak_SdsgwG86y9l4 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_get_pipe_config_5_names");
+            for (i_Tango_Device_5_get_pipe_config_5_names=0; i_Tango_Device_5_get_pipe_config_5_names < u_octet4_loop_Tango_Device_5_get_pipe_config_5_names; i_Tango_Device_5_get_pipe_config_5_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_get_pipe_config_5_names);
+
+            }
+            tree = tree_bak_SdsgwG86y9l4;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_5_get_pipe_config_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_5_get_pipe_config_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_pipe_config_5_return);
+
+            {
+                proto_tree *tree_bak_XjNngkLu8GH9 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_get_pipe_config_5_return");
+                for (i_Tango_Device_5_get_pipe_config_5_return=0; i_Tango_Device_5_get_pipe_config_5_return < u_octet4_loop_Tango_Device_5_get_pipe_config_5_return; i_Tango_Device_5_get_pipe_config_5_return++) {
+
+                    { /*  Begin struct "Tango_PipeConfig"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_PipeConfig");
+
+                    decode_Tango_PipeConfig_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_PipeConfig"  */
+                }
+                tree = tree_bak_XjNngkLu8GH9;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/read_attribute_history_5:1.0
+ */
+static void
+decode_Tango_Device_5_read_attribute_history_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_read_attribute_history_5_name);
+
+        proto_tree_add_int(tree, hf_Tango_Device_5_read_attribute_history_5_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevAttrHistory_5"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevAttrHistory_5");
+
+            decode_Tango_DevAttrHistory_5_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevAttrHistory_5"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/write_read_attributes_5:1.0
+ */
+static void
+decode_Tango_Device_5_write_read_attributes_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_5_write_read_attributes_5_values;
+    uint32_t  i_Tango_Device_5_write_read_attributes_5_values;
+    uint32_t  u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names;
+    uint32_t  i_Tango_Device_5_write_read_attributes_5_r_names;
+    uint32_t  u_octet4_loop_Tango_Device_5_write_read_attributes_5_return;
+    uint32_t  i_Tango_Device_5_write_read_attributes_5_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_5_write_read_attributes_5_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_write_read_attributes_5_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_write_read_attributes_5_values);
+
+        {
+            proto_tree *tree_bak_MQlijFD03Wm0 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_write_read_attributes_5_values");
+            for (i_Tango_Device_5_write_read_attributes_5_values=0; i_Tango_Device_5_write_read_attributes_5_values < u_octet4_loop_Tango_Device_5_write_read_attributes_5_values; i_Tango_Device_5_write_read_attributes_5_values++) {
+
+                { /*  Begin struct "Tango_AttributeValue_4"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_4");
+
+                decode_Tango_AttributeValue_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeValue_4"  */
+            }
+            tree = tree_bak_MQlijFD03Wm0;
+        }
+
+        u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_write_read_attributes_5_r_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names);
+
+        {
+            proto_tree *tree_bak_XeEFUZFLFPBG = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_write_read_attributes_5_r_names");
+            for (i_Tango_Device_5_write_read_attributes_5_r_names=0; i_Tango_Device_5_write_read_attributes_5_r_names < u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names; i_Tango_Device_5_write_read_attributes_5_r_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_write_read_attributes_5_r_names);
+
+            }
+            tree = tree_bak_XeEFUZFLFPBG;
+        }
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_5_write_read_attributes_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_5_write_read_attributes_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_write_read_attributes_5_return);
+
+            {
+                proto_tree *tree_bak_Hq4zgirlV3rg = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_write_read_attributes_5_return");
+                for (i_Tango_Device_5_write_read_attributes_5_return=0; i_Tango_Device_5_write_read_attributes_5_return < u_octet4_loop_Tango_Device_5_write_read_attributes_5_return; i_Tango_Device_5_write_read_attributes_5_return++) {
+
+                    { /*  Begin struct "Tango_AttributeValue_5"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_5");
+
+                    decode_Tango_AttributeValue_5_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue_5"  */
+                }
+                tree = tree_bak_Hq4zgirlV3rg;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/read_attributes_5:1.0
+ */
+static void
+decode_Tango_Device_5_read_attributes_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_5_read_attributes_5_names;
+    uint32_t  i_Tango_Device_5_read_attributes_5_names;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_Device_5_read_attributes_5_return;
+    uint32_t  i_Tango_Device_5_read_attributes_5_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_5_read_attributes_5_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_read_attributes_5_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_read_attributes_5_names);
+
+        {
+            proto_tree *tree_bak_kUwIcWYQ7D4T = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_read_attributes_5_names");
+            for (i_Tango_Device_5_read_attributes_5_names=0; i_Tango_Device_5_read_attributes_5_names < u_octet4_loop_Tango_Device_5_read_attributes_5_names; i_Tango_Device_5_read_attributes_5_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_read_attributes_5_names);
+
+            }
+            tree = tree_bak_kUwIcWYQ7D4T;
+        }
+
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_read_attributes_5_source, tvb, *offset-4, 4, u_octet4);
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_5_read_attributes_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_5_read_attributes_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_read_attributes_5_return);
+
+            {
+                proto_tree *tree_bak_nytwqRmlgBFH = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_read_attributes_5_return");
+                for (i_Tango_Device_5_read_attributes_5_return=0; i_Tango_Device_5_read_attributes_5_return < u_octet4_loop_Tango_Device_5_read_attributes_5_return; i_Tango_Device_5_read_attributes_5_return++) {
+
+                    { /*  Begin struct "Tango_AttributeValue_5"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_5");
+
+                    decode_Tango_AttributeValue_5_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue_5"  */
+                }
+                tree = tree_bak_nytwqRmlgBFH;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/set_attribute_config_5:1.0
+ */
+static void
+decode_Tango_Device_5_set_attribute_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf;
+    uint32_t  i_Tango_Device_5_set_attribute_config_5_new_conf;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_set_attribute_config_5_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf);
+
+        {
+            proto_tree *tree_bak_lFqdwNsEX3ki = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_set_attribute_config_5_new_conf");
+            for (i_Tango_Device_5_set_attribute_config_5_new_conf=0; i_Tango_Device_5_set_attribute_config_5_new_conf < u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf; i_Tango_Device_5_set_attribute_config_5_new_conf++) {
+
+                { /*  Begin struct "Tango_AttributeConfig_5"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_5");
+
+                decode_Tango_AttributeConfig_5_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeConfig_5"  */
+            }
+            tree = tree_bak_lFqdwNsEX3ki;
+        }
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_5/get_attribute_config_5:1.0
+ */
+static void
+decode_Tango_Device_5_get_attribute_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_5_get_attribute_config_5_names;
+    uint32_t  i_Tango_Device_5_get_attribute_config_5_names;
+    uint32_t  u_octet4_loop_Tango_Device_5_get_attribute_config_5_return;
+    uint32_t  i_Tango_Device_5_get_attribute_config_5_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_5_get_attribute_config_5_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_5_get_attribute_config_5_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_attribute_config_5_names);
+
+        {
+            proto_tree *tree_bak_9hZNl6GFFK47 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_get_attribute_config_5_names");
+            for (i_Tango_Device_5_get_attribute_config_5_names=0; i_Tango_Device_5_get_attribute_config_5_names < u_octet4_loop_Tango_Device_5_get_attribute_config_5_names; i_Tango_Device_5_get_attribute_config_5_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_get_attribute_config_5_names);
+
+            }
+            tree = tree_bak_9hZNl6GFFK47;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_5_get_attribute_config_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_5_get_attribute_config_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_attribute_config_5_return);
+
+            {
+                proto_tree *tree_bak_Lks0YvbGMim8 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_5_get_attribute_config_5_return");
+                for (i_Tango_Device_5_get_attribute_config_5_return=0; i_Tango_Device_5_get_attribute_config_5_return < u_octet4_loop_Tango_Device_5_get_attribute_config_5_return; i_Tango_Device_5_get_attribute_config_5_return++) {
+
+                    { /*  Begin struct "Tango_AttributeConfig_5"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_5");
+
+                    decode_Tango_AttributeConfig_5_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeConfig_5"  */
+                }
+                tree = tree_bak_Lks0YvbGMim8;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_4/write_read_attributes_4:1.0
+ */
+static void
+decode_Tango_Device_4_write_read_attributes_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_4_write_read_attributes_4_values;
+    uint32_t  i_Tango_Device_4_write_read_attributes_4_values;
+    uint32_t  u_octet4_loop_Tango_Device_4_write_read_attributes_4_return;
+    uint32_t  i_Tango_Device_4_write_read_attributes_4_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_4_write_read_attributes_4_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_4_write_read_attributes_4_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_write_read_attributes_4_values);
+
+        {
+            proto_tree *tree_bak_120zgl72pv3m = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_4_write_read_attributes_4_values");
+            for (i_Tango_Device_4_write_read_attributes_4_values=0; i_Tango_Device_4_write_read_attributes_4_values < u_octet4_loop_Tango_Device_4_write_read_attributes_4_values; i_Tango_Device_4_write_read_attributes_4_values++) {
+
+                { /*  Begin struct "Tango_AttributeValue_4"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_4");
+
+                decode_Tango_AttributeValue_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeValue_4"  */
+            }
+            tree = tree_bak_120zgl72pv3m;
+        }
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_4_write_read_attributes_4_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_4_write_read_attributes_4_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_write_read_attributes_4_return);
+
+            {
+                proto_tree *tree_bak_L1fbSg2lborz = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_4_write_read_attributes_4_return");
+                for (i_Tango_Device_4_write_read_attributes_4_return=0; i_Tango_Device_4_write_read_attributes_4_return < u_octet4_loop_Tango_Device_4_write_read_attributes_4_return; i_Tango_Device_4_write_read_attributes_4_return++) {
+
+                    { /*  Begin struct "Tango_AttributeValue_4"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_4");
+
+                    decode_Tango_AttributeValue_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue_4"  */
+                }
+                tree = tree_bak_L1fbSg2lborz;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_4/set_attribute_config_4:1.0
+ */
+static void
+decode_Tango_Device_4_set_attribute_config_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf;
+    uint32_t  i_Tango_Device_4_set_attribute_config_4_new_conf;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_4_set_attribute_config_4_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf);
+
+        {
+            proto_tree *tree_bak_J8d03H3n42pB = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_4_set_attribute_config_4_new_conf");
+            for (i_Tango_Device_4_set_attribute_config_4_new_conf=0; i_Tango_Device_4_set_attribute_config_4_new_conf < u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf; i_Tango_Device_4_set_attribute_config_4_new_conf++) {
+
+                { /*  Begin struct "Tango_AttributeConfig_3"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_3");
+
+                decode_Tango_AttributeConfig_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeConfig_3"  */
+            }
+            tree = tree_bak_J8d03H3n42pB;
+        }
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_4/write_attributes_4:1.0
+ */
+static void
+decode_Tango_Device_4_write_attributes_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_4_write_attributes_4_values;
+    uint32_t  i_Tango_Device_4_write_attributes_4_values;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_4_write_attributes_4_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_4_write_attributes_4_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_write_attributes_4_values);
+
+        {
+            proto_tree *tree_bak_vzmcy19UDilY = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_4_write_attributes_4_values");
+            for (i_Tango_Device_4_write_attributes_4_values=0; i_Tango_Device_4_write_attributes_4_values < u_octet4_loop_Tango_Device_4_write_attributes_4_values; i_Tango_Device_4_write_attributes_4_values++) {
+
+                { /*  Begin struct "Tango_AttributeValue_4"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_4");
+
+                decode_Tango_AttributeValue_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeValue_4"  */
+            }
+            tree = tree_bak_vzmcy19UDilY;
+        }
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            /* Function returns void */
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_4/read_attributes_4:1.0
+ */
+static void
+decode_Tango_Device_4_read_attributes_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_4_read_attributes_4_names;
+    uint32_t  i_Tango_Device_4_read_attributes_4_names;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_Device_4_read_attributes_4_return;
+    uint32_t  i_Tango_Device_4_read_attributes_4_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_4_read_attributes_4_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_4_read_attributes_4_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_read_attributes_4_names);
+
+        {
+            proto_tree *tree_bak_rz97YthkxvXv = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_4_read_attributes_4_names");
+            for (i_Tango_Device_4_read_attributes_4_names=0; i_Tango_Device_4_read_attributes_4_names < u_octet4_loop_Tango_Device_4_read_attributes_4_names; i_Tango_Device_4_read_attributes_4_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_read_attributes_4_names);
+
+            }
+            tree = tree_bak_rz97YthkxvXv;
+        }
+
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_4_read_attributes_4_source, tvb, *offset-4, 4, u_octet4);
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_4_read_attributes_4_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_4_read_attributes_4_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_read_attributes_4_return);
+
+            {
+                proto_tree *tree_bak_0DSPdAGrNsnv = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_4_read_attributes_4_return");
+                for (i_Tango_Device_4_read_attributes_4_return=0; i_Tango_Device_4_read_attributes_4_return < u_octet4_loop_Tango_Device_4_read_attributes_4_return; i_Tango_Device_4_read_attributes_4_return++) {
+
+                    { /*  Begin struct "Tango_AttributeValue_4"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_4");
+
+                    decode_Tango_AttributeValue_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue_4"  */
+                }
+                tree = tree_bak_0DSPdAGrNsnv;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_4/command_inout_4:1.0
+ */
+static void
+decode_Tango_Device_4_command_inout_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_command_inout_4_command);
 
         get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_4_command_inout_4_source, tvb, *offset-4, 4, u_octet4);
+
+        { /*  Begin union "Tango_ClntIdent"  */
+        proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_ClntIdent");
+
+        decode_Tango_ClntIdent_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+        } /*  End union "Tango_ClntIdent"  */
         break;
     case Reply:
         switch(header->rep_status) {
@@ -883,182 +1770,109 @@ decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 /*
- * IDL:Tango/Device/get_attribute_config:1.0
+ * IDL:Tango/Device_4/command_inout_history_4:1.0
  */
 static void
-decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_4_command_inout_history_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_get_attribute_config_names;
-    guint32   i_Tango_Device_get_attribute_config_names;
-    guint32   u_octet4_loop_Tango_Device_get_attribute_config_return;
-    guint32   i_Tango_Device_get_attribute_config_return;
-    /* Operation specific Variable declarations End */
-
     switch(header->message_type) {
     case Request:
-        u_octet4_loop_Tango_Device_get_attribute_config_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_get_attribute_config_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_get_attribute_config_names);
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_command_inout_history_4_command);
 
-        for (i_Tango_Device_get_attribute_config_names=0; i_Tango_Device_get_attribute_config_names < u_octet4_loop_Tango_Device_get_attribute_config_names; i_Tango_Device_get_attribute_config_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_get_attribute_config_names);
-
-        }
+        proto_tree_add_int(tree, hf_Tango_Device_4_command_inout_history_4_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_get_attribute_config_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_get_attribute_config_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_get_attribute_config_return);
+            { /*  Begin struct "Tango_DevCmdHistory_4"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdHistory_4");
 
-            for (i_Tango_Device_get_attribute_config_return=0; i_Tango_Device_get_attribute_config_return < u_octet4_loop_Tango_Device_get_attribute_config_return; i_Tango_Device_get_attribute_config_return++) {
+            decode_Tango_DevCmdHistory_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevCmdHistory_4"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
 
-                /*  Begin struct "Tango_AttributeConfig"  */
-                decode_Tango_AttributeConfig_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeConfig"  */
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_4/read_attribute_history_4:1.0
+ */
+static void
+decode_Tango_Device_4_read_attribute_history_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_read_attribute_history_4_name);
+
+        proto_tree_add_int(tree, hf_Tango_Device_4_read_attribute_history_4_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevAttrHistory_4"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevAttrHistory_4");
+
+            decode_Tango_DevAttrHistory_4_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevAttrHistory_4"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_3/set_attribute_config_3:1.0
+ */
+static void
+decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf;
+    uint32_t  i_Tango_Device_3_set_attribute_config_3_new_conf;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_3_set_attribute_config_3_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf);
+
+        {
+            proto_tree *tree_bak_ljrZSuWyIU8B = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_set_attribute_config_3_new_conf");
+            for (i_Tango_Device_3_set_attribute_config_3_new_conf=0; i_Tango_Device_3_set_attribute_config_3_new_conf < u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf; i_Tango_Device_3_set_attribute_config_3_new_conf++) {
+
+                { /*  Begin struct "Tango_AttributeConfig_3"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_3");
+
+                decode_Tango_AttributeConfig_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeConfig_3"  */
             }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device/set_attribute_config:1.0
- */
-static void
-decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_set_attribute_config_new_conf;
-    guint32   i_Tango_Device_set_attribute_config_new_conf;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_set_attribute_config_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_set_attribute_config_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_set_attribute_config_new_conf);
-
-        for (i_Tango_Device_set_attribute_config_new_conf=0; i_Tango_Device_set_attribute_config_new_conf < u_octet4_loop_Tango_Device_set_attribute_config_new_conf; i_Tango_Device_set_attribute_config_new_conf++) {
-
-            /*  Begin struct "Tango_AttributeConfig"  */
-            decode_Tango_AttributeConfig_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeConfig"  */
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device/read_attributes:1.0
- */
-static void
-decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_read_attributes_names;
-    guint32   i_Tango_Device_read_attributes_names;
-    guint32   u_octet4_loop_Tango_Device_read_attributes_return;
-    guint32   i_Tango_Device_read_attributes_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_read_attributes_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_read_attributes_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_read_attributes_names);
-
-        for (i_Tango_Device_read_attributes_names=0; i_Tango_Device_read_attributes_names < u_octet4_loop_Tango_Device_read_attributes_names; i_Tango_Device_read_attributes_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_read_attributes_names);
-
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_read_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_read_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_read_attributes_return);
-
-            for (i_Tango_Device_read_attributes_return=0; i_Tango_Device_read_attributes_return < u_octet4_loop_Tango_Device_read_attributes_return; i_Tango_Device_read_attributes_return++) {
-
-                /*  Begin struct "Tango_AttributeValue"  */
-                decode_Tango_AttributeValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device/write_attributes:1.0
- */
-static void
-decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_write_attributes_values;
-    guint32   i_Tango_Device_write_attributes_values;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_write_attributes_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_write_attributes_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_write_attributes_values);
-
-        for (i_Tango_Device_write_attributes_values=0; i_Tango_Device_write_attributes_values < u_octet4_loop_Tango_Device_write_attributes_values; i_Tango_Device_write_attributes_values++) {
-
-            /*  Begin struct "Tango_AttributeValue"  */
-            decode_Tango_AttributeValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeValue"  */
+            tree = tree_bak_ljrZSuWyIU8B;
         }
 
         break;
@@ -1085,13 +1899,191 @@ decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 }
 
 /*
- * IDL:Tango/Device/ping:1.0
+ * IDL:Tango/Device_3/get_attribute_config_3:1.0
  */
 static void
-decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_3_get_attribute_config_3_names;
+    uint32_t  i_Tango_Device_3_get_attribute_config_3_names;
+    uint32_t  u_octet4_loop_Tango_Device_3_get_attribute_config_3_return;
+    uint32_t  i_Tango_Device_3_get_attribute_config_3_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_3_get_attribute_config_3_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_3_get_attribute_config_3_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_get_attribute_config_3_names);
+
+        {
+            proto_tree *tree_bak_KQ11dEY8Wpth = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_get_attribute_config_3_names");
+            for (i_Tango_Device_3_get_attribute_config_3_names=0; i_Tango_Device_3_get_attribute_config_3_names < u_octet4_loop_Tango_Device_3_get_attribute_config_3_names; i_Tango_Device_3_get_attribute_config_3_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_3_get_attribute_config_3_names);
+
+            }
+            tree = tree_bak_KQ11dEY8Wpth;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_3_get_attribute_config_3_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_3_get_attribute_config_3_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_get_attribute_config_3_return);
+
+            {
+                proto_tree *tree_bak_rd7NnAPrNmmp = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_get_attribute_config_3_return");
+                for (i_Tango_Device_3_get_attribute_config_3_return=0; i_Tango_Device_3_get_attribute_config_3_return < u_octet4_loop_Tango_Device_3_get_attribute_config_3_return; i_Tango_Device_3_get_attribute_config_3_return++) {
+
+                    { /*  Begin struct "Tango_AttributeConfig_3"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_3");
+
+                    decode_Tango_AttributeConfig_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeConfig_3"  */
+                }
+                tree = tree_bak_rd7NnAPrNmmp;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_3/info_3:1.0
+ */
+static void
+decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     switch(header->message_type) {
     case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevInfo_3"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevInfo_3");
+
+            decode_Tango_DevInfo_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevInfo_3"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_3/read_attribute_history_3:1.0
+ */
+static void
+decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_3_read_attribute_history_3_return;
+    uint32_t  i_Tango_Device_3_read_attribute_history_3_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_3_read_attribute_history_3_name);
+
+        proto_tree_add_int(tree, hf_Tango_Device_3_read_attribute_history_3_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_3_read_attribute_history_3_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_3_read_attribute_history_3_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attribute_history_3_return);
+
+            {
+                proto_tree *tree_bak_Ws64x9nW9Usl = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_read_attribute_history_3_return");
+                for (i_Tango_Device_3_read_attribute_history_3_return=0; i_Tango_Device_3_read_attribute_history_3_return < u_octet4_loop_Tango_Device_3_read_attribute_history_3_return; i_Tango_Device_3_read_attribute_history_3_return++) {
+
+                    { /*  Begin struct "Tango_DevAttrHistory_3"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevAttrHistory_3");
+
+                    decode_Tango_DevAttrHistory_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevAttrHistory_3"  */
+                }
+                tree = tree_bak_Ws64x9nW9Usl;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_3/write_attributes_3:1.0
+ */
+static void
+decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_3_write_attributes_3_values;
+    uint32_t  i_Tango_Device_3_write_attributes_3_values;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_3_write_attributes_3_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_3_write_attributes_3_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_write_attributes_3_values);
+
+        {
+            proto_tree *tree_bak_li8MEEShjHIS = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_write_attributes_3_values");
+            for (i_Tango_Device_3_write_attributes_3_values=0; i_Tango_Device_3_write_attributes_3_values < u_octet4_loop_Tango_Device_3_write_attributes_3_values; i_Tango_Device_3_write_attributes_3_values++) {
+
+                { /*  Begin struct "Tango_AttributeValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue");
+
+                decode_Tango_AttributeValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeValue"  */
+            }
+            tree = tree_bak_li8MEEShjHIS;
+        }
+
         break;
     case Reply:
         switch(header->rep_status) {
@@ -1116,31 +2108,57 @@ decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 }
 
 /*
- * IDL:Tango/Device/black_box:1.0
+ * IDL:Tango/Device_3/read_attributes_3:1.0
  */
 static void
-decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_black_box_return;
-    guint32   i_Tango_Device_black_box_return;
+    uint32_t  u_octet4_loop_Tango_Device_3_read_attributes_3_names;
+    uint32_t  i_Tango_Device_3_read_attributes_3_names;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_Device_3_read_attributes_3_return;
+    uint32_t  i_Tango_Device_3_read_attributes_3_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_int(tree, hf_Tango_Device_black_box_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        u_octet4_loop_Tango_Device_3_read_attributes_3_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attributes_3_names);
+
+        {
+            proto_tree *tree_bak_a6wHT8YyOBtj = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_read_attributes_3_names");
+            for (i_Tango_Device_3_read_attributes_3_names=0; i_Tango_Device_3_read_attributes_3_names < u_octet4_loop_Tango_Device_3_read_attributes_3_names; i_Tango_Device_3_read_attributes_3_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_3_read_attributes_3_names);
+
+            }
+            tree = tree_bak_a6wHT8YyOBtj;
+        }
+
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_source, tvb, *offset-4, 4, u_octet4);
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_black_box_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_black_box_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_black_box_return);
+            u_octet4_loop_Tango_Device_3_read_attributes_3_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attributes_3_return);
 
-            for (i_Tango_Device_black_box_return=0; i_Tango_Device_black_box_return < u_octet4_loop_Tango_Device_black_box_return; i_Tango_Device_black_box_return++) {
+            {
+                proto_tree *tree_bak_KmmXNj9h8ZQZ = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_3_read_attributes_3_return");
+                for (i_Tango_Device_3_read_attributes_3_return=0; i_Tango_Device_3_read_attributes_3_return < u_octet4_loop_Tango_Device_3_read_attributes_3_return; i_Tango_Device_3_read_attributes_3_return++) {
 
-                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_black_box_return);
+                    { /*  Begin struct "Tango_AttributeValue_3"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_3");
 
+                    decode_Tango_AttributeValue_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue_3"  */
+                }
+                tree = tree_bak_KmmXNj9h8ZQZ;
             }
 
             break;
@@ -1161,62 +2179,41 @@ decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 }
 
 /*
- * IDL:Tango/Device/info:1.0
+ * IDL:Tango/Device_2/read_attribute_history_2:1.0
  */
 static void
-decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevInfo"  */
-            decode_Tango_DevInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevInfo"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device/command_list_query:1.0
- */
-static void
-decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_command_list_query_return;
-    guint32   i_Tango_Device_command_list_query_return;
+    uint32_t  u_octet4_loop_Tango_Device_2_read_attribute_history_2_return;
+    uint32_t  i_Tango_Device_2_read_attribute_history_2_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_read_attribute_history_2_name);
+
+        proto_tree_add_int(tree, hf_Tango_Device_2_read_attribute_history_2_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_command_list_query_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_command_list_query_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_command_list_query_return);
+            u_octet4_loop_Tango_Device_2_read_attribute_history_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_2_read_attribute_history_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attribute_history_2_return);
 
-            for (i_Tango_Device_command_list_query_return=0; i_Tango_Device_command_list_query_return < u_octet4_loop_Tango_Device_command_list_query_return; i_Tango_Device_command_list_query_return++) {
+            {
+                proto_tree *tree_bak_ApcJq7ejp7ub = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_read_attribute_history_2_return");
+                for (i_Tango_Device_2_read_attribute_history_2_return=0; i_Tango_Device_2_read_attribute_history_2_return < u_octet4_loop_Tango_Device_2_read_attribute_history_2_return; i_Tango_Device_2_read_attribute_history_2_return++) {
 
-                /*  Begin struct "Tango_DevCmdInfo"  */
-                decode_Tango_DevCmdInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_DevCmdInfo"  */
+                    { /*  Begin struct "Tango_DevAttrHistory"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevAttrHistory");
+
+                    decode_Tango_DevAttrHistory_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevAttrHistory"  */
+                }
+                tree = tree_bak_ApcJq7ejp7ub;
             }
 
             break;
@@ -1237,22 +2234,268 @@ decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 }
 
 /*
- * IDL:Tango/Device/command_query:1.0
+ * IDL:Tango/Device_2/command_inout_history_2:1.0
  */
 static void
-decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_2_command_inout_history_2_return;
+    uint32_t  i_Tango_Device_2_command_inout_history_2_return;
+    /* Operation specific Variable declarations End */
+
     switch(header->message_type) {
     case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_command_query_command);
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_command_inout_history_2_command);
+
+        proto_tree_add_int(tree, hf_Tango_Device_2_command_inout_history_2_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevCmdInfo"  */
-            decode_Tango_DevCmdInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevCmdInfo"  */
+            u_octet4_loop_Tango_Device_2_command_inout_history_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_2_command_inout_history_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_command_inout_history_2_return);
+
+            {
+                proto_tree *tree_bak_nB7u5vouHYk1 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_command_inout_history_2_return");
+                for (i_Tango_Device_2_command_inout_history_2_return=0; i_Tango_Device_2_command_inout_history_2_return < u_octet4_loop_Tango_Device_2_command_inout_history_2_return; i_Tango_Device_2_command_inout_history_2_return++) {
+
+                    { /*  Begin struct "Tango_DevCmdHistory"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdHistory");
+
+                    decode_Tango_DevCmdHistory_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevCmdHistory"  */
+                }
+                tree = tree_bak_nB7u5vouHYk1;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_2/command_query_2:1.0
+ */
+static void
+decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_command_query_2_command);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevCmdInfo_2"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdInfo_2");
+
+            decode_Tango_DevCmdInfo_2_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevCmdInfo_2"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_2/command_list_query_2:1.0
+ */
+static void
+decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_2_command_list_query_2_return;
+    uint32_t  i_Tango_Device_2_command_list_query_2_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_2_command_list_query_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_2_command_list_query_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_command_list_query_2_return);
+
+            {
+                proto_tree *tree_bak_RxHd5cEPhTvv = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_command_list_query_2_return");
+                for (i_Tango_Device_2_command_list_query_2_return=0; i_Tango_Device_2_command_list_query_2_return < u_octet4_loop_Tango_Device_2_command_list_query_2_return; i_Tango_Device_2_command_list_query_2_return++) {
+
+                    { /*  Begin struct "Tango_DevCmdInfo_2"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdInfo_2");
+
+                    decode_Tango_DevCmdInfo_2_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevCmdInfo_2"  */
+                }
+                tree = tree_bak_RxHd5cEPhTvv;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_2/get_attribute_config_2:1.0
+ */
+static void
+decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_2_get_attribute_config_2_names;
+    uint32_t  i_Tango_Device_2_get_attribute_config_2_names;
+    uint32_t  u_octet4_loop_Tango_Device_2_get_attribute_config_2_return;
+    uint32_t  i_Tango_Device_2_get_attribute_config_2_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_2_get_attribute_config_2_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_2_get_attribute_config_2_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_get_attribute_config_2_names);
+
+        {
+            proto_tree *tree_bak_RA9ONirGloSn = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_get_attribute_config_2_names");
+            for (i_Tango_Device_2_get_attribute_config_2_names=0; i_Tango_Device_2_get_attribute_config_2_names < u_octet4_loop_Tango_Device_2_get_attribute_config_2_names; i_Tango_Device_2_get_attribute_config_2_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_get_attribute_config_2_names);
+
+            }
+            tree = tree_bak_RA9ONirGloSn;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_2_get_attribute_config_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_2_get_attribute_config_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_get_attribute_config_2_return);
+
+            {
+                proto_tree *tree_bak_EmKRqjmlLn52 = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_get_attribute_config_2_return");
+                for (i_Tango_Device_2_get_attribute_config_2_return=0; i_Tango_Device_2_get_attribute_config_2_return < u_octet4_loop_Tango_Device_2_get_attribute_config_2_return; i_Tango_Device_2_get_attribute_config_2_return++) {
+
+                    { /*  Begin struct "Tango_AttributeConfig_2"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_2");
+
+                    decode_Tango_AttributeConfig_2_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeConfig_2"  */
+                }
+                tree = tree_bak_EmKRqjmlLn52;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device_2/read_attributes_2:1.0
+ */
+static void
+decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_2_read_attributes_2_names;
+    uint32_t  i_Tango_Device_2_read_attributes_2_names;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_Device_2_read_attributes_2_return;
+    uint32_t  i_Tango_Device_2_read_attributes_2_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_2_read_attributes_2_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attributes_2_names);
+
+        {
+            proto_tree *tree_bak_HGXxe9zQC083 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_read_attributes_2_names");
+            for (i_Tango_Device_2_read_attributes_2_names=0; i_Tango_Device_2_read_attributes_2_names < u_octet4_loop_Tango_Device_2_read_attributes_2_names; i_Tango_Device_2_read_attributes_2_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_read_attributes_2_names);
+
+            }
+            tree = tree_bak_HGXxe9zQC083;
+        }
+
+        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_source, tvb, *offset-4, 4, u_octet4);
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_2_read_attributes_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attributes_2_return);
+
+            {
+                proto_tree *tree_bak_g7CjubWQiiNB = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_2_read_attributes_2_return");
+                for (i_Tango_Device_2_read_attributes_2_return=0; i_Tango_Device_2_read_attributes_2_return < u_octet4_loop_Tango_Device_2_read_attributes_2_return; i_Tango_Device_2_read_attributes_2_return++) {
+
+                    { /*  Begin struct "Tango_AttributeValue"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue");
+
+                    decode_Tango_AttributeValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue"  */
+                }
+                tree = tree_bak_g7CjubWQiiNB;
+            }
+
             break;
         case USER_EXCEPTION:
             break;
@@ -1274,10 +2517,10 @@ decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
  * IDL:Tango/Device_2/command_inout_2:1.0
  */
 static void
-decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
@@ -1313,45 +2556,73 @@ decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 /*
- * IDL:Tango/Device_2/read_attributes_2:1.0
+ * IDL:Tango/Device/command_query:1.0
  */
 static void
-decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_2_read_attributes_2_names;
-    guint32   i_Tango_Device_2_read_attributes_2_names;
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_Device_2_read_attributes_2_return;
-    guint32   i_Tango_Device_2_read_attributes_2_return;
-    /* Operation specific Variable declarations End */
-
     switch(header->message_type) {
     case Request:
-        u_octet4_loop_Tango_Device_2_read_attributes_2_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attributes_2_names);
-
-        for (i_Tango_Device_2_read_attributes_2_names=0; i_Tango_Device_2_read_attributes_2_names < u_octet4_loop_Tango_Device_2_read_attributes_2_names; i_Tango_Device_2_read_attributes_2_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_read_attributes_2_names);
-
-        }
-
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_source, tvb, *offset-4, 4, u_octet4);
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_command_query_command);
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_2_read_attributes_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attributes_2_return);
+            { /*  Begin struct "Tango_DevCmdInfo"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdInfo");
 
-            for (i_Tango_Device_2_read_attributes_2_return=0; i_Tango_Device_2_read_attributes_2_return < u_octet4_loop_Tango_Device_2_read_attributes_2_return; i_Tango_Device_2_read_attributes_2_return++) {
+            decode_Tango_DevCmdInfo_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevCmdInfo"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
 
-                /*  Begin struct "Tango_AttributeValue"  */
-                decode_Tango_AttributeValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue"  */
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device/command_list_query:1.0
+ */
+static void
+decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_command_list_query_return;
+    uint32_t  i_Tango_Device_command_list_query_return;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_command_list_query_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_command_list_query_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_command_list_query_return);
+
+            {
+                proto_tree *tree_bak_WnWDq4CMSchp = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_command_list_query_return");
+                for (i_Tango_Device_command_list_query_return=0; i_Tango_Device_command_list_query_return < u_octet4_loop_Tango_Device_command_list_query_return; i_Tango_Device_command_list_query_return++) {
+
+                    { /*  Begin struct "Tango_DevCmdInfo"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdInfo");
+
+                    decode_Tango_DevCmdInfo_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevCmdInfo"  */
+                }
+                tree = tree_bak_WnWDq4CMSchp;
             }
 
             break;
@@ -1372,41 +2643,70 @@ decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U
 }
 
 /*
- * IDL:Tango/Device_2/get_attribute_config_2:1.0
+ * IDL:Tango/Device/info:1.0
  */
 static void
-decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            { /*  Begin struct "Tango_DevInfo"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevInfo");
+
+            decode_Tango_DevInfo_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevInfo"  */
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device/black_box:1.0
+ */
+static void
+decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_2_get_attribute_config_2_names;
-    guint32   i_Tango_Device_2_get_attribute_config_2_names;
-    guint32   u_octet4_loop_Tango_Device_2_get_attribute_config_2_return;
-    guint32   i_Tango_Device_2_get_attribute_config_2_return;
+    uint32_t  u_octet4_loop_Tango_Device_black_box_return;
+    uint32_t  i_Tango_Device_black_box_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        u_octet4_loop_Tango_Device_2_get_attribute_config_2_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_2_get_attribute_config_2_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_get_attribute_config_2_names);
-
-        for (i_Tango_Device_2_get_attribute_config_2_names=0; i_Tango_Device_2_get_attribute_config_2_names < u_octet4_loop_Tango_Device_2_get_attribute_config_2_names; i_Tango_Device_2_get_attribute_config_2_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_get_attribute_config_2_names);
-
-        }
+        proto_tree_add_int(tree, hf_Tango_Device_black_box_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_2_get_attribute_config_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_2_get_attribute_config_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_get_attribute_config_2_return);
+            u_octet4_loop_Tango_Device_black_box_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_black_box_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_black_box_return);
 
-            for (i_Tango_Device_2_get_attribute_config_2_return=0; i_Tango_Device_2_get_attribute_config_2_return < u_octet4_loop_Tango_Device_2_get_attribute_config_2_return; i_Tango_Device_2_get_attribute_config_2_return++) {
+            {
+                proto_tree *tree_bak_91Ja67YxrD8s = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_black_box_return");
+                for (i_Tango_Device_black_box_return=0; i_Tango_Device_black_box_return < u_octet4_loop_Tango_Device_black_box_return; i_Tango_Device_black_box_return++) {
 
-                /*  Begin struct "Tango_AttributeConfig_2"  */
-                decode_Tango_AttributeConfig_2_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeConfig_2"  */
+                    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_black_box_return);
+
+                }
+                tree = tree_bak_91Ja67YxrD8s;
             }
 
             break;
@@ -1427,259 +2727,64 @@ decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pin
 }
 
 /*
- * IDL:Tango/Device_2/command_list_query_2:1.0
+ * IDL:Tango/Device/ping:1.0
  */
 static void
-decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_2_command_list_query_2_return;
-    guint32   i_Tango_Device_2_command_list_query_2_return;
-    /* Operation specific Variable declarations End */
-
     switch(header->message_type) {
     case Request:
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_2_command_list_query_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_2_command_list_query_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_command_list_query_2_return);
+            /* Function returns void */
 
-            for (i_Tango_Device_2_command_list_query_2_return=0; i_Tango_Device_2_command_list_query_2_return < u_octet4_loop_Tango_Device_2_command_list_query_2_return; i_Tango_Device_2_command_list_query_2_return++) {
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
 
-                /*  Begin struct "Tango_DevCmdInfo_2"  */
-                decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_DevCmdInfo_2"  */
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device/write_attributes:1.0
+ */
+static void
+decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_Device_write_attributes_values;
+    uint32_t  i_Tango_Device_write_attributes_values;
+    /* Operation specific Variable declarations End */
+
+    switch(header->message_type) {
+    case Request:
+        u_octet4_loop_Tango_Device_write_attributes_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_write_attributes_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_write_attributes_values);
+
+        {
+            proto_tree *tree_bak_CvTssVVjAA6T = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_write_attributes_values");
+            for (i_Tango_Device_write_attributes_values=0; i_Tango_Device_write_attributes_values < u_octet4_loop_Tango_Device_write_attributes_values; i_Tango_Device_write_attributes_values++) {
+
+                { /*  Begin struct "Tango_AttributeValue"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue");
+
+                decode_Tango_AttributeValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeValue"  */
             }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_2/command_query_2:1.0
- */
-static void
-decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_command_query_2_command);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevCmdInfo_2"  */
-            decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevCmdInfo_2"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_2/command_inout_history_2:1.0
- */
-static void
-decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_2_command_inout_history_2_return;
-    guint32   i_Tango_Device_2_command_inout_history_2_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_command_inout_history_2_command);
-
-        proto_tree_add_int(tree, hf_Tango_Device_2_command_inout_history_2_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_2_command_inout_history_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_2_command_inout_history_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_command_inout_history_2_return);
-
-            for (i_Tango_Device_2_command_inout_history_2_return=0; i_Tango_Device_2_command_inout_history_2_return < u_octet4_loop_Tango_Device_2_command_inout_history_2_return; i_Tango_Device_2_command_inout_history_2_return++) {
-
-                /*  Begin struct "Tango_DevCmdHistory"  */
-                decode_Tango_DevCmdHistory_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_DevCmdHistory"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_2/read_attribute_history_2:1.0
- */
-static void
-decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_2_read_attribute_history_2_return;
-    guint32   i_Tango_Device_2_read_attribute_history_2_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_read_attribute_history_2_name);
-
-        proto_tree_add_int(tree, hf_Tango_Device_2_read_attribute_history_2_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_2_read_attribute_history_2_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_2_read_attribute_history_2_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attribute_history_2_return);
-
-            for (i_Tango_Device_2_read_attribute_history_2_return=0; i_Tango_Device_2_read_attribute_history_2_return < u_octet4_loop_Tango_Device_2_read_attribute_history_2_return; i_Tango_Device_2_read_attribute_history_2_return++) {
-
-                /*  Begin struct "Tango_DevAttrHistory"  */
-                decode_Tango_DevAttrHistory_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_DevAttrHistory"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_3/read_attributes_3:1.0
- */
-static void
-decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_3_read_attributes_3_names;
-    guint32   i_Tango_Device_3_read_attributes_3_names;
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_Device_3_read_attributes_3_return;
-    guint32   i_Tango_Device_3_read_attributes_3_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_3_read_attributes_3_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attributes_3_names);
-
-        for (i_Tango_Device_3_read_attributes_3_names=0; i_Tango_Device_3_read_attributes_3_names < u_octet4_loop_Tango_Device_3_read_attributes_3_names; i_Tango_Device_3_read_attributes_3_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_3_read_attributes_3_names);
-
-        }
-
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_source, tvb, *offset-4, 4, u_octet4);
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_3_read_attributes_3_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attributes_3_return);
-
-            for (i_Tango_Device_3_read_attributes_3_return=0; i_Tango_Device_3_read_attributes_3_return < u_octet4_loop_Tango_Device_3_read_attributes_3_return; i_Tango_Device_3_read_attributes_3_return++) {
-
-                /*  Begin struct "Tango_AttributeValue_3"  */
-                decode_Tango_AttributeValue_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue_3"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_3/write_attributes_3:1.0
- */
-static void
-decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_3_write_attributes_3_values;
-    guint32   i_Tango_Device_3_write_attributes_3_values;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_3_write_attributes_3_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_3_write_attributes_3_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_write_attributes_3_values);
-
-        for (i_Tango_Device_3_write_attributes_3_values=0; i_Tango_Device_3_write_attributes_3_values < u_octet4_loop_Tango_Device_3_write_attributes_3_values; i_Tango_Device_3_write_attributes_3_values++) {
-
-            /*  Begin struct "Tango_AttributeValue"  */
-            decode_Tango_AttributeValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeValue"  */
+            tree = tree_bak_CvTssVVjAA6T;
         }
 
         break;
@@ -1706,121 +2811,53 @@ decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _
 }
 
 /*
- * IDL:Tango/Device_3/read_attribute_history_3:1.0
+ * IDL:Tango/Device/read_attributes:1.0
  */
 static void
-decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_3_read_attribute_history_3_return;
-    guint32   i_Tango_Device_3_read_attribute_history_3_return;
+    uint32_t  u_octet4_loop_Tango_Device_read_attributes_names;
+    uint32_t  i_Tango_Device_read_attributes_names;
+    uint32_t  u_octet4_loop_Tango_Device_read_attributes_return;
+    uint32_t  i_Tango_Device_read_attributes_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_3_read_attribute_history_3_name);
+        u_octet4_loop_Tango_Device_read_attributes_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_read_attributes_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_read_attributes_names);
 
-        proto_tree_add_int(tree, hf_Tango_Device_3_read_attribute_history_3_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        {
+            proto_tree *tree_bak_HMSC0fWLtHQR = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_read_attributes_names");
+            for (i_Tango_Device_read_attributes_names=0; i_Tango_Device_read_attributes_names < u_octet4_loop_Tango_Device_read_attributes_names; i_Tango_Device_read_attributes_names++) {
 
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_3_read_attribute_history_3_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_3_read_attribute_history_3_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attribute_history_3_return);
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_read_attributes_names);
 
-            for (i_Tango_Device_3_read_attribute_history_3_return=0; i_Tango_Device_3_read_attribute_history_3_return < u_octet4_loop_Tango_Device_3_read_attribute_history_3_return; i_Tango_Device_3_read_attribute_history_3_return++) {
-
-                /*  Begin struct "Tango_DevAttrHistory_3"  */
-                decode_Tango_DevAttrHistory_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_DevAttrHistory_3"  */
             }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_3/info_3:1.0
- */
-static void
-decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevInfo_3"  */
-            decode_Tango_DevInfo_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevInfo_3"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_3/get_attribute_config_3:1.0
- */
-static void
-decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_3_get_attribute_config_3_names;
-    guint32   i_Tango_Device_3_get_attribute_config_3_names;
-    guint32   u_octet4_loop_Tango_Device_3_get_attribute_config_3_return;
-    guint32   i_Tango_Device_3_get_attribute_config_3_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_3_get_attribute_config_3_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_3_get_attribute_config_3_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_get_attribute_config_3_names);
-
-        for (i_Tango_Device_3_get_attribute_config_3_names=0; i_Tango_Device_3_get_attribute_config_3_names < u_octet4_loop_Tango_Device_3_get_attribute_config_3_names; i_Tango_Device_3_get_attribute_config_3_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_3_get_attribute_config_3_names);
-
+            tree = tree_bak_HMSC0fWLtHQR;
         }
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_3_get_attribute_config_3_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_3_get_attribute_config_3_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_get_attribute_config_3_return);
+            u_octet4_loop_Tango_Device_read_attributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_read_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_read_attributes_return);
 
-            for (i_Tango_Device_3_get_attribute_config_3_return=0; i_Tango_Device_3_get_attribute_config_3_return < u_octet4_loop_Tango_Device_3_get_attribute_config_3_return; i_Tango_Device_3_get_attribute_config_3_return++) {
+            {
+                proto_tree *tree_bak_DYhJdPBUWX5Q = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_read_attributes_return");
+                for (i_Tango_Device_read_attributes_return=0; i_Tango_Device_read_attributes_return < u_octet4_loop_Tango_Device_read_attributes_return; i_Tango_Device_read_attributes_return++) {
 
-                /*  Begin struct "Tango_AttributeConfig_3"  */
-                decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeConfig_3"  */
+                    { /*  Begin struct "Tango_AttributeValue"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue");
+
+                    decode_Tango_AttributeValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeValue"  */
+                }
+                tree = tree_bak_DYhJdPBUWX5Q;
             }
 
             break;
@@ -1841,26 +2878,33 @@ decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
 }
 
 /*
- * IDL:Tango/Device_3/set_attribute_config_3:1.0
+ * IDL:Tango/Device/set_attribute_config:1.0
  */
 static void
-decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf;
-    guint32   i_Tango_Device_3_set_attribute_config_3_new_conf;
+    uint32_t  u_octet4_loop_Tango_Device_set_attribute_config_new_conf;
+    uint32_t  i_Tango_Device_set_attribute_config_new_conf;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_3_set_attribute_config_3_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf);
+        u_octet4_loop_Tango_Device_set_attribute_config_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_set_attribute_config_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_set_attribute_config_new_conf);
 
-        for (i_Tango_Device_3_set_attribute_config_3_new_conf=0; i_Tango_Device_3_set_attribute_config_3_new_conf < u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf; i_Tango_Device_3_set_attribute_config_3_new_conf++) {
+        {
+            proto_tree *tree_bak_FnhwPojHYB0g = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_set_attribute_config_new_conf");
+            for (i_Tango_Device_set_attribute_config_new_conf=0; i_Tango_Device_set_attribute_config_new_conf < u_octet4_loop_Tango_Device_set_attribute_config_new_conf; i_Tango_Device_set_attribute_config_new_conf++) {
 
-            /*  Begin struct "Tango_AttributeConfig_3"  */
-            decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeConfig_3"  */
+                { /*  Begin struct "Tango_AttributeConfig"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig");
+
+                decode_Tango_AttributeConfig_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_AttributeConfig"  */
+            }
+            tree = tree_bak_FnhwPojHYB0g;
         }
 
         break;
@@ -1887,100 +2931,84 @@ decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
 }
 
 /*
- * IDL:Tango/Device_4/read_attribute_history_4:1.0
+ * IDL:Tango/Device/get_attribute_config:1.0
  */
 static void
-decode_Tango_Device_4_read_attribute_history_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_read_attribute_history_4_name);
-
-        proto_tree_add_int(tree, hf_Tango_Device_4_read_attribute_history_4_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevAttrHistory_4"  */
-            decode_Tango_DevAttrHistory_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevAttrHistory_4"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_4/command_inout_history_4:1.0
- */
-static void
-decode_Tango_Device_4_command_inout_history_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_command_inout_history_4_command);
-
-        proto_tree_add_int(tree, hf_Tango_Device_4_command_inout_history_4_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevCmdHistory_4"  */
-            decode_Tango_DevCmdHistory_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevCmdHistory_4"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_4/command_inout_4:1.0
- */
-static void
-decode_Tango_Device_4_command_inout_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
+    uint32_t  u_octet4_loop_Tango_Device_get_attribute_config_names;
+    uint32_t  i_Tango_Device_get_attribute_config_names;
+    uint32_t  u_octet4_loop_Tango_Device_get_attribute_config_return;
+    uint32_t  i_Tango_Device_get_attribute_config_return;
     /* Operation specific Variable declarations End */
 
     switch(header->message_type) {
     case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_command_inout_4_command);
+        u_octet4_loop_Tango_Device_get_attribute_config_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        proto_tree_add_uint(tree, hf_Tango_Device_get_attribute_config_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_get_attribute_config_names);
+
+        {
+            proto_tree *tree_bak_JOPJLGRJOw4L = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_get_attribute_config_names");
+            for (i_Tango_Device_get_attribute_config_names=0; i_Tango_Device_get_attribute_config_names < u_octet4_loop_Tango_Device_get_attribute_config_names; i_Tango_Device_get_attribute_config_names++) {
+
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_get_attribute_config_names);
+
+            }
+            tree = tree_bak_JOPJLGRJOw4L;
+        }
+
+        break;
+    case Reply:
+        switch(header->rep_status) {
+        case NO_EXCEPTION:
+            u_octet4_loop_Tango_Device_get_attribute_config_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_Device_get_attribute_config_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_get_attribute_config_return);
+
+            {
+                proto_tree *tree_bak_A9Gewlf3dGIQ = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_Device_get_attribute_config_return");
+                for (i_Tango_Device_get_attribute_config_return=0; i_Tango_Device_get_attribute_config_return < u_octet4_loop_Tango_Device_get_attribute_config_return; i_Tango_Device_get_attribute_config_return++) {
+
+                    { /*  Begin struct "Tango_AttributeConfig"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig");
+
+                    decode_Tango_AttributeConfig_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_AttributeConfig"  */
+                }
+                tree = tree_bak_A9Gewlf3dGIQ;
+            }
+
+            break;
+        case USER_EXCEPTION:
+            break;
+        default:
+            /* Unknown Exception */
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            break;
+        }   /* switch(header->rep_status) */
+
+        break;
+    default:
+        /* Unknown GIOP Message */
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        break;
+    } /* switch(header->message_type) */
+}
+
+/*
+ * IDL:Tango/Device/command_inout:1.0
+ */
+static void
+decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    switch(header->message_type) {
+    case Request:
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_command_inout_command);
 
         get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_4_command_inout_4_source, tvb, *offset-4, 4, u_octet4);
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
         break;
     case Reply:
         switch(header->rep_status) {
@@ -2004,1435 +3032,890 @@ decode_Tango_Device_4_command_inout_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     } /* switch(header->message_type) */
 }
 
-/*
- * IDL:Tango/Device_4/read_attributes_4:1.0
- */
+/* Struct = IDL:Tango/ZmqCallInfo:1.0 */
 static void
-decode_Tango_Device_4_read_attributes_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_4_read_attributes_4_names;
-    guint32   i_Tango_Device_4_read_attributes_4_names;
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_Device_4_read_attributes_4_return;
-    guint32   i_Tango_Device_4_read_attributes_4_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_4_read_attributes_4_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_4_read_attributes_4_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_read_attributes_4_names);
-
-        for (i_Tango_Device_4_read_attributes_4_names=0; i_Tango_Device_4_read_attributes_4_names < u_octet4_loop_Tango_Device_4_read_attributes_4_names; i_Tango_Device_4_read_attributes_4_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_4_read_attributes_4_names);
-
-        }
-
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_4_read_attributes_4_source, tvb, *offset-4, 4, u_octet4);
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_4_read_attributes_4_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_4_read_attributes_4_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_read_attributes_4_return);
-
-            for (i_Tango_Device_4_read_attributes_4_return=0; i_Tango_Device_4_read_attributes_4_return < u_octet4_loop_Tango_Device_4_read_attributes_4_return; i_Tango_Device_4_read_attributes_4_return++) {
-
-                /*  Begin struct "Tango_AttributeValue_4"  */
-                decode_Tango_AttributeValue_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue_4"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_4/write_attributes_4:1.0
- */
-static void
-decode_Tango_Device_4_write_attributes_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_4_write_attributes_4_values;
-    guint32   i_Tango_Device_4_write_attributes_4_values;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_4_write_attributes_4_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_4_write_attributes_4_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_write_attributes_4_values);
-
-        for (i_Tango_Device_4_write_attributes_4_values=0; i_Tango_Device_4_write_attributes_4_values < u_octet4_loop_Tango_Device_4_write_attributes_4_values; i_Tango_Device_4_write_attributes_4_values++) {
-
-            /*  Begin struct "Tango_AttributeValue_4"  */
-            decode_Tango_AttributeValue_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeValue_4"  */
-        }
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_4/set_attribute_config_4:1.0
- */
-static void
-decode_Tango_Device_4_set_attribute_config_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf;
-    guint32   i_Tango_Device_4_set_attribute_config_4_new_conf;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_4_set_attribute_config_4_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf);
-
-        for (i_Tango_Device_4_set_attribute_config_4_new_conf=0; i_Tango_Device_4_set_attribute_config_4_new_conf < u_octet4_loop_Tango_Device_4_set_attribute_config_4_new_conf; i_Tango_Device_4_set_attribute_config_4_new_conf++) {
-
-            /*  Begin struct "Tango_AttributeConfig_3"  */
-            decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeConfig_3"  */
-        }
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_4/write_read_attributes_4:1.0
- */
-static void
-decode_Tango_Device_4_write_read_attributes_4(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_4_write_read_attributes_4_values;
-    guint32   i_Tango_Device_4_write_read_attributes_4_values;
-    guint32   u_octet4_loop_Tango_Device_4_write_read_attributes_4_return;
-    guint32   i_Tango_Device_4_write_read_attributes_4_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_4_write_read_attributes_4_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_4_write_read_attributes_4_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_write_read_attributes_4_values);
-
-        for (i_Tango_Device_4_write_read_attributes_4_values=0; i_Tango_Device_4_write_read_attributes_4_values < u_octet4_loop_Tango_Device_4_write_read_attributes_4_values; i_Tango_Device_4_write_read_attributes_4_values++) {
-
-            /*  Begin struct "Tango_AttributeValue_4"  */
-            decode_Tango_AttributeValue_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeValue_4"  */
-        }
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_4_write_read_attributes_4_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_4_write_read_attributes_4_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_4_write_read_attributes_4_return);
-
-            for (i_Tango_Device_4_write_read_attributes_4_return=0; i_Tango_Device_4_write_read_attributes_4_return < u_octet4_loop_Tango_Device_4_write_read_attributes_4_return; i_Tango_Device_4_write_read_attributes_4_return++) {
-
-                /*  Begin struct "Tango_AttributeValue_4"  */
-                decode_Tango_AttributeValue_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue_4"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/get_attribute_config_5:1.0
- */
-static void
-decode_Tango_Device_5_get_attribute_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_5_get_attribute_config_5_names;
-    guint32   i_Tango_Device_5_get_attribute_config_5_names;
-    guint32   u_octet4_loop_Tango_Device_5_get_attribute_config_5_return;
-    guint32   i_Tango_Device_5_get_attribute_config_5_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_5_get_attribute_config_5_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_get_attribute_config_5_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_attribute_config_5_names);
-
-        for (i_Tango_Device_5_get_attribute_config_5_names=0; i_Tango_Device_5_get_attribute_config_5_names < u_octet4_loop_Tango_Device_5_get_attribute_config_5_names; i_Tango_Device_5_get_attribute_config_5_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_get_attribute_config_5_names);
-
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_5_get_attribute_config_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_5_get_attribute_config_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_attribute_config_5_return);
-
-            for (i_Tango_Device_5_get_attribute_config_5_return=0; i_Tango_Device_5_get_attribute_config_5_return < u_octet4_loop_Tango_Device_5_get_attribute_config_5_return; i_Tango_Device_5_get_attribute_config_5_return++) {
-
-                /*  Begin struct "Tango_AttributeConfig_5"  */
-                decode_Tango_AttributeConfig_5_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeConfig_5"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/set_attribute_config_5:1.0
- */
-static void
-decode_Tango_Device_5_set_attribute_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf;
-    guint32   i_Tango_Device_5_set_attribute_config_5_new_conf;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_set_attribute_config_5_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf);
-
-        for (i_Tango_Device_5_set_attribute_config_5_new_conf=0; i_Tango_Device_5_set_attribute_config_5_new_conf < u_octet4_loop_Tango_Device_5_set_attribute_config_5_new_conf; i_Tango_Device_5_set_attribute_config_5_new_conf++) {
-
-            /*  Begin struct "Tango_AttributeConfig_5"  */
-            decode_Tango_AttributeConfig_5_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeConfig_5"  */
-        }
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/read_attributes_5:1.0
- */
-static void
-decode_Tango_Device_5_read_attributes_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_5_read_attributes_5_names;
-    guint32   i_Tango_Device_5_read_attributes_5_names;
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_Device_5_read_attributes_5_return;
-    guint32   i_Tango_Device_5_read_attributes_5_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_5_read_attributes_5_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_read_attributes_5_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_read_attributes_5_names);
-
-        for (i_Tango_Device_5_read_attributes_5_names=0; i_Tango_Device_5_read_attributes_5_names < u_octet4_loop_Tango_Device_5_read_attributes_5_names; i_Tango_Device_5_read_attributes_5_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_read_attributes_5_names);
-
-        }
-
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_read_attributes_5_source, tvb, *offset-4, 4, u_octet4);
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_5_read_attributes_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_5_read_attributes_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_read_attributes_5_return);
-
-            for (i_Tango_Device_5_read_attributes_5_return=0; i_Tango_Device_5_read_attributes_5_return < u_octet4_loop_Tango_Device_5_read_attributes_5_return; i_Tango_Device_5_read_attributes_5_return++) {
-
-                /*  Begin struct "Tango_AttributeValue_5"  */
-                decode_Tango_AttributeValue_5_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue_5"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/write_read_attributes_5:1.0
- */
-static void
-decode_Tango_Device_5_write_read_attributes_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_5_write_read_attributes_5_values;
-    guint32   i_Tango_Device_5_write_read_attributes_5_values;
-    guint32   u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names;
-    guint32   i_Tango_Device_5_write_read_attributes_5_r_names;
-    guint32   u_octet4_loop_Tango_Device_5_write_read_attributes_5_return;
-    guint32   i_Tango_Device_5_write_read_attributes_5_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_5_write_read_attributes_5_values = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_write_read_attributes_5_values_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_write_read_attributes_5_values);
-
-        for (i_Tango_Device_5_write_read_attributes_5_values=0; i_Tango_Device_5_write_read_attributes_5_values < u_octet4_loop_Tango_Device_5_write_read_attributes_5_values; i_Tango_Device_5_write_read_attributes_5_values++) {
-
-            /*  Begin struct "Tango_AttributeValue_4"  */
-            decode_Tango_AttributeValue_4_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_AttributeValue_4"  */
-        }
-
-        u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_write_read_attributes_5_r_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names);
-
-        for (i_Tango_Device_5_write_read_attributes_5_r_names=0; i_Tango_Device_5_write_read_attributes_5_r_names < u_octet4_loop_Tango_Device_5_write_read_attributes_5_r_names; i_Tango_Device_5_write_read_attributes_5_r_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_write_read_attributes_5_r_names);
-
-        }
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_5_write_read_attributes_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_5_write_read_attributes_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_write_read_attributes_5_return);
-
-            for (i_Tango_Device_5_write_read_attributes_5_return=0; i_Tango_Device_5_write_read_attributes_5_return < u_octet4_loop_Tango_Device_5_write_read_attributes_5_return; i_Tango_Device_5_write_read_attributes_5_return++) {
-
-                /*  Begin struct "Tango_AttributeValue_5"  */
-                decode_Tango_AttributeValue_5_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_AttributeValue_5"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/read_attribute_history_5:1.0
- */
-static void
-decode_Tango_Device_5_read_attribute_history_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_read_attribute_history_5_name);
-
-        proto_tree_add_int(tree, hf_Tango_Device_5_read_attribute_history_5_n, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevAttrHistory_5"  */
-            decode_Tango_DevAttrHistory_5_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevAttrHistory_5"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/get_pipe_config_5:1.0
- */
-static void
-decode_Tango_Device_5_get_pipe_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_5_get_pipe_config_5_names;
-    guint32   i_Tango_Device_5_get_pipe_config_5_names;
-    guint32   u_octet4_loop_Tango_Device_5_get_pipe_config_5_return;
-    guint32   i_Tango_Device_5_get_pipe_config_5_return;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_5_get_pipe_config_5_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_get_pipe_config_5_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_pipe_config_5_names);
-
-        for (i_Tango_Device_5_get_pipe_config_5_names=0; i_Tango_Device_5_get_pipe_config_5_names < u_octet4_loop_Tango_Device_5_get_pipe_config_5_names; i_Tango_Device_5_get_pipe_config_5_names++) {
-
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_get_pipe_config_5_names);
-
-        }
-
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            u_octet4_loop_Tango_Device_5_get_pipe_config_5_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_Device_5_get_pipe_config_5_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_get_pipe_config_5_return);
-
-            for (i_Tango_Device_5_get_pipe_config_5_return=0; i_Tango_Device_5_get_pipe_config_5_return < u_octet4_loop_Tango_Device_5_get_pipe_config_5_return; i_Tango_Device_5_get_pipe_config_5_return++) {
-
-                /*  Begin struct "Tango_PipeConfig"  */
-                decode_Tango_PipeConfig_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-                /*  End struct "Tango_PipeConfig"  */
-            }
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/set_pipe_config_5:1.0
- */
-static void
-decode_Tango_Device_5_set_pipe_config_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf;
-    guint32   i_Tango_Device_5_set_pipe_config_5_new_conf;
-    /* Operation specific Variable declarations End */
-
-    switch(header->message_type) {
-    case Request:
-        u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_Device_5_set_pipe_config_5_new_conf_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf);
-
-        for (i_Tango_Device_5_set_pipe_config_5_new_conf=0; i_Tango_Device_5_set_pipe_config_5_new_conf < u_octet4_loop_Tango_Device_5_set_pipe_config_5_new_conf; i_Tango_Device_5_set_pipe_config_5_new_conf++) {
-
-            /*  Begin struct "Tango_PipeConfig"  */
-            decode_Tango_PipeConfig_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_PipeConfig"  */
-        }
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/read_pipe_5:1.0
- */
-static void
-decode_Tango_Device_5_read_pipe_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_5_read_pipe_5_name);
-
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevPipeData"  */
-            decode_Tango_DevPipeData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevPipeData"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/write_pipe_5:1.0
- */
-static void
-decode_Tango_Device_5_write_pipe_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "Tango_DevPipeData"  */
-        decode_Tango_DevPipeData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevPipeData"  */
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /* Function returns void */
-
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/*
- * IDL:Tango/Device_5/write_read_pipe_5:1.0
- */
-static void
-decode_Tango_Device_5_write_read_pipe_5(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    switch(header->message_type) {
-    case Request:
-        /*  Begin struct "Tango_DevPipeData"  */
-        decode_Tango_DevPipeData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevPipeData"  */
-        /*  Begin union "Tango_ClntIdent"  */
-        decode_Tango_ClntIdent_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-        /*  End union "Tango_ClntIdent"  */
-        break;
-    case Reply:
-        switch(header->rep_status) {
-        case NO_EXCEPTION:
-            /*  Begin struct "Tango_DevPipeData"  */
-            decode_Tango_DevPipeData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevPipeData"  */
-            break;
-        case USER_EXCEPTION:
-            break;
-        default:
-            /* Unknown Exception */
-            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
-            break;
-        }   /* switch(header->rep_status) */
-
-        break;
-    default:
-        /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
-        break;
-    } /* switch(header->message_type) */
-}
-
-/* Struct = IDL:Tango/DevVarLongStringArray:1.0 */
-static void
-decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevVarLongStringArray_lvalue;
-    guint32   i_Tango_DevVarLongStringArray_lvalue;
-    guint32   u_octet4_loop_Tango_DevVarLongStringArray_svalue;
-    guint32   i_Tango_DevVarLongStringArray_svalue;
+    uint32_t  u_octet4_loop_Tango_ZmqCallInfo_oid;
+    const uint8_t * binary_seq_Tango_ZmqCallInfo_oid;
+    char * text_seq_Tango_ZmqCallInfo_oid;
     /* Operation specific Variable declarations End */
 
-    u_octet4_loop_Tango_DevVarLongStringArray_lvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_lvalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_lvalue);
+    proto_tree_add_int(tree, hf_Tango_ZmqCallInfo_version, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    for (i_Tango_DevVarLongStringArray_lvalue=0; i_Tango_DevVarLongStringArray_lvalue < u_octet4_loop_Tango_DevVarLongStringArray_lvalue; i_Tango_DevVarLongStringArray_lvalue++) {
+    proto_tree_add_uint(tree, hf_Tango_ZmqCallInfo_ctr, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_int(tree, hf_Tango_DevVarLongStringArray_lvalue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ZmqCallInfo_method_name);
 
+    u_octet4_loop_Tango_ZmqCallInfo_oid = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_ZmqCallInfo_oid_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ZmqCallInfo_oid);
+
+    if (u_octet4_loop_Tango_ZmqCallInfo_oid > 0 && tree) {
+        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_ZmqCallInfo_oid, offset,
+            u_octet4_loop_Tango_ZmqCallInfo_oid);
+        text_seq_Tango_ZmqCallInfo_oid = make_printable_string(pinfo->pool, binary_seq_Tango_ZmqCallInfo_oid,
+            u_octet4_loop_Tango_ZmqCallInfo_oid);
+        proto_tree_add_bytes_format_value(tree, hf_Tango_ZmqCallInfo_oid, tvb, *offset - u_octet4_loop_Tango_ZmqCallInfo_oid,
+            u_octet4_loop_Tango_ZmqCallInfo_oid, binary_seq_Tango_ZmqCallInfo_oid, "%s", text_seq_Tango_ZmqCallInfo_oid);
     }
 
-    u_octet4_loop_Tango_DevVarLongStringArray_svalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_svalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_svalue);
+    proto_tree_add_boolean(tree, hf_Tango_ZmqCallInfo_call_is_except, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-    for (i_Tango_DevVarLongStringArray_svalue=0; i_Tango_DevVarLongStringArray_svalue < u_octet4_loop_Tango_DevVarLongStringArray_svalue; i_Tango_DevVarLongStringArray_svalue++) {
+}
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevVarLongStringArray_svalue);
+/* Struct = IDL:Tango/DevCmdHistory_4:1.0 */
+static void
+decode_Tango_DevCmdHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
 
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_DevCmdHistory_4_dates;
+    uint32_t  i_Tango_DevCmdHistory_4_dates;
+    uint32_t  u_octet4_loop_Tango_DevCmdHistory_4_dims;
+    uint32_t  i_Tango_DevCmdHistory_4_dims;
+    uint32_t  u_octet4_loop_Tango_DevCmdHistory_4_dims_array;
+    uint32_t  i_Tango_DevCmdHistory_4_dims_array;
+    uint32_t  u_octet4_loop_Tango_DevCmdHistory_4_errors;
+    uint32_t  i_Tango_DevCmdHistory_4_errors;
+    uint32_t  u_octet4_loop_Tango_DevCmdHistory_4_errors_array;
+    uint32_t  i_Tango_DevCmdHistory_4_errors_array;
+    /* Operation specific Variable declarations End */
+
+    u_octet4_loop_Tango_DevCmdHistory_4_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_dates_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_dates);
+
+    {
+        proto_tree *tree_bak_LN1mZB4cui5L = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_4_dates");
+        for (i_Tango_DevCmdHistory_4_dates=0; i_Tango_DevCmdHistory_4_dates < u_octet4_loop_Tango_DevCmdHistory_4_dates; i_Tango_DevCmdHistory_4_dates++) {
+
+            { /*  Begin struct "Tango_TimeVal"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
+
+            decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_TimeVal"  */
+        }
+        tree = tree_bak_LN1mZB4cui5L;
     }
-
-}
-
-/* Struct = IDL:Tango/DevVarDoubleStringArray:1.0 */
-static void
-decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue;
-    guint32   i_Tango_DevVarDoubleStringArray_dvalue;
-    guint32   u_octet4_loop_Tango_DevVarDoubleStringArray_svalue;
-    guint32   i_Tango_DevVarDoubleStringArray_svalue;
-    /* Operation specific Variable declarations End */
-
-    u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_dvalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue);
-
-    for (i_Tango_DevVarDoubleStringArray_dvalue=0; i_Tango_DevVarDoubleStringArray_dvalue < u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue; i_Tango_DevVarDoubleStringArray_dvalue++) {
-
-        proto_tree_add_double(tree, hf_Tango_DevVarDoubleStringArray_dvalue, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-
-    }
-
-    u_octet4_loop_Tango_DevVarDoubleStringArray_svalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_svalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_svalue);
-
-    for (i_Tango_DevVarDoubleStringArray_svalue=0; i_Tango_DevVarDoubleStringArray_svalue < u_octet4_loop_Tango_DevVarDoubleStringArray_svalue; i_Tango_DevVarDoubleStringArray_svalue++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevVarDoubleStringArray_svalue);
-
-    }
-
-}
-
-/* Struct = IDL:Tango/DevEncoded:1.0 */
-static void
-decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevEncoded_encoded_data;
-    const guint8 * binary_seq_Tango_DevEncoded_encoded_data;
-    gchar * text_seq_Tango_DevEncoded_encoded_data;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevEncoded_encoded_format);
-
-    u_octet4_loop_Tango_DevEncoded_encoded_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevEncoded_encoded_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevEncoded_encoded_data);
-
-    if (u_octet4_loop_Tango_DevEncoded_encoded_data > 0 && tree) {
-        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_DevEncoded_encoded_data, offset,
-            u_octet4_loop_Tango_DevEncoded_encoded_data);
-        text_seq_Tango_DevEncoded_encoded_data = make_printable_string(pinfo->pool, binary_seq_Tango_DevEncoded_encoded_data,
-            u_octet4_loop_Tango_DevEncoded_encoded_data);
-        proto_tree_add_bytes_format_value(tree, hf_Tango_DevEncoded_encoded_data, tvb, *offset - u_octet4_loop_Tango_DevEncoded_encoded_data,
-            u_octet4_loop_Tango_DevEncoded_encoded_data, binary_seq_Tango_DevEncoded_encoded_data, "%s", text_seq_Tango_DevEncoded_encoded_data);
-    }
-
-}
-
-/* Struct = IDL:Tango/JavaClntIdent:1.0 */
-static void
-decode_Tango_JavaClntIdent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   i_Tango_JavaClntIdent_uuid;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_JavaClntIdent_MainClass);
-
-    /* Array: Tango_JavaClntIdent_uuid[ 2 ]  */
-
-    for (i_Tango_JavaClntIdent_uuid=0; i_Tango_JavaClntIdent_uuid < 2 ; i_Tango_JavaClntIdent_uuid++) {
-
-        proto_tree_add_uint64(tree, hf_Tango_JavaClntIdent_uuid, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
-
-    }
-
-}
-
-/* Struct = IDL:Tango/TimeVal:1.0 */
-static void
-decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_int(tree, hf_Tango_TimeVal_tv_sec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_TimeVal_tv_usec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_TimeVal_tv_nsec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:Tango/DevCmdInfo:1.0 */
-static void
-decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_cmd_name);
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_cmd_tag, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_in_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_out_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_in_type_desc);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_out_type_desc);
-
-}
-
-/* Struct = IDL:Tango/DevCmdInfo_2:1.0 */
-static void
-decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_2_cmd_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdInfo_2_level, tvb, *offset-4, 4, u_octet4);
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_2_cmd_tag, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_2_in_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_2_out_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_2_in_type_desc);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_2_out_type_desc);
-
-}
-
-/* Struct = IDL:Tango/DevError:1.0 */
-static void
-decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevError_reason);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevError_severity, tvb, *offset-4, 4, u_octet4);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevError_desc);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevError_origin);
-
-}
-
-/* Struct = IDL:Tango/NamedDevError:1.0 */
-static void
-decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_NamedDevError_err_list;
-    guint32   i_Tango_NamedDevError_err_list;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_NamedDevError_name);
-
-    proto_tree_add_int(tree, hf_Tango_NamedDevError_index_in_call, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    u_octet4_loop_Tango_NamedDevError_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_NamedDevError_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_NamedDevError_err_list);
-
-    for (i_Tango_NamedDevError_err_list=0; i_Tango_NamedDevError_err_list < u_octet4_loop_Tango_NamedDevError_err_list; i_Tango_NamedDevError_err_list++) {
-
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
-    }
-
-}
-
-/* Struct = IDL:Tango/AttributeConfig:1.0 */
-static void
-decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeConfig_extensions;
-    guint32   i_Tango_AttributeConfig_extensions;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_writable, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_data_format, tvb, *offset-4, 4, u_octet4);
-
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_max_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_max_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_description);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_label);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_standard_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_display_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_format);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_min_value);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_max_value);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_min_alarm);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_max_alarm);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_writable_attr_name);
-
-    u_octet4_loop_Tango_AttributeConfig_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_extensions);
-
-    for (i_Tango_AttributeConfig_extensions=0; i_Tango_AttributeConfig_extensions < u_octet4_loop_Tango_AttributeConfig_extensions; i_Tango_AttributeConfig_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_extensions);
-
-    }
-
-}
-
-/* Struct = IDL:Tango/AttributeConfig_2:1.0 */
-static void
-decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeConfig_2_extensions;
-    guint32   i_Tango_AttributeConfig_2_extensions;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_writable, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_data_format, tvb, *offset-4, 4, u_octet4);
-
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_2_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_2_max_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_2_max_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_description);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_label);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_standard_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_display_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_format);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_min_value);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_max_value);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_min_alarm);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_max_alarm);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_writable_attr_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_level, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4_loop_Tango_AttributeConfig_2_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_2_extensions);
-
-    for (i_Tango_AttributeConfig_2_extensions=0; i_Tango_AttributeConfig_2_extensions < u_octet4_loop_Tango_AttributeConfig_2_extensions; i_Tango_AttributeConfig_2_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_extensions);
-
-    }
-
-}
-
-/* Struct = IDL:Tango/AttributeValue:1.0 */
-static void
-decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    /* Operation specific Variable declarations End */
 
     get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_quality, tvb, *offset-4, 4, u_octet4);
+    u_octet4_loop_Tango_DevCmdHistory_4_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_dims);
 
-    /*  Begin struct "Tango_TimeVal"  */
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_TimeVal"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_name);
+    {
+        proto_tree *tree_bak_dca4CHvHCeeG = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_4_dims");
+        for (i_Tango_DevCmdHistory_4_dims=0; i_Tango_DevCmdHistory_4_dims < u_octet4_loop_Tango_DevCmdHistory_4_dims; i_Tango_DevCmdHistory_4_dims++) {
 
-    proto_tree_add_int(tree, hf_Tango_AttributeValue_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            { /*  Begin struct "Tango_AttributeDim"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
 
-    proto_tree_add_int(tree, hf_Tango_AttributeValue_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_AttributeDim"  */
+        }
+        tree = tree_bak_dca4CHvHCeeG;
+    }
+
+    u_octet4_loop_Tango_DevCmdHistory_4_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_dims_array);
+
+    {
+        proto_tree *tree_bak_caPI4zrorBYo = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_4_dims_array");
+        for (i_Tango_DevCmdHistory_4_dims_array=0; i_Tango_DevCmdHistory_4_dims_array < u_octet4_loop_Tango_DevCmdHistory_4_dims_array; i_Tango_DevCmdHistory_4_dims_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_caPI4zrorBYo;
+    }
+
+    u_octet4_loop_Tango_DevCmdHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_errors);
+
+    {
+        proto_tree *tree_bak_eYuqcokRLag9 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_4_errors");
+        for (i_Tango_DevCmdHistory_4_errors=0; i_Tango_DevCmdHistory_4_errors < u_octet4_loop_Tango_DevCmdHistory_4_errors; i_Tango_DevCmdHistory_4_errors++) {
+
+            u_octet4_loop_Tango_DevCmdHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_errors);
+
+            {
+                proto_tree *tree_bak_XsstJ2Wz2cMV = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_4_errors");
+                for (i_Tango_DevCmdHistory_4_errors=0; i_Tango_DevCmdHistory_4_errors < u_octet4_loop_Tango_DevCmdHistory_4_errors; i_Tango_DevCmdHistory_4_errors++) {
+
+                    { /*  Begin struct "Tango_DevError"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+                    decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevError"  */
+                }
+                tree = tree_bak_XsstJ2Wz2cMV;
+            }
+
+        }
+        tree = tree_bak_eYuqcokRLag9;
+    }
+
+    u_octet4_loop_Tango_DevCmdHistory_4_errors_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_errors_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_errors_array);
+
+    {
+        proto_tree *tree_bak_9nAmfgX104Pn = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_4_errors_array");
+        for (i_Tango_DevCmdHistory_4_errors_array=0; i_Tango_DevCmdHistory_4_errors_array < u_octet4_loop_Tango_DevCmdHistory_4_errors_array; i_Tango_DevCmdHistory_4_errors_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_9nAmfgX104Pn;
+    }
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdHistory_4_cmd_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
-/* Struct = IDL:Tango/AttributeDim:1.0 */
+/* Struct = IDL:Tango/DevAttrHistory_5:1.0 */
 static void
-decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_int(tree, hf_Tango_AttributeDim_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_AttributeDim_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:Tango/AttributeValue_3:1.0 */
-static void
-decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_DevAttrHistory_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeValue_3_err_list;
-    guint32   i_Tango_AttributeValue_3_err_list;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_dates;
+    uint32_t  i_Tango_DevAttrHistory_5_dates;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_quals;
+    uint32_t  i_Tango_DevAttrHistory_5_quals;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_quals_array;
+    uint32_t  i_Tango_DevAttrHistory_5_quals_array;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_r_dims;
+    uint32_t  i_Tango_DevAttrHistory_5_r_dims;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array;
+    uint32_t  i_Tango_DevAttrHistory_5_r_dims_array;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_w_dims;
+    uint32_t  i_Tango_DevAttrHistory_5_w_dims;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array;
+    uint32_t  i_Tango_DevAttrHistory_5_w_dims_array;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_errors;
+    uint32_t  i_Tango_DevAttrHistory_5_errors;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_5_errors_array;
+    uint32_t  i_Tango_DevAttrHistory_5_errors_array;
     /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevAttrHistory_5_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_data_format, tvb, *offset-4, 4, u_octet4);
+
+    proto_tree_add_int(tree, hf_Tango_DevAttrHistory_5_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    u_octet4_loop_Tango_DevAttrHistory_5_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_dates_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_dates);
+
+    {
+        proto_tree *tree_bak_milDGo3DBHLp = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_dates");
+        for (i_Tango_DevAttrHistory_5_dates=0; i_Tango_DevAttrHistory_5_dates < u_octet4_loop_Tango_DevAttrHistory_5_dates; i_Tango_DevAttrHistory_5_dates++) {
+
+            { /*  Begin struct "Tango_TimeVal"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
+
+            decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_TimeVal"  */
+        }
+        tree = tree_bak_milDGo3DBHLp;
+    }
 
     get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_3_quality, tvb, *offset-4, 4, u_octet4);
+    u_octet4_loop_Tango_DevAttrHistory_5_quals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_quals_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_quals);
 
-    /*  Begin struct "Tango_TimeVal"  */
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_TimeVal"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_3_name);
+    {
+        proto_tree *tree_bak_s62pewYh2wjv = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_quals");
+        for (i_Tango_DevAttrHistory_5_quals=0; i_Tango_DevAttrHistory_5_quals < u_octet4_loop_Tango_DevAttrHistory_5_quals; i_Tango_DevAttrHistory_5_quals++) {
 
-    /*  Begin struct "Tango_AttributeDim"  */
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeDim"  */
-    /*  Begin struct "Tango_AttributeDim"  */
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeDim"  */
-    u_octet4_loop_Tango_AttributeValue_3_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_3_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeValue_3_err_list);
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_quals, tvb, *offset-4, 4, u_octet4);
 
-    for (i_Tango_AttributeValue_3_err_list=0; i_Tango_AttributeValue_3_err_list < u_octet4_loop_Tango_AttributeValue_3_err_list; i_Tango_AttributeValue_3_err_list++) {
+        }
+        tree = tree_bak_s62pewYh2wjv;
+    }
 
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
+    u_octet4_loop_Tango_DevAttrHistory_5_quals_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_quals_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_quals_array);
+
+    {
+        proto_tree *tree_bak_bzku6rWpX9FP = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_quals_array");
+        for (i_Tango_DevAttrHistory_5_quals_array=0; i_Tango_DevAttrHistory_5_quals_array < u_octet4_loop_Tango_DevAttrHistory_5_quals_array; i_Tango_DevAttrHistory_5_quals_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_bzku6rWpX9FP;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_5_r_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_r_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_r_dims);
+
+    {
+        proto_tree *tree_bak_cVyoqMSVziXg = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_r_dims");
+        for (i_Tango_DevAttrHistory_5_r_dims=0; i_Tango_DevAttrHistory_5_r_dims < u_octet4_loop_Tango_DevAttrHistory_5_r_dims; i_Tango_DevAttrHistory_5_r_dims++) {
+
+            { /*  Begin struct "Tango_AttributeDim"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+            decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_AttributeDim"  */
+        }
+        tree = tree_bak_cVyoqMSVziXg;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_r_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array);
+
+    {
+        proto_tree *tree_bak_W3mQ9vcWRH7X = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_r_dims_array");
+        for (i_Tango_DevAttrHistory_5_r_dims_array=0; i_Tango_DevAttrHistory_5_r_dims_array < u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array; i_Tango_DevAttrHistory_5_r_dims_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_W3mQ9vcWRH7X;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_5_w_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_w_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_w_dims);
+
+    {
+        proto_tree *tree_bak_shqWfT6HU3Aq = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_w_dims");
+        for (i_Tango_DevAttrHistory_5_w_dims=0; i_Tango_DevAttrHistory_5_w_dims < u_octet4_loop_Tango_DevAttrHistory_5_w_dims; i_Tango_DevAttrHistory_5_w_dims++) {
+
+            { /*  Begin struct "Tango_AttributeDim"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+            decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_AttributeDim"  */
+        }
+        tree = tree_bak_shqWfT6HU3Aq;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_w_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array);
+
+    {
+        proto_tree *tree_bak_gXGxQA68sTfk = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_w_dims_array");
+        for (i_Tango_DevAttrHistory_5_w_dims_array=0; i_Tango_DevAttrHistory_5_w_dims_array < u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array; i_Tango_DevAttrHistory_5_w_dims_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_gXGxQA68sTfk;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_5_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_errors);
+
+    {
+        proto_tree *tree_bak_6Gfu4CQUym9I = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_errors");
+        for (i_Tango_DevAttrHistory_5_errors=0; i_Tango_DevAttrHistory_5_errors < u_octet4_loop_Tango_DevAttrHistory_5_errors; i_Tango_DevAttrHistory_5_errors++) {
+
+            u_octet4_loop_Tango_DevAttrHistory_5_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_errors);
+
+            {
+                proto_tree *tree_bak_cMZPHK2INU3I = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_errors");
+                for (i_Tango_DevAttrHistory_5_errors=0; i_Tango_DevAttrHistory_5_errors < u_octet4_loop_Tango_DevAttrHistory_5_errors; i_Tango_DevAttrHistory_5_errors++) {
+
+                    { /*  Begin struct "Tango_DevError"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+                    decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevError"  */
+                }
+                tree = tree_bak_cMZPHK2INU3I;
+            }
+
+        }
+        tree = tree_bak_6Gfu4CQUym9I;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_5_errors_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_errors_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_errors_array);
+
+    {
+        proto_tree *tree_bak_4aW8nxKNBoC8 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_5_errors_array");
+        for (i_Tango_DevAttrHistory_5_errors_array=0; i_Tango_DevAttrHistory_5_errors_array < u_octet4_loop_Tango_DevAttrHistory_5_errors_array; i_Tango_DevAttrHistory_5_errors_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_4aW8nxKNBoC8;
     }
 
 }
 
-/* Struct = IDL:Tango/AttributeValue_4:1.0 */
+/* Struct = IDL:Tango/DevAttrHistory_4:1.0 */
 static void
-decode_Tango_AttributeValue_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_DevAttrHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeValue_4_err_list;
-    guint32   i_Tango_AttributeValue_4_err_list;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_dates;
+    uint32_t  i_Tango_DevAttrHistory_4_dates;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_quals;
+    uint32_t  i_Tango_DevAttrHistory_4_quals;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_quals_array;
+    uint32_t  i_Tango_DevAttrHistory_4_quals_array;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_r_dims;
+    uint32_t  i_Tango_DevAttrHistory_4_r_dims;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array;
+    uint32_t  i_Tango_DevAttrHistory_4_r_dims_array;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_w_dims;
+    uint32_t  i_Tango_DevAttrHistory_4_w_dims;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array;
+    uint32_t  i_Tango_DevAttrHistory_4_w_dims_array;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_errors;
+    uint32_t  i_Tango_DevAttrHistory_4_errors;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_4_errors_array;
+    uint32_t  i_Tango_DevAttrHistory_4_errors_array;
     /* Operation specific Variable declarations End */
 
-    /*  Begin union "Tango_AttrValUnion"  */
-    decode_Tango_AttrValUnion_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevAttrHistory_4_name);
 
-    /*  End union "Tango_AttrValUnion"  */
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_4_quality, tvb, *offset-4, 4, u_octet4);
+    u_octet4_loop_Tango_DevAttrHistory_4_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_dates_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_dates);
 
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_4_data_format, tvb, *offset-4, 4, u_octet4);
+    {
+        proto_tree *tree_bak_IVOojDkehwhq = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_dates");
+        for (i_Tango_DevAttrHistory_4_dates=0; i_Tango_DevAttrHistory_4_dates < u_octet4_loop_Tango_DevAttrHistory_4_dates; i_Tango_DevAttrHistory_4_dates++) {
 
-    /*  Begin struct "Tango_TimeVal"  */
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_TimeVal"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_4_name);
+            { /*  Begin struct "Tango_TimeVal"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
 
-    /*  Begin struct "Tango_AttributeDim"  */
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeDim"  */
-    /*  Begin struct "Tango_AttributeDim"  */
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeDim"  */
-    u_octet4_loop_Tango_AttributeValue_4_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_4_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeValue_4_err_list);
+            decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_TimeVal"  */
+        }
+        tree = tree_bak_IVOojDkehwhq;
+    }
 
-    for (i_Tango_AttributeValue_4_err_list=0; i_Tango_AttributeValue_4_err_list < u_octet4_loop_Tango_AttributeValue_4_err_list; i_Tango_AttributeValue_4_err_list++) {
+    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
+    u_octet4_loop_Tango_DevAttrHistory_4_quals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_quals_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_quals);
+
+    {
+        proto_tree *tree_bak_8XZibKfbqQUp = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_quals");
+        for (i_Tango_DevAttrHistory_4_quals=0; i_Tango_DevAttrHistory_4_quals < u_octet4_loop_Tango_DevAttrHistory_4_quals; i_Tango_DevAttrHistory_4_quals++) {
+
+            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_quals, tvb, *offset-4, 4, u_octet4);
+
+        }
+        tree = tree_bak_8XZibKfbqQUp;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_quals_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_quals_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_quals_array);
+
+    {
+        proto_tree *tree_bak_4nT3UTugSxzT = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_quals_array");
+        for (i_Tango_DevAttrHistory_4_quals_array=0; i_Tango_DevAttrHistory_4_quals_array < u_octet4_loop_Tango_DevAttrHistory_4_quals_array; i_Tango_DevAttrHistory_4_quals_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_4nT3UTugSxzT;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_r_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_r_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_r_dims);
+
+    {
+        proto_tree *tree_bak_r55xrna3Z9tG = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_r_dims");
+        for (i_Tango_DevAttrHistory_4_r_dims=0; i_Tango_DevAttrHistory_4_r_dims < u_octet4_loop_Tango_DevAttrHistory_4_r_dims; i_Tango_DevAttrHistory_4_r_dims++) {
+
+            { /*  Begin struct "Tango_AttributeDim"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+            decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_AttributeDim"  */
+        }
+        tree = tree_bak_r55xrna3Z9tG;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_r_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array);
+
+    {
+        proto_tree *tree_bak_OwmlZhoR4Hix = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_r_dims_array");
+        for (i_Tango_DevAttrHistory_4_r_dims_array=0; i_Tango_DevAttrHistory_4_r_dims_array < u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array; i_Tango_DevAttrHistory_4_r_dims_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_OwmlZhoR4Hix;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_w_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_w_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_w_dims);
+
+    {
+        proto_tree *tree_bak_n3mwElDDOysP = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_w_dims");
+        for (i_Tango_DevAttrHistory_4_w_dims=0; i_Tango_DevAttrHistory_4_w_dims < u_octet4_loop_Tango_DevAttrHistory_4_w_dims; i_Tango_DevAttrHistory_4_w_dims++) {
+
+            { /*  Begin struct "Tango_AttributeDim"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+            decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_AttributeDim"  */
+        }
+        tree = tree_bak_n3mwElDDOysP;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_w_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array);
+
+    {
+        proto_tree *tree_bak_KnQMqFdLivZv = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_w_dims_array");
+        for (i_Tango_DevAttrHistory_4_w_dims_array=0; i_Tango_DevAttrHistory_4_w_dims_array < u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array; i_Tango_DevAttrHistory_4_w_dims_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_KnQMqFdLivZv;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_errors);
+
+    {
+        proto_tree *tree_bak_UHfFkP9tPk7z = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_errors");
+        for (i_Tango_DevAttrHistory_4_errors=0; i_Tango_DevAttrHistory_4_errors < u_octet4_loop_Tango_DevAttrHistory_4_errors; i_Tango_DevAttrHistory_4_errors++) {
+
+            u_octet4_loop_Tango_DevAttrHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_errors);
+
+            {
+                proto_tree *tree_bak_l6tPYHao4JwY = tree;
+                tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_errors");
+                for (i_Tango_DevAttrHistory_4_errors=0; i_Tango_DevAttrHistory_4_errors < u_octet4_loop_Tango_DevAttrHistory_4_errors; i_Tango_DevAttrHistory_4_errors++) {
+
+                    { /*  Begin struct "Tango_DevError"  */
+                    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+                    decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                    } /*  End struct "Tango_DevError"  */
+                }
+                tree = tree_bak_l6tPYHao4JwY;
+            }
+
+        }
+        tree = tree_bak_UHfFkP9tPk7z;
+    }
+
+    u_octet4_loop_Tango_DevAttrHistory_4_errors_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_errors_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_errors_array);
+
+    {
+        proto_tree *tree_bak_pNR6o8niIipM = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_4_errors_array");
+        for (i_Tango_DevAttrHistory_4_errors_array=0; i_Tango_DevAttrHistory_4_errors_array < u_octet4_loop_Tango_DevAttrHistory_4_errors_array; i_Tango_DevAttrHistory_4_errors_array++) {
+
+            { /*  Begin struct "Tango_EltInArray"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EltInArray");
+
+            decode_Tango_EltInArray_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_EltInArray"  */
+        }
+        tree = tree_bak_pNR6o8niIipM;
     }
 
 }
 
-/* Struct = IDL:Tango/AttributeValue_5:1.0 */
+/* Struct = IDL:Tango/EltInArray:1.0 */
 static void
-decode_Tango_AttributeValue_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_EltInArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_int(tree, hf_Tango_EltInArray_start, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_EltInArray_nb_elt, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:Tango/DevAttrHistory_3:1.0 */
+static void
+decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_boolean(tree, hf_Tango_DevAttrHistory_3_attr_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+
+    { /*  Begin struct "Tango_AttributeValue_3"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue_3");
+
+    decode_Tango_AttributeValue_3_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeValue_3"  */
+}
+
+/* Struct = IDL:Tango/DevAttrHistory:1.0 */
+static void
+decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeValue_5_err_list;
-    guint32   i_Tango_AttributeValue_5_err_list;
+    uint32_t  u_octet4_loop_Tango_DevAttrHistory_errors;
+    uint32_t  i_Tango_DevAttrHistory_errors;
     /* Operation specific Variable declarations End */
 
-    /*  Begin union "Tango_AttrValUnion"  */
-    decode_Tango_AttrValUnion_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    proto_tree_add_boolean(tree, hf_Tango_DevAttrHistory_attr_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-    /*  End union "Tango_AttrValUnion"  */
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_5_quality, tvb, *offset-4, 4, u_octet4);
+    { /*  Begin struct "Tango_AttributeValue"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeValue");
 
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_5_data_format, tvb, *offset-4, 4, u_octet4);
+    decode_Tango_AttributeValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeValue"  */
+    u_octet4_loop_Tango_DevAttrHistory_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_errors);
 
-    proto_tree_add_int(tree, hf_Tango_AttributeValue_5_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    {
+        proto_tree *tree_bak_aHi1LMzwYQv9 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevAttrHistory_errors");
+        for (i_Tango_DevAttrHistory_errors=0; i_Tango_DevAttrHistory_errors < u_octet4_loop_Tango_DevAttrHistory_errors; i_Tango_DevAttrHistory_errors++) {
 
-    /*  Begin struct "Tango_TimeVal"  */
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_TimeVal"  */
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_5_name);
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
 
-    /*  Begin struct "Tango_AttributeDim"  */
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeDim"  */
-    /*  Begin struct "Tango_AttributeDim"  */
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeDim"  */
-    u_octet4_loop_Tango_AttributeValue_5_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeValue_5_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeValue_5_err_list);
-
-    for (i_Tango_AttributeValue_5_err_list=0; i_Tango_AttributeValue_5_err_list < u_octet4_loop_Tango_AttributeValue_5_err_list; i_Tango_AttributeValue_5_err_list++) {
-
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
+        }
+        tree = tree_bak_aHi1LMzwYQv9;
     }
 
 }
 
-/* Struct = IDL:Tango/ChangeEventProp:1.0 */
+/* Struct = IDL:Tango/DevCmdHistory:1.0 */
 static void
-decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_ChangeEventProp_extensions;
-    guint32   i_Tango_ChangeEventProp_extensions;
+    uint32_t  u_octet4_loop_Tango_DevCmdHistory_errors;
+    uint32_t  i_Tango_DevCmdHistory_errors;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ChangeEventProp_rel_change);
+    { /*  Begin struct "Tango_TimeVal"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ChangeEventProp_abs_change);
+    decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_TimeVal"  */
+    proto_tree_add_boolean(tree, hf_Tango_DevCmdHistory_cmd_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-    u_octet4_loop_Tango_ChangeEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_ChangeEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ChangeEventProp_extensions);
+    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-    for (i_Tango_ChangeEventProp_extensions=0; i_Tango_ChangeEventProp_extensions < u_octet4_loop_Tango_ChangeEventProp_extensions; i_Tango_ChangeEventProp_extensions++) {
+    u_octet4_loop_Tango_DevCmdHistory_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_errors);
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ChangeEventProp_extensions);
+    {
+        proto_tree *tree_bak_7BXltD83ubzP = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevCmdHistory_errors");
+        for (i_Tango_DevCmdHistory_errors=0; i_Tango_DevCmdHistory_errors < u_octet4_loop_Tango_DevCmdHistory_errors; i_Tango_DevCmdHistory_errors++) {
 
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
+        }
+        tree = tree_bak_7BXltD83ubzP;
     }
 
 }
 
-/* Struct = IDL:Tango/PeriodicEventProp:1.0 */
+/* Struct = IDL:Tango/DevInfo_3:1.0 */
 static void
-decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_dev_class);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_server_id);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_server_host);
+
+    proto_tree_add_int(tree, hf_Tango_DevInfo_3_server_version, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_doc_url);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_dev_type);
+
+}
+
+/* Struct = IDL:Tango/DevInfo:1.0 */
+static void
+decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_dev_class);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_server_id);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_server_host);
+
+    proto_tree_add_int(tree, hf_Tango_DevInfo_server_version, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_doc_url);
+
+}
+
+/* Struct = IDL:Tango/DevIntrChange:1.0 */
+static void
+decode_Tango_DevIntrChange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_PeriodicEventProp_extensions;
-    guint32   i_Tango_PeriodicEventProp_extensions;
+    uint32_t  u_octet4_loop_Tango_DevIntrChange_cmds;
+    uint32_t  i_Tango_DevIntrChange_cmds;
+    uint32_t  u_octet4_loop_Tango_DevIntrChange_atts;
+    uint32_t  i_Tango_DevIntrChange_atts;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PeriodicEventProp_period);
+    proto_tree_add_boolean(tree, hf_Tango_DevIntrChange_dev_started, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-    u_octet4_loop_Tango_PeriodicEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_PeriodicEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_PeriodicEventProp_extensions);
+    u_octet4_loop_Tango_DevIntrChange_cmds = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevIntrChange_cmds_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevIntrChange_cmds);
 
-    for (i_Tango_PeriodicEventProp_extensions=0; i_Tango_PeriodicEventProp_extensions < u_octet4_loop_Tango_PeriodicEventProp_extensions; i_Tango_PeriodicEventProp_extensions++) {
+    {
+        proto_tree *tree_bak_NLuYJo3Emv1y = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevIntrChange_cmds");
+        for (i_Tango_DevIntrChange_cmds=0; i_Tango_DevIntrChange_cmds < u_octet4_loop_Tango_DevIntrChange_cmds; i_Tango_DevIntrChange_cmds++) {
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PeriodicEventProp_extensions);
+            { /*  Begin struct "Tango_DevCmdInfo_2"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevCmdInfo_2");
 
+            decode_Tango_DevCmdInfo_2_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevCmdInfo_2"  */
+        }
+        tree = tree_bak_NLuYJo3Emv1y;
+    }
+
+    u_octet4_loop_Tango_DevIntrChange_atts = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevIntrChange_atts_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevIntrChange_atts);
+
+    {
+        proto_tree *tree_bak_vN9J8lMhYuQA = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevIntrChange_atts");
+        for (i_Tango_DevIntrChange_atts=0; i_Tango_DevIntrChange_atts < u_octet4_loop_Tango_DevIntrChange_atts; i_Tango_DevIntrChange_atts++) {
+
+            { /*  Begin struct "Tango_AttributeConfig_5"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeConfig_5");
+
+            decode_Tango_AttributeConfig_5_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_AttributeConfig_5"  */
+        }
+        tree = tree_bak_vN9J8lMhYuQA;
     }
 
 }
 
-/* Struct = IDL:Tango/ArchiveEventProp:1.0 */
+/* Struct = IDL:Tango/AttDataReady:1.0 */
 static void
-decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttDataReady_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttDataReady_name);
+
+    proto_tree_add_int(tree, hf_Tango_AttDataReady_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_AttDataReady_ctr, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:Tango/DevPipeData:1.0 */
+static void
+decode_Tango_DevPipeData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeData_name);
+
+    { /*  Begin struct "Tango_TimeVal"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
+
+    decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_TimeVal"  */
+    { /*  Begin struct "Tango_DevPipeBlob"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevPipeBlob");
+
+    decode_Tango_DevPipeBlob_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_DevPipeBlob"  */
+}
+
+/* Struct = IDL:Tango/DevPipeBlob:1.0 */
+static void
+decode_Tango_DevPipeBlob_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_ArchiveEventProp_extensions;
-    guint32   i_Tango_ArchiveEventProp_extensions;
+    uint32_t  u_octet4_loop_Tango_DevPipeBlob_blob_data;
+    uint32_t  i_Tango_DevPipeBlob_blob_data;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_rel_change);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeBlob_name);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_abs_change);
+    u_octet4_loop_Tango_DevPipeBlob_blob_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevPipeBlob_blob_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevPipeBlob_blob_data);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_period);
+    {
+        proto_tree *tree_bak_9XfjbSCn5mHN = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevPipeBlob_blob_data");
+        for (i_Tango_DevPipeBlob_blob_data=0; i_Tango_DevPipeBlob_blob_data < u_octet4_loop_Tango_DevPipeBlob_blob_data; i_Tango_DevPipeBlob_blob_data++) {
 
-    u_octet4_loop_Tango_ArchiveEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_ArchiveEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ArchiveEventProp_extensions);
+            /* WARNING - Unknown typecode = 100  */
 
-    for (i_Tango_ArchiveEventProp_extensions=0; i_Tango_ArchiveEventProp_extensions < u_octet4_loop_Tango_ArchiveEventProp_extensions; i_Tango_ArchiveEventProp_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_extensions);
-
+        }
+        tree = tree_bak_9XfjbSCn5mHN;
     }
 
 }
 
-/* Struct = IDL:Tango/EventProperties:1.0 */
+/* Struct = IDL:Tango/DevPipeDataElt:1.0 */
 static void
-decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /*  Begin struct "Tango_ChangeEventProp"  */
-    decode_Tango_ChangeEventProp_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_ChangeEventProp"  */
-    /*  Begin struct "Tango_PeriodicEventProp"  */
-    decode_Tango_PeriodicEventProp_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_PeriodicEventProp"  */
-    /*  Begin struct "Tango_ArchiveEventProp"  */
-    decode_Tango_ArchiveEventProp_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_ArchiveEventProp"  */
-}
-
-/* Struct = IDL:Tango/AttributeAlarm:1.0 */
-static void
-decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_DevPipeDataElt_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_AttributeAlarm_extensions;
-    guint32   i_Tango_AttributeAlarm_extensions;
+    uint32_t  u_octet4_loop_Tango_DevPipeDataElt_inner_blob;
+    uint32_t  i_Tango_DevPipeDataElt_inner_blob;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_min_alarm);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeDataElt_name);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_max_alarm);
+    { /*  Begin union "Tango_AttrValUnion"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_AttrValUnion");
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_min_warning);
+    decode_Tango_AttrValUnion_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_max_warning);
+    } /*  End union "Tango_AttrValUnion"  */
+    u_octet4_loop_Tango_DevPipeDataElt_inner_blob = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevPipeDataElt_inner_blob_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevPipeDataElt_inner_blob);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_delta_t);
+    {
+        proto_tree *tree_bak_UE8bUjem7Lof = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevPipeDataElt_inner_blob");
+        for (i_Tango_DevPipeDataElt_inner_blob=0; i_Tango_DevPipeDataElt_inner_blob < u_octet4_loop_Tango_DevPipeDataElt_inner_blob; i_Tango_DevPipeDataElt_inner_blob++) {
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_delta_val);
+            /* WARNING - Unknown typecode = 100  */
 
-    u_octet4_loop_Tango_AttributeAlarm_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeAlarm_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeAlarm_extensions);
-
-    for (i_Tango_AttributeAlarm_extensions=0; i_Tango_AttributeAlarm_extensions < u_octet4_loop_Tango_AttributeAlarm_extensions; i_Tango_AttributeAlarm_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_extensions);
-
+        }
+        tree = tree_bak_UE8bUjem7Lof;
     }
 
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeDataElt_inner_blob_name);
+
 }
 
-/* Struct = IDL:Tango/AttributeConfig_3:1.0 */
+/* Struct = IDL:Tango/PipeConfig:1.0 */
 static void
-decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_PipeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeConfig_3_extensions;
-    guint32   i_Tango_AttributeConfig_3_extensions;
-    guint32   u_octet4_loop_Tango_AttributeConfig_3_sys_extensions;
-    guint32   i_Tango_AttributeConfig_3_sys_extensions;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_PipeConfig_extensions;
+    uint32_t  i_Tango_PipeConfig_extensions;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_name);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_name);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_description);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_label);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_writable, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_Tango_PipeConfig_level, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_data_format, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_Tango_PipeConfig_writable, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_3_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    u_octet4_loop_Tango_PipeConfig_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_PipeConfig_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_PipeConfig_extensions);
 
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_3_max_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    {
+        proto_tree *tree_bak_L6L6Twjss3Tq = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_PipeConfig_extensions");
+        for (i_Tango_PipeConfig_extensions=0; i_Tango_PipeConfig_extensions < u_octet4_loop_Tango_PipeConfig_extensions; i_Tango_PipeConfig_extensions++) {
 
-    proto_tree_add_int(tree, hf_Tango_AttributeConfig_3_max_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_extensions);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_description);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_label);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_standard_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_display_unit);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_format);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_min_value);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_max_value);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_writable_attr_name);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_level, tvb, *offset-4, 4, u_octet4);
-
-    /*  Begin struct "Tango_AttributeAlarm"  */
-    decode_Tango_AttributeAlarm_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeAlarm"  */
-    /*  Begin struct "Tango_EventProperties"  */
-    decode_Tango_EventProperties_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_EventProperties"  */
-    u_octet4_loop_Tango_AttributeConfig_3_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_extensions);
-
-    for (i_Tango_AttributeConfig_3_extensions=0; i_Tango_AttributeConfig_3_extensions < u_octet4_loop_Tango_AttributeConfig_3_extensions; i_Tango_AttributeConfig_3_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_extensions);
-
-    }
-
-    u_octet4_loop_Tango_AttributeConfig_3_sys_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_sys_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_sys_extensions);
-
-    for (i_Tango_AttributeConfig_3_sys_extensions=0; i_Tango_AttributeConfig_3_sys_extensions < u_octet4_loop_Tango_AttributeConfig_3_sys_extensions; i_Tango_AttributeConfig_3_sys_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_sys_extensions);
-
+        }
+        tree = tree_bak_L6L6Twjss3Tq;
     }
 
 }
 
 /* Struct = IDL:Tango/AttributeConfig_5:1.0 */
 static void
-decode_Tango_AttributeConfig_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttributeConfig_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_AttributeConfig_5_enum_labels;
-    guint32   i_Tango_AttributeConfig_5_enum_labels;
-    guint32   u_octet4_loop_Tango_AttributeConfig_5_extensions;
-    guint32   i_Tango_AttributeConfig_5_extensions;
-    guint32   u_octet4_loop_Tango_AttributeConfig_5_sys_extensions;
-    guint32   i_Tango_AttributeConfig_5_sys_extensions;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_5_enum_labels;
+    uint32_t  i_Tango_AttributeConfig_5_enum_labels;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_5_extensions;
+    uint32_t  i_Tango_AttributeConfig_5_extensions;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_5_sys_extensions;
+    uint32_t  i_Tango_AttributeConfig_5_sys_extensions;
     /* Operation specific Variable declarations End */
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_name);
@@ -3479,759 +3962,918 @@ decode_Tango_AttributeConfig_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     u_octet4_loop_Tango_AttributeConfig_5_enum_labels = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_AttributeConfig_5_enum_labels_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_5_enum_labels);
 
-    for (i_Tango_AttributeConfig_5_enum_labels=0; i_Tango_AttributeConfig_5_enum_labels < u_octet4_loop_Tango_AttributeConfig_5_enum_labels; i_Tango_AttributeConfig_5_enum_labels++) {
+    {
+        proto_tree *tree_bak_tozeFEaUlJmS = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_5_enum_labels");
+        for (i_Tango_AttributeConfig_5_enum_labels=0; i_Tango_AttributeConfig_5_enum_labels < u_octet4_loop_Tango_AttributeConfig_5_enum_labels; i_Tango_AttributeConfig_5_enum_labels++) {
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_enum_labels);
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_enum_labels);
 
+        }
+        tree = tree_bak_tozeFEaUlJmS;
     }
 
-    /*  Begin struct "Tango_AttributeAlarm"  */
-    decode_Tango_AttributeAlarm_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeAlarm"  */
-    /*  Begin struct "Tango_EventProperties"  */
-    decode_Tango_EventProperties_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_EventProperties"  */
+    { /*  Begin struct "Tango_AttributeAlarm"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeAlarm");
+
+    decode_Tango_AttributeAlarm_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeAlarm"  */
+    { /*  Begin struct "Tango_EventProperties"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EventProperties");
+
+    decode_Tango_EventProperties_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_EventProperties"  */
     u_octet4_loop_Tango_AttributeConfig_5_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_AttributeConfig_5_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_5_extensions);
 
-    for (i_Tango_AttributeConfig_5_extensions=0; i_Tango_AttributeConfig_5_extensions < u_octet4_loop_Tango_AttributeConfig_5_extensions; i_Tango_AttributeConfig_5_extensions++) {
+    {
+        proto_tree *tree_bak_Iw1zNaPFbTAg = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_5_extensions");
+        for (i_Tango_AttributeConfig_5_extensions=0; i_Tango_AttributeConfig_5_extensions < u_octet4_loop_Tango_AttributeConfig_5_extensions; i_Tango_AttributeConfig_5_extensions++) {
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_extensions);
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_extensions);
 
+        }
+        tree = tree_bak_Iw1zNaPFbTAg;
     }
 
     u_octet4_loop_Tango_AttributeConfig_5_sys_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_AttributeConfig_5_sys_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_5_sys_extensions);
 
-    for (i_Tango_AttributeConfig_5_sys_extensions=0; i_Tango_AttributeConfig_5_sys_extensions < u_octet4_loop_Tango_AttributeConfig_5_sys_extensions; i_Tango_AttributeConfig_5_sys_extensions++) {
+    {
+        proto_tree *tree_bak_JpJDM8BEzPO9 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_5_sys_extensions");
+        for (i_Tango_AttributeConfig_5_sys_extensions=0; i_Tango_AttributeConfig_5_sys_extensions < u_octet4_loop_Tango_AttributeConfig_5_sys_extensions; i_Tango_AttributeConfig_5_sys_extensions++) {
 
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_sys_extensions);
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_5_sys_extensions);
 
-    }
-
-}
-
-/* Struct = IDL:Tango/PipeConfig:1.0 */
-static void
-decode_Tango_PipeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_PipeConfig_extensions;
-    guint32   i_Tango_PipeConfig_extensions;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_name);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_description);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_label);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_PipeConfig_level, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_PipeConfig_writable, tvb, *offset-4, 4, u_octet4);
-
-    u_octet4_loop_Tango_PipeConfig_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_PipeConfig_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_PipeConfig_extensions);
-
-    for (i_Tango_PipeConfig_extensions=0; i_Tango_PipeConfig_extensions < u_octet4_loop_Tango_PipeConfig_extensions; i_Tango_PipeConfig_extensions++) {
-
-        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PipeConfig_extensions);
-
-    }
-
-}
-
-/* Struct = IDL:Tango/DevPipeDataElt:1.0 */
-static void
-decode_Tango_DevPipeDataElt_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevPipeDataElt_inner_blob;
-    guint32   i_Tango_DevPipeDataElt_inner_blob;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeDataElt_name);
-
-    /*  Begin union "Tango_AttrValUnion"  */
-    decode_Tango_AttrValUnion_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-
-    /*  End union "Tango_AttrValUnion"  */
-    u_octet4_loop_Tango_DevPipeDataElt_inner_blob = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevPipeDataElt_inner_blob_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevPipeDataElt_inner_blob);
-
-    for (i_Tango_DevPipeDataElt_inner_blob=0; i_Tango_DevPipeDataElt_inner_blob < u_octet4_loop_Tango_DevPipeDataElt_inner_blob; i_Tango_DevPipeDataElt_inner_blob++) {
-
-        /* WARNING - Unknown typecode = 100  */
-
-    }
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeDataElt_inner_blob_name);
-
-}
-
-/* Struct = IDL:Tango/DevPipeBlob:1.0 */
-static void
-decode_Tango_DevPipeBlob_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevPipeBlob_blob_data;
-    guint32   i_Tango_DevPipeBlob_blob_data;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeBlob_name);
-
-    u_octet4_loop_Tango_DevPipeBlob_blob_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevPipeBlob_blob_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevPipeBlob_blob_data);
-
-    for (i_Tango_DevPipeBlob_blob_data=0; i_Tango_DevPipeBlob_blob_data < u_octet4_loop_Tango_DevPipeBlob_blob_data; i_Tango_DevPipeBlob_blob_data++) {
-
-        /* WARNING - Unknown typecode = 100  */
-
-    }
-
-}
-
-/* Struct = IDL:Tango/DevPipeData:1.0 */
-static void
-decode_Tango_DevPipeData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeData_name);
-
-    /*  Begin struct "Tango_TimeVal"  */
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_TimeVal"  */
-    /*  Begin struct "Tango_DevPipeBlob"  */
-    decode_Tango_DevPipeBlob_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_DevPipeBlob"  */
-}
-
-/* Struct = IDL:Tango/AttDataReady:1.0 */
-static void
-decode_Tango_AttDataReady_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttDataReady_name);
-
-    proto_tree_add_int(tree, hf_Tango_AttDataReady_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_AttDataReady_ctr, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:Tango/DevIntrChange:1.0 */
-static void
-decode_Tango_DevIntrChange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevIntrChange_cmds;
-    guint32   i_Tango_DevIntrChange_cmds;
-    guint32   u_octet4_loop_Tango_DevIntrChange_atts;
-    guint32   i_Tango_DevIntrChange_atts;
-    /* Operation specific Variable declarations End */
-
-    proto_tree_add_boolean(tree, hf_Tango_DevIntrChange_dev_started, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    u_octet4_loop_Tango_DevIntrChange_cmds = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevIntrChange_cmds_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevIntrChange_cmds);
-
-    for (i_Tango_DevIntrChange_cmds=0; i_Tango_DevIntrChange_cmds < u_octet4_loop_Tango_DevIntrChange_cmds; i_Tango_DevIntrChange_cmds++) {
-
-        /*  Begin struct "Tango_DevCmdInfo_2"  */
-        decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevCmdInfo_2"  */
-    }
-
-    u_octet4_loop_Tango_DevIntrChange_atts = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevIntrChange_atts_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevIntrChange_atts);
-
-    for (i_Tango_DevIntrChange_atts=0; i_Tango_DevIntrChange_atts < u_octet4_loop_Tango_DevIntrChange_atts; i_Tango_DevIntrChange_atts++) {
-
-        /*  Begin struct "Tango_AttributeConfig_5"  */
-        decode_Tango_AttributeConfig_5_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_AttributeConfig_5"  */
-    }
-
-}
-
-/* Struct = IDL:Tango/DevInfo:1.0 */
-static void
-decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_dev_class);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_server_id);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_server_host);
-
-    proto_tree_add_int(tree, hf_Tango_DevInfo_server_version, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_doc_url);
-
-}
-
-/* Struct = IDL:Tango/DevInfo_3:1.0 */
-static void
-decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_dev_class);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_server_id);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_server_host);
-
-    proto_tree_add_int(tree, hf_Tango_DevInfo_3_server_version, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_doc_url);
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_dev_type);
-
-}
-
-/* Struct = IDL:Tango/DevCmdHistory:1.0 */
-static void
-decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevCmdHistory_errors;
-    guint32   i_Tango_DevCmdHistory_errors;
-    /* Operation specific Variable declarations End */
-
-    /*  Begin struct "Tango_TimeVal"  */
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_TimeVal"  */
-    proto_tree_add_boolean(tree, hf_Tango_DevCmdHistory_cmd_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
-
-    u_octet4_loop_Tango_DevCmdHistory_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_errors);
-
-    for (i_Tango_DevCmdHistory_errors=0; i_Tango_DevCmdHistory_errors < u_octet4_loop_Tango_DevCmdHistory_errors; i_Tango_DevCmdHistory_errors++) {
-
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
-    }
-
-}
-
-/* Struct = IDL:Tango/DevAttrHistory:1.0 */
-static void
-decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevAttrHistory_errors;
-    guint32   i_Tango_DevAttrHistory_errors;
-    /* Operation specific Variable declarations End */
-
-    proto_tree_add_boolean(tree, hf_Tango_DevAttrHistory_attr_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    /*  Begin struct "Tango_AttributeValue"  */
-    decode_Tango_AttributeValue_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeValue"  */
-    u_octet4_loop_Tango_DevAttrHistory_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_errors);
-
-    for (i_Tango_DevAttrHistory_errors=0; i_Tango_DevAttrHistory_errors < u_octet4_loop_Tango_DevAttrHistory_errors; i_Tango_DevAttrHistory_errors++) {
-
-        /*  Begin struct "Tango_DevError"  */
-        decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_DevError"  */
-    }
-
-}
-
-/* Struct = IDL:Tango/DevAttrHistory_3:1.0 */
-static void
-decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_boolean(tree, hf_Tango_DevAttrHistory_3_attr_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-    /*  Begin struct "Tango_AttributeValue_3"  */
-    decode_Tango_AttributeValue_3_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-    /*  End struct "Tango_AttributeValue_3"  */
-}
-
-/* Struct = IDL:Tango/EltInArray:1.0 */
-static void
-decode_Tango_EltInArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    proto_tree_add_int(tree, hf_Tango_EltInArray_start, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_int(tree, hf_Tango_EltInArray_nb_elt, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-}
-
-/* Struct = IDL:Tango/DevAttrHistory_4:1.0 */
-static void
-decode_Tango_DevAttrHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_dates;
-    guint32   i_Tango_DevAttrHistory_4_dates;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_quals;
-    guint32   i_Tango_DevAttrHistory_4_quals;
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_quals_array;
-    guint32   i_Tango_DevAttrHistory_4_quals_array;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_r_dims;
-    guint32   i_Tango_DevAttrHistory_4_r_dims;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array;
-    guint32   i_Tango_DevAttrHistory_4_r_dims_array;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_w_dims;
-    guint32   i_Tango_DevAttrHistory_4_w_dims;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array;
-    guint32   i_Tango_DevAttrHistory_4_w_dims_array;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_errors;
-    guint32   i_Tango_DevAttrHistory_4_errors;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_4_errors_array;
-    guint32   i_Tango_DevAttrHistory_4_errors_array;
-    /* Operation specific Variable declarations End */
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevAttrHistory_4_name);
-
-    u_octet4_loop_Tango_DevAttrHistory_4_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_dates_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_dates);
-
-    for (i_Tango_DevAttrHistory_4_dates=0; i_Tango_DevAttrHistory_4_dates < u_octet4_loop_Tango_DevAttrHistory_4_dates; i_Tango_DevAttrHistory_4_dates++) {
-
-        /*  Begin struct "Tango_TimeVal"  */
-        decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_TimeVal"  */
-    }
-
-    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
-
-    u_octet4_loop_Tango_DevAttrHistory_4_quals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_quals_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_quals);
-
-    for (i_Tango_DevAttrHistory_4_quals=0; i_Tango_DevAttrHistory_4_quals < u_octet4_loop_Tango_DevAttrHistory_4_quals; i_Tango_DevAttrHistory_4_quals++) {
-
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_quals, tvb, *offset-4, 4, u_octet4);
-
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_quals_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_quals_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_quals_array);
-
-    for (i_Tango_DevAttrHistory_4_quals_array=0; i_Tango_DevAttrHistory_4_quals_array < u_octet4_loop_Tango_DevAttrHistory_4_quals_array; i_Tango_DevAttrHistory_4_quals_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_r_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_r_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_r_dims);
-
-    for (i_Tango_DevAttrHistory_4_r_dims=0; i_Tango_DevAttrHistory_4_r_dims < u_octet4_loop_Tango_DevAttrHistory_4_r_dims; i_Tango_DevAttrHistory_4_r_dims++) {
-
-        /*  Begin struct "Tango_AttributeDim"  */
-        decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_AttributeDim"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_r_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array);
-
-    for (i_Tango_DevAttrHistory_4_r_dims_array=0; i_Tango_DevAttrHistory_4_r_dims_array < u_octet4_loop_Tango_DevAttrHistory_4_r_dims_array; i_Tango_DevAttrHistory_4_r_dims_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_w_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_w_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_w_dims);
-
-    for (i_Tango_DevAttrHistory_4_w_dims=0; i_Tango_DevAttrHistory_4_w_dims < u_octet4_loop_Tango_DevAttrHistory_4_w_dims; i_Tango_DevAttrHistory_4_w_dims++) {
-
-        /*  Begin struct "Tango_AttributeDim"  */
-        decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_AttributeDim"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_w_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array);
-
-    for (i_Tango_DevAttrHistory_4_w_dims_array=0; i_Tango_DevAttrHistory_4_w_dims_array < u_octet4_loop_Tango_DevAttrHistory_4_w_dims_array; i_Tango_DevAttrHistory_4_w_dims_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_errors);
-
-    for (i_Tango_DevAttrHistory_4_errors=0; i_Tango_DevAttrHistory_4_errors < u_octet4_loop_Tango_DevAttrHistory_4_errors; i_Tango_DevAttrHistory_4_errors++) {
-
-        u_octet4_loop_Tango_DevAttrHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_errors);
-
-        for (i_Tango_DevAttrHistory_4_errors=0; i_Tango_DevAttrHistory_4_errors < u_octet4_loop_Tango_DevAttrHistory_4_errors; i_Tango_DevAttrHistory_4_errors++) {
-
-            /*  Begin struct "Tango_DevError"  */
-            decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevError"  */
         }
-
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_4_errors_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_4_errors_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_4_errors_array);
-
-    for (i_Tango_DevAttrHistory_4_errors_array=0; i_Tango_DevAttrHistory_4_errors_array < u_octet4_loop_Tango_DevAttrHistory_4_errors_array; i_Tango_DevAttrHistory_4_errors_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
+        tree = tree_bak_JpJDM8BEzPO9;
     }
 
 }
 
-/* Struct = IDL:Tango/DevAttrHistory_5:1.0 */
+/* Struct = IDL:Tango/AttributeConfig_3:1.0 */
 static void
-decode_Tango_DevAttrHistory_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_dates;
-    guint32   i_Tango_DevAttrHistory_5_dates;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_quals;
-    guint32   i_Tango_DevAttrHistory_5_quals;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_quals_array;
-    guint32   i_Tango_DevAttrHistory_5_quals_array;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_r_dims;
-    guint32   i_Tango_DevAttrHistory_5_r_dims;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array;
-    guint32   i_Tango_DevAttrHistory_5_r_dims_array;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_w_dims;
-    guint32   i_Tango_DevAttrHistory_5_w_dims;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array;
-    guint32   i_Tango_DevAttrHistory_5_w_dims_array;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_errors;
-    guint32   i_Tango_DevAttrHistory_5_errors;
-    guint32   u_octet4_loop_Tango_DevAttrHistory_5_errors_array;
-    guint32   i_Tango_DevAttrHistory_5_errors_array;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_3_extensions;
+    uint32_t  i_Tango_AttributeConfig_3_extensions;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_3_sys_extensions;
+    uint32_t  i_Tango_AttributeConfig_3_sys_extensions;
     /* Operation specific Variable declarations End */
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevAttrHistory_5_name);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_name);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_data_format, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_writable, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_int(tree, hf_Tango_DevAttrHistory_5_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_data_format, tvb, *offset-4, 4, u_octet4);
 
-    u_octet4_loop_Tango_DevAttrHistory_5_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_dates_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_dates);
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_3_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    for (i_Tango_DevAttrHistory_5_dates=0; i_Tango_DevAttrHistory_5_dates < u_octet4_loop_Tango_DevAttrHistory_5_dates; i_Tango_DevAttrHistory_5_dates++) {
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_3_max_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        /*  Begin struct "Tango_TimeVal"  */
-        decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_TimeVal"  */
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_3_max_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_description);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_label);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_standard_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_display_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_format);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_min_value);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_max_value);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_writable_attr_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_level, tvb, *offset-4, 4, u_octet4);
+
+    { /*  Begin struct "Tango_AttributeAlarm"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeAlarm");
+
+    decode_Tango_AttributeAlarm_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeAlarm"  */
+    { /*  Begin struct "Tango_EventProperties"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_EventProperties");
+
+    decode_Tango_EventProperties_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_EventProperties"  */
+    u_octet4_loop_Tango_AttributeConfig_3_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_extensions);
+
+    {
+        proto_tree *tree_bak_EaoFv0u58btC = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_3_extensions");
+        for (i_Tango_AttributeConfig_3_extensions=0; i_Tango_AttributeConfig_3_extensions < u_octet4_loop_Tango_AttributeConfig_3_extensions; i_Tango_AttributeConfig_3_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_extensions);
+
+        }
+        tree = tree_bak_EaoFv0u58btC;
     }
+
+    u_octet4_loop_Tango_AttributeConfig_3_sys_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_sys_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_sys_extensions);
+
+    {
+        proto_tree *tree_bak_xpKopp9FWbds = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_3_sys_extensions");
+        for (i_Tango_AttributeConfig_3_sys_extensions=0; i_Tango_AttributeConfig_3_sys_extensions < u_octet4_loop_Tango_AttributeConfig_3_sys_extensions; i_Tango_AttributeConfig_3_sys_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_3_sys_extensions);
+
+        }
+        tree = tree_bak_xpKopp9FWbds;
+    }
+
+}
+
+/* Struct = IDL:Tango/AttributeAlarm:1.0 */
+static void
+decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_AttributeAlarm_extensions;
+    uint32_t  i_Tango_AttributeAlarm_extensions;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_min_alarm);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_max_alarm);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_min_warning);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_max_warning);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_delta_t);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_delta_val);
+
+    u_octet4_loop_Tango_AttributeAlarm_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeAlarm_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeAlarm_extensions);
+
+    {
+        proto_tree *tree_bak_yTUeDXMJVUC8 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeAlarm_extensions");
+        for (i_Tango_AttributeAlarm_extensions=0; i_Tango_AttributeAlarm_extensions < u_octet4_loop_Tango_AttributeAlarm_extensions; i_Tango_AttributeAlarm_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeAlarm_extensions);
+
+        }
+        tree = tree_bak_yTUeDXMJVUC8;
+    }
+
+}
+
+/* Struct = IDL:Tango/EventProperties:1.0 */
+static void
+decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    { /*  Begin struct "Tango_ChangeEventProp"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_ChangeEventProp");
+
+    decode_Tango_ChangeEventProp_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_ChangeEventProp"  */
+    { /*  Begin struct "Tango_PeriodicEventProp"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_PeriodicEventProp");
+
+    decode_Tango_PeriodicEventProp_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_PeriodicEventProp"  */
+    { /*  Begin struct "Tango_ArchiveEventProp"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_ArchiveEventProp");
+
+    decode_Tango_ArchiveEventProp_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_ArchiveEventProp"  */
+}
+
+/* Struct = IDL:Tango/ArchiveEventProp:1.0 */
+static void
+decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_ArchiveEventProp_extensions;
+    uint32_t  i_Tango_ArchiveEventProp_extensions;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_rel_change);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_abs_change);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_period);
+
+    u_octet4_loop_Tango_ArchiveEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_ArchiveEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ArchiveEventProp_extensions);
+
+    {
+        proto_tree *tree_bak_uOb4tGdQJuT8 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_ArchiveEventProp_extensions");
+        for (i_Tango_ArchiveEventProp_extensions=0; i_Tango_ArchiveEventProp_extensions < u_octet4_loop_Tango_ArchiveEventProp_extensions; i_Tango_ArchiveEventProp_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ArchiveEventProp_extensions);
+
+        }
+        tree = tree_bak_uOb4tGdQJuT8;
+    }
+
+}
+
+/* Struct = IDL:Tango/PeriodicEventProp:1.0 */
+static void
+decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_PeriodicEventProp_extensions;
+    uint32_t  i_Tango_PeriodicEventProp_extensions;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PeriodicEventProp_period);
+
+    u_octet4_loop_Tango_PeriodicEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_PeriodicEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_PeriodicEventProp_extensions);
+
+    {
+        proto_tree *tree_bak_NFvjr2mcsIHD = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_PeriodicEventProp_extensions");
+        for (i_Tango_PeriodicEventProp_extensions=0; i_Tango_PeriodicEventProp_extensions < u_octet4_loop_Tango_PeriodicEventProp_extensions; i_Tango_PeriodicEventProp_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_PeriodicEventProp_extensions);
+
+        }
+        tree = tree_bak_NFvjr2mcsIHD;
+    }
+
+}
+
+/* Struct = IDL:Tango/ChangeEventProp:1.0 */
+static void
+decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_ChangeEventProp_extensions;
+    uint32_t  i_Tango_ChangeEventProp_extensions;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ChangeEventProp_rel_change);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ChangeEventProp_abs_change);
+
+    u_octet4_loop_Tango_ChangeEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_ChangeEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ChangeEventProp_extensions);
+
+    {
+        proto_tree *tree_bak_Q1bVznrqR9Hh = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_ChangeEventProp_extensions");
+        for (i_Tango_ChangeEventProp_extensions=0; i_Tango_ChangeEventProp_extensions < u_octet4_loop_Tango_ChangeEventProp_extensions; i_Tango_ChangeEventProp_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ChangeEventProp_extensions);
+
+        }
+        tree = tree_bak_Q1bVznrqR9Hh;
+    }
+
+}
+
+/* Struct = IDL:Tango/AttributeValue_5:1.0 */
+static void
+decode_Tango_AttributeValue_5_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeValue_5_err_list;
+    uint32_t  i_Tango_AttributeValue_5_err_list;
+    /* Operation specific Variable declarations End */
+
+    { /*  Begin union "Tango_AttrValUnion"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_AttrValUnion");
+
+    decode_Tango_AttrValUnion_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "Tango_AttrValUnion"  */
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_5_quality, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_5_data_format, tvb, *offset-4, 4, u_octet4);
+
+    proto_tree_add_int(tree, hf_Tango_AttributeValue_5_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    { /*  Begin struct "Tango_TimeVal"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
+
+    decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_TimeVal"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_5_name);
+
+    { /*  Begin struct "Tango_AttributeDim"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+    decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeDim"  */
+    { /*  Begin struct "Tango_AttributeDim"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+    decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeDim"  */
+    u_octet4_loop_Tango_AttributeValue_5_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_5_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeValue_5_err_list);
+
+    {
+        proto_tree *tree_bak_Hx1xM27kHYxu = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeValue_5_err_list");
+        for (i_Tango_AttributeValue_5_err_list=0; i_Tango_AttributeValue_5_err_list < u_octet4_loop_Tango_AttributeValue_5_err_list; i_Tango_AttributeValue_5_err_list++) {
+
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
+        }
+        tree = tree_bak_Hx1xM27kHYxu;
+    }
+
+}
+
+/* Struct = IDL:Tango/AttributeValue_4:1.0 */
+static void
+decode_Tango_AttributeValue_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeValue_4_err_list;
+    uint32_t  i_Tango_AttributeValue_4_err_list;
+    /* Operation specific Variable declarations End */
+
+    { /*  Begin union "Tango_AttrValUnion"  */
+    proto_tree *union_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_union, NULL, "union Tango_AttrValUnion");
+
+    decode_Tango_AttrValUnion_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
+
+    } /*  End union "Tango_AttrValUnion"  */
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_4_quality, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_4_data_format, tvb, *offset-4, 4, u_octet4);
+
+    { /*  Begin struct "Tango_TimeVal"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
+
+    decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_TimeVal"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_4_name);
+
+    { /*  Begin struct "Tango_AttributeDim"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+    decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeDim"  */
+    { /*  Begin struct "Tango_AttributeDim"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
+
+    decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeDim"  */
+    u_octet4_loop_Tango_AttributeValue_4_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_4_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeValue_4_err_list);
+
+    {
+        proto_tree *tree_bak_KRoJwdZzspvL = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeValue_4_err_list");
+        for (i_Tango_AttributeValue_4_err_list=0; i_Tango_AttributeValue_4_err_list < u_octet4_loop_Tango_AttributeValue_4_err_list; i_Tango_AttributeValue_4_err_list++) {
+
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
+        }
+        tree = tree_bak_KRoJwdZzspvL;
+    }
+
+}
+
+/* Struct = IDL:Tango/AttributeValue_3:1.0 */
+static void
+decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeValue_3_err_list;
+    uint32_t  i_Tango_AttributeValue_3_err_list;
+    /* Operation specific Variable declarations End */
 
     get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-    u_octet4_loop_Tango_DevAttrHistory_5_quals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_quals_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_quals);
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_3_quality, tvb, *offset-4, 4, u_octet4);
 
-    for (i_Tango_DevAttrHistory_5_quals=0; i_Tango_DevAttrHistory_5_quals < u_octet4_loop_Tango_DevAttrHistory_5_quals; i_Tango_DevAttrHistory_5_quals++) {
+    { /*  Begin struct "Tango_TimeVal"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
 
-        u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_quals, tvb, *offset-4, 4, u_octet4);
+    decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_TimeVal"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_3_name);
 
-    }
+    { /*  Begin struct "Tango_AttributeDim"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
 
-    u_octet4_loop_Tango_DevAttrHistory_5_quals_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_quals_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_quals_array);
+    decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeDim"  */
+    { /*  Begin struct "Tango_AttributeDim"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_AttributeDim");
 
-    for (i_Tango_DevAttrHistory_5_quals_array=0; i_Tango_DevAttrHistory_5_quals_array < u_octet4_loop_Tango_DevAttrHistory_5_quals_array; i_Tango_DevAttrHistory_5_quals_array++) {
+    decode_Tango_AttributeDim_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_AttributeDim"  */
+    u_octet4_loop_Tango_AttributeValue_3_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_3_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeValue_3_err_list);
 
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
+    {
+        proto_tree *tree_bak_6OgUuSfqeelC = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeValue_3_err_list");
+        for (i_Tango_AttributeValue_3_err_list=0; i_Tango_AttributeValue_3_err_list < u_octet4_loop_Tango_AttributeValue_3_err_list; i_Tango_AttributeValue_3_err_list++) {
 
-    u_octet4_loop_Tango_DevAttrHistory_5_r_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_r_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_r_dims);
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
 
-    for (i_Tango_DevAttrHistory_5_r_dims=0; i_Tango_DevAttrHistory_5_r_dims < u_octet4_loop_Tango_DevAttrHistory_5_r_dims; i_Tango_DevAttrHistory_5_r_dims++) {
-
-        /*  Begin struct "Tango_AttributeDim"  */
-        decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_AttributeDim"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_r_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array);
-
-    for (i_Tango_DevAttrHistory_5_r_dims_array=0; i_Tango_DevAttrHistory_5_r_dims_array < u_octet4_loop_Tango_DevAttrHistory_5_r_dims_array; i_Tango_DevAttrHistory_5_r_dims_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_5_w_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_w_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_w_dims);
-
-    for (i_Tango_DevAttrHistory_5_w_dims=0; i_Tango_DevAttrHistory_5_w_dims < u_octet4_loop_Tango_DevAttrHistory_5_w_dims; i_Tango_DevAttrHistory_5_w_dims++) {
-
-        /*  Begin struct "Tango_AttributeDim"  */
-        decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_AttributeDim"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_w_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array);
-
-    for (i_Tango_DevAttrHistory_5_w_dims_array=0; i_Tango_DevAttrHistory_5_w_dims_array < u_octet4_loop_Tango_DevAttrHistory_5_w_dims_array; i_Tango_DevAttrHistory_5_w_dims_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_5_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_errors);
-
-    for (i_Tango_DevAttrHistory_5_errors=0; i_Tango_DevAttrHistory_5_errors < u_octet4_loop_Tango_DevAttrHistory_5_errors; i_Tango_DevAttrHistory_5_errors++) {
-
-        u_octet4_loop_Tango_DevAttrHistory_5_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_errors);
-
-        for (i_Tango_DevAttrHistory_5_errors=0; i_Tango_DevAttrHistory_5_errors < u_octet4_loop_Tango_DevAttrHistory_5_errors; i_Tango_DevAttrHistory_5_errors++) {
-
-            /*  Begin struct "Tango_DevError"  */
-            decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevError"  */
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
         }
-
-    }
-
-    u_octet4_loop_Tango_DevAttrHistory_5_errors_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevAttrHistory_5_errors_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevAttrHistory_5_errors_array);
-
-    for (i_Tango_DevAttrHistory_5_errors_array=0; i_Tango_DevAttrHistory_5_errors_array < u_octet4_loop_Tango_DevAttrHistory_5_errors_array; i_Tango_DevAttrHistory_5_errors_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
+        tree = tree_bak_6OgUuSfqeelC;
     }
 
 }
 
-/* Struct = IDL:Tango/DevCmdHistory_4:1.0 */
+/* Struct = IDL:Tango/AttributeDim:1.0 */
 static void
-decode_Tango_DevCmdHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_int(tree, hf_Tango_AttributeDim_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_AttributeDim_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:Tango/AttributeValue:1.0 */
+static void
+decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_DevCmdHistory_4_dates;
-    guint32   i_Tango_DevCmdHistory_4_dates;
-    guint32   u_octet4_loop_Tango_DevCmdHistory_4_dims;
-    guint32   i_Tango_DevCmdHistory_4_dims;
-    guint32   u_octet4_loop_Tango_DevCmdHistory_4_dims_array;
-    guint32   i_Tango_DevCmdHistory_4_dims_array;
-    guint32   u_octet4_loop_Tango_DevCmdHistory_4_errors;
-    guint32   i_Tango_DevCmdHistory_4_errors;
-    guint32   u_octet4_loop_Tango_DevCmdHistory_4_errors_array;
-    guint32   i_Tango_DevCmdHistory_4_errors_array;
+    uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
-
-    u_octet4_loop_Tango_DevCmdHistory_4_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_dates_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_dates);
-
-    for (i_Tango_DevCmdHistory_4_dates=0; i_Tango_DevCmdHistory_4_dates < u_octet4_loop_Tango_DevCmdHistory_4_dates; i_Tango_DevCmdHistory_4_dates++) {
-
-        /*  Begin struct "Tango_TimeVal"  */
-        decode_Tango_TimeVal_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_TimeVal"  */
-    }
 
     get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
 
-    u_octet4_loop_Tango_DevCmdHistory_4_dims = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_dims_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_dims);
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeValue_quality, tvb, *offset-4, 4, u_octet4);
 
-    for (i_Tango_DevCmdHistory_4_dims=0; i_Tango_DevCmdHistory_4_dims < u_octet4_loop_Tango_DevCmdHistory_4_dims; i_Tango_DevCmdHistory_4_dims++) {
+    { /*  Begin struct "Tango_TimeVal"  */
+    proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_TimeVal");
 
-        /*  Begin struct "Tango_AttributeDim"  */
-        decode_Tango_AttributeDim_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_AttributeDim"  */
-    }
+    decode_Tango_TimeVal_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+    } /*  End struct "Tango_TimeVal"  */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeValue_name);
 
-    u_octet4_loop_Tango_DevCmdHistory_4_dims_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_dims_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_dims_array);
+    proto_tree_add_int(tree, hf_Tango_AttributeValue_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    for (i_Tango_DevCmdHistory_4_dims_array=0; i_Tango_DevCmdHistory_4_dims_array < u_octet4_loop_Tango_DevCmdHistory_4_dims_array; i_Tango_DevCmdHistory_4_dims_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    u_octet4_loop_Tango_DevCmdHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_errors);
-
-    for (i_Tango_DevCmdHistory_4_errors=0; i_Tango_DevCmdHistory_4_errors < u_octet4_loop_Tango_DevCmdHistory_4_errors; i_Tango_DevCmdHistory_4_errors++) {
-
-        u_octet4_loop_Tango_DevCmdHistory_4_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-        proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_errors_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_errors);
-
-        for (i_Tango_DevCmdHistory_4_errors=0; i_Tango_DevCmdHistory_4_errors < u_octet4_loop_Tango_DevCmdHistory_4_errors; i_Tango_DevCmdHistory_4_errors++) {
-
-            /*  Begin struct "Tango_DevError"  */
-            decode_Tango_DevError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevError"  */
-        }
-
-    }
-
-    u_octet4_loop_Tango_DevCmdHistory_4_errors_array = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_DevCmdHistory_4_errors_array_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevCmdHistory_4_errors_array);
-
-    for (i_Tango_DevCmdHistory_4_errors_array=0; i_Tango_DevCmdHistory_4_errors_array < u_octet4_loop_Tango_DevCmdHistory_4_errors_array; i_Tango_DevCmdHistory_4_errors_array++) {
-
-        /*  Begin struct "Tango_EltInArray"  */
-        decode_Tango_EltInArray_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_EltInArray"  */
-    }
-
-    proto_tree_add_int(tree, hf_Tango_DevCmdHistory_4_cmd_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_Tango_AttributeValue_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
-/* Struct = IDL:Tango/ZmqCallInfo:1.0 */
+/* Struct = IDL:Tango/AttributeConfig_2:1.0 */
 static void
-decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4_loop_Tango_ZmqCallInfo_oid;
-    const guint8 * binary_seq_Tango_ZmqCallInfo_oid;
-    gchar * text_seq_Tango_ZmqCallInfo_oid;
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_2_extensions;
+    uint32_t  i_Tango_AttributeConfig_2_extensions;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_int(tree, hf_Tango_ZmqCallInfo_version, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    proto_tree_add_uint(tree, hf_Tango_ZmqCallInfo_ctr, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_ZmqCallInfo_method_name);
-
-    u_octet4_loop_Tango_ZmqCallInfo_oid = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_ZmqCallInfo_oid_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ZmqCallInfo_oid);
-
-    if (u_octet4_loop_Tango_ZmqCallInfo_oid > 0 && tree) {
-        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_ZmqCallInfo_oid, offset,
-            u_octet4_loop_Tango_ZmqCallInfo_oid);
-        text_seq_Tango_ZmqCallInfo_oid = make_printable_string(pinfo->pool, binary_seq_Tango_ZmqCallInfo_oid,
-            u_octet4_loop_Tango_ZmqCallInfo_oid);
-        proto_tree_add_bytes_format_value(tree, hf_Tango_ZmqCallInfo_oid, tvb, *offset - u_octet4_loop_Tango_ZmqCallInfo_oid,
-            u_octet4_loop_Tango_ZmqCallInfo_oid, binary_seq_Tango_ZmqCallInfo_oid, "%s", text_seq_Tango_ZmqCallInfo_oid);
-    }
-
-    proto_tree_add_boolean(tree, hf_Tango_ZmqCallInfo_call_is_except, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
-
-}
-
-/* Union = IDL:Tango/ClntIdent:1.0 */
-static void
-decode_Tango_ClntIdent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item* item = NULL;
-
-    /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    gint32    disc_s_ClntIdent;
-    /* Operation specific Variable declarations End */
-
-    /*
-     * IDL Union Start - IDL:Tango/ClntIdent:1.0
-     */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_name);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_Tango_ClntIdent_ClntIdent, tvb, *offset-4, 4, u_octet4);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_writable, tvb, *offset-4, 4, u_octet4);
 
-    /*
-     * IDL Union - Discriminant - IDL:Tango/LockerLanguage:1.0
-     */
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_data_format, tvb, *offset-4, 4, u_octet4);
 
-    disc_s_ClntIdent = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_2_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    if (disc_s_ClntIdent == 0 ) {
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_2_max_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_Tango_ClntIdent_cpp_clnt, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_2_max_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        return;     /* End Compare for this discriminant type */
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_description);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_label);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_standard_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_display_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_format);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_min_value);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_max_value);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_min_alarm);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_max_alarm);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_writable_attr_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_level, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4_loop_Tango_AttributeConfig_2_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_2_extensions);
+
+    {
+        proto_tree *tree_bak_zb4bLzoEuRZW = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_2_extensions");
+        for (i_Tango_AttributeConfig_2_extensions=0; i_Tango_AttributeConfig_2_extensions < u_octet4_loop_Tango_AttributeConfig_2_extensions; i_Tango_AttributeConfig_2_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_2_extensions);
+
+        }
+        tree = tree_bak_zb4bLzoEuRZW;
     }
 
-    if (disc_s_ClntIdent == 1 ) {
+}
 
-        /*  Begin struct "Tango_JavaClntIdent"  */
-        decode_Tango_JavaClntIdent_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-        /*  End struct "Tango_JavaClntIdent"  */
-        return;     /* End Compare for this discriminant type */
+/* Struct = IDL:Tango/AttributeConfig:1.0 */
+static void
+decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    uint32_t  u_octet4_loop_Tango_AttributeConfig_extensions;
+    uint32_t  i_Tango_AttributeConfig_extensions;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_writable, tvb, *offset-4, 4, u_octet4);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_data_format, tvb, *offset-4, 4, u_octet4);
+
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_data_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_max_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_AttributeConfig_max_dim_y, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_description);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_label);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_standard_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_display_unit);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_format);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_min_value);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_max_value);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_min_alarm);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_max_alarm);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_writable_attr_name);
+
+    u_octet4_loop_Tango_AttributeConfig_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_AttributeConfig_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_extensions);
+
+    {
+        proto_tree *tree_bak_Z3QbbGInpPmD = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttributeConfig_extensions");
+        for (i_Tango_AttributeConfig_extensions=0; i_Tango_AttributeConfig_extensions < u_octet4_loop_Tango_AttributeConfig_extensions; i_Tango_AttributeConfig_extensions++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttributeConfig_extensions);
+
+        }
+        tree = tree_bak_Z3QbbGInpPmD;
+    }
+
+}
+
+/* Struct = IDL:Tango/NamedDevError:1.0 */
+static void
+decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_NamedDevError_err_list;
+    uint32_t  i_Tango_NamedDevError_err_list;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_NamedDevError_name);
+
+    proto_tree_add_int(tree, hf_Tango_NamedDevError_index_in_call, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    u_octet4_loop_Tango_NamedDevError_err_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_NamedDevError_err_list_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_NamedDevError_err_list);
+
+    {
+        proto_tree *tree_bak_s6NHUD01NG7G = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_NamedDevError_err_list");
+        for (i_Tango_NamedDevError_err_list=0; i_Tango_NamedDevError_err_list < u_octet4_loop_Tango_NamedDevError_err_list; i_Tango_NamedDevError_err_list++) {
+
+            { /*  Begin struct "Tango_DevError"  */
+            proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevError");
+
+            decode_Tango_DevError_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+            } /*  End struct "Tango_DevError"  */
+        }
+        tree = tree_bak_s6NHUD01NG7G;
+    }
+
+}
+
+/* Struct = IDL:Tango/DevError:1.0 */
+static void
+decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevError_reason);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevError_severity, tvb, *offset-4, 4, u_octet4);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevError_desc);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevError_origin);
+
+}
+
+/* Struct = IDL:Tango/DevCmdInfo_2:1.0 */
+static void
+decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_2_cmd_name);
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevCmdInfo_2_level, tvb, *offset-4, 4, u_octet4);
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_2_cmd_tag, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_2_in_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_2_out_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_2_in_type_desc);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_2_out_type_desc);
+
+}
+
+/* Struct = IDL:Tango/DevCmdInfo:1.0 */
+static void
+decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_cmd_name);
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_cmd_tag, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_in_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_DevCmdInfo_out_type, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_in_type_desc);
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_out_type_desc);
+
+}
+
+/* Struct = IDL:Tango/TimeVal:1.0 */
+static void
+decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    proto_tree_add_int(tree, hf_Tango_TimeVal_tv_sec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_TimeVal_tv_usec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    proto_tree_add_int(tree, hf_Tango_TimeVal_tv_nsec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+}
+
+/* Struct = IDL:Tango/JavaClntIdent:1.0 */
+static void
+decode_Tango_JavaClntIdent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  i_Tango_JavaClntIdent_uuid;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_JavaClntIdent_MainClass);
+
+    /* Array: Tango_JavaClntIdent_uuid[ 2 ]  */
+
+    {
+        proto_tree *tree_bak_k56N3ahfYjMD = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_array, NULL, "array Tango_JavaClntIdent_uuid");
+        for (i_Tango_JavaClntIdent_uuid=0; i_Tango_JavaClntIdent_uuid < 2 ; i_Tango_JavaClntIdent_uuid++) {
+
+            proto_tree_add_uint64(tree, hf_Tango_JavaClntIdent_uuid, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
+
+        }
+        tree = tree_bak_k56N3ahfYjMD;
+    }
+
+}
+
+/* Struct = IDL:Tango/DevEncoded:1.0 */
+static void
+decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_DevEncoded_encoded_data;
+    const uint8_t * binary_seq_Tango_DevEncoded_encoded_data;
+    char * text_seq_Tango_DevEncoded_encoded_data;
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevEncoded_encoded_format);
+
+    u_octet4_loop_Tango_DevEncoded_encoded_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevEncoded_encoded_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevEncoded_encoded_data);
+
+    if (u_octet4_loop_Tango_DevEncoded_encoded_data > 0 && tree) {
+        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_DevEncoded_encoded_data, offset,
+            u_octet4_loop_Tango_DevEncoded_encoded_data);
+        text_seq_Tango_DevEncoded_encoded_data = make_printable_string(pinfo->pool, binary_seq_Tango_DevEncoded_encoded_data,
+            u_octet4_loop_Tango_DevEncoded_encoded_data);
+        proto_tree_add_bytes_format_value(tree, hf_Tango_DevEncoded_encoded_data, tvb, *offset - u_octet4_loop_Tango_DevEncoded_encoded_data,
+            u_octet4_loop_Tango_DevEncoded_encoded_data, binary_seq_Tango_DevEncoded_encoded_data, "%s", text_seq_Tango_DevEncoded_encoded_data);
+    }
+
+}
+
+/* Struct = IDL:Tango/DevVarDoubleStringArray:1.0 */
+static void
+decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue;
+    uint32_t  i_Tango_DevVarDoubleStringArray_dvalue;
+    uint32_t  u_octet4_loop_Tango_DevVarDoubleStringArray_svalue;
+    uint32_t  i_Tango_DevVarDoubleStringArray_svalue;
+    /* Operation specific Variable declarations End */
+
+    u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_dvalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue);
+
+    {
+        proto_tree *tree_bak_92p5bLWB1niF = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevVarDoubleStringArray_dvalue");
+        for (i_Tango_DevVarDoubleStringArray_dvalue=0; i_Tango_DevVarDoubleStringArray_dvalue < u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue; i_Tango_DevVarDoubleStringArray_dvalue++) {
+
+            proto_tree_add_double(tree, hf_Tango_DevVarDoubleStringArray_dvalue, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+
+        }
+        tree = tree_bak_92p5bLWB1niF;
+    }
+
+    u_octet4_loop_Tango_DevVarDoubleStringArray_svalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_svalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_svalue);
+
+    {
+        proto_tree *tree_bak_JysC5Ru8VBsm = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevVarDoubleStringArray_svalue");
+        for (i_Tango_DevVarDoubleStringArray_svalue=0; i_Tango_DevVarDoubleStringArray_svalue < u_octet4_loop_Tango_DevVarDoubleStringArray_svalue; i_Tango_DevVarDoubleStringArray_svalue++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevVarDoubleStringArray_svalue);
+
+        }
+        tree = tree_bak_JysC5Ru8VBsm;
+    }
+
+}
+
+/* Struct = IDL:Tango/DevVarLongStringArray:1.0 */
+static void
+decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4_loop_Tango_DevVarLongStringArray_lvalue;
+    uint32_t  i_Tango_DevVarLongStringArray_lvalue;
+    uint32_t  u_octet4_loop_Tango_DevVarLongStringArray_svalue;
+    uint32_t  i_Tango_DevVarLongStringArray_svalue;
+    /* Operation specific Variable declarations End */
+
+    u_octet4_loop_Tango_DevVarLongStringArray_lvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_lvalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_lvalue);
+
+    {
+        proto_tree *tree_bak_XYuvccCu6rL6 = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevVarLongStringArray_lvalue");
+        for (i_Tango_DevVarLongStringArray_lvalue=0; i_Tango_DevVarLongStringArray_lvalue < u_octet4_loop_Tango_DevVarLongStringArray_lvalue; i_Tango_DevVarLongStringArray_lvalue++) {
+
+            proto_tree_add_int(tree, hf_Tango_DevVarLongStringArray_lvalue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+        }
+        tree = tree_bak_XYuvccCu6rL6;
+    }
+
+    u_octet4_loop_Tango_DevVarLongStringArray_svalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_svalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_svalue);
+
+    {
+        proto_tree *tree_bak_QTOMCDRrzCiX = tree;
+        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevVarLongStringArray_svalue");
+        for (i_Tango_DevVarLongStringArray_svalue=0; i_Tango_DevVarLongStringArray_svalue < u_octet4_loop_Tango_DevVarLongStringArray_svalue; i_Tango_DevVarLongStringArray_svalue++) {
+
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevVarLongStringArray_svalue);
+
+        }
+        tree = tree_bak_QTOMCDRrzCiX;
     }
 
 }
 
 /* Union = IDL:Tango/AttrValUnion:1.0 */
 static void
-decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
-    guint32   u_octet4;
-    gint32    disc_s_AttrValUnion;
-    guint32   u_octet4_loop_Tango_AttrValUnion_bool_att_value;
-    guint32   i_Tango_AttrValUnion_bool_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_short_att_value;
-    guint32   i_Tango_AttrValUnion_short_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_long_att_value;
-    guint32   i_Tango_AttrValUnion_long_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_long64_att_value;
-    guint32   i_Tango_AttrValUnion_long64_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_float_att_value;
-    guint32   i_Tango_AttrValUnion_float_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_double_att_value;
-    guint32   i_Tango_AttrValUnion_double_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_uchar_att_value;
-    const guint8 * binary_seq_Tango_AttrValUnion_uchar_att_value;
-    gchar * text_seq_Tango_AttrValUnion_uchar_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_ushort_att_value;
-    guint32   i_Tango_AttrValUnion_ushort_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_ulong_att_value;
-    guint32   i_Tango_AttrValUnion_ulong_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_ulong64_att_value;
-    guint32   i_Tango_AttrValUnion_ulong64_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_string_att_value;
-    guint32   i_Tango_AttrValUnion_string_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_state_att_value;
-    guint32   i_Tango_AttrValUnion_state_att_value;
-    guint32   u_octet4_loop_Tango_AttrValUnion_encoded_att_value;
-    guint32   i_Tango_AttrValUnion_encoded_att_value;
+    uint32_t  u_octet4;
+    int32_t   disc_s_AttrValUnion;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_bool_att_value;
+    uint32_t  i_Tango_AttrValUnion_bool_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_short_att_value;
+    uint32_t  i_Tango_AttrValUnion_short_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_long_att_value;
+    uint32_t  i_Tango_AttrValUnion_long_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_long64_att_value;
+    uint32_t  i_Tango_AttrValUnion_long64_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_float_att_value;
+    uint32_t  i_Tango_AttrValUnion_float_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_double_att_value;
+    uint32_t  i_Tango_AttrValUnion_double_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_uchar_att_value;
+    const uint8_t * binary_seq_Tango_AttrValUnion_uchar_att_value;
+    char * text_seq_Tango_AttrValUnion_uchar_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_ushort_att_value;
+    uint32_t  i_Tango_AttrValUnion_ushort_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_ulong_att_value;
+    uint32_t  i_Tango_AttrValUnion_ulong_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_ulong64_att_value;
+    uint32_t  i_Tango_AttrValUnion_ulong64_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_string_att_value;
+    uint32_t  i_Tango_AttrValUnion_string_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_state_att_value;
+    uint32_t  i_Tango_AttrValUnion_state_att_value;
+    uint32_t  u_octet4_loop_Tango_AttrValUnion_encoded_att_value;
+    uint32_t  i_Tango_AttrValUnion_encoded_att_value;
     /* Operation specific Variable declarations End */
 
     /*
@@ -4245,17 +4887,22 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
      * IDL Union - Discriminant - IDL:Tango/AttributeDataType:1.0
      */
 
-    disc_s_AttrValUnion = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    disc_s_AttrValUnion = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
 
     if (disc_s_AttrValUnion == 0 ) {
 
         u_octet4_loop_Tango_AttrValUnion_bool_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_bool_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_bool_att_value);
 
-        for (i_Tango_AttrValUnion_bool_att_value=0; i_Tango_AttrValUnion_bool_att_value < u_octet4_loop_Tango_AttrValUnion_bool_att_value; i_Tango_AttrValUnion_bool_att_value++) {
+        {
+            proto_tree *tree_bak_d7O0zjPDfbWx = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_bool_att_value");
+            for (i_Tango_AttrValUnion_bool_att_value=0; i_Tango_AttrValUnion_bool_att_value < u_octet4_loop_Tango_AttrValUnion_bool_att_value; i_Tango_AttrValUnion_bool_att_value++) {
 
-            proto_tree_add_boolean(tree, hf_Tango_AttrValUnion_bool_att_value, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+                proto_tree_add_boolean(tree, hf_Tango_AttrValUnion_bool_att_value, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
+            }
+            tree = tree_bak_d7O0zjPDfbWx;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4266,10 +4913,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_short_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_short_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_short_att_value);
 
-        for (i_Tango_AttrValUnion_short_att_value=0; i_Tango_AttrValUnion_short_att_value < u_octet4_loop_Tango_AttrValUnion_short_att_value; i_Tango_AttrValUnion_short_att_value++) {
+        {
+            proto_tree *tree_bak_6KyqklOP3OSJ = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_short_att_value");
+            for (i_Tango_AttrValUnion_short_att_value=0; i_Tango_AttrValUnion_short_att_value < u_octet4_loop_Tango_AttrValUnion_short_att_value; i_Tango_AttrValUnion_short_att_value++) {
 
-            proto_tree_add_int(tree, hf_Tango_AttrValUnion_short_att_value, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_int(tree, hf_Tango_AttrValUnion_short_att_value, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_6KyqklOP3OSJ;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4280,10 +4932,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_long_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_long_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_long_att_value);
 
-        for (i_Tango_AttrValUnion_long_att_value=0; i_Tango_AttrValUnion_long_att_value < u_octet4_loop_Tango_AttrValUnion_long_att_value; i_Tango_AttrValUnion_long_att_value++) {
+        {
+            proto_tree *tree_bak_UHbSfM7UsXhE = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_long_att_value");
+            for (i_Tango_AttrValUnion_long_att_value=0; i_Tango_AttrValUnion_long_att_value < u_octet4_loop_Tango_AttrValUnion_long_att_value; i_Tango_AttrValUnion_long_att_value++) {
 
-            proto_tree_add_int(tree, hf_Tango_AttrValUnion_long_att_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_int(tree, hf_Tango_AttrValUnion_long_att_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_UHbSfM7UsXhE;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4294,10 +4951,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_long64_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_long64_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_long64_att_value);
 
-        for (i_Tango_AttrValUnion_long64_att_value=0; i_Tango_AttrValUnion_long64_att_value < u_octet4_loop_Tango_AttrValUnion_long64_att_value; i_Tango_AttrValUnion_long64_att_value++) {
+        {
+            proto_tree *tree_bak_wWUXi0SDmn0e = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_long64_att_value");
+            for (i_Tango_AttrValUnion_long64_att_value=0; i_Tango_AttrValUnion_long64_att_value < u_octet4_loop_Tango_AttrValUnion_long64_att_value; i_Tango_AttrValUnion_long64_att_value++) {
 
-            proto_tree_add_int64(tree, hf_Tango_AttrValUnion_long64_att_value, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_int64(tree, hf_Tango_AttrValUnion_long64_att_value, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_wWUXi0SDmn0e;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4308,10 +4970,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_float_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_float_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_float_att_value);
 
-        for (i_Tango_AttrValUnion_float_att_value=0; i_Tango_AttrValUnion_float_att_value < u_octet4_loop_Tango_AttrValUnion_float_att_value; i_Tango_AttrValUnion_float_att_value++) {
+        {
+            proto_tree *tree_bak_ob8cSSwTbMlW = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_float_att_value");
+            for (i_Tango_AttrValUnion_float_att_value=0; i_Tango_AttrValUnion_float_att_value < u_octet4_loop_Tango_AttrValUnion_float_att_value; i_Tango_AttrValUnion_float_att_value++) {
 
-            proto_tree_add_float(tree, hf_Tango_AttrValUnion_float_att_value, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_float(tree, hf_Tango_AttrValUnion_float_att_value, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_ob8cSSwTbMlW;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4322,10 +4989,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_double_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_double_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_double_att_value);
 
-        for (i_Tango_AttrValUnion_double_att_value=0; i_Tango_AttrValUnion_double_att_value < u_octet4_loop_Tango_AttrValUnion_double_att_value; i_Tango_AttrValUnion_double_att_value++) {
+        {
+            proto_tree *tree_bak_H3ARIT35KwH9 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_double_att_value");
+            for (i_Tango_AttrValUnion_double_att_value=0; i_Tango_AttrValUnion_double_att_value < u_octet4_loop_Tango_AttrValUnion_double_att_value; i_Tango_AttrValUnion_double_att_value++) {
 
-            proto_tree_add_double(tree, hf_Tango_AttrValUnion_double_att_value, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_double(tree, hf_Tango_AttrValUnion_double_att_value, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_H3ARIT35KwH9;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4353,10 +5025,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_ushort_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ushort_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_ushort_att_value);
 
-        for (i_Tango_AttrValUnion_ushort_att_value=0; i_Tango_AttrValUnion_ushort_att_value < u_octet4_loop_Tango_AttrValUnion_ushort_att_value; i_Tango_AttrValUnion_ushort_att_value++) {
+        {
+            proto_tree *tree_bak_wHYrtPCrSHzc = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_ushort_att_value");
+            for (i_Tango_AttrValUnion_ushort_att_value=0; i_Tango_AttrValUnion_ushort_att_value < u_octet4_loop_Tango_AttrValUnion_ushort_att_value; i_Tango_AttrValUnion_ushort_att_value++) {
 
-            proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ushort_att_value, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ushort_att_value, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_wHYrtPCrSHzc;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4367,10 +5044,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_ulong_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ulong_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_ulong_att_value);
 
-        for (i_Tango_AttrValUnion_ulong_att_value=0; i_Tango_AttrValUnion_ulong_att_value < u_octet4_loop_Tango_AttrValUnion_ulong_att_value; i_Tango_AttrValUnion_ulong_att_value++) {
+        {
+            proto_tree *tree_bak_vC5YHUZMkJTw = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_ulong_att_value");
+            for (i_Tango_AttrValUnion_ulong_att_value=0; i_Tango_AttrValUnion_ulong_att_value < u_octet4_loop_Tango_AttrValUnion_ulong_att_value; i_Tango_AttrValUnion_ulong_att_value++) {
 
-            proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ulong_att_value, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ulong_att_value, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_vC5YHUZMkJTw;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4381,10 +5063,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_ulong64_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_ulong64_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_ulong64_att_value);
 
-        for (i_Tango_AttrValUnion_ulong64_att_value=0; i_Tango_AttrValUnion_ulong64_att_value < u_octet4_loop_Tango_AttrValUnion_ulong64_att_value; i_Tango_AttrValUnion_ulong64_att_value++) {
+        {
+            proto_tree *tree_bak_8JVu79sjsDIX = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_ulong64_att_value");
+            for (i_Tango_AttrValUnion_ulong64_att_value=0; i_Tango_AttrValUnion_ulong64_att_value < u_octet4_loop_Tango_AttrValUnion_ulong64_att_value; i_Tango_AttrValUnion_ulong64_att_value++) {
 
-            proto_tree_add_uint64(tree, hf_Tango_AttrValUnion_ulong64_att_value, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
+                proto_tree_add_uint64(tree, hf_Tango_AttrValUnion_ulong64_att_value, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
 
+            }
+            tree = tree_bak_8JVu79sjsDIX;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4395,10 +5082,15 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_string_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_string_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_string_att_value);
 
-        for (i_Tango_AttrValUnion_string_att_value=0; i_Tango_AttrValUnion_string_att_value < u_octet4_loop_Tango_AttrValUnion_string_att_value; i_Tango_AttrValUnion_string_att_value++) {
+        {
+            proto_tree *tree_bak_wAuLVRhJN8h2 = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_string_att_value");
+            for (i_Tango_AttrValUnion_string_att_value=0; i_Tango_AttrValUnion_string_att_value < u_octet4_loop_Tango_AttrValUnion_string_att_value; i_Tango_AttrValUnion_string_att_value++) {
 
-            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttrValUnion_string_att_value);
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_AttrValUnion_string_att_value);
 
+            }
+            tree = tree_bak_wAuLVRhJN8h2;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4409,11 +5101,16 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_state_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_state_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_state_att_value);
 
-        for (i_Tango_AttrValUnion_state_att_value=0; i_Tango_AttrValUnion_state_att_value < u_octet4_loop_Tango_AttrValUnion_state_att_value; i_Tango_AttrValUnion_state_att_value++) {
+        {
+            proto_tree *tree_bak_a7BOWuAemwww = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_state_att_value");
+            for (i_Tango_AttrValUnion_state_att_value=0; i_Tango_AttrValUnion_state_att_value < u_octet4_loop_Tango_AttrValUnion_state_att_value; i_Tango_AttrValUnion_state_att_value++) {
 
-            u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-            proto_tree_add_uint(tree, hf_Tango_AttrValUnion_state_att_value, tvb, *offset-4, 4, u_octet4);
+                u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+                proto_tree_add_uint(tree, hf_Tango_AttrValUnion_state_att_value, tvb, *offset-4, 4, u_octet4);
 
+            }
+            tree = tree_bak_a7BOWuAemwww;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4432,11 +5129,18 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
         u_octet4_loop_Tango_AttrValUnion_encoded_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_encoded_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_encoded_att_value);
 
-        for (i_Tango_AttrValUnion_encoded_att_value=0; i_Tango_AttrValUnion_encoded_att_value < u_octet4_loop_Tango_AttrValUnion_encoded_att_value; i_Tango_AttrValUnion_encoded_att_value++) {
+        {
+            proto_tree *tree_bak_doTteuWjvkiY = tree;
+            tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_AttrValUnion_encoded_att_value");
+            for (i_Tango_AttrValUnion_encoded_att_value=0; i_Tango_AttrValUnion_encoded_att_value < u_octet4_loop_Tango_AttrValUnion_encoded_att_value; i_Tango_AttrValUnion_encoded_att_value++) {
 
-            /*  Begin struct "Tango_DevEncoded"  */
-            decode_Tango_DevEncoded_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            /*  End struct "Tango_DevEncoded"  */
+                { /*  Begin struct "Tango_DevEncoded"  */
+                proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_DevEncoded");
+
+                decode_Tango_DevEncoded_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+                } /*  End struct "Tango_DevEncoded"  */
+            }
+            tree = tree_bak_doTteuWjvkiY;
         }
 
         return;     /* End Compare for this discriminant type */
@@ -4446,6 +5150,49 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
 
         proto_tree_add_boolean(tree, hf_Tango_AttrValUnion_union_no_data, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
+        return;     /* End Compare for this discriminant type */
+    }
+
+}
+
+/* Union = IDL:Tango/ClntIdent:1.0 */
+static void
+decode_Tango_ClntIdent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
+{
+    proto_item* item = NULL;
+
+    /* Operation specific Variable declarations Begin */
+    uint32_t  u_octet4;
+    int32_t   disc_s_ClntIdent;
+    /* Operation specific Variable declarations End */
+
+    /*
+     * IDL Union Start - IDL:Tango/ClntIdent:1.0
+     */
+
+    u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    proto_tree_add_uint(tree, hf_Tango_ClntIdent_ClntIdent, tvb, *offset-4, 4, u_octet4);
+
+    /*
+     * IDL Union - Discriminant - IDL:Tango/LockerLanguage:1.0
+     */
+
+    disc_s_ClntIdent = (int32_t) u_octet4;     /* save Enum Value  discriminant and cast to int32_t */
+
+    if (disc_s_ClntIdent == 0 ) {
+
+        proto_tree_add_uint(tree, hf_Tango_ClntIdent_cpp_clnt, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+
+        return;     /* End Compare for this discriminant type */
+    }
+
+    if (disc_s_ClntIdent == 1 ) {
+
+        { /*  Begin struct "Tango_JavaClntIdent"  */
+        proto_tree *struct_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_struct, NULL, "struct Tango_JavaClntIdent");
+
+        decode_Tango_JavaClntIdent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
+        } /*  End struct "Tango_JavaClntIdent"  */
         return;     /* End Compare for this discriminant type */
     }
 
@@ -4480,7 +5227,7 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
 }
 
 static proto_item*
-process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, const gchar *operation)
+process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, const char *operation)
 {
     proto_item *pi;
     if(header->message_type == Reply) {
@@ -4493,12 +5240,12 @@ process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, M
     return pi;
 }
 
-static gboolean
-dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, const gchar *operation, gchar *idlname)
+static bool
+dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, const char *operation, char *idlname)
 {
     proto_item *item _U_;
     proto_tree *tree _U_;
-    gboolean stream_is_big_endian = is_big_endian(header); /* get endianess */
+    bool stream_is_big_endian = is_big_endian(header); /* get endianess */
 
     /* If we have a USER Exception, then decode it and return */
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
@@ -4510,308 +5257,12 @@ dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
     case Request:
     case Reply:
 
-        if (strcmp(operation, "command_inout") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_command_inout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_attribute_config") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_get_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_attribute_config") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_set_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attributes") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_read_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "write_attributes") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_write_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "ping") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_ping(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "black_box") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_black_box(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "info") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_info(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_list_query") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_command_list_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_query") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_command_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_inout_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_command_inout_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attributes_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_read_attributes_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_attribute_config_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_get_attribute_config_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_list_query_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_command_list_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_query_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_command_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_inout_history_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_command_inout_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attribute_history_2") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_2_read_attribute_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attributes_3") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_3_read_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "write_attributes_3") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_3_write_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attribute_history_3") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_3_read_attribute_history_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "info_3") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_3_info_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_attribute_config_3") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_3_get_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_attribute_config_3") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_3_set_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attribute_history_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_read_attribute_history_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_inout_history_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_command_inout_history_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "command_inout_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_command_inout_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attributes_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_read_attributes_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "write_attributes_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_write_attributes_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_attribute_config_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_set_attribute_config_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "write_read_attributes_4") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_4_write_read_attributes_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_attribute_config_5") == 0
+        if (strcmp(operation, "write_read_pipe_5") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
             item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
             tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_get_attribute_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_attribute_config_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_set_attribute_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attributes_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_read_attributes_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "write_read_attributes_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_write_read_attributes_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_attribute_history_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_read_attribute_history_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "get_pipe_config_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_get_pipe_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "set_pipe_config_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_set_pipe_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
-        }
-
-        if (strcmp(operation, "read_pipe_5") == 0
-            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
-            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-            tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_read_pipe_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            decode_Tango_Device_5_write_read_pipe_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
         }
 
         if (strcmp(operation, "write_pipe_5") == 0
@@ -4819,45 +5270,341 @@ dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
             item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_Tango_Device_5_write_pipe_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
-        if (strcmp(operation, "write_read_pipe_5") == 0
+        if (strcmp(operation, "read_pipe_5") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
             item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
             tree = start_dissecting(tvb, pinfo, ptree, offset);
-            decode_Tango_Device_5_write_read_pipe_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            decode_Tango_Device_5_read_pipe_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_pipe_config_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_set_pipe_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_pipe_config_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_get_pipe_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attribute_history_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_read_attribute_history_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "write_read_attributes_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_write_read_attributes_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attributes_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_read_attributes_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_attribute_config_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_set_attribute_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_attribute_config_5") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_5") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_5_get_attribute_config_5(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "write_read_attributes_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_write_read_attributes_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_attribute_config_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_set_attribute_config_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "write_attributes_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_write_attributes_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attributes_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_read_attributes_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_inout_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_command_inout_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_inout_history_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_command_inout_history_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attribute_history_4") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_4") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_4_read_attribute_history_4(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_attribute_config_3") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_set_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_attribute_config_3") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_get_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "info_3") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_info_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attribute_history_3") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_read_attribute_history_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "write_attributes_3") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_write_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attributes_3") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_read_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attribute_history_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_read_attribute_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_inout_history_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_inout_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_query_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_list_query_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_list_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_attribute_config_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_get_attribute_config_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attributes_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_read_attributes_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_inout_2") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_inout_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_query") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_command_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_list_query") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_command_list_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "info") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_info(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "black_box") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_black_box(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "ping") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_ping(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "write_attributes") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_write_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "read_attributes") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_read_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "set_attribute_config") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_set_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "get_attribute_config") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_get_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
+        }
+
+        if (strcmp(operation, "command_inout") == 0
+            && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_command_inout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return true;
         }
 
         if (strcmp(operation, get_Tango_Device_name_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_get_Tango_Device_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
         if (strcmp(operation, get_Tango_Device_description_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_get_Tango_Device_description_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
         if (strcmp(operation, get_Tango_Device_state_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_get_Tango_Device_state_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
         if (strcmp(operation, get_Tango_Device_status_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_get_Tango_Device_status_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
         if (strcmp(operation, get_Tango_Device_adm_name_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
             tree = start_dissecting(tvb, pinfo, ptree, offset);
             decode_get_Tango_Device_adm_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-            return TRUE;
+            return true;
         }
 
         break;
@@ -4868,15 +5615,15 @@ dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
     case CloseConnection:
     case MessageError:
     case Fragment:
-       return FALSE;      /* not handled yet */
+       return false;      /* not handled yet */
 
     default:
-       return FALSE;      /* not handled yet */
+       return false;      /* not handled yet */
 
     }   /* switch */
 
 
-    return FALSE;
+    return false;
 
 }  /* End of main dissector  */
 
@@ -4889,82 +5636,82 @@ void proto_register_giop_tango(void)
         /* field that indicates the currently ongoing request/reply exchange */
             {&hf_operationrequest, {"Request_Operation","giop-tango.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Operation filters */
-        {&hf_Tango_Device_command_inout_command, {"command","giop-tango.Device.command_inout.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_get_attribute_config_return_loop, {"Seq length of AttributeConfigList","giop-tango.Device.get_attribute_config.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_get_attribute_config_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_get_attribute_config_names, {"names","giop-tango.Device.get_attribute_config.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_set_attribute_config_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_read_attributes_return_loop, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_read_attributes_names_loop, {"Seq length of names","giop-tango.Device.read_attributes.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_read_attributes_names, {"names","giop-tango.Device.read_attributes.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_write_attributes_values_loop, {"Seq length of values","giop-tango.Device.write_attributes.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_black_box_return_loop, {"Seq length of DevVarStringArray","giop-tango.Device.black_box.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_black_box_return, {"DevVarStringArray","giop-tango.Device.black_box.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_black_box_n, {"n","giop-tango.Device.black_box.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_command_list_query_return_loop, {"Seq length of DevCmdInfoList","giop-tango.Device.command_list_query.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_command_query_command, {"command","giop-tango.Device.command_query.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_inout_2_command, {"command","giop-tango.Device.command_inout_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_inout_2_source, {"source","giop-tango.Device.command_inout_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attributes_2_return_loop, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attributes_2_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_2.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attributes_2_names, {"names","giop-tango.Device.read_attributes_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attributes_2_source, {"source","giop-tango.Device.read_attributes_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_get_attribute_config_2_return_loop, {"Seq length of AttributeConfigList_2","giop-tango.Device.get_attribute_config_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_get_attribute_config_2_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_2.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_get_attribute_config_2_names, {"names","giop-tango.Device.get_attribute_config_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_list_query_2_return_loop, {"Seq length of DevCmdInfoList_2","giop-tango.Device.command_list_query_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_query_2_command, {"command","giop-tango.Device.command_query_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_inout_history_2_return_loop, {"Seq length of DevCmdHistoryList","giop-tango.Device.command_inout_history_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_inout_history_2_command, {"command","giop-tango.Device.command_inout_history_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_command_inout_history_2_n, {"n","giop-tango.Device.command_inout_history_2.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attribute_history_2_return_loop, {"Seq length of DevAttrHistoryList","giop-tango.Device.read_attribute_history_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attribute_history_2_name, {"name","giop-tango.Device.read_attribute_history_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attribute_history_2_n, {"n","giop-tango.Device.read_attribute_history_2.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attributes_3_return_loop, {"Seq length of AttributeValueList_3","giop-tango.Device.read_attributes_3.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attributes_3_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_3.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attributes_3_names, {"names","giop-tango.Device.read_attributes_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attributes_3_source, {"source","giop-tango.Device.read_attributes_3.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_write_attributes_3_values_loop, {"Seq length of values","giop-tango.Device.write_attributes_3.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attribute_history_3_return_loop, {"Seq length of DevAttrHistoryList_3","giop-tango.Device.read_attribute_history_3.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attribute_history_3_name, {"name","giop-tango.Device.read_attribute_history_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attribute_history_3_n, {"n","giop-tango.Device.read_attribute_history_3.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_get_attribute_config_3_return_loop, {"Seq length of AttributeConfigList_3","giop-tango.Device.get_attribute_config_3.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_get_attribute_config_3_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_3.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_get_attribute_config_3_names, {"names","giop-tango.Device.get_attribute_config_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_set_attribute_config_3_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_3.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_read_attribute_history_4_name, {"name","giop-tango.Device.read_attribute_history_4.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_read_attribute_history_4_n, {"n","giop-tango.Device.read_attribute_history_4.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_command_inout_history_4_command, {"command","giop-tango.Device.command_inout_history_4.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_command_inout_history_4_n, {"n","giop-tango.Device.command_inout_history_4.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_command_inout_4_command, {"command","giop-tango.Device.command_inout_4.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_command_inout_4_source, {"source","giop-tango.Device.command_inout_4.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_read_attributes_4_return_loop, {"Seq length of AttributeValueList_4","giop-tango.Device.read_attributes_4.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_read_attributes_4_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_4.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_read_attributes_4_names, {"names","giop-tango.Device.read_attributes_4.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_read_attributes_4_source, {"source","giop-tango.Device.read_attributes_4.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_write_attributes_4_values_loop, {"Seq length of values","giop-tango.Device.write_attributes_4.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_set_attribute_config_4_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_4.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_write_read_attributes_4_return_loop, {"Seq length of AttributeValueList_4","giop-tango.Device.write_read_attributes_4.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_4_write_read_attributes_4_values_loop, {"Seq length of values","giop-tango.Device.write_read_attributes_4.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_get_attribute_config_5_return_loop, {"Seq length of AttributeConfigList_5","giop-tango.Device.get_attribute_config_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_get_attribute_config_5_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_5.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_get_attribute_config_5_names, {"names","giop-tango.Device.get_attribute_config_5.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_set_attribute_config_5_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_5.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_attributes_5_return_loop, {"Seq length of AttributeValueList_5","giop-tango.Device.read_attributes_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_attributes_5_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_5.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_attributes_5_names, {"names","giop-tango.Device.read_attributes_5.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_attributes_5_source, {"source","giop-tango.Device.read_attributes_5.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_pipe_5_name, {"name","giop-tango.Device.read_pipe_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_set_pipe_config_5_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_pipe_config_5.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_get_pipe_config_5_return_loop, {"Seq length of PipeConfigList","giop-tango.Device.get_pipe_config_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_get_pipe_config_5_names_loop, {"Seq length of names","giop-tango.Device.get_pipe_config_5.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_get_pipe_config_5_names, {"names","giop-tango.Device.get_pipe_config_5.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_attribute_history_5_name, {"name","giop-tango.Device.read_attribute_history_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_attribute_history_5_n, {"n","giop-tango.Device.read_attribute_history_5.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_5_write_read_attributes_5_return_loop, {"Seq length of AttributeValueList_5","giop-tango.Device.write_read_attributes_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_5_write_read_attributes_5_values_loop, {"Seq length of values","giop-tango.Device.write_read_attributes_5.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_5_write_read_attributes_5_r_names_loop, {"Seq length of r_names","giop-tango.Device.write_read_attributes_5.r_names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_5_write_read_attributes_5_r_names, {"r_names","giop-tango.Device.write_read_attributes_5.r_names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_attribute_history_5_name, {"name","giop-tango.Device.read_attribute_history_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_attribute_history_5_n, {"n","giop-tango.Device.read_attribute_history_5.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_get_pipe_config_5_return_loop, {"Seq length of PipeConfigList","giop-tango.Device.get_pipe_config_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_get_pipe_config_5_names_loop, {"Seq length of names","giop-tango.Device.get_pipe_config_5.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_get_pipe_config_5_names, {"names","giop-tango.Device.get_pipe_config_5.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_set_pipe_config_5_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_pipe_config_5.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_5_read_pipe_5_name, {"name","giop-tango.Device.read_pipe_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_attributes_5_return_loop, {"Seq length of AttributeValueList_5","giop-tango.Device.read_attributes_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_attributes_5_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_5.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_attributes_5_names, {"names","giop-tango.Device.read_attributes_5.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_read_attributes_5_source, {"source","giop-tango.Device.read_attributes_5.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_set_attribute_config_5_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_5.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_get_attribute_config_5_return_loop, {"Seq length of AttributeConfigList_5","giop-tango.Device.get_attribute_config_5.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_get_attribute_config_5_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_5.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_5_get_attribute_config_5_names, {"names","giop-tango.Device.get_attribute_config_5.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_write_read_attributes_4_return_loop, {"Seq length of AttributeValueList_4","giop-tango.Device.write_read_attributes_4.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_write_read_attributes_4_values_loop, {"Seq length of values","giop-tango.Device.write_read_attributes_4.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_set_attribute_config_4_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_4.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_write_attributes_4_values_loop, {"Seq length of values","giop-tango.Device.write_attributes_4.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_read_attributes_4_return_loop, {"Seq length of AttributeValueList_4","giop-tango.Device.read_attributes_4.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_read_attributes_4_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_4.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_read_attributes_4_names, {"names","giop-tango.Device.read_attributes_4.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_read_attributes_4_source, {"source","giop-tango.Device.read_attributes_4.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_command_inout_4_command, {"command","giop-tango.Device.command_inout_4.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_command_inout_4_source, {"source","giop-tango.Device.command_inout_4.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_command_inout_history_4_command, {"command","giop-tango.Device.command_inout_history_4.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_command_inout_history_4_n, {"n","giop-tango.Device.command_inout_history_4.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_read_attribute_history_4_name, {"name","giop-tango.Device.read_attribute_history_4.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_4_read_attribute_history_4_n, {"n","giop-tango.Device.read_attribute_history_4.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_set_attribute_config_3_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_3.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_get_attribute_config_3_return_loop, {"Seq length of AttributeConfigList_3","giop-tango.Device.get_attribute_config_3.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_get_attribute_config_3_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_3.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_get_attribute_config_3_names, {"names","giop-tango.Device.get_attribute_config_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attribute_history_3_return_loop, {"Seq length of DevAttrHistoryList_3","giop-tango.Device.read_attribute_history_3.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attribute_history_3_name, {"name","giop-tango.Device.read_attribute_history_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attribute_history_3_n, {"n","giop-tango.Device.read_attribute_history_3.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_write_attributes_3_values_loop, {"Seq length of values","giop-tango.Device.write_attributes_3.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attributes_3_return_loop, {"Seq length of AttributeValueList_3","giop-tango.Device.read_attributes_3.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attributes_3_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_3.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attributes_3_names, {"names","giop-tango.Device.read_attributes_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attributes_3_source, {"source","giop-tango.Device.read_attributes_3.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attribute_history_2_return_loop, {"Seq length of DevAttrHistoryList","giop-tango.Device.read_attribute_history_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attribute_history_2_name, {"name","giop-tango.Device.read_attribute_history_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attribute_history_2_n, {"n","giop-tango.Device.read_attribute_history_2.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_inout_history_2_return_loop, {"Seq length of DevCmdHistoryList","giop-tango.Device.command_inout_history_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_inout_history_2_command, {"command","giop-tango.Device.command_inout_history_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_inout_history_2_n, {"n","giop-tango.Device.command_inout_history_2.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_query_2_command, {"command","giop-tango.Device.command_query_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_list_query_2_return_loop, {"Seq length of DevCmdInfoList_2","giop-tango.Device.command_list_query_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_get_attribute_config_2_return_loop, {"Seq length of AttributeConfigList_2","giop-tango.Device.get_attribute_config_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_get_attribute_config_2_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_2.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_get_attribute_config_2_names, {"names","giop-tango.Device.get_attribute_config_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attributes_2_return_loop, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes_2.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attributes_2_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_2.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attributes_2_names, {"names","giop-tango.Device.read_attributes_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attributes_2_source, {"source","giop-tango.Device.read_attributes_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_inout_2_command, {"command","giop-tango.Device.command_inout_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_command_inout_2_source, {"source","giop-tango.Device.command_inout_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
+        {&hf_Tango_Device_command_query_command, {"command","giop-tango.Device.command_query.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_command_list_query_return_loop, {"Seq length of DevCmdInfoList","giop-tango.Device.command_list_query.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_black_box_return_loop, {"Seq length of DevVarStringArray","giop-tango.Device.black_box.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_black_box_return, {"DevVarStringArray","giop-tango.Device.black_box.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_black_box_n, {"n","giop-tango.Device.black_box.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_write_attributes_values_loop, {"Seq length of values","giop-tango.Device.write_attributes.values.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_read_attributes_return_loop, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_read_attributes_names_loop, {"Seq length of names","giop-tango.Device.read_attributes.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_read_attributes_names, {"names","giop-tango.Device.read_attributes.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_set_attribute_config_new_conf_loop, {"Seq length of new_conf","giop-tango.Device.set_attribute_config.new_conf.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_get_attribute_config_return_loop, {"Seq length of AttributeConfigList","giop-tango.Device.get_attribute_config.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_get_attribute_config_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_get_attribute_config_names, {"names","giop-tango.Device.get_attribute_config.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_command_inout_command, {"command","giop-tango.Device.command_inout.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Attribute filters */
         {&hf_get_Tango_Device_name_name, {"name","giop-tango.Device.name.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_get_Tango_Device_description_description, {"description","giop-tango.Device.description.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -4972,139 +5719,79 @@ void proto_register_giop_tango(void)
         {&hf_get_Tango_Device_status_status, {"status","giop-tango.Device.status.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_get_Tango_Device_adm_name_adm_name, {"adm_name","giop-tango.Device.adm_name.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Struct filters */
-        {&hf_Tango_DevVarLongStringArray_lvalue_loop, {"Seq length of DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarLongStringArray_lvalue, {"DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarLongStringArray_svalue_loop, {"Seq length of DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarLongStringArray_svalue, {"DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarDoubleStringArray_dvalue_loop, {"Seq length of DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarDoubleStringArray_dvalue, {"DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarDoubleStringArray_svalue_loop, {"Seq length of DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarDoubleStringArray_svalue, {"DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevEncoded_encoded_format, {"DevEncoded_encoded_format","giop-tango.DevEncoded.encoded_format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevEncoded_encoded_data_loop, {"Seq length of DevEncoded_encoded_data","giop-tango.DevEncoded.encoded_data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevEncoded_encoded_data, {"DevEncoded_encoded_data","giop-tango.DevEncoded.encoded_data",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_JavaClntIdent_MainClass, {"JavaClntIdent_MainClass","giop-tango.JavaClntIdent.MainClass",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_JavaClntIdent_uuid, {"JavaClntIdent_uuid","giop-tango.JavaClntIdent.uuid",FT_UINT64,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_TimeVal_tv_sec, {"TimeVal_tv_sec","giop-tango.TimeVal.tv_sec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_TimeVal_tv_usec, {"TimeVal_tv_usec","giop-tango.TimeVal.tv_usec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_TimeVal_tv_nsec, {"TimeVal_tv_nsec","giop-tango.TimeVal.tv_nsec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_cmd_name, {"DevCmdInfo_cmd_name","giop-tango.DevCmdInfo.cmd_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_cmd_tag, {"DevCmdInfo_cmd_tag","giop-tango.DevCmdInfo.cmd_tag",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_in_type, {"DevCmdInfo_in_type","giop-tango.DevCmdInfo.in_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_out_type, {"DevCmdInfo_out_type","giop-tango.DevCmdInfo.out_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_in_type_desc, {"DevCmdInfo_in_type_desc","giop-tango.DevCmdInfo.in_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_out_type_desc, {"DevCmdInfo_out_type_desc","giop-tango.DevCmdInfo.out_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_cmd_name, {"DevCmdInfo_2_cmd_name","giop-tango.DevCmdInfo_2.cmd_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_level, {"DevCmdInfo_2_level","giop-tango.DevCmdInfo_2.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_cmd_tag, {"DevCmdInfo_2_cmd_tag","giop-tango.DevCmdInfo_2.cmd_tag",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_in_type, {"DevCmdInfo_2_in_type","giop-tango.DevCmdInfo_2.in_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_out_type, {"DevCmdInfo_2_out_type","giop-tango.DevCmdInfo_2.out_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_in_type_desc, {"DevCmdInfo_2_in_type_desc","giop-tango.DevCmdInfo_2.in_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdInfo_2_out_type_desc, {"DevCmdInfo_2_out_type_desc","giop-tango.DevCmdInfo_2.out_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevError_reason, {"DevError_reason","giop-tango.DevError.reason",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevError_severity, {"DevError_severity","giop-tango.DevError.severity",FT_UINT32,BASE_DEC,VALS(Tango_ErrSeverity),0x0,NULL,HFILL}},
-        {&hf_Tango_DevError_desc, {"DevError_desc","giop-tango.DevError.desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevError_origin, {"DevError_origin","giop-tango.DevError.origin",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_NamedDevError_name, {"NamedDevError_name","giop-tango.NamedDevError.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_NamedDevError_index_in_call, {"NamedDevError_index_in_call","giop-tango.NamedDevError.index_in_call",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_NamedDevError_err_list_loop, {"Seq length of NamedDevError_err_list","giop-tango.NamedDevError.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_name, {"AttributeConfig_name","giop-tango.AttributeConfig.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_writable, {"AttributeConfig_writable","giop-tango.AttributeConfig.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_data_format, {"AttributeConfig_data_format","giop-tango.AttributeConfig.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_data_type, {"AttributeConfig_data_type","giop-tango.AttributeConfig.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_max_dim_x, {"AttributeConfig_max_dim_x","giop-tango.AttributeConfig.max_dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_max_dim_y, {"AttributeConfig_max_dim_y","giop-tango.AttributeConfig.max_dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_description, {"AttributeConfig_description","giop-tango.AttributeConfig.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_label, {"AttributeConfig_label","giop-tango.AttributeConfig.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_unit, {"AttributeConfig_unit","giop-tango.AttributeConfig.unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_standard_unit, {"AttributeConfig_standard_unit","giop-tango.AttributeConfig.standard_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_display_unit, {"AttributeConfig_display_unit","giop-tango.AttributeConfig.display_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_format, {"AttributeConfig_format","giop-tango.AttributeConfig.format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_min_value, {"AttributeConfig_min_value","giop-tango.AttributeConfig.min_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_max_value, {"AttributeConfig_max_value","giop-tango.AttributeConfig.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_min_alarm, {"AttributeConfig_min_alarm","giop-tango.AttributeConfig.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_max_alarm, {"AttributeConfig_max_alarm","giop-tango.AttributeConfig.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_writable_attr_name, {"AttributeConfig_writable_attr_name","giop-tango.AttributeConfig.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_extensions_loop, {"Seq length of AttributeConfig_extensions","giop-tango.AttributeConfig.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_extensions, {"AttributeConfig_extensions","giop-tango.AttributeConfig.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_name, {"AttributeConfig_2_name","giop-tango.AttributeConfig_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_writable, {"AttributeConfig_2_writable","giop-tango.AttributeConfig_2.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_data_format, {"AttributeConfig_2_data_format","giop-tango.AttributeConfig_2.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_data_type, {"AttributeConfig_2_data_type","giop-tango.AttributeConfig_2.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_max_dim_x, {"AttributeConfig_2_max_dim_x","giop-tango.AttributeConfig_2.max_dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_max_dim_y, {"AttributeConfig_2_max_dim_y","giop-tango.AttributeConfig_2.max_dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_description, {"AttributeConfig_2_description","giop-tango.AttributeConfig_2.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_label, {"AttributeConfig_2_label","giop-tango.AttributeConfig_2.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_unit, {"AttributeConfig_2_unit","giop-tango.AttributeConfig_2.unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_standard_unit, {"AttributeConfig_2_standard_unit","giop-tango.AttributeConfig_2.standard_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_display_unit, {"AttributeConfig_2_display_unit","giop-tango.AttributeConfig_2.display_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_format, {"AttributeConfig_2_format","giop-tango.AttributeConfig_2.format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_min_value, {"AttributeConfig_2_min_value","giop-tango.AttributeConfig_2.min_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_max_value, {"AttributeConfig_2_max_value","giop-tango.AttributeConfig_2.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_min_alarm, {"AttributeConfig_2_min_alarm","giop-tango.AttributeConfig_2.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_max_alarm, {"AttributeConfig_2_max_alarm","giop-tango.AttributeConfig_2.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_writable_attr_name, {"AttributeConfig_2_writable_attr_name","giop-tango.AttributeConfig_2.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_level, {"AttributeConfig_2_level","giop-tango.AttributeConfig_2.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_extensions_loop, {"Seq length of AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_extensions, {"AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_quality, {"AttributeValue_quality","giop-tango.AttributeValue.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_name, {"AttributeValue_name","giop-tango.AttributeValue.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_dim_x, {"AttributeValue_dim_x","giop-tango.AttributeValue.dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_dim_y, {"AttributeValue_dim_y","giop-tango.AttributeValue.dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeDim_dim_x, {"AttributeDim_dim_x","giop-tango.AttributeDim.dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeDim_dim_y, {"AttributeDim_dim_y","giop-tango.AttributeDim.dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_3_quality, {"AttributeValue_3_quality","giop-tango.AttributeValue_3.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_3_name, {"AttributeValue_3_name","giop-tango.AttributeValue_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_3_err_list_loop, {"Seq length of AttributeValue_3_err_list","giop-tango.AttributeValue_3.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_4_quality, {"AttributeValue_4_quality","giop-tango.AttributeValue_4.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_4_data_format, {"AttributeValue_4_data_format","giop-tango.AttributeValue_4.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_4_name, {"AttributeValue_4_name","giop-tango.AttributeValue_4.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_4_err_list_loop, {"Seq length of AttributeValue_4_err_list","giop-tango.AttributeValue_4.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_5_quality, {"AttributeValue_5_quality","giop-tango.AttributeValue_5.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_5_data_format, {"AttributeValue_5_data_format","giop-tango.AttributeValue_5.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_5_data_type, {"AttributeValue_5_data_type","giop-tango.AttributeValue_5.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_5_name, {"AttributeValue_5_name","giop-tango.AttributeValue_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeValue_5_err_list_loop, {"Seq length of AttributeValue_5_err_list","giop-tango.AttributeValue_5.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ChangeEventProp_rel_change, {"ChangeEventProp_rel_change","giop-tango.ChangeEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ChangeEventProp_abs_change, {"ChangeEventProp_abs_change","giop-tango.ChangeEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ChangeEventProp_extensions_loop, {"Seq length of ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ChangeEventProp_extensions, {"ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PeriodicEventProp_period, {"PeriodicEventProp_period","giop-tango.PeriodicEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PeriodicEventProp_extensions_loop, {"Seq length of PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PeriodicEventProp_extensions, {"PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ArchiveEventProp_rel_change, {"ArchiveEventProp_rel_change","giop-tango.ArchiveEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ArchiveEventProp_abs_change, {"ArchiveEventProp_abs_change","giop-tango.ArchiveEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ArchiveEventProp_period, {"ArchiveEventProp_period","giop-tango.ArchiveEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ArchiveEventProp_extensions_loop, {"Seq length of ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ArchiveEventProp_extensions, {"ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_min_alarm, {"AttributeAlarm_min_alarm","giop-tango.AttributeAlarm.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_max_alarm, {"AttributeAlarm_max_alarm","giop-tango.AttributeAlarm.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_min_warning, {"AttributeAlarm_min_warning","giop-tango.AttributeAlarm.min_warning",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_max_warning, {"AttributeAlarm_max_warning","giop-tango.AttributeAlarm.max_warning",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_delta_t, {"AttributeAlarm_delta_t","giop-tango.AttributeAlarm.delta_t",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_delta_val, {"AttributeAlarm_delta_val","giop-tango.AttributeAlarm.delta_val",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_extensions_loop, {"Seq length of AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_extensions, {"AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_name, {"AttributeConfig_3_name","giop-tango.AttributeConfig_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_writable, {"AttributeConfig_3_writable","giop-tango.AttributeConfig_3.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_data_format, {"AttributeConfig_3_data_format","giop-tango.AttributeConfig_3.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_data_type, {"AttributeConfig_3_data_type","giop-tango.AttributeConfig_3.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_max_dim_x, {"AttributeConfig_3_max_dim_x","giop-tango.AttributeConfig_3.max_dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_max_dim_y, {"AttributeConfig_3_max_dim_y","giop-tango.AttributeConfig_3.max_dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_description, {"AttributeConfig_3_description","giop-tango.AttributeConfig_3.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_label, {"AttributeConfig_3_label","giop-tango.AttributeConfig_3.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_unit, {"AttributeConfig_3_unit","giop-tango.AttributeConfig_3.unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_standard_unit, {"AttributeConfig_3_standard_unit","giop-tango.AttributeConfig_3.standard_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_display_unit, {"AttributeConfig_3_display_unit","giop-tango.AttributeConfig_3.display_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_format, {"AttributeConfig_3_format","giop-tango.AttributeConfig_3.format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_min_value, {"AttributeConfig_3_min_value","giop-tango.AttributeConfig_3.min_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_max_value, {"AttributeConfig_3_max_value","giop-tango.AttributeConfig_3.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_writable_attr_name, {"AttributeConfig_3_writable_attr_name","giop-tango.AttributeConfig_3.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_level, {"AttributeConfig_3_level","giop-tango.AttributeConfig_3.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_extensions_loop, {"Seq length of AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_extensions, {"AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_sys_extensions_loop, {"Seq length of AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_sys_extensions, {"AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ZmqCallInfo_version, {"ZmqCallInfo_version","giop-tango.ZmqCallInfo.version",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ZmqCallInfo_ctr, {"ZmqCallInfo_ctr","giop-tango.ZmqCallInfo.ctr",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ZmqCallInfo_method_name, {"ZmqCallInfo_method_name","giop-tango.ZmqCallInfo.method_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ZmqCallInfo_oid_loop, {"Seq length of ZmqCallInfo_oid","giop-tango.ZmqCallInfo.oid.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ZmqCallInfo_oid, {"ZmqCallInfo_oid","giop-tango.ZmqCallInfo.oid",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ZmqCallInfo_call_is_except, {"ZmqCallInfo_call_is_except","giop-tango.ZmqCallInfo.call_is_except",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_4_dates_loop, {"Seq length of DevCmdHistory_4_dates","giop-tango.DevCmdHistory_4.dates.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_4_dims_loop, {"Seq length of DevCmdHistory_4_dims","giop-tango.DevCmdHistory_4.dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_4_dims_array_loop, {"Seq length of DevCmdHistory_4_dims_array","giop-tango.DevCmdHistory_4.dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_4_errors_loop, {"Seq length of DevCmdHistory_4_errors","giop-tango.DevCmdHistory_4.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_4_errors_array_loop, {"Seq length of DevCmdHistory_4_errors_array","giop-tango.DevCmdHistory_4.errors_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_4_cmd_type, {"DevCmdHistory_4_cmd_type","giop-tango.DevCmdHistory_4.cmd_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_name, {"DevAttrHistory_5_name","giop-tango.DevAttrHistory_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_data_format, {"DevAttrHistory_5_data_format","giop-tango.DevAttrHistory_5.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_data_type, {"DevAttrHistory_5_data_type","giop-tango.DevAttrHistory_5.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_dates_loop, {"Seq length of DevAttrHistory_5_dates","giop-tango.DevAttrHistory_5.dates.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_quals_loop, {"Seq length of DevAttrHistory_5_quals","giop-tango.DevAttrHistory_5.quals.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_quals, {"DevAttrHistory_5_quals","giop-tango.DevAttrHistory_5.quals",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_quals_array_loop, {"Seq length of DevAttrHistory_5_quals_array","giop-tango.DevAttrHistory_5.quals_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_r_dims_loop, {"Seq length of DevAttrHistory_5_r_dims","giop-tango.DevAttrHistory_5.r_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_r_dims_array_loop, {"Seq length of DevAttrHistory_5_r_dims_array","giop-tango.DevAttrHistory_5.r_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_w_dims_loop, {"Seq length of DevAttrHistory_5_w_dims","giop-tango.DevAttrHistory_5.w_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_w_dims_array_loop, {"Seq length of DevAttrHistory_5_w_dims_array","giop-tango.DevAttrHistory_5.w_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_errors_loop, {"Seq length of DevAttrHistory_5_errors","giop-tango.DevAttrHistory_5.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_5_errors_array_loop, {"Seq length of DevAttrHistory_5_errors_array","giop-tango.DevAttrHistory_5.errors_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_name, {"DevAttrHistory_4_name","giop-tango.DevAttrHistory_4.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_dates_loop, {"Seq length of DevAttrHistory_4_dates","giop-tango.DevAttrHistory_4.dates.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_quals_loop, {"Seq length of DevAttrHistory_4_quals","giop-tango.DevAttrHistory_4.quals.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_quals, {"DevAttrHistory_4_quals","giop-tango.DevAttrHistory_4.quals",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_quals_array_loop, {"Seq length of DevAttrHistory_4_quals_array","giop-tango.DevAttrHistory_4.quals_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_r_dims_loop, {"Seq length of DevAttrHistory_4_r_dims","giop-tango.DevAttrHistory_4.r_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_r_dims_array_loop, {"Seq length of DevAttrHistory_4_r_dims_array","giop-tango.DevAttrHistory_4.r_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_w_dims_loop, {"Seq length of DevAttrHistory_4_w_dims","giop-tango.DevAttrHistory_4.w_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_w_dims_array_loop, {"Seq length of DevAttrHistory_4_w_dims_array","giop-tango.DevAttrHistory_4.w_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_errors_loop, {"Seq length of DevAttrHistory_4_errors","giop-tango.DevAttrHistory_4.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_4_errors_array_loop, {"Seq length of DevAttrHistory_4_errors_array","giop-tango.DevAttrHistory_4.errors_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_EltInArray_start, {"EltInArray_start","giop-tango.EltInArray.start",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_EltInArray_nb_elt, {"EltInArray_nb_elt","giop-tango.EltInArray.nb_elt",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_3_attr_failed, {"DevAttrHistory_3_attr_failed","giop-tango.DevAttrHistory_3.attr_failed",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_attr_failed, {"DevAttrHistory_attr_failed","giop-tango.DevAttrHistory.attr_failed",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_DevAttrHistory_errors_loop, {"Seq length of DevAttrHistory_errors","giop-tango.DevAttrHistory.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_cmd_failed, {"DevCmdHistory_cmd_failed","giop-tango.DevCmdHistory.cmd_failed",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_DevCmdHistory_errors_loop, {"Seq length of DevCmdHistory_errors","giop-tango.DevCmdHistory.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_3_dev_class, {"DevInfo_3_dev_class","giop-tango.DevInfo_3.dev_class",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_3_server_id, {"DevInfo_3_server_id","giop-tango.DevInfo_3.server_id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_3_server_host, {"DevInfo_3_server_host","giop-tango.DevInfo_3.server_host",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_3_server_version, {"DevInfo_3_server_version","giop-tango.DevInfo_3.server_version",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_3_doc_url, {"DevInfo_3_doc_url","giop-tango.DevInfo_3.doc_url",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_3_dev_type, {"DevInfo_3_dev_type","giop-tango.DevInfo_3.dev_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_dev_class, {"DevInfo_dev_class","giop-tango.DevInfo.dev_class",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_server_id, {"DevInfo_server_id","giop-tango.DevInfo.server_id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_server_host, {"DevInfo_server_host","giop-tango.DevInfo.server_host",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_server_version, {"DevInfo_server_version","giop-tango.DevInfo.server_version",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevInfo_doc_url, {"DevInfo_doc_url","giop-tango.DevInfo.doc_url",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevIntrChange_dev_started, {"DevIntrChange_dev_started","giop-tango.DevIntrChange.dev_started",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_DevIntrChange_cmds_loop, {"Seq length of DevIntrChange_cmds","giop-tango.DevIntrChange.cmds.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevIntrChange_atts_loop, {"Seq length of DevIntrChange_atts","giop-tango.DevIntrChange.atts.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttDataReady_name, {"AttDataReady_name","giop-tango.AttDataReady.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttDataReady_data_type, {"AttDataReady_data_type","giop-tango.AttDataReady.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttDataReady_ctr, {"AttDataReady_ctr","giop-tango.AttDataReady.ctr",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevPipeData_name, {"DevPipeData_name","giop-tango.DevPipeData.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevPipeBlob_name, {"DevPipeBlob_name","giop-tango.DevPipeBlob.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevPipeBlob_blob_data_loop, {"Seq length of DevPipeBlob_blob_data","giop-tango.DevPipeBlob.blob_data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevPipeDataElt_name, {"DevPipeDataElt_name","giop-tango.DevPipeDataElt.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevPipeDataElt_inner_blob_loop, {"Seq length of DevPipeDataElt_inner_blob","giop-tango.DevPipeDataElt.inner_blob.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevPipeDataElt_inner_blob_name, {"DevPipeDataElt_inner_blob_name","giop-tango.DevPipeDataElt.inner_blob_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_name, {"PipeConfig_name","giop-tango.PipeConfig.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_description, {"PipeConfig_description","giop-tango.PipeConfig.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_label, {"PipeConfig_label","giop-tango.PipeConfig.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_level, {"PipeConfig_level","giop-tango.PipeConfig.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_writable, {"PipeConfig_writable","giop-tango.PipeConfig.writable",FT_UINT32,BASE_DEC,VALS(Tango_PipeWriteType),0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_extensions_loop, {"Seq length of PipeConfig_extensions","giop-tango.PipeConfig.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PipeConfig_extensions, {"PipeConfig_extensions","giop-tango.PipeConfig.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_5_name, {"AttributeConfig_5_name","giop-tango.AttributeConfig_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_5_writable, {"AttributeConfig_5_writable","giop-tango.AttributeConfig_5.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_5_data_format, {"AttributeConfig_5_data_format","giop-tango.AttributeConfig_5.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
@@ -5130,85 +5817,143 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_5_extensions, {"AttributeConfig_5_extensions","giop-tango.AttributeConfig_5.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_5_sys_extensions_loop, {"Seq length of AttributeConfig_5_sys_extensions","giop-tango.AttributeConfig_5.sys_extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_5_sys_extensions, {"AttributeConfig_5_sys_extensions","giop-tango.AttributeConfig_5.sys_extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_name, {"PipeConfig_name","giop-tango.PipeConfig.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_description, {"PipeConfig_description","giop-tango.PipeConfig.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_label, {"PipeConfig_label","giop-tango.PipeConfig.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_level, {"PipeConfig_level","giop-tango.PipeConfig.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_writable, {"PipeConfig_writable","giop-tango.PipeConfig.writable",FT_UINT32,BASE_DEC,VALS(Tango_PipeWriteType),0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_extensions_loop, {"Seq length of PipeConfig_extensions","giop-tango.PipeConfig.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PipeConfig_extensions, {"PipeConfig_extensions","giop-tango.PipeConfig.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevPipeDataElt_name, {"DevPipeDataElt_name","giop-tango.DevPipeDataElt.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevPipeDataElt_inner_blob_loop, {"Seq length of DevPipeDataElt_inner_blob","giop-tango.DevPipeDataElt.inner_blob.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevPipeDataElt_inner_blob_name, {"DevPipeDataElt_inner_blob_name","giop-tango.DevPipeDataElt.inner_blob_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevPipeBlob_name, {"DevPipeBlob_name","giop-tango.DevPipeBlob.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevPipeBlob_blob_data_loop, {"Seq length of DevPipeBlob_blob_data","giop-tango.DevPipeBlob.blob_data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevPipeData_name, {"DevPipeData_name","giop-tango.DevPipeData.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttDataReady_name, {"AttDataReady_name","giop-tango.AttDataReady.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttDataReady_data_type, {"AttDataReady_data_type","giop-tango.AttDataReady.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttDataReady_ctr, {"AttDataReady_ctr","giop-tango.AttDataReady.ctr",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevIntrChange_dev_started, {"DevIntrChange_dev_started","giop-tango.DevIntrChange.dev_started",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_Tango_DevIntrChange_cmds_loop, {"Seq length of DevIntrChange_cmds","giop-tango.DevIntrChange.cmds.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevIntrChange_atts_loop, {"Seq length of DevIntrChange_atts","giop-tango.DevIntrChange.atts.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_dev_class, {"DevInfo_dev_class","giop-tango.DevInfo.dev_class",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_server_id, {"DevInfo_server_id","giop-tango.DevInfo.server_id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_server_host, {"DevInfo_server_host","giop-tango.DevInfo.server_host",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_server_version, {"DevInfo_server_version","giop-tango.DevInfo.server_version",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_doc_url, {"DevInfo_doc_url","giop-tango.DevInfo.doc_url",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_3_dev_class, {"DevInfo_3_dev_class","giop-tango.DevInfo_3.dev_class",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_3_server_id, {"DevInfo_3_server_id","giop-tango.DevInfo_3.server_id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_3_server_host, {"DevInfo_3_server_host","giop-tango.DevInfo_3.server_host",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_3_server_version, {"DevInfo_3_server_version","giop-tango.DevInfo_3.server_version",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_3_doc_url, {"DevInfo_3_doc_url","giop-tango.DevInfo_3.doc_url",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevInfo_3_dev_type, {"DevInfo_3_dev_type","giop-tango.DevInfo_3.dev_type",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_cmd_failed, {"DevCmdHistory_cmd_failed","giop-tango.DevCmdHistory.cmd_failed",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_errors_loop, {"Seq length of DevCmdHistory_errors","giop-tango.DevCmdHistory.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_attr_failed, {"DevAttrHistory_attr_failed","giop-tango.DevAttrHistory.attr_failed",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_errors_loop, {"Seq length of DevAttrHistory_errors","giop-tango.DevAttrHistory.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_3_attr_failed, {"DevAttrHistory_3_attr_failed","giop-tango.DevAttrHistory_3.attr_failed",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
-        {&hf_Tango_EltInArray_start, {"EltInArray_start","giop-tango.EltInArray.start",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_EltInArray_nb_elt, {"EltInArray_nb_elt","giop-tango.EltInArray.nb_elt",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_name, {"DevAttrHistory_4_name","giop-tango.DevAttrHistory_4.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_dates_loop, {"Seq length of DevAttrHistory_4_dates","giop-tango.DevAttrHistory_4.dates.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_quals_loop, {"Seq length of DevAttrHistory_4_quals","giop-tango.DevAttrHistory_4.quals.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_quals, {"DevAttrHistory_4_quals","giop-tango.DevAttrHistory_4.quals",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_quals_array_loop, {"Seq length of DevAttrHistory_4_quals_array","giop-tango.DevAttrHistory_4.quals_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_r_dims_loop, {"Seq length of DevAttrHistory_4_r_dims","giop-tango.DevAttrHistory_4.r_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_r_dims_array_loop, {"Seq length of DevAttrHistory_4_r_dims_array","giop-tango.DevAttrHistory_4.r_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_w_dims_loop, {"Seq length of DevAttrHistory_4_w_dims","giop-tango.DevAttrHistory_4.w_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_w_dims_array_loop, {"Seq length of DevAttrHistory_4_w_dims_array","giop-tango.DevAttrHistory_4.w_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_errors_loop, {"Seq length of DevAttrHistory_4_errors","giop-tango.DevAttrHistory_4.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_4_errors_array_loop, {"Seq length of DevAttrHistory_4_errors_array","giop-tango.DevAttrHistory_4.errors_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_name, {"DevAttrHistory_5_name","giop-tango.DevAttrHistory_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_data_format, {"DevAttrHistory_5_data_format","giop-tango.DevAttrHistory_5.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_data_type, {"DevAttrHistory_5_data_type","giop-tango.DevAttrHistory_5.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_dates_loop, {"Seq length of DevAttrHistory_5_dates","giop-tango.DevAttrHistory_5.dates.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_quals_loop, {"Seq length of DevAttrHistory_5_quals","giop-tango.DevAttrHistory_5.quals.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_quals, {"DevAttrHistory_5_quals","giop-tango.DevAttrHistory_5.quals",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_quals_array_loop, {"Seq length of DevAttrHistory_5_quals_array","giop-tango.DevAttrHistory_5.quals_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_r_dims_loop, {"Seq length of DevAttrHistory_5_r_dims","giop-tango.DevAttrHistory_5.r_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_r_dims_array_loop, {"Seq length of DevAttrHistory_5_r_dims_array","giop-tango.DevAttrHistory_5.r_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_w_dims_loop, {"Seq length of DevAttrHistory_5_w_dims","giop-tango.DevAttrHistory_5.w_dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_w_dims_array_loop, {"Seq length of DevAttrHistory_5_w_dims_array","giop-tango.DevAttrHistory_5.w_dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_errors_loop, {"Seq length of DevAttrHistory_5_errors","giop-tango.DevAttrHistory_5.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevAttrHistory_5_errors_array_loop, {"Seq length of DevAttrHistory_5_errors_array","giop-tango.DevAttrHistory_5.errors_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_4_dates_loop, {"Seq length of DevCmdHistory_4_dates","giop-tango.DevCmdHistory_4.dates.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_4_dims_loop, {"Seq length of DevCmdHistory_4_dims","giop-tango.DevCmdHistory_4.dims.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_4_dims_array_loop, {"Seq length of DevCmdHistory_4_dims_array","giop-tango.DevCmdHistory_4.dims_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_4_errors_loop, {"Seq length of DevCmdHistory_4_errors","giop-tango.DevCmdHistory_4.errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_4_errors_array_loop, {"Seq length of DevCmdHistory_4_errors_array","giop-tango.DevCmdHistory_4.errors_array.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevCmdHistory_4_cmd_type, {"DevCmdHistory_4_cmd_type","giop-tango.DevCmdHistory_4.cmd_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ZmqCallInfo_version, {"ZmqCallInfo_version","giop-tango.ZmqCallInfo.version",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ZmqCallInfo_ctr, {"ZmqCallInfo_ctr","giop-tango.ZmqCallInfo.ctr",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ZmqCallInfo_method_name, {"ZmqCallInfo_method_name","giop-tango.ZmqCallInfo.method_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ZmqCallInfo_oid_loop, {"Seq length of ZmqCallInfo_oid","giop-tango.ZmqCallInfo.oid.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ZmqCallInfo_oid, {"ZmqCallInfo_oid","giop-tango.ZmqCallInfo.oid",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ZmqCallInfo_call_is_except, {"ZmqCallInfo_call_is_except","giop-tango.ZmqCallInfo.call_is_except",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_name, {"AttributeConfig_3_name","giop-tango.AttributeConfig_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_writable, {"AttributeConfig_3_writable","giop-tango.AttributeConfig_3.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_data_format, {"AttributeConfig_3_data_format","giop-tango.AttributeConfig_3.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_data_type, {"AttributeConfig_3_data_type","giop-tango.AttributeConfig_3.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_max_dim_x, {"AttributeConfig_3_max_dim_x","giop-tango.AttributeConfig_3.max_dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_max_dim_y, {"AttributeConfig_3_max_dim_y","giop-tango.AttributeConfig_3.max_dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_description, {"AttributeConfig_3_description","giop-tango.AttributeConfig_3.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_label, {"AttributeConfig_3_label","giop-tango.AttributeConfig_3.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_unit, {"AttributeConfig_3_unit","giop-tango.AttributeConfig_3.unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_standard_unit, {"AttributeConfig_3_standard_unit","giop-tango.AttributeConfig_3.standard_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_display_unit, {"AttributeConfig_3_display_unit","giop-tango.AttributeConfig_3.display_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_format, {"AttributeConfig_3_format","giop-tango.AttributeConfig_3.format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_min_value, {"AttributeConfig_3_min_value","giop-tango.AttributeConfig_3.min_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_max_value, {"AttributeConfig_3_max_value","giop-tango.AttributeConfig_3.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_writable_attr_name, {"AttributeConfig_3_writable_attr_name","giop-tango.AttributeConfig_3.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_level, {"AttributeConfig_3_level","giop-tango.AttributeConfig_3.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_extensions_loop, {"Seq length of AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_extensions, {"AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_sys_extensions_loop, {"Seq length of AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_sys_extensions, {"AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_min_alarm, {"AttributeAlarm_min_alarm","giop-tango.AttributeAlarm.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_max_alarm, {"AttributeAlarm_max_alarm","giop-tango.AttributeAlarm.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_min_warning, {"AttributeAlarm_min_warning","giop-tango.AttributeAlarm.min_warning",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_max_warning, {"AttributeAlarm_max_warning","giop-tango.AttributeAlarm.max_warning",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_delta_t, {"AttributeAlarm_delta_t","giop-tango.AttributeAlarm.delta_t",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_delta_val, {"AttributeAlarm_delta_val","giop-tango.AttributeAlarm.delta_val",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_extensions_loop, {"Seq length of AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_extensions, {"AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_rel_change, {"ArchiveEventProp_rel_change","giop-tango.ArchiveEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_abs_change, {"ArchiveEventProp_abs_change","giop-tango.ArchiveEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_period, {"ArchiveEventProp_period","giop-tango.ArchiveEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_extensions_loop, {"Seq length of ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_extensions, {"ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PeriodicEventProp_period, {"PeriodicEventProp_period","giop-tango.PeriodicEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PeriodicEventProp_extensions_loop, {"Seq length of PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PeriodicEventProp_extensions, {"PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ChangeEventProp_rel_change, {"ChangeEventProp_rel_change","giop-tango.ChangeEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ChangeEventProp_abs_change, {"ChangeEventProp_abs_change","giop-tango.ChangeEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ChangeEventProp_extensions_loop, {"Seq length of ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ChangeEventProp_extensions, {"ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_5_quality, {"AttributeValue_5_quality","giop-tango.AttributeValue_5.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_5_data_format, {"AttributeValue_5_data_format","giop-tango.AttributeValue_5.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_5_data_type, {"AttributeValue_5_data_type","giop-tango.AttributeValue_5.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_5_name, {"AttributeValue_5_name","giop-tango.AttributeValue_5.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_5_err_list_loop, {"Seq length of AttributeValue_5_err_list","giop-tango.AttributeValue_5.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_4_quality, {"AttributeValue_4_quality","giop-tango.AttributeValue_4.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_4_data_format, {"AttributeValue_4_data_format","giop-tango.AttributeValue_4.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_4_name, {"AttributeValue_4_name","giop-tango.AttributeValue_4.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_4_err_list_loop, {"Seq length of AttributeValue_4_err_list","giop-tango.AttributeValue_4.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_3_quality, {"AttributeValue_3_quality","giop-tango.AttributeValue_3.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_3_name, {"AttributeValue_3_name","giop-tango.AttributeValue_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_3_err_list_loop, {"Seq length of AttributeValue_3_err_list","giop-tango.AttributeValue_3.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeDim_dim_x, {"AttributeDim_dim_x","giop-tango.AttributeDim.dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeDim_dim_y, {"AttributeDim_dim_y","giop-tango.AttributeDim.dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_quality, {"AttributeValue_quality","giop-tango.AttributeValue.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_name, {"AttributeValue_name","giop-tango.AttributeValue.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_dim_x, {"AttributeValue_dim_x","giop-tango.AttributeValue.dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeValue_dim_y, {"AttributeValue_dim_y","giop-tango.AttributeValue.dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_name, {"AttributeConfig_2_name","giop-tango.AttributeConfig_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_writable, {"AttributeConfig_2_writable","giop-tango.AttributeConfig_2.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_data_format, {"AttributeConfig_2_data_format","giop-tango.AttributeConfig_2.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_data_type, {"AttributeConfig_2_data_type","giop-tango.AttributeConfig_2.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_max_dim_x, {"AttributeConfig_2_max_dim_x","giop-tango.AttributeConfig_2.max_dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_max_dim_y, {"AttributeConfig_2_max_dim_y","giop-tango.AttributeConfig_2.max_dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_description, {"AttributeConfig_2_description","giop-tango.AttributeConfig_2.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_label, {"AttributeConfig_2_label","giop-tango.AttributeConfig_2.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_unit, {"AttributeConfig_2_unit","giop-tango.AttributeConfig_2.unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_standard_unit, {"AttributeConfig_2_standard_unit","giop-tango.AttributeConfig_2.standard_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_display_unit, {"AttributeConfig_2_display_unit","giop-tango.AttributeConfig_2.display_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_format, {"AttributeConfig_2_format","giop-tango.AttributeConfig_2.format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_min_value, {"AttributeConfig_2_min_value","giop-tango.AttributeConfig_2.min_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_max_value, {"AttributeConfig_2_max_value","giop-tango.AttributeConfig_2.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_min_alarm, {"AttributeConfig_2_min_alarm","giop-tango.AttributeConfig_2.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_max_alarm, {"AttributeConfig_2_max_alarm","giop-tango.AttributeConfig_2.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_writable_attr_name, {"AttributeConfig_2_writable_attr_name","giop-tango.AttributeConfig_2.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_level, {"AttributeConfig_2_level","giop-tango.AttributeConfig_2.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_extensions_loop, {"Seq length of AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_extensions, {"AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_name, {"AttributeConfig_name","giop-tango.AttributeConfig.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_writable, {"AttributeConfig_writable","giop-tango.AttributeConfig.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_data_format, {"AttributeConfig_data_format","giop-tango.AttributeConfig.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_data_type, {"AttributeConfig_data_type","giop-tango.AttributeConfig.data_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_max_dim_x, {"AttributeConfig_max_dim_x","giop-tango.AttributeConfig.max_dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_max_dim_y, {"AttributeConfig_max_dim_y","giop-tango.AttributeConfig.max_dim_y",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_description, {"AttributeConfig_description","giop-tango.AttributeConfig.description",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_label, {"AttributeConfig_label","giop-tango.AttributeConfig.label",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_unit, {"AttributeConfig_unit","giop-tango.AttributeConfig.unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_standard_unit, {"AttributeConfig_standard_unit","giop-tango.AttributeConfig.standard_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_display_unit, {"AttributeConfig_display_unit","giop-tango.AttributeConfig.display_unit",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_format, {"AttributeConfig_format","giop-tango.AttributeConfig.format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_min_value, {"AttributeConfig_min_value","giop-tango.AttributeConfig.min_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_max_value, {"AttributeConfig_max_value","giop-tango.AttributeConfig.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_min_alarm, {"AttributeConfig_min_alarm","giop-tango.AttributeConfig.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_max_alarm, {"AttributeConfig_max_alarm","giop-tango.AttributeConfig.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_writable_attr_name, {"AttributeConfig_writable_attr_name","giop-tango.AttributeConfig.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_extensions_loop, {"Seq length of AttributeConfig_extensions","giop-tango.AttributeConfig.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_extensions, {"AttributeConfig_extensions","giop-tango.AttributeConfig.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_NamedDevError_name, {"NamedDevError_name","giop-tango.NamedDevError.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_NamedDevError_index_in_call, {"NamedDevError_index_in_call","giop-tango.NamedDevError.index_in_call",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_NamedDevError_err_list_loop, {"Seq length of NamedDevError_err_list","giop-tango.NamedDevError.err_list.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevError_reason, {"DevError_reason","giop-tango.DevError.reason",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevError_severity, {"DevError_severity","giop-tango.DevError.severity",FT_UINT32,BASE_DEC,VALS(Tango_ErrSeverity),0x0,NULL,HFILL}},
+        {&hf_Tango_DevError_desc, {"DevError_desc","giop-tango.DevError.desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevError_origin, {"DevError_origin","giop-tango.DevError.origin",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_cmd_name, {"DevCmdInfo_2_cmd_name","giop-tango.DevCmdInfo_2.cmd_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_level, {"DevCmdInfo_2_level","giop-tango.DevCmdInfo_2.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_cmd_tag, {"DevCmdInfo_2_cmd_tag","giop-tango.DevCmdInfo_2.cmd_tag",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_in_type, {"DevCmdInfo_2_in_type","giop-tango.DevCmdInfo_2.in_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_out_type, {"DevCmdInfo_2_out_type","giop-tango.DevCmdInfo_2.out_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_in_type_desc, {"DevCmdInfo_2_in_type_desc","giop-tango.DevCmdInfo_2.in_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_2_out_type_desc, {"DevCmdInfo_2_out_type_desc","giop-tango.DevCmdInfo_2.out_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_cmd_name, {"DevCmdInfo_cmd_name","giop-tango.DevCmdInfo.cmd_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_cmd_tag, {"DevCmdInfo_cmd_tag","giop-tango.DevCmdInfo.cmd_tag",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_in_type, {"DevCmdInfo_in_type","giop-tango.DevCmdInfo.in_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_out_type, {"DevCmdInfo_out_type","giop-tango.DevCmdInfo.out_type",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_in_type_desc, {"DevCmdInfo_in_type_desc","giop-tango.DevCmdInfo.in_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevCmdInfo_out_type_desc, {"DevCmdInfo_out_type_desc","giop-tango.DevCmdInfo.out_type_desc",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_TimeVal_tv_sec, {"TimeVal_tv_sec","giop-tango.TimeVal.tv_sec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_TimeVal_tv_usec, {"TimeVal_tv_usec","giop-tango.TimeVal.tv_usec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_TimeVal_tv_nsec, {"TimeVal_tv_nsec","giop-tango.TimeVal.tv_nsec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_JavaClntIdent_MainClass, {"JavaClntIdent_MainClass","giop-tango.JavaClntIdent.MainClass",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_JavaClntIdent_uuid, {"JavaClntIdent_uuid","giop-tango.JavaClntIdent.uuid",FT_UINT64,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevEncoded_encoded_format, {"DevEncoded_encoded_format","giop-tango.DevEncoded.encoded_format",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevEncoded_encoded_data_loop, {"Seq length of DevEncoded_encoded_data","giop-tango.DevEncoded.encoded_data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevEncoded_encoded_data, {"DevEncoded_encoded_data","giop-tango.DevEncoded.encoded_data",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_dvalue_loop, {"Seq length of DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_dvalue, {"DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_svalue_loop, {"Seq length of DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_svalue, {"DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_lvalue_loop, {"Seq length of DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_lvalue, {"DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_svalue_loop, {"Seq length of DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_svalue, {"DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* User exception filters */
         {&hf_Tango_DevFailed_errors_loop, {"Seq length of DevFailed_errors","giop-tango.DevFaile.DevFailed_errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_MultiDevFailed_errors_loop, {"Seq length of MultiDevFailed_errors","giop-tango.MultiDevFaile.MultiDevFailed_errors.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Union filters */
-        {&hf_Tango_ClntIdent_ClntIdent, {"ClntIdent","giop-tango.Tango.ClntIdent",FT_UINT32,BASE_DEC,VALS(Tango_LockerLanguage),0x0,NULL,HFILL}},
-        {&hf_Tango_ClntIdent_cpp_clnt, {"ClntIdent_cpp_clnt","giop-tango.Tango.ClntIdent.cpp_clnt",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttrValUnion_AttrValUnion, {"AttrValUnion","giop-tango.Tango.AttrValUnion",FT_UINT32,BASE_DEC,VALS(Tango_AttributeDataType),0x0,NULL,HFILL}},
         {&hf_Tango_AttrValUnion_bool_att_value_loop, {"Seq length of AttrValUnion_bool_att_value","giop-tango.Tango.AttrValUnion.bool_att_value.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttrValUnion_bool_att_value, {"AttrValUnion_bool_att_value","giop-tango.Tango.AttrValUnion.bool_att_value",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
@@ -5237,6 +5982,8 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttrValUnion_dev_state_att, {"AttrValUnion_dev_state_att","giop-tango.Tango.AttrValUnion.dev_state_att",FT_UINT32,BASE_DEC,VALS(Tango_DevState),0x0,NULL,HFILL}},
         {&hf_Tango_AttrValUnion_encoded_att_value_loop, {"Seq length of AttrValUnion_encoded_att_value","giop-tango.Tango.AttrValUnion.encoded_att_value.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttrValUnion_union_no_data, {"AttrValUnion_union_no_data","giop-tango.Tango.AttrValUnion.union_no_data",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
+        {&hf_Tango_ClntIdent_ClntIdent, {"ClntIdent","giop-tango.Tango.ClntIdent",FT_UINT32,BASE_DEC,VALS(Tango_LockerLanguage),0x0,NULL,HFILL}},
+        {&hf_Tango_ClntIdent_cpp_clnt, {"ClntIdent_cpp_clnt","giop-tango.Tango.ClntIdent.cpp_clnt",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
 
     };
 
@@ -5248,15 +5995,19 @@ void proto_register_giop_tango(void)
 
     /* setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tango,
+        &ett_giop_struct,
+        &ett_giop_sequence,
+        &ett_giop_array,
+        &ett_giop_union,
     };
 
     expert_module_t* expert_tango;
 
 
     /* Register the protocol name and description */
-    proto_tango = proto_register_protocol("Tango Dissector Using GIOP API" , "TANGO", "giop-tango" );
+    proto_tango = proto_register_protocol("Tango Dissector Using GIOP API" , "GIOP/TANGO", "giop-tango" );
     proto_register_field_array(proto_tango, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
