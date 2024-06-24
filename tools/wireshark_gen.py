@@ -2199,9 +2199,9 @@ item = proto_tree_add_uint(tree, hf_@seqname@_loop, tvb,*offset-4, 4, u_octet4_l
 
     template_get_CDR_sequence_octet = """\
 if (u_octet4_loop_@seqname@ > 0 && tree) {
-    get_CDR_octet_seq(tvb, &binary_seq_@seqname@, offset,
+    get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_@seqname@, offset,
         u_octet4_loop_@seqname@);
-    text_seq_@seqname@ = make_printable_string(binary_seq_@seqname@,
+    text_seq_@seqname@ = make_printable_string(pinfo->pool, binary_seq_@seqname@,
         u_octet4_loop_@seqname@);
     proto_tree_add_bytes_format_value(tree, hf_@seqname@, tvb, *offset - u_octet4_loop_@seqname@,
         u_octet4_loop_@seqname@, binary_seq_@seqname@, \"%s\", text_seq_@seqname@);
@@ -2773,7 +2773,7 @@ static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 decode_@name@_un(tvb, pinfo, union_tree, offset, header, operation, stream_is_big_endian);
 """
     template_proto_item = """\
-proto_item *item = (proto_item*) wmem_alloc0(wmem_packet_scope(), sizeof(proto_item));
+proto_item *item = (proto_item*) wmem_alloc0(pinfo->pool, sizeof(proto_item));
 """
 
 #
