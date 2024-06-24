@@ -3468,6 +3468,11 @@ destroy_dissector_handle(dissector_handle_t handle)
 static void
 check_valid_dissector_name_or_fail(const char *name)
 {
+	if (name == NULL || name[0] == '\0') {
+		ws_error("A registered dissector name cannot be NULL or the empty string."
+			" Anonymous dissector handles can be created with create_dissector_handle()."
+			" This might be caused by an inappropriate plugin or a development error.");
+	}
 	if (proto_check_field_name(name)) {
 		ws_error("Dissector name \"%s\" has one or more invalid characters."
 			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
