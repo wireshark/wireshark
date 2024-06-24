@@ -828,6 +828,8 @@ typedef struct _dns_conv_info_t {
 #define T_AVC          258              /* Application Visibility and Control (Wolfgang_Riedel) */
 #define T_DOA          259              /* Digital Object Architecture (draft-durand-doa-over-dns) */
 #define T_AMTRELAY     260              /* Automatic Multicast Tunneling Relay (RFC8777) */
+#define T_RESINFO      261              /* Resolver Information */
+#define T_WALLET       262              /* Public wallet address */
 #define T_TA         32768              /* DNSSEC Trust Authorities */
 #define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 #define T_WINS       65281              /* Microsoft's WINS RR */
@@ -1197,6 +1199,8 @@ static const value_string dns_types_vals[] = {
   { T_AVC,        "AVC"        },
   { T_DOA,        "DOA"        }, /* (draft-durand-doa-over-dns) */
   { T_AMTRELAY,   "AMTRELAY"   }, /* RFC8777 */
+  { T_RESINFO,    "RESINFO"    },
+  { T_WALLET,     "WALLET"     },
   { T_TA,         "TA"         },
   { T_DLV,        "DLV"        }, /* RFC 4431 */
 
@@ -1296,6 +1300,8 @@ static const value_string dns_types_description_vals[] = {
   { T_AVC,        "(Application Visibility and Control)" },
   { T_DOA,        "(Digital Object Architecture)" }, /* (draft-durand-doa-over-dns) */
   { T_AMTRELAY,   "(Automatic Multicast Tunneling Relay)" }, /* RFC8777 */
+  { T_RESINFO,    "(Resolver Information) " },
+  { T_WALLET,     "(Public Wallet Address) " },
   { T_TA,         "(DNSSEC Trust Authorities)" },
   { T_DLV,        "(DNSSEC Lookaside Validation)" }, /* RFC 4431 */
   { T_WINS,       "" },
