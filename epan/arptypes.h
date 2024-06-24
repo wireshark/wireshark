@@ -69,6 +69,7 @@ extern "C" {
 #define ARPHRD_PURE_IP			35	/* Pure IP			*/
 #define ARPHRD_HW_EXP1			36	/* HW_EXP1			*/
 #define ARPHRD_HFI			37	/* HFI				*/
+#define ARPHRD_UB			38	/* Unified Bus (UB)		*/
 #define ARPHRD_HW_EXP2			256	/* HW_EXP2			*/
 #define ARPHRD_AETHERNET		257	/* AEthernet			*/
 

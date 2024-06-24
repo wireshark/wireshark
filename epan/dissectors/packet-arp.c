@@ -486,6 +486,7 @@ const value_string arp_hrd_vals[] = {
   {ARPHRD_PURE_IP,            "Pure IP"                    },
   {ARPHRD_HW_EXP1,            "Experimental 1"             },
   {ARPHRD_HFI,                "HFI"                        },
+  {ARPHRD_UB,                 "Unified Bus"                },
   {ARPHRD_HW_EXP2,            "Experimental 2"             },
   {ARPHRD_AETHERNET,          "AEthernet"                  },
   /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
