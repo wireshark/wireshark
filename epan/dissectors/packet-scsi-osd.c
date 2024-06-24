@@ -1335,7 +1335,7 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* 3 reserved bytes */
         offset += 3;
 
-        /* requested partiton id */
+        /* requested partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_requested_partition_id, lun_info, TRUE, FALSE);
         offset += 8;
 
@@ -1507,7 +1507,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -1721,7 +1721,7 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -1800,7 +1800,7 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, TRUE);
         offset += 8;
 
@@ -1902,7 +1902,7 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -1973,7 +1973,7 @@ dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2049,7 +2049,7 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2147,7 +2147,7 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2222,7 +2222,7 @@ dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2305,7 +2305,7 @@ dissect_osd_flush(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2390,7 +2390,7 @@ dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2457,7 +2457,7 @@ dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2530,7 +2530,7 @@ dissect_osd_create_and_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2696,7 +2696,7 @@ dissect_osd_flush_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2762,7 +2762,7 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2836,7 +2836,7 @@ dissect_osd_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 
@@ -2914,7 +2914,7 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
 
-        /* partiton id */
+        /* partition id */
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset += 8;
 

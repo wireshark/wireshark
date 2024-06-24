@@ -2881,15 +2881,15 @@ proto_register_wccp(void)
        NULL, HFILL }
     },
     { &hf_command_element_shutdown_ip_index,
-      {"Command Element Shutdown IP", "wccp.command_element_shudown_ip_Address.index", FT_UINT32, BASE_HEX, NULL, 0x0,
+      {"Command Element Shutdown IP", "wccp.command_element_shutdown_ip_Address.index", FT_UINT32, BASE_HEX, NULL, 0x0,
        NULL, HFILL }
     },
     { &hf_command_element_shutdown_ipv4,
-      {"Command Element Shutdown IP", "wccp.command_element_shudown_ip_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+      {"Command Element Shutdown IP", "wccp.command_element_shutdown_ip_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
        NULL, HFILL }
     },
     { &hf_command_element_shutdown_ipv6,
-      {"Command Element Shutdown IP", "wccp.command_element_shudown_ip_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+      {"Command Element Shutdown IP", "wccp.command_element_shutdown_ip_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
        NULL, HFILL }
     },
     { &hf_command_unknown,

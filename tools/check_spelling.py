@@ -133,7 +133,6 @@ class File:
 
     def checkMultiWordsRecursive(self, word):
         length = len(word)
-        #print('word=', word)
         if length < 4:
             return False
 
@@ -167,6 +166,12 @@ class File:
                 exit(1)
 
             v = str(v)
+
+            # Sometimes parentheses used to show optional letters, so don't leave space
+            #if re.compile(r"^[\S]*\(").search(v):
+            #    v = v.replace('(', '')
+            #if re.compile(r"\S\)").search(v):
+            #    v = v.replace(')', '')
 
             # Ignore includes.
             if v.endswith('.h'):
@@ -235,6 +240,7 @@ class File:
                     word = word[:-2]
                 if word.endswith("s’"):
                     word = word[:-2]
+
 
                 if self.numberPlusUnits(word):
                     continue

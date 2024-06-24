@@ -98,7 +98,7 @@ typedef struct pdcp_lte_info
 /* these headers and send LTE PDCP PDUs on a UDP socket is             */
 /* provided at https://gitlab.com/wireshark/wireshark/-/wikis/PDCP-LTE */
 /*                                                                     */
-/* A heuristic dissecter (enabled by a preference) will                */
+/* A heuristic dissector (enabled by a preference) will                */
 /* recognise a signature at the beginning of these frames.             */
 /* Until someone is using this format, suggestions for changes         */
 /* are welcome.                                                        */

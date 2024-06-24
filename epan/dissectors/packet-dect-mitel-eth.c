@@ -1581,7 +1581,7 @@ void proto_register_dect_mitel_eth(void)
 			}
 		},
 		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_ipq_services_supported,
-			{ "IPq serices supported", "dect_mitel_eth.rfpc.extended_capabilities.ipq_services_supported", FT_BOOLEAN, 32,
+			{ "IPq services supported", "dect_mitel_eth.rfpc.extended_capabilities.ipq_services_supported", FT_BOOLEAN, 32,
 				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IPQ_SERVICES_SUPPORTED, NULL, HFILL
 			}
 		},

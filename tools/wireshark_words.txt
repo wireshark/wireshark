@@ -153,6 +153,7 @@ authgss
 authn
 authntransitioning
 authorisation
+authorised
 authorizer
 authtoken
 authtype
@@ -392,6 +393,7 @@ comms
 communication
 companded
 compat
+compatibiity
 compatibles
 compilable
 compilers
@@ -465,6 +467,7 @@ cumulatively
 customizable
 customization
 customizing
+cyber
 cyphering
 cyrillic
 daintree
@@ -522,6 +525,7 @@ dedup
 deduplicate
 deenabled
 deenablement
+defence
 deferral
 defragment
 defragmentation
@@ -789,6 +793,7 @@ eyesdn
 f5eth
 fa1922dfa9a
 facch
+fahrenheit
 failover
 falco
 falcodump
@@ -817,6 +822,7 @@ flag2
 flanger
 flavored
 flavour
+flavours
 flexray
 flowid
 flowmod
@@ -939,6 +945,7 @@ headend
 hebrew
 hellman
 heuristic
+heuristicly
 heuristics
 hfarr
 hfill,
@@ -969,6 +976,7 @@ http2
 https
 huawei
 huffman
+hungarian
 hutchison
 hysteresis
 hytec
@@ -1024,6 +1032,7 @@ infix
 infolist
 informationitem
 informationlist
+informations
 infos
 inited
 initialisation
@@ -1066,6 +1075,7 @@ interruptible
 interworking
 intparam
 intra
+intrinsics
 intro
 intval
 inuse
@@ -1075,6 +1085,7 @@ invalidly
 invariance
 invariant
 ioctl
+ioepoch
 ioerr
 ioflag
 iograph
@@ -1169,12 +1180,14 @@ leasequery
 legitimisation
 lempar
 level1login
+lfsck
 libcap
 libgcrypt
 libiconv
 libndr
 libnl
 libpcap
+libscap
 libsmi
 libssh
 licmgr
@@ -1580,6 +1593,7 @@ parameterfv
 parameteriv
 parameterization
 parameterized
+paramfmt
 params
 paramset
 parens
@@ -1715,6 +1729,7 @@ pscell
 pseudowire
 psname
 ptime
+ptlrpc
 ptvcursor
 ptype
 pubdir
@@ -1912,6 +1927,7 @@ resolver
 resolvers
 resub
 resubmission
+resync
 resynchronisation
 resynchronization
 resynchronize
@@ -1945,6 +1961,7 @@ rgoose
 ripemd
 rlcmac
 rmcap
+rmdir
 rngrsp
 rnsap
 roamer
@@ -1987,6 +2004,7 @@ sanicap
 sanitization
 sanitize
 sanitizers
+santa
 santiago
 sapgui
 sarajevo
@@ -2070,6 +2088,7 @@ showtechnic
 shtdn
 siapp
 sidelink
+sigcomp
 siginfo
 siglen
 signaal
@@ -2123,6 +2142,7 @@ specifier
 specifiers
 spectrograph
 speex
+spirent
 spline
 spnego
 spoofing
@@ -2691,5 +2711,6 @@ z3950
 zbncp
 zeroes
 zigbee
+zlibng
 zugtyp
 zürich

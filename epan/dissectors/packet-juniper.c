@@ -1198,7 +1198,7 @@ static int dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
   return tvb_captured_length(tvb);
 }
 
-/* Wrapper for Juniper service PIC coookie dissector */
+/* Wrapper for Juniper service PIC cookie dissector */
 static int
 dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
