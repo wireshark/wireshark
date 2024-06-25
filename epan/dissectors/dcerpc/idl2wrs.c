@@ -1657,16 +1657,8 @@ static void parsetypedefstruct(int pass)
 		fixed_array_size=0;
 		is_array_of_pointers=0;
 		if(!g_strcmp0(ti->str, "[")){
-			char fss[BASE_BUFFER_SIZE];
-
 			/* this might be a fixed array */
 			ti=ti->next;
-
-			if (!ws_strtou32(ti->str, NULL, &fixed_array_size)) {
-				FPRINTF(stderr, "ERROR: invalid integer: %s\n", ti->str);
-				Exit(10);
-			}
-			snprintf(fss, BASE_BUFFER_SIZE, "%d", fixed_array_size);
 
 			if(!g_strcmp0("]", ti->str)){
 				/* this is just a normal [] array */
@@ -1676,9 +1668,8 @@ static void parsetypedefstruct(int pass)
 				fixed_array_size=0;
 				is_array_of_pointers=1;
 				ti=ti->next;
-			} else if(g_strcmp0(fss, ti->str)){
-				FPRINTF(stderr, "ERROR: typedefstruct (%s) fixed array size looks different to calculated one %s!=%s\n", struct_name, fss, ti->str);
-				ti=ti->next;
+			} else if (!ws_strtou32(ti->str, NULL, &fixed_array_size)) {
+				FPRINTF(stderr, "ERROR: invalid integer: %s\n", ti->str);
 				Exit(10);
 			} else {
 				ti=ti->next;
