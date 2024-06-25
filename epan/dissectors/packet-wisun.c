@@ -766,6 +766,7 @@ dissect_wisun_luttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 static int
 dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
+    guint start_offset = offset;
     guint8 node_role = tvb_get_guint8(tvb, offset) & WISUN_WSIE_NODE_ROLE_MASK;
 
     proto_tree_add_item(tree, hf_wisun_nrie_nr_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -790,7 +791,7 @@ dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
         offset += 3;
     }
 
-    return offset;
+    return offset - start_offset;
 }
 
 static int
@@ -1289,7 +1290,7 @@ dissect_wisun_pomie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     proto_item *item;
     proto_tree *subtree;
     guint8 number_operating_modes;
-    guint8 offset = 0;
+    guint offset = 0;
 
     static int* const wisun_pomie_fields[] = {
         &hf_wisun_pomie_number_operating_modes,
