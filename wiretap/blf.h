@@ -33,8 +33,9 @@ wtap_open_return_val blf_open(wtap *wth, int *err, char **err_info);
  *    Object header (object type dependent, may be empty)
  *    Object contents
  *
- * The objects in the sequence appear to be LOG_CONTAINER objects,
- * each of which contains a sequence of objects.
+ * The objects in the sequence may be LOG_CONTAINER objects,
+ * each of which itself contains a sequence of objects.  They
+ * may also be other object types; see, for example, issue #19896.
  *
  * A LOG_CONTAINER object's contents are of the form:
  *
