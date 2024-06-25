@@ -913,7 +913,7 @@ static void label_type_field(const guint64 *type_code, dissector_handle_t type_d
     if (!item_type || !item_parent) {
         return;
     }
-    const char *type_name = dissector_handle_get_dissector_name(type_dissect);
+    const char *type_name = dissector_handle_get_description(type_dissect);
     if (type_name) {
         proto_item_append_text(item_parent, ": %s", type_name);
     }
@@ -2375,31 +2375,31 @@ void proto_reg_handoff_bpv7(void) {
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_BLOCKTYPE_PAYLOAD;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_payload, proto_blocktype, "Payload");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_payload, proto_blocktype, NULL, "Payload");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_BLOCKTYPE_PREV_NODE;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_prev_node, proto_blocktype, "Previous Node");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_prev_node, proto_blocktype, NULL, "Previous Node");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_BLOCKTYPE_BUNDLE_AGE;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_bundle_age, proto_blocktype, "Bundle Age");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_bundle_age, proto_blocktype, NULL, "Bundle Age");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_BLOCKTYPE_HOP_COUNT;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_hop_count, proto_blocktype, "Hop Count");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_hop_count, proto_blocktype, NULL, "Hop Count");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_ADMINTYPE_BUNDLE_STATUS;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_status_report, proto_admintype, "Bundle Status Report");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_status_report, proto_admintype, NULL, "Bundle Status Report");
         dissector_add_custom_table_handle("bpv7.admin_record_type", key, hdl);
     }
 

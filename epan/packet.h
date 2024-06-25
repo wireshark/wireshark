@@ -618,11 +618,47 @@ WS_DLL_PUBLIC dissector_handle_t find_dissector_add_dependency(const char *name,
 /** Get a dissector name from handle. */
 WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
 
-/** Create an anonymous handle for a dissector. */
+/** Create an anonymous, unregistered dissector handle. Unregistered means that
+ * other dissectors can't find the dissector through this API. The typical use
+ * case is dissectors added to dissector tables that shouldn't be called by other
+ * dissectors, perhaps if some data structure must be passed to the dissector.
+ *
+ * @param dissector The dissector the handle will call
+ * @param proto The value obtained when registering the protocol
+ *
+ * @note The protocol short name will be used as the user-visible description.
+ */
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);
+
+/** Create an named, unregistered dissector handle.
+ * A non-NULL name is needed for dissector_add_for_decode_add_with_preference().
+ *
+ * @param dissector The dissector the handle will call
+ * @param proto The value obtained when registering the protocol
+ * @param name a short, machine-friendly name for the dissector. Does not have
+ * to be globally unique, but should be unique for any table the handle will be
+ * registered to. Can be NULL, which creates an anonymous dissector.
+ *
+ * @note The protocol short name will be used as the user-visible description.
+ */
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(dissector_t dissector,
     const int proto, const char* name);
+
+/** Create an named, unregistered handle dissector handle with a description.
+ * A non-NULL name is needed for dissector_add_for_decode_add_with_preference().
+ * The description is used to allow a user to distinguish dissectors for the
+ * same protocol, e.g. when registered to the same table.
+ *
+ * @param dissector The dissector the handle will call
+ * @param proto The value obtained when registering the protocol
+ * @param name a short, machine-friendly name for the dissector. Does not have
+ * to be globally unique, but should be unique for any table the handle will be
+ * registered to. Can be NULL, which creates an anonymous dissector.
+ * @param description Freeform text designed to be shown to a user. Must be
+ * unique for any table the dissector is registered in. Can be NULL, in which
+ * case the protocol short name is used as the user-visible description.
+ */
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name_and_description(dissector_t dissector,
     const int proto, const char* name, const char* description);
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_data(dissector_cb_t dissector,

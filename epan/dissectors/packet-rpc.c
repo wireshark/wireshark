@@ -483,11 +483,10 @@ rpc_proc_name(wmem_allocator_t *allocator, guint32 prog, guint32 vers, guint32 p
 	key.proc = proc;
 
 	/* Look at both tables for possible procedure names */
-	/* XXX - dissector name, or protocol name? */
 	if ((dissect_function = dissector_get_custom_table_handle(subdissector_call_table, &key)) != NULL)
-		procname = wmem_strdup(allocator, dissector_handle_get_dissector_name(dissect_function));
+		procname = wmem_strdup(allocator, dissector_handle_get_description(dissect_function));
 	else if ((dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key)) != NULL)
-		procname = wmem_strdup(allocator, dissector_handle_get_dissector_name(dissect_function));
+		procname = wmem_strdup(allocator, dissector_handle_get_description(dissect_function));
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
@@ -564,7 +563,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.call", g_memdup2(&key, sizeof(rpc_proc_info_key)),
-						create_dissector_handle_with_name(proc->dissect_call, value->proto_id, proc->strptr));
+						create_dissector_handle_with_name_and_description(proc->dissect_call, value->proto_id, NULL, proc->strptr));
 
 			if (proc->dissect_reply == NULL) {
 				fprintf(stderr, "OOPS: No reply handler for %s version %u procedure %s\n",
@@ -579,7 +578,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.reply", g_memdup2(&key, sizeof(rpc_proc_info_key)),
-					create_dissector_handle_with_name(proc->dissect_reply, value->proto_id, proc->strptr));
+					create_dissector_handle_with_name_and_description(proc->dissect_reply, value->proto_id, NULL, proc->strptr));
 		}
 	}
 }
@@ -1939,8 +1938,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key);
 	if (dissect_function != NULL) {
-		/* XXX - dissector name, or protocol name? */
-		procname = dissector_handle_get_dissector_name(dissect_function);
+		procname = dissector_handle_get_description(dissect_function);
 	}
 	else {
 		procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
@@ -2375,8 +2373,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		key.proc = proc;
 
 		if ((dissect_function = dissector_get_custom_table_handle(subdissector_call_table, &key)) != NULL) {
-			/* XXX - dissector name, or protocol name? */
-			procname = dissector_handle_get_dissector_name(dissect_function);
+			procname = dissector_handle_get_description(dissect_function);
 		}
 		else {
 			/* happens only with unknown program or version
@@ -2560,8 +2557,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key);
 		if (dissect_function != NULL) {
-			/* XXX - dissector name, or protocol name? */
-			procname = dissector_handle_get_dissector_name(dissect_function);
+			procname = dissector_handle_get_description(dissect_function);
 		}
 		else {
 			/* happens only with unknown program or version

@@ -1590,8 +1590,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 extitem_offset += 2;
 
                 dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
-                /* XXX - dissector name, or protocol name? */
-                const char *subname = dissector_handle_get_dissector_name(subdis);
+                const char *subname = dissector_handle_get_description(subdis);
                 if (subdis) {
                     proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
                 }
@@ -1715,8 +1714,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     extitem_offset += 2;
 
                     dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
-                    /* XXX - dissector name, or protocol name? */
-                    const char *subname = dissector_handle_get_dissector_name(subdis);
+                    const char *subname = dissector_handle_get_description(subdis);
                     if (subdis) {
                         proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
                     }
@@ -2433,7 +2431,7 @@ proto_reg_handoff_tcpcl(void)
 
     /* Packaged extensions */
     {
-        dissector_handle_t dis_h = create_dissector_handle_with_name(dissect_xferext_transferlen, proto_tcpcl_exts, "Transfer Length");
+        dissector_handle_t dis_h = create_dissector_handle_with_name_and_description(dissect_xferext_transferlen, proto_tcpcl_exts, NULL, "Transfer Length");
         dissector_add_uint("tcpcl.v4.xfer_ext", TCPCLV4_XFEREXT_TRANSFER_LEN, dis_h);
     }
 

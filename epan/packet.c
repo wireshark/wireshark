@@ -3318,6 +3318,9 @@ dissector_handle_get_short_name(const dissector_handle_t handle)
 const char *
 dissector_handle_get_description(const dissector_handle_t handle)
 {
+	if (handle == NULL) {
+		return NULL;
+	}
 	return handle->description;
 }
 
@@ -3380,10 +3383,31 @@ dissector_handle_get_dissector_name(const dissector_handle_t handle)
 	return handle->name;
 }
 
+static void
+check_valid_dissector_name_or_fail(const char *name)
+{
+	if (proto_check_field_name(name)) {
+		ws_error("Dissector name \"%s\" has one or more invalid characters."
+			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
+			" This might be caused by an inappropriate plugin or a development error.", name);
+	}
+}
+
 static dissector_handle_t
 new_dissector_handle(const int proto, const char *name, const char *description)
 {
 	struct dissector_handle *handle;
+
+	/* Make sure name is "parsing friendly" - descriptions should be
+	 * used for complicated phrases. NULL for anonymous unregistered
+	 * dissectors is allowed; we check for that in various places.
+	 *
+	 * (It might be safer to have a default name used for anonymous
+	 * dissectors rather than NULL checks scattered in the code.)
+	 */
+	if (name) {
+		check_valid_dissector_name_or_fail(name);
+	}
 
 	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= name;
@@ -3465,29 +3489,17 @@ destroy_dissector_handle(dissector_handle_t handle)
 	wmem_free(wmem_epan_scope(), handle);
 }
 
-static void
-check_valid_dissector_name_or_fail(const char *name)
-{
-	if (name == NULL || name[0] == '\0') {
-		ws_error("A registered dissector name cannot be NULL or the empty string."
-			" Anonymous dissector handles can be created with create_dissector_handle()."
-			" This might be caused by an inappropriate plugin or a development error.");
-	}
-	if (proto_check_field_name(name)) {
-		ws_error("Dissector name \"%s\" has one or more invalid characters."
-			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
-			" This might be caused by an inappropriate plugin or a development error.", name);
-	}
-}
-
 static dissector_handle_t
 register_dissector_handle(const char *name, dissector_handle_t handle)
 {
 	gboolean new_entry;
 
-	/* Make sure name is "parsing friendly" - descriptions should be
-	 * used for complicated phrases. */
-	check_valid_dissector_name_or_fail(name);
+	/* A registered dissector should have a name. */
+	if (name == NULL || name[0] == '\0') {
+		ws_error("A registered dissector name cannot be NULL or the empty string."
+			" Anonymous dissector handles can be created with create_dissector_handle()."
+			" This might be caused by an inappropriate plugin or a development error.");
+	}
 
 	new_entry = g_hash_table_insert(registered_dissectors, (gpointer)name, handle);
 	if (!new_entry) {

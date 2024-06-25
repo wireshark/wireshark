@@ -447,8 +447,7 @@ static gboolean dissect_header_pair(dissector_table_t dis_table, cose_header_con
         key.principal = NULL;
         dissector = dissector_get_custom_table_handle(dis_table, &key);
     }
-    /* XXX - dissector name, or protocol name? */
-    const char *dis_name = dissector_handle_get_dissector_name(dissector);
+    const char *dis_name = dissector_handle_get_description(dissector);
     if (dis_name) {
         proto_item_set_text(item_label, "Label: %s (%s)", dis_name, label_str);
     }
@@ -1284,7 +1283,7 @@ static void register_msg_dissector(dissector_handle_t dis_h, dissector_handle_t 
  * @param name The header name.
  */
 static void register_header_dissector(dissector_t dissector, GVariant *label, const char *name) {
-    dissector_handle_t dis_h = create_dissector_handle_with_name(dissector, proto_cose_params, name);
+    dissector_handle_t dis_h = create_dissector_handle_with_name_and_description(dissector, proto_cose_params, NULL, name);
 
     cose_param_key_t *key = g_new0(cose_param_key_t, 1);
     key->label = label;
@@ -1299,7 +1298,7 @@ static void register_header_dissector(dissector_t dissector, GVariant *label, co
  * @param name The header name.
  */
 static void register_keyparam_dissector(dissector_t dissector, GVariant *kty, GVariant *label, const char *name) {
-    dissector_handle_t dis_h = create_dissector_handle_with_name(dissector, proto_cose_params, name);
+    dissector_handle_t dis_h = create_dissector_handle_with_name_and_description(dissector, proto_cose_params, NULL, name);
 
     cose_param_key_t *key = g_new0(cose_param_key_t, 1);
     if (kty) {
