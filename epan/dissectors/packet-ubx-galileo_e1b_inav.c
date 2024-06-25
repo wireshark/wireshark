@@ -17,6 +17,7 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <wsutil/pint.h>
 
 #include "packet-ubx.h"
 
@@ -47,7 +48,17 @@ static int hf_ubx_gal_inav_tail;
 static int hf_ubx_gal_inav_pad;
 static int hf_ubx_gal_inav_reserved_1;
 
+static int hf_ubx_gal_inav_word0;
+static int hf_ubx_gal_inav_word0_type;
+static int hf_ubx_gal_inav_word0_time;
+static int hf_ubx_gal_inav_word0_spare;
+static int hf_ubx_gal_inav_word0_wn;
+static int hf_ubx_gal_inav_word0_tow;
+
+static dissector_table_t ubx_gal_inav_word_dissector_table;
+
 static int ett_ubx_gal_inav;
+static int ett_ubx_gal_inav_word0;
 static int ett_ubx_gal_inav_sar;
 
 static const value_string GAL_PAGE_TYPE[] = {
@@ -65,8 +76,12 @@ static const value_string GAL_SSP[] = {
 
 /* Dissect Galileo E1-B I/NAV navigation message */
 static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    tvbuff_t *next_tvb;
+
     bool sar_start, sar_long_rlm;
-    guint32 page_type;
+    guint32 inav_type, page_type;
+    guint64 data_122_67, data_66_17, data_16_1;
+    guint8 *word;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Galileo E1-B I/NAV");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -81,9 +96,9 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_reserved_1,  tvb, 0, 15, ENC_NA);
     }
     else { // nominal page
-        proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_type,        tvb, 0,  1, ENC_NA);
-        proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_data_122_67, tvb, 0,  8, ENC_BIG_ENDIAN);
-        proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_data_66_17,  tvb, 8,  8, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(gal_inav_tree,   hf_ubx_gal_inav_type,        tvb, 0,  1, ENC_NA,         &inav_type);
+        proto_tree_add_item_ret_uint64(gal_inav_tree, hf_ubx_gal_inav_data_122_67, tvb, 0,  8, ENC_BIG_ENDIAN, &data_122_67);
+        proto_tree_add_item_ret_uint64(gal_inav_tree, hf_ubx_gal_inav_data_66_17,  tvb, 8,  8, ENC_BIG_ENDIAN, &data_66_17);
     }
 
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_tail,            tvb, 14, 1, ENC_NA);
@@ -98,7 +113,7 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_reserved_1,  tvb, 16, 11, ENC_NA);
     }
     else { // nominal page
-        proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_data_16_1,   tvb, 16, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint64(gal_inav_tree, hf_ubx_gal_inav_data_16_1,   tvb, 16, 8, ENC_BIG_ENDIAN, &data_16_1);
         proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_osnma,       tvb, 16, 8, ENC_BIG_ENDIAN);
 
         proto_tree *sar_tree = proto_tree_add_subtree(gal_inav_tree, tvb, 23, 4, ett_ubx_gal_inav_sar, NULL, "SAR");
@@ -121,6 +136,41 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_ssp,           tvb, 28, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_tail,          tvb, 30, 1, ENC_NA);
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_pad,           tvb, 31, 1, ENC_NA);
+
+    // handoff the data word of a nominal page
+    if (page_type == 0) {
+        // create new tvb with the data word
+        word = wmem_alloc(pinfo->pool, 16);
+        phton16(word + 14, data_16_1);
+        phton64(word + 6, data_66_17);
+        phton64(word, (((guint64) inav_type) << 58) | (data_122_67 << 2) | (data_66_17 >> 48));
+
+        next_tvb = tvb_new_child_real_data(tvb, (guint8 *)word, 16, 16);
+        add_new_data_source(pinfo, next_tvb, "Galileo I/NAV Word");
+
+        // handoff to appropriate dissector
+        if (!dissector_try_uint(ubx_gal_inav_word_dissector_table, inav_type, next_tvb, pinfo, tree)) {
+            call_data_dissector(next_tvb, pinfo, tree);
+        }
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect word 0 - I/NAV Spare Word */
+static int dissect_ubx_gal_inav_word0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+    guint8 inav_type = tvb_get_guint8(tvb, 0) >> 2;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Word %i", inav_type);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word0, tvb, 0, 128 / 8, ENC_NA);
+    proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word0);
+
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_type,  tvb,  0,  1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_time,  tvb,  0,  1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_spare, tvb,  1, 11, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_wn,    tvb, 12,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_tow,   tvb, 12,  4, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
 }
@@ -145,6 +195,14 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_ssp,           {"SSP",           "gal_inav.ssp",           FT_UINT32,  BASE_HEX,  VALS(GAL_SSP),       0x003fc000,         NULL, HFILL}},
         {&hf_ubx_gal_inav_tail,          {"Tail",          "gal_inav.tail",          FT_UINT8,   BASE_HEX,  NULL,                0x3f,               NULL, HFILL}},
         {&hf_ubx_gal_inav_pad,           {"Pad",           "gal_inav.pad",           FT_UINT8,   BASE_HEX,  NULL,                0x0,                NULL, HFILL}},
+
+        // Word 0
+        {&hf_ubx_gal_inav_word0,         {"Word 0",        "gal_inav.word0",         FT_NONE,       BASE_NONE, NULL, 0x0,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_type,    {"Type",          "gal_inav.word0.type",    FT_UINT8,      BASE_HEX,  NULL, 0xfc, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_time,    {"Time",          "gal_inav.word0.time",    FT_UINT8,      BASE_HEX,  NULL, 0x03, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_spare,   {"Spare",         "gal_inav.word0.spare",   FT_BYTES,      BASE_NONE|SEP_SPACE, NULL, 0x0,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_wn,      {"Week Number",   "gal_inav.word0.wn",      FT_UINT32,     BASE_DEC,  NULL, 0xfff00000,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_tow,     {"Time of Week",  "gal_inav.word0.tow",     FT_UINT32,     BASE_DEC,  NULL, 0x000fffff,  NULL, HFILL}},
     };
 
     static gint *ett[] = {
@@ -158,8 +216,13 @@ void proto_register_ubx_gal_inav(void) {
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("ubx_gal_inav", dissect_ubx_gal_inav, proto_ubx_gal_inav);
+
+    ubx_gal_inav_word_dissector_table = register_dissector_table("ubx.rxm.sfrbx.gal_inav.word",
+            "Galileo I/NAV Word", proto_ubx_gal_inav, FT_UINT8, BASE_DEC);
 }
 
 void proto_reg_handoff_ubx_gal_inav(void) {
     dissector_add_uint("ubx.rxm.sfrbx.gnssid", GNSS_ID_GALILEO, create_dissector_handle(dissect_ubx_gal_inav, proto_ubx_gal_inav));
+
+    dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 0, create_dissector_handle(dissect_ubx_gal_inav_word0, proto_ubx_gal_inav));
 }
