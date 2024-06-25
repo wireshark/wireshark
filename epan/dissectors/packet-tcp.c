@@ -5727,15 +5727,18 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         if(tcpd->mptcp_analysis && (tcpd->mptcp_analysis->mp_operations!=tcpd->fwd->mp_operations)) {
             /* just ignore this DUPLICATE ACK */
         } else {
-            tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
-
             /* no initialization required of the tcpd->ta as this code would
              * be unreachable otherwise
              */
             tcpd->ta->flags &= ~TCP_A_WINDOW_UPDATE;
             tcpd->ta->flags |= TCP_A_DUPLICATE_ACK;
-            tcpd->ta->dupack_num=tcpd->fwd->tcp_analyze_seq_info->dupacknum;
-            tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
+
+            if (tcpd->fwd->tcp_analyze_seq_info) {
+                tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
+
+                tcpd->ta->dupack_num=tcpd->fwd->tcp_analyze_seq_info->dupacknum;
+                tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
+            }
        }
     }
 
@@ -5778,7 +5781,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         num_sack_ranges++;
 
         /* Store blocks for BiF analysis */
-        if (tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info && tcp_track_bytes_in_flight && num_sack_ranges < MAX_TCP_SACK_RANGES) {
+        if (tcp_analyze_seq && tcpd && tcpd->fwd->tcp_analyze_seq_info && tcp_track_bytes_in_flight && num_sack_ranges < MAX_TCP_SACK_RANGES) {
             tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = num_sack_ranges;
             tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[num_sack_ranges] = leftedge;
             tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges] = rightedge;
@@ -5810,11 +5813,12 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      * (1) A D-SACK block is only used to report a duplicate contiguous sequence of data received by
      *     the receiver in the most recent packet.
      */
-    if (LE_SEQ(tcph->sack_right_edge[0], tcph->th_ack) ||
+    if (tcph != NULL && (
+        LE_SEQ(tcph->sack_right_edge[0], tcph->th_ack) ||
          (tcph->num_sack_ranges > 1 &&
           LT_SEQ(tcph->sack_left_edge[1], tcph->sack_right_edge[0]) &&
           GE_SEQ(tcph->sack_right_edge[1], tcph->sack_right_edge[0]))
-    ) {
+    )) {
         leftedge = tvb_get_ntohl(tvb, sackoffset)-base_ack;
         tf = proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_dsack_le, tvb, sackoffset, 4, leftedge,
             "D-SACK Left Edge = %u%s", leftedge, (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");

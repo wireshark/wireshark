@@ -1640,7 +1640,9 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
              */
 
             /* convert primary message */
-            *data = g_strdup(buffer);
+            if (data) {
+                *data = g_strdup(buffer);
+            }
             break;
 
         case SP_SUCCESS:
