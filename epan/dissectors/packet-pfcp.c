@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.5.0 (2024-03-26)
+ * Ref 3GPP TS 29.244 V18.6.0 (2024-06-26)
  */
 #include "config.h"
 
@@ -286,6 +286,9 @@ static int hf_pfcp_report_type_b0_dldr;
 static int hf_pfcp_offending_ie;
 static int hf_pfcp_offending_ie_value;
 
+static int hf_pfcp_up_function_features_o14_b0_mbsch;
+static int hf_pfcp_up_function_features_o13_b7_un6tu;
+static int hf_pfcp_up_function_features_o13_b6_umn6ip;
 static int hf_pfcp_up_function_features_o13_b5_upsbies;
 static int hf_pfcp_up_function_features_o13_b4_mtsdt;
 static int hf_pfcp_up_function_features_o13_b3_edbnc;
@@ -447,6 +450,7 @@ static int hf_pfcp_pfcpsmreq_flags_b2_qaurr;
 static int hf_pfcp_pfcpsmreq_flags_b3_sumpc;
 static int hf_pfcp_pfcpsmreq_flags_b4_rumuc;
 static int hf_pfcp_pfcpsmreq_flags_b5_deteid;
+static int hf_pfcp_pfcpsmreq_flags_b6_hrsbom;
 
 static int hf_pfcp_pfcpsrrsp_flags_b0_drobu;
 
@@ -675,6 +679,7 @@ static int hf_pfcp_pfcpasrsp_flags_flags_b0_psrei;
 static int hf_pfcp_cp_pfcp_entity_ip_address_ipv4;
 static int hf_pfcp_cp_pfcp_entity_ip_address_ipv6;
 
+static int hf_pfcp_pfcpsereq_flags_flags_b2_hrsbom;
 static int hf_pfcp_pfcpsereq_flags_flags_b1_sumpc;
 static int hf_pfcp_pfcpsereq_flags_flags_b0_resti;
 
@@ -896,6 +901,7 @@ static int hf_pfcp_ip_address_and_port_number_replacement_flag_b2_dpn;
 static int hf_pfcp_ip_address_and_port_number_replacement_flag_b3_sipv4;
 static int hf_pfcp_ip_address_and_port_number_replacement_flag_b4_sipv6;
 static int hf_pfcp_ip_address_and_port_number_replacement_flag_b5_spn;
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b6_umn6rs;
 static int hf_pfcp_ip_address_and_port_number_replacement_destination_ipv4;
 static int hf_pfcp_ip_address_and_port_number_replacement_destination_ipv6;
 static int hf_pfcp_ip_address_and_port_number_replacement_destination_port;
@@ -1038,6 +1044,22 @@ static int hf_pfcp_rtp_header_extension_additional_information_flags_b0_fi;
 static int hf_pfcp_rtp_header_extension_additional_information_pssa;
 static int hf_pfcp_rtp_header_extension_additional_information_format;
 
+static int hf_pfcp_mapped_n6_ip_address_b0_chv4;
+static int hf_pfcp_mapped_n6_ip_address_b1_v4;
+static int hf_pfcp_mapped_n6_ip_address_ipv4;
+
+static int hf_pfcp_n6_routing_information_flag_b0_sipv4;
+static int hf_pfcp_n6_routing_information_flag_b1_sipv6;
+static int hf_pfcp_n6_routing_information_flag_b2_spo;
+static int hf_pfcp_n6_routing_information_flag_b3_dipv4;
+static int hf_pfcp_n6_routing_information_flag_b4_dipv6;
+static int hf_pfcp_n6_routing_information_flag_b5_dpo;
+static int hf_pfcp_n6_routing_information_source_ipv4;
+static int hf_pfcp_n6_routing_information_source_ipv6;
+static int hf_pfcp_n6_routing_information_source_port;
+static int hf_pfcp_n6_routing_information_destination_ipv4;
+static int hf_pfcp_n6_routing_information_destination_ipv6;
+static int hf_pfcp_n6_routing_information_destination_port;
 
 /* Enterprise IEs */
 /* BBF */
@@ -1872,7 +1894,9 @@ static const value_string pfcp_ie_type[] = {
     { 347, "MT-SDT Control Information"},                           /* Extendable / Clause 8.2.239 */
     { 348, "Reporting Thresholds"},                                 /* Extendable / Clause 8.2.240 */
     { 349, "RTP Header Extension Additional Information"},          /* Extendable / Clause 8.2.241 */
-    //350 to 32767 Spare. For future use.
+    { 350, "Mapped N6 IP Address"},                                 /* Extendable / Clause 8.2.242 */
+    { 351, "N6 Routing Information"},                               /* Extendable / Clause 8.2.243 */
+    //352 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -3349,7 +3373,8 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o13_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_up_function_features_o13_b7_un6tu,
+        &hf_pfcp_up_function_features_o13_b6_umn6ip,
         &hf_pfcp_up_function_features_o13_b5_upsbies,
         &hf_pfcp_up_function_features_o13_b4_mtsdt,
         &hf_pfcp_up_function_features_o13_b3_edbnc,
@@ -3358,7 +3383,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o13_b0_pdusm,
         NULL
     };
-    /* Octet 13  Spare  UPSBIES MT-SDT  EDBNC   QMDRM   CN-TL   PDUSM  */
+    /* Octet 13  UN6TU  UMN6IP  UPSBIES MT-SDT  EDBNC   QMDRM   CN-TL   PDUSM  */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o13_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3366,6 +3391,18 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
+    static int * const pfcp_up_function_features_o14_flags[] = {
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_up_function_features_o14_b0_mbsch,
+        NULL
+    };
+    /* Octet 13  Spare  MBSCH  */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o14_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset == length) {
+        return;
+    }
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
@@ -3574,7 +3611,8 @@ dissect_pfcp_pfcpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     int offset = 0;
 
     static int * const pfcp_pfcpsmreq_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_pfcpsmreq_flags_b6_hrsbom,
         &hf_pfcp_pfcpsmreq_flags_b5_deteid,
         &hf_pfcp_pfcpsmreq_flags_b4_rumuc,
         &hf_pfcp_pfcpsmreq_flags_b3_sumpc,
@@ -3583,7 +3621,7 @@ dissect_pfcp_pfcpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         &hf_pfcp_pfcpsmreq_flags_b0_drobu,
         NULL
     };
-    /* Octet 5  Spare   Spare   DETEID   RUMUC   SUMPC   QAURR   SNDEM   DROBU */
+    /* Octet 5  Spare   HRBOM   DETEID   RUMUC   SUMPC   QAURR   SNDEM   DROBU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_pfcpsmreq_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -7182,12 +7220,13 @@ dissect_pfcp_pfcpsereq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     int offset = 0;
 
     static int * const pfcp_pfcpsereq_flags_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_pfcpsereq_flags_flags_b2_hrsbom,
         &hf_pfcp_pfcpsereq_flags_flags_b1_sumpc,
         &hf_pfcp_pfcpsereq_flags_flags_b0_resti,
         NULL
     };
-    /* Octet 5  Spare   SUMPC   RESTI */
+    /* Octet 5  Spare   HRSBOM  SUMPC   RESTI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_pfcpsereq_flags_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -8491,6 +8530,7 @@ static const value_string pfcp_rattype_vals[] = {
     { 25, "NR (GEO)" },
     { 26, "NR (OTHERSAT)" },
     { 27, "NR-REDCAP" },
+    { 28, "NR-EREDCAP" },
     { 0, NULL }
 };
 
@@ -8816,7 +8856,8 @@ dissect_pfcp_ip_address_and_port_number_replacement(tvbuff_t *tvb, packet_info *
     guint64 ip_address_and_port_number_replacement_flags;
 
     static int * const pfcp_ip_address_and_port_number_replacement_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_ip_address_and_port_number_replacement_flag_b6_umn6rs,
         &hf_pfcp_ip_address_and_port_number_replacement_flag_b5_spn,
         &hf_pfcp_ip_address_and_port_number_replacement_flag_b4_sipv6,
         &hf_pfcp_ip_address_and_port_number_replacement_flag_b3_sipv4,
@@ -8825,7 +8866,7 @@ dissect_pfcp_ip_address_and_port_number_replacement(tvbuff_t *tvb, packet_info *
         &hf_pfcp_ip_address_and_port_number_replacement_flag_b0_v4,
         NULL
     };
-    /* Octet 5  Spare  SPN    SIPV6   SIPV4   DPN     V6      V4*/
+    /* Octet 5  Spare  UMN6RS   SPN    SIPV6   SIPV4   DPN     V6      V4*/
     proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_ip_address_and_port_number_replacement_flags, ENC_BIG_ENDIAN, &ip_address_and_port_number_replacement_flags);
     offset += 1;
 
@@ -9793,7 +9834,7 @@ dissect_pfcp_mt_sdt_control_information(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 /*
- * 8.2.340   Reporting Thresholds
+ * 8.2.240   Reporting Thresholds
  */
 static void
 dissect_pfcp_reporting_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
@@ -9877,6 +9918,96 @@ dissect_pfcp_rtp_header_extension_additional_information(tvbuff_t *tvb, packet_i
         proto_tree_add_item(tree, hf_pfcp_rtp_header_extension_additional_information_format, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.242   Mapped N6 IP Address
+ */
+static void
+dissect_pfcp_mapped_n6_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 mapped_n6_ip_address_flags;
+
+    static int * const pfcp_mapped_n6_ip_address_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_mapped_n6_ip_address_b0_chv4,
+        &hf_pfcp_mapped_n6_ip_address_b1_v4,
+        NULL
+    };
+    /* Octet 5  Spare   V4 */
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_mapped_n6_ip_address_flags, ENC_BIG_ENDIAN, &mapped_n6_ip_address_flags);
+    offset += 1;
+
+    /* IPv4 address (if present) */
+    if ((mapped_n6_ip_address_flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_mapped_n6_ip_address_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
+        offset += 4;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.243   N6 Routing Information
+ */
+static void
+dissect_pfcp_n6_routing_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 n6_routing_information_flags;
+
+    static int * const pfcp_n6_routing_information_flags[] = {
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_n6_routing_information_flag_b5_dpo,
+        &hf_pfcp_n6_routing_information_flag_b4_dipv6,
+        &hf_pfcp_n6_routing_information_flag_b3_dipv4,
+        &hf_pfcp_n6_routing_information_flag_b2_spo,
+        &hf_pfcp_n6_routing_information_flag_b1_sipv6,
+        &hf_pfcp_n6_routing_information_flag_b0_sipv4,
+        NULL
+    };
+    /* Octet 5  Spare  DPO    DIPV6   DIPV4   SPO     SIPV6      SIPV4*/
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_n6_routing_information_flags, ENC_BIG_ENDIAN, &n6_routing_information_flags);
+    offset += 1;
+
+    /* Source IPv4 address (if present)*/
+    if ((n6_routing_information_flags & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_source_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+    /* Source IPv6 address (if present)*/
+    if ((n6_routing_information_flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_source_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+    }
+    /* Source Port Number (if present)*/
+    if ((n6_routing_information_flags & 0x4)) {
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_source_port, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    }
+    /* Destination IPv4 address (if present)*/
+    if ((n6_routing_information_flags & 0x8)) {
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_destination_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+    /* Destination IPv6 address (if present)*/
+    if ((n6_routing_information_flags & 0x10)) {
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_destination_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+    }
+    /* Destination Port Number (if present)*/
+    if ((n6_routing_information_flags & 0x20)) {
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_destination_port, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    }
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -10622,7 +10753,9 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    347 */    { dissect_pfcp_mt_sdt_control_information },                    /* MT-SDT Control Information	                    Extendable / Clause 8.2.239 */
 /*    348 */    { dissect_pfcp_reporting_thresholds },                          /* Reporting Thresholds	                            Extendable / Clause 8.2.240 */
 /*    349 */    { dissect_pfcp_rtp_header_extension_additional_information },   /* RTP Header Extension Additional Information	    Extendable / Clause 8.2.241 */
-//350 to 32767 Spare. For future use.
+/*    350 */    { dissect_pfcp_mapped_n6_ip_address },                          /* Mapped N6 IP Address	                            Extendable / Clause 8.2.242 */
+/*    351 */    { dissect_pfcp_n6_routing_information },                        /* N6 Routing Information                           Extendable / Clause 8.2.243 */
+//352 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -13986,6 +14119,21 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             "UPF support of event subscription via Service Based Interface", HFILL }
         },
+        { &hf_pfcp_up_function_features_o13_b7_un6tu,
+        { "UN6TU", "pfcp.up_function_features.un6tu",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "UPF supports to allocate a mapped N6 IP address and perform IP replacement", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o13_b6_umn6ip,
+        { "UMN6IP", "pfcp.up_function_features.umn6ip",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            "UPF supports N6 tunnelling using N6 routing information", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b0_mbsch,
+        { "MBSCH", "pfcp.up_function_features.mbsch",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            "MB-UPF support of MBS charging", HFILL }
+        },
 
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
@@ -14286,6 +14434,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_pfcpsmreq_flags_b5_deteid,
         { "DETEID (Delete All DL N3mb and/or N19mb F-TEIDs)", "pfcp.smreq_flags.deteid",
             FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfcpsmreq_flags_b6_hrsbom,
+        { "HRSBOM (HR-SBO Mode)", "pfcp.smreq_flags.hrsbom",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_pfcp_pfcpsrrsp_flags_b0_drobu,
@@ -15225,6 +15378,11 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
+        { &hf_pfcp_pfcpsereq_flags_flags_b2_hrsbom,
+        { "HRSBOM (HR-SBO Mode)", "pfcp.sereq_flags.flags.hrsbom",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
 
         { &hf_pfcp_ip_multicast_address_flags_b2_range,
         { "RANGE", "pfcp.ip_multicast_address.flags.range",
@@ -16035,7 +16193,7 @@ proto_register_pfcp(void)
         { &hf_pfcp_l2tp_steering_mode_indications_o5_b0_albi,
         { "ALBI", "pfcp.l2tp_session_indications.reuia",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
-            "Autonomous Load Balacing Indicator", HFILL }
+            "Autonomous Load Balancing Indicator", HFILL }
         },
         { &hf_pfcp_l2tp_steering_mode_indications_o5_b1_ueai,
         { "UEAI", "pfcp.l2tp_session_indications.redsa",
@@ -16087,6 +16245,11 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_ip_address_and_port_number_replacement_flag_b5_spn,
         { "SPN", "pfcp.ip_address_and_port_number_replacement.flag.spn",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_address_and_port_number_replacement_flag_b6_umn6rs,
+        { "UMN6RS", "pfcp.ip_address_and_port_number_replacement.flag.umn6rs",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
             NULL, HFILL }
         },
@@ -16634,6 +16797,83 @@ proto_register_pfcp(void)
         { &hf_pfcp_rtp_header_extension_additional_information_format,
         { "Format", "pfcp.rtp_header_extension_additional_information.format",
             FT_UINT8, BASE_DEC, VALS(pfcp_rtp_header_extension_additional_information_type_vals), 0x3,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_mapped_n6_ip_address_b0_chv4,
+        { "CHV4", "pfcp.mapped_n6_ip_address.flags.chv4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_mapped_n6_ip_address_b1_v4,
+        { "V4", "pfcp.mapped_n6_ip_address.flags.v4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_mapped_n6_ip_address_ipv4,
+        { "IPv4 address", "pfcp.mapped_n6_ip_address.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_n6_routing_information_flag_b0_sipv4,
+        { "SIPV4", "pfcp.n6_routing_information.flag.sipv4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_flag_b1_sipv6,
+        { "SIPV6", "pfcp.n6_routing_information.flag.sipv6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_flag_b2_spo,
+        { "SPO", "pfcp.n6_routing_information.flag.spo",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_flag_b3_dipv4,
+        { "DIPV4", "pfcp.n6_routing_information.flag.dipv4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_flag_b4_dipv6,
+        { "DIPV6", "pfcp.n6_routing_information.flag.dipv6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_flag_b5_dpo,
+        { "DPO", "pfcp.n6_routing_information.flag.spn",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_n6_routing_information_source_ipv4,
+        { "Source IPv4 address", "pfcp.n6_routing_information.sipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_source_ipv6,
+        { "Source IPv6 address", "pfcp.n6_routing_information.sipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_source_port,
+        { "Source Port Number", "pfcp.n6_routing_information.spn",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_destination_ipv4,
+        { "Destination IPv4 address", "pfcp.n6_routing_information.dipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_destination_ipv6,
+        { "Destination IPv6 address", "pfcp.n6_routing_information.dipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_n6_routing_information_destination_port,
+        { "Destination Port Number", "pfcp.n6_routing_information.dpn",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
