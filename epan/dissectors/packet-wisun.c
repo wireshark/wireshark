@@ -1433,7 +1433,7 @@ dissect_wisun_lgtkhashie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     proto_item *item;
     proto_tree *subtree;
-    guint8 offset = 0;
+    guint offset = 0;
     guint8 lgtkhash_control = 0;
 
     static int * const fields_lgtkhashie_flags[] = {
@@ -1476,7 +1476,7 @@ dissect_wisun_lgtkhashie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 dissect_wisun_lbatsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint8 offset = 0;
+    guint offset = 0;
     proto_item *item;
     proto_tree *subtree;
 
@@ -1629,7 +1629,7 @@ dissect_wisun_pie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void 
 static int
 dissect_wisun_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8 offset = 0;
+    guint offset = 0;
     guint8 cmd_subid;
 
     cmd_subid = tvb_get_guint8(tvb, offset);
