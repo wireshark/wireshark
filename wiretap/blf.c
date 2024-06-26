@@ -3499,7 +3499,6 @@ wtap_open_return_val
 blf_open(wtap *wth, int *err, char **err_info) {
     blf_fileheader_t  header;
     blf_t            *blf;
-    blf_params_t      params;
 
     ws_debug("opening file");
 
@@ -3559,16 +3558,6 @@ blf_open(wtap *wth, int *err, char **err_info) {
     blf->channel_to_iface_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, &blf_free_key, &blf_free_channel_to_iface_entry);
     blf->channel_to_name_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, &blf_free_key, &blf_free_channel_to_name_entry);
     blf->next_interface_id = 0;
-
-    /* embed in params */
-    params.blf_data = blf;
-    params.buf = NULL;
-    params.fh = wth->fh;
-    params.random = false;
-    params.pipe = wth->ispipe;
-    params.rec = NULL;
-    params.wth = wth;
-    params.blf_data->current_real_seek_pos = 0;
 
     wth->priv = (void *)blf;
     wth->file_encap = WTAP_ENCAP_NONE;
