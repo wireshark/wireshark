@@ -33,16 +33,23 @@ wtap_open_return_val blf_open(wtap *wth, int *err, char **err_info);
  *    Object header (object type dependent, may be empty)
  *    Object contents
  *
- * The objects in the sequence may be LOG_CONTAINER objects,
- * each of which itself contains a sequence of objects.  They
- * may also be other object types; see, for example, issue #19896.
+ * As per
+ *
+ *    https://gitlab.com/wireshark/wireshark/-/issues/19896#note_1967971057
+ *
+ * the sequence may have one (or more?) metadata objects at the beginning.
+ * After those, if present, there are zero or more LOG_CONTAINER objects,
+ * containing data for all subsequent objects.  An object may be split
+ * between LOG_CONTAINER objects, as per
+ *
+ *    https://gitlab.com/wireshark/wireshark/-/issues/19377#note_1651998569
  *
  * A LOG_CONTAINER object's contents are of the form:
  *
  *    Log container header
- *    Sequence of BLF objects
+ *    Data for contained objects.
  * 
- * The contents of the container may be compressed using zlib.
+ * The data in a LOG_CONTAINER object may be compressed using zlib.
  */
 
 #define BLF_HEADER_TYPE_DEFAULT                   1
