@@ -61,7 +61,6 @@ static void blf_close(wtap *wth);
  * ...
  *
  * The "real" positions, length, etc. reference this layout and not the file.
- * When no compression is used the file is accessed directly.
  */
 typedef struct blf_log_container {
     int64_t  infile_start_pos;        /* start position of log container in file */
@@ -70,8 +69,6 @@ typedef struct blf_log_container {
 
     uint64_t real_start_pos;          /* decompressed (virtual) start position including header */
     uint64_t real_length;             /* decompressed length */
-    int64_t  real_first_object_pos;   /* where does the first obj start? */
-    uint64_t real_leftover_bytes;     /* how many bytes are left over for the next container? */
 
     uint16_t compression_method;      /* 0: uncompressed, 2: zlib */
 
@@ -620,8 +617,6 @@ blf_init_logcontainer(blf_log_container_t *tmp) {
     tmp->infile_data_start = 0;
     tmp->real_start_pos = 0;
     tmp->real_length = 0;
-    tmp->real_first_object_pos = -1;
-    tmp->real_leftover_bytes = UINT64_MAX;
     tmp->real_data = NULL;
     tmp->compression_method = 0;
 }
