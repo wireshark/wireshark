@@ -940,6 +940,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
     blf_blockheader_t           header;
     blf_logcontainerheader_t    logcontainer_header;
     blf_log_container_t         tmp;
+    unsigned char*              header_ptr;
     unsigned int                i;
 
     uint64_t current_real_start;
@@ -951,70 +952,69 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
         current_real_start = container->real_start_pos + container->real_length;
     }
 
-    unsigned char* header_ptr = (unsigned char*)&header;
+    header_ptr = (unsigned char*)&header;
+    i = 0;
 
-    /* This loop will continue until we find a valid log container, or we encounter an error. */
-    while (1) {
-        /** Find Object
-         *
-         * We read one byte at a time so that we don't have to seek backward (allows us to do a linear read)
-         */
-        i = 0;
-        while (i < sizeof(blf_obj_magic)) {
-            if (!wtap_read_bytes_or_eof(params->fh, &header_ptr[i], 1, err, err_info)) {
-                ws_debug("we found end of file");
-                return false;
-            }
-            if (header_ptr[i] != blf_obj_magic[i]) {
-                if (params->pipe) {
-                    ws_debug("container object magic is not LOBJ");
-                }
-                else {
-                    ws_debug("container object magic is not LOBJ (pos: 0x%" PRIx64 ")", file_tell(params->fh) - 1);
-                }
-                if (i > 0) {
-                    int j = i;
-
-                    while (memcmp(&header_ptr[i - j + 1], blf_obj_magic, j)) {
-                        /* Check if the last j bytes match the first j bytes of the magic */
-                        j--;
-                    }
-
-                    /* The last j bytes match, and the first j bytes are already in the buffer, since j<=i */
-                    i = j;
-                }
-            }
-            else {
-                /* Character matches */
-                i++;
-            }
-        }
-
-        if (!wtap_read_bytes_or_eof(params->fh, &header.header_length, sizeof(blf_blockheader_t) - sizeof(blf_obj_magic), err, err_info)) {
+    /** Find Object
+     *
+     * We read one byte at a time so that we don't have to seek backward (allows us to do a linear read)
+     */
+    while (i < sizeof(blf_obj_magic)) {
+        if (!wtap_read_bytes_or_eof(params->fh, &header_ptr[i], 1, err, err_info)) {
             ws_debug("we found end of file");
             return false;
         }
+        if (header_ptr[i] != blf_obj_magic[i]) {
+            if (params->pipe) {
+                ws_debug("container object magic is not LOBJ");
+            }
+            else {
+                ws_debug("container object magic is not LOBJ (pos: 0x%" PRIx64 ")", file_tell(params->fh) - 1);
+            }
+            if (i > 0) {
+                int j = i;
 
-        fix_endianness_blf_blockheader(&header);
+                while (memcmp(&header_ptr[i - j + 1], blf_obj_magic, j)) {
+                    /* Check if the last j bytes match the first j bytes of the magic */
+                    j--;
+                }
 
-        if (header.header_length < sizeof(blf_blockheader_t)) {
-            *err = WTAP_ERR_BAD_FILE;
-            *err_info = ws_strdup("blf: header length too short while looking for log containers");
-            return false;
+                /* The last j bytes match, and the first j bytes are already in the buffer, since j<=i */
+                i = j;
+            }
         }
-
-        if (header.header_type != BLF_HEADER_TYPE_DEFAULT) {
-            *err = WTAP_ERR_UNSUPPORTED;
-            *err_info = ws_strdup_printf("blf: unknown header type (%u), I know only BLF_HEADER_TYPE_DEFAULT (1)", header.header_type);
-            return false;
+        else {
+            /* Character matches */
+            i++;
         }
+    }
 
-        if (header.object_length < header.header_length) {
-            *err = WTAP_ERR_BAD_FILE;
-            *err_info = ws_strdup("blf: log container header object length less than header length while looking for log containers");
-            return false;
-        }
+    if (!wtap_read_bytes_or_eof(params->fh, &header.header_length, sizeof(blf_blockheader_t) - sizeof(blf_obj_magic), err, err_info)) {
+        ws_debug("we found end of file");
+        return false;
+    }
 
+    fix_endianness_blf_blockheader(&header);
+
+    if (header.header_length < sizeof(blf_blockheader_t)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("blf: header length too short while looking for log containers");
+        return false;
+    }
+
+    if (header.header_type != BLF_HEADER_TYPE_DEFAULT) {
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = ws_strdup_printf("blf: unknown header type (%u), I know only BLF_HEADER_TYPE_DEFAULT (1)", header.header_type);
+        return false;
+    }
+
+    if (header.object_length < header.header_length) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("blf: log container header object length less than header length while looking for log containers");
+        return false;
+    }
+
+    if (header.object_type == BLF_OBJTYPE_LOG_CONTAINER) {
         /* skip unknown header part if needed */
         if (header.header_length > sizeof(blf_blockheader_t)) {
             /* seek over unknown header part */
@@ -1024,52 +1024,78 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
             }
         }
 
-        if (header.object_type == BLF_OBJTYPE_LOG_CONTAINER) {
-            /* Read the log container header */
-            if (!wtap_read_bytes_or_eof(params->fh, &logcontainer_header, sizeof(blf_logcontainerheader_t), err, err_info)) {
-                ws_debug("not enough bytes for log container header");
-                return false;
-            }
+        /* Read the log container header */
+        if (!wtap_read_bytes_or_eof(params->fh, &logcontainer_header, sizeof(blf_logcontainerheader_t), err, err_info)) {
+            ws_debug("not enough bytes for log container header");
+            return false;
+        }
 
-            fix_endianness_blf_logcontainerheader(&logcontainer_header);
+        fix_endianness_blf_logcontainerheader(&logcontainer_header);
 
-            blf_init_logcontainer(&tmp);
+        blf_init_logcontainer(&tmp);
 
-            if (params->pipe) {
-                tmp.infile_start_pos = 0;
-                tmp.infile_data_start = sizeof(blf_logcontainerheader_t) + header.header_length;
-            }
-            else {
-                tmp.infile_data_start = file_tell(params->fh);
-                tmp.infile_start_pos = tmp.infile_data_start - sizeof(blf_logcontainerheader_t) - header.header_length;
-            }
-            tmp.infile_length = header.object_length;
-
-            tmp.real_start_pos = current_real_start;
-            tmp.real_length = logcontainer_header.uncompressed_size;
-            tmp.compression_method = logcontainer_header.compression_method;
-
-            ws_debug("found log container with real_pos=0x%" PRIx64 ", real_length=0x%" PRIx64, tmp.real_start_pos, tmp.real_length);
-
-            g_array_append_val(params->blf_data->log_containers, tmp);
-
-            return true;
+        if (params->pipe) {
+            tmp.infile_start_pos = 0;
+            tmp.infile_data_start = sizeof(blf_logcontainerheader_t) + header.header_length;
         }
         else {
-            /* TODO: maybe create "fake Log Container" for this */
-            ws_debug("we found a non BLF log container on top level. this is unexpected.");
+            tmp.infile_data_start = file_tell(params->fh);
+            tmp.infile_start_pos = tmp.infile_data_start - sizeof(blf_logcontainerheader_t) - header.header_length;
+        }
+        tmp.infile_length = header.object_length;
 
-            if (!wtap_read_bytes(params->fh, NULL, header.object_length - header.header_length, err, err_info)) {
-                return false;
-            }
+        tmp.real_start_pos = current_real_start;
+        tmp.real_length = logcontainer_header.uncompressed_size;
+        tmp.compression_method = logcontainer_header.compression_method;
+    }
+    else {
+        ws_debug("found BLF object without log container");
 
-            /* Here we continue to the next iteration of the loop */
+        /* Create a fake log container for the lone object.
+         * In order to avoid seeking backwards, we need to pull the fake log container now.
+         */
+        unsigned char* buf = g_try_malloc0((size_t)header.object_length);
+        if (buf == NULL) {
+            /*
+             * XXX - our caller will turn this into an EOF.
+             * How *should* it be treated?
+             * For now, we turn it into Yet Another Internal Error,
+             * pending having better documentation of the file
+             * format.
+             */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup("blf_find_next_logcontainer: cannot allocate memory");
+            return false;
         }
 
+        memcpy(buf, &header, sizeof(blf_blockheader_t));
+
+        if (header.object_length > sizeof(blf_blockheader_t)) {
+            if (!wtap_read_bytes(params->fh, buf + sizeof(blf_blockheader_t), header.object_length - sizeof(blf_blockheader_t), err, err_info)) {
+                g_free(buf);
+                ws_debug("cannot pull object without log container");
+                return false;
+            }
+        }
+
+        blf_init_logcontainer(&tmp);
+
+        tmp.infile_start_pos = params->pipe ? 0 : (file_tell(params->fh) - header.object_length);
+        tmp.infile_data_start = tmp.infile_start_pos;
+        tmp.infile_length = header.object_length;
+
+        tmp.real_start_pos = current_real_start;
+        tmp.real_length = header.object_length;
+        tmp.compression_method = BLF_COMPRESSION_NONE;
+
+        tmp.real_data = buf;
     }
 
-    /* We should never reach this point. */
-    return false;
+    ws_debug("found log container with real_pos=0x%" PRIx64 ", real_length=0x%" PRIx64, tmp.real_start_pos, tmp.real_length);
+
+    g_array_append_val(params->blf_data->log_containers, tmp);
+
+    return true;
 }
 
 static bool
