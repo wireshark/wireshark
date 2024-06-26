@@ -740,7 +740,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
     }
 
     if (container->compression_method == BLF_COMPRESSION_NONE) {
-        unsigned char* buf = g_try_malloc0((size_t)container->real_length);
+        unsigned char* buf = g_try_malloc((size_t)container->real_length);
         if (buf == NULL) {
             /*
              * XXX - our caller will turn this into an EOF.
@@ -773,7 +773,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
     }
     else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-        unsigned char *compressed_data = g_try_malloc0((size_t)data_length);
+        unsigned char *compressed_data = g_try_malloc((size_t)data_length);
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, err, err_info)) {
             g_free(compressed_data);
             if (*err == WTAP_ERR_SHORT_READ) {
@@ -790,7 +790,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
             return false;
         }
 
-        unsigned char *buf = g_try_malloc0((size_t)container->real_length);
+        unsigned char *buf = g_try_malloc((size_t)container->real_length);
         if (buf == NULL) {
             /*
              * XXX - our caller will turn this into an EOF.
@@ -1049,7 +1049,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
         /* Create a fake log container for the lone object.
          * In order to avoid seeking backwards, we need to pull the fake log container now.
          */
-        unsigned char* buf = g_try_malloc0((size_t)header.object_length);
+        unsigned char* buf = g_try_malloc((size_t)header.object_length);
         if (buf == NULL) {
             /*
              * XXX - our caller will turn this into an EOF.
