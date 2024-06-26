@@ -3508,7 +3508,7 @@ prefs_register_modules(void)
                                    "computationally intensive user input. "
                                    "If you type quickly, consider lowering the value for a 'snappier' "
                                    "experience. "
-                                   "If you type slowly, consider increasing the value to avoid performance issues."
+                                   "If you type slowly, consider increasing the value to avoid performance issues. "
                                    "This is currently used to delay searches in View -> Internals -> Supported Protocols "
                                    "and Preferences -> Advanced menu.",
                                    10,
