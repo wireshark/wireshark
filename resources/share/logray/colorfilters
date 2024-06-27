@@ -2,6 +2,7 @@
 @Failed Syscall@(evt.failed == True) && !(evt.res == "EAGAIN") && !(evt.res == "EALREADY")@[56797,28270,24158][0,0,0]
 @Falco Notifications@sysdig.event_name == "notification"@[0,0,0][65535,65535,65535]
 @Command Executions@evt.type == "execve"@[38807,57568,17990][0,0,0]
+@New Process Creations@evt.type=="clone" || evt.type=="fork"@[14649,28013,14906][65535,65535,65535]
 @Socket Syscalls@evt.type == "connect" || evt.type == "accept" || evt.type == "socket" || evt.type == "bind"@[20303,26214,51143][65535,65535,65535]
 @Net Writes@(evt.is_io == True) && (evt.category == "net") && (evt.is_io_write == True)@[24672,53713,51657][0,0,0]
 @Net Reads@(evt.is_io == True) && (evt.category == "net")@[29812,64764,62451][0,0,0]
