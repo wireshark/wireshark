@@ -705,7 +705,7 @@ class RangeString:
         self.max_value = -99999
 
         # Now parse out each entry in the value_string
-        matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
+        matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*\}\s*,', self.raw_vals)
         for m in matches:
             min,max,label = m.group(1), m.group(2), m.group(3)
             if min in macros:
@@ -718,7 +718,6 @@ class RangeString:
             elif any(not c in '0123456789abcdefABCDEFxX' for c in max):
                 self.valid = False
                 return
-
 
             try:
                 # Read according to the appropriate base.
@@ -749,7 +748,7 @@ class RangeString:
                 self.min_value = min
             # For overall max value, still use min of each entry.
             # It is common for entries to extend to e.g. 0xff, but at least we can check for items
-            # that can never match if we only chec the min.
+            # that can never match if we only check the min.
             if min > self.max_value:
                 self.max_value = min
 
@@ -759,7 +758,7 @@ class RangeString:
                     print('Warning:', self.file, ': range_string label', label, 'hidden by', prev)
                     warnings_found += 1
 
-            # Max should not be > min
+            # Min should not be > max
             if min > max:
                 print('Warning:', self.file, ': range_string', self.name, 'entry', label, 'min', min, '>', max)
                 warnings_found += 1
@@ -772,11 +771,24 @@ class RangeString:
             # OK, add this entry
             self.parsed_vals.append(RangeStringEntry(min, max, label))
 
+        # TODO: mark as not valid if not all pairs were successfully parsed?
+
     def extraChecks(self):
-        pass
-        # TODO: some checks over all entries.  e.g.,
-        # - can multiple values be coalesced into 1?
-        # - if in all cases min==max, suggest value_string instead?
+        global warnings_found
+
+        # if in all cases min==max, suggest value_string instead?
+        could_use_value_string = True
+        for val in self.parsed_vals:
+            if val.min != val.max:
+                could_use_value_string = False
+                break
+        if could_use_value_string:
+            print('Warning:', self.file, ': range_string', self.name, 'could be value_string instead!')
+            warnings_found += 1
+
+        # TODO: can multiple values be coalesced into fewer?
+        # TODO: Partial overlapping?
+
 
 
 class StringString:
@@ -1579,7 +1591,7 @@ def isGeneratedFile(filename):
     return False
 
 
-# TODO: could also look for macros in header file(s)
+# TODO: could also look for macros in related/included header file(s)?
 def find_macros(filename):
     # Pre-populate with some useful values..
     macros = { 'BASE_NONE' : 0,  'BASE_DEC' : 1 }
@@ -1593,6 +1605,13 @@ def find_macros(filename):
         for m in matches:
             # Store this mapping.
             macros[m.group(1)] = m.group(2)
+
+        # Also look for what could be enumeration assignments
+        matches = re.finditer( r'\s*([A-Za-z0-9_]*)\s*=\s*([0-9xa-fA-F]*)\s*,?\n', contents)
+        for m in matches:
+            # Store this mapping.
+            macros[m.group(1)] = m.group(2)
+
     return macros
 
 

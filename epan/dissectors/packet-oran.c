@@ -374,17 +374,17 @@ enum section_c_types {
 };
 
 static const range_string section_types[] = {
-    {SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink"},
-    {SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels"},
-    {SEC_C_RSVD2,             SEC_C_RSVD2,             "Reserved for future use"},
-    {SEC_C_PRACH,             SEC_C_PRACH,             "PRACH and mixed-numerology channels"},
-    {SEC_C_RSVD4,             SEC_C_RSVD4,             "Reserved for future use"},
-    {SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "UE scheduling information (UE-ID assignment to section)"},
-    {SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information"},
-    {SEC_C_LAA,               SEC_C_LAA,               "LAA"},
-    {SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "ACK/NACK Feedback"},
-    {9,                       255,                     "Reserved for future use"},
-    {0, 0, NULL} };
+    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink"},
+    { SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels"},
+    { SEC_C_RSVD2,             SEC_C_RSVD2,             "Reserved for future use"},
+    { SEC_C_PRACH,             SEC_C_PRACH,             "PRACH and mixed-numerology channels"},
+    { SEC_C_RSVD4,             SEC_C_RSVD4,             "Reserved for future use"},
+    { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "UE scheduling information (UE-ID assignment to section)"},
+    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information"},
+    { SEC_C_LAA,               SEC_C_LAA,               "LAA"},
+    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "ACK/NACK Feedback"},
+    { 9,                       255,                     "Reserved for future use"},
+    { 0, 0, NULL} };
 
 static const range_string section_types_short[] = {
     { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "(Unused RBs)" },
