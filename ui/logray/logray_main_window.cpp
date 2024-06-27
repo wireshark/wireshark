@@ -801,6 +801,23 @@ void LograyMainWindow::removeInterfaceToolbar(const char *menu_title)
     menu->menuAction()->setVisible(!menu->actions().isEmpty());
 }
 
+void LograyMainWindow::updateStyleSheet()
+{
+#ifdef Q_OS_MAC
+    // TODO: The event type QEvent::ApplicationPaletteChange is not sent to all child widgets.
+    // Workaround this by doing it manually for all AccordionFrame.
+    main_ui_->addressEditorFrame->updateStyleSheet();
+    main_ui_->columnEditorFrame->updateStyleSheet();
+    main_ui_->filterExpressionFrame->updateStyleSheet();
+    main_ui_->goToFrame->updateStyleSheet();
+    main_ui_->preferenceEditorFrame->updateStyleSheet();
+    main_ui_->searchFrame->updateStyleSheet();
+
+    df_combo_box_->updateStyleSheet();
+    welcome_page_->updateStyleSheets();
+#endif
+}
+
 bool LograyMainWindow::eventFilter(QObject *obj, QEvent *event) {
 
     // The user typed some text. Start filling in a filter.
@@ -824,6 +841,7 @@ bool LograyMainWindow::event(QEvent *event)
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
         initMainToolbarIcons();
+        updateStyleSheet();
         break;
     default:
         break;
