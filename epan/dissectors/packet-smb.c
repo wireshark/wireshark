@@ -11850,7 +11850,7 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	DISSECTOR_ASSERT(si);
 
-	/*XXX shouldn this data hold version and size? unclear from doc*/
+	/*XXX should this data hold version and size? unclear from doc*/
 	/* referral version */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
 	proto_tree_add_item(tree, hf_smb_dfs_referral_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -18525,22 +18525,22 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
-dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static bool
+dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	/* must check that this really is a smb packet */
 	if (tvb_reported_length(tvb) < 4)
-		return FALSE;
+		return false;
 
 	if ( (tvb_get_guint8(tvb, 0) != 0xff)
 	    || (tvb_get_guint8(tvb, 1) != 'S')
 	    || (tvb_get_guint8(tvb, 2) != 'M')
 	    || (tvb_get_guint8(tvb, 3) != 'B') ) {
-		return FALSE;
+		return false;
 	}
 
 	dissect_smb(tvb, pinfo, parent_tree, data);
-	return TRUE;
+	return true;
 }
 
 void

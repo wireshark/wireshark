@@ -617,40 +617,55 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guint64 value;
     gboolean is_compact = FALSE;
     struct _rtp_pkt_info *rtp_pkt_info = p_get_proto_data(pinfo->pool, pinfo, proto_rtp, pinfo->curr_layer_num-1);
+    struct _rtp_info *rtp_info = NULL;
+    gboolean rtmp_enforce_hf_only = FALSE;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVS");
 
-
-    /* Find out if we have one of the reserved packet sizes*/
-    packet_len = tvb_reported_length(tvb);
-    num_bits = packet_len * 8;
-    if (rtp_pkt_info)
-        num_bits += rtp_pkt_info->padding_len * 8; /* take into account RTP padding if any */
-    if (num_bits == 56) {
-        /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
-        /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
-           most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
-           kbps is always set to '0'.
-         */
-        oct = tvb_get_bits8(tvb, bit_offset, 1);
-        if (oct == 0) {
-            /* EVS Primary 2.8 kbps */
-            str = "EVS Primary 2.8 kbps";
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", str);
-            is_compact = TRUE;
-        } else {
-            /* EVS AMR-WB IO SID */
-            str = "EVS AMR-WB IO SID";
-        }
-    } else if (!evs_hf_only) {
-        str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
-        if (str) {
-            is_compact = TRUE;
-        }
-    }
     ti = proto_tree_add_item(tree, proto_evs, tvb, 0, -1, ENC_NA);
     evs_tree = proto_item_add_subtree(ti, ett_evs);
+    packet_len = tvb_reported_length(tvb);
+
+    /* A.2.3.2 ignore sizes if hf-only=1 */
+    if (data) {
+        rtp_info = (struct _rtp_info*)data;
+        if (rtp_info->info_payload_fmtp_map) {
+            char *tmp = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "hf-only");
+            if (g_strcmp0(tmp, "1") == 0) {
+                rtmp_enforce_hf_only = TRUE;
+            }
+        }
+    }
+
+    /* Find out if we have one of the reserved packet sizes*/
+    if (!(rtmp_enforce_hf_only || evs_hf_only)) {
+        num_bits = packet_len * 8;
+        if (rtp_pkt_info)
+            num_bits += rtp_pkt_info->padding_len * 8; /* take into account RTP padding if any */
+        if (num_bits == 56) {
+            /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
+            /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
+            most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
+            kbps is always set to '0'.
+            */
+            oct = tvb_get_bits8(tvb, bit_offset, 1);
+            if (oct == 0) {
+                /* EVS Primary 2.8 kbps */
+                str = "EVS Primary 2.8";
+                is_compact = TRUE;
+            } else {
+                /* EVS AMR-WB IO SID */
+                str = "EVS AMR-WB IO SID";
+            }
+        } else {
+            str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
+            if (str) {
+                is_compact = TRUE;
+            }
+        }
+    }
+
     if (is_compact) {
         /* A.2.1 EVS codec Compact Format */
         proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_header, &ti, "Framing Mode: Compact");

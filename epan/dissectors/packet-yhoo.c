@@ -160,7 +160,7 @@ static const value_string yhoo_msgtype_vals[] = {
 	{0, NULL}
 };
 
-static gboolean
+static bool
 dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree      *yhoo_tree, *ti;
@@ -168,7 +168,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	if (pinfo->srcport != TCP_PORT_YHOO && pinfo->destport != TCP_PORT_YHOO) {
 		/* Not the Yahoo port - not a Yahoo Messenger packet. */
-		return FALSE;
+		return false;
 	}
 
 	/* get at least a full packet structure */
@@ -176,13 +176,13 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		/* Not enough data captured; maybe it is a Yahoo
 		   Messenger packet, but it contains too little data to
 		   tell. */
-		return FALSE;
+		return false;
 	}
 
 	if (tvb_memeql(tvb, offset, (const guint8*)"YPNS", 4) != 0 &&
 	    tvb_memeql(tvb, offset, (const guint8*)"YHOO", 4) != 0) {
 		/* Not a Yahoo Messenger packet. */
-		return FALSE;
+		return false;
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YHOO");
@@ -237,7 +237,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			offset, ENC_ASCII);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void

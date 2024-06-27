@@ -1141,7 +1141,7 @@ lowpan_reassembly_id(packet_info *pinfo, guint16 dgram_tag)
  *                          then no dissection will be attempted.
  *---------------------------------------------------------------
  */
-static gboolean
+static bool
 dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint    offset = 0;
@@ -1176,12 +1176,12 @@ dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAGN) break;
 
         /* If we get here, then we couldn't match to any pattern. */
-        return FALSE;
+        return false;
     } /* for */
 
     /* If we get here, then we found a matching pattern. */
     dissect_6lowpan(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 } /* dissect_6lowpan_heur */
 
 /*FUNCTION:------------------------------------------------------

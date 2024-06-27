@@ -448,20 +448,38 @@ char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction
     switch(direction){
     case CONV_DIR_A_TO_FROM_B:
         /* A <-> B */
-        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-                              conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
-                              src_addr,
-                              sport?" && ":"",
-                              sport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
-                              sport?"==":"",
-                              sport?sport:"",
-                              conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
-                              dst_addr,
-                              dport?" && ":"",
-                              dport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
+        if(strcmp(src_addr, dst_addr)==0) {
+            str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+                                  conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
+                                  src_addr,
+                                  sport?" && ":"",
+                                  sport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
+                                  sport?"==":"",
+                                  sport?sport:"",
+                                  conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
+                                  dst_addr,
+                                  dport?" && ":"",
+                                  dport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
+                                  dport?"==":"",
+                                  dport?dport:""
+                );
+        }
+        else {
+            str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+                                  conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
+                                  src_addr,
+                                  sport?" && ":"",
+                                  sport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
+                                  sport?"==":"",
+                                  sport?sport:"",
+                                  conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
+                                  dst_addr,
+                                  dport?" && ":"",
+                                  dport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
+                                  dport?"==":"",
+                                  dport?dport:""
+                );
+        }
         break;
     case CONV_DIR_A_TO_B:
         /* A --> B */

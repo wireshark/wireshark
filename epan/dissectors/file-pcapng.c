@@ -1882,6 +1882,7 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
         byte_order_magic_bad = TRUE;
         next_tvb = tvb_new_subset_length(tvb, 8, 4);
         block_data_tree = block_tree;
+        block_length_item = NULL;
     }
     else {
         next_tvb = process_block_length(block_tree, pinfo, tvb, offset, &block_data_tree, &block_length_item, &block_length, info->encoding);
@@ -2063,10 +2064,10 @@ static void pcapng_shutdown_protocol(void)
     s_local_block_callback_table = NULL;
 }
 
-static gboolean
-dissect_pcapng_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_pcapng_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_pcapng(tvb, pinfo, tree, NULL) > 0;
+    return dissect_pcapng(tvb, pinfo, tree, data) > 0;
 }
 
 /* Expected to be called by an external dissector.  For an in-tree example, please see file-pcap-darwin.c */

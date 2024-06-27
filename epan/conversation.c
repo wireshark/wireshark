@@ -1154,7 +1154,7 @@ conversation_new_deinterlaced(const guint32 setup_frame, const address *addr1, c
     conversation->setup_frame = conversation->last_frame = setup_frame;
 
     if (options & NO_PORTS) {
-        conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTD_ENDP_NO_PORTS_IDX+1));
+        conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTD_ENDP_NO_PORTS_IDX+2));
 
         new_key[DEINTD_ADDR1_IDX].type = CE_ADDRESS;
         if (addr1 != NULL) {
@@ -1189,7 +1189,7 @@ conversation_new_deinterlaced(const guint32 setup_frame, const address *addr1, c
         return conversation;
     }
     else {
-        conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTD_EXACT_IDX_COUNT+1));
+        conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTD_EXACT_IDX_COUNT+2));
 
         new_key[DEINTD_ADDR1_IDX].type = CE_ADDRESS;
         if (addr1 != NULL) {

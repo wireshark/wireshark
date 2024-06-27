@@ -492,12 +492,6 @@ static const value_string rohc_profile_vals[] = {
     { 0,   NULL }
 };
 
-static const true_false_string pdu_type_bit = {
-    "Data PDU",
-    "Control PDU"
-};
-
-
 static const value_string control_pdu_type_vals[] = {
     { 0,   "PDCP status report" },
     { 1,   "Interspersed ROHC feedback packet" },
@@ -1712,7 +1706,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 }
 
 /* Try to calculate digest to compare with that found in frame. */
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, proto_tree *security_tree, tvbuff_t *header_tvb _U_,
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, packet_info *pinfo, proto_tree *security_tree, tvbuff_t *header_tvb _U_,
                                 tvbuff_t *tvb _U_, gint offset _U_, guint sdap_length _U_, gboolean *calculated)
 {
     *calculated = FALSE;
@@ -1742,7 +1736,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 guint8  *mac;
                 guint header_length = tvb_reported_length(header_tvb);
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
+                guint8 *message_data = (guint8 *)wmem_alloc0(pinfo->pool, header_length+message_length-sdap_length+4);
 
                 /* TS 33.401 B.2.2 */
 
@@ -1799,7 +1793,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* Extract the encrypted data into a buffer */
                 header_length = tvb_reported_length(header_tvb);
                 message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), 8+header_length+message_length-sdap_length);
+                message_data = (guint8 *)wmem_alloc0(pinfo->pool, 8+header_length+message_length-sdap_length);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
                 message_data[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
@@ -1845,7 +1839,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 guint32  mac;
                 guint header_length = tvb_reported_length(header_tvb);
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
+                guint8 *message_data = (guint8 *)wmem_alloc0(pinfo->pool, header_length+message_length-sdap_length+4);
 
                 /* Data is header bytes */
                 tvb_memcpy(header_tvb, message_data, 0, header_length);
@@ -1898,7 +1892,7 @@ static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field
 }
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
     gint                  offset                 = 0;
@@ -1916,12 +1910,12 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     gint min_length = (gint)(strlen(PDCP_NR_START_STRING) + 3); /* signature */
 
     if (tvb_captured_length_remaining(tvb, offset) < min_length) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, PDCP_NR_START_STRING, strlen(PDCP_NR_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(PDCP_NR_START_STRING);
 
@@ -2013,7 +2007,7 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     /* It must be a recognised tag */
                     report_heur_error(tree, pinfo, &ei_pdcp_nr_unknown_udp_framing_tag, tvb, offset-1, 1);
                     wmem_free(wmem_file_scope(), p_pdcp_nr_info);
-                    return TRUE;
+                    return true;
             }
         }
 
@@ -2021,7 +2015,7 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
             /* Conditional field is not present */
             report_heur_error(tree, pinfo, &ei_pdcp_nr_missing_udp_framing_tag, tvb, 0, offset);
             wmem_free(wmem_file_scope(), p_pdcp_nr_info);
-            return TRUE;
+            return true;
         }
 
         /* Store info in packet */
@@ -2037,7 +2031,7 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* Create tvb that starts at actual PDCP PDU */
     pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_pdcp_nr(pdcp_tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 
@@ -2349,7 +2343,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                                     offset, -1, ENC_NA);
                     bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
-                    buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
+                    buff = (gchar *)wmem_alloc(pinfo->pool, BUFF_SIZE);
                     len = tvb_reported_length_remaining(tvb, offset);
                     bit_offset = offset<<3;
 
@@ -2478,7 +2472,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Try to calculate digest so we can check it */
     if (global_pdcp_check_integrity && p_pdcp_info->maci_present) {
-        calculated_digest = calculate_digest(&pdu_security_settings, security_tree,
+        calculated_digest = calculate_digest(&pdu_security_settings, pinfo, security_tree,
                                              tvb_new_subset_length(tvb, 0, header_length),
                                              payload_tvb,
                                              offset, sdap_length, &digest_was_calculated);
@@ -2553,7 +2547,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 bool data_control;
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_data_control, tvb, pdcp_offset, 1, ENC_NA, &data_control);
                 proto_tree_add_item(sdap_tree, hf_sdap_reserved, tvb, pdcp_offset, 1, ENC_NA);
-                proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &pdu_type_bit));
+                proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &tfs_data_pdu_control_pdu));
             } else {
                 bool rdi, rqi;
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rdi, tvb, pdcp_offset, 1, ENC_NA, &rdi);
@@ -2821,7 +2815,7 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_data_control,
             { "PDU Type",
-              "pdcp-nr.pdu-type", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
+              "pdcp-nr.pdu-type", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               NULL, HFILL
             }
         },
@@ -3008,7 +3002,7 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_sdap_data_control,
             { "PDU Type",
-              "sdap.pdu-type", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
+              "sdap.pdu-type", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               NULL, HFILL
             }
         },

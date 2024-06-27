@@ -199,26 +199,39 @@ static const char* cross_plat_fname(const char* fname) {
 WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     /*
      Creates a file to write packets.
-     `Dumper:new_for_current()` will probably be a better choice.
+     `Dumper:new_for_current()` will probably be a better choice, especially for file types other than pcapng.
     */
 #define WSLUA_ARG_Dumper_new_FILENAME 1 /* The name of the capture file to be created. */
-#define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created - a number returned by `wtap_name_to_file_type_subtype()`.
+#define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created - a number returned by `wtap_name_to_file_type_subtype()`. Defaults to pcapng.
                                               (The `wtap_filetypes` table
                                               is deprecated, and should only be used
-                                              in code that must run on Wireshark 3.4.3 and earlier 3.4 releases
+                                              in code that must run on Wireshark 3.4.3 and earlier 3.4.x releases
                                               or in Wireshark 3.2.11 and earlier
                                               3.2.x releases.) */
-#define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created - a number entry from the `wtap_encaps` table. */
+#define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created - a number entry from the `wtap_encaps` table.
+                                              Defaults to per-packet encapsulation for pcapng
+                                              (which doesn't have file-level encapsulation;
+                                              this will create IDBs on demand as necessary)
+                                              and Ethernet encapsulation for other file types. */
     Dumper d;
     const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
-    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,wtap_pcap_file_type_subtype());
-    int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
+    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,wtap_pcapng_file_type_subtype());
+    /* If we're writing pcapng, then WTAP_ENCAP_NONE and WTAP_ENCAP_PER_PACKET
+     * generate a fake IDB on demand when the first packet for an encapsulation
+     * type is written. Specifying any other encapsulation will generate a fake
+     * IDB for that encapsulation upon opening even if there are no packets of
+     * that type.
+     * XXX - Default to PER_PACKET for any file type that supports it? */
+    int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP, filetype == wtap_pcapng_file_type_subtype() ? WTAP_ENCAP_PER_PACKET : WTAP_ENCAP_ETHERNET);
     int err = 0;
     char *err_info = NULL;
     const char* filename = cross_plat_fname(fname);
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
     params.encap = encap;
+    /* XXX - Check for an existing file, or the same file name as the current
+     * capture file?
+     */
     d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err,
                        &err_info);
 
@@ -412,10 +425,10 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     /*
      Creates a capture file using the same encapsulation as the one of the current packet.
      */
-#define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
+#define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcapng. */
     Dumper d;
     const char* fname = luaL_checkstring(L,1);
-    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,wtap_pcap_file_type_subtype());
+    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,wtap_pcapng_file_type_subtype());
     int encap;
     int err = 0;
     char *err_info = NULL;

@@ -1,0 +1,194 @@
+import "srvsvc.idl";
+
+[
+  uuid("6bffd098-a112-3610-9833-012892020162"),
+  version(0.0),
+  helpstring("Browsing"),
+  pointer_default(unique),
+  endpoint("ncacn_np:[\\pipe\\browser]", "ncacn_ip_tcp:", "ncalrpc:")
+] interface browser
+{
+
+	/******************/
+	/* Function  0x00 */
+
+	WERROR BrowserrServerEnum(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown2,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown3,
+		[in,out,ref] BrowserrSrvInfo *info,
+		[in] long unknown4,
+		[out] long *unknown5,
+		[in] long unknown6,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown7,
+		[in,out] [unique] long *unknown8
+	);
+
+	/******************/
+	/* Function  0x01 */
+
+	WERROR BrowserrDebugCall(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in] long unknown2,
+		[in] long unknown3
+	);
+
+	/******************/
+	/* Function  0x02 */
+
+	typedef struct {
+		uint32 entries_read;
+		[size_is(entries_read)] srvsvc_NetSrvInfo100 *entries;
+	} BrowserrSrvInfo100Ctr;
+
+	typedef struct {
+		uint32 entries_read;
+		[size_is(entries_read)] srvsvc_NetSrvInfo101 *entries;
+	} BrowserrSrvInfo101Ctr;
+
+	typedef [switch_type(uint32)] union {
+		[case(100)] [unique] BrowserrSrvInfo100Ctr *info100;
+		[case(101)] [unique] BrowserrSrvInfo101Ctr *info101;
+		[default] ;
+	} BrowserrSrvInfoUnion;
+
+	typedef struct {
+		uint32 level;
+		[switch_is(level)] BrowserrSrvInfoUnion info;
+	} BrowserrSrvInfo;
+
+	WERROR BrowserrQueryOtherDomains(
+		[in,unique] [string,charset(UTF16)] uint16 *server_unc,
+		[in,out,ref] BrowserrSrvInfo *info,
+		[out,ref] uint32 *total_entries
+	);
+
+	/******************/
+	/* Function  0x03 */
+
+	WERROR BrowserrResetNetlogonState(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown
+	);
+
+	/******************/
+	/* Function  0x04 */
+
+	WERROR BrowserrDebugTrace(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in] [string] char *unknown2
+	);
+
+	/******************/
+	/* Function  0x05 */
+
+	typedef struct {
+		hyper unknown;
+	} TYPE_1;
+
+	typedef struct {
+		TYPE_1 unknown1;
+		TYPE_1 unknown2;
+		TYPE_1 unknown3;
+		long unknown4;
+		long unknown5;
+		long unknown6;
+		long unknown7;
+		long unknown8;
+		long unknown9;
+		long unknown10;
+		long unknown11;
+		long unknown12;
+		long unknown13;
+		long unknown14;
+		long unknown15;
+		long unknown16;
+		long unknown17;
+		long unknown18;
+		TYPE_1 unknown19;
+	} TYPE_2;
+
+	WERROR BrowserrQueryStatistics(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[out] [ref] TYPE_2 **unknown2
+	);
+
+	/******************/
+	/* Function  0x06 */
+
+	WERROR BrowserrResetStatistics(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown
+	);
+
+	/******************/
+	/* Function  0x07 */
+
+	WERROR NetrBrowserStatisticsClear(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown
+	);
+
+	typedef struct {
+		TYPE_1 unknown1;
+		TYPE_1 unknown2;
+		TYPE_1 unknown3;
+		long unknown4;
+		long unknown5;
+		long unknown6;
+		TYPE_1 unknown7;
+		long unknown8;
+		long unknown9;
+		long unknown10;
+		long unknown11;
+		long unknown12;
+		long unknown13;
+		long unknown14;
+		long unknown15;
+		long unknown16;
+	} TYPE_3;
+
+	/******************/
+	/* Function  0x08 */
+
+	WERROR NetrBrowserStatisticsGet(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in] long unknown2,
+		[in,out] [ref] BrowserrSrvInfo *unknown3
+	);
+
+	/******************/
+	/* Function  0x09 */
+
+	WERROR BrowserrSetNetlogonState(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in,ref] [string,charset(UTF16)] uint16 *unknown2,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown3,
+		[in] long unknown4
+	);
+
+	/******************/
+	/* Function  0x0a */
+
+	typedef struct {
+		long unknown1;
+		[size_is(unknown82)] [unique] uint8 *unknown2;
+	} TYPE_4;
+
+	WERROR BrowserrQueryEmulatedDomains(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in,out] [ref] TYPE_4 *unknown2
+	);
+
+	/******************/
+	/* Function  0x0b */
+
+	WERROR BrowserrServerEnumEx(
+		[in,unique] [string,charset(UTF16)] uint16 *unknown1,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown2,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown3,
+		[in,out,ref] BrowserrSrvInfo *info,
+		[in] long unknown4,
+		[out] long *unknown5,
+		[in] long unknown6,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown7,
+		[in,unique] [string,charset(UTF16)] uint16 *unknown8
+	);
+}

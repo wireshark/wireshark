@@ -9257,7 +9257,7 @@ dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    unsigned char service, service_code, ioilen, segment;
@@ -9280,7 +9280,7 @@ dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
              (preq_info->dissector == dissector_get_uint_handle( subdissector_class_table, CI_CLS_CCO)))
          {
             call_dissector(preq_info->dissector, tvb, pinfo, tree);
-            return TRUE;
+            return true;
          }
       }
       else
@@ -9314,13 +9314,13 @@ dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
          if (classid == CI_CLS_CCO)
          {
             call_dissector(cip_class_cco_handle, tvb, pinfo, tree );
-            return TRUE;
+            return true;
          }
 
       }
    }
 
-   return FALSE;
+   return false;
 }
 
 /************************************************

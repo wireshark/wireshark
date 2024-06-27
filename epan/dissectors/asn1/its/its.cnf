@@ -25,7 +25,7 @@ RTCMEM
 VAM
 ItsPduHeaderVam
 IMZM
-
+CollectivePerceptionMessage
 EvcsnPdu
 DriverLanguage
 ChargingPower
@@ -39,14 +39,40 @@ TrailerPresenceInformation
 CartesianAngularAccelerationComponent
 CartesianAngularAccelerationComponentValue
 AngularAccelerationConfidence
-StandardLength2B
-StandardLength9b
 PrecipitationIntensity
 ObjectFace
 BogiesCount
 BarometricPressure
 AxlesCount
 AirHumidity
+TracesExtended
+RoadConfigurationSection
+RoadConfigurationSectionList
+RoadSectionDefinition
+PathPredictedList
+PathPredicted2
+PathExtended
+PathReferences
+OccupiedLanesWithConfidence
+MapReferences
+IvimReference
+IvimReferences
+GeneralizedLanePositions
+UsageIndication
+MapemConfiguration
+MapemElementReference
+BasicLaneConfiguration
+OrdinalNumber1B
+Position1d
+ProviderId
+MapemConnectionList
+MapemLaneList
+GeoPosition
+BasicLaneInformation
+StandardLength2B
+RoadSectionId
+PathId
+IssuerIdentifier
 
 #.NO_EMIT
 Code-Units WITHOUT_VALS
@@ -100,7 +126,7 @@ MapData
 SignalRequestMessage
 SignalStatusMessage
 RTCMcorrections
-CollectivePerceptionMessage
+CpmPayload
 ItsPduHeader
 VruAwareness
 InterferenceManagementZoneMessage
@@ -484,7 +510,7 @@ CauseCodeType
   regext->type = Reg_RTCMcorrections;
 #.END
 
-#.FN_HDR CollectivePerceptionMessage
+#.FN_HDR CpmPayload
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
@@ -756,10 +782,29 @@ CauseCodeType
 
 #.FN_PARS RegionId VAL_PTR = &((its_private_data_t*)actx->private_data)->region_id
 
-#.FN_PARS ProtocolVersion VAL_PTR = &((its_header_t*)actx->private_data)->version
-#.FN_PARS MessageId VAL_PTR = &((its_header_t*)actx->private_data)->msgId
-#.FN_PARS StationId VAL_PTR = actx->private_data?&((its_header_t*)actx->private_data)->stationId:NULL
-#.FN_PARS CpmContainerId VAL_PTR = &((its_header_t*)actx->private_data)->CpmContainerId
+#.FN_BODY ProtocolVersion VAL_PTR = &version
+    guint32 version;
+%(DEFAULT_BODY)s
+    its_header_t *its_hdr = its_get_private_data(actx->pinfo);
+    its_hdr->version = version;
+
+#.FN_BODY MessageId VAL_PTR = &msgId
+    guint32 msgId;
+%(DEFAULT_BODY)s
+    its_header_t *its_hdr = its_get_private_data(actx->pinfo);
+    its_hdr->msgId = msgId;
+
+#.FN_BODY StationId VAL_PTR = &stationId
+    guint32 stationId;
+%(DEFAULT_BODY)s
+    its_header_t *its_hdr = its_get_private_data(actx->pinfo);
+    its_hdr->stationId = stationId;
+
+#.FN_BODY CpmContainerId VAL_PTR = &CpmContainerId
+    guint32 CpmContainerId;
+%(DEFAULT_BODY)s
+    its_header_t *its_hdr = its_get_private_data(actx->pinfo);
+    its_hdr->CpmContainerId = CpmContainerId;
 
 #.FN_BODY ItsPduHeader
   guint8 version = tvb_get_guint8(tvb, 0);
@@ -768,12 +813,11 @@ CauseCodeType
     return test_offset;
   }
   // Lets try it that way, regarless of version value...
-  its_header_t *hdr = wmem_new0(actx->pinfo->pool, its_header_t);
-  actx->private_data = (void*)hdr;
 %(DEFAULT_BODY)s
   tap_queue_packet(its_tap, actx->pinfo, actx->private_data);
   tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset >> 3, -1);
-  int data_offset = dissector_try_uint(its_msgid_subdissector_table, (hdr->version << 16)+hdr->msgId, next_tvb, actx->pinfo, tree);
+  its_header_t *its_hdr = its_get_private_data(actx->pinfo);
+  int data_offset = dissector_try_uint(its_msgid_subdissector_table, (its_hdr->version << 16)+its_hdr->msgId, next_tvb, actx->pinfo, tree);
   if (!data_offset) {
     proto_tree_add_expert(tree, actx->pinfo, &ei_its_no_sub_dis, next_tvb, 0,  - 1);
     data_offset = call_data_dissector(next_tvb, actx->pinfo, tree);
@@ -931,7 +975,7 @@ GenerationDeltaTime
   actx->private_data = priv_data;
 #.END
 
-#.FN_PARS 
+#.FN_PARS
 PtActivationType VAL_PTR = &((its_pt_activation_data_t*)actx->private_data)->type
 PtActivationData VAL_PTR = &((its_pt_activation_data_t*)actx->private_data)->data
 #.END

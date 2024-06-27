@@ -666,12 +666,12 @@ static value_string_ext vals_xser_service_ext = VALUE_STRING_EXT_INIT(vals_xser_
 static void
 ucp_stats_tree_init(stats_tree* st)
 {
-    st_ucp_messages    = stats_tree_create_node(st, st_str_ucp, 0, STAT_DT_INT, TRUE);
-    st_ucp_ops         = stats_tree_create_node(st, st_str_ops, st_ucp_messages, STAT_DT_INT, TRUE);
-    st_ucp_res         = stats_tree_create_node(st, st_str_res, st_ucp_messages, STAT_DT_INT, TRUE);
-    st_ucp_results     = stats_tree_create_node(st, st_str_ucp_res, 0, STAT_DT_INT, TRUE);
-    st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, STAT_DT_INT, TRUE);
-    st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, STAT_DT_INT, TRUE);
+    st_ucp_messages    = stats_tree_create_node(st, st_str_ucp, 0, STAT_DT_INT, true);
+    st_ucp_ops         = stats_tree_create_node(st, st_str_ops, st_ucp_messages, STAT_DT_INT, true);
+    st_ucp_res         = stats_tree_create_node(st, st_str_res, st_ucp_messages, STAT_DT_INT, true);
+    st_ucp_results     = stats_tree_create_node(st, st_str_ucp_res, 0, STAT_DT_INT, true);
+    st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, STAT_DT_INT, true);
+    st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, STAT_DT_INT, true);
 }
 
 static tap_packet_status
@@ -683,31 +683,31 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
 {
     const ucp_tap_rec_t *tap_rec = (const ucp_tap_rec_t*)p;
 
-    tick_stat_node(st, st_str_ucp, 0, TRUE);
+    tick_stat_node(st, st_str_ucp, 0, true);
 
     if (tap_rec->message_type == 0) /* Operation */
     {
-        tick_stat_node(st, st_str_ops, st_ucp_messages, TRUE);
+        tick_stat_node(st, st_str_ops, st_ucp_messages, true);
         tick_stat_node(st, val_to_str_ext(tap_rec->operation, &vals_hdr_OT_ext,
-                       "Unknown OT: %d"), st_ucp_ops, FALSE);
+                       "Unknown OT: %d"), st_ucp_ops, false);
     }
     else /* Result */
     {
-        tick_stat_node(st, st_str_res, st_ucp_messages, TRUE);
+        tick_stat_node(st, st_str_res, st_ucp_messages, true);
         tick_stat_node(st, val_to_str_ext(tap_rec->operation, &vals_hdr_OT_ext,
-                       "Unknown OT: %d"), st_ucp_res, FALSE);
+                       "Unknown OT: %d"), st_ucp_res, false);
 
-        tick_stat_node(st, st_str_ucp_res, 0, TRUE);
+        tick_stat_node(st, st_str_ucp_res, 0, true);
 
         if (tap_rec->result == 0) /* Positive Result */
         {
-            tick_stat_node(st, st_str_pos, st_ucp_results, FALSE);
+            tick_stat_node(st, st_str_pos, st_ucp_results, false);
         }
         else /* Negative Result */
         {
-            tick_stat_node(st, st_str_neg, st_ucp_results, TRUE);
+            tick_stat_node(st, st_str_neg, st_ucp_results, true);
             tick_stat_node(st, val_to_str_ext(tap_rec->result, &vals_parm_EC_ext,
-                           "Unknown EC: %d"), st_ucp_results_neg, FALSE);
+                           "Unknown EC: %d"), st_ucp_results_neg, false);
         }
     }
 
@@ -2029,7 +2029,7 @@ dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
  * The heuristic dissector
  */
 
-static gboolean
+static bool
 dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
@@ -2037,17 +2037,17 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Heuristic */
 
     if (tvb_captured_length(tvb) < UCP_HEADER_SIZE)
-        return FALSE;
+        return false;
 
     if ((tvb_get_guint8(tvb, 0)                            != UCP_STX) ||
         (tvb_get_guint8(tvb, UCP_TRN_OFFSET + UCP_TRN_LEN) != '/') ||
         (tvb_get_guint8(tvb, UCP_LEN_OFFSET + UCP_LEN_LEN) != '/') ||
         (tvb_get_guint8(tvb, UCP_O_R_OFFSET + UCP_O_R_LEN) != '/') ||
         (tvb_get_guint8(tvb, UCP_OT_OFFSET  + UCP_OT_LEN)  != '/'))
-        return FALSE;
+        return false;
 
     if (try_val_to_str(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
-        return FALSE;
+        return false;
 
     /*
      * Ok, looks like a valid packet
@@ -2062,7 +2062,7 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     dissect_ucp_tcp(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 /* Register the protocol with Wireshark */

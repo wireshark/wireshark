@@ -111,6 +111,9 @@ MaxMind databases
 *N* to enable using external resolvers (e.g., DNS) for network address
 resolution; no effect without *n* also enabled.
 
+*s* to enable address resolution using SNI information found in captured
+handshake packets
+
 *t* to enable transport-layer port number resolution
 
 *v* to enable VLAN IDs to names resolution

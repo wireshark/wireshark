@@ -165,25 +165,25 @@ static int CaptureInfo_set_hosts(lua_State* L) {
         while (lua_next(L, -2) != 0) {
             /* 'key' (at index -2) and 'value' (at index -1) */
             if (!lua_istable(L,-1)) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv4_addresses table does not contain a table");
             }
 
             lua_getfield(L, -1, "addr");
             if (!lua_isstring(L,-1)) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv4_addresses table's table does not contain an 'addr' field");
             }
             addr = luaL_checklstring(L,-1,&addr_len);
             if (addr_len != 4) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv4_addresses 'addr' value is not 4 bytes long");
             }
             memcpy(&v4_addr, addr, 4);
 
             lua_getfield(L, -1, "name");
             if (!lua_isstring(L,-1)) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv4_addresses table's table does not contain an 'addr' field");
             }
             name = luaL_checklstring(L,-1,&name_len);
@@ -208,25 +208,25 @@ static int CaptureInfo_set_hosts(lua_State* L) {
         while (lua_next(L, -2) != 0) {
             /* 'key' (at index -2) and 'value' (at index -1) */
             if (!lua_istable(L,-1)) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv6_addresses table does not contain a table");
             }
 
             lua_getfield(L, -1, "addr");
             if (!lua_isstring(L,-1)) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv6_addresses table's table does not contain an 'addr' field");
             }
             addr = luaL_checklstring(L,-1,&addr_len);
             if (addr_len != 16) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv6_addresses 'addr' value is not 16 bytes long");
             }
             memcpy(&v6_addr, addr, 16);
 
             lua_getfield(L, -1, "name");
             if (!lua_isstring(L,-1)) {
-                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addreses table */
+                lua_pop(L, 3); /* remove whatever it is, the key, and the ipv4_addresses table */
                 return luaL_error(L, "CaptureInfo.host ipv6_addresses table's table does not contain an 'addr' field");
             }
             name = luaL_checklstring(L,-1,&name_len);

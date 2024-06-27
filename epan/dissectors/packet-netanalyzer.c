@@ -354,7 +354,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         snprintf(szTemp, MAX_BUFFER,
                    "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", szTemp);
+        col_add_str(pinfo->cinfo, COL_INFO, szTemp);
         proto_item_append_text(ti, " %s", szTemp);
       }
       else

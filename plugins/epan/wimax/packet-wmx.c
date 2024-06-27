@@ -34,10 +34,10 @@ void proto_reg_handoff_wimax(void);
  * XXX - are these per-packet state?  If so, they should be made so,
  * rather than being global.
  */
-gint	proto_wimax;
-gint8	arq_enabled;
-gint	scheduling_service_type;
-gint	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
+int	proto_wimax;
+int8_t	arq_enabled;
+int	scheduling_service_type;
+int	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
 
 address bs_address = ADDRESS_INIT_NONE;
 
@@ -48,13 +48,13 @@ static int hf_tlv_length_size;
 
 #define MAX_NUM_TLVS	256
 /* Global TLV array to retrieve unique subtree identifiers */
-static gint ett_tlv[MAX_NUM_TLVS];
+static int ett_tlv[MAX_NUM_TLVS];
 
-static const gchar tlv_val_1byte[] = "TLV value: %s (0x%02x)";
-static const gchar tlv_val_2byte[] = "TLV value: %s (0x%04x)";
-static const gchar tlv_val_3byte[] = "TLV value: %s (0x%06x)";
-static const gchar tlv_val_4byte[] = "TLV value: %s (0x%08x)";
-static const gchar tlv_val_5byte[] = "TLV value: %s (0x%08x...)";
+static const char tlv_val_1byte[] = "TLV value: %s (0x%02x)";
+static const char tlv_val_2byte[] = "TLV value: %s (0x%04x)";
+static const char tlv_val_3byte[] = "TLV value: %s (0x%06x)";
+static const char tlv_val_4byte[] = "TLV value: %s (0x%08x)";
+static const char tlv_val_5byte[] = "TLV value: %s (0x%08x...)";
 
 /*************************************************************/
 /* add_tlv_subtree()                                         */
@@ -70,14 +70,14 @@ static const gchar tlv_val_5byte[] = "TLV value: %s (0x%08x...)";
 /* return:                                                   */
 /*   pointer to a proto_item                                 */
 /*************************************************************/
-proto_item *add_tlv_subtree(tlv_info_t *self, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, const guint encoding)
+proto_item *add_tlv_subtree(tlv_info_t *self, proto_tree *tree, int hfindex, tvbuff_t *tvb, int start, const unsigned encoding)
 {
 	header_field_info *hf;
 	proto_tree *tlv_tree;
 	proto_item *tlv_item;
-	gint tlv_value_length, tlv_val_offset;
-	guint8 size_of_tlv_length_field;
-	guint8 tlv_type;
+	int tlv_value_length, tlv_val_offset;
+	uint8_t size_of_tlv_length_field;
+	uint8_t tlv_type;
 
 	/* Make sure we're dealing with a valid TLV here */
 	if (get_tlv_type(self) < 0)
@@ -124,13 +124,13 @@ proto_item *add_tlv_subtree(tlv_info_t *self, proto_tree *tree, int hfindex, tvb
 /* return:                                                   */
 /*   pointer to a proto_tree (to then add value)             */
 /*************************************************************/
-proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start)
+proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfindex, tvbuff_t *tvb, int start)
 {
 	header_field_info *hf;
 	proto_tree *tlv_tree;
-	gint tlv_value_length, tlv_val_offset;
-	guint8 size_of_tlv_length_field;
-	guint8 tlv_type;
+	int tlv_value_length, tlv_val_offset;
+	uint8_t size_of_tlv_length_field;
+	uint8_t tlv_type;
 
 	/* Make sure we're dealing with a valid TLV here */
 	if (get_tlv_type(self) < 0)
@@ -177,16 +177,16 @@ proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfin
 /* return:                                                   */
 /*   pointer to a proto_tree                                 */
 /*************************************************************/
-proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length _U_, const char *label)
+proto_tree *add_protocol_subtree(tlv_info_t *self, int idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, int start, int length _U_, const char *label)
 {
 	/* Declare local variables */
 	proto_tree *tlv_tree;
 	proto_item *tlv_item;
-	gint tlv_value_length, tlv_val_offset;
-	guint8 size_of_tlv_length_field;
-	guint8 tlv_type;
-	guint32 tlv_value;
-	const gchar *hex_fmt;
+	int tlv_value_length, tlv_val_offset;
+	uint8_t size_of_tlv_length_field;
+	uint8_t tlv_type;
+	uint32_t tlv_value;
+	const char *hex_fmt;
 
 	/* Make sure we're dealing with a valid TLV here */
 	if (get_tlv_type(self) < 0)
@@ -258,14 +258,14 @@ static int dissect_wimax(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree
 	return tvb_captured_length(tvb);
 }
 
-gboolean is_down_link(packet_info *pinfo)
+bool is_down_link(packet_info *pinfo)
 {
 	if (pinfo->p2p_dir == P2P_DIR_RECV)
-		return TRUE;
+		return true;
 	if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
 		if(bs_address.len && !cmp_address(&bs_address, &pinfo->src))
-			return TRUE;
-	return FALSE;
+			return true;
+	return false;
 }
 
 
@@ -281,7 +281,7 @@ void proto_register_wimax(void)
 		{ &hf_tlv_length_size, { "Size of TLV length field", "wmx.tlv_length_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	gint *ett_reg[MAX_NUM_TLVS];
+	int *ett_reg[MAX_NUM_TLVS];
 
 	/* Register the WiMax protocols here */
 	proto_wimax = proto_register_protocol (
@@ -316,9 +316,9 @@ void proto_register_wimax(void)
 
 	prefs_register_bool_preference(wimax_module, "corrigendum_2_version",
 				       "Corrigendum 2 Version",
-				       "Set to TRUE to use the Corrigendum"
+				       "Set to true to use the Corrigendum"
 				       " 2 version of Wimax message decoding."
-				       " Set to FALSE to use the 802.16e-2005"
+				       " Set to false to use the 802.16e-2005"
 				       "  version.",
 				       &include_cor2_changes);
 	prefs_register_obsolete_preference(wimax_module, "wimax.basic_cid_max");

@@ -32,13 +32,13 @@
 */
 
 #include "config.h"
+#include "daintree-sna.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "daintree-sna.h"
 
 typedef struct daintree_sna_header {
 	uint32_t len;

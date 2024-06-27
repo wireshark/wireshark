@@ -79,7 +79,7 @@ static const value_string returncode_vals[] = {
 static gint ett_h1;
 static gint ett_block;
 
-static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *h1_tree, *block_tree;
     proto_item *h1_ti, *block_ti;
@@ -91,11 +91,11 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (tvb_captured_length(tvb) < 2) {
         /* Not enough data captured to hold the "S5" header; don't try
            to interpret it as H1. */
-        return FALSE;
+        return false;
     }
 
     if (!(tvb_get_guint8(tvb, 0) == 'S' && tvb_get_guint8(tvb, 1) == '5')) {
-        return FALSE;
+        return false;
     }
 
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "H1");
@@ -120,7 +120,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         if (!try_val_to_str(block_type, block_type_vals)) {
             /* XXX - should we skip unknown blocks? */
-            return FALSE;
+            return false;
         }
         if (block_len == 0) {
             /* XXX - expert info */
@@ -194,7 +194,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
-    return TRUE;
+    return true;
 }
 
 

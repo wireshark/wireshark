@@ -1021,6 +1021,41 @@ static int parse_result_metadata(proto_tree* tree, packet_info *pinfo, tvbuff_t*
 	return offset;
 }
 
+
+static int parse_result_schema_change(proto_tree* subtree, packet_info *pinfo, tvbuff_t* tvb,
+			gint offset)
+{
+	guint32 short_bytes_length = 0;
+	const guint8* string_event_type_target = NULL;
+
+	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+	offset += 2;
+	proto_tree_add_item(subtree, hf_cql_event_schema_change_type, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+	offset += short_bytes_length;
+	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+	offset += 2;
+	proto_tree_add_item_ret_string(subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, &string_event_type_target);
+	offset += short_bytes_length;
+	/* all targets have the keyspace as the first parameter*/
+	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+	offset += 2;
+	proto_tree_add_item(subtree, hf_cql_event_schema_change_keyspace, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+	offset += short_bytes_length;
+	if ((strcmp(string_event_type_target, "TABLE") == 0) || (strcmp(string_event_type_target, "TYPE") == 0)) {
+		proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+		offset += 2;
+		proto_tree_add_item(subtree, hf_cql_event_schema_change_object, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+	} else {
+		/* TODO: handle "FUNCTION" or "AGGREGATE" targets:
+		- [string] the function/aggregate name
+		- [string list] one string for each argument type (as CQL type)
+		*/
+	}
+
+	return offset;
+}
+
+
 static int parse_row(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t* tvb,
 			gint offset_metadata, gint offset, gint result_rows_columns_count)
 {
@@ -1131,7 +1166,6 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	};
 
 	const guint8* string_event_type = NULL;
-	const guint8* string_event_type_target = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CQL");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1685,11 +1719,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 						break;
 					case CQL_RESULT_KIND_SCHEMA_CHANGE:
-						proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
-						offset += string_length;
-						proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
-						offset += string_length;
-						proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+						/*offset = */parse_result_schema_change(cql_subtree, pinfo, tvb, offset);
 						break;
 
 					default:
@@ -1706,38 +1736,12 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
 				offset += 2;
 
-				proto_tree_add_item(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
-				string_event_type = tvb_get_string_enc(pinfo->pool, tvb, offset, short_bytes_length, ENC_UTF_8);
+				proto_tree_add_item_ret_string(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, &string_event_type);
 				offset += short_bytes_length;
 				proto_item_append_text(cql_subtree, " (type: %s)", string_event_type);
 
 				if (strcmp(string_event_type, "SCHEMA_CHANGE") == 0) {
-					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
-					offset += 2;
-					proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_type, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
-					offset += short_bytes_length;
-					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
-					offset += 2;
-					string_event_type_target = tvb_get_string_enc(pinfo->pool, tvb, offset, short_bytes_length, ENC_UTF_8);
-					proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
-					offset += short_bytes_length;
-
-					/* all targets have the keyspace as the first parameter*/
-					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
-					offset += 2;
-					proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_keyspace, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
-					offset += short_bytes_length;
-
-					if ((strcmp(string_event_type_target, "TABLE") == 0) || (strcmp(string_event_type_target, "TYPE") == 0)) {
-						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
-						offset += 2;
-						proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_object, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
-					} else {
-						/* TODO: handle "FUNCTION" or "AGGREGATE" targets:
-						- [string] the function/aggregate name
-						- [string list] one string for each argument type (as CQL type)
-						*/
-					}
+					/*offset = */parse_result_schema_change(cql_subtree, pinfo, tvb, offset);
 				} else {
 					/* TODO: handle "TOPOLOGY_CHANGE" and "STATUS_CHANGE" event types as well*/
 				}

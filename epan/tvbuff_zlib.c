@@ -95,7 +95,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 	err = ZLIB_PREFIX(inflateInit2)(strm, wbits);
 	inits_done = 1;
 	if (err != Z_OK) {
-		inflateEnd(strm);
+		ZLIB_PREFIX(inflateEnd)(strm);
 		g_free(strm);
 		wmem_free(NULL, compr);
 		g_free(strmbuf);

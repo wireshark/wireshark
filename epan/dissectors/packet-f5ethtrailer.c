@@ -677,9 +677,9 @@ static const gchar *st_str_virtdist_novirt = "Flow without virtual server name";
 static void
 f5eth_tmmdist_stats_tree_init(stats_tree *st)
 {
-    st_node_tmmpktdist = stats_tree_create_node(st, st_str_tmmdist_pkts, 0, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_tmmdist_pkts, 0, TRUE, ST_FLG_SORT_TOP);
-    st_node_tmmbytedist = stats_tree_create_node(st, st_str_tmmdist_bytes, 0, STAT_DT_INT, TRUE);
+    st_node_tmmpktdist = stats_tree_create_node(st, st_str_tmmdist_pkts, 0, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_tmmdist_pkts, 0, true, ST_FLG_SORT_TOP);
+    st_node_tmmbytedist = stats_tree_create_node(st, st_str_tmmdist_bytes, 0, STAT_DT_INT, true);
 } /* f5eth_tmmdist_stats_tree_init() */
 
 #define PER_TMM_STAT_NAME_BUF_LEN (sizeof("slot SSS,tmm TTT"))
@@ -724,58 +724,58 @@ f5eth_tmmdist_stats_tree_packet(
 
     pkt_len = pinfo->fd->pkt_len - tdata->trailer_len;
 
-    st_node_tot_pkts  = tick_stat_node(st, st_str_tmmdist_pkts, 0, TRUE);
-    st_node_tot_bytes = increase_stat_node(st, st_str_tmmdist_bytes, 0, TRUE, pkt_len);
+    st_node_tot_pkts  = tick_stat_node(st, st_str_tmmdist_pkts, 0, true);
+    st_node_tot_bytes = increase_stat_node(st, st_str_tmmdist_bytes, 0, true, pkt_len);
 
-    st_node_tmm_pkts = tick_stat_node(st, tmm_stat_name_buffer, st_node_tot_pkts, TRUE);
+    st_node_tmm_pkts = tick_stat_node(st, tmm_stat_name_buffer, st_node_tot_pkts, true);
     st_node_tmm_bytes =
-        increase_stat_node(st, tmm_stat_name_buffer, st_node_tot_bytes, TRUE, pkt_len);
+        increase_stat_node(st, tmm_stat_name_buffer, st_node_tot_bytes, true, pkt_len);
     if (tdata->ingress == 1) {
-        tick_stat_node(st, st_str_tmm_dir_in, st_node_tmm_pkts, FALSE);
-        increase_stat_node(st, st_str_tmm_dir_in, st_node_tmm_bytes, FALSE, pkt_len);
+        tick_stat_node(st, st_str_tmm_dir_in, st_node_tmm_pkts, false);
+        increase_stat_node(st, st_str_tmm_dir_in, st_node_tmm_bytes, false, pkt_len);
         /* Create nodes in case we see no egress packets */
-        increase_stat_node(st, st_str_tmm_dir_out, st_node_tmm_pkts, FALSE, 0);
-        increase_stat_node(st, st_str_tmm_dir_out, st_node_tmm_bytes, FALSE, 0);
+        increase_stat_node(st, st_str_tmm_dir_out, st_node_tmm_pkts, false, 0);
+        increase_stat_node(st, st_str_tmm_dir_out, st_node_tmm_bytes, false, 0);
     } else {
-        tick_stat_node(st, st_str_tmm_dir_out, st_node_tmm_pkts, FALSE);
-        increase_stat_node(st, st_str_tmm_dir_out, st_node_tmm_bytes, FALSE, pkt_len);
+        tick_stat_node(st, st_str_tmm_dir_out, st_node_tmm_pkts, false);
+        increase_stat_node(st, st_str_tmm_dir_out, st_node_tmm_bytes, false, pkt_len);
         /* Create nodes in case we see no ingress packets */
-        increase_stat_node(st, st_str_tmm_dir_in, st_node_tmm_pkts, FALSE, 0);
-        increase_stat_node(st, st_str_tmm_dir_in, st_node_tmm_bytes, FALSE, 0);
+        increase_stat_node(st, st_str_tmm_dir_in, st_node_tmm_pkts, false, 0);
+        increase_stat_node(st, st_str_tmm_dir_in, st_node_tmm_bytes, false, 0);
     }
 
     if (tdata->virtual_name == NULL) {
         if (tdata->flow == 0) {
             /* No flow ID and no virtual name */
-            tick_stat_node(st, st_str_tmm_flow_none, st_node_tmm_pkts, FALSE);
-            increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_bytes, FALSE, pkt_len);
+            tick_stat_node(st, st_str_tmm_flow_none, st_node_tmm_pkts, false);
+            increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_bytes, false, pkt_len);
 
             /* Create nodes in case we see no packets without a virtual */
-            increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_pkts, FALSE, 0);
-            increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_bytes, FALSE, 0);
+            increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_pkts, false, 0);
+            increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_bytes, false, 0);
         } else {
             /* Flow ID and no virtual name */
-            tick_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_pkts, FALSE);
-            increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_bytes, FALSE, pkt_len);
+            tick_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_pkts, false);
+            increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_bytes, false, pkt_len);
 
             /* Create nodes in case we see no packets with a virtual */
-            increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_pkts, FALSE, 0);
-            increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_bytes, FALSE, 0);
+            increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_pkts, false, 0);
+            increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_bytes, false, 0);
         }
         /* Create nodes in case we see no packets with a virtual */
-        increase_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_pkts, FALSE, 0);
-        increase_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_bytes, FALSE, 0);
+        increase_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_pkts, false, 0);
+        increase_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_bytes, false, 0);
     } else {
         /* Has a virtual name */
-        tick_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_pkts, FALSE);
-        increase_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_bytes, FALSE, pkt_len);
+        tick_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_pkts, false);
+        increase_stat_node(st, st_str_tmm_flow_virt, st_node_tmm_bytes, false, pkt_len);
 
         /* Create nodes in case we see no packets without a virtual */
-        increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_pkts, FALSE, 0);
-        increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_bytes, FALSE, 0);
+        increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_pkts, false, 0);
+        increase_stat_node(st, st_str_tmm_flow_novirt, st_node_tmm_bytes, false, 0);
         /* Create nodes in case we see no packets without a flow */
-        increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_pkts, FALSE, 0);
-        increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_bytes, FALSE, 0);
+        increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_pkts, false, 0);
+        increase_stat_node(st, st_str_tmm_flow_none, st_node_tmm_bytes, false, 0);
     }
 
     return TAP_PACKET_REDRAW;
@@ -790,19 +790,19 @@ f5eth_tmmdist_stats_tree_packet(
 static void
 f5eth_virtdist_stats_tree_init(stats_tree *st)
 {
-    st_node_virtpktdist = stats_tree_create_node(st, st_str_virtdist_pkts, 0, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_virtdist_pkts, 0, TRUE, ST_FLG_SORT_TOP);
-    st_node_virtbytedist = stats_tree_create_node(st, st_str_virtdist_bytes, 0, STAT_DT_INT, TRUE);
+    st_node_virtpktdist = stats_tree_create_node(st, st_str_virtdist_pkts, 0, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_virtdist_pkts, 0, true, ST_FLG_SORT_TOP);
+    st_node_virtbytedist = stats_tree_create_node(st, st_str_virtdist_bytes, 0, STAT_DT_INT, true);
 
-    stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtpktdist, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_virtdist_noflow, st_node_virtpktdist, TRUE, ST_FLG_SORT_TOP);
-    stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtpktdist, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_virtdist_novirt, st_node_virtpktdist, TRUE, ST_FLG_SORT_TOP);
+    stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtpktdist, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_virtdist_noflow, st_node_virtpktdist, true, ST_FLG_SORT_TOP);
+    stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtpktdist, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_virtdist_novirt, st_node_virtpktdist, true, ST_FLG_SORT_TOP);
 
-    stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtbytedist, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_virtdist_noflow, st_node_virtbytedist, TRUE, ST_FLG_SORT_TOP);
-    stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtbytedist, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_virtdist_novirt, st_node_virtbytedist, TRUE, ST_FLG_SORT_TOP);
+    stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtbytedist, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_virtdist_noflow, st_node_virtbytedist, true, ST_FLG_SORT_TOP);
+    stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtbytedist, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_virtdist_novirt, st_node_virtbytedist, true, ST_FLG_SORT_TOP);
 } /* f5eth_virtdist_stats_tree_init() */
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -833,25 +833,25 @@ f5eth_virtdist_stats_tree_packet(
 
     pkt_len = pinfo->fd->pkt_len - tdata->trailer_len;
 
-    tick_stat_node(st, st_str_virtdist_pkts, 0, TRUE);
-    increase_stat_node(st, st_str_virtdist_bytes, 0, TRUE, pkt_len);
+    tick_stat_node(st, st_str_virtdist_pkts, 0, true);
+    increase_stat_node(st, st_str_virtdist_bytes, 0, true, pkt_len);
 
     /* We could have low noise (with a virtual name) without medium noise (with the flow ID).
      * That will get treated as a no flow case. */
     if (tdata->virtual_name == NULL) {
         if (tdata->flow == 0) {
             /* No flow ID */
-            tick_stat_node(st, st_str_virtdist_noflow, st_node_virtpktdist, TRUE);
-            increase_stat_node(st, st_str_virtdist_noflow, st_node_virtbytedist, TRUE, pkt_len);
+            tick_stat_node(st, st_str_virtdist_noflow, st_node_virtpktdist, true);
+            increase_stat_node(st, st_str_virtdist_noflow, st_node_virtbytedist, true, pkt_len);
         } else {
             /* Flow ID without virtual name */
-            tick_stat_node(st, st_str_virtdist_novirt, st_node_virtpktdist, TRUE);
-            increase_stat_node(st, st_str_virtdist_novirt, st_node_virtbytedist, TRUE, pkt_len);
+            tick_stat_node(st, st_str_virtdist_novirt, st_node_virtpktdist, true);
+            increase_stat_node(st, st_str_virtdist_novirt, st_node_virtbytedist, true, pkt_len);
         }
     } else {
         /* Has virtual name */
-        tick_stat_node(st, tdata->virtual_name, st_node_virtpktdist, TRUE);
-        increase_stat_node(st, tdata->virtual_name, st_node_virtbytedist, TRUE, pkt_len);
+        tick_stat_node(st, tdata->virtual_name, st_node_virtpktdist, true);
+        increase_stat_node(st, tdata->virtual_name, st_node_virtbytedist, true, pkt_len);
     }
 
     return TAP_PACKET_REDRAW;
@@ -3008,6 +3008,12 @@ found_trailer:
     return trailer_length;
 } /* dissect_f5ethtrailer() */
 
+static bool
+dissect_f5ethtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_f5ethtrailer(tvb, pinfo, tree, data) > 0;
+}
+
 /*-----------------------------------------------------------------------------------------------*/
 /*  Begin DPT TLS provider */
 /*-----------------------------------------------------------------------------------------------*/
@@ -4147,7 +4153,7 @@ proto_register_f5ethtrailer(void)
 void
 proto_reg_handoff_f5ethtrailer(void)
 {
-    heur_dissector_add("eth.trailer", dissect_f5ethtrailer, "F5 Ethernet Trailer",
+    heur_dissector_add("eth.trailer", dissect_f5ethtrailer_heur, "F5 Ethernet Trailer",
             "f5ethtrailer", proto_f5ethtrailer, HEURISTIC_ENABLE);
 
     /* Register helper dissectors */
@@ -4300,7 +4306,7 @@ static const string_string f5info_platform_strings[] = {
  * @param data  Pointer to data structure (unused)
  * @return gboolean
  */
-static gboolean
+static bool
 dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint offset = 0;
@@ -4312,7 +4318,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Must be the first packet */
     if (pinfo->fd->num > 1)
-        return FALSE;
+        return false;
 
     if (tvb_captured_length(tvb) >= (gint)sizeof(fileinfomagic1)) {
         if (tvb_memeql(tvb, 0, fileinfomagic1, sizeof(fileinfomagic1)) == 0)
@@ -4321,7 +4327,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Didn't find the magic at the start of the packet. */
     if (offset == 0)
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FILEINFO");
 
@@ -4368,7 +4374,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tvb_set_reported_length(tvb, offset);
     tap_queue_packet(tap_f5fileinfo, pinfo, tap_data);
     f5eth_process_f5info(platform);
-    return TRUE;
+    return true;
 } /* dissect_f5fileinfo() */
 
 /**

@@ -588,14 +588,14 @@ dissect_autosar_nm_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return dissect_autosar_nm(tvb, pinfo, tree, data);
 }
 
-static gboolean
+static bool
 dissect_autosar_nm_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (!is_relevant_can_message(data)) {
-        return FALSE;
+        return false;
     }
     dissect_autosar_nm(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void proto_register_autosar_nm(void)

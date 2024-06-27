@@ -1143,11 +1143,7 @@ void proto_register_nmea0183(void)
          {"nmea0183.gga_geoidal_separation_unit_incorrect", PI_PROTOCOL, PI_WARN,
           "Incorrect geoidal separation unit (should be 'M')", EXPFILL}}};
 
-    proto_nmea0183 = proto_register_protocol(
-        "NMEA 0183 protocol", /* name        */
-        "NMEA 0183",          /* short name  */
-        "nmea0183"            /* filter_name */
-    );
+    proto_nmea0183 = proto_register_protocol("NMEA 0183 protocol", "NMEA 0183", "nmea0183");
 
     proto_register_field_array(proto_nmea0183, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

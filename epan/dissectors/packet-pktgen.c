@@ -39,7 +39,7 @@ static int hf_pktgen_timestamp;
 static gint ett_pktgen;
 
 /* entry point */
-static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti          = NULL;
     proto_item *tmp         = NULL;
@@ -50,14 +50,14 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* check for min size */
     if (tvb_reported_length(tvb) < 16) {  /* Not a PKTGEN packet. */
-        return FALSE;
+        return false;
     }
 
     /* check for magic number */
     magic = tvb_get_ntohl(tvb,0);
     if (magic != PKTGEN_MAGIC) {
         /* Not a PKTGEN packet. */
-        return FALSE;
+        return false;
     }
 
 
@@ -100,7 +100,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             pktgen_tree);
     }
 
-    return TRUE;
+    return true;
 }
 
 

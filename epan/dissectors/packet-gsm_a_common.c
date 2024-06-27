@@ -2702,7 +2702,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     if (eightPskStructPresent == 1)
     {
-        /* At lest Modulation Capability and cap1,cap2 presens indicators is present */
+        /* At lesst Modulation Capability and cap1,cap2 present indicators are present */
         guint8 psk_struct_len = 3;
         guint32 tmp_bit_offset = bit_offset;
 

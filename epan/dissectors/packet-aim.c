@@ -1653,17 +1653,17 @@ dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	return tvb_reported_length(tvb);
 }
 
-static int
+static bool
 dissect_aim_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct tlsinfo *tlsinfo = (struct tlsinfo *) data;
 	/* XXX improve heuristics */
 	if (tvb_reported_length(tvb) < 1 || tvb_get_guint8(tvb, 0) != 0x2a) {
-		return FALSE;
+		return false;
 	}
 	dissect_aim(tvb, pinfo, tree, NULL);
 	*(tlsinfo->app_handle) = aim_handle;
-	return TRUE;
+	return true;
 }
 
 /***********************************************************************************************************

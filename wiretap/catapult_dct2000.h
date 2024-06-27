@@ -11,6 +11,7 @@
 
 #include <glib.h>
 #include "ws_symbol_export.h"
+#include "wtap.h"
 
 wtap_open_return_val catapult_dct2000_open(wtap *wth, int *err, char **err_info);
 

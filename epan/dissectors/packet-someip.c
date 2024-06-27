@@ -2512,7 +2512,7 @@ update_dynamic_hf_entry(hf_register_info *hf_array, int pos, guint32 data_type, 
     }
 
     hf_id = g_new(gint, 1);
-    *hf_id = -1;
+    *hf_id = 0;
     hf_array[pos].p_id = hf_id;
 
     hf_array[pos].hfinfo.strings = NULL;
@@ -2680,9 +2680,9 @@ expert_someip_payload_config_error(proto_tree *tree, packet_info *pinfo, tvbuff_
 
 static void
 someip_messages_stats_tree_init(stats_tree *st) {
-    st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_ip_src, 0, FALSE, ST_FLG_SORT_TOP);
-    st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, STAT_DT_INT, TRUE);
+    st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_ip_src, 0, false, ST_FLG_SORT_TOP);
+    st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status
@@ -2696,12 +2696,12 @@ someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_disse
     const someip_messages_tap_t *data = (const someip_messages_tap_t *)p;
 
     snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_src), address_to_name(&pinfo->net_src));
-    tick_stat_node(st, st_str_ip_src, 0, FALSE);
-    int src_id = tick_stat_node(st, tmp_addr_str, st_node_ip_src, TRUE);
+    tick_stat_node(st, st_str_ip_src, 0, false);
+    int src_id = tick_stat_node(st, tmp_addr_str, st_node_ip_src, true);
 
     snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_dst), address_to_name(&pinfo->net_dst));
-    tick_stat_node(st, st_str_ip_dst, 0, FALSE);
-    int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, TRUE);
+    tick_stat_node(st, st_str_ip_dst, 0, false);
+    int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, true);
 
     char *service_name = someip_lookup_service_name(data->service_id);
     if (service_name == NULL) {
@@ -2719,10 +2719,10 @@ someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_disse
             val_to_str(data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
     }
 
-    tmp = tick_stat_node(st, tmp_srv_str, src_id, TRUE);
-    tick_stat_node(st, tmp_meth_str, tmp, FALSE);
-    tmp = tick_stat_node(st, tmp_srv_str, dst_id, TRUE);
-    tick_stat_node(st, tmp_meth_str, tmp, FALSE);
+    tmp = tick_stat_node(st, tmp_srv_str, src_id, true);
+    tick_stat_node(st, tmp_meth_str, tmp, false);
+    tmp = tick_stat_node(st, tmp_srv_str, dst_id, true);
+    tick_stat_node(st, tmp_meth_str, tmp, false);
 
     return TAP_PACKET_REDRAW;
 }
@@ -2852,7 +2852,7 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     gboolean    big_endian = TRUE;
 
-    int         hf_id = -1;
+    int         hf_id = 0;
 
     if (hf_id_ptr != NULL) {
         hf_id = *hf_id_ptr;
@@ -3918,16 +3918,16 @@ test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U
     return TRUE;
 }
 
-static gboolean
+static bool
 dissect_some_ip_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     if (test_someip(pinfo, tvb, 0, data)) {
         tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SOMEIP_HDR_PART1_LEN, get_someip_message_len, dissect_someip_message, data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 dissect_some_ip_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return (udp_dissect_pdus(tvb, pinfo, tree, SOMEIP_HDR_PART1_LEN, test_someip, get_someip_message_len, dissect_someip_message, data) != 0);
 }

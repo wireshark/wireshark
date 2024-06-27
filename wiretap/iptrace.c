@@ -7,12 +7,13 @@
  *
  */
 #include "config.h"
+#include "iptrace.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
-#include "iptrace.h"
 
 /*
  * Private per-wtap_t data needed to read a file.

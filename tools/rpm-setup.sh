@@ -323,6 +323,9 @@ echo "Optional package opus-devel|libopus-devel is unavailable" >&2
 add_package ADDITIONAL_LIST bcg729-devel ||
 echo "Optional package bcg729-devel is unavailable" >&2
 
+add_package ADDITIONAL_LIST zlib-ng-devel ||
+echo "Optional package zlib-ng-devel is unavailable" >&2
+
 # RHEL 8 / CentOS 8 are missing the -devel packages for sbc and libsmi due to
 # RH deciding not to ship all -devel packages.
 # https://wiki.centos.org/FAQ/CentOS8/UnshippedPackages

@@ -110,6 +110,7 @@ static int hf_rsl_cbch_load_type;
 static int hf_rsl_msg_slt_cnt;
 static int hf_rsl_ch_ind;
 static int hf_rsl_command;
+static int hf_rsl_command_ext;
 static int hf_rsl_emlpp_prio;
 static int hf_rsl_rtd;
 static int hf_rsl_delay_ind;
@@ -2988,9 +2989,11 @@ dissect_rsl_ie_nch_drx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
+    proto_item *ti;
     proto_tree *ie_tree;
+    guint       length;
     guint8      ie_id;
-    guint8      octet;
+    bool        ext;
 
     if (is_mandatory == FALSE) {
         ie_id = tvb_get_guint8(tvb, offset);
@@ -2998,29 +3001,41 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             return offset;
     }
 
-
-    /* TODO Length wrong if extended */
-    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_ie_cmd_ind, NULL, "Command indicator IE");
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_ie_cmd_ind, &ti, "Command indicator IE");
 
     /* Element identifier */
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length + 2);
+    proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
     /* Extension bit */
-    proto_tree_add_item(ie_tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_boolean(ie_tree, hf_rsl_extension_bit, tvb,
+                                    offset, 1, ENC_BIG_ENDIAN, &ext);
+    if (ext) {
+        /* If the extension bit E (bit 8) is set to 1 then the Command value
+         * is a 2 octet field (octets 3 and 3a) */
+        proto_tree_add_item(ie_tree, hf_rsl_command_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    } else {
+        proto_item *pi;
+        guint32    value;
 
-
-    /* TODO this should probably be add_uint instead!!! */
-    octet = tvb_get_guint8(tvb, offset);
-    if ((octet & 0x80) == 0x80) {
-        /* extended */
-        /* Command Extension */
-        proto_tree_add_item(ie_tree, hf_rsl_command, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset = offset+2;
-    }else{
-        /* Command Value */
-        proto_tree_add_item(ie_tree, hf_rsl_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+        pi = proto_tree_add_item_ret_uint(ie_tree, hf_rsl_command, tvb,
+                                          offset, 1, ENC_BIG_ENDIAN, &value);
         offset++;
+
+        if (value == 0x00) /* 0b0000000 */
+            proto_item_append_text(pi, " (Start)");
+        else if (value == 0x01) /* 0b0000001 */
+            proto_item_append_text(pi, " (Stop)");
+        else if (value <= 0x40) /* 0b0000010 .. 0b1000000 */
+            proto_item_append_text(pi, " (reserved for international use)");
+        else /* 0b1000001 .. 0b1111111 */
+            proto_item_append_text(pi, " (reserved for national use)");
     }
 
     return offset;
@@ -5090,7 +5105,12 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_command,
           { "Command",           "gsm_abis_rsl.cmd",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_rsl_command_ext,
+          { "Command (extended)", "gsm_abis_rsl.cmd_ext",
+            FT_UINT16, BASE_DEC, NULL, 0x7fff,
             NULL, HFILL }
         },
         { &hf_rsl_emlpp_prio,

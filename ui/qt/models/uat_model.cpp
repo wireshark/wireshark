@@ -430,13 +430,16 @@ bool UatModel::insertRows(int row, int count, const QModelIndex &/*parent*/)
 
 bool UatModel::removeRows(int row, int count, const QModelIndex &/*parent*/)
 {
-    if (count != 1 || row < 0 || row >= rowCount())
+    if (row < 0 || count < 0 || row + count > rowCount())
         return false;
 
-    beginRemoveRows(QModelIndex(), row, row);
-    uat_remove_record_idx(uat_, row);
-    record_errors.removeAt(row);
-    dirty_records.removeAt(row);
+    if (count == 0)
+        return true;
+
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
+    uat_remove_record_range(uat_, row, count);
+    record_errors.remove(row, count);
+    dirty_records.remove(row, count);
     uat_->changed = true;
     endRemoveRows();
     return true;

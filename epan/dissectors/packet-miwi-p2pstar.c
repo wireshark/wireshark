@@ -117,92 +117,92 @@ void proto_reg_handoff_miwi_p2pstar(void);
 //static const gchar *miwi_p2pstar_key_str = NULL;
 
 /*  Initialize protocol and registered fields. */
-static int proto_miwi_p2pstar = -1;
+static int proto_miwi_p2pstar;
 
 /* Initialize protocol subtrees. */
-static gint ett_miwi_p2pstar = -1;
-static gint ett_miwi_p2pstar_fcf = -1;
-static gint ett_miwi_p2pstar_cmd_tree = -1;
-static gint ett_miwi_p2pstar_cap_info = -1;
-static gint ett_miwi_fcs = -1;
+static gint ett_miwi_p2pstar;
+static gint ett_miwi_p2pstar_fcf;
+static gint ett_miwi_p2pstar_cmd_tree;
+static gint ett_miwi_p2pstar_cap_info;
+static gint ett_miwi_fcs;
 
 static dissector_handle_t miwi_p2pstar_handle;
 
-static int hf_miwi_frame_length = -1;
-static int hf_miwi_fcf = -1;
-static int hf_miwi_fcf_frame_type = -1;
-static int hf_miwi_fcf_security_enabled = -1;
-static int hf_miwi_fcf_frame_pending = -1;
-static int hf_miwi_fcf_ack_req = -1;
-static int hf_miwi_fcf_panid_comp = -1;
-static int hf_miwi_fcf_reserved = -1;
-static int hf_miwi_fcf_dest_addr_mode = -1;
-static int hf_miwi_fcf_frame_version = -1;
-static int hf_miwi_fcf_src_addr_mode = -1;
-static int hf_miwi_seq = -1;
-static int hf_miwi_dst_panid = -1;
-static int hf_miwi_short_dst_addr = -1;
-static int hf_miwi_ext_dst_addr = -1;
-//static int hf_miwi_no_dst_addr = -1;
-//static int hf_miwi_no_src_addr = -1;
-static int hf_miwi_ext_src_addr = -1;
-static int hf_miwi_short_src_addr = -1;
-static int hf_miwi_addr16 = -1;
-static int hf_miwi_addr64 = -1;
-static int hf_miwi_src64_origin = -1;
-static int hf_miwi_src_panid = -1;
-static int hf_miwi_cmd_id = -1;
-//static int hf_miwi_fcs = -1;
-//static int hf_miwi_fcs_ok = -1;
+static int hf_miwi_frame_length;
+static int hf_miwi_fcf;
+static int hf_miwi_fcf_frame_type;
+static int hf_miwi_fcf_security_enabled;
+static int hf_miwi_fcf_frame_pending;
+static int hf_miwi_fcf_ack_req;
+static int hf_miwi_fcf_panid_comp;
+static int hf_miwi_fcf_reserved;
+static int hf_miwi_fcf_dest_addr_mode;
+static int hf_miwi_fcf_frame_version;
+static int hf_miwi_fcf_src_addr_mode;
+static int hf_miwi_seq;
+static int hf_miwi_dst_panid;
+static int hf_miwi_short_dst_addr;
+static int hf_miwi_ext_dst_addr;
+//static int hf_miwi_no_dst_addr;
+//static int hf_miwi_no_src_addr;
+static int hf_miwi_ext_src_addr;
+static int hf_miwi_short_src_addr;
+static int hf_miwi_addr16;
+static int hf_miwi_addr64;
+static int hf_miwi_src64_origin;
+static int hf_miwi_src_panid;
+static int hf_miwi_cmd_id;
+//static int hf_miwi_fcs;
+//static int hf_miwi_fcs_ok;
 
-static int hf_miwi_oper_chan = -1;
-static int hf_miwi_cap_info = -1;
-static int hf_miwi_cap_info_rcv_on_idle = -1;
-static int hf_miwi_cap_info_rqst_data_on_wp = -1;
-static int hf_miwi_cap_info_need_time_sync = -1;
-static int hf_miwi_cap_info_security_cap = -1;
-static int hf_miwi_cap_info_reserved = -1;
-static int hf_miwi_conn_res_status = -1;
+static int hf_miwi_oper_chan;
+static int hf_miwi_cap_info;
+static int hf_miwi_cap_info_rcv_on_idle;
+static int hf_miwi_cap_info_rqst_data_on_wp;
+static int hf_miwi_cap_info_need_time_sync;
+static int hf_miwi_cap_info_security_cap;
+static int hf_miwi_cap_info_reserved;
+static int hf_miwi_conn_res_status;
 
-//static int hf_miwi_conn_rmv_req = -1;
-static int hf_miwi_conn_rmv_res_status = -1;
-//static int hf_miwi_data_req = -1;
-//static int hf_miwi_chan_hop = -1;
-//static int hf_miwi_conn_res = -1;
-//static int hf_miwi_conn_rmv_res = -1;
-//static int hf_miwi_active_scan_req = -1;
-//static int hf_miwi_active_scan_cur_chan = -1;
+//static int hf_miwi_conn_rmv_req;
+static int hf_miwi_conn_rmv_res_status;
+//static int hf_miwi_data_req;
+//static int hf_miwi_chan_hop;
+//static int hf_miwi_conn_res;
+//static int hf_miwi_conn_rmv_res;
+//static int hf_miwi_active_scan_req;
+//static int hf_miwi_active_scan_cur_chan;
 
-//static int hf_miwi_active_scan_res = -1;
-//static int hf_miwi_active_scan_res_node_id = -1;
+//static int hf_miwi_active_scan_res;
+//static int hf_miwi_active_scan_res_node_id;
 
-//static int hf_miwi_fwd_pkt_cmd = -1;
-static int hf_miwi_fwd_pkt_dst_addr = -1;
-//static int hf_miwi_conn_tbl_bcast_cmd = -1;
-static int hf_miwi_conn_tbl_size = -1;
-//static int hf_miwi_software_ack = -1;
-//static int hf_miwi_link_status = -1;
+//static int hf_miwi_fwd_pkt_cmd;
+static int hf_miwi_fwd_pkt_dst_addr;
+//static int hf_miwi_conn_tbl_bcast_cmd;
+static int hf_miwi_conn_tbl_size;
+//static int hf_miwi_software_ack;
+//static int hf_miwi_link_status;
 
 /*Channel hopping frame*/
-static int hf_miwi_current_op_channel = -1;
-static int hf_miwi_dst_channel_to_jump_to = -1;
+static int hf_miwi_current_op_channel;
+static int hf_miwi_dst_channel_to_jump_to;
 
-//static int hf_miwi_mic = -1;
-//static int hf_miwi_key_number = -1;
+//static int hf_miwi_mic;
+//static int hf_miwi_key_number;
 
-static int miwi_short_address_type = -1;
+static int miwi_short_address_type;
 
-//static expert_field ei_miwi_empty_payload = EI_INIT;
-static expert_field ei_miwi_frame_ver = EI_INIT;
-static expert_field ei_miwi_dst = EI_INIT;
-static expert_field ei_miwi_src = EI_INIT;
-static expert_field ei_miwi_invalid_addressing = EI_INIT;
-static expert_field ei_miwi_invalid_panid_compression = EI_INIT;
-static expert_field ei_miwi_invalid_panid_compression2 = EI_INIT;
-//static expert_field  ei_miwi_fcs = EI_INIT;
+//static expert_field ei_miwi_empty_payload;
+static expert_field ei_miwi_frame_ver;
+static expert_field ei_miwi_dst;
+static expert_field ei_miwi_src;
+static expert_field ei_miwi_invalid_addressing;
+static expert_field ei_miwi_invalid_panid_compression;
+static expert_field ei_miwi_invalid_panid_compression2;
+//static expert_field ei_miwi_fcs;
 /* 802.15.4-2003 security */
-//static int hf_miwi_sec_frame_counter = -1;
-//static int hf_miwi_sec_key_sequence_counter = -1;
+//static int hf_miwi_sec_frame_counter;
+//static int hf_miwi_sec_key_sequence_counter;
 
 
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
@@ -1586,7 +1586,7 @@ dissect_miwi_p2pstar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
  *      Boolean value, whether it handles the packet or not.
  *---------------------------------------------------------------
  */
-static gboolean
+static bool
 dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 #if 0
@@ -1594,23 +1594,23 @@ dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* 1) first byte must have bits 0000xxxx */
     if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
-        return (FALSE);
+        return (false);
 
     /* The header should be at least long enough for the base header. */
     if (tvb_reported_length(tvb) < LWM_HEADER_BASE_LEN)
-        return (FALSE);
+        return (false);
 
     /* The endpoints should either both be zero, or both non-zero. */
     endpt = tvb_get_guint8(tvb, 6);
     srcep = (endpt & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
     dstep = (endpt & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
     if ((srcep == 0) && (dstep != 0))
-        return (FALSE);
+        return (false);
     if ((srcep != 0) && (dstep == 0))
-        return (FALSE);
+        return (false);
 #endif
     dissect_miwi_p2pstar(tvb, pinfo, tree, data);
-    return (TRUE);
+    return (true);
 } /* dissect_lwm_heur */
 
 /*FUNCTION:------------------------------------------------------

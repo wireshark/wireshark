@@ -236,7 +236,7 @@ static const value_string v150fw_ric_info_cleardown_type[] = {
 
 
 #if 0 /* XXX: The following doesn't actually dissect anything. Is dissect_v150fw() supposed to be called ? */
-static gboolean
+static bool
 dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
     guint8 octet1;
@@ -256,36 +256,36 @@ dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 
     /* minimum lengths */
     if(!extb && payload_length <= 4) /* extb is not set, so minimum length is 4 bytes */
-        return FALSE;
+        return false;
     if(extb && payload_length <= 6) /* ext bit is set, but no extension found? */
-        return FALSE;
+        return false;
 
     if(ric == 0 || (ric >= 6 && ric <= 31)) /* values reserved for future use */
-        return FALSE;
+        return false;
 
     switch(ric)
     {
         case 0:
             if(ric_info != 0) /* ric_info must be NULL if ric is NULL */
-                return FALSE;
+                return false;
         case V150FW_RIC_CM:
         case V150FW_RIC_JM:
             if(!extb && payload_length > 4) /* payload too long */
-                return FALSE;
+                return false;
             break;
         case V150FW_RIC_TIMEOUT:
         case V150FW_RIC_CLEARDOWN:
             break;
         default:
             if(ric < 31 && ric_info != 0) /* ric_info is zero unless ric is CM, JM, TIMEOUT ro CLEARDOWN */
-                return FALSE;
+                return false;
             if(ric >= 31 && ric <= 127) /* 31 - 127 are reserved for future use */
-                return FALSE;
+                return false;
             /* 128 - 255 are vendor-specific */
             break;
     }
 
-    return TRUE;
+    return true;
 }
 #endif
 

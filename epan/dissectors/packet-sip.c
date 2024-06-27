@@ -3249,7 +3249,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     return offset;
 }
 
-static gboolean
+static bool
 dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
@@ -3267,7 +3267,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                  * a valid SIP request or response, don't
                  * treat this as SIP.
                  */
-                return FALSE;
+                return false;
             }
             break;
         }
@@ -3275,12 +3275,12 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             break;  /* need more data */
         offset += len;
         remaining_length = remaining_length - len;
-        first = FALSE;
+        first = false;
     }
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int remaining_length = tvb_captured_length(tvb);

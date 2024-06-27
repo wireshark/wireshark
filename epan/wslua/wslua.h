@@ -788,7 +788,7 @@ extern const char* wslua_typeof(lua_State *L, int idx);
 extern bool wslua_get_table(lua_State *L, int idx, const char *name);
 extern bool wslua_get_field(lua_State *L, int idx, const char *name);
 extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
-extern int heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
+extern bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 extern expert_field* wslua_get_expert_field(const int group, const int severity);
 extern void wslua_prefs_changed(void);
 extern void proto_register_lua(void);

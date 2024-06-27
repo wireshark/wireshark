@@ -373,14 +373,14 @@ static void cotp_frame_end(void)
   cotp_frame_reset = TRUE;
 }
 
-static gchar *print_tsap(tvbuff_t *tvb, int offset, int length)
+static gchar *print_tsap(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
 {
   const guchar *tsap = tvb_get_ptr(tvb, offset, length);
   gchar    *cur;
   gboolean  allprintable;
   gint      idx = 0, returned_length;
 
-  cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_TSAP_LEN * 2 + 3);
+  cur=(gchar *)wmem_alloc(scope, MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
     snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
@@ -628,14 +628,14 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
           (tsap_display==TSAP_DISPLAY_AUTO &&
             tvb_ascii_isprint(tvb, offset, length))) {
         proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
-                              print_tsap(tvb, offset, length));
+                              print_tsap(pinfo->pool, tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
         proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb,
                                             offset, length,
-                                            print_tsap(tvb, offset, length));
+                                            print_tsap(pinfo->pool, tvb, offset, length));
         proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset,
                             length, ENC_NA);
@@ -651,14 +651,14 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
           (tsap_display==TSAP_DISPLAY_AUTO &&
             tvb_ascii_isprint(tvb, offset, length))) {
         proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
-                              print_tsap(tvb, offset, length));
+                              print_tsap(pinfo->pool, tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
         proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb,
                                             offset, length,
-                                            print_tsap(tvb, offset, length));
+                                            print_tsap(pinfo->pool, tvb, offset, length));
         proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset,
                             length, ENC_NA);
@@ -2226,7 +2226,7 @@ test_cltp_var_part(tvbuff_t *tvb)
   return TRUE;
 }
 
-static gboolean
+static bool
 dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				  void *data)
 {
@@ -2241,27 +2241,27 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   /* First, check do we have at least 2 bytes (length + tpdu) */
   if (tvb_captured_length(tvb) < 2) {
-    return FALSE;
+    return false;
   }
 
   li = tvb_get_guint8(tvb, offset++);
 
   /* LI must include TPDU, and 255 is reserved */
   if (li == 0 || li == 255) {
-    return FALSE;
+    return false;
   }
 
   /* Is it OSI on top of the UDP? */
   tpdu = (tvb_get_guint8(tvb, offset++) & 0xF0) >> 4;
   if (tpdu != UD_TPDU) {
-    return FALSE;
+    return false;
   }
 
   /* LI includes TPDU */
   li--;
 
   if (!test_cltp_var_part(tvb_new_subset_length(tvb, offset, li))) {
-    return FALSE;
+    return false;
   }
   offset += li;
 
@@ -2271,17 +2271,17 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   /* Check do we have SPDU ID byte, too */
   if (tvb_captured_length_remaining(tvb, offset) < 1) {
-    return FALSE;
+    return false;
   }
 
   /* And let's see if it is GOOSE SPDU */
   spdu = tvb_get_guint8(tvb, offset);
   if (spdu != 0xA1) {
-    return FALSE;
+    return false;
   }
 
   dissect_ositp(tvb, pinfo, parent_tree, data);
-  return TRUE;
+  return true;
 }
 
 static void

@@ -36,9 +36,9 @@ void proto_reg_handoff_mac_mgmt_msg_aas(void);
 static dissector_handle_t aas_req_handle;
 static dissector_handle_t aas_rsp_handle;
 
-static gint proto_mac_mgmt_msg_aas_fbck_decoder;
-static gint ett_mac_mgmt_msg_aas_fbck_req_decoder;
-static gint ett_mac_mgmt_msg_aas_fbck_rsp_decoder;
+static int proto_mac_mgmt_msg_aas_fbck_decoder;
+static int ett_mac_mgmt_msg_aas_fbck_req_decoder;
+static int ett_mac_mgmt_msg_aas_fbck_rsp_decoder;
 
 static const value_string vals_data_types[] =
 {
@@ -87,8 +87,8 @@ static int hf_aas_fbck_cinr_value;
 
 static int dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint data_type;
+	unsigned offset = 0;
+	unsigned data_type;
 	proto_item *aas_fbck_item;
 	proto_tree *aas_fbck_tree;
 
@@ -128,8 +128,8 @@ static int dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info 
 
 static int dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len, data_type;
+	unsigned offset = 0;
+	unsigned tvb_len, data_type;
 	proto_item *aas_fbck_item;
 	proto_tree *aas_fbck_tree;
 
@@ -310,7 +310,7 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_aas_fbck_req_decoder,
 			&ett_mac_mgmt_msg_aas_fbck_rsp_decoder,

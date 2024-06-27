@@ -403,7 +403,7 @@ static const value_string rf4ce_nwk_disc_status_vals[] = {
     { 0, NULL }
 };
 
-static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+static bool dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /* RF4CE NWK commands dissectors */
 static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
@@ -622,7 +622,7 @@ static void uat_sec_record_post_update(void)
     }
 }
 
-static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint reported_length = tvb_reported_length(tvb);
     guint length = tvb_captured_length(tvb);
@@ -638,7 +638,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
     {
         if (length < RF4CE_MIN_NWK_LENGTH)
         {
-            return FALSE;
+            return false;
         }
         fcf = tvb_get_guint8(tvb, 0);
         frame_type = fcf & RF4CE_NWK_FCF_FRAME_TYPE_MASK;
@@ -654,29 +654,29 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
                 break;
 
             default:
-                return FALSE;
+                return false;
         }
         /* Reserved value must be 1 */
         if (reserved != 1)
         {
-            return FALSE;
+            return false;
         }
         if((frame_type == RF4CE_NWK_FCF_FRAME_TYPE_DATA) || (frame_type == RF4CE_NWK_FCF_FRAME_TYPE_VENDOR_SPECIFIC))
         {
             if (length < 6)
             {
-                return FALSE;
+                return false;
             }
             profile_id = tvb_get_guint8(tvb, 5);
             if ((profile_id >= 0x04) && (profile_id <= 0xbf))
             {
-                return FALSE;
+                return false;
             }
             if (frame_type == RF4CE_NWK_FCF_FRAME_TYPE_VENDOR_SPECIFIC)
             {
                 if (length < 8)
                 {
-                    return FALSE;
+                    return false;
                 }
                 vendor_id = tvb_get_letohs(tvb, 6);
                 switch (vendor_id)
@@ -695,7 +695,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
                         break;
 
                     default:
-                        return FALSE;
+                        return false;
                 }
             }
         }
@@ -703,7 +703,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
         {
             if (length < 6)
             {
-                return FALSE;
+                return false;
             }
             /* If security is enabled, the command ID will be encrypted */
             if (!security_enabled)
@@ -723,7 +723,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
                         break;
 
                     default:
-                        return FALSE;
+                        return false;
                 }
             }
         }
@@ -732,7 +732,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
 
         dissect_rf4ce_nwk_common(tvb, pinfo, tree, data);
 
-        return TRUE;
+        return true;
     }
     return FALSE;
 }

@@ -23,13 +23,13 @@
  */
 
 #include "config.h"
+#include "commview.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "commview.h"
 
 #include <wsutil/802_11-utils.h>
 

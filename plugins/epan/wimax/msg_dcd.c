@@ -31,90 +31,90 @@ void proto_reg_handoff_mac_mgmt_msg_dcd(void);
 
 static dissector_handle_t dcd_handle;
 
-static gint proto_mac_mgmt_msg_dcd_decoder;
-static gint ett_mac_mgmt_msg_dcd_decoder;
+static int proto_mac_mgmt_msg_dcd_decoder;
+static int ett_mac_mgmt_msg_dcd_decoder;
 
 /* fix fields */
-static gint hf_dcd_downlink_channel_id;
-static gint hf_dcd_config_change_count;
-static gint hf_dcd_dl_burst_profile_rsv;
-static gint hf_dcd_dl_burst_profile_diuc;
+static int hf_dcd_downlink_channel_id;
+static int hf_dcd_config_change_count;
+static int hf_dcd_dl_burst_profile_rsv;
+static int hf_dcd_dl_burst_profile_diuc;
 
-static gint hf_dcd_bs_eirp;
-static gint hf_dcd_frame_duration;
-static gint hf_dcd_phy_type;
-static gint hf_dcd_power_adjustment;
-static gint hf_dcd_channel_nr;
-static gint hf_dcd_ttg;
-static gint hf_dcd_rtg;
+static int hf_dcd_bs_eirp;
+static int hf_dcd_frame_duration;
+static int hf_dcd_phy_type;
+static int hf_dcd_power_adjustment;
+static int hf_dcd_channel_nr;
+static int hf_dcd_ttg;
+static int hf_dcd_rtg;
 #ifdef	WIMAX_16D_2004
-static gint hf_dcd_rss;
+static int hf_dcd_rss;
 #endif
-static gint hf_dcd_channel_switch_frame_nr;
-static gint hf_dcd_frequency;
-static gint hf_dcd_bs_id;
-static gint hf_dcd_frame_duration_code;
-static gint hf_dcd_frame_nr;
+static int hf_dcd_channel_switch_frame_nr;
+static int hf_dcd_frequency;
+static int hf_dcd_bs_id;
+static int hf_dcd_frame_duration_code;
+static int hf_dcd_frame_nr;
 #ifdef  WIMAX_16D_2004
-static gint hf_dcd_size_cqich_id;
-static gint hf_dcd_h_arq_ack_delay_dl;
+static int hf_dcd_size_cqich_id;
+static int hf_dcd_h_arq_ack_delay_dl;
 #else
-static gint hf_dcd_h_arq_ack_delay_ul;
+static int hf_dcd_h_arq_ack_delay_ul;
 #endif
-static gint hf_dcd_mac_version;
-static gint hf_dcd_restart_count;
+static int hf_dcd_mac_version;
+static int hf_dcd_restart_count;
 
-/* static gint hf_dl_burst_reserved; */
-/* static gint hf_dl_burst_diuc; */
-static gint hf_dcd_burst_freq;
-static gint hf_dcd_burst_fec;
-static gint hf_dcd_burst_diuc_exit_threshold;
-static gint hf_dcd_burst_diuc_entry_threshold;
-static gint hf_dcd_burst_tcs;
-static gint hf_dcd_tlv_t_19_permutation_type_for_broadcast_regions_in_harq_zone;
-static gint hf_dcd_tlv_t_20_maximum_retransmission;
-static gint hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter;
-static gint hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_physical_cinr_measurements;
-static gint hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_rssi_measurements;
-static gint hf_dcd_tlv_t_22_dl_amc_allocated_physical_bands_bitmap;
+/* static int hf_dl_burst_reserved; */
+/* static int hf_dl_burst_diuc; */
+static int hf_dcd_burst_freq;
+static int hf_dcd_burst_fec;
+static int hf_dcd_burst_diuc_exit_threshold;
+static int hf_dcd_burst_diuc_entry_threshold;
+static int hf_dcd_burst_tcs;
+static int hf_dcd_tlv_t_19_permutation_type_for_broadcast_regions_in_harq_zone;
+static int hf_dcd_tlv_t_20_maximum_retransmission;
+static int hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter;
+static int hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_physical_cinr_measurements;
+static int hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_rssi_measurements;
+static int hf_dcd_tlv_t_22_dl_amc_allocated_physical_bands_bitmap;
 
-static gint hf_dcd_tlv_t_34_dl_region_definition;
-static gint hf_dcd_tlv_t_34_dl_region_definition_num_region;
-static gint hf_dcd_tlv_t_34_dl_region_definition_reserved;
-static gint hf_dcd_tlv_t_34_dl_region_definition_symbol_offset;
-static gint hf_dcd_eirxp;
-static gint hf_dcd_tlv_t_34_dl_region_definition_subchannel_offset;
-static gint hf_dcd_tlv_t_34_dl_region_definition_num_symbols;
-static gint hf_dcd_tlv_t_34_dl_region_definition_num_subchannels;
-static gint hf_dcd_tlv_t_50_ho_type_support;
-static gint hf_dcd_tlv_t_50_ho_type_support_ho;
-static gint hf_dcd_tlv_t_50_ho_type_support_mdho;
-static gint hf_dcd_tlv_t_50_ho_type_support_fbss_ho;
-static gint hf_dcd_tlv_t_50_ho_type_support_reserved;
-static gint hf_dcd_tlv_t_31_h_add_threshold;
-static gint hf_dcd_tlv_t_45_paging_interval_length;
-static gint hf_dcd_tlv_t_45_paging_interval_reserved;
-static gint hf_dcd_tlv_t_32_h_delete_threshold;
-static gint hf_dcd_tlv_t_33_asr;
-static gint hf_dcd_tlv_t_33_asr_m;
-static gint hf_dcd_tlv_t_33_asr_l;
-static gint hf_dcd_tlv_t_35_paging_group_id;
-static gint hf_dcd_tlv_t_36_tusc1_permutation_active_subchannels_bitmap;
-static gint hf_dcd_tlv_t_37_tusc2_permutation_active_subchannels_bitmap;
-static gint hf_dcd_tlv_t_51_hysteresis_margin;
-static gint hf_dcd_tlv_t_52_time_to_trigger_duration;
-static gint hf_dcd_tlv_t_60_noise_interference;
-static gint hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types;
+static int hf_dcd_tlv_t_34_dl_region_definition;
+static int hf_dcd_tlv_t_34_dl_region_definition_num_region;
+static int hf_dcd_tlv_t_34_dl_region_definition_reserved;
+static int hf_dcd_tlv_t_34_dl_region_definition_symbol_offset;
+static int hf_dcd_eirxp;
+static int hf_dcd_tlv_t_34_dl_region_definition_subchannel_offset;
+static int hf_dcd_tlv_t_34_dl_region_definition_num_symbols;
+static int hf_dcd_tlv_t_34_dl_region_definition_num_subchannels;
+static int hf_dcd_tlv_t_50_ho_type_support;
+static int hf_dcd_tlv_t_50_ho_type_support_ho;
+static int hf_dcd_tlv_t_50_ho_type_support_mdho;
+static int hf_dcd_tlv_t_50_ho_type_support_fbss_ho;
+static int hf_dcd_tlv_t_50_ho_type_support_reserved;
+static int hf_dcd_tlv_t_31_h_add_threshold;
+static int hf_dcd_tlv_t_45_paging_interval_length;
+static int hf_dcd_tlv_t_45_paging_interval_reserved;
+static int hf_dcd_tlv_t_32_h_delete_threshold;
+static int hf_dcd_tlv_t_33_asr;
+static int hf_dcd_tlv_t_33_asr_m;
+static int hf_dcd_tlv_t_33_asr_l;
+static int hf_dcd_tlv_t_35_paging_group_id;
+static int hf_dcd_tlv_t_36_tusc1_permutation_active_subchannels_bitmap;
+static int hf_dcd_tlv_t_37_tusc2_permutation_active_subchannels_bitmap;
+static int hf_dcd_tlv_t_51_hysteresis_margin;
+static int hf_dcd_tlv_t_52_time_to_trigger_duration;
+static int hf_dcd_tlv_t_60_noise_interference;
+static int hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types;
 
-static gint hf_dcd_tlv_t_541_type_function_action;
-static gint hf_dcd_tlv_t_541_type;
-static gint hf_dcd_tlv_t_541_function;
-static gint hf_dcd_tlv_t_541_action;
-static gint hf_dcd_tlv_t_542_trigger_value;
-static gint hf_dcd_tlv_t_543_trigger_averaging_duration;
+static int hf_dcd_tlv_t_541_type_function_action;
+static int hf_dcd_tlv_t_541_type;
+static int hf_dcd_tlv_t_541_function;
+static int hf_dcd_tlv_t_541_action;
+static int hf_dcd_tlv_t_542_trigger_value;
+static int hf_dcd_tlv_t_543_trigger_averaging_duration;
 
-static gint hf_dcd_unknown_type;
-static gint hf_dcd_invalid_tlv;
+static int hf_dcd_unknown_type;
+static int hf_dcd_invalid_tlv;
 
 /* DCD DIUC messages (table 143) */
 static const value_string diuc_msgs[] =
@@ -330,14 +330,14 @@ static const value_string tfs_support[] =
 /* WiMax MAC Management DCD message (table 15) dissector */
 static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len, length;
-	gint  tlv_type, tlv_len, tlv_offset, tlv_value_offset;
-	guint dl_burst_diuc, dl_num_regions;
+	unsigned offset = 0;
+	unsigned tvb_len, length;
+	int   tlv_type, tlv_len, tlv_offset, tlv_value_offset;
+	unsigned dl_burst_diuc, dl_num_regions;
 	proto_item *dcd_item, *tlv_item, *sub_item;
 	proto_tree *dcd_tree, *tlv_tree, *sub_tree;
 	tlv_info_t tlv_info;
-	gchar* proto_str;
+	char* proto_str;
 
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
@@ -1220,7 +1220,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_dcd_decoder,
 		};

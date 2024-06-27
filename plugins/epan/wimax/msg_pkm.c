@@ -32,9 +32,9 @@ static dissector_handle_t mac_mgmt_msg_pkm_req_handle;
 static dissector_handle_t mac_mgmt_msg_pkm_rsp_handle;
 
 
-static gint proto_mac_mgmt_msg_pkm_decoder;
-static gint ett_mac_mgmt_msg_pkm_req_decoder;
-static gint ett_mac_mgmt_msg_pkm_rsp_decoder;
+static int proto_mac_mgmt_msg_pkm_decoder;
+static int ett_mac_mgmt_msg_pkm_req_decoder;
+static int ett_mac_mgmt_msg_pkm_rsp_decoder;
 
 static const value_string vals_pkm_msg_code[] =
 {
@@ -70,14 +70,14 @@ static const value_string vals_pkm_msg_code[] =
 };
 
 /* fix fields */
-static gint hf_pkm_msg_code;
-static gint hf_pkm_msg_pkm_id;
+static int hf_pkm_msg_code;
+static int hf_pkm_msg_pkm_id;
 
 
 /* Wimax Mac PKM-REQ Message Dissector */
 static int dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *pkm_item;
 	proto_tree *pkm_tree;
 
@@ -101,7 +101,7 @@ static int dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinf
 /* Wimax Mac PKM-RSP Message Dissector */
 static int dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *pkm_item;
 	proto_tree *pkm_tree;
 
@@ -140,7 +140,7 @@ void proto_register_mac_mgmt_msg_pkm(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett_pkm[] =
+	static int *ett_pkm[] =
 		{
 			&ett_mac_mgmt_msg_pkm_req_decoder,
 			&ett_mac_mgmt_msg_pkm_rsp_decoder,

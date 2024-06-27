@@ -274,11 +274,11 @@ static guint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
 
 /* Same as add_or_get_node() but invoked for conversations where the same address is both used
  * as src and dst.
- * The occurence number is tracking how many times this address was seen,
- * value is 0 for the first occurence, 1 for the second, and we never go higher to not have
+ * The occurrence number is tracking how many times this address was seen,
+ * value is 0 for the first occurrence, 1 for the second, and we never go higher to not have
  * too many Y-Axis in the diagram.
  */
-static guint add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, guint8 occurence) {
+static guint add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, guint8 occurrence) {
     guint i;
 
     if (node->type == AT_NONE) return NODE_OVERFLOW;
@@ -286,8 +286,8 @@ static guint add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, g
     for (i=0; i<MAX_NUM_NODES && i < sainfo->num_nodes ; i++) {
         if ( cmp_address(&(sainfo->nodes[i]), node) == 0 ) {
 
-            /* address is matching, go further by checking the occurence indication */
-            if(sainfo->occurence[i]==occurence) {
+            /* address is matching, go further by checking the occurrence indication */
+            if(sainfo->occurrence[i]==occurrence) {
                 return i;
             }
         }
@@ -299,7 +299,7 @@ static guint add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, g
     else { /* insert a new entry */
         sainfo->num_nodes++;
         copy_address(&(sainfo->nodes[i]), node);
-        sainfo->occurence[i] = occurence;
+        sainfo->occurrence[i] = occurrence;
         return i;
     }
 }

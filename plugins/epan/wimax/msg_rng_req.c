@@ -27,48 +27,48 @@ void proto_reg_handoff_mac_mgmt_msg_rng_req(void);
 
 static dissector_handle_t rng_req_handle;
 
-static gint proto_mac_mgmt_msg_rng_req_decoder;
-static gint ett_mac_mgmt_msg_rng_req_decoder;
+static int proto_mac_mgmt_msg_rng_req_decoder;
+static int ett_mac_mgmt_msg_rng_req_decoder;
 
 /* RNG-REQ fields */
-static gint hf_rng_req_reserved;
-static gint hf_rng_req_dl_burst_profile_diuc;
-static gint hf_rng_req_dl_burst_profile_lsb_ccc;
-static gint hf_rng_req_ss_mac_address;
-static gint hf_rng_req_ranging_anomalies_max_power;
-static gint hf_rng_req_ranging_anomalies_min_power;
-static gint hf_rng_req_ranging_anomalies_timing_adj;
-static gint hf_rng_req_aas_broadcast;
-static gint hf_rng_req_serving_bs_id;
-static gint hf_rng_req_ranging_purpose_ho_indication;
-static gint hf_rng_req_ranging_purpose_location_update_request;
-static gint hf_rng_req_ranging_purpose_reserved;
-static gint hf_rng_req_ho_id;
-static gint hf_rng_req_power_down_indicator;
-static gint hf_rng_req_repetition_coding_level;
-static gint hf_rng_req_requested_downlink_repetition_coding_level_reserved;
-static gint hf_rng_req_cmac_key_count;
-static gint hf_rng_definition_of_power_saving_class_present;
-static gint hf_rng_activation_of_power_saving_class;
-static gint hf_rng_trf_ind_required;
-static gint hf_rng_power_saving_class_reserved;
-static gint hf_rng_power_saving_class_id;
-static gint hf_rng_power_saving_class_type;
-static gint hf_rng_power_saving_first_sleep_window_frame;
-static gint hf_rng_power_saving_initial_sleep_window;
-static gint hf_rng_power_saving_listening_window;
-static gint hf_rng_power_saving_final_sleep_window_base;
-static gint hf_rng_power_saving_final_sleep_window_exp;
-static gint hf_rng_power_saving_slpid;
-static gint hf_rng_power_saving_included_cid;
-static gint hf_rng_power_saving_mgmt_connection_direction;
-static gint hf_tlv_type;
-static gint hf_rng_invalid_tlv;
-static gint hf_rng_power_saving_class_flags;
-static gint hf_rng_req_dl_burst_profile;
-static gint hf_rng_req_ranging_anomalies;
-static gint hf_rng_req_ranging_purpose_indication;
-static gint hf_rng_req_requested_rep_coding_level;
+static int hf_rng_req_reserved;
+static int hf_rng_req_dl_burst_profile_diuc;
+static int hf_rng_req_dl_burst_profile_lsb_ccc;
+static int hf_rng_req_ss_mac_address;
+static int hf_rng_req_ranging_anomalies_max_power;
+static int hf_rng_req_ranging_anomalies_min_power;
+static int hf_rng_req_ranging_anomalies_timing_adj;
+static int hf_rng_req_aas_broadcast;
+static int hf_rng_req_serving_bs_id;
+static int hf_rng_req_ranging_purpose_ho_indication;
+static int hf_rng_req_ranging_purpose_location_update_request;
+static int hf_rng_req_ranging_purpose_reserved;
+static int hf_rng_req_ho_id;
+static int hf_rng_req_power_down_indicator;
+static int hf_rng_req_repetition_coding_level;
+static int hf_rng_req_requested_downlink_repetition_coding_level_reserved;
+static int hf_rng_req_cmac_key_count;
+static int hf_rng_definition_of_power_saving_class_present;
+static int hf_rng_activation_of_power_saving_class;
+static int hf_rng_trf_ind_required;
+static int hf_rng_power_saving_class_reserved;
+static int hf_rng_power_saving_class_id;
+static int hf_rng_power_saving_class_type;
+static int hf_rng_power_saving_first_sleep_window_frame;
+static int hf_rng_power_saving_initial_sleep_window;
+static int hf_rng_power_saving_listening_window;
+static int hf_rng_power_saving_final_sleep_window_base;
+static int hf_rng_power_saving_final_sleep_window_exp;
+static int hf_rng_power_saving_slpid;
+static int hf_rng_power_saving_included_cid;
+static int hf_rng_power_saving_mgmt_connection_direction;
+static int hf_tlv_type;
+static int hf_rng_invalid_tlv;
+static int hf_rng_power_saving_class_flags;
+static int hf_rng_req_dl_burst_profile;
+static int hf_rng_req_ranging_anomalies;
+static int hf_rng_req_ranging_purpose_indication;
+static int hf_rng_req_requested_rep_coding_level;
 
 /* STRING RESOURCES */
 
@@ -111,13 +111,13 @@ static const true_false_string tfs_rng_timing_adj = {
 };
 
 /* Decode RNG Power Saving Class parameters (Sub TLV's). */
-void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_t *tvb, guint compound_tlv_len, packet_info *pinfo, guint offset)
+void dissect_power_saving_class(proto_tree *rng_req_tree, int tlv_type, tvbuff_t *tvb, unsigned compound_tlv_len, packet_info *pinfo, unsigned offset)
 {
 	proto_item *tlv_item;
 	proto_tree *tlv_tree;
 	proto_tree *power_saving_class_tree = NULL;
-	guint tlv_len;
-	guint tlv_offset;
+	unsigned tlv_len;
+	unsigned tlv_offset;
 	tlv_info_t tlv_info;
 
 	/* Add a subtree for the power saving class parameters */
@@ -198,14 +198,14 @@ void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_
 /* Decode RNG-REQ messages. */
 static int dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tlv_offset;
-	guint tvb_len;
+	unsigned offset = 0;
+	unsigned tlv_offset;
+	unsigned tvb_len;
 	proto_item *rng_req_item, *tlv_item;
 	proto_tree *rng_req_tree, *tlv_tree;
 	tlv_info_t tlv_info;
-	gint tlv_type;
-	gint tlv_len;
+	int tlv_type;
+	int tlv_len;
 
 	{	/* we are being asked for details */
 
@@ -594,7 +594,7 @@ void proto_register_mac_mgmt_msg_rng_req(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_rng_req_decoder,
 		};

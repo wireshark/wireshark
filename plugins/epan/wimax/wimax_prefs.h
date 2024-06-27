@@ -15,6 +15,6 @@
  */
 
 extern bool include_cor2_changes;
-extern	guint global_cid_max_basic;
+extern	unsigned global_cid_max_basic;
 
 #endif

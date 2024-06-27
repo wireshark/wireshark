@@ -5,10 +5,7 @@
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::NDR::Client;
-
-use Exporter;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(Parse);
+use parent Parse::Pidl::Base;
 
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property ParseExpr genpad);
@@ -17,18 +14,14 @@ use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Samba4 qw(choose_header is_intree DeclLong);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
 
+
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
+use warnings;
 
-sub indent($) { my ($self) = @_; $self->{tabs}.="\t"; }
-sub deindent($) { my ($self) = @_; $self->{tabs} = substr($self->{tabs}, 1); }
-sub pidl($$) { my ($self,$txt) = @_; $self->{res} .= $txt ? "$self->{tabs}$txt\n" : "\n"; }
-sub pidl_hdr($$) { my ($self, $txt) = @_; $self->{res_hdr} .= "$txt\n"; }
-sub pidl_both($$) { my ($self, $txt) = @_; $self->{hdr} .= "$txt\n"; $self->{res_hdr} .= "$txt\n"; }
 sub fn_declare($$) { my ($self,$n) = @_; $self->pidl($n); $self->pidl_hdr("$n;"); }
-
 sub new($)
 {
 	my ($class) = shift;
@@ -496,7 +489,7 @@ sub ParseFunction_Send($$$$)
 
 	if (defined($fn->{RETURN_TYPE})) {
 		$self->pidl("/* Result */");
-		$self->pidl("ZERO_STRUCT(state->orig.out.result);");
+		$self->pidl("NDR_ZERO_STRUCT(state->orig.out.result);");
 		$self->pidl("");
 	}
 
@@ -585,7 +578,7 @@ sub ParseFunction_Done($$$$)
 	}
 
 	$self->pidl("/* Reset temporary structure */");
-	$self->pidl("ZERO_STRUCT(state->tmp);");
+	$self->pidl("NDR_ZERO_STRUCT(state->tmp);");
 	$self->pidl("");
 
 	$self->pidl("tevent_req_done(req);");
@@ -698,7 +691,7 @@ sub ParseFunction_Sync($$$$)
 
 	if (defined($fn->{RETURN_TYPE})) {
 		$self->pidl("/* Result */");
-		$self->pidl("ZERO_STRUCT(r.out.result);");
+		$self->pidl("NDR_ZERO_STRUCT(r.out.result);");
 		$self->pidl("");
 	}
 
@@ -770,8 +763,8 @@ sub ParseFunction($$$)
 		# TODO: make this fatal at NDR level
 		if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
 			if ($e->{LEVELS}[1]->{TYPE} eq "DATA" and
-			    $e->{LEVELS}[1]->{DATA_TYPE} eq "string") {
-				$reason = "is a pointer to type 'string'";
+			    Parse::Pidl::Typelist::is_string_type($e->{LEVELS}[1]->{DATA_TYPE})) {
+				$reason = "is a pointer to a string type";
 			} elsif ($e->{LEVELS}[1]->{TYPE} eq "ARRAY" and
 				 $e->{LEVELS}[1]->{IS_ZERO_TERMINATED}) {
 				next;

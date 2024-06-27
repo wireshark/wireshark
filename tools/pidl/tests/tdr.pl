@@ -13,18 +13,18 @@ use Parse::Pidl::Samba4::TDR qw(ParserType);
 my $tdr = new Parse::Pidl::Samba4::TDR();
 
 $tdr->ParserType({TYPE => "STRUCT", NAME => "foo", PROPERTIES => {public => 1}}, "pull");
-is($tdr->{ret}, "NTSTATUS tdr_pull_foo (struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, struct foo *v)
+is($tdr->{res}, "NTSTATUS tdr_pull_foo (struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, struct foo *v)
 {
 	return NT_STATUS_OK;
 }
 
 ");
-is($tdr->{ret_hdr}, "NTSTATUS tdr_pull_foo (struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, struct foo *v);\n");
+is($tdr->{res_hdr}, "NTSTATUS tdr_pull_foo (struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, struct foo *v);\n");
 
 
 $tdr = new Parse::Pidl::Samba4::TDR();
 $tdr->ParserType({TYPE => "UNION", NAME => "bar", PROPERTIES => {public => 1}}, "pull");
-is($tdr->{ret}, "NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, int level, union bar *v)
+is($tdr->{res}, "NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, int level, union bar *v)
 {
 	switch (level) {
 	}
@@ -33,11 +33,11 @@ is($tdr->{ret}, "NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx
 }
 
 ");
-is($tdr->{ret_hdr}, "NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, int level, union bar *v);\n");
+is($tdr->{res_hdr}, "NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, int level, union bar *v);\n");
 
 $tdr = new Parse::Pidl::Samba4::TDR();
 $tdr->ParserType({TYPE => "UNION", NAME => "bar", PROPERTIES => {}}, "pull");
-is($tdr->{ret}, "static NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, int level, union bar *v)
+is($tdr->{res}, "static NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *mem_ctx, int level, union bar *v)
 {
 	switch (level) {
 	}
@@ -46,4 +46,4 @@ is($tdr->{ret}, "static NTSTATUS tdr_pull_bar(struct tdr_pull *tdr, TALLOC_CTX *
 }
 
 "); 
-is($tdr->{ret_hdr}, "");
+is($tdr->{res_hdr}, "");

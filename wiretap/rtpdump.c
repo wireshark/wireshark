@@ -47,13 +47,15 @@
  */
 
 #include "config.h"
+#include "rtpdump.h"
+
 #include <wtap-int.h>
 #include <file_wrappers.h>
 #include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/nstime.h>
 #include <wsutil/strtoi.h>
-#include "rtpdump.h"
+#include <wsutil/wslog.h>
 #include <string.h>
 
 /* NB. I've included the version string in the magic for stronger identification.

@@ -195,7 +195,7 @@ dissect_option_qos(const guint8 qos, proto_tree *tree, tvbuff_t *tvb, int offset
 
 static void
 dissect_option_route(guchar parm_type, int offset, guchar parm_len,
-                     tvbuff_t *tvb, proto_tree *tree )
+                     tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo )
 {
   guchar      next_hop = 0;
   guint16     this_hop = 0;
@@ -251,7 +251,7 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
 
   while ( this_hop < offset + last_hop -2 ) { /* -2 for crr and last_hop */
     netl = tvb_get_guint8(tvb, this_hop);
-    str = print_nsap_net(wmem_packet_scope(), tvb, this_hop + 1, netl);
+    str = print_nsap_net(pinfo->pool, tvb, this_hop + 1, netl);
     proto_tree_add_string_format(osi_route_tree, hf_osi_options_route, tvb, this_hop, netl + 1, str,
                         "Hop #%3u NETL: %2u, NET: %s", cnt_hops++, netl, str);
     this_hop += 1 + netl;
@@ -401,7 +401,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree,
         case OSI_OPT_SOURCE_ROUTING:
         case OSI_OPT_RECORD_OF_ROUTE:
           dissect_option_route(parm_type, offset, parm_len, tvb,
-                               osi_option_tree);
+                               osi_option_tree, pinfo);
           break;
 
         case OSI_OPT_REASON_OF_DISCARD:

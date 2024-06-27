@@ -3055,7 +3055,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_str(pinfo->cinfo, COL_INFO,
        val_to_str(erf_type, erf_type_vals, "Unknown type %u"));
 
   erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, ENC_NA);

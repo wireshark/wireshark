@@ -8,7 +8,6 @@ use Test::More tests => 31;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
-use strict;
 use Parse::Pidl::Util qw(MyDumper);
 use Parse::Pidl::Samba4::NDR::Parser qw(check_null_pointer 
 	NeededFunction NeededElement NeededType

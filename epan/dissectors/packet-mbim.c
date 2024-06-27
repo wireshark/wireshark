@@ -9794,7 +9794,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
@@ -9802,13 +9802,13 @@ dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if ((usb_conv_info == NULL) ||
         ((usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) &&
         (usb_conv_info->interfaceClass != IF_CLASS_UNKNOWN))) {
-        return FALSE;
+        return false;
     }
 
     if (dissect_mbim_bulk(tvb, pinfo, tree, usb_conv_info)) {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 static int

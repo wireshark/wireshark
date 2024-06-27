@@ -8,13 +8,13 @@
  *
  */
 #include "config.h"
+#include "vwr.h"
 
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
-#include "vwr.h"
 #include <wsutil/ws_assert.h>
 
 /* platform-specific definitions for portability */

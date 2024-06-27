@@ -1161,17 +1161,17 @@ dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_ns_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	static const guint8 ns_rpc_sig[2] = { 0xA5, 0xA5 };
 
 	/* Check the signature */
 	if (tvb_memeql(tvb, 4, ns_rpc_sig, sizeof ns_rpc_sig) != 0)
-		return FALSE;
+		return false;
 
 	dissect_ns_rpc(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 void

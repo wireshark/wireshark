@@ -74,8 +74,8 @@ static int dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     proxy_to_length = tvb_find_line_end(tvb, offset, tvb_ensure_captured_length_remaining(tvb, offset), &next_offset, FALSE);
     if(proxy_to_length != -1) {
-        pmproxy_host_and_port_string = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, proxy_to_length, ENC_ASCII);
-        host_and_port = wmem_strsplit(wmem_packet_scope(), pmproxy_host_and_port_string, " ", -1);
+        pmproxy_host_and_port_string = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, offset, proxy_to_length, ENC_ASCII);
+        host_and_port = wmem_strsplit(pinfo->pool, pmproxy_host_and_port_string, " ", -1);
         if(host_and_port != NULL) {
             host = host_and_port[0];
             if (host) {
@@ -95,7 +95,7 @@ static int dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 }
 
-static int is_banner_exchange_for(const gchar *type, tvbuff_t *tvb) {
+static int is_banner_exchange_for(const gchar *type, tvbuff_t *tvb, packet_info *pinfo) {
     gchar *pmproxy_exchange_string;
 
     /* Exchange packets have to be this length */
@@ -103,17 +103,17 @@ static int is_banner_exchange_for(const gchar *type, tvbuff_t *tvb) {
         return 0;
     }
 
-    pmproxy_exchange_string = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, PMPROXY_START_OF_PACKET,
+    pmproxy_exchange_string = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, PMPROXY_START_OF_PACKET,
                                                            PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII);
-    return g_strcmp0(pmproxy_exchange_string, wmem_strdup_printf(wmem_packet_scope(), "pmproxy-%s 1\n", type)) == 0;
+    return g_strcmp0(pmproxy_exchange_string, wmem_strdup_printf(pinfo->pool, "pmproxy-%s 1\n", type)) == 0;
 }
 
-static int is_server_exchange(tvbuff_t *tvb) {
-    return is_banner_exchange_for("server", tvb);
+static int is_server_exchange(tvbuff_t *tvb, packet_info *pinfo) {
+    return is_banner_exchange_for("server", tvb, pinfo);
 }
 
-static int is_client_exchange(tvbuff_t *tvb) {
-    return is_banner_exchange_for("client", tvb);
+static int is_client_exchange(tvbuff_t *tvb, packet_info *pinfo) {
+    return is_banner_exchange_for("client", tvb, pinfo);
 }
 
 static int dissect_server_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pmproxy_tree) {
@@ -172,9 +172,9 @@ static int dissect_pmproxy_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     root_pmproxy_item = proto_tree_add_item(tree, proto_pmproxy, tvb, 0, -1, ENC_NA);
     pmproxy_tree = proto_item_add_subtree(root_pmproxy_item, ett_pmproxy);
 
-    if (is_server_exchange(tvb)) {
+    if (is_server_exchange(tvb, pinfo)) {
         return dissect_server_exchange(tvb, pinfo, pmproxy_tree);
-    } else if (is_client_exchange(tvb)) {
+    } else if (is_client_exchange(tvb, pinfo)) {
         return dissect_client_exchange(tvb, pinfo, pmproxy_tree);
     } else if (looks_like_proxy_exchange(tvb)) {
         return dissect_proxy_to_host(tvb, pinfo, pmproxy_tree);

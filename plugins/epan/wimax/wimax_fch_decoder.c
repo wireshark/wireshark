@@ -21,12 +21,12 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-extern gint proto_wimax;
+extern int proto_wimax;
 
 extern address bs_address;	/* declared in packet-wmx.c */
 
 static int proto_wimax_fch_decoder;
-static gint ett_wimax_fch_decoder;
+static int ett_wimax_fch_decoder;
 
 #define FCH_BURST_LENGTH 3
 /* FCH Burst bits */
@@ -87,7 +87,7 @@ static const value_string coding_indications[] =
 
 static int dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint offset = 0;
+	int offset = 0;
 	proto_item *fch_item = NULL;
 	proto_tree *fch_tree = NULL;
 
@@ -218,7 +218,7 @@ void wimax_proto_register_wimax_fch(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_wimax_fch_decoder,
 		};

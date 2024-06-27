@@ -21,6 +21,7 @@ dumpcap - Dump network traffic
 [ *-d* ]
 [ *-D*|*--list-interfaces* ]
 [ *-f* <capture filter> ]
+[ *-F* <file format> ]
 [ *-g* ]
 [ *-i*|*--interface* <capture interface>|rpcap://<host>:<port>/<capture interface>|TCP@<host>:<port>|- ]
 [ *-I*|*--monitor-mode* ]
@@ -34,6 +35,7 @@ dumpcap - Dump network traffic
 [ *--ifname* <name> ]
 [ *-P* ]
 [ *-q* ]
+[ *-Q* ]
 [ *-s*|*--snapshot-length* <capture snaplen> ]
 [ *-S* ]
 [ *-t* ]
@@ -57,9 +59,8 @@ dumpcap - Dump network traffic
 
 *Dumpcap* is a network traffic dump tool.  It lets you capture packet
 data from a live network and write the packets to a file.  *Dumpcap*'s
-default capture file format is *pcapng* format.
-When the *-P* option is specified, the output file is written in the
-*pcap* format.
+default capture file format is *pcapng* format. The *-F* option can
+be specified to write the output file in the *pcap* format instead.
 
 Without any options set it will use the libpcap, Npcap, or WinPcap library to
 capture traffic from the first available network interface and writes
@@ -214,6 +215,17 @@ this option. If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 --
 
+-F  <file format>::
+Set the file format of the output capture file written using the *-w*
+option. In situations that require the *pcapng* format, such as capturing
+from multiple interfaces, this option will be overridden. The option *-F*
+without a value will list the available formats. The default is the
+*pcapng* format.
+
+Fewer formats are supported than by xref:tshark.html[tshark](1); this is
+intentional for security reasons. Use *tshark* or capture and then convert
+the file with xref:editcap.html[editcap](1) if another format is needed.
+
 -g::
 This option causes the output file(s) to be created with group-read permission
 (meaning that the output file(s) can be read by other members of the calling
@@ -320,7 +332,8 @@ The machine-readable output is intended to be read by *Wireshark* and
 --
 
 -n::
-Save files as pcapng. This is the default.
+Save files as pcapng. This is the default. This option is deprecated
+and may be removed.
 
 -N  <packet limit>::
 +
@@ -352,7 +365,8 @@ promiscuous mode.
 -P::
 Save files as pcap instead of the default pcapng. In situations that require
 pcapng, such as capturing from multiple interfaces, this option will be
-overridden.
+overridden. This option is deprecated in favor of the *-F* option and
+may be removed.
 
 -q::
 +
@@ -365,6 +379,23 @@ BSDs, you can cause the current count to be displayed by typing your
 "status" character (typically control-T, although it
 might be set to "disabled" by default on at least some BSDs, so you'd
 have to explicitly set it to use it).
+--
+
+-Q::
++
+--
+When capturing packets, don't display, on the standard error, the initial
+message indicating on what interfaces the capture is being done, the
+messages indicating to what file a capture is being written, the continuous
+count of packets captured that is normally shown when saving a capture to
+a file, and the message at the end of the capture giving a count of packets
+captured.  This outputs less than the *-q* option; only true errors are
+displayed on the standard error.
+
+On systems that support the SIGINFO signal, such as various BSDs, you can
+cause the current count to be displayed by typing your "status" character
+(typically control-T, although it might be set to "disabled" by default on
+at least some BSDs, so you'd have to explicitly set it to use it).
 --
 
 -s|--snapshot-length  <capture snaplen>::

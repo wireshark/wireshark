@@ -53,9 +53,7 @@ ETH_HFARR
 ETH_ETTARR
         };
 
-        proto_budb = proto_register_protocol(
-                "DCE/DFS BUDB", 
-		"BUDB", "budb");
+        proto_budb = proto_register_protocol("DCE/DFS BUDB", "BUDB", "budb");
 	proto_register_field_array(proto_budb, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }

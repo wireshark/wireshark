@@ -5808,7 +5808,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DCERPC dissector for connection oriented calls over packet-oriented
  * transports
  */
-static gboolean
+static bool
 dissect_dcerpc_cn_pk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
@@ -5822,12 +5822,12 @@ dissect_dcerpc_cn_pk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         /*
          * It wasn't a DCERPC PDU.
          */
-        return FALSE;
+        return false;
     } else {
         /*
          * It was.
          */
-        return TRUE;
+        return true;
     }
 }
 
@@ -5837,13 +5837,13 @@ dissect_dcerpc_cn_pk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
  * we need to distinguish here between SMB and non-TCP (more in the future?)
  * to be able to know what kind of private_data structure to expect.
  */
-static gboolean
+static bool
 dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     volatile int      offset      = 0;
     int               pdu_len     = 0;
     volatile int      dcerpc_pdus = 0;
-    volatile gboolean ret         = FALSE;
+    volatile bool     ret         = false;
 
     /*
      * There may be multiple PDUs per transport packet; keep
@@ -5907,7 +5907,7 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Well, we've seen at least one DCERPC PDU.
          */
-        ret = TRUE;
+        ret = true;
 
         /* if we had more than one Req/Resp in this PDU change the protocol column */
         /* this will formerly contain the last interface name, which may not be the same for all Req/Resp */
@@ -5935,7 +5935,7 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return ret;
 }
 
-static gboolean
+static bool
 dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
@@ -5978,19 +5978,19 @@ dissect_dcerpc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     return pdu_len;
 }
 
-static gboolean
+static bool
 dissect_dcerpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     dcerpc_decode_as_data* decode_data;
 
     if (!is_dcerpc(tvb, 0, pinfo))
-        return 0;
+        return false;
 
     decode_data = dcerpc_get_decode_data(pinfo);
     decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
 
     tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, sizeof(e_dce_cn_common_hdr_t), get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
-    return TRUE;
+    return true;
 }
 
 static int
@@ -6005,7 +6005,7 @@ dissect_dcerpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_dcerpc_cn_smbpipe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
@@ -6014,7 +6014,7 @@ dissect_dcerpc_cn_smbpipe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 
-static gboolean
+static bool
 dissect_dcerpc_cn_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
@@ -6471,7 +6471,7 @@ dissect_dcerpc_dg_ping_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /*
  * DCERPC dissector for connectionless calls
  */
-static gboolean
+static bool
 dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item            *ti             = NULL;
@@ -6512,18 +6512,18 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      * version (4), pkt_type.
      */
     if (tvb_reported_length(tvb) < sizeof (hdr)) {
-        return FALSE;
+        return false;
     }
 
     /* Version must be 4 */
     hdr.rpc_ver = tvb_get_guint8(tvb, offset++);
     if (hdr.rpc_ver != 4)
-        return FALSE;
+        return false;
 
     /* Type must be <= PDU_CANCEL_ACK or it's not connectionless DCE/RPC */
     hdr.ptype = tvb_get_guint8(tvb, offset++);
     if (hdr.ptype > PDU_CANCEL_ACK)
-        return FALSE;
+        return false;
 
     /* flags1 has bit 1 and 8 as reserved for implementations, with no
        indication that they must be set to 0, so we don't check them.
@@ -6537,14 +6537,14 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     */
     hdr.flags2 = tvb_get_guint8(tvb, offset++);
     if (hdr.flags2&0xfc)
-        return FALSE;
+        return false;
 
     tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
     offset += (int)sizeof (hdr.drep);
     if (hdr.drep[0]&0xee)
-        return FALSE;
+        return false;
     if (hdr.drep[1] > DCE_RPC_DREP_FP_IBM)
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     col_add_str(pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
@@ -6784,7 +6784,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void

@@ -31,7 +31,6 @@ void proto_reg_handoff_mac_lte(void);
 
 /* TODO:
  * - use proto_tree_add_bitmask..() APIs for sets of bits where possible
- * - add a field mac-lte.lcid that can filter in both directions
  */
 
 /* Initialize the protocol and registered fields. */
@@ -123,6 +122,7 @@ static int hf_mac_lte_slsch_subheader;
 
 static int hf_mac_lte_sch_reserved;
 static int hf_mac_lte_sch_format2;
+static int hf_mac_lte_lcid;
 static int hf_mac_lte_dlsch_lcid;
 static int hf_mac_lte_ulsch_lcid;
 static int hf_mac_lte_sch_extended;
@@ -1726,7 +1726,7 @@ typedef struct dynamic_lcid_drb_mapping_t {
 
 typedef struct ue_dynamic_drb_mappings_t {
     dynamic_lcid_drb_mapping_t mapping[39];  /* Index is LCID */
-    guint8 drb_to_lcid_mappings[32];         /* Also map drbid -> lcid */
+    guint8 drb_to_lcid_mappings[33];         /* Also map drbid -> lcid */
 } ue_dynamic_drb_mappings_t;
 
 static GHashTable *mac_lte_ue_channels_hash;
@@ -2868,7 +2868,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 }
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
     gint                 offset = 0;
@@ -2881,12 +2881,12 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
        - tag for data
        - at least one byte of MAC PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(MAC_LTE_START_STRING)+3+2)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(MAC_LTE_START_STRING);
 
@@ -2897,7 +2897,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
         /* Dissect the fields to populate p_mac_lte */
         if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, pinfo, tree, &offset)) {
-            return TRUE;
+            return true;
         }
         /* Store info in packet */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
@@ -2913,7 +2913,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     mac_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -4765,6 +4765,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* Also add LCID as a hidden, direction-less field */
+            proto_item *bi_di_lcid = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_lcid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_item_set_hidden(bi_di_lcid);
+
             if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                          "(%s",
@@ -4778,6 +4782,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Downlink */
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* Also add LCID as a hidden, direction-less field */
+            proto_item *bi_di_lcid = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_lcid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_item_set_hidden(bi_di_lcid);
+
             if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                          "(%s",
@@ -4874,6 +4882,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             elcids[number_of_headers] = elcid + 32;
             proto_tree_add_uint_format_value(pdu_subheader_tree, hf_mac_lte_sch_elcid, tvb, offset,
                                              1, elcid, "%u (%u)", elcids[number_of_headers], elcid);
+            /* Also add hidden as LCID */
+            proto_item *bi_di_lcid = proto_tree_add_uint(pdu_subheader_tree, hf_mac_lte_lcid, tvb, offset, 1, elcids[number_of_headers]);
+            proto_item_set_hidden(bi_di_lcid);
             offset++;
         }
 
@@ -8277,6 +8288,42 @@ static guint8 get_mac_lte_channel_priority(guint16 ueid, guint8 lcid,
     }
 }
 
+/* Return mode of bearer, or 0 if not found/known */
+guint8 get_mac_lte_channel_mode(guint16 ueid, guint8 drbid)
+{
+    ue_dynamic_drb_mappings_t *ue_mappings;
+
+    /* Look up the mappings for this UE */
+    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
+    if (!ue_mappings) {
+        return 0;
+    }
+
+    if (drbid > 32) {
+        return 0;
+    }
+    /* Need sensible lcid */
+    guint8 lcid = ue_mappings->drb_to_lcid_mappings[drbid];
+    if (lcid < 3) {
+        /* Not valid */
+        return 0;
+    }
+
+    /* Lcid needs ot have mapping */
+    if (!ue_mappings->mapping[lcid].valid) {
+        return 0;
+    }
+    rlc_channel_type_t channel_type = ue_mappings->mapping[lcid].channel_type;
+    /* What mode does the channel type correspond to? */
+    if (channel_type >= rlcAM)  {
+        return RLC_AM_MODE;
+    }
+    else {
+        return RLC_UM_MODE;
+    }
+}
+
+
 /* Configure the DRX state for this UE (from RRC) */
 void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo)
 {
@@ -8726,6 +8773,13 @@ void proto_register_mac_lte(void)
             { "Extension",
               "mac-lte.sch.extended", FT_UINT8, BASE_HEX, NULL, 0x20,
               "Extension - i.e. further headers after this one", HFILL
+            }
+        },
+        /* Will be hidden, but useful for bi-directional filtering */
+        { &hf_mac_lte_lcid,
+            { "LCID",
+              "mac-lte.lcid", FT_UINT8, BASE_HEX, NULL, 0x1f,
+              "Logical Channel Identifier", HFILL
             }
         },
         { &hf_mac_lte_dlsch_lcid,

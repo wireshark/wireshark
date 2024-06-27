@@ -74,7 +74,7 @@ typedef struct _packet_info {
   const char *match_string;         /**< matched string for calling subdissector from table */
   gboolean use_conv_addr_port_endpoints; /**< TRUE if address/port endpoints member should be used for conversations */
   struct conversation_addr_port_endpoints* conv_addr_port_endpoints; /**< Data that can be used for address+port conversations, including wildcarding */
-  struct conversation_element *conv_elements; /**< Arbritrary conversation identifier; can't be wildcarded */
+  struct conversation_element *conv_elements; /**< Arbitrary conversation identifier; can't be wildcarded */
   guint16 can_desegment;            /**< >0 if this segment could be desegmented.
                                          A dissector that can offer this API (e.g.
                                          TCP) sets can_desegment=2, then
@@ -100,7 +100,7 @@ typedef struct _packet_info {
                                          Desegment one more full segment
                                          (warning! only partially implemented)
                                        DESEGMENT_UNTIL_FIN:
-                                         Desgment all data for this tcp session
+                                         Desegment all data for this tcp session
                                          until the FIN segment.
                                     */
   guint16 want_pdu_tracking;    /**< >0 if the subdissector has specified

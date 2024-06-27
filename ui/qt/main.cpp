@@ -75,6 +75,7 @@
 #include "ui/preference_utils.h"
 #include "ui/software_update.h"
 #include "ui/taps.h"
+#include "ui/profile.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/utils/color_utils.h"
@@ -766,8 +767,10 @@ int main(int argc, char *qt_argv[])
     GLibMainloopOnQEventLoop::setup(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
-            main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
+    main_w->connect(&ws_app, &WiresharkApplication::openCaptureFile,
+                    main_w, [&](QString cf_path, QString display_filter, unsigned int type) {
+                        main_w->openCaptureFile(cf_path, display_filter, type);
+                    });
     main_w->connect(&ws_app, &WiresharkApplication::openCaptureOptions,
             main_w, &WiresharkMainWindow::showCaptureOptionsDialog);
 
@@ -1151,6 +1154,7 @@ int main(int argc, char *qt_argv[])
     profile_register_persconffile("remote_hosts.json");
 
     profile_store_persconffiles(false);
+    init_profile_list();
 
     // If the wsApp->exec() event loop exits cleanly, we call
     // WiresharkApplication::cleanup().

@@ -337,15 +337,15 @@ static void dissect_a615a_protocol_file(tvbuff_t *tvb, packet_info *pinfo, proto
     ptvcursor_free(ptvc);
 }
 
-static gboolean dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint psize = tvb_captured_length(tvb);
-    if (psize < 6) return FALSE;
-    if ((tvb_get_ntohl(tvb, 0) != psize) || ((gchar)tvb_get_guint8(tvb, 4) != 'A')) return FALSE;
+    if (psize < 6) return false;
+    if ((tvb_get_ntohl(tvb, 0) != psize) || ((gchar)tvb_get_guint8(tvb, 4) != 'A')) return false;
 
     const char *filename = ((struct tftpinfo *)data)->filename;
     if (filename == NULL) {
-      return FALSE;
+      return false;
     }
 
     for (unsigned i = 0; i < array_length(a615a_file); ++i) {
@@ -353,10 +353,10 @@ static gboolean dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "A615a");
             col_add_str(pinfo->cinfo, COL_INFO, filename);
             dissect_a615a_protocol_file(tvb, pinfo, tree, i);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 static int dissect_find(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

@@ -1678,23 +1678,23 @@ dissect_smc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_smc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	void *data)
 {
 	if (tvb_captured_length(tvb) < 4) {
-		return FALSE;
+		return false;
 	}
 
 	if ((tvb_get_ntohl(tvb, CLC_MSG_BYTE_0) != SMCR_CLC_ID) &&
 		(tvb_get_ntohl(tvb, CLC_MSG_BYTE_0) != SMCD_CLC_ID))
-		return FALSE;
+		return false;
 
 	dissect_smc_tcp(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	void *data _U_)
 {
@@ -1704,7 +1704,7 @@ dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	int v1_check = TRUE, v2_check = TRUE;
 
 	if (tvb_captured_length_remaining(tvb, SMCR_MSG_BYTE_0) < 2)  /* need at least 2 bytes */
-		return FALSE;
+		return false;
 
 	/* Grab the first two bytes of the message, as they are needed */
 	/*  for validity checking of both CLC and LLC messages         */
@@ -1727,17 +1727,17 @@ dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		v2_check = FALSE;
 
 	if ((!v1_check && !v2_check) || (v1_check && v2_check))
-		return FALSE;
+		return false;
 
 	if (v1_check)
 		msg_len = tvb_get_guint8(tvb, LLC_LEN_OFFSET);
 	else
 		msg_len = tvb_get_guint16(tvb, LLC_LEN_OFFSET, ENC_BIG_ENDIAN);
 	if (msg_len != tvb_reported_length_remaining(tvb, LLC_CMD_OFFSET))
-		return FALSE;
+		return false;
 
 	dissect_smcr_infiniband(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 void

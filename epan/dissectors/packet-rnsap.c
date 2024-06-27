@@ -49167,7 +49167,7 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 /* Highest ProcedureCode value, used in heuristics */
 #define RNSAP_MAX_PC 61 /* id-enhancedRelocationResourceRelease = 61*/
 #define RNSAP_MSG_MIN_LENGTH 7
-static gboolean
+static bool
 dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint8 pdu_type;
@@ -49182,31 +49182,31 @@ dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define PROC_CODE_OFFSET 1
   #define DD_CRIT_OFFSET 2
   if (tvb_captured_length(tvb) < RNSAP_MSG_MIN_LENGTH) {
-    return FALSE;
+    return false;
   }
 
   pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
   if (pdu_type & 0x1F) {
     /* pdu_type is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
        0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
-    return FALSE;
+    return false;
   }
 
   procedure_id = tvb_get_guint8(tvb, PROC_CODE_OFFSET);
   if (procedure_id > RNSAP_MAX_PC) {
-      return FALSE;
+      return false;
   }
 
   dd_mode = tvb_get_guint8(tvb, DD_CRIT_OFFSET) >> 5;
   if (dd_mode >= 0x03) {
     /* dd_mode is not 0x00 (tdd), 0x01 (fdd) or 0x02 (common) */
-    return FALSE;
+    return false;
   }
 
   criticality = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
   if (criticality == 0x03) {
     /* criticality is not 0x00 (reject), 0x01 (ignore) or 0x02 (notify) */
-    return FALSE;
+    return false;
   }
 
   /* Finding the offset for the length field - depends on wether the transaction id is long or short */
@@ -49233,12 +49233,12 @@ dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
   }
   if (length!= (tvb_reported_length(tvb) - length_field_offset)){
-    return FALSE;
+    return false;
   }
 
   dissect_rnsap(tvb, pinfo, tree, data);
 
-  return TRUE;
+  return true;
 }
 
 

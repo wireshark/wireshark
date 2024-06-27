@@ -22,7 +22,7 @@ static void
 test_fifo_string_cache_01(void)
 {
     fifo_string_cache_t fcache;
-    gboolean has;
+    bool has;
 
     fifo_string_cache_init(&fcache, 10, NULL);
 
@@ -49,7 +49,7 @@ static void
 test_fifo_string_cache_02(void)
 {
     fifo_string_cache_t fcache;
-    gboolean has;
+    bool has;
     fifo_string_cache_init(&fcache, 4, NULL);
 
     // Insert 4 items
@@ -78,7 +78,7 @@ test_fifo_string_cache_02(void)
 
     // The first one should no longer be there
     has = fifo_string_cache_contains(&fcache, "alpha");
-    g_assert_false(has); // FALSE
+    g_assert_false(has); // false
     has = fifo_string_cache_contains(&fcache, "beta");
     g_assert_true(has);
     has = fifo_string_cache_contains(&fcache, "gamma");
@@ -94,9 +94,9 @@ test_fifo_string_cache_02(void)
 
     // The first two should no longer be there
     has = fifo_string_cache_contains(&fcache, "alpha");
-    g_assert_false(has); // FALSE
+    g_assert_false(has); // false
     has = fifo_string_cache_contains(&fcache, "beta");
-    g_assert_false(has); // FALSE
+    g_assert_false(has); // false
     has = fifo_string_cache_contains(&fcache, "gamma");
     g_assert_true(has);
     has = fifo_string_cache_contains(&fcache, "delta");
@@ -115,7 +115,7 @@ static void
 test_fifo_string_cache_03(void)
 {
     fifo_string_cache_t fcache;
-    gboolean has;
+    bool has;
     fifo_string_cache_init(&fcache, 1, NULL);
 
     // Insert
@@ -156,7 +156,7 @@ static void
 test_fifo_string_cache_04(void)
 {
     fifo_string_cache_t fcache;
-    gboolean has;
+    bool has;
     fifo_string_cache_init(&fcache, 0, g_free);
 
     // Insert; we call g_strdup because in this test, the cache owns the string

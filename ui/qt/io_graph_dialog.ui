@@ -97,17 +97,37 @@
      <item>
       <widget class="StockIconToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Remove this graph.</string>
+        <string>Remove the selected graph(s).</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="StockIconToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Duplicate this graph.</string>
+        <string>Duplicate the selected graph(s).</string>
        </property>
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="moveUpwardsToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Move the selected graph(s) upwards.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="moveDownwardsToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Move the selected graph(s) downwards.</string>
        </property>
       </widget>
      </item>
@@ -118,26 +138,6 @@
        </property>
        <property name="toolTip">
         <string>Clear all graphs.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="StockIconToolButton" name="moveUpwardsToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Move this graph upwards.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="StockIconToolButton" name="moveDownwardsToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Move this graph downwards.</string>
        </property>
       </widget>
      </item>

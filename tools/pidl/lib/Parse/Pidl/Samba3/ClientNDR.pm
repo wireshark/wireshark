@@ -6,12 +6,10 @@
 # released under the GNU GPL
 
 package Parse::Pidl::Samba3::ClientNDR;
-
-use Exporter;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(ParseFunction $res $res_hdr);
+use base Parse::Pidl::Base;
 
 use strict;
+use warnings;
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property ParseExpr genpad);
 use Parse::Pidl::NDR qw(ContainsPipe);
@@ -19,13 +17,10 @@ use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Samba4 qw(DeclLong);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
 
+
 use vars qw($VERSION);
 $VERSION = '0.01';
 
-sub indent($) { my ($self) = @_; $self->{tabs}.="\t"; }
-sub deindent($) { my ($self) = @_; $self->{tabs} = substr($self->{tabs}, 1); }
-sub pidl($$) { my ($self,$txt) = @_; $self->{res} .= $txt ? "$self->{tabs}$txt\n" : "\n"; }
-sub pidl_hdr($$) { my ($self, $txt) = @_; $self->{res_hdr} .= "$txt\n"; }
 sub fn_declare($$) { my ($self,$n) = @_; $self->pidl($n); $self->pidl_hdr("$n;"); }
 
 sub new($)

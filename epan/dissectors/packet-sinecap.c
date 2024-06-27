@@ -56,17 +56,17 @@ static const value_string vs_protid[] = {
         {0, NULL}
 };
 
-static gboolean
+static bool
 dissect_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     /*----------------- Heuristic Checks - Begin */
     /* 1) check for minimum length */
     if (tvb_captured_length(tvb) < TXP_MIN_TELEGRAM_LENGTH)
-        return FALSE;
+        return false;
 
     /* 2) protocol id == 0 */
     if (tvb_get_guint8(tvb, 0) != 0)
-        return FALSE;
+        return false;
     /*----------------- Heuristic Checks - End */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_AP);
@@ -85,9 +85,9 @@ dissect_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _
 
     /* check pdu and data length */
     if (pdulg != tvb_captured_length(tvb))
-        return FALSE;
+        return false;
     if (datlg != tvb_captured_length(tvb) - 22)
-        return FALSE;
+        return false;
 
     switch (comcls) {
         case 0x0: {
@@ -158,7 +158,7 @@ dissect_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 void

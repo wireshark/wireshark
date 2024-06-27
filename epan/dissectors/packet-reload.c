@@ -892,7 +892,6 @@ static const value_string errorcodes [] = {
   {ERRORCODE_RESPONSETOOLARGE,                  "Error_Response_Too_Large"},
   {ERRORCODE_CONFIGTOOOLD,                      "Error_Config_Too_Old"},
   {ERRORCODE_CONFIGTOONEW,                      "Error_Config_Too_New"},
-  {ERRORCODE_CONFIGTOONEW,                      "Error_Config_Too_New"},
   {ERRORCODE_INPROGRESS,                        "Error_In_Progress"},
   {ERRORCODE_EXP_A,                             "Error_Exp_A"},
   {ERRORCODE_EXP_B,                             "Error_Exp_B"},
@@ -1342,7 +1341,7 @@ dissect_probe_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 
 static int
-dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+dissect_ipaddressport(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 offset)
 {
   proto_item *ti_ipaddressport;
   proto_tree *ipaddressport_tree;
@@ -1360,10 +1359,10 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
   ipaddressport_type = tvb_get_guint8(tvb, offset);
   proto_item_append_text(ti_ipaddressport, ": %s", val_to_str_const(ipaddressport_type, ipaddressporttypes,"Unknown Type"));
   if (ipaddressport_type == IPADDRESSPORTTYPE_IPV4) {
-    proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip_to_str(wmem_packet_scope(), tvb, offset+2),tvb_get_ntohs(tvb,offset+2+4));
+    proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip_to_str(pinfo->pool, tvb, offset+2),tvb_get_ntohs(tvb,offset+2+4));
   }
   else if (ipaddressport_type == IPADDRESSPORTTYPE_IPV6) {
-    proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset+2),tvb_get_ntohs(tvb,offset+2+16));
+    proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip6_to_str(pinfo->pool, tvb, offset+2),tvb_get_ntohs(tvb,offset+2+16));
   }
   ipaddressport_tree = proto_item_add_subtree(ti_ipaddressport, ett_reload_ipaddressport);
   proto_tree_add_item(ipaddressport_tree, hf_reload_ipaddressport_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1376,7 +1375,7 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
     proto_item *ti_ipv4;
     proto_tree *ipv4_tree;
     ti_ipv4 = proto_tree_add_item(ipaddressport_tree, hf_reload_ipv4addrport, tvb, offset, 6, ENC_NA);
-    proto_item_append_text(ti_ipv4, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb, offset),tvb_get_ntohs(tvb,offset+4));
+    proto_item_append_text(ti_ipv4, ": %s:%d", tvb_ip_to_str(pinfo->pool, tvb, offset),tvb_get_ntohs(tvb,offset+4));
     ipv4_tree = proto_item_add_subtree(ti_ipv4, ett_reload_ipv4addrport);
     proto_tree_add_item(ipv4_tree, hf_reload_ipv4addr, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(ipv4_tree, hf_reload_port, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
@@ -1388,7 +1387,7 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
     proto_item *ti_ipv6;
     proto_tree *ipv6_tree;
     ti_ipv6 = proto_tree_add_item(ipaddressport_tree, hf_reload_ipv6addrport, tvb, offset, 6, ENC_NA);
-    proto_item_append_text(ti_ipv6, ": %s:%d", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset),tvb_get_ntohs(tvb,offset+16));
+    proto_item_append_text(ti_ipv6, ": %s:%d", tvb_ip6_to_str(pinfo->pool, tvb, offset),tvb_get_ntohs(tvb,offset+16));
     ipv6_tree = proto_item_add_subtree(ti_ipv6, ett_reload_ipv6addrport);
     proto_tree_add_item(ipv6_tree, hf_reload_ipv6addr, tvb, offset, 16, ENC_NA);
     proto_tree_add_item(ipv6_tree, hf_reload_port, tvb, offset + 16, 2, ENC_BIG_ENDIAN);
@@ -1471,7 +1470,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     icecandidate_tree = proto_item_add_subtree(ti_icecandidate, ett_reload_icecandidate);
     /* parse from start */
     icecandidate_offset = 0;
-    dissect_ipaddressport(hf_reload_icecandidate_addr_port,tvb, icecandidate_tree, offset+local_offset+icecandidates_offset+icecandidate_offset);
+    dissect_ipaddressport(hf_reload_icecandidate_addr_port, tvb, pinfo, icecandidate_tree, offset+local_offset+icecandidates_offset+icecandidate_offset);
     icecandidate_offset += 2 + ipaddressport_length;
 
     proto_tree_add_item(icecandidate_tree, hf_reload_overlaylink_type, tvb,
@@ -1506,7 +1505,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         break;
       }
       if (item_index != -1) {
-        dissect_ipaddressport(item_index,tvb, icecandidate_tree,
+        dissect_ipaddressport(item_index, tvb, pinfo, icecandidate_tree,
                               offset+local_offset+icecandidates_offset+icecandidate_offset);
         icecandidate_offset += computed_ipaddressport_length + 2;
       }
@@ -1678,7 +1677,7 @@ dissect_sipregistration(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, guin
 }
 
 static int
-dissect_turnserver(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint16 length)
+dissect_turnserver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 offset, guint16 length)
 {
   proto_item *ti_local;
   proto_tree *local_tree;
@@ -1689,7 +1688,7 @@ dissect_turnserver(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint16 leng
 
   proto_tree_add_item(local_tree, hf_reload_turnserver_iteration, tvb,offset,1, ENC_BIG_ENDIAN);
   local_offset += 1;
-  local_offset += dissect_ipaddressport(hf_reload_turnserver_server_address,tvb, local_tree, offset+local_offset);
+  local_offset += dissect_ipaddressport(hf_reload_turnserver_server_address, tvb, pinfo, local_tree, offset+local_offset);
 
   return local_offset;
 }
@@ -1767,7 +1766,7 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
         guint32 length_field = tvb_get_ntohl(tvb, offset+1);
         proto_tree_add_item(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN);
         if (length_field>0) {
-          dissect_turnserver(tvb, datavalue_tree, offset+1+4, length_field);
+          dissect_turnserver(tvb, pinfo, datavalue_tree, offset+1+4, length_field);
         }
       }
       break;
@@ -2804,7 +2803,7 @@ static int dissect_extensiveroutingmodeoption(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item(local_tree, hf_reload_extensiveroutingmode_transport, tvb,
                       offset+local_offset, 1, ENC_BIG_ENDIAN);
   local_offset += 1;
-  local_offset += dissect_ipaddressport(hf_reload_extensiveroutingmode_ipaddressport, tvb, local_tree, offset+local_offset);
+  local_offset += dissect_ipaddressport(hf_reload_extensiveroutingmode_ipaddressport, tvb, pinfo, local_tree, offset+local_offset);
   {
     proto_item *ti_destination;
     proto_tree *destination_tree;
@@ -4295,7 +4294,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   return dgram_msg_length;
 }
 
-static gboolean
+static bool
 dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (dissect_reload_message(tvb, pinfo, tree, data) == 0) {
@@ -4303,9 +4302,9 @@ dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
      * It wasn't a valid RELOAD message, and wasn't
      * dissected as such.
      */
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 void

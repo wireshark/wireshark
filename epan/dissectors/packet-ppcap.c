@@ -113,7 +113,7 @@ typedef enum {
 	PPCAP_GTPV2   = 9
 } payload_type_type;
 
-static int dissect_ppcap_payload_type(tvbuff_t *, proto_tree *, int, payload_type_type *);
+static int dissect_ppcap_payload_type(tvbuff_t *, packet_info *, proto_tree *, int, payload_type_type *);
 static int dissect_ppcap_source_address(tvbuff_t *, packet_info *, proto_tree *, int);
 static int dissect_ppcap_destination_address(tvbuff_t *, packet_info *, proto_tree *, int);
 static int dissect_ppcap_info_string(tvbuff_t *, proto_tree *, int);
@@ -149,7 +149,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		switch (msg_type) {
 		case 1:
 			payload_type = PPCAP_UNKNOWN;
-			offset = dissect_ppcap_payload_type(tvb, ppcap_tree1, offset, &payload_type);
+			offset = dissect_ppcap_payload_type(tvb, pinfo, ppcap_tree1, offset, &payload_type);
 			break;
 		case 2:
 			offset = dissect_ppcap_payload_data(tvb, pinfo, ppcap_tree1, offset, tree, payload_type);
@@ -193,14 +193,14 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 
 static int
-dissect_ppcap_payload_type(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset, payload_type_type *payload_type)
+dissect_ppcap_payload_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap_tree1, int offset, payload_type_type *payload_type)
 {
 	char *string;
 	guint16 msg_len =0;
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
-	string = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 	if (strcmp(string,"mtp3") == 0) {
 		*payload_type = PPCAP_MTP3;
 	}else if (strcmp(string,"tcap")  == 0) {
@@ -263,7 +263,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		offset += 1;
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_spc, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_opc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
+		mtp3_addr_opc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 		mtp3_addr_opc->pc = (guint32 )tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
@@ -280,7 +280,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_opc, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 
 		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_opc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
+		mtp3_addr_opc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 		mtp3_addr_opc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
@@ -353,7 +353,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_spc1, tvb, offset, 3, ENC_BIG_ENDIAN);
 
 		/*dst_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_dpc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
+		mtp3_addr_dpc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 		mtp3_addr_dpc->pc = (guint32)tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
@@ -371,7 +371,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		/*dst_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_dpc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
+		mtp3_addr_dpc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 		mtp3_addr_dpc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
@@ -396,7 +396,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	else if (key2 == 4)
 	{
 		const guint8 *string;
-		proto_tree_add_item_ret_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &string);
+		proto_tree_add_item_ret_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, ENC_UTF_8|ENC_NA, pinfo->pool, &string);
 		set_address_tvb(&pinfo->net_dst, AT_STRINGZ, msg_len, tvb, offset);
 		copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 	}

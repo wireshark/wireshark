@@ -302,15 +302,15 @@ test_skype_udp(tvbuff_t *tvb)
 	return FALSE;
 }
 
-static gboolean
+static bool
 dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_skype_udp(tvb) ) {
-		return FALSE;
+		return false;
 	}
 
 	dissect_skype_udp(tvb, pinfo, tree);
-	return TRUE;
+	return true;
 }
 
 static int

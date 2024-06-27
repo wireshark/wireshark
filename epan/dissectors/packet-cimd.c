@@ -759,38 +759,38 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
  * A 'heuristic dissector' that attemtps to establish whether we have
  * a CIMD MSU here.
  */
-static gboolean
+static bool
 dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   int    etxp;
   guint8 opcode = 0;            /* Operation code */
 
   if (tvb_captured_length(tvb) < CIMD_MIN_LENGTH)
-    return FALSE;
+    return false;
 
   if (tvb_get_guint8(tvb, 0) != CIMD_STX)
-    return FALSE;
+    return false;
 
   etxp = tvb_find_guint8(tvb, CIMD_OC_OFFSET, -1, CIMD_ETX);
   if (etxp == -1)
   { /* XXX - should we have an option to request reassembly? */
-    return FALSE;
+    return false;
   }
 
   /* Try getting the operation-code */
   opcode = (guint8)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
   if (try_val_to_str(opcode, vals_hdr_OC) == NULL)
-    return FALSE;
+    return false;
 
   if (tvb_get_guint8(tvb, CIMD_OC_OFFSET + CIMD_OC_LENGTH) != CIMD_COLON)
-    return FALSE;
+    return false;
 
   if (tvb_get_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH) != CIMD_DELIM)
-    return FALSE;
+    return false;
 
   /* Ok, looks like a valid packet, go dissect. */
   dissect_cimd(tvb, pinfo, tree, data);
-  return TRUE;
+  return true;
 }
 
 void

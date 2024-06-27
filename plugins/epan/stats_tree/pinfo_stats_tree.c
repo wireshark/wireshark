@@ -42,7 +42,7 @@ static range_t default_range[10] = {
 };
 static uat_plen_record_t *uat_plen_records;
 static uat_t *plen_uat;
-static guint num_plen_uat;
+static unsigned num_plen_uat;
 
 void register_tap_listener_pinfo_stat_tree(void);
 
@@ -62,11 +62,11 @@ uat_plen_record_update_cb(void *r, char **err)
 	uat_plen_record_t *rec = (uat_plen_record_t*)r;
 	if (rec->packet_range->nranges < 1) {
 		*err = g_strdup("Invalid range string");
-		return FALSE;
+		return false;
 	}
 
 	*err = NULL;
-	return TRUE;
+	return true;
 }
 
 static void uat_plen_record_free_cb(void*r) {
@@ -77,7 +77,7 @@ static void uat_plen_record_free_cb(void*r) {
 }
 
 static void uat_plen_record_post_update_cb(void) {
-	guint i;
+	unsigned i;
 	uat_plen_record_t rec;
 
 	/* If there are no records, create default list */
@@ -86,7 +86,7 @@ static void uat_plen_record_post_update_cb(void) {
 		for (i = 0; i < array_length(default_range); i++)
 		{
 			rec.packet_range = &default_range[i];
-			uat_add_record(plen_uat, &rec, TRUE);
+			uat_add_record(plen_uat, &rec, true);
 		}
 	}
 }
@@ -96,21 +96,21 @@ UAT_RANGE_CB_DEF(uat_plen_records, packet_range, uat_plen_record_t)
 /* ip host stats_tree -- basic test */
 static int st_node_ipv4 = -1;
 static int st_node_ipv6 = -1;
-static const gchar *st_str_ipv4 = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "All Addresses";
-static const gchar *st_str_ipv6 = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "All Addresses";
+static const char *st_str_ipv4 = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "All Addresses";
+static const char *st_str_ipv6 = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "All Addresses";
 
 static void ipv4_hosts_stats_tree_init(stats_tree *st) {
-	st_node_ipv4 = stats_tree_create_node(st, st_str_ipv4, 0, STAT_DT_INT, TRUE);
+	st_node_ipv4 = stats_tree_create_node(st, st_str_ipv4, 0, STAT_DT_INT, true);
 }
 
 static void ipv6_hosts_stats_tree_init(stats_tree *st) {
-	st_node_ipv6 = stats_tree_create_node(st, st_str_ipv6, 0, STAT_DT_INT, TRUE);
+	st_node_ipv6 = stats_tree_create_node(st, st_str_ipv6, 0, STAT_DT_INT, true);
 }
 
-static tap_packet_status ip_hosts_stats_tree_packet(stats_tree *st, packet_info *pinfo, int st_node, const gchar *st_str) {
-	tick_stat_node(st, st_str, 0, FALSE);
-	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node, FALSE);
-	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node, FALSE);
+static tap_packet_status ip_hosts_stats_tree_packet(stats_tree *st, packet_info *pinfo, int st_node, const char *st_str) {
+	tick_stat_node(st, st_str, 0, false);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node, false);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node, false);
 	return TAP_PACKET_REDRAW;
 }
 
@@ -127,24 +127,24 @@ static int st_node_ipv4_src = -1;
 static int st_node_ipv4_dst = -1;
 static int st_node_ipv6_src = -1;
 static int st_node_ipv6_dst = -1;
-static const gchar *st_str_ipv4_srcdst = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Source and Destination Addresses";
-static const gchar *st_str_ipv6_srcdst = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Source and Destination Addresses";
-static const gchar *st_str_ipv4_src = "Source IPv4 Addresses";
-static const gchar *st_str_ipv4_dst = "Destination IPv4 Addresses";
-static const gchar *st_str_ipv6_src = "Source IPv6 Addresses";
-static const gchar *st_str_ipv6_dst = "Destination IPv6 Addresses";
+static const char *st_str_ipv4_srcdst = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Source and Destination Addresses";
+static const char *st_str_ipv6_srcdst = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Source and Destination Addresses";
+static const char *st_str_ipv4_src = "Source IPv4 Addresses";
+static const char *st_str_ipv4_dst = "Destination IPv4 Addresses";
+static const char *st_str_ipv6_src = "Source IPv6 Addresses";
+static const char *st_str_ipv6_dst = "Destination IPv6 Addresses";
 
 static void ip_srcdst_stats_tree_init(stats_tree *st,
-				const gchar *st_str_src, int *st_node_src_ptr,
-				const gchar *st_str_dst, int *st_node_dst_ptr) {
+				const char *st_str_src, int *st_node_src_ptr,
+				const char *st_str_dst, int *st_node_dst_ptr) {
 	/* create one tree branch for source */
-	*st_node_src_ptr = stats_tree_create_node(st, st_str_src, 0, STAT_DT_INT, TRUE);
+	*st_node_src_ptr = stats_tree_create_node(st, st_str_src, 0, STAT_DT_INT, true);
 	/* set flag so this branch will always be sorted to top of tree */
-	stat_node_set_flags(st, st_str_src, 0, FALSE, ST_FLG_SORT_TOP);
+	stat_node_set_flags(st, st_str_src, 0, false, ST_FLG_SORT_TOP);
 	/* creat another top level node for destination branch */
-	*st_node_dst_ptr = stats_tree_create_node(st, st_str_dst, 0, STAT_DT_INT, TRUE);
+	*st_node_dst_ptr = stats_tree_create_node(st, st_str_dst, 0, STAT_DT_INT, true);
 	/* set flag so this branch will not be expanded by default */
-	stat_node_set_flags(st, st_str_dst, 0, FALSE, ST_FLG_DEF_NOEXPAND);
+	stat_node_set_flags(st, st_str_dst, 0, false, ST_FLG_DEF_NOEXPAND);
 }
 
 static void ipv4_srcdst_stats_tree_init(stats_tree *st) {
@@ -158,15 +158,15 @@ static void ipv6_srcdst_stats_tree_init(stats_tree *st) {
 static tap_packet_status ip_srcdst_stats_tree_packet(stats_tree *st,
 						     packet_info *pinfo,
 						     int st_node_src,
-						     const gchar *st_str_src,
+						     const char *st_str_src,
 						     int st_node_dst,
-						     const gchar *st_str_dst) {
+						     const char *st_str_dst) {
 	/* update source branch */
-	tick_stat_node(st, st_str_src, 0, FALSE);
-	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node_src, FALSE);
+	tick_stat_node(st, st_str_src, 0, false);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node_src, false);
 	/* update destination branch */
-	tick_stat_node(st, st_str_dst, 0, FALSE);
-	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node_dst, FALSE);
+	tick_stat_node(st, st_str_dst, 0, false);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node_dst, false);
 	return TAP_PACKET_REDRAW;
 }
 
@@ -181,8 +181,8 @@ static tap_packet_status ipv6_srcdst_stats_tree_packet(stats_tree *st, packet_in
 /* packet type stats_tree -- test pivot node */
 static int st_node_ipv4_ptype = -1;
 static int st_node_ipv6_ptype = -1;
-static const gchar *st_str_ipv4_ptype = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "IP Protocol Types";
-static const gchar *st_str_ipv6_ptype = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "IP Protocol Types";
+static const char *st_str_ipv4_ptype = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "IP Protocol Types";
+static const char *st_str_ipv6_ptype = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "IP Protocol Types";
 
 static void ipv4_ptype_stats_tree_init(stats_tree *st) {
 	st_node_ipv4_ptype = stats_tree_create_pivot(st, st_str_ipv4_ptype, 0);
@@ -210,27 +210,27 @@ static tap_packet_status ipv6_ptype_stats_tree_packet(stats_tree *st, packet_inf
 */
 static int st_node_ipv4_dsts = -1;
 static int st_node_ipv6_dsts = -1;
-static const gchar *st_str_ipv4_dsts = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Destinations and Ports";
-static const gchar *st_str_ipv6_dsts = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Destinations and Ports";
+static const char *st_str_ipv4_dsts = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Destinations and Ports";
+static const char *st_str_ipv6_dsts = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Destinations and Ports";
 
 static void ipv4_dsts_stats_tree_init(stats_tree *st) {
-	st_node_ipv4_dsts = stats_tree_create_node(st, st_str_ipv4_dsts, 0, STAT_DT_INT, TRUE);
+	st_node_ipv4_dsts = stats_tree_create_node(st, st_str_ipv4_dsts, 0, STAT_DT_INT, true);
 }
 
 static void ipv6_dsts_stats_tree_init(stats_tree *st) {
-	st_node_ipv6_dsts = stats_tree_create_node(st, st_str_ipv6_dsts, 0, STAT_DT_INT, TRUE);
+	st_node_ipv6_dsts = stats_tree_create_node(st, st_str_ipv6_dsts, 0, STAT_DT_INT, true);
 }
 
-static tap_packet_status dsts_stats_tree_packet(stats_tree *st, packet_info *pinfo, int st_node, const gchar *st_str) {
-	static gchar str[128];
+static tap_packet_status dsts_stats_tree_packet(stats_tree *st, packet_info *pinfo, int st_node, const char *st_str) {
+	static char str[128];
 	int ip_dst_node;
 	int protocol_node;
 
-	tick_stat_node(st, st_str, 0, FALSE);
-	ip_dst_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node, TRUE);
-	protocol_node = tick_stat_node(st, port_type_to_str(pinfo->ptype), ip_dst_node, TRUE);
+	tick_stat_node(st, st_str, 0, false);
+	ip_dst_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node, true);
+	protocol_node = tick_stat_node(st, port_type_to_str(pinfo->ptype), ip_dst_node, true);
 	snprintf(str, sizeof(str) - 1, "%u", pinfo->destport);
-	tick_stat_node(st, str, protocol_node, TRUE);
+	tick_stat_node(st, str, protocol_node, true);
 	return TAP_PACKET_REDRAW;
 }
 
@@ -244,27 +244,27 @@ static tap_packet_status ipv6_dsts_stats_tree_packet(stats_tree *st, packet_info
 
 static int st_node_ipv4_src_ttls = -1;
 static int st_node_ipv6_src_ttls = -1;
-static const gchar* st_str_ipv4_src_ttls = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Source TTLs";
-static const gchar* st_str_ipv6_src_ttls = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Source Hop Limits";
+static const char* st_str_ipv4_src_ttls = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Source TTLs";
+static const char* st_str_ipv6_src_ttls = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Source Hop Limits";
 
 static void ipv4_src_ttl_stats_tree_init(stats_tree* st) {
-	st_node_ipv4_src_ttls = stats_tree_create_node(st, st_str_ipv4_src_ttls, 0, STAT_DT_INT, TRUE);
+	st_node_ipv4_src_ttls = stats_tree_create_node(st, st_str_ipv4_src_ttls, 0, STAT_DT_INT, true);
 }
 
 static void ipv6_src_ttl_stats_tree_init(stats_tree* st) {
-	st_node_ipv6_src_ttls = stats_tree_create_node(st, st_str_ipv6_src_ttls, 0, STAT_DT_INT, TRUE);
+	st_node_ipv6_src_ttls = stats_tree_create_node(st, st_str_ipv6_src_ttls, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status src_ttl_stats_tree_packet(stats_tree* st, packet_info* pinfo, int st_node, const char* st_str, uint8_t ttl) {
-	static gchar str[128];
+	static char str[128];
 	int ip_src_node;
 	int ttl_node;
 
-	tick_stat_node(st, st_str, 0, FALSE);
-	ip_src_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node, TRUE);
+	tick_stat_node(st, st_str, 0, false);
+	ip_src_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node, true);
 	snprintf(str, sizeof(str) - 1, "%u", ttl);
-	ttl_node = tick_stat_node(st, str, ip_src_node, TRUE);
-	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), ttl_node, TRUE);
+	ttl_node = tick_stat_node(st, str, ip_src_node, true);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), ttl_node, true);
 	return TAP_PACKET_REDRAW;
 }
 
@@ -282,10 +282,10 @@ static tap_packet_status ipv6_src_ttl_stats_tree_packet(stats_tree* st, packet_i
 
 /* packet length stats_tree -- test range node */
 static int st_node_plen = -1;
-static const gchar *st_str_plen = "Packet Lengths";
+static const char *st_str_plen = "Packet Lengths";
 
 static void plen_stats_tree_init(stats_tree *st) {
-	guint i;
+	unsigned i;
 	char **str_range_array = (char **)wmem_alloc(NULL, num_plen_uat*sizeof(char*));
 
 	/* Convert the ranges to strings for the stats tree API */
@@ -302,7 +302,7 @@ static void plen_stats_tree_init(stats_tree *st) {
 }
 
 static tap_packet_status plen_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_, tap_flags_t flags _U_) {
-	tick_stat_node(st, st_str_plen, 0, FALSE);
+	tick_stat_node(st, st_str_plen, 0, false);
 
 	stats_tree_tick_range(st, st_str_plen, 0, pinfo->fd->pkt_len);
 
@@ -340,7 +340,7 @@ void register_tap_listener_pinfo_stat_tree(void)
 	plen_uat = uat_new("Packet Lengths",
 			sizeof(uat_plen_record_t),  /* record size */
 			"packet_lengths",           /* filename */
-			TRUE,                       /* from_profile */
+			true,                       /* from_profile */
 			&uat_plen_records,          /* data_ptr */
 			&num_plen_uat,              /* numitems_ptr */
 			0,                          /* not a dissector, so affects neither dissection nor fields */

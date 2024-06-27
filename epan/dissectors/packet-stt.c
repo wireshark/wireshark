@@ -509,23 +509,23 @@ dissect_stt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->fragmented = frag_save;
 }
 
-static gboolean
+static bool
 dissect_stt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  void *iph)
 {
     /* Make sure we at least have a TCP header */
     if (ws_ip_protocol(iph) != IP_PROTO_TCP ||
         tvb_captured_length(tvb) < STT_TCP_HDR_LEN) {
-        return FALSE;
+        return false;
     }
 
     /* Check the TCP destination port */
     if (tvb_get_ntohs(tvb, STT_TCP_OFF_DPORT) != TCP_PORT_STT) {
-        return FALSE;
+        return false;
     }
 
     dissect_stt(tvb, pinfo, tree);
-    return TRUE;
+    return true;
 }
 
 /* Register STT with Wireshark */

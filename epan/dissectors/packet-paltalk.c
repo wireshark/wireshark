@@ -65,7 +65,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint32 src32, dst32;
@@ -79,7 +79,7 @@ dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         || (pinfo->net_dst.len != 4)
         || !pinfo->net_src.data
         || !pinfo->net_dst.data)
-        return FALSE;
+        return false;
 
     memcpy((guint8 *)&src32, pinfo->net_src.data, 4); /* *Network* order */
     memcpy((guint8 *)&dst32, pinfo->net_dst.data, 4); /* *Network* order */
@@ -87,12 +87,12 @@ dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if ( ((src32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS)
          &&
          ((dst32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS))
-        return FALSE;
+        return false;
 
     /* Dissect result of desegmented TCP data */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PALTALK_HEADER_LENGTH,
             dissect_paltalk_get_len, dissect_paltalk_desegmented, data);
-    return TRUE;
+    return true;
 }
 
 void

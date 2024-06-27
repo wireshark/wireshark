@@ -14,8 +14,8 @@
  *   at the start of every packet.
  */
 #include "config.h"
-#include "wtap-int.h"
 #include "vms.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #include <wsutil/strtoi.h>

@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 30;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -20,6 +20,16 @@ sub parse_idl($)
 	my $text = shift;
 	my $idl = Parse::Pidl::IDL::parse_string($text, "nofile");
 	my $ndr = Parse::Pidl::NDR::Parse($idl);
+	return Parse::Pidl::Samba4::Header::Parse($ndr);
+}
+
+sub load_and_parse_idl($)
+{
+	my $text = shift;
+	my $ndr;
+	my $idl = Parse::Pidl::IDL::parse_string($text, "nofile");
+	Parse::Pidl::Typelist::LoadIdl($idl, "noname");
+	$ndr = Parse::Pidl::NDR::Parse($idl);
 	return Parse::Pidl::Samba4::Header::Parse($ndr);
 }
 
@@ -58,6 +68,15 @@ like(parse_idl("interface p { typedef struct x { int p; } x; };"),
 
 like(parse_idl("cpp_quote(\"some-foo\")"),
 	qr/some-foo/sm, "cpp quote");
+
+like(load_and_parse_idl("interface hang {typedef [public] struct { wsp_cbasestoragevariant a[SINGLE]; } foo; typedef [public,nodiscriminant,switch_type(uint16)] union { [case(VT_I1)] int8 vt_i1; [case(VT_VARIANT)] foo b; } variant_types; typedef [public] struct { [switch_is(vtype)] variant_types vvalue; } bar;};"),
+     qr/struct foo.*{.*struct wsp_cbasestoragevariant \*a.*struct bar \{.*union variant_types vvalue.*;/sm,"test for hang with nested struct with union");
+
+like(load_and_parse_idl("interface hang { typedef struct { uint32 count; bar a[count];} foo ; typedef struct { foo b; } bar; };"),
+     qr/struct foo.*{.*struct bar \*a;/sm,"test for hang with nested struct");
+
+like(load_and_parse_idl("interface hang { typedef struct { bar a; } foo ; typedef struct { foo b; } bar; };"),
+     qr/struct foo.*{.*struct bar a;/sm,"test for hang with uncompilable nested struct");
 
 # Make sure GenerateFunctionInEnv and GenerateFunctionOutEnv work
 my $fn = { ELEMENTS => [ { DIRECTION => ["in"], NAME => "foo" } ] };

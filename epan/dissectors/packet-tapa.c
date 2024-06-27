@@ -463,17 +463,17 @@ dissect_tapa_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 }
 
 /* heuristic dissector */
-static gboolean
+static bool
 dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *iph)
 {
 	/* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
 	if ((ws_ip_protocol(iph) == IP_PROTO_IPIP) && ((tvb_get_guint8(tvb, 0) & 0xF0) != 0x40) &&
 	    (tvb_get_ntohs(tvb, 2)) < 20) {
 		dissect_tapa_static(tvb, pinfo, tree, iph);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void

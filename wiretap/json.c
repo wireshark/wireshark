@@ -6,13 +6,13 @@
  */
 
 #include "config.h"
+#include "json.h"
 
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
-#include "json.h"
 #include <wsutil/wsjson.h>
 
 /* Maximum size of json file. */

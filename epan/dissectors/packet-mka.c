@@ -388,7 +388,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
   int offset = *offset_ptr;
   proto_tree *peer_list_set_tree;
   proto_tree *ti;
-  int hf_peer = -1;
+  int hf_peer;
   gint16 peer_list_len;
 
   if (tvb_get_guint8(tvb, offset) == LIVE_PEER_LIST_TYPE) {

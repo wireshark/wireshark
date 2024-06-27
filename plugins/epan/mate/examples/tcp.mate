@@ -1,14 +1,20 @@
+Transform add_tcp_stop {
+    Match (tcp_flags_reset="True") Insert (tcp_stop="True");
+    Match (tcp_flags_fin="True") Insert (tcp_stop="True");
+};
+
 Pdu tcp_pdu Proto tcp Transport ip {
     Extract addr From ip.addr;
     Extract port From tcp.port;
     Extract tcp_start From tcp.flags.syn;
-    Extract tcp_stop From tcp.flags.reset;
-    Extract tcp_stop From tcp.flags.fin;
+    Extract tcp_flags_reset From tcp.flags.reset;
+    Extract tcp_flags_fin From tcp.flags.fin;
+    Transform add_tcp_stop;
 };
 
 Gop tcp_ses On tcp_pdu Match (addr, addr, port, port) {
-    Start (tcp_start=1);
-    Stop (tcp_stop=1);
+    Start (tcp_start="True");
+    Stop (tcp_stop="True");
 };
 
 Done;

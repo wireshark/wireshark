@@ -1501,7 +1501,7 @@ dissect_obdii_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     return tvb_captured_length(tvb);
 }
 
-static int
+static bool
 dissect_obdii_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     return dissect_obdii_iso15765(tvb, pinfo, tree, data) != 0;

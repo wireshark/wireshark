@@ -427,7 +427,7 @@ zbee_get_bit_field(guint input, guint mask)
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@return Boolean value, whether it handles the packet or not.
 */
-static gboolean
+static bool
 dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
@@ -436,28 +436,28 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     guint               type;
 
     /* All ZigBee frames must always have a 16-bit source and destination address. */
-    if (packet == NULL) return FALSE;
+    if (packet == NULL) return false;
 
     /* If the frame type and version are not sane, then it's probably not ZigBee. */
     fcf = tvb_get_letohs(tvb, 0);
     ver = zbee_get_bit_field(fcf, ZBEE_NWK_FCF_VERSION);
     type = zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE);
-    if ((ver < ZBEE_VERSION_2004) || (ver > ZBEE_VERSION_2007)) return FALSE;
-    if (!try_val_to_str(type, zbee_nwk_frame_types)) return FALSE;
+    if ((ver < ZBEE_VERSION_2004) || (ver > ZBEE_VERSION_2007)) return false;
+    if (!try_val_to_str(type, zbee_nwk_frame_types)) return false;
 
     /* All interpan frames should originate from an extended address. */
     if (type == ZBEE_NWK_FCF_INTERPAN) {
-        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_EXT) return FALSE;
+        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_EXT) return false;
     }
     /* All other ZigBee frames must have 16-bit source and destination addresses. */
     else {
-        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
-        if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
+        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return false;
+        if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_SHORT) return false;
     }
 
     /* Assume it's ZigBee */
     dissect_zbee_nwk(tvb, pinfo, tree, packet);
-    return TRUE;
+    return true;
 } /* dissect_zbee_heur */
 
 /**
@@ -1592,20 +1592,20 @@ dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@return Boolean value, whether it handles the packet or not.
 */
-static gboolean
+static bool
 dissect_zbee_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
 
     /* All ZigBee frames must always have a 16-bit source address. */
-    if (!packet) return FALSE;
-    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
-    if (tvb_captured_length(tvb) == 0) return FALSE;
+    if (!packet) return false;
+    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return false;
+    if (tvb_captured_length(tvb) == 0) return false;
 
     /* ZigBee beacons begin with a protocol identifier. */
-    if (tvb_get_guint8(tvb, 0) != ZBEE_NWK_BEACON_PROTOCOL_ID) return FALSE;
+    if (tvb_get_guint8(tvb, 0) != ZBEE_NWK_BEACON_PROTOCOL_ID) return false;
     dissect_zbee_beacon(tvb, pinfo, tree, packet);
-    return TRUE;
+    return true;
 } /* dissect_zbee_beacon_heur */
 
 /**
@@ -1698,20 +1698,20 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@return Boolean value, whether it handles the packet or not.
 */
-static gboolean
+static bool
 dissect_zbip_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
 
     /* All ZigBee frames must always have a 16-bit source address. */
-    if (!packet) return FALSE;
-    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
-    if (tvb_captured_length(tvb) == 0) return FALSE;
+    if (!packet) return false;
+    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return false;
+    if (tvb_captured_length(tvb) == 0) return false;
 
     /* ZigBee beacons begin with a protocol identifier. */
-    if (tvb_get_guint8(tvb, 0) != ZBEE_IP_BEACON_PROTOCOL_ID) return FALSE;
+    if (tvb_get_guint8(tvb, 0) != ZBEE_IP_BEACON_PROTOCOL_ID) return false;
     dissect_zbip_beacon(tvb, pinfo, tree, packet);
-    return TRUE;
+    return true;
 } /* dissect_zbip_beacon_heur */
 
 /**

@@ -2445,12 +2445,12 @@ dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect information elements consisting of ASCII^H^H^H^H^HIA5 text.
  */
 static void
-dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
+dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree,
     int hf_value)
 {
     if (len != 0) {
         proto_tree_add_item(tree, hf_value, tvb, offset, len, ENC_ASCII|ENC_NA);
-        proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(wmem_packet_scope(), tvb, offset, len));
+        proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(pinfo->pool, tvb, offset, len));
     }
 }
 
@@ -2875,7 +2875,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_DISPLAY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_display_information);
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, pinfo, ie_tree, hf_q931_display_information);
                     }
                     break;
 
@@ -2887,7 +2887,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_KEYPAD_FACILITY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_keypad_facility);
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, pinfo, ie_tree, hf_q931_keypad_facility);
                     }
                     break;
 
@@ -3031,7 +3031,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS6 | Q931_IE_DISPLAY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_avaya_display);
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, pinfo, ie_tree, hf_q931_avaya_display);
                     }
                     break;
 
@@ -3055,7 +3055,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 /*
  * Q.931-over-TPKT-over-TCP.
  */
-static gboolean
+static bool
 dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int lv_tpkt_len;
@@ -3074,7 +3074,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*
          * It's not a TPKT packet; reject it.
          */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -3090,7 +3090,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
          */
         dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
             q931_tpkt_pdu_handle);
-        return TRUE;
+        return true;
     }
 
     /*
@@ -3107,12 +3107,12 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * to "is_tpkt()").
      */
     if (!tvb_bytes_exist(tvb, 4, 3))
-        return FALSE;
+        return false;
 
     /* Check the protocol discriminator */
     if ((tvb_get_guint8(tvb, 4) != NLPID_Q_931) && (tvb_get_guint8(tvb, 4) != 0x03)) {
         /* Doesn't look like Q.931 inside TPKT */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -3122,7 +3122,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
         q931_tpkt_pdu_handle);
 
-    return TRUE;
+    return true;
 }
 
 static int

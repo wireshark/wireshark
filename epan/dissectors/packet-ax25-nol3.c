@@ -79,7 +79,7 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "DX" );
 
-	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", tvb_format_text( pinfo->pool, tvb, offset, 15 ) );
+	col_add_str( pinfo->cinfo, COL_INFO, tvb_format_text( pinfo->pool, tvb, offset, 15 ) );
 
 	if ( parent_tree )
 		{

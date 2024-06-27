@@ -38,6 +38,7 @@ $VERSION = '0.01';
 @EXPORT_OK = qw(GetElementLevelTable ParseElement ReturnTypeElement ValidElement align_type mapToScalar ParseType can_contain_deferred is_charset_array);
 
 use strict;
+use warnings;
 use Parse::Pidl qw(warning fatal);
 use Parse::Pidl::Typelist qw(hasType getType typeIs expandAlias mapScalarType is_fixed_size_scalar);
 use Parse::Pidl::Util qw(has_property property_matches);
@@ -57,6 +58,7 @@ my $scalar_alignment = {
 	'int3264' => 5,
 	'uint3264' => 5,
 	'hyper' => 8,
+	'int64' => 8,
 	'double' => 8,
 	'pointer' => 8,
 	'dlong' => 4,
@@ -64,6 +66,7 @@ my $scalar_alignment = {
 	'udlongr' => 4,
 	'DATA_BLOB' => 4,
 	'string' => 4,
+	'u16string' => 4,
 	'string_array' => 4, #???
 	'time_t' => 4,
 	'uid_t' => 8,
@@ -80,7 +83,10 @@ my $scalar_alignment = {
 	'ipv4address' => 4,
 	'ipv6address' => 4, #16?
 	'dnsp_name' => 1,
-	'dnsp_string' => 1
+	'dnsp_string' => 1,
+	'HRESULT' => 4,
+	'libndr_flags' => 8,
+	'ndr_flags_type' => 4,
 };
 
 sub GetElementLevelTable($$$)
@@ -115,7 +121,7 @@ sub GetElementLevelTable($$$)
 		warning($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
 	}
 
-	my $allow_pipe = ($e->{PARENT}->{TYPE} eq "FUNCTION");
+	my $allow_pipe = (($e->{PARENT}->{TYPE} // '') eq "FUNCTION");
 	my $is_pipe = typeIs($e->{TYPE}, "PIPE");
 
 	if ($is_pipe) {
@@ -193,7 +199,7 @@ sub GetElementLevelTable($$$)
 				$length = $size;
 			}
 
-			if ($e == $e->{PARENT}->{ELEMENTS}[-1] 
+			if ($e == $e->{PARENT}->{ELEMENTS}[-1]
 				and $e->{PARENT}->{TYPE} ne "FUNCTION") {
 				$is_surrounding = 1;
 			}
@@ -252,7 +258,7 @@ sub GetElementLevelTable($$$)
 			$pt = $pointer_default;
 		}
 
-		push (@$order, { 
+		push (@$order, {
 			TYPE => "POINTER",
 			POINTER_TYPE => $pt,
 			POINTER_INDEX => $pointer_idx,
@@ -260,13 +266,13 @@ sub GetElementLevelTable($$$)
 			LEVEL => $level
 		});
 
-		warning($e, "top-level \[out\] pointer `$e->{NAME}' is not a \[ref\] pointer") 
+		warning($e, "top-level \[out\] pointer `$e->{NAME}' is not a \[ref\] pointer")
 			if ($i == 1 and $pt ne "ref" and
-				$e->{PARENT}->{TYPE} eq "FUNCTION" and 
+				$e->{PARENT}->{TYPE} eq "FUNCTION" and
 				not has_property($e, "in"));
 
 		$pointer_idx++;
-		
+
 		# everything that follows will be deferred
 		$is_deferred = 1 if ($level ne "TOP");
 
@@ -283,9 +289,9 @@ sub GetElementLevelTable($$$)
 				$array_length = $array_size;
 				$is_varying =0;
 			}
-		} 
-		
-		if (scalar(@size_is) == 0 and has_property($e, "string") and 
+		}
+
+		if (scalar(@size_is) == 0 and has_property($e, "string") and
 		    $i == $e->{POINTERS}) {
 			$is_string = 1;
 			$is_varying = $is_conformant = has_property($e, "noheader")?0:1;
@@ -307,7 +313,7 @@ sub GetElementLevelTable($$$)
 			});
 
 			$is_deferred = 0;
-		} 
+		}
 	}
 
 	if ($is_pipe) {
@@ -326,10 +332,10 @@ sub GetElementLevelTable($$$)
 	if (defined(has_property($e, "subcontext"))) {
 		my $hdr_size = has_property($e, "subcontext");
 		my $subsize = has_property($e, "subcontext_size");
-		if (not defined($subsize)) { 
-			$subsize = -1; 
+		if (not defined($subsize)) {
+			$subsize = -1;
 		}
-		
+
 		push (@$order, {
 			TYPE => "SUBCONTEXT",
 			HEADER_SIZE => $hdr_size,
@@ -341,7 +347,7 @@ sub GetElementLevelTable($$$)
 
 	if (my $switch = has_property($e, "switch_is")) {
 		push (@$order, {
-			TYPE => "SWITCH", 
+			TYPE => "SWITCH",
 			SWITCH_IS => $switch,
 			IS_DEFERRED => $is_deferred
 		});
@@ -390,11 +396,11 @@ sub GetTypedefLevelTable($$$$)
 }
 
 #####################################################################
-# see if a type contains any deferred data 
-sub can_contain_deferred($)
+# see if a type contains any deferred data
+sub can_contain_deferred
 {
-	sub can_contain_deferred($);
-	my ($type) = @_;
+	sub can_contain_deferred;
+	my ($type, @types_visited) = @_;
 
 	return 1 unless (hasType($type)); # assume the worst
 
@@ -402,15 +408,29 @@ sub can_contain_deferred($)
 
 	return 0 if (Parse::Pidl::Typelist::is_scalar($type));
 
-	return can_contain_deferred($type->{DATA}) if ($type->{TYPE} eq "TYPEDEF");
+	foreach (@types_visited) {
+		if ($_ == $type) {
+			# we have already encountered this
+			# type, avoid recursion loop here
+			# and return
+			return 0;
+		}
+	}
+
+	return can_contain_deferred($type->{DATA},
+		@types_visited) if ($type->{TYPE} eq "TYPEDEF");
 
 	return 0 unless defined($type->{ELEMENTS});
 
 	foreach (@{$type->{ELEMENTS}}) {
 		return 1 if ($_->{POINTERS});
-		return 1 if (can_contain_deferred ($_->{TYPE}));
+		push(@types_visited,$type);
+		if (can_contain_deferred ($_->{TYPE},@types_visited)) {
+			pop(@types_visited);
+			return 1;
+		}
+		pop(@types_visited);
 	}
-	
 	return 0;
 }
 
@@ -419,7 +439,7 @@ sub pointer_type($)
 	my $e = shift;
 
 	return undef unless $e->{POINTERS};
-	
+
 	return "ref" if (has_property($e, "ref"));
 	return "full" if (has_property($e, "ptr"));
 	return "sptr" if (has_property($e, "sptr"));
@@ -433,25 +453,25 @@ sub pointer_type($)
 
 #####################################################################
 # work out the correct alignment for a structure or union
-sub find_largest_alignment($)
+sub find_largest_alignment
 {
-	my $s = shift;
+	my ($s, @types_visited) = @_;
 
 	my $align = 1;
 	for my $e (@{$s->{ELEMENTS}}) {
 		my $a = 1;
-
 		if ($e->{POINTERS}) {
 			# this is a hack for NDR64
 			# the NDR layer translates this into
 			# an alignment of 4 for NDR and 8 for NDR64
 			$a = 5;
-		} elsif (has_property($e, "subcontext")) { 
+		} elsif (has_property($e, "subcontext")) {
 			$a = 1;
 		} elsif (has_property($e, "transmit_as")) {
-			$a = align_type($e->{PROPERTIES}->{transmit_as});
+			$a = align_type($e->{PROPERTIES}->{transmit_as},
+				@types_visited);
 		} else {
-			$a = align_type($e->{TYPE}); 
+			$a = align_type($e->{TYPE}, @types_visited);
 		}
 
 		$align = $a if ($align < $a);
@@ -462,37 +482,71 @@ sub find_largest_alignment($)
 
 #####################################################################
 # align a type
-sub align_type($)
+sub align_type
 {
-	sub align_type($);
-	my ($e) = @_;
-
+	sub align_type;
+	my ($e, @types_visited) = @_;
 	if (ref($e) eq "HASH" and $e->{TYPE} eq "SCALAR") {
-		return $scalar_alignment->{$e->{NAME}};
+		my $ret = $scalar_alignment->{$e->{NAME}};
+		if (not defined $ret) {
+			warning($e, "no scalar alignment for $e->{NAME}!");
+			return 0;
+		}
+		return $ret;
 	}
 
 	return 0 if ($e eq "EMPTY");
 
 	unless (hasType($e)) {
-	    # it must be an external type - all we can do is guess 
+	    # it must be an external type - all we can do is guess
 		# warning($e, "assuming alignment of unknown type '$e' is 4");
 	    return 4;
 	}
-
 	my $dt = getType($e);
 
+	foreach (@types_visited) {
+		if ($_ == $dt) {
+			# Chapt 14 of the DCE 1.1: Remote Procedure Call
+			# specification (available from pubs.opengroup.org)
+			# states:
+			# "The alignment of a structure in the octet stream is
+			# the largest of the alignments of the fields it
+			# contains. These fields may also be constructed types.
+			# The same alignment rules apply recursively to
+			# nested constructed types. "
+			#
+			# in the worst case scenario
+			# struct c1 {
+			#   membertypea mema;
+			#   membertypeb memb;
+			#   struct c1 memc;
+			# }
+			# the nested struct c1 memc when encountered
+			# returns 0 ensuring the alignment will be calculated
+			# based on the other fields
+			return 0;
+		}
+	}
+
+
 	if ($dt->{TYPE} eq "TYPEDEF") {
-		return align_type($dt->{DATA});
+		return align_type($dt->{DATA}, @types_visited);
 	} elsif ($dt->{TYPE} eq "CONFORMANCE") {
 		return $dt->{DATA}->{ALIGN};
 	} elsif ($dt->{TYPE} eq "ENUM") {
-		return align_type(Parse::Pidl::Typelist::enum_type_fn($dt));
+		return align_type(Parse::Pidl::Typelist::enum_type_fn($dt),
+			@types_visited);
 	} elsif ($dt->{TYPE} eq "BITMAP") {
-		return align_type(Parse::Pidl::Typelist::bitmap_type_fn($dt));
+		return align_type(Parse::Pidl::Typelist::bitmap_type_fn($dt),
+			@types_visited);
 	} elsif (($dt->{TYPE} eq "STRUCT") or ($dt->{TYPE} eq "UNION")) {
 		# Struct/union without body: assume 4
 		return 4 unless (defined($dt->{ELEMENTS}));
-		return find_largest_alignment($dt);
+		my $res;
+		push(@types_visited, $dt);
+		$res = find_largest_alignment($dt, @types_visited);
+		pop(@types_visited);
+		return $res
 	} elsif (($dt->{TYPE} eq "PIPE")) {
 		return 5;
 	}
@@ -539,10 +593,10 @@ sub ParseStruct($$$)
 
 	CheckPointerTypes($struct, $pointer_default);
 
-	foreach my $x (@{$struct->{ELEMENTS}}) 
+	foreach my $x (@{$struct->{ELEMENTS}})
 	{
 		my $e = ParseElement($x, $pointer_default, $ms_union);
-		if ($x != $struct->{ELEMENTS}[-1] and 
+		if ($x != $struct->{ELEMENTS}[-1] and
 			$e->{LEVELS}[0]->{IS_SURROUNDING}) {
 			fatal($x, "conformant member not at end of struct");
 		}
@@ -555,7 +609,7 @@ sub ParseStruct($$$)
 		$surrounding = $e;
 	}
 
-	if (defined $e->{TYPE} && $e->{TYPE} eq "string"
+	if (defined $e->{TYPE} && Parse::Pidl::Typelist::is_string_type($e->{TYPE})
 	    &&  property_matches($e, "flag", ".*LIBNDR_FLAG_STR_CONFORMANT.*")) {
 		$surrounding = $struct->{ELEMENTS}[-1];
 	}
@@ -564,7 +618,7 @@ sub ParseStruct($$$)
 	if ($struct->{NAME}) {
 		$align = align_type($struct->{NAME});
 	}
-		
+
 	return {
 		TYPE => "STRUCT",
 		NAME => $struct->{NAME},
@@ -601,7 +655,7 @@ sub ParseUnion($$)
 
 	CheckPointerTypes($e, $pointer_default);
 
-	foreach my $x (@{$e->{ELEMENTS}}) 
+	foreach my $x (@{$e->{ELEMENTS}})
 	{
 		my $t;
 		if ($x->{TYPE} eq "EMPTY") {
@@ -793,7 +847,7 @@ sub ParseFunction($$$$)
 	if ($d->{RETURN_TYPE} ne "void") {
 		$rettype = expandAlias($d->{RETURN_TYPE});
 	}
-	
+
 	return {
 			NAME => $d->{NAME},
 			TYPE => "FUNCTION",
@@ -885,7 +939,7 @@ sub ParseInterface($)
 
 	$version = "0.0";
 
-	if(defined $idl->{PROPERTIES}->{version}) { 
+	if(defined $idl->{PROPERTIES}->{version}) {
 		my @if_version = split(/\./, $idl->{PROPERTIES}->{version});
 		if ($if_version[0] == $idl->{PROPERTIES}->{version}) {
 				$version = $idl->{PROPERTIES}->{version};
@@ -901,9 +955,9 @@ sub ParseInterface($)
 		@endpoints = split /,/, $idl->{PROPERTIES}->{endpoint};
 	}
 
-	return { 
+	return {
 		NAME => $idl->{NAME},
-		UUID => lc(has_property($idl, "uuid")),
+		UUID => lc(has_property($idl, "uuid") // ''),
 		VERSION => $version,
 		TYPE => "INTERFACE",
 		PROPERTIES => $idl->{PROPERTIES},
@@ -925,7 +979,7 @@ sub Parse($)
 	return undef unless (defined($idl));
 
 	Parse::Pidl::NDR::Validate($idl);
-	
+
 	my @ndr = ();
 
 	foreach (@{$idl}) {
@@ -997,10 +1051,10 @@ sub ContainsDeferred($$)
 
 	while ($l = GetNextLevel($e,$l))
 	{
-		return 1 if ($l->{IS_DEFERRED}); 
+		return 1 if ($l->{IS_DEFERRED});
 		return 1 if ($l->{CONTAINS_DEFERRED});
-	} 
-	
+	}
+
 	return 0;
 }
 
@@ -1094,6 +1148,7 @@ my %property_list = (
 	"gensize"		=> ["TYPEDEF", "STRUCT", "UNION"],
 	"value"			=> ["ELEMENT"],
 	"flag"			=> ["ELEMENT", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
+	"max_recursion"		=> ["ELEMENT"],
 
 	# generic
 	"public"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
@@ -1252,7 +1307,7 @@ sub ValidElement($)
 		has_property($e, "relative") or
 		has_property($e, "relative_short") or
 		has_property($e, "ref"))) {
-		fatal($e, el_name($e) . " : pointer properties on non-pointer element\n");	
+		fatal($e, el_name($e) . " : pointer properties on non-pointer element\n");
 	}
 }
 
@@ -1298,7 +1353,7 @@ sub ValidUnion($)
 
 	ValidProperties($union,"UNION");
 
-	if (has_property($union->{PARENT}, "nodiscriminant") and 
+	if (has_property($union->{PARENT}, "nodiscriminant") and
 		has_property($union->{PARENT}, "switch_type")) {
 		fatal($union->{PARENT}, $union->{PARENT}->{NAME} . ": switch_type(" . $union->{PARENT}->{PROPERTIES}->{switch_type} . ") on union without discriminant");
 	}
@@ -1308,12 +1363,12 @@ sub ValidUnion($)
 	foreach my $e (@{$union->{ELEMENTS}}) {
 		$e->{PARENT} = $union;
 
-		if (defined($e->{PROPERTIES}->{default}) and 
+		if (defined($e->{PROPERTIES}->{default}) and
 			defined($e->{PROPERTIES}->{case})) {
 			fatal($e, "Union member $e->{NAME} can not have both default and case properties!");
 		}
-		
-		unless (defined ($e->{PROPERTIES}->{default}) or 
+
+		unless (defined ($e->{PROPERTIES}->{default}) or
 				defined ($e->{PROPERTIES}->{case})) {
 			fatal($e, "Union member $e->{NAME} must have default or case property");
 		}
@@ -1386,7 +1441,7 @@ sub ValidType($)
 {
 	my ($t) = @_;
 
-	{ 
+	{
 		TYPEDEF => \&ValidTypedef,
 		STRUCT => \&ValidStruct,
 		UNION => \&ValidUnion,
@@ -1410,29 +1465,29 @@ sub ValidInterface($)
 	ValidProperties($interface,"INTERFACE");
 
 	if (has_property($interface, "pointer_default")) {
-		if (not grep (/$interface->{PROPERTIES}->{pointer_default}/, 
+		if (not grep (/$interface->{PROPERTIES}->{pointer_default}/,
 					("ref", "unique", "ptr"))) {
 			fatal($interface, "Unknown default pointer type `$interface->{PROPERTIES}->{pointer_default}'");
 		}
 	}
 
 	if (has_property($interface, "object")) {
-     		if (has_property($interface, "version") && 
+		if (has_property($interface, "version") &&
 			$interface->{PROPERTIES}->{version} != 0) {
 			fatal($interface, "Object interfaces must have version 0.0 ($interface->{NAME})");
 		}
 
-		if (!defined($interface->{BASE}) && 
+		if (!defined($interface->{BASE}) &&
 			not ($interface->{NAME} eq "IUnknown")) {
 			fatal($interface, "Object interfaces must all derive from IUnknown ($interface->{NAME})");
 		}
 	}
-		
+
 	foreach my $d (@{$data}) {
 		($d->{TYPE} eq "FUNCTION") && ValidFunction($d);
-		($d->{TYPE} eq "TYPEDEF" or 
+		($d->{TYPE} eq "TYPEDEF" or
 		 $d->{TYPE} eq "STRUCT" or
-	 	 $d->{TYPE} eq "UNION" or 
+		 $d->{TYPE} eq "UNION" or
 	 	 $d->{TYPE} eq "ENUM" or
 		 $d->{TYPE} eq "BITMAP" or
 		 $d->{TYPE} eq "PIPE") && ValidType($d);
@@ -1447,7 +1502,7 @@ sub Validate($)
 	my($idl) = shift;
 
 	foreach my $x (@{$idl}) {
-		($x->{TYPE} eq "INTERFACE") && 
+		($x->{TYPE} eq "INTERFACE") &&
 		    ValidInterface($x);
 		($x->{TYPE} eq "IMPORTLIB") &&
 			fatal($x, "importlib() not supported");

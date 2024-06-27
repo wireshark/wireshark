@@ -666,20 +666,20 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static
-gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
+bool dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
                                         proto_tree *tree, void *data)
 {
   conversation_t *conversation;
 
   if (!test_bt_dht(pinfo, tvb, 0, data)) {
-    return FALSE;
+    return false;
   }
 
   conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector_from_frame_number(conversation, pinfo->num, bt_dht_handle);
 
   dissect_bt_dht(tvb, pinfo, tree, NULL);
-  return TRUE;
+  return true;
 }
 
 void

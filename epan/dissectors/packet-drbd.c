@@ -887,20 +887,20 @@ static gboolean test_drbd_rdma_control_header(tvbuff_t *tvb)
     return magic32 == DRBD_TRANSPORT_RDMA_MAGIC;
 }
 
-static gboolean test_drbd_protocol(tvbuff_t *tvb, packet_info *pinfo,
+static bool test_drbd_protocol(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data _U_)
 {
     if (!test_drbd_header(tvb, 0))
-        return FALSE;
+        return false;
 
     conversation_t *conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, drbd_handle);
     dissect_drbd(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean test_drbd_lb_tcp_protocol(tvbuff_t *tvb, packet_info *pinfo,
+static bool test_drbd_lb_tcp_protocol(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data _U_)
 {
     /* DRBD packets may be split between lb-tcp wrapper packets. As a result,
@@ -908,13 +908,13 @@ static gboolean test_drbd_lb_tcp_protocol(tvbuff_t *tvb, packet_info *pinfo,
      * However, we have no other way to identify lb-tcp packets, so look for a
      * DRBD header anyway. This is a best-effort solution. */
     if (!test_drbd_header(tvb, 8))
-        return FALSE;
+        return false;
 
     conversation_t *conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, drbd_lb_tcp_handle);
     dissect_drbd_lb_tcp(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 /*
@@ -1121,10 +1121,10 @@ static void dissect_drbd_ib_control_message(tvbuff_t *tvb, packet_info *pinfo, p
     proto_tree_add_item(drbd_tree, hf_drbd_rx_desc_stolen_from, tvb, 12, 4, ENC_BIG_ENDIAN);
 }
 
-static gboolean dissect_drbd_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_drbd_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     if (!test_drbd_header(tvb, 0) && !test_drbd_rdma_control_header(tvb))
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRBD RDMA");
     while (1) {
@@ -1155,7 +1155,7 @@ static gboolean dissect_drbd_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         tvb = tvb_new_subset_remaining(tvb, length);
     }
 
-    return TRUE;
+    return true;
 }
 
 static void insert_twopc(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data, enum drbd_packet command)

@@ -381,7 +381,7 @@ mcpe_init_message_names(void)
 }
 
 static gboolean
-test_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+test_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data)
 {
     /*
      * 0xFE "Wrapper" is the only message ID that MCPE uses. The sole
@@ -410,7 +410,7 @@ test_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void
     return FALSE;
 }
 
-static gboolean
+static bool
 dissect_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     dissector_handle_t handle;
@@ -456,7 +456,7 @@ dissect_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return call_dissector_only(handle, packet_tvb, pinfo, mcpe_tree, data) > 0;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 

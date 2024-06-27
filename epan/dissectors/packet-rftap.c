@@ -336,8 +336,8 @@ dissect_rftap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 }
 
-static gboolean
-dissect_rftap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_rftap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     return dissect_rftap(tvb, pinfo, tree, data) != 0;
 }

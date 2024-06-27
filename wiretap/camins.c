@@ -52,13 +52,12 @@
 */
 
 #include "config.h"
+#include "camins.h"
 
 #include <glib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#include "camins.h"
 
 
 #define TRANS_CAM_HOST        0x20

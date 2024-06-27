@@ -16,6 +16,8 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/etypes.h>
+#include <epan/dissectors/packet-llc.h>
 
 #include "packet-mpls.h"
 
@@ -99,38 +101,129 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  * FF: this function returns TRUE if the first 12 bytes in tvb looks like
  *     two valid ethernet addresses.  FALSE otherwise.
  */
-static gboolean
-looks_like_plain_eth(tvbuff_t *tvb _U_)
+static int
+looks_like_plain_eth(tvbuff_t *tvb, int offset)
 {
     const gchar *manuf_name_da;
     const gchar *manuf_name_sa;
+    uint16_t etype;
+    int ret = 2;
 
-    if (tvb_reported_length_remaining(tvb, 0) < 14) {
-        return FALSE;
+    /* Don't throw an exception. If the packet is truncated, you lose. */
+    if (tvb_captured_length_remaining(tvb, offset) < 14) {
+        return 0;
     }
 
-    manuf_name_da = tvb_get_manuf_name_if_known(tvb, 0);
-    manuf_name_sa = tvb_get_manuf_name_if_known(tvb, 6);
+    /* Copy the source and destination addresses, as tvb_get_manuf_name_if_known
+     * only uses the first three bytes (it's for an OUI in, e.g., IEEE 802.11),
+     * and returns NULL for MA-M and MA-S.
+     */
+    uint8_t da[6], sa[6];
+    tvb_memcpy(tvb, da, offset, 6);
+    /* da[0] & 0x2 is the U/L bit; if it's set, none of this helps. (#13039) */
+    if (da[0] & 0x2) {
+        // U/L bit; locally assigned addresses are a less solid heuristic
+        ret = 1;
+    } else {
+        manuf_name_da = get_manuf_name_if_known(da, 6);
+        if (!manuf_name_da) {
+            /* Try looking for an exact match in the ethers file. */
+            manuf_name_da = get_ether_name_if_known(da);
+            if (!manuf_name_da) {
+                return 0;
+            }
+        }
+    }
+    offset += 6;
 
-    if (manuf_name_da && manuf_name_sa) {
-        return TRUE;
+    tvb_memcpy(tvb, sa, offset, 6);
+    if (sa[0] & 0x1) {
+        // Group bit should not be set on source
+        return 0;
+    }
+    if (sa[0] & 0x2) {
+        // U/L bit; locally assigned addresses are a less solid heuristic
+        ret = 1;
+    } else {
+        manuf_name_sa = get_manuf_name_if_known(sa, 6);
+        if (!manuf_name_sa) {
+            manuf_name_sa = get_ether_name_if_known(sa);
+            if (!manuf_name_sa) {
+                return 0;
+            }
+        }
+    }
+    offset += 6;
+    etype = tvb_get_ntohs(tvb, offset);
+
+    if (etype > IEEE_802_3_MAX_LEN) {
+        if (etype < ETHERNET_II_MIN_LEN) {
+            return 0;
+        }
+
+        if (!try_val_to_str(etype, etype_vals)) {
+            return 0;
+        }
+    } else {
+        offset += 2;
+        /* XXX - There are unusual cases like Cisco ISL, Novell raw 802.3
+         * for IPX/SPX, etc. See packet-eth capture_eth()
+         */
+        if (tvb_reported_length_remaining(tvb, offset) < etype) {
+            return 0;
+        }
+
+        if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            return 0;
+        }
+        uint8_t sap;
+        sap = tvb_get_guint8(tvb, offset);
+        if (!try_val_to_str(sap, sap_vals)) {
+            return 0;
+        }
+        offset += 1;
+        sap = tvb_get_guint8(tvb, offset);
+        if (!try_val_to_str(sap, sap_vals)) {
+            return 0;
+        }
+        /* We could go deeper, and see if this looks like SNAP if the dsap
+         * and ssap are both 0xAA (the common case).
+         */
     }
 
-    return FALSE;
+    return ret;
 }
 
 static int
 dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    /*
+     * RFC 8469 states that that both ingress and egress SHOULD support the PW
+     * CW, and if they do, the CW MUST be used. So it looks equally likely to
+     * have the CW as not, assume CW.
+     */
     guint8 first_nibble = (tvb_get_guint8(tvb, 0) >> 4) & 0x0F;
 
-    if (looks_like_plain_eth(tvb))
+    if (first_nibble == 0) {
+        if (looks_like_plain_eth(tvb, 4) >= looks_like_plain_eth(tvb, 0)) {
+            call_dissector(pw_eth_handle_cw, tvb, pinfo, tree);
+        } else {
+            call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
+        }
+    } else {
         call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
-    else if (first_nibble == 0)
-        call_dissector(pw_eth_handle_cw, tvb, pinfo, tree);
-    else
-        call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
+    }
     return tvb_captured_length(tvb);
+}
+
+static bool
+dissect_pw_eth_nocw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (!looks_like_plain_eth(tvb, 0)) {
+        return false;
+    }
+    dissect_pw_eth_nocw(tvb, pinfo, tree, data);
+    return true;
 }
 
 void
@@ -190,12 +283,18 @@ proto_register_pw_eth(void)
 void
 proto_reg_handoff_pw_eth(void)
 {
+    heur_dissector_add("mpls", dissect_pw_eth_nocw_heur,
+        "Ethernet PW (no CW)", "pwethnocw", proto_pw_eth_nocw,
+        HEURISTIC_ENABLE);
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_pw_eth_cw);
 
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_cw);
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_nocw);
 
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_heuristic);
+
+    dissector_add_for_decode_as("mpls.pfn", pw_eth_handle_cw);
+    dissector_add_for_decode_as("mpls.pfn", pw_eth_handle_nocw);
 }
 
 /*

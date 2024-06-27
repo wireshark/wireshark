@@ -247,14 +247,14 @@ test_mndp(tvbuff_t *tvb)
 	return TRUE;
 }
 
-static gboolean
+static bool
 dissect_mndp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if ( !test_mndp(tvb) ) {
-		return FALSE;
+		return false;
 	}
 	dissect_mndp(tvb, pinfo, tree);
-	return TRUE;
+	return true;
 }
 
 static int

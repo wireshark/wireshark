@@ -193,7 +193,7 @@ WS_DLL_PUBLIC
 const char *
 dfilter_text(dfilter_t *df);
 
-/* Text representation of syntax tree (if it was saved, NULL oterwise). */
+/* Text representation of syntax tree (if it was saved, NULL otherwise). */
 WS_DLL_PUBLIC
 const char *
 dfilter_syntax_tree(dfilter_t *df);

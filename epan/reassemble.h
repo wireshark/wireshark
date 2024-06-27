@@ -85,7 +85,7 @@ typedef struct _fragment_head {
 	guint8 reas_in_layer_num;	/**< The current "depth" or layer number in the current
 					 * frame where reassembly was completed.
 					 * Example: in SCTP there can be several data chunks and
-					 * we want the reassemblied tvb for the final segment only. */
+					 * we want the reassembled tvb for the final segment only. */
 	guint32 flags;			/**< XXX - do some of these apply only to reassembly
 					 * heads and others only to fragments within
 					 * a reassembly? */
@@ -891,7 +891,7 @@ streaming_reassembly_info_new(void);
  *                 // need X bytes for dissecting a ProtoB message
  *                 if (pinfo->can_desegment) {
  *                     pinfo->desegment_offset = offset;
- *                     // caculate how many additional bytes need to parsing body of a ProtoB message
+ *                     // calculate how many additional bytes need to parsing body of a ProtoB message
  *                     pinfo->desegment_len = body_len - (tvb_len - offset - PROTO_B_MESSAGE_HEAD_LEN);
  *                     // MUST return a length other than 0, if DESEGMENT_ONE_MORE_SEGMENT is used previously.
  *                     return tvb_len;
@@ -915,7 +915,7 @@ streaming_reassembly_info_new(void);
  *     // reassembly table for streaming chunk mode
  *     static reassembly_table proto_a_streaming_reassembly_table;
  *     ...
- *     // heads for displaying reassembley information
+ *     // heads for displaying reassembly information
  *     static int hf_msg_fragments;
  *     static int hf_msg_fragment;
  *     static int hf_msg_fragment_overlap;

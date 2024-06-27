@@ -420,7 +420,7 @@ static void wslua_push_attributes(lua_State *L, const wslua_attribute_table *t, 
         return;
     }
 
-    /* If there is a methods table, prepare for a collission check. */
+    /* If there is a methods table, prepare for a collision check. */
     if (lua_istable(L, methods_idx)) {
         methods_idx = lua_absindex(L, methods_idx);
     } else {

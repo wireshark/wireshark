@@ -100,7 +100,7 @@ static const value_string asphodel_cmd_vals[] = {
     { 0x65, "GET_CUSTOM_ENUM_VALUE_NAME" },
     { 0x66, "GET_SETTING_CATEGORY_COUNT" },
     { 0x67, "GET_SETTING_CATEGORY_NAME" },
-    { 0x68, "GET_SETTING_CATERORY_SETTINGS" },
+    { 0x68, "GET_SETTING_CATEGORY_SETTINGS" },
     { 0x70, "SET_DEVICE_MODE" },
     { 0x71, "GET_DEVICE_MODE" },
     { 0x80, "ENABLE_RF_POWER" },
@@ -548,22 +548,22 @@ dissect_asphodel_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_asphodel_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) < 11)
     {
-        return FALSE;
+        return false;
     }
 
     if (tvb_memeql(tvb, 2, (const guint8*)"Asphodel", 9) != 0)
     {
-        return FALSE;
+        return false;
     }
 
     dissect_asphodel_inquiry(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 void

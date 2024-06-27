@@ -1336,7 +1336,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "static int\n");
 			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)\n", dissectorname);
 			FPRINTF(eth_code, "{\n");
-			FPRINTF(eth_code, "    \n");
+			FPRINTF(eth_code, "\n");
 			FPRINTF(eth_code, "    offset=dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);\n");
 			FPRINTF(eth_code, "\n");
 			FPRINTF(eth_code, "    return offset;\n");
@@ -1657,16 +1657,8 @@ static void parsetypedefstruct(int pass)
 		fixed_array_size=0;
 		is_array_of_pointers=0;
 		if(!g_strcmp0(ti->str, "[")){
-			char fss[BASE_BUFFER_SIZE];
-
 			/* this might be a fixed array */
 			ti=ti->next;
-
-			if (!ws_strtou32(ti->str, NULL, &fixed_array_size)) {
-				FPRINTF(stderr, "ERROR: invalid integer: %s\n", ti->str);
-				Exit(10);
-			}
-			snprintf(fss, BASE_BUFFER_SIZE, "%d", fixed_array_size);
 
 			if(!g_strcmp0("]", ti->str)){
 				/* this is just a normal [] array */
@@ -1676,9 +1668,8 @@ static void parsetypedefstruct(int pass)
 				fixed_array_size=0;
 				is_array_of_pointers=1;
 				ti=ti->next;
-			} else if(g_strcmp0(fss, ti->str)){
-				FPRINTF(stderr, "ERROR: typedefstruct (%s) fixed array size looks different to calculated one %s!=%s\n", struct_name, fss, ti->str);
-				ti=ti->next;
+			} else if (!ws_strtou32(ti->str, NULL, &fixed_array_size)) {
+				FPRINTF(stderr, "ERROR: invalid integer: %s\n", ti->str);
 				Exit(10);
 			} else {
 				ti=ti->next;
@@ -2003,7 +1994,7 @@ static void parsetypedefbitmap(int pass)
 
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){
-		FPRINTF(eth_ett, "static gint ett_%s_%s = -1;\n", ifname, bitmap_name);
+		FPRINTF(eth_ett, "static gint ett_%s_%s;\n", ifname, bitmap_name);
 		FPRINTF(eth_ettarr, "		 &ett_%s_%s,\n", ifname, bitmap_name);
 		FPRINTF(eth_hdr, "int %s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param);\n", dissectorname);
 		FPRINTF(eth_code, "\n");

@@ -42,11 +42,11 @@ static int dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
    proto_item *ti;
    proto_tree *ioraw_tree;
-   gint offset = 0;
+   int offset = 0;
    char szText[200];
    int nMax = sizeof(szText)-1;
 
-   guint ioraw_length = tvb_reported_length(tvb);
+   unsigned ioraw_length = tvb_reported_length(tvb);
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IO-RAW");
 
@@ -88,7 +88,7 @@ void proto_register_ioraw(void)
          }
       };
 
-   static gint *ett[] =
+   static int *ett[] =
       {
          &ett_ioraw
       };

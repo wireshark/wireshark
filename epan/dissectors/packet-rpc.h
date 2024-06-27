@@ -146,7 +146,7 @@ extern const value_string rpc_auth_flavor[];
 WS_DLL_PUBLIC void rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
     const rpc_prog_vers_info *versions);
 WS_DLL_PUBLIC const char *rpc_prog_name(guint32 prog);
-WS_DLL_PUBLIC const char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
+WS_DLL_PUBLIC const char *rpc_proc_name(wmem_allocator_t *allocator, guint32 prog, guint32 vers, guint32 proc);
 WS_DLL_PUBLIC int rpc_prog_hf(guint32 prog, guint32 vers);
 
 WS_DLL_PUBLIC unsigned int rpc_roundup(unsigned int a);

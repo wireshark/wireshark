@@ -148,7 +148,7 @@ dissect_realtek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
  *
  * for information on RRCP.
  */
-static gboolean
+static bool
 dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
@@ -159,10 +159,10 @@ dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   guint32 opcode;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
-    return FALSE;
+    return false;
   proto = tvb_get_guint8(tvb, 0);
   if (proto != RTL_PROTOCOL_RRCP)
-    return FALSE;
+    return false;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRCP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -218,7 +218,7 @@ dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   proto_item_set_end(ti, tvb, offset);
   /* Let 'packet-eth' provide trailer/pad-bytes info */
   tvb_set_reported_length(tvb, offset);
-  return TRUE;
+  return true;
 }
 
 /*
@@ -232,7 +232,7 @@ dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
  *
  * for information on REP.
  */
-static gboolean
+static bool
 dissect_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
@@ -242,10 +242,10 @@ dissect_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   gboolean bcast;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
-    return FALSE;
+    return false;
   proto = tvb_get_guint8(tvb, 0);
   if (proto != RTL_PROTOCOL_REP)
-    return FALSE;
+    return false;
 
   ti = proto_tree_add_item(tree, proto_rep, tvb, 0, -1, ENC_NA);
   rep_tree = proto_item_add_subtree(ti, ett_rep);
@@ -264,7 +264,7 @@ dissect_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   proto_item_set_end(ti, tvb, offset);
   /* Let 'packet-eth' provide trailer/pad-bytes info */
   tvb_set_reported_length(tvb, offset);
-  return TRUE;
+  return true;
 }
 
 /*
@@ -320,7 +320,7 @@ dissect_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
  * just crap in the buffer in which the chip constructed the packet, left
  * over from something else?
  */
-static int
+static bool
 dissect_rldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
@@ -329,10 +329,10 @@ dissect_rldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   int offset = 0;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
-    return FALSE;
+    return false;
   proto = tvb_get_guint8(tvb, 0);
   if (proto != RTL_PROTOCOL_RLDP && proto != RTL_PROTOCOL_RLDP2)
-    return FALSE;
+    return false;
 
   ti = proto_tree_add_item(tree, proto_rldp, tvb, 0, -1, ENC_NA);
   rldp_tree = proto_item_add_subtree(ti, ett_rep);
@@ -347,7 +347,7 @@ dissect_rldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   proto_item_set_end(ti, tvb, offset);
   /* Let 'packet-eth' provide trailer/pad-bytes info */
   tvb_set_reported_length(tvb, offset);
-  return TRUE;
+  return true;
 }
 
 /* Register the protocol with Ethereal */

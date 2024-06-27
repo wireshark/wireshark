@@ -7,7 +7,7 @@ Do not edit manually!
 <Dialog Name="AdditionalTasksPage" Title="Additional Tasks" Subtitle="Create shortcuts and associate file extensions.">
   <CreateFunctionCustomScript>; Defined in wireshark.nsi
 Call InitAdditionalTasksPage</CreateFunctionCustomScript>
-  <Label Name="ExtensionsLabel" Location="22, 151" Size="372, 52" Text="Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, ipfix, lcap, mplog, ntar, out, pcap, pcapng, pklg, pkt, rf5, rtp, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz." TabIndex="0" />
+  <Label Name="ExtensionsLabel" Location="22, 151" Size="372, 52" Text="Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, ipfix, lcap, mplog, ntar, out, pcap, pcapng, pklg, pkt, rf5, rtp, scap, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz." TabIndex="0" />
   <CheckBox Name="AssociateExtensionsCheckBox" Location="22, 126" Size="406, 14" Text="Associate trace file extensions with Wireshark" TabIndex="1" />
   <CheckBox Name="QuickLaunchCheckBox" Location="22, 74" Size="406, 14" Text="Wireshark Quick Launch Icon" TabIndex="2" />
   <CheckBox Name="DesktopIconCheckBox" Location="22, 54" Size="406, 14" Text="Wireshark Desktop Icon" TabIndex="3" />

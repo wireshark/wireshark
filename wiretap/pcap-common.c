@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#include "pcap-common.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,6 @@
 #include "atm.h"
 #include "erf_record.h"
 #include "pcap-encap.h"
-#include "pcap-common.h"
 
 /*
  * On some systems, the FDDI MAC addresses are bit-swapped.

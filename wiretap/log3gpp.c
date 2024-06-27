@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#include "log3gpp.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
@@ -20,8 +21,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#include "log3gpp.h"
 
 #define MAX_FIRST_LINE_LENGTH      200
 #define MAX_TIMESTAMP_LINE_LENGTH  100
@@ -503,7 +502,7 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
     int  prot_option_chars = 0;
     char seconds_buff[MAX_SECONDS_CHARS+1];
     int  seconds_chars;
-    char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS+1];
+    char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS];
     int  subsecond_decimals_chars;
 
     /*********************************************************************/
@@ -574,7 +573,9 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
     }
 
     /* Convert found value into microseconds */
-    subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
+    while (subsecond_decimals_chars < MAX_SUBSECOND_DECIMALS) {
+        subsecond_decimals_buff[subsecond_decimals_chars++] = '0';
+    }
     /* Already know they are digits, so avoid expense of ws_strtoi32() */
     *useconds = ((subsecond_decimals_buff[0] - '0') * 100000) +
                 ((subsecond_decimals_buff[1] - '0') * 10000) +

@@ -69,8 +69,8 @@ typedef struct _seq_analysis_info {
     int         nconv;       /**< number of conversations in the list */
     GQueue*     items;       /**< list of seq_analysis_info_t */
     GHashTable *ht;          /**< hash table of seq_analysis_info_t */
-    address nodes[MAX_NUM_NODES];     /**< horizontal node list */
-    guint8  occurence[MAX_NUM_NODES]; /**< horizontal occurence list 0|1 */
+    address nodes[MAX_NUM_NODES];      /**< horizontal node list */
+    guint8  occurrence[MAX_NUM_NODES]; /**< horizontal occurrence list 0|1 */
     guint32 num_nodes;       /**< actual number of nodes */
 } seq_analysis_info_t;
 

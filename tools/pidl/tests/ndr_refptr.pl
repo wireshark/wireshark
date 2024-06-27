@@ -4,6 +4,7 @@
 # (C) 2005 Jelmer Vernooij <jelmer@samba.org>.
 # Published under the GNU General Public License.
 use strict;
+use warnings;
 
 use Test::More tests => 22 * 8;
 use FindBin qw($RealBin);
@@ -18,7 +19,7 @@ test_samba4_ndr("noptr-push",
 	[public] uint16 echo_TestRef([in] xstruct foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	uint16_t v = 13;
 	struct echo_TestRef r;
 	r.in.foo.x = v; 
@@ -48,7 +49,7 @@ test_samba4_ndr("ptr-embedded-push",
 ',
 '
 	uint16_t v = 13;
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo.x = &v; 
 
@@ -74,7 +75,7 @@ test_samba4_ndr("ptr-embedded-push-null",
 	[public] uint16 echo_TestRef([in] xstruct foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo.x = NULL; 
 
@@ -99,7 +100,7 @@ test_samba4_ndr("refptr-embedded-push",
 ',
 '
 	uint16_t v = 13;
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo.x = &v; 
 
@@ -126,7 +127,7 @@ test_samba4_ndr("refptr-embedded-push-null",
 	[public] uint16 echo_TestRef([in] xstruct foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo.x = NULL; 
 
@@ -144,7 +145,7 @@ test_samba4_ndr("ptr-top-push",
 	[public] uint16 echo_TestRef([in] xstruct *foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	struct xstruct s;
 	s.x = 13;
@@ -169,7 +170,7 @@ test_samba4_ndr("ptr-top-push-null",
 	[public] uint16 echo_TestRef([in] xstruct *foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo = NULL;
 
@@ -189,7 +190,7 @@ test_samba4_ndr("refptr-top-push",
 	[public] uint16 echo_TestRef([in,ref] xstruct *foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	struct xstruct s;
 	s.x = 13;
@@ -214,7 +215,7 @@ test_samba4_ndr("refptr-top-push-null",
 	[public] uint16 echo_TestRef([in,ref] xstruct *foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo = NULL;
 
@@ -233,7 +234,7 @@ test_samba4_ndr("uniqueptr-top-push",
 	[public] uint16 echo_TestRef([in,unique] xstruct *foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	struct xstruct s;
 	s.x = 13;
@@ -261,7 +262,7 @@ test_samba4_ndr("uniqueptr-top-push-null",
 	[public] uint16 echo_TestRef([in,unique] xstruct *foo);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo = NULL;
 
@@ -381,7 +382,7 @@ test_samba4_ndr("ptr-top-push-double",
 '
 	[public] void echo_TestRef([in] uint16 **foo);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	uint16_t v = 13;
 	uint16_t *pv = &v;
@@ -408,7 +409,7 @@ test_samba4_ndr("ptr-top-push-double-sndnull",
 '
 	[public] void echo_TestRef([in] uint16 **foo);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	uint16_t *pv = NULL;
 	r.in.foo = &pv;
@@ -429,7 +430,7 @@ test_samba4_ndr("ptr-top-push-double-fstnull",
 '
 	[public] void echo_TestRef([in] uint16 **foo);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo = NULL;
 
@@ -445,7 +446,7 @@ test_samba4_ndr("refptr-top-push-double",
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	uint16_t v = 13;
 	uint16_t *pv = &v;
@@ -473,7 +474,7 @@ test_samba4_ndr("refptr-top-push-double-sndnull",
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	uint16_t *pv = NULL;
 	r.in.foo = &pv;
@@ -494,7 +495,7 @@ test_samba4_ndr("refptr-top-push-double-fstnull",
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	r.in.foo = NULL;
 
@@ -511,7 +512,7 @@ test_samba4_ndr("ignore-ptr",
 '
 	[public] void echo_TestRef([in,ignore] uint16 *foo, [in] uint16 *bar);
 ',
-'	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+'	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct echo_TestRef r;
 	uint16_t v = 10;
 	r.in.foo = &v; 

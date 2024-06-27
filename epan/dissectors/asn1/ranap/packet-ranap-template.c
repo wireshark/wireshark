@@ -311,7 +311,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 #define RANAP_MSG_MIN_LENGTH 7
-static gboolean
+static bool
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint8 temp;
@@ -334,19 +334,19 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define CRIT_OFFSET 2
   #define MSG_TYPE_OFFSET 1
   #define PDU_TYPE_OFFSET 0
-  if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
+  if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return false; }
 
   temp = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
   if (temp & 0x1F) {
     /* PDU Type byte is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
        0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
-    return FALSE;
+    return false;
   }
 
   temp = tvb_get_guint8(tvb, CRIT_OFFSET);
   if (temp == 0xC0 || temp & 0x3F) {
     /* Criticality byte is not 0x00 (reject), 0x40 (ignore) or 0x80 (notify) */
-    return FALSE;
+    return false;
   }
 
   /* compute aligned PER length determinant without calling dissect_per_length_determinant()
@@ -365,22 +365,22 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
   }
   if (length!= (tvb_reported_length(tvb) - offset)){
-    return FALSE;
+    return false;
   }
 
   temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
-  if (temp > RANAP_MAX_PC) { return FALSE; }
+  if (temp > RANAP_MAX_PC) { return false; }
 
   /* Try to strengthen the heuristic further, by checking the byte following the length and the bitfield indicating extensions etc
    * which usually is a sequence-of length
    */
   word = tvb_get_ntohs(tvb, offset + 1);
   if (word > 0x1ff){
-    return FALSE;
+    return false;
   }
   dissect_ranap(tvb, pinfo, tree, data);
 
-  return TRUE;
+  return true;
 }
 
 /*--- proto_register_ranap -------------------------------------------*/

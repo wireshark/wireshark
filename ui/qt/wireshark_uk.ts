@@ -1019,8 +1019,16 @@
         <translation>Перший пакет</translation>
     </message>
     <message>
+        <source>First event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Last packet</source>
         <translation>Останній пакет</translation>
+    </message>
+    <message>
+        <source>Last event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1059,6 +1067,10 @@
         <translation>Відкинуті пакети</translation>
     </message>
     <message>
+        <source>Dropped events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture filter</source>
         <translation>Фільтр захоплення</translation>
     </message>
@@ -1068,6 +1080,10 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event size limit (snaplen)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1123,6 +1139,10 @@
         <translation>Пакетів</translation>
     </message>
     <message>
+        <source>Events</source>
+        <translation type="unfinished">Події</translation>
+    </message>
+    <message>
         <source>Time span, s</source>
         <translation>Проміжок часу, с</translation>
     </message>
@@ -1133,6 +1153,10 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Середній розмір пакету, Б</translation>
+    </message>
+    <message>
+        <source>Average event size, B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1148,6 +1172,10 @@
     </message>
     <message>
         <source>Packet Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Comments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4001,28 +4029,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Видалити цей графік.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>Додати новий графік.</translation>
-    </message>
-    <message>
-        <source>Duplicate this graph.</source>
-        <translation>Продублювати цей графік.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
+        <source>Remove the selected graph(s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move this graph downwards.</source>
+        <source>Duplicate the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) downwards.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4399,7 +4426,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Access Denied</source>
+        <source>All Execs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5200,6 +5227,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply changes</source>
         <translation type="unfinished">Застосувати зміни</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeDelegate</name>
+    <message>
+        <source>default</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6673,6 +6707,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform></numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
@@ -7296,6 +7338,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -8732,6 +8782,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>PACKETS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EVENTS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10812,6 +10866,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Некоректний фільтр.</translation>
     </message>
     <message>
+        <source>Event List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>Цей фільтр нічого не перевіряє.</translation>
     </message>
@@ -12376,21 +12446,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
+        <source>Remove the selected entry(ies).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
+        <source>Copy the selected entry(ies).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
+        <source>Move the selected entry(ies) up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
+        <source>Move the selected entry(ies) down.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12417,19 +12485,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
+        <source>Remove the selected entry(ies).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
+        <source>Copy the selected entry(ies).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
+        <source>Move the selected entry(ies) up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
+        <source>Move the selected entry(ies) down.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

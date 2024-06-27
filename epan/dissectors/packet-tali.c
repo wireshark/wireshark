@@ -124,7 +124,7 @@ dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
  *   the fixed header is there
  *   it is a 'well-known' operation
  */
-static gboolean
+static bool
 dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   char opcode[TALI_OPCODE_LENGTH]; /* TALI opcode */
@@ -137,10 +137,10 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
    * to the snapshot length specified for the capture.
    */
   if (tvb_captured_length(tvb) < TALI_HEADER_LENGTH)   /* Mandatory header */
-    return FALSE;
+    return false;
 
   if (tvb_strneql(tvb, 0, TALI_SYNC, TALI_SYNC_LENGTH) != 0)
-    return FALSE;
+    return false;
 
   tvb_memcpy(tvb, (guint8*)opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
   if (strncmp(opcode, TALI_TEST, TALI_OPCODE_LENGTH) != 0 &&
@@ -153,10 +153,10 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       strncmp(opcode, TALI_ISOT, TALI_OPCODE_LENGTH) != 0 &&
       strncmp(opcode, TALI_MTP3, TALI_OPCODE_LENGTH) != 0 &&
       strncmp(opcode, TALI_SAAL, TALI_OPCODE_LENGTH) != 0)
-    return FALSE;
+    return false;
 
   dissect_tali(tvb, pinfo, tree, data);
-  return TRUE;
+  return true;
 }
 
 void

@@ -88,47 +88,48 @@
 
 
 typedef struct _radius_vendor_info_t {
-	gchar *name;
-	guint code;
+	char *name;
+	unsigned code;
 	GHashTable* attrs_by_id;
-	gint ett;
-	guint type_octets;
-	guint length_octets;
-	gboolean has_flags;
+	int ett;
+	unsigned type_octets;
+	unsigned length_octets;
+	bool has_flags;
 } radius_vendor_info_t;
 
 typedef struct _radius_call_t
 {
-	guint code;
-	guint ident;
-	guint8 req_authenticator[16];
+	unsigned code;
+	unsigned ident;
+	uint8_t req_authenticator[16];
 
-	guint32 req_num; /* frame number request seen */
-	guint32 rsp_num; /* frame number response seen */
-	guint32 rspcode;
+	uint32_t req_num; /* frame number request seen */
+	uint32_t rsp_num; /* frame number response seen */
+	uint32_t rspcode;
 	nstime_t req_time;
-	gboolean responded;
+	bool responded;
 } radius_call_t;
 
 typedef struct _radius_attr_info_t radius_attr_info_t;
 typedef void (radius_attr_dissector_t)(radius_attr_info_t*, proto_tree*, packet_info*, tvbuff_t*, int, int, proto_item* );
 
-typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*, packet_info*);
+typedef const char* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*, packet_info*);
 
 typedef union _radius_attr_type_t {
-	guint8 u8_code[2];
-	guint  value;
+	uint8_t u8_code[2];
+	unsigned  value;
 } radius_attr_type_t;
 
 struct _radius_attr_info_t {
-	gchar *name;
+	char *name;
 	radius_attr_type_t code;
-	guint encrypt;  /* 0 or value for "encrypt=" option */
-	gboolean tagged;
+	unsigned encrypt;  /* 0 or value for "encrypt=" option */
+	bool tagged;
+	bool concat;
 	radius_attr_dissector_t* type;
 	radius_avp_dissector_t* dissector;
 	const value_string *vs;
-	gint ett;
+	int ett;
 	int hf;
 	int hf_alt;     /* 64-bit version for integers, IPv6 for radius_combo_ip */
 	int hf_enc;		/* version for encrypted attributes */
@@ -170,9 +171,9 @@ radius_attr_dissector_t radius_signed;
 radius_attr_dissector_t radius_combo_ip;
 radius_attr_dissector_t radius_tlv;
 
-extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
-void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length, radius_call_t *radius_call);
-extern void free_radius_attr_info(gpointer data);
+extern void radius_register_avp_dissector(uint32_t vendor_id, uint32_t attribute_id, radius_avp_dissector_t dissector);
+void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length, radius_call_t *radius_call);
+extern void free_radius_attr_info(void *data);
 
 /* from radius_dict.l */
-gboolean radius_load_dictionary (radius_dictionary_t* dict, gchar* directory, const gchar* filename, gchar** err_str);
+bool radius_load_dictionary (radius_dictionary_t* dict, char* directory, const char* filename, char** err_str);

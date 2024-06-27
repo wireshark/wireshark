@@ -2804,8 +2804,8 @@ static dissector_table_t        map_prop_err_opcode_table; /* proprietary operat
 /* Preference settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-#define APPLICATON_CONTEXT_FROM_TRACE 0
-static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
+static bool pref_context_version_from_trace = true;
+static gint pref_application_context_version = 3;
 static bool pref_ericsson_proprietary_ext;
 
 /* Global variables */
@@ -23564,9 +23564,9 @@ dissect_gsm_map_GSMMAPPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
   char *version_ptr;
 
   opcode = 0;
-  if (pref_application_context_version == APPLICATON_CONTEXT_FROM_TRACE) {
+  application_context_version = pref_application_context_version;
+  if (pref_context_version_from_trace == true) {
     gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
-    application_context_version = 0;
     if (gsm_map_priv && gsm_map_priv->tcap_private != NULL){
       if (gsm_map_priv->tcap_private->acv==TRUE ){
         version_ptr = strrchr((const char*)gsm_map_priv->tcap_private->oid,'.');
@@ -23575,8 +23575,6 @@ dissect_gsm_map_GSMMAPPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
         }
       }
     }
-  }else{
-    application_context_version = pref_application_context_version;
   }
 
   gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
@@ -32703,7 +32701,6 @@ void proto_register_gsm_map(void) {
   };
 
   static const enum_val_t application_context_modes[] = {
-    {"Use Application Context from the trace", "Use application context from the trace", APPLICATON_CONTEXT_FROM_TRACE},
     {"Treat as AC 1", "Treat as AC 1", 1},
     {"Treat as AC 2", "Treat as AC 2", 2},
     {"Treat as AC 3", "Treat as AC 3", 3},
@@ -32845,10 +32842,19 @@ void proto_register_gsm_map(void) {
                                   "TCAP Subsystem numbers used for GSM MAP",
                                   &global_ssn_range, MAX_SSN);
 
+  prefs_register_bool_preference(gsm_map_module, "application.context.version.from.trace",
+                                 "Use application context from the trace",
+                                 "Use the application context version from the "
+                                 "lower level protocol (i.e., TCAP) transaction "
+                                 "if available",
+                                 &pref_context_version_from_trace);
+
   prefs_register_enum_preference(gsm_map_module, "application.context.version",
-                                  "Application context version",
-                                  "How to treat Application context",
-                                  &pref_application_context_version, application_context_modes, APPLICATON_CONTEXT_FROM_TRACE);
+                                 "Default application context version",
+                                 "The default application context version "
+                                 "when not using the version from the lower "
+                                 "layer transaction",
+                                 &pref_application_context_version, application_context_modes, 3);
 
   prefs_register_bool_preference(gsm_map_module, "ericsson.proprietary.extensions",
                                   "Dissect Ericsson proprietary extensions",

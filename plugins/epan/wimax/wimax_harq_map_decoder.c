@@ -23,10 +23,10 @@
 #include "wimax_compact_dlmap_ie_decoder.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
 
-extern gint proto_wimax;
+extern int proto_wimax;
 
-static gint proto_wimax_harq_map_decoder;
-static gint ett_wimax_harq_map_decoder;
+static int proto_wimax_harq_map_decoder;
+static int ett_wimax_harq_map_decoder;
 
 /* MASKs */
 #define LSB_NIBBLE_MASK      0x0F
@@ -41,13 +41,13 @@ static gint ett_wimax_harq_map_decoder;
 #define WIMAX_HARQ_MAP_DL_IE_COUNT_SHIFT 4
 
 /* HARQ MAP display indexies */
-static gint hf_harq_map_indicator;
-static gint hf_harq_ul_map_appended;
-static gint hf_harq_map_reserved;
-static gint hf_harq_map_msg_length;
-static gint hf_harq_dl_ie_count;
-static gint hf_harq_map_msg_crc;
-static gint hf_harq_map_msg_crc_status;
+static int hf_harq_map_indicator;
+static int hf_harq_ul_map_appended;
+static int hf_harq_map_reserved;
+static int hf_harq_map_msg_length;
+static int hf_harq_dl_ie_count;
+static int hf_harq_map_msg_crc;
+static int hf_harq_map_msg_crc_status;
 
 static expert_field ei_harq_map_msg_crc;
 
@@ -65,16 +65,16 @@ static const value_string plugin_proto_checksum_vals[] = {
 /* HARQ MAP message decoder */
 static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint i, offset = 0;
-	guint tvb_len, length, dl_ie_count;
-	guint ie_length;
+	unsigned i, offset = 0;
+	unsigned tvb_len, length, dl_ie_count;
+	unsigned ie_length;
 	proto_item *harq_map_item = NULL;
 	proto_tree *harq_map_tree = NULL;
-	guint nibble_offset;
+	unsigned nibble_offset;
 	proto_item *parent_item = NULL;
-	guint ulmap_appended;
-	guint32 harq_map_msg_crc, calculated_crc;
-	guint32 first_24bits;
+	unsigned ulmap_appended;
+	uint32_t harq_map_msg_crc, calculated_crc;
+	uint32_t first_24bits;
 
 	/* check the tvb reported length */
 	tvb_len = tvb_reported_length(tvb);
@@ -198,7 +198,7 @@ void wimax_proto_register_wimax_harq_map(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 	{
 		&ett_wimax_harq_map_decoder,
 	};

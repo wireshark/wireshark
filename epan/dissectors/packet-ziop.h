@@ -41,7 +41,7 @@ typedef struct ZIOP_CompressionData {
   /* Compression::Buffer data; */
 } CompressionData;
 
-gboolean
+bool
 dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data);
 
 #endif /* PACKET_ZIOP_H */

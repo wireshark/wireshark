@@ -406,7 +406,7 @@ static const value_string length_mapping[] = {
 	{ 0, NULL },
 };
 
-static int
+static bool
 dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
@@ -417,7 +417,7 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 	if(!(pinfo->srcport == ADWIN_CONFIGURATION_PORT
 		|| pinfo->destport == ADWIN_CONFIGURATION_PORT))
-		return 0;
+		return false;
 
 	if (!(length == UDPStatusLENGTH
 	       || length == UDPExtStatusLENGTH
@@ -426,10 +426,10 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	       || length == UDPInitAckLENGTH
 	       || length == UDPIXP425FlashUpdateLENGTH
 	       || length == UDPOutLENGTH))
-		return 0;
+		return false;
 
 	if (! (is_adwin_mac_or_broadcast(pinfo->dl_src) || is_adwin_mac_or_broadcast(pinfo->dl_dst)))
-		return 0;
+		return false;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -467,23 +467,23 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 			"Unknown ADwin Configuration packet, length: %d"));
 	}
 
-	return (tvb_reported_length(tvb));
+	return true;
 }
 
-static int
+static bool
 dissect_adwin_config_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if(!(pinfo->srcport == ADWIN_CONFIGURATION_PORT
 		|| pinfo->destport == ADWIN_CONFIGURATION_PORT))
-		return 0;
+		return false;
 
 	/* XXX - Is this possible for TCP? */
 	if (! (is_adwin_mac_or_broadcast(pinfo->dl_src) || is_adwin_mac_or_broadcast(pinfo->dl_dst)))
-		return 0;
+		return false;
 
 	tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_adwin_TCPUpdate_len, dissect_TCPFlashUpdate, NULL);
 
-	return (tvb_reported_length(tvb));
+	return true;
 }
 
 void

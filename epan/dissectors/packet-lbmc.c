@@ -11378,7 +11378,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             gboolean msg_reassembled = FALSE;
             gboolean can_call_subdissector = FALSE;
             lbmc_message_entry_t * msg = NULL;
-            gboolean dissector_found = FALSE;
+            bool dissector_found = false;
             heur_dtbl_entry_t *hdtbl_entry;
             gboolean retransmission = FALSE;
 
@@ -11610,7 +11610,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                             int encoding;
                             int pdmlen;
 
-                            dissector_found = lbmpdm_verify_payload(data_tvb, 0, &encoding, &pdmlen);
+                            dissector_found = (bool)lbmpdm_verify_payload(data_tvb, 0, &encoding, &pdmlen);
                         }
                         if (dissector_found)
                         {

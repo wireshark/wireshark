@@ -620,6 +620,11 @@ dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	return tvb_captured_length(tvb);
 }
 
+static bool
+dissect_mpeg_pes_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+  return dissect_mpeg_pes(tvb, pinfo, tree, data) > 0;
+}
+
 void
 proto_register_mpeg_pes(void)
 {
@@ -753,7 +758,7 @@ void
 proto_reg_handoff_mpeg_pes(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
-	heur_dissector_add("mpeg", dissect_mpeg_pes, "MPEG PES", "mpeg_pes", proto_mpeg_pes, HEURISTIC_ENABLE);
+	heur_dissector_add("mpeg", dissect_mpeg_pes_heur, "MPEG PES", "mpeg_pes", proto_mpeg_pes, HEURISTIC_ENABLE);
 
 	dissector_add_uint("mpeg-pes.stream", 0x1B, find_dissector_add_dependency("h264_bytestream", proto_mpeg_pes));
 	dissector_add_uint("mpeg-pes.stream", 0x24, find_dissector_add_dependency("h265_bytestream", proto_mpeg_pes));

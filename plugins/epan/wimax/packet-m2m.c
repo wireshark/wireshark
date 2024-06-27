@@ -25,14 +25,14 @@
 /* forward reference */
 void proto_reg_handoff_m2m(void);
 void proto_register_m2m(void);
-static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
-static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
-static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number);
-static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
-static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
-static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
+static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo);
+static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo);
+static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo, int burst_number, int frag_type, int frag_number);
+static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo);
+static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo);
+static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo);
 static void extended_tlv_decoder(packet_info *pinfo);
-void proto_tree_add_tlv(tlv_info_t *self, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf, guint encoding);
+void proto_tree_add_tlv(tlv_info_t *self, tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, int hf, unsigned encoding);
 
 /* Global variables */
 static dissector_handle_t m2m_handle;
@@ -45,13 +45,13 @@ static dissector_handle_t wimax_phy_attributes_burst_handle;
 
 static reassembly_table pdu_reassembly_table;
 
-static gint proto_m2m;
+static int proto_m2m;
 
-static gint ett_m2m;
-static gint ett_m2m_tlv;
-static gint ett_m2m_fch;
-static gint ett_m2m_cdma;
-static gint ett_m2m_ffb;
+static int ett_m2m;
+static int ett_m2m_tlv;
+static int ett_m2m_fch;
+static int ett_m2m_cdma;
+static int ett_m2m_ffb;
 
 /* TLV types (rev:0.2) */
 #define TLV_PROTO_VER		 1
@@ -118,29 +118,29 @@ static const value_string tlv_crc16_status[] =
 	{ 0, NULL }
 };
 
-static gint hf_m2m_sequence_number;
-static gint hf_m2m_frame_number;
-static gint hf_m2m_tlv_count;
+static int hf_m2m_sequence_number;
+static int hf_m2m_frame_number;
+static int hf_m2m_tlv_count;
 
-static gint hf_m2m_type;
-static gint hf_m2m_len;
-static gint hf_m2m_len_size;
-/* static gint hf_m2m_value_bytes; */
-static gint hf_wimax_invalid_tlv;
-static gint hf_m2m_value_protocol_vers_uint8;
-static gint hf_m2m_value_burst_num_uint8;
-static gint hf_m2m_value_frag_type_uint8;
-static gint hf_m2m_value_frag_num_uint8;
-static gint hf_m2m_value_pdu_burst;
-static gint hf_m2m_value_fast_fb;
-static gint hf_m2m_value_fch_burst_uint24;
-static gint hf_m2m_value_cdma_code_uint24;
-static gint hf_m2m_value_crc16_status_uint8;
-static gint hf_m2m_value_burst_power_uint16;
-static gint hf_m2m_value_burst_cinr_uint16;
-static gint hf_m2m_value_preamble_uint16;
-static gint hf_m2m_value_harq_ack_burst_bytes;
-static gint hf_m2m_phy_attributes;
+static int hf_m2m_type;
+static int hf_m2m_len;
+static int hf_m2m_len_size;
+/* static int hf_m2m_value_bytes; */
+static int hf_wimax_invalid_tlv;
+static int hf_m2m_value_protocol_vers_uint8;
+static int hf_m2m_value_burst_num_uint8;
+static int hf_m2m_value_frag_type_uint8;
+static int hf_m2m_value_frag_num_uint8;
+static int hf_m2m_value_pdu_burst;
+static int hf_m2m_value_fast_fb;
+static int hf_m2m_value_fch_burst_uint24;
+static int hf_m2m_value_cdma_code_uint24;
+static int hf_m2m_value_crc16_status_uint8;
+static int hf_m2m_value_burst_power_uint16;
+static int hf_m2m_value_burst_cinr_uint16;
+static int hf_m2m_value_preamble_uint16;
+static int hf_m2m_value_harq_ack_burst_bytes;
+static int hf_m2m_phy_attributes;
 
 static expert_field ei_m2m_unexpected_length;
 
@@ -152,16 +152,16 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	proto_item *m2m_item = NULL;
 	proto_tree *m2m_tree = NULL;
 	proto_tree *tlv_tree = NULL;
-	gint burst_number = 0;
-	gint length, offset = 0;
-	gint tlv_count;
-	gint tlv_type, tlv_len, tlv_offset, tlv_value;
-	gint tlv_frag_type = 0;
-	gint tlv_frag_number = 0;
+	int burst_number = 0;
+	int length, offset = 0;
+	int tlv_count;
+	int tlv_type, tlv_len, tlv_offset, tlv_value;
+	int tlv_frag_type = 0;
+	int tlv_frag_number = 0;
 	tlv_info_t m2m_tlv_info;
-	gint hf;
-	guint encoding;
-	guint frame_number;
+	int hf;
+	unsigned encoding;
+	unsigned frame_number;
 	int expected_len;
 
 	/* display the M2M protocol name */
@@ -389,7 +389,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 /* Decode and display the FCH burst */
-static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo)
 {
 	if(wimax_fch_burst_handle)
 	{	/* call FCH dissector */
@@ -402,7 +402,7 @@ static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 }
 
 /* Decode and display the CDMA Code Attribute */
-static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo)
 {
 	if(wimax_cdma_code_burst_handle)
 	{	/* call CDMA dissector */
@@ -415,7 +415,7 @@ static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 }
 
 /* Decode and display the PDU Burst */
-static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number)
+static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo, int burst_number, int frag_type, int frag_number)
 {
 	fragment_head *pdu_frag;
 	tvbuff_t *pdu_tvb = NULL;
@@ -471,7 +471,7 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 }
 
 /* Decode and display the Fast Feedback Burst */
-static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo)
 {
 	if(wimax_ffb_burst_handle)
 	{	/* display the TLV Fast Feedback Burst dissector info */
@@ -483,7 +483,7 @@ static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint of
 	}
 }
 
-static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo)
 {
 	if(wimax_hack_burst_handle)
 	{	/* call the TLV HARQ ACK Bursts dissector */
@@ -495,7 +495,7 @@ static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset
 	}
 }
 
-static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, int offset, int length, packet_info *pinfo)
 {
 	if(wimax_phy_attributes_burst_handle)
 	{	/* call the TLV PDU Burst Physical Attributes dissector */
@@ -515,10 +515,10 @@ static void extended_tlv_decoder(packet_info *pinfo)
 }
 
 /* Display the raw WiMax TLV */
-void proto_tree_add_tlv(tlv_info_t *self, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf, guint encoding)
+void proto_tree_add_tlv(tlv_info_t *self, tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, int hf, unsigned encoding)
 {
-	guint tlv_offset;
-	gint tlv_type, tlv_len;
+	unsigned tlv_offset;
+	int tlv_type, tlv_len;
 
 	/* make sure the TLV information is valid */
 	if(!self->valid)
@@ -748,7 +748,7 @@ void proto_register_m2m(void)
 		}
 	};
 
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_m2m,
 			&ett_m2m_tlv,

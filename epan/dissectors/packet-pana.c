@@ -694,6 +694,11 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 }
 
+static bool
+dissect_pana_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_pana(tvb, pinfo, tree, data) != 0;
+}
 
 /*
  * Register the protocol with Wireshark
@@ -877,7 +882,7 @@ proto_register_pana(void)
 void
 proto_reg_handoff_pana(void)
 {
-        heur_dissector_add("udp", dissect_pana, "PANA over UDP", "pana_udp", proto_pana, HEURISTIC_ENABLE);
+        heur_dissector_add("udp", dissect_pana_heur, "PANA over UDP", "pana_udp", proto_pana, HEURISTIC_ENABLE);
 
         dissector_add_for_decode_as_with_preference("udp.port", pana_handle);
 

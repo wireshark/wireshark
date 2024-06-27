@@ -115,6 +115,7 @@ $VERSION = '0.01';
 @EXPORT_OK = qw(ReadConformance ReadConformanceFH valid_ft_type valid_base_type);
 
 use strict;
+use warnings;
 
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property);

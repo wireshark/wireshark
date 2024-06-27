@@ -972,7 +972,7 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     conversation_t *conversation = NULL;
@@ -982,7 +982,7 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
     if ((tvb_reported_length_remaining(tvb, 0) < 5) ||
         (tvb_get_guint8(tvb, 0) != LLP_SOB) ||
         (tvb_strncaseeql(tvb, 1, "MSH|", 4) != 0)) {
-        return FALSE;
+        return false;
     }
 
     /* heuristic test passed, associate the non-heuristic port based
@@ -1009,7 +1009,7 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
     }
 
-    return TRUE;
+    return true;
 }
 
 void

@@ -2762,26 +2762,26 @@ test_ocp1(tvbuff_t *tvb)
     return TRUE;
 }
 
-static gboolean
+static bool
 dissect_ocp1_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (!test_ocp1(tvb))
-        return FALSE;
+        return false;
 
     dissect_ocp1_tcp(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 dissect_ocp1_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (!test_ocp1(tvb))
-        return FALSE;
+        return false;
 
     dissect_ocp1(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 void

@@ -58,7 +58,7 @@ static int dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    tvbuff_t *next_tvb;
    proto_item *ti;
    proto_tree *ethercat_frame_tree;
-   gint offset = 0;
+   int offset = 0;
    EtherCATFrameParserHDR hdr;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECATF");
@@ -115,7 +115,7 @@ void proto_register_ethercat_frame(void)
          }
       };
 
-   static gint *ett[] =
+   static int *ett[] =
       {
          &ett_ethercat_frame
       };

@@ -90,8 +90,8 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }
 
-static gboolean
-dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static bool
+dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
   asn1_ctx_t asn1_ctx;
   int offset = 0;
@@ -125,14 +125,14 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
               tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
             }
-            dissect_credssp(tvb, pinfo, parent_tree, NULL);
-            return TRUE;
+            dissect_credssp(tvb, pinfo, parent_tree, data);
+            return true;
           }
         }
       }
     }
   }
-  return FALSE;
+  return false;
 }
 
 
@@ -181,7 +181,7 @@ void proto_register_credssp(void) {
   proto_register_field_array(proto_credssp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  /* heuristic dissectors for any premable e.g. CredSSP before RDP */
+  /* heuristic dissectors for any preamble e.g. CredSSP before RDP */
   credssp_heur_subdissector_list = register_heur_dissector_list_with_description("credssp", "Unused", proto_credssp);
 
 }

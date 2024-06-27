@@ -62,8 +62,8 @@ typedef struct pref_module_alias {
 /* Internal functions */
 static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
-    const char *name, const char *title, const char *description, bool is_subtree,
-    void (*apply_cb)(void), bool use_gui);
+    const char *name, const char *title, const char *description, const char *help,
+    bool is_subtree, void (*apply_cb)(void), bool use_gui);
 static void prefs_register_modules(void);
 static module_t *prefs_find_module_alias(const char *name);
 static prefs_set_pref_e set_pref(char*, const char*, void *, bool);
@@ -433,10 +433,10 @@ void prefs_set_gui_theme_is_dark(bool is_dark)
  */
 static module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
-                      const char *description, void (*apply_cb)(void),
+                      const char *description, const char *help, void (*apply_cb)(void),
                       const bool use_gui)
 {
-    return prefs_register_module_or_subtree(parent, name, title, description,
+    return prefs_register_module_or_subtree(parent, name, title, description, help,
                                             false, apply_cb, use_gui);
 }
 
@@ -471,7 +471,7 @@ static module_t *
 prefs_register_subtree(module_t *parent, const char *title, const char *description,
                        void (*apply_cb)(void))
 {
-    return prefs_register_module_or_subtree(parent, NULL, title, description,
+    return prefs_register_module_or_subtree(parent, NULL, title, description, NULL,
                                             true, apply_cb,
                                             parent ? parent->use_gui : false);
 }
@@ -479,6 +479,7 @@ prefs_register_subtree(module_t *parent, const char *title, const char *descript
 static module_t *
 prefs_register_module_or_subtree(module_t *parent, const char *name,
                                  const char *title, const char *description,
+                                 const char *help,
                                  bool is_subtree, void (*apply_cb)(void),
                                  bool use_gui)
 {
@@ -490,6 +491,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         module->name = name;
         module->apply_cb = apply_cb;
         module->description = description;
+        module->help = help;
 
         if (prefs_find_module(name) == NULL) {
             wmem_tree_insert_string(prefs_modules, name, module,
@@ -503,6 +505,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
     module->name = name;
     module->title = title;
     module->description = description;
+    module->help = help;
     module->apply_cb = apply_cb;
     module->prefs = NULL;    /* no preferences, to start */
     module->parent = parent;
@@ -580,24 +583,17 @@ void
 prefs_register_module_alias(const char *name, module_t *module)
 {
     module_alias_t *alias;
-    const char *p;
-    unsigned char c;
 
     /*
-     * Yes.
-     * Make sure that only ASCII letters, numbers, underscores, hyphens,
-     * and dots appear in the name.  We allow upper-case letters, to
-     * handle the Diameter dissector having used "Diameter" rather
+     * Accept any name that can occur in protocol names. We allow upper-case
+     * letters, to handle the Diameter dissector having used "Diameter" rather
      * than "diameter" as its preference module name in the past.
      *
-     * Crash if there is, as that's an error in the code, but the name
-     * can be used on the command line, and shouldn't require quoting,
-     * etc.
+     * Crash if the name is invalid, as that's an error in the code, but the name
+     * can be used on the command line, and shouldn't require quoting, etc.
      */
-    for (p = name; (c = *p) != '\0'; p++) {
-        if (!(g_ascii_isalpha(c) || g_ascii_isdigit(c) || c == '_' ||
-              c == '-' || c == '.'))
-            ws_error("Preference module alias \"%s\" contains invalid characters", name);
+    if (module_check_valid_name(name, false) != '\0') {
+        ws_error("Preference module alias \"%s\" contains invalid characters", name);
     }
 
     /*
@@ -648,7 +644,7 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
     return prefs_register_module(protocols_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
-                                 proto_get_protocol_name(id), apply_cb, true);
+                                 proto_get_protocol_name(id), NULL, apply_cb, true);
 }
 
 void
@@ -720,7 +716,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     return prefs_register_module(subtree_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
-                                 proto_get_protocol_name(id), apply_cb, true);
+                                 proto_get_protocol_name(id), NULL, apply_cb, true);
 }
 
 
@@ -751,7 +747,7 @@ prefs_register_protocol_obsolete(int id)
     module = prefs_register_module(protocols_module,
                                    proto_get_protocol_filter_name(id),
                                    proto_get_protocol_short_name(protocol),
-                                   proto_get_protocol_name(id), NULL, true);
+                                   proto_get_protocol_name(id), NULL, NULL, true);
     module->obsolete = true;
     return module;
 }
@@ -784,7 +780,7 @@ prefs_register_stat(const char *name, const char *title,
         prefs_register_modules();
     }
 
-    return prefs_register_module(stats_module, name, title, description,
+    return prefs_register_module(stats_module, name, title, description, NULL,
                                  apply_cb, true);
 }
 
@@ -816,7 +812,7 @@ prefs_register_codec(const char *name, const char *title,
         prefs_register_modules();
     }
 
-    return prefs_register_module(codecs_module, name, title, description,
+    return prefs_register_module(codecs_module, name, title, description, NULL,
                                  apply_cb, true);
 }
 
@@ -3207,7 +3203,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     extcap_module = prefs_register_module(NULL, "extcap", "Extcap Utilities",
-        "Extcap Utilities", NULL, false);
+        "Extcap Utilities", NULL, NULL, false);
 
     /* Setting default value to true */
     prefs.extcap_save_on_start = true;
@@ -3223,7 +3219,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     gui_module = prefs_register_module(NULL, "gui", "User Interface",
-        "User Interface", &gui_callback, false);
+        "User Interface", NULL, &gui_callback, false);
     /*
      * The GUI preferences don't affect dissection in general.
      * Any changes are signaled in other ways, so PREF_EFFECT_GUI doesn't
@@ -3508,13 +3504,13 @@ prefs_register_modules(void)
 
     prefs_register_uint_preference(gui_module, "debounce.timer",
                                    "How long to wait before processing computationally intensive user input",
-                                   "How long to wait (in milliseconds) before processing\
-                                   computationally intensive user input.\
-                                   If you type quickly, consider lowering the value for a 'snappier'\
-                                   experience.\
-                                   If you type slowly, consider increasing the value to avoid performance issues.\
-                                   This is currently used to delay searches in View -> Internals -> Supported Protocols\
-                                   and Preferences -> Advanced menu.",
+                                   "How long to wait (in milliseconds) before processing "
+                                   "computationally intensive user input. "
+                                   "If you type quickly, consider lowering the value for a 'snappier' "
+                                   "experience. "
+                                   "If you type slowly, consider increasing the value to avoid performance issues. "
+                                   "This is currently used to delay searches in View -> Internals -> Supported Protocols "
+                                   "and Preferences -> Advanced menu.",
                                    10,
                                    &prefs.gui_debounce_timer);
 
@@ -3754,7 +3750,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     console_module = prefs_register_module(NULL, "console", "Console",
-        "Console logging and debugging output", NULL, false);
+        "Console logging and debugging output", NULL, NULL, false);
 
     prefs_register_obsolete_preference(console_module, "log.level");
 
@@ -3778,7 +3774,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     capture_module = prefs_register_module(NULL, "capture", "Capture",
-        "Capture preferences", NULL, false);
+        "Capture preferences", NULL, NULL, false);
     /* Capture preferences don't affect dissection */
     prefs_set_module_effect_flags(capture_module, PREF_EFFECT_CAPTURE);
 
@@ -3861,7 +3857,7 @@ prefs_register_modules(void)
 
     /* Name Resolution */
     nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
-        "Name Resolution", addr_resolve_pref_apply, true);
+        "Name Resolution", "ChCustPreferencesSection.html#ChCustPrefsNameSection", addr_resolve_pref_apply, true);
     addr_resolve_pref_init(nameres_module);
     oid_pref_init(nameres_module);
     maxmind_db_pref_init(nameres_module);
@@ -3871,18 +3867,18 @@ prefs_register_modules(void)
      * in order to avoid errors when reading older preference files.
      */
     printing = prefs_register_module(NULL, "print", "Printing",
-        "Printing", NULL, false);
+        "Printing", NULL, NULL, false);
     prefs_register_obsolete_preference(printing, "format");
     prefs_register_obsolete_preference(printing, "command");
     prefs_register_obsolete_preference(printing, "file");
 
     /* Codecs */
     codecs_module = prefs_register_module(NULL, "codecs", "Codecs",
-        "Codecs", NULL, true);
+        "Codecs", NULL, NULL, true);
 
     /* Statistics */
     stats_module = prefs_register_module(NULL, "statistics", "Statistics",
-        "Statistics", &stats_callback, true);
+        "Statistics", "ChCustPreferencesSection.html#_statistics", &stats_callback, true);
 
     prefs_register_uint_preference(stats_module, "update_interval",
                                    "Tap update interval in ms",
@@ -3970,7 +3966,7 @@ prefs_register_modules(void)
 
     /* Protocols */
     protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
-                                             "Protocols", NULL, true);
+                                             "Protocols", "ChCustPreferencesSection.html#ChCustPrefsProtocolsSection", NULL, true);
 
     prefs_register_bool_preference(protocols_module, "display_hidden_proto_items",
                                    "Display hidden protocol items",
@@ -4016,11 +4012,11 @@ prefs_register_modules(void)
      */
 
     /* taps is now part of the stats module */
-    prefs_register_module(NULL, "taps", "TAPS", "TAPS", NULL, false);
+    prefs_register_module(NULL, "taps", "TAPS", "TAPS", NULL, NULL, false);
     /* packet_list is now part of the protocol (parent) module */
-    prefs_register_module(NULL, "packet_list", "PACKET_LIST", "PACKET_LIST", NULL, false);
+    prefs_register_module(NULL, "packet_list", "PACKET_LIST", "PACKET_LIST", NULL, NULL, false);
     /* stream is now part of the gui module */
-    prefs_register_module(NULL, "stream", "STREAM", "STREAM", NULL, false);
+    prefs_register_module(NULL, "stream", "STREAM", "STREAM", NULL, NULL, false);
 
 }
 
@@ -5404,6 +5400,9 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
             break;
         case 'd':
             name_resolve->dns_pkt_addr_resolution = true;
+            break;
+        case 's':
+            name_resolve->handshake_sni_addr_resolution = true;
             break;
         case 'v':
             name_resolve->vlan_name = true;

@@ -180,8 +180,8 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
 
     /*  Is this the first packet we got in this direction? */
     if (statinfo->first_packet) {
-        statinfo->start_seq_nr = rtpinfo->info_seq_num;
-        statinfo->stop_seq_nr = rtpinfo->info_seq_num;
+        statinfo->start_seq_nr = rtpinfo->info_extended_seq_num;
+        statinfo->stop_seq_nr = rtpinfo->info_extended_seq_num;
         statinfo->seq_num = rtpinfo->info_seq_num;
         statinfo->start_time = current_time;
         statinfo->timestamp = rtpinfo->info_extended_timestamp;
@@ -227,24 +227,23 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     /* Reset flags */
     statinfo->flags = 0;
 
-    /* When calculating expected rtp packets the seq number can wrap around
-     * so we have to count the number of cycles
-     * Variable seq_cycles counts the wraps around in forwarding connection and
-     * under is flag that indicates where we are
+    /* When calculating expected rtp packets the seq number can wrap around.
+     * The RTP dissector does an extended sequence number calculation and
+     * passes it here so we use that for the number of cycles.
      *
      * XXX How to determine number of cycles with all possible lost, late
-     * and duplicated packets without any doubt? It seems to me, that
+     * and duplicated packets without any doubt? It seems to me that
      * because of all possible combination of late, duplicated or lost
-     * packets, this can only be more or less good approximation
+     * packets this can only be more or less a good approximation.
+     * The RTP dissector doesn't do exactly the algorithm in RFC 3550 A.1
+     * but could be modified.
      *
      * There are some combinations (rare but theoretically possible),
-     * where below code won't work correctly - statistic may be wrong then.
+     * where it won't work correctly - statistic may be wrong then.
      */
 
     /* Check if time sequence of packets is in order. Use the extended
      * timestamp that the RTP dissector has already calculated.
-     *
-     * XXX - We should probably use the extended sequence number as well.
      */
     if (statinfo->seq_timestamp <= rtpinfo->info_extended_timestamp) {
         // Normal timestamp sequence
@@ -255,34 +254,13 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
     }
 
-    /* So if the current sequence number is less than the start one
-     * we assume, that there is another cycle running
-     */
-    if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) &&
-        in_time_sequence &&
-        (statinfo->under == false)) {
-        statinfo->seq_cycles++;
-        statinfo->under = true;
-    }
-    /* what if the start seq nr was 0? Then the above condition will never
-     * be true, so we add another condition. XXX The problem would arise
-     * if one of the packets with seq nr 0 or 65535 would be lost or late
-     */
-    else if ((rtpinfo->info_seq_num == 0) && (statinfo->stop_seq_nr == 65535) &&
-             in_time_sequence &&
-             (statinfo->under == false)) {
-        statinfo->seq_cycles++;
-        statinfo->under = true;
-    }
-    /* the whole round is over, so reset the flag */
-    else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) &&
-             in_time_sequence &&
-             (statinfo->under != false)) {
-        statinfo->under = false;
-    }
-
     /* Since it is difficult to count lost, duplicate or late packets separately,
      * we would like to know at least how many times the sequence number was not ok
+     *
+     * RFC 3550 Appendix A.1 recommends storing the bad sequence number after
+     * a jump so we can see if we get consecutive in-order sequence numbers
+     * that indicate the other side restarted, see #10665. Handling that would
+     * require additional changes in the number of packets expected.
      */
 
     /* If the current seq number equals the last one or if we are here for
@@ -511,6 +489,9 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         }
     }
     /* Regular payload change? (CN ignored) */
+    /* XXX - We should ignore FEC payload type too, but that's determined
+     * out of band (e.g., SDP), see RFCs 5109, 8627, Issue #15403.
+     */
     if (!(statinfo->flags & STAT_FLAG_FIRST)
             && !(statinfo->flags & STAT_FLAG_PT_CN)) {
         if ((statinfo->pt != statinfo->reg_pt)
@@ -532,7 +513,12 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         statinfo->seq_timestamp = rtpinfo->info_extended_timestamp;
     }
     statinfo->timestamp = rtpinfo->info_extended_timestamp;
-    statinfo->stop_seq_nr = rtpinfo->info_seq_num;
+    /* RFC 3550 Appendices A.1, A.3 say that we do *not* change base_seq,
+     * AKA start_seq_nr, when receiving a reordered packet later that has
+     * an earlier sequence number, but it's probably less surprising to do so.
+     */
+    statinfo->start_seq_nr = MIN(statinfo->start_seq_nr, rtpinfo->info_extended_seq_num);
+    statinfo->stop_seq_nr = MAX(statinfo->stop_seq_nr, rtpinfo->info_extended_seq_num);
     statinfo->total_nr++;
     statinfo->last_payload_len = rtpinfo->info_payload_len;
 

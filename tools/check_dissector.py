@@ -83,18 +83,18 @@ if args.file_list:
 # Boolean arg is for whether build-dir is needed in order to run it.
 # 3rd is Windows support.
 tools = [
-    ('tools/delete_includes.py --folder .',            True,   True),
-    ('tools/check_spelling.py --comments',             False,  True),
-    ('tools/check_tfs.py --check-value-strings',       False,  True),
-    ('tools/check_typed_item_calls.py --all-checks',   False,  True),
-    ('tools/check_static.py',                          True,   False),
-    ('tools/check_dissector_urls.py',                  False,  True),
-    ('tools/check_val_to_str.py',                      False,  True),
-    ('tools/cppcheck/cppcheck.sh',                     False,  True),
-    ('tools/checkhf.pl',                               False,  True),
-    ('tools/checkAPIs.pl',                             False,  True),
-    ('tools/fix-encoding-args.pl',                     False,  True),
-    ('tools/checkfiltername.pl',                       False,  True)
+    ('tools/delete_includes.py --folder .',               True,   True),
+    ('tools/check_spelling.py --comments --no-wikipedia', False,  True),
+    ('tools/check_tfs.py --check-value-strings',          False,  True),
+    ('tools/check_typed_item_calls.py --all-checks',      False,  True),
+    ('tools/check_static.py',                             True,   False),
+    ('tools/check_dissector_urls.py',                     False,  True),
+    ('tools/check_val_to_str.py',                         False,  True),
+    ('tools/cppcheck/cppcheck.sh',                        False,  True),
+    ('tools/checkhf.pl',                                  False,  True),
+    ('tools/checkAPIs.pl',                                False,  True),
+    ('tools/fix-encoding-args.pl',                        False,  True),
+    ('tools/checkfiltername.pl',                          False,  True)
 ]
 
 

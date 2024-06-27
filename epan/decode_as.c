@@ -301,7 +301,7 @@ load_decode_as_entries(void)
 }
 
 
-/* Make a sorted list of the enties as we are fetching them from a hash table. Then write it out from the sorted list */
+/* Make a sorted list of the entries as we are fetching them from a hash table. Then write it out from the sorted list */
 static void
 decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
                        gpointer key, gpointer value, gpointer user_data)

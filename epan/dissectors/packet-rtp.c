@@ -175,8 +175,6 @@ static dissector_handle_t rtp_rfc4571_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t classicstun_handle;
 static dissector_handle_t stun_handle;
-static dissector_handle_t classicstun_heur_handle;
-static dissector_handle_t stun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
 static dissector_handle_t dtls_handle;
@@ -1346,7 +1344,7 @@ rtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int po
     srtp_add_address(pinfo, ptype, addr, port, other_port, setup_method, setup_frame_number, media_types, rtp_dyn_payload, NULL, NULL);
 }
 
-static gboolean
+static bool
 dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint8       octet1, octet2;
@@ -1355,7 +1353,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     gint         padding_count;
 
     if (tvb_captured_length_remaining(tvb, offset) < 2) {
-        return FALSE;
+        return false;
     }
 
     /* Get the fields in the first octet */
@@ -1372,32 +1370,40 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         if (!(tvb_memeql(tvb, 4, (const guint8*)"ZRTP", 4)))
         {
             call_dissector_only(zrtp_handle, tvb, pinfo, tree, NULL);
-            return TRUE;
+            return true;
         } else {
             switch (global_rtp_version0_type) {
+
+            /*
+             * The two STUN dissectors return 0 if the packet doesn't appear
+             * to be a STUN packet and the number of bytes dissected if
+             * it does.  Just call that and test whether the return value
+             * is != 0 or not.
+             */
             case RTP0_STUN:
-                return call_dissector_only(stun_heur_handle, tvb, pinfo, tree, NULL);
+                return call_dissector_only(stun_handle, tvb, pinfo, tree, NULL) != 0;
             case RTP0_CLASSICSTUN:
-                return call_dissector_only(classicstun_heur_handle, tvb, pinfo, tree, NULL);
+                return call_dissector_only(classicstun_handle, tvb, pinfo, tree, NULL) != 0;
 
             case RTP0_T38:
                 /* XXX: Should really be calling a heuristic dissector for T38 ??? */
                 call_dissector_only(t38_handle, tvb, pinfo, tree, NULL);
-                return TRUE;
+                return true;
 
             case RTP0_SPRT:
+                /* XXX: Should really be calling a heuristic dissector for SPRT ??? */
                 call_dissector_only(sprt_handle, tvb, pinfo, tree, NULL);
-                return TRUE;
+                return true;
 
             case RTP0_INVALID:
             case RTP0_RFC7983:
             default:
-                return FALSE; /* Unknown or unsupported version */
+                return false; /* Unknown or unsupported version */
             }
         }
     } else if (version != 2) {
         /* Unknown or unsupported version */
-        return FALSE;
+        return false;
     }
 
     octet2 = tvb_get_guint8( tvb, offset + 1 );
@@ -1411,7 +1417,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
          * leaving those values only when specificed by other means
          * (SDP, Decode As, etc.)
          */
-        return FALSE;
+        return false;
     }
 
     /* Skip fixed header */
@@ -3705,8 +3711,6 @@ proto_reg_handoff_rtp(void)
     rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtp);
     stun_handle = find_dissector_add_dependency("stun-udp", proto_rtp);
     classicstun_handle = find_dissector_add_dependency("classicstun", proto_rtp);
-    classicstun_heur_handle = find_dissector_add_dependency("classicstun-heur", proto_rtp);
-    stun_heur_handle = find_dissector_add_dependency("stun-heur", proto_rtp);
     t38_handle = find_dissector_add_dependency("t38_udp", proto_rtp);
     zrtp_handle = find_dissector_add_dependency("zrtp", proto_rtp);
     dtls_handle = find_dissector_add_dependency("dtls", proto_rtp);

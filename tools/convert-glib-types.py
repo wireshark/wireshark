@@ -40,6 +40,8 @@ type_map = {
     'gdouble': 'double',
     'gpointer ': 'void *', # 'void *foo' instead of 'void * foo'
     'gpointer': 'void *',
+    'gconstpointer ': 'const void *', # 'void *foo' instead of 'void * foo'
+    'gconstpointer': 'const void *',
     # Is gsize the same as size_t on the platforms we support?
     # https://gitlab.gnome.org/GNOME/glib/-/issues/2493
     'gsize': 'size_t',
@@ -62,6 +64,10 @@ definition_map = {
     'G_MININT32': 'INT32_MIN',
     'G_MININT64': 'INT64_MIN',
     'G_MININT': 'INT_MIN',
+    'G_MINFLOAT': 'FLT_MIN',
+    'G_MAXFLOAT': 'FLT_MAX',
+    'G_MINDOUBLE': 'DBL_MIN',
+    'G_MAXDOUBLE': 'DBL_MAX',
     'G_GINT64_CONSTANT': 'INT64_C',
     'G_GUINT64_CONSTANT': 'UINT64_C',
 }

@@ -643,14 +643,14 @@ test_njack(tvbuff_t *tvb)
 	return TRUE;
 }
 
-static gboolean
-dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if ( !test_njack(tvb) ) {
-		return FALSE;
+		return false;
 	}
-	dissect_njack(tvb, pinfo, tree, NULL);
-	return TRUE;
+	dissect_njack(tvb, pinfo, tree, data);
+	return true;
 }
 
 static int

@@ -98,7 +98,7 @@ typedef struct pdcp_lte_info
 /* these headers and send LTE PDCP PDUs on a UDP socket is             */
 /* provided at https://gitlab.com/wireshark/wireshark/-/wikis/PDCP-LTE */
 /*                                                                     */
-/* A heuristic dissecter (enabled by a preference) will                */
+/* A heuristic dissector (enabled by a preference) will                */
 /* recognise a signature at the beginning of these frames.             */
 /* Until someone is using this format, suggestions for changes         */
 /* are welcome.                                                        */
@@ -184,6 +184,9 @@ void set_pdcp_lte_security_algorithms_failed(guint16 ueid);
 void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
 void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
 void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
+
+/* Reset UE's bearers */
+void pdcp_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid, gboolean including_drb_am);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

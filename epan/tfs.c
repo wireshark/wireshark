@@ -42,7 +42,6 @@ const true_false_string tfs_on_off = { "On", "Off" };
 const true_false_string tfs_ack_nack = { "Ack", "Nack" };
 const true_false_string tfs_odd_even = { "Odd", "Even" };
 const true_false_string tfs_allow_block = { "Allow", "Block" };
-const true_false_string tfs_restricted_allowed = { "Restricted", "Allowed" };
 const true_false_string tfs_restricted_not_restricted = { "Restricted", "Not restricted" };
 const true_false_string tfs_not_restricted_restricted = { "Not restricted", "Restricted" };
 const true_false_string tfs_accept_reject = { "Accept", "Reject" };
@@ -101,10 +100,8 @@ const true_false_string tfs_preferred_no_preference = { "Preferred", "No prefere
 const true_false_string tfs_encrypt_do_not_encrypt = { "Encrypt", "Do Not Encrypt" };
 const true_false_string tfs_down_up = { "Down", "Up" };
 const true_false_string tfs_up_down = { "Up", "Down" };
-const true_false_string tfs_downlink_uplink = { "Downlink", "Uplink" };
 const true_false_string tfs_uplink_downlink = { "Uplink", "Downlink" };
 const true_false_string tfs_s2c_c2s = { "Server to Client", "Client to Server" };
-const true_false_string tfs_c2s_s2c = { "Client to Server", "Server to Client" };
 const true_false_string tfs_open_closed = { "Open", "Closed" };
 const true_false_string tfs_external_internal = { "External", "Internal" };
 const true_false_string tfs_changed_not_changed = { "Changed", "Not Changed" };
@@ -117,6 +114,7 @@ const true_false_string tfs_applicable_not_applicable = { "Applicable", "Not App
 const true_false_string tfs_current_not_yet = { "Currently Applicable", "Not yet Applicable" };
 const true_false_string tfs_should_be_traced_should_not_be_traced = { "Should be traced", "Should not be traced" };
 const true_false_string tfs_activate_do_not_activate = { "Activate", "Do not activate" };
+const true_false_string tfs_data_pdu_control_pdu = { "Data PDU", "Control PDU" };
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

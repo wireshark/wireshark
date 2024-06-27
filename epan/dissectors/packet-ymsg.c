@@ -1246,20 +1246,20 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 
-static gboolean
+static bool
 dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) < 4) {
-        return FALSE;
+        return false;
     }
     if (tvb_memeql(tvb, 0, (const guint8*)"YMSG", 4) == -1) {
         /* Not a Yahoo Messenger packet. */
-        return FALSE;
+        return false;
     }
 
     tcp_dissect_pdus(tvb, pinfo, tree, ymsg_desegment, 10, get_ymsg_pdu_len,
              dissect_ymsg_pdu, data);
-    return TRUE;
+    return true;
 }
 
 void

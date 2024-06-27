@@ -1185,10 +1185,10 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return tvb_len;
 }
 
-static gboolean
-dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_jfif(tvb, pinfo, tree, NULL) > 0;
+    return dissect_jfif(tvb, pinfo, tree, data) > 0;
 }
 
 /****************** Register the protocol with Wireshark ******************/

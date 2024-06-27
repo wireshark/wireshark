@@ -131,8 +131,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     comment_button_->setToolTip(tr("Open the Capture File Properties dialog"));
     comment_button_->setEnabled(false);
-    connect(expert_button_, SIGNAL(clicked(bool)), this, SIGNAL(showExpertInfo()));
-    connect(comment_button_, SIGNAL(clicked(bool)), this, SIGNAL(editCaptureComment()));
+    connect(expert_button_, &QToolButton::clicked, this, &MainStatusBar::showExpertInfo);
+    connect(comment_button_, &QToolButton::clicked, this, &MainStatusBar::editCaptureComment);
 
     info_progress_hb->setContentsMargins(icon_size / 2, 0, 0, 0);
 
@@ -290,7 +290,12 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 
         finfo_length = finfo->position().length + finfo->appendix().length;
         if (finfo_length > 0) {
-            item_info.append(", " + tr("%Ln byte(s)", "", finfo_length));
+            int finfo_bits = FI_GET_BITS_SIZE(finfo->fieldInfo());
+            if (finfo_bits % 8 == 0) {
+                item_info.append(", " + tr("%Ln byte(s)", "", finfo_length));
+            } else {
+                item_info.append(", " + tr("%Ln bit(s)", "", finfo_bits));
+            }
         }
     }
 
@@ -351,7 +356,7 @@ void MainStatusBar::setProfileName()
 void MainStatusBar::appInitialized()
 {
     setProfileName();
-    connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected, this, &MainStatusBar::selectedFrameChanged);
 }
 
 void MainStatusBar::selectedFrameChanged(QList<int>)

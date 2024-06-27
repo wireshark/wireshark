@@ -262,8 +262,11 @@ void TrafficTab::insertProtoTab(int protoId, bool emitSignals)
         tabBar()->setTabData(tabId, storage);
 
     // Identify the last known opened tab
+    int lastOpened_protoId = -1;
     GList *selected_tab = g_list_first(*_recentList);
-    int lastOpened_protoId = proto_get_id_by_short_name((const char *)selected_tab->data);
+    if (selected_tab != nullptr) {
+        lastOpened_protoId = proto_get_id_by_short_name((const char *)selected_tab->data);
+    }
 
     /* We reset the correct tab idxs. That operations is costly, but it is only
      * called during this operation and ensures, that other operations do not

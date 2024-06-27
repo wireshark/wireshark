@@ -644,12 +644,12 @@ static int dissect_lbttcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     return dissect_lbttcp_real(tvb, pinfo, tree, data);
 }
 
-static gboolean test_lbttcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
+static bool test_lbttcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
     /* Destination address must be IPV4 and 4 bytes in length. */
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4))
     {
-        return FALSE;
+        return false;
     }
 
     if (lbttcp_use_tag)
@@ -657,11 +657,11 @@ static gboolean test_lbttcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         if (lbttcp_tag_find(pinfo) != NULL)
         {
             dissect_lbttcp_real(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
         else
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -676,15 +676,15 @@ static gboolean test_lbttcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
           || ((pinfo->srcport >= lbttcp_store_port_low) && (pinfo->srcport <= lbttcp_store_port_high))
           || ((pinfo->destport >= lbttcp_store_port_low) && (pinfo->destport <= lbttcp_store_port_high))))
     {
-        return FALSE;
+        return false;
     }
 
     if (!lbmc_test_lbmc_header(tvb, 0))
-        return FALSE;
+        return false;
 
     /* One of ours. Probably. */
     dissect_lbttcp_real(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 /* Register all the bits needed with the filtering engine */

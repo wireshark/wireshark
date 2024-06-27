@@ -236,14 +236,14 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_ib_sdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t *conv;
     conversation_infiniband_data *convo_data = NULL;
 
     if (tvb_captured_length(tvb) < 16)   /* check this has at least enough bytes for the BSDH */
-        return FALSE;
+        return false;
 
     /* first try to find a conversation between the two current hosts. in most cases this
        will not work since we do not have the source QP. this WILL succeed when we're still
@@ -259,19 +259,19 @@ dissect_ib_sdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                                  CONVERSATION_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
 
         if (!conv)
-            return FALSE;   /* nothing to do with no conversation context */
+            return false;   /* nothing to do with no conversation context */
     }
 
     convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
 
     if (!convo_data)
-        return FALSE;
+        return false;
 
     if (!(convo_data->service_id & SERVICE_ID_MASK))
-        return FALSE;   /* the service id doesn't match that of SDP - nothing for us to do here */
+        return false;   /* the service id doesn't match that of SDP - nothing for us to do here */
 
     dissect_ib_sdp(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void

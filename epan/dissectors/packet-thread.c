@@ -3313,23 +3313,23 @@ static int dissect_thread_bcn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_thread_bcn_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
 
     /* Thread beacon frames can be 16 or 64-bit source */
-    if (!packet) return FALSE;
+    if (!packet) return false;
     if (!((packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) ||
-          (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT))) return FALSE;
+          (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT))) return false;
 
     if (tvb_captured_length(tvb) > 0) {
         /* Thread beacons begin with a protocol identifier. */
-        if (tvb_get_guint8(tvb, 0) != THREAD_BCN_PROTOCOL_ID) return FALSE;
+        if (tvb_get_guint8(tvb, 0) != THREAD_BCN_PROTOCOL_ID) return false;
         dissect_thread_bcn(tvb, pinfo, tree, packet);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void

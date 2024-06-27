@@ -21,7 +21,7 @@
 #include "wimax-int.h"
 #include "wimax_utils.h"
 
-extern gint proto_wimax;
+extern int proto_wimax;
 
 void proto_reg_handoff_wimax_pdu(void);
 
@@ -45,19 +45,19 @@ static dissector_handle_t wimax_harq_map_handle;
 
 #define WIMAX_HARQ_MAP_MSG_LENGTH_MASK1  0x07FC
 /* Global Variables. */
-gboolean first_gmh;
+bool first_gmh;
 
-static gint proto_wimax_pdu_decoder;
-static gint ett_wimax_pdu_decoder;
+static int proto_wimax_pdu_decoder;
+static int ett_wimax_pdu_decoder;
 
 static int hf_wimax_value_bytes;
 
 static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset;
-	guint mac_ht, mac_ec;
-	guint first_byte, length;
-	guint mac_hcs, mac_hcs_calculated;
+	unsigned offset;
+	unsigned mac_ht, mac_ec;
+	unsigned first_byte, length;
+	unsigned mac_hcs, mac_hcs_calculated;
 	proto_item *pdu_item = NULL;
 	proto_tree *pdu_tree = NULL;
 
@@ -73,11 +73,11 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	{
 		if (offset == 0)
 		{
-			first_gmh = TRUE;
+			first_gmh = true;
 		}
 		else
 		{
-			first_gmh = FALSE;
+			first_gmh = false;
 		}
 		/* get the length of the remainder */
 		length = tvb_reported_length_remaining(tvb, offset);
@@ -220,7 +220,7 @@ void wimax_proto_register_wimax_pdu(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_wimax_pdu_decoder,
 		};

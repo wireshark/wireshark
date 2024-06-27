@@ -7024,7 +7024,7 @@ s7comm_decode_req_resp(tvbuff_t *tvb,
  *
  *******************************************************************************************************
  *******************************************************************************************************/
-static gboolean
+static bool
 dissect_s7comm(tvbuff_t *tvb,
                packet_info *pinfo,
                proto_tree *tree,
@@ -7046,13 +7046,13 @@ dissect_s7comm(tvbuff_t *tvb,
     /*----------------- Heuristic Checks - Begin */
     /* 1) check for minimum length */
     if(tvb_captured_length(tvb) < S7COMM_MIN_TELEGRAM_LENGTH)
-        return FALSE;
+        return false;
     /* 2) first byte must be 0x32 */
     if (tvb_get_guint8(tvb, 0) != S7COMM_PROT_ID)
-        return FALSE;
+        return false;
     /* 3) second byte is a type field and only can contain values between 0x01-0x07 (1/2/3/7) */
     if (tvb_get_guint8(tvb, 1) < 0x01 || tvb_get_guint8(tvb, 1) > 0x07)
-        return FALSE;
+        return false;
     /*----------------- Heuristic Checks - End */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_S7COMM);
@@ -7127,7 +7127,7 @@ dissect_s7comm(tvbuff_t *tvb,
     }
     /* set fence as there may be more than one S7comm PDU in one frame */
     col_set_fence(pinfo->cinfo, COL_INFO);
-    return TRUE;
+    return true;
 }
 
 /*******************************************************************************************************

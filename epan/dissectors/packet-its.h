@@ -111,7 +111,6 @@
 
 
 typedef enum _CauseCodeType_enum {
-  reserved     =   0,
   trafficCondition =   1,
   accident     =   2,
   roadworks    =   3,
@@ -130,6 +129,7 @@ typedef enum _CauseCodeType_enum {
   violence     =  20,
   slowVehicle  =  26,
   dangerousEndOfQueue =  27,
+  publicTransportVehicleApproaching =  28,
   vehicleBreakdown =  91,
   postCrash    =  92,
   humanProblem =  93,
@@ -145,12 +145,12 @@ typedef enum _CauseCodeType_enum {
 /* enumerated values for MessageId */
 #define ITS_DENM       1
 #define ITS_CAM        2
-#define ITS_POI        3
+#define ITS_POIM       3
 #define ITS_SPATEM     4
 #define ITS_MAPEM      5
 #define ITS_IVIM       6
-#define ITS_EV_RSR     7
-#define ITS_TISTPGTRANSACTION   8
+#define ITS_RFU1       7
+#define ITS_RFU2       8
 #define ITS_SREM       9
 #define ITS_SSEM      10
 #define ITS_EVCSN     11
@@ -269,6 +269,9 @@ typedef struct its_header {
     guint32 stationId;
     guint32 CpmContainerId;
 } its_header_t;
+
+
+
 
 enum regext_type_enum {
     Reg_AdvisorySpeed,

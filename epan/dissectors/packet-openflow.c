@@ -108,7 +108,7 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_openflow_heur(tvbuff_t *tvb, packet_info *pinfo,
                      proto_tree *tree, void *data)
 {
@@ -118,14 +118,14 @@ dissect_openflow_heur(tvbuff_t *tvb, packet_info *pinfo,
         (pinfo->destport != OFP_LEGACY2_PORT) &&
         (pinfo->destport != OFP_IANA_PORT) &&
         (!value_is_in_range(g_openflow_ports, pinfo->destport))) {
-        return FALSE;
+        return false;
     }
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, openflow_handle);
 
     dissect_openflow(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 static void

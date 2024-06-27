@@ -19,10 +19,10 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-extern gint proto_wimax;
+extern int proto_wimax;
 
-static gint proto_wimax_hack_decoder;
-static gint ett_wimax_hack_decoder;
+static int proto_wimax_hack_decoder;
+static int ett_wimax_hack_decoder;
 
 static const value_string vals_flags[] =
 {
@@ -38,18 +38,18 @@ static const value_string vals_values[] =
 	{0, NULL}
 };
 
-/* static gint hf_hack_burst; */
-static gint hf_hack_num_of_hacks;
-static gint hf_hack_half_slot_flag;
-static gint hf_hack_subchannel;
-static gint hf_hack_symboloffset;
-static gint hf_hack_value;
+/* static int hf_hack_burst; */
+static int hf_hack_num_of_hacks;
+static int hf_hack_half_slot_flag;
+static int hf_hack_subchannel;
+static int hf_hack_symboloffset;
+static int hf_hack_value;
 
 
 static int dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint offset = 0;
-	guint length, num_of_hacks, i;
+	int offset = 0;
+	unsigned length, num_of_hacks, i;
 	proto_item *hack_item = NULL;
 	proto_tree *hack_tree = NULL;
 
@@ -114,7 +114,7 @@ void wimax_proto_register_wimax_hack(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_wimax_hack_decoder,
 		};

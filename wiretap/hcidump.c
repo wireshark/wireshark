@@ -6,10 +6,10 @@
  */
 
 #include "config.h"
+#include "hcidump.h"
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "hcidump.h"
 
 static int hcidump_file_type_subtype = -1;
 

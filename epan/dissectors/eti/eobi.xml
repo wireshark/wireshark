@@ -1,0 +1,1698 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model name="eobi" version="10.0" buildNumber="100.5.61.ga-100005090-125">
+  <MessageFlows>
+    <!-- *************************************** Abstraction Layer 3 ****************************************
+		 		This XML section describes the system behaviour from the user's point of view.
+				It might be interesting for users who want:
+				  * an abstract overview about the system behaviour; * no technical layout descriptions -->
+  </MessageFlows>
+  <ApplicationMessages>
+    <!-- *************************************** Abstraction Layer 2 ****************************************
+		 This XML section describes the ApplicationMessages transmitted between the participant and the exchange.
+		 An ApplicationMessage gives a data structure a functional meaning (e.g. enter an order).
+		 It might be interesting for users who want:
+			 * uncollapsed structures and sub-structures; * context specific information (e.g. usages, offsets) -->
+    <ApplicationMessage name="AddComplexInstrument" package="eobi" type="AddComplexInstrument" numericID="13400" description="" functionalCategory="Reference Data" alias="Add Complex Instrument">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="SecurityDefinitionUpdateReport" value="BP" description=""/>
+      </Member>
+      <Member name="SecurityUpdateAction" hidden="true" type="SecurityUpdateAction" package="eobi" numericID="980" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Add" value="A" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Member name="LegSecurityIDSource" hidden="true" type="LegSecurityIDSource" package="eobi" numericID="603" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Member name="NoMarketSegments" hidden="true" type="NoMarketSegments" package="eobi" numericID="1310" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="One" value="1" description=""/>
+      </Member>
+      <Member name="SecurityType" hidden="true" type="SecurityType" package="eobi" numericID="167" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MultiLeg" value="MLEG" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="SecuritySubType" type="SecuritySubType" package="eobi" numericID="762" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="ProductComplex" type="ProductComplex" package="eobi" numericID="1227" usage="mandatory" offset="28" cardinality="1" description="">
+        <ValidValue name="SimpleInstrument" value="1" description=""/>
+        <ValidValue name="StandardOptionStrategy" value="2" description=""/>
+        <ValidValue name="NonStandardOptionStrategy" value="3" description=""/>
+        <ValidValue name="VolatilityStrategy" value="4" description=""/>
+        <ValidValue name="FuturesSpread" value="5" description=""/>
+        <ValidValue name="InterProductSpread" value="6" description=""/>
+        <ValidValue name="StandardFuturesStrategy" value="7" description=""/>
+        <ValidValue name="PackAndBundle" value="8" description=""/>
+        <ValidValue name="Strip" value="9" description=""/>
+      </Member>
+      <Member name="ImpliedMarketIndicator" type="ImpliedMarketIndicator" package="eobi" numericID="1144" usage="mandatory" offset="29" cardinality="1" description="">
+        <ValidValue name="NotImplied" value="0" description=""/>
+        <ValidValue name="ImpliedInOut" value="3" description=""/>
+      </Member>
+      <Member name="Pad2" type="Pad2" package="eobi" numericID="25017" usage="unused" offset="30" cardinality="1" description=""/>
+      <Member name="LegRatioMultiplier" type="LegRatioMultiplier" package="eobi" numericID="28900" usage="optional" offset="32" cardinality="1" description=""/>
+      <Member name="NoLegs" type="NoLegs" package="eobi" numericID="555" usage="mandatory" offset="36" cardinality="1" description=""/>
+      <Member name="Pad3" type="Pad3" package="eobi" numericID="25018" usage="unused" offset="37" cardinality="1" description=""/>
+      <Group name="InstrmtLegGrp" type="InstrmtLegGrpComp" package="eobi" minCardinality="2" cardinality="20" counter="NoLegs" description="">
+        <Member name="LegSymbol" type="LegSymbol" package="eobi" numericID="600" usage="mandatory" offset="40" cardinality="1" description=""/>
+        <Member name="Pad4" type="Pad4" package="eobi" numericID="25019" usage="unused" offset="44" cardinality="1" description=""/>
+        <Member name="LegSecurityID" type="LegSecurityID" package="eobi" numericID="602" usage="mandatory" offset="48" cardinality="1" description=""/>
+        <Member name="LegPrice" type="LegPrice" package="eobi" numericID="566" usage="optional" offset="56" cardinality="1" description=""/>
+        <Member name="LegRatioQty" type="LegRatioQty" package="eobi" numericID="623" usage="mandatory" offset="64" cardinality="1" description=""/>
+        <Member name="LegSecurityType" type="LegSecurityType" package="eobi" numericID="609" usage="mandatory" offset="68" cardinality="1" description="">
+          <ValidValue name="LegSecurityMultiLeg" value="1" description=""/>
+          <ValidValue name="LegSecurityUnderlyingLeg" value="2" description=""/>
+        </Member>
+        <Member name="LegSide" type="LegSide" package="eobi" numericID="624" usage="mandatory" offset="69" cardinality="1" description="">
+          <ValidValue name="Buy" value="1" description=""/>
+          <ValidValue name="Sell" value="2" description=""/>
+        </Member>
+        <Member name="Pad2" type="Pad2" package="eobi" numericID="25017" usage="unused" offset="70" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="AuctionBBO" package="eobi" type="AuctionBBO" numericID="13500" description="" functionalCategory="Order Data" alias="Auction Best Bid/Offer">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="AuctionBBO" value="5" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="BidPx" type="BidPx" package="eobi" numericID="132" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="OfferPx" type="OfferPx" package="eobi" numericID="133" usage="optional" offset="32" cardinality="1" description=""/>
+      <Member name="BidSize" type="BidSize" package="eobi" numericID="134" usage="optional" offset="40" cardinality="1" description=""/>
+      <Member name="OfferSize" type="OfferSize" package="eobi" numericID="135" usage="optional" offset="48" cardinality="1" description=""/>
+      <Member name="PotentialSecurityTradingEvent" type="PotentialSecurityTradingEvent" package="eobi" numericID="28872" usage="optional" offset="56" cardinality="1" description="">
+        <ValidValue name="None" value="0" description="None"/>
+      </Member>
+      <Member name="BidOrdType" type="BidOrdType" package="eobi" numericID="28784" usage="optional" offset="57" cardinality="1" description="">
+        <ValidValue name="Market" value="1" description="Market Order"/>
+      </Member>
+      <Member name="OfferOrdType" type="OfferOrdType" package="eobi" numericID="28785" usage="optional" offset="58" cardinality="1" description="">
+        <ValidValue name="Market" value="1" description="Market Order"/>
+      </Member>
+      <Member name="Pad5" type="Pad5" package="eobi" numericID="25020" usage="unused" offset="59" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="AuctionClearingPrice" package="eobi" type="AuctionClearingPrice" numericID="13501" description="" functionalCategory="Order Data" alias="Auction Clearing Price">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="AuctionClearingPrice" value="6" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="optional" offset="32" cardinality="1" description=""/>
+      <Member name="ImbalanceQty" type="ImbalanceQty" package="eobi" numericID="28893" usage="optional" offset="40" cardinality="1" description=""/>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" numericID="326" usage="optional" offset="48" cardinality="1" description="">
+        <ValidValue name="MarketImbalanceBuy" value="7" description=""/>
+        <ValidValue name="MarketImbalanceSell" value="8" description=""/>
+      </Member>
+      <Member name="PotentialSecurityTradingEvent" type="PotentialSecurityTradingEvent" package="eobi" numericID="28872" usage="optional" offset="49" cardinality="1" description="">
+        <ValidValue name="None" value="0" description="None"/>
+        <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+      </Member>
+      <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="50" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="CrossRequest" package="eobi" type="CrossRequest" numericID="13502" description="" functionalCategory="Trade Data" alias="Cross Request">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="CrossTradeAnnouncement" value="7" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="optional" offset="16" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" numericID="54" usage="optional" offset="32" cardinality="1" description="">
+        <ValidValue name="Buy" value="1" description=""/>
+        <ValidValue name="Sell" value="2" description=""/>
+      </Member>
+      <Member name="CrossRequestType" type="CrossRequestType" package="eobi" numericID="28771" usage="mandatory" offset="33" cardinality="1" description="">
+        <ValidValue name="CrossAnnouncement" value="1" description=""/>
+        <ValidValue name="LiquidityImprovementCross" value="2" description=""/>
+      </Member>
+      <Member name="InputSource" type="InputSource" package="eobi" numericID="979" usage="optional" offset="34" cardinality="1" description="">
+        <ValidValue name="CLIPClientBroker" value="1" description=""/>
+      </Member>
+      <Member name="Pad5" type="Pad5" package="eobi" numericID="25020" usage="unused" offset="35" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="40" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="ExecutionSummary" package="eobi" type="ExecutionSummary" numericID="13202" description="" functionalCategory="Trade Data" alias="Execution Summary">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataTrade" value="U22" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MatchEvent" value="12" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="New" value="0" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="AggressorTime" type="AggressorTime" package="eobi" numericID="2445" usage="optional" offset="16" cardinality="1" description=""/>
+      <Member name="RequestTime" type="RequestTime" package="eobi" numericID="5979" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="ExecID" type="ExecID" package="eobi" numericID="17" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="mandatory" offset="40" cardinality="1" description=""/>
+      <Member name="AggressorSide" type="AggressorSide" package="eobi" numericID="2446" usage="mandatory" offset="48" cardinality="1" description="">
+        <ValidValue name="Buy" value="1" description="Triggered by the buy side"/>
+        <ValidValue name="Sell" value="2" description="Triggered by the sell side"/>
+      </Member>
+      <Member name="Pad1" type="Pad1" package="eobi" numericID="25016" usage="unused" offset="49" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" numericID="277" usage="optional" offset="50" cardinality="1" description="">
+        <ValidValue name="ImpliedTrade" value="1" description=""/>
+      </Member>
+      <Member name="Pad4" type="Pad4" package="eobi" numericID="25019" usage="unused" offset="52" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="mandatory" offset="56" cardinality="1" description=""/>
+      <Member name="RestingHiddenQty" type="RestingHiddenQty" package="eobi" numericID="28868" usage="optional" offset="64" cardinality="1" description=""/>
+      <Member name="RestingCxlQty" type="RestingCxlQty" package="eobi" numericID="28869" usage="mandatory" offset="72" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="FullOrderExecution" package="eobi" type="FullOrderExecution" numericID="13104" description="" functionalCategory="Order Data" alias="Full Order Execution">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookExecution" value="2" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Change" value="1" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="8" cardinality="1" description="">
+        <ValidValue name="Buy" value="1" description=""/>
+        <ValidValue name="Sell" value="2" description=""/>
+      </Member>
+      <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="9" cardinality="1" description="">
+        <ValidValue name="Market" value="1" description="Market Order"/>
+      </Member>
+      <Member name="AlgorithmicTradeIndicator" type="AlgorithmicTradeIndicator" package="eobi" numericID="2667" usage="optional" offset="10" cardinality="1" description="">
+        <ValidValue name="AlgorithmicTrade" value="1" description=""/>
+      </Member>
+      <Member name="Pad1" type="Pad1" package="eobi" numericID="25016" usage="unused" offset="11" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" numericID="880" usage="mandatory" offset="12" cardinality="1" description=""/>
+      <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="16" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="mandatory" offset="40" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="mandatory" offset="48" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="Heartbeat" package="eobi" type="Heartbeat" numericID="13001" description="" functionalCategory="General" alias="Heartbeat">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Heartbeat" value="0" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="unused" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="LastMsgSeqNumProcessed" type="LastMsgSeqNumProcessed" package="eobi" numericID="369" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" numericID="25019" usage="unused" offset="12" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="InstrumentStateChange" package="eobi" type="InstrumentStateChange" numericID="13301" description="" functionalCategory="State Change" alias="Instrument State Change">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="SecurityStatus" value="f" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="SecurityStatus" type="SecurityStatus" package="eobi" numericID="965" usage="mandatory" offset="16" cardinality="1" description="">
+        <ValidValue name="Active" value="1" description=""/>
+        <ValidValue name="Inactive" value="2" description=""/>
+        <ValidValue name="Expired" value="4" description=""/>
+        <ValidValue name="KnockedOut" value="6" description=""/>
+        <ValidValue name="KnockOutRevoked" value="7" description=""/>
+        <ValidValue name="Suspended" value="9" description=""/>
+        <ValidValue name="PendingDeletion" value="11" description=""/>
+        <ValidValue name="KnockedOutAndSuspended" value="12" description=""/>
+      </Member>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" numericID="326" usage="mandatory" offset="17" cardinality="1" description="">
+        <ValidValue name="TradingHalt" value="2" description=""/>
+        <ValidValue name="Closed" value="200" description=""/>
+        <ValidValue name="Restricted" value="201" description=""/>
+        <ValidValue name="Book" value="202" description=""/>
+        <ValidValue name="Continuous" value="203" description=""/>
+        <ValidValue name="OpeningAuction" value="204" description=""/>
+        <ValidValue name="OpeningAuctionFreeze" value="205" description=""/>
+        <ValidValue name="IntradayAuction" value="206" description=""/>
+        <ValidValue name="IntradayAuctionFreeze" value="207" description=""/>
+        <ValidValue name="CircuitBreakerAuction" value="208" description=""/>
+        <ValidValue name="CircuitBreakerAuctionFreeze" value="209" description=""/>
+        <ValidValue name="ClosingAuction" value="210" description=""/>
+        <ValidValue name="ClosingAuctionFreeze" value="211" description=""/>
+        <ValidValue name="IPOAuction" value="212" description=""/>
+        <ValidValue name="IPOAuctionFreeze" value="213" description=""/>
+        <ValidValue name="PreCall" value="214" description=""/>
+        <ValidValue name="Call" value="215" description=""/>
+        <ValidValue name="Freeze" value="216" description=""/>
+        <ValidValue name="TradeAtClose" value="217" description=""/>
+      </Member>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" numericID="2705" usage="mandatory" offset="18" cardinality="1" description="">
+        <ValidValue name="Normal" value="0" description=""/>
+        <ValidValue name="Stressed" value="1" description=""/>
+      </Member>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" numericID="2447" usage="mandatory" offset="19" cardinality="1" description="">
+        <ValidValue name="No" value="0" description=""/>
+        <ValidValue name="Yes" value="1" description=""/>
+      </Member>
+      <Member name="SecurityTradingEvent" type="SecurityTradingEvent" package="eobi" numericID="1174" usage="optional" offset="20" cardinality="1" description="">
+        <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+        <ValidValue name="PriceVolatilityAuctionIsExtendedAgain" value="11" description="Price volatility, auction is extended again"/>
+      </Member>
+      <Member name="SoldOutIndicator" type="SoldOutIndicator" package="eobi" numericID="25155" usage="optional" offset="21" cardinality="1" description="">
+        <ValidValue name="SoldOut" value="1" description=""/>
+      </Member>
+      <Member name="Pad2" type="Pad2" package="eobi" numericID="25017" usage="unused" offset="22" cardinality="1" description=""/>
+      <Member name="HighPx" type="HighPx" package="eobi" numericID="332" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="LowPx" type="LowPx" package="eobi" numericID="333" usage="optional" offset="32" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="40" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="InstrumentSummary" package="eobi" type="InstrumentSummary" numericID="13601" description="" functionalCategory="Snapshot" alias="Instrument Summary">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="SingleInstrumentSnapshot" value="10" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="LastUpdateTime" type="LastUpdateTime" package="eobi" numericID="779" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="TrdRegTSExecutionTime" type="TrdRegTSExecutionTime" package="eobi" numericID="21001" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="TotNoOrders" type="TotNoOrders" package="eobi" numericID="68" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="SecurityStatus" type="SecurityStatus" package="eobi" numericID="965" usage="mandatory" offset="34" cardinality="1" description="">
+        <ValidValue name="Active" value="1" description=""/>
+        <ValidValue name="Inactive" value="2" description=""/>
+        <ValidValue name="Expired" value="4" description=""/>
+        <ValidValue name="KnockedOut" value="6" description=""/>
+        <ValidValue name="KnockOutRevoked" value="7" description=""/>
+        <ValidValue name="Suspended" value="9" description=""/>
+        <ValidValue name="PendingDeletion" value="11" description=""/>
+        <ValidValue name="KnockedOutAndSuspended" value="12" description=""/>
+      </Member>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" numericID="326" usage="mandatory" offset="35" cardinality="1" description="">
+        <ValidValue name="TradingHalt" value="2" description=""/>
+        <ValidValue name="Closed" value="200" description=""/>
+        <ValidValue name="Restricted" value="201" description=""/>
+        <ValidValue name="Book" value="202" description=""/>
+        <ValidValue name="Continuous" value="203" description=""/>
+        <ValidValue name="OpeningAuction" value="204" description=""/>
+        <ValidValue name="OpeningAuctionFreeze" value="205" description=""/>
+        <ValidValue name="IntradayAuction" value="206" description=""/>
+        <ValidValue name="IntradayAuctionFreeze" value="207" description=""/>
+        <ValidValue name="CircuitBreakerAuction" value="208" description=""/>
+        <ValidValue name="CircuitBreakerAuctionFreeze" value="209" description=""/>
+        <ValidValue name="ClosingAuction" value="210" description=""/>
+        <ValidValue name="ClosingAuctionFreeze" value="211" description=""/>
+        <ValidValue name="IPOAuction" value="212" description=""/>
+        <ValidValue name="IPOAuctionFreeze" value="213" description=""/>
+        <ValidValue name="PreCall" value="214" description=""/>
+        <ValidValue name="Call" value="215" description=""/>
+        <ValidValue name="Freeze" value="216" description=""/>
+        <ValidValue name="TradeAtClose" value="217" description=""/>
+      </Member>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" numericID="2705" usage="mandatory" offset="36" cardinality="1" description="">
+        <ValidValue name="Normal" value="0" description=""/>
+        <ValidValue name="Stressed" value="1" description=""/>
+      </Member>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" numericID="2447" usage="mandatory" offset="37" cardinality="1" description="">
+        <ValidValue name="No" value="0" description=""/>
+        <ValidValue name="Yes" value="1" description=""/>
+      </Member>
+      <Member name="SecurityTradingEvent" type="SecurityTradingEvent" package="eobi" numericID="1174" usage="optional" offset="38" cardinality="1" description="">
+        <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+        <ValidValue name="PriceVolatilityAuctionIsExtendedAgain" value="11" description="Price volatility, auction is extended again"/>
+      </Member>
+      <Member name="SoldOutIndicator" type="SoldOutIndicator" package="eobi" numericID="25155" usage="optional" offset="39" cardinality="1" description="">
+        <ValidValue name="SoldOut" value="1" description=""/>
+      </Member>
+      <Member name="HighPx" type="HighPx" package="eobi" numericID="332" usage="optional" offset="40" cardinality="1" description=""/>
+      <Member name="LowPx" type="LowPx" package="eobi" numericID="333" usage="optional" offset="48" cardinality="1" description=""/>
+      <Member name="ProductComplex" type="ProductComplex" package="eobi" numericID="1227" usage="mandatory" offset="56" cardinality="1" description="">
+        <ValidValue name="SimpleInstrument" value="1" description=""/>
+        <ValidValue name="StandardOptionStrategy" value="2" description=""/>
+        <ValidValue name="NonStandardOptionStrategy" value="3" description=""/>
+        <ValidValue name="VolatilityStrategy" value="4" description=""/>
+        <ValidValue name="FuturesSpread" value="5" description=""/>
+        <ValidValue name="InterProductSpread" value="6" description=""/>
+        <ValidValue name="StandardFuturesStrategy" value="7" description=""/>
+        <ValidValue name="PackAndBundle" value="8" description=""/>
+        <ValidValue name="Strip" value="9" description=""/>
+      </Member>
+      <Member name="NoMDEntries" type="NoMDEntries" package="eobi" numericID="268" usage="mandatory" offset="57" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="58" cardinality="1" description=""/>
+      <Group name="MDInstrumentEntryGrp" type="MDInstrumentEntryGrpComp" package="eobi" minCardinality="0" cardinality="15" counter="NoMDEntries" description="">
+        <Member name="MDEntryPx" type="MDEntryPx" package="eobi" numericID="270" usage="optional" offset="64" cardinality="1" description=""/>
+        <Member name="MDEntrySize" type="MDEntrySize" package="eobi" numericID="271" usage="optional" offset="72" cardinality="1" description=""/>
+        <Member name="MDEntryType" type="MDEntryType" package="eobi" numericID="269" usage="mandatory" offset="80" cardinality="1" description="">
+          <ValidValue name="Trade" value="2" description=""/>
+          <ValidValue name="OpeningPrice" value="4" description=""/>
+          <ValidValue name="ClosingPrice" value="5" description=""/>
+          <ValidValue name="HighPrice" value="7" description=""/>
+          <ValidValue name="LowPrice" value="8" description=""/>
+          <ValidValue name="TradeVolume" value="66" description=""/>
+          <ValidValue name="PreviousClosingPrice" value="101" description=""/>
+          <ValidValue name="OpeningAuction" value="200" description=""/>
+          <ValidValue name="IntradayAuction" value="201" description=""/>
+          <ValidValue name="CircuitBreakerAuction" value="202" description=""/>
+          <ValidValue name="ClosingAuction" value="203" description=""/>
+          <ValidValue name="IPOAuction" value="204" description=""/>
+        </Member>
+        <Member name="Pad1" type="Pad1" package="eobi" numericID="25016" usage="unused" offset="81" cardinality="1" description=""/>
+        <Member name="TradeCondition" type="TradeCondition" package="eobi" numericID="277" usage="optional" offset="82" cardinality="1" description="">
+          <ValidValue name="MidpointPrice" value="155" description="Midpoint price (BB)"/>
+          <ValidValue name="TradeAtClose" value="624" description="Trade At Close (TC)"/>
+        </Member>
+        <Member name="Pad4" type="Pad4" package="eobi" numericID="25019" usage="unused" offset="84" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="MassInstrumentStateChange" package="eobi" type="MassInstrumentStateChange" numericID="13302" description="" functionalCategory="State Change" alias="Mass Instrument State Change">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="SecurityMassStatus" value="CO" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="InstrumentScopeProductComplex" type="InstrumentScopeProductComplex" package="eobi" numericID="1544" usage="mandatory" offset="8" cardinality="1" description="">
+        <ValidValue name="SimpleInstrument" value="1" description=""/>
+        <ValidValue name="StandardOptionStrategy" value="2" description=""/>
+        <ValidValue name="NonStandardOptionStrategy" value="3" description=""/>
+        <ValidValue name="VolatilityStrategy" value="4" description=""/>
+        <ValidValue name="FuturesSpread" value="5" description=""/>
+        <ValidValue name="InterProductSpread" value="6" description=""/>
+        <ValidValue name="StandardFuturesStrategy" value="7" description=""/>
+        <ValidValue name="PackAndBundle" value="8" description=""/>
+        <ValidValue name="Strip" value="9" description=""/>
+      </Member>
+      <Member name="SecurityMassStatus" type="SecurityMassStatus" package="eobi" numericID="30965" usage="mandatory" offset="9" cardinality="1" description="">
+        <ValidValue name="Active" value="1" description=""/>
+        <ValidValue name="Inactive" value="2" description=""/>
+        <ValidValue name="Expired" value="4" description=""/>
+        <ValidValue name="KnockedOut" value="6" description=""/>
+        <ValidValue name="KnockOutRevoked" value="7" description=""/>
+        <ValidValue name="Suspended" value="9" description=""/>
+        <ValidValue name="PendingDeletion" value="11" description=""/>
+        <ValidValue name="KnockedOutAndSuspended" value="12" description=""/>
+      </Member>
+      <Member name="SecurityMassTradingStatus" type="SecurityMassTradingStatus" package="eobi" numericID="1679" usage="mandatory" offset="10" cardinality="1" description="">
+        <ValidValue name="TradingHalt" value="2" description=""/>
+        <ValidValue name="Closed" value="200" description=""/>
+        <ValidValue name="Restricted" value="201" description=""/>
+        <ValidValue name="Book" value="202" description=""/>
+        <ValidValue name="Continuous" value="203" description=""/>
+        <ValidValue name="OpeningAuction" value="204" description=""/>
+        <ValidValue name="OpeningAuctionFreeze" value="205" description=""/>
+        <ValidValue name="IntradayAuction" value="206" description=""/>
+        <ValidValue name="IntradayAuctionFreeze" value="207" description=""/>
+        <ValidValue name="CircuitBreakerAuction" value="208" description=""/>
+        <ValidValue name="CircuitBreakerAuctionFreeze" value="209" description=""/>
+        <ValidValue name="ClosingAuction" value="210" description=""/>
+        <ValidValue name="ClosingAuctionFreeze" value="211" description=""/>
+        <ValidValue name="IPOAuction" value="212" description=""/>
+        <ValidValue name="IPOAuctionFreeze" value="213" description=""/>
+        <ValidValue name="PreCall" value="214" description=""/>
+        <ValidValue name="Call" value="215" description=""/>
+        <ValidValue name="Freeze" value="216" description=""/>
+        <ValidValue name="TradeAtClose" value="217" description=""/>
+      </Member>
+      <Member name="MassMarketCondition" type="MassMarketCondition" package="eobi" numericID="28894" usage="mandatory" offset="11" cardinality="1" description="">
+        <ValidValue name="Normal" value="0" description=""/>
+        <ValidValue name="Stressed" value="1" description=""/>
+      </Member>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" numericID="2447" usage="mandatory" offset="12" cardinality="1" description="">
+        <ValidValue name="No" value="0" description=""/>
+        <ValidValue name="Yes" value="1" description=""/>
+      </Member>
+      <Member name="SecurityMassTradingEvent" type="SecurityMassTradingEvent" package="eobi" numericID="1680" usage="optional" offset="13" cardinality="1" description="">
+        <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+        <ValidValue name="PriceVolatilityAuctionIsExtendedAgain" value="11" description="Price volatility, auction is extended again"/>
+      </Member>
+      <Member name="MassSoldOutIndicator" type="MassSoldOutIndicator" package="eobi" numericID="35155" usage="optional" offset="14" cardinality="1" description="">
+        <ValidValue name="SoldOut" value="1" description=""/>
+      </Member>
+      <Member name="Pad1" type="Pad1" package="eobi" numericID="25016" usage="unused" offset="15" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="LastFragment" type="LastFragment" package="eobi" numericID="893" usage="mandatory" offset="24" cardinality="1" description="">
+        <ValidValue name="N" value="0" description=""/>
+        <ValidValue name="Y" value="1" description=""/>
+      </Member>
+      <Member name="NoRelatedSym" type="NoRelatedSym" package="eobi" numericID="146" usage="mandatory" offset="25" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="26" cardinality="1" description=""/>
+      <Group name="SecMassStatGrp" type="SecMassStatGrpComp" package="eobi" minCardinality="0" cardinality="24" counter="NoRelatedSym" description="">
+        <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="32" cardinality="1" description=""/>
+        <Member name="HighPx" type="HighPx" package="eobi" numericID="332" usage="optional" offset="40" cardinality="1" description=""/>
+        <Member name="LowPx" type="LowPx" package="eobi" numericID="333" usage="optional" offset="48" cardinality="1" description=""/>
+        <Member name="SecurityStatus" type="SecurityStatus" package="eobi" numericID="965" usage="mandatory" offset="56" cardinality="1" description="">
+          <ValidValue name="Active" value="1" description=""/>
+          <ValidValue name="Inactive" value="2" description=""/>
+          <ValidValue name="Expired" value="4" description=""/>
+          <ValidValue name="KnockedOut" value="6" description=""/>
+          <ValidValue name="KnockOutRevoked" value="7" description=""/>
+          <ValidValue name="Suspended" value="9" description=""/>
+          <ValidValue name="PendingDeletion" value="11" description=""/>
+          <ValidValue name="KnockedOutAndSuspended" value="12" description=""/>
+        </Member>
+        <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" numericID="326" usage="mandatory" offset="57" cardinality="1" description="">
+          <ValidValue name="TradingHalt" value="2" description=""/>
+          <ValidValue name="Closed" value="200" description=""/>
+          <ValidValue name="Restricted" value="201" description=""/>
+          <ValidValue name="Book" value="202" description=""/>
+          <ValidValue name="Continuous" value="203" description=""/>
+          <ValidValue name="OpeningAuction" value="204" description=""/>
+          <ValidValue name="OpeningAuctionFreeze" value="205" description=""/>
+          <ValidValue name="IntradayAuction" value="206" description=""/>
+          <ValidValue name="IntradayAuctionFreeze" value="207" description=""/>
+          <ValidValue name="CircuitBreakerAuction" value="208" description=""/>
+          <ValidValue name="CircuitBreakerAuctionFreeze" value="209" description=""/>
+          <ValidValue name="ClosingAuction" value="210" description=""/>
+          <ValidValue name="ClosingAuctionFreeze" value="211" description=""/>
+          <ValidValue name="IPOAuction" value="212" description=""/>
+          <ValidValue name="IPOAuctionFreeze" value="213" description=""/>
+          <ValidValue name="PreCall" value="214" description=""/>
+          <ValidValue name="Call" value="215" description=""/>
+          <ValidValue name="Freeze" value="216" description=""/>
+          <ValidValue name="TradeAtClose" value="217" description=""/>
+        </Member>
+        <Member name="MarketCondition" type="MarketCondition" package="eobi" numericID="2705" usage="mandatory" offset="58" cardinality="1" description="">
+          <ValidValue name="Normal" value="0" description=""/>
+          <ValidValue name="Stressed" value="1" description=""/>
+        </Member>
+        <Member name="SecurityTradingEvent" type="SecurityTradingEvent" package="eobi" numericID="1174" usage="optional" offset="59" cardinality="1" description="">
+          <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+          <ValidValue name="PriceVolatilityAuctionIsExtendedAgain" value="11" description="Price volatility, auction is extended again"/>
+        </Member>
+        <Member name="SoldOutIndicator" type="SoldOutIndicator" package="eobi" numericID="25155" usage="optional" offset="60" cardinality="1" description="">
+          <ValidValue name="SoldOut" value="1" description=""/>
+        </Member>
+        <Member name="Pad3" type="Pad3" package="eobi" numericID="25018" usage="unused" offset="61" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="OrderAdd" package="eobi" type="OrderAdd" numericID="13100" description="" functionalCategory="Order Data" alias="Order Add">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookMaintenance" value="1" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="New" value="0" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" numericID="21002" usage="optional" offset="8" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Group name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description="">
+        <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="24" cardinality="1" description=""/>
+        <Member name="DisplayQty" type="DisplayQty" package="eobi" numericID="1138" usage="mandatory" offset="32" cardinality="1" description=""/>
+        <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="40" cardinality="1" description="">
+          <ValidValue name="Buy" value="1" description=""/>
+          <ValidValue name="Sell" value="2" description=""/>
+        </Member>
+        <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="41" cardinality="1" description="">
+          <ValidValue name="Market" value="1" description="Market Order"/>
+        </Member>
+        <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="42" cardinality="1" description=""/>
+        <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="48" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="OrderDelete" package="eobi" type="OrderDelete" numericID="13102" description="" functionalCategory="Order Data" alias="Order Delete">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookMaintenance" value="1" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Delete" value="2" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" numericID="21002" usage="optional" offset="8" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Group name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description="">
+        <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="32" cardinality="1" description=""/>
+        <Member name="DisplayQty" type="DisplayQty" package="eobi" numericID="1138" usage="mandatory" offset="40" cardinality="1" description=""/>
+        <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="48" cardinality="1" description="">
+          <ValidValue name="Buy" value="1" description=""/>
+          <ValidValue name="Sell" value="2" description=""/>
+        </Member>
+        <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="49" cardinality="1" description="">
+          <ValidValue name="Market" value="1" description="Market Order"/>
+        </Member>
+        <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="50" cardinality="1" description=""/>
+        <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="56" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="OrderMassDelete" package="eobi" type="OrderMassDelete" numericID="13103" description="" functionalCategory="Order Data" alias="Order Mass Delete">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookMaintenance" value="1" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Delete" value="2" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="OrderModify" package="eobi" type="OrderModify" numericID="13101" description="" functionalCategory="Order Data" alias="Order Modify">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookMaintenance" value="1" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Change" value="1" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" numericID="21002" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TrdRegTSPrevTimePriority" type="TrdRegTSPrevTimePriority" package="eobi" numericID="21026" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="PrevPrice" type="PrevPrice" package="eobi" numericID="28855" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="PrevDisplayQty" type="PrevDisplayQty" package="eobi" numericID="28867" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="40" cardinality="1" description=""/>
+      <Group name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description="">
+        <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="48" cardinality="1" description=""/>
+        <Member name="DisplayQty" type="DisplayQty" package="eobi" numericID="1138" usage="mandatory" offset="56" cardinality="1" description=""/>
+        <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="64" cardinality="1" description="">
+          <ValidValue name="Buy" value="1" description=""/>
+          <ValidValue name="Sell" value="2" description=""/>
+        </Member>
+        <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="65" cardinality="1" description="">
+          <ValidValue name="Market" value="1" description="Market Order"/>
+        </Member>
+        <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="66" cardinality="1" description=""/>
+        <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="72" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="OrderModifySamePrio" package="eobi" type="OrderModifySamePrio" numericID="13106" description="" functionalCategory="Order Data" alias="Order Modify Same Priority">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookMaintenance" value="1" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Change" value="1" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" numericID="21002" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="PrevDisplayQty" type="PrevDisplayQty" package="eobi" numericID="28867" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Group name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description="">
+        <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="40" cardinality="1" description=""/>
+        <Member name="DisplayQty" type="DisplayQty" package="eobi" numericID="1138" usage="mandatory" offset="48" cardinality="1" description=""/>
+        <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="56" cardinality="1" description="">
+          <ValidValue name="Buy" value="1" description=""/>
+          <ValidValue name="Sell" value="2" description=""/>
+        </Member>
+        <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="57" cardinality="1" description="">
+          <ValidValue name="Market" value="1" description="Market Order"/>
+        </Member>
+        <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="58" cardinality="1" description=""/>
+        <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="64" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="PacketHeader" package="eobi" type="PacketHeader" numericID="13005" description="" functionalCategory="General" alias="Packet Header">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataReport" value="U20" description=""/>
+      </Member>
+      <Member name="MDReportEvent" hidden="true" type="MDReportEvent" package="eobi" numericID="28827" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="ScopeDefinition" value="0" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="unused" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="ApplSeqNum" type="ApplSeqNum" package="eobi" numericID="1181" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="MarketSegmentID" type="MarketSegmentID" package="eobi" numericID="1300" usage="mandatory" offset="12" cardinality="1" description=""/>
+      <Member name="PartitionID" type="PartitionID" package="eobi" numericID="5948" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="CompletionIndicator" type="CompletionIndicator" package="eobi" numericID="6228" usage="mandatory" offset="17" cardinality="1" description="">
+        <ValidValue name="Incomplete" value="0" description=""/>
+        <ValidValue name="Complete" value="1" description=""/>
+      </Member>
+      <Member name="ApplSeqResetIndicator" type="ApplSeqResetIndicator" package="eobi" numericID="28841" usage="mandatory" offset="18" cardinality="1" description="">
+        <ValidValue name="NoReset" value="0" description="No Reset"/>
+        <ValidValue name="Reset" value="1" description="Reset"/>
+      </Member>
+      <Member name="DSCP" type="DSCP" package="eobi" numericID="25204" usage="optional" offset="19" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" numericID="25019" usage="unused" offset="20" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="24" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="PartialOrderExecution" package="eobi" type="PartialOrderExecution" numericID="13105" description="" functionalCategory="Order Data" alias="Partial Order Execution">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookExecution" value="2" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Change" value="1" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="8" cardinality="1" description="">
+        <ValidValue name="Buy" value="1" description=""/>
+        <ValidValue name="Sell" value="2" description=""/>
+      </Member>
+      <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="9" cardinality="1" description="">
+        <ValidValue name="Market" value="1" description="Market Order"/>
+      </Member>
+      <Member name="AlgorithmicTradeIndicator" type="AlgorithmicTradeIndicator" package="eobi" numericID="2667" usage="optional" offset="10" cardinality="1" description="">
+        <ValidValue name="AlgorithmicTrade" value="1" description=""/>
+      </Member>
+      <Member name="Pad1" type="Pad1" package="eobi" numericID="25016" usage="unused" offset="11" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" numericID="880" usage="mandatory" offset="12" cardinality="1" description=""/>
+      <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="16" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="mandatory" offset="40" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="mandatory" offset="48" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="ProductStateChange" package="eobi" type="ProductStateChange" numericID="13300" description="" functionalCategory="State Change" alias="Product State Change">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="TradingSessionStatus" value="h" description=""/>
+      </Member>
+      <Member name="TradSesEvent" hidden="true" type="TradSesEvent" package="eobi" numericID="1368" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="StatusChange" value="3" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TradingSessionID" type="TradingSessionID" package="eobi" numericID="336" usage="mandatory" offset="8" cardinality="1" description="">
+        <ValidValue name="Day" value="1" description=""/>
+        <ValidValue name="Morning" value="3" description=""/>
+        <ValidValue name="Evening" value="5" description=""/>
+        <ValidValue name="AfterHours" value="6" description=""/>
+        <ValidValue name="Holiday" value="7" description=""/>
+      </Member>
+      <Member name="TradingSessionSubID" type="TradingSessionSubID" package="eobi" numericID="625" usage="mandatory" offset="9" cardinality="1" description="">
+        <ValidValue name="PreTrading" value="1" description=""/>
+        <ValidValue name="Continuous" value="3" description=""/>
+        <ValidValue name="Closing" value="4" description=""/>
+        <ValidValue name="PostTrading" value="5" description=""/>
+        <ValidValue name="Quiescent" value="7" description=""/>
+      </Member>
+      <Member name="TradSesStatus" type="TradSesStatus" package="eobi" numericID="340" usage="mandatory" offset="10" cardinality="1" description="">
+        <ValidValue name="Halted" value="1" description=""/>
+        <ValidValue name="Open" value="2" description=""/>
+        <ValidValue name="Closed" value="3" description=""/>
+      </Member>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" numericID="2705" usage="optional" offset="11" cardinality="1" description="">
+        <ValidValue name="Normal" value="0" description=""/>
+        <ValidValue name="Stressed" value="1" description=""/>
+      </Member>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" numericID="2447" usage="mandatory" offset="12" cardinality="1" description="">
+        <ValidValue name="No" value="0" description=""/>
+        <ValidValue name="Yes" value="1" description=""/>
+      </Member>
+      <Member name="Pad3" type="Pad3" package="eobi" numericID="25018" usage="unused" offset="13" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="ProductSummary" package="eobi" type="ProductSummary" numericID="13600" description="" functionalCategory="Snapshot" alias="Product Summary">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketSegmentSnapshot" value="9" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="LastMsgSeqNumProcessed" type="LastMsgSeqNumProcessed" package="eobi" numericID="369" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TradingSessionID" type="TradingSessionID" package="eobi" numericID="336" usage="optional" offset="12" cardinality="1" description="">
+        <ValidValue name="Day" value="1" description=""/>
+        <ValidValue name="Morning" value="3" description=""/>
+        <ValidValue name="Evening" value="5" description=""/>
+        <ValidValue name="AfterHours" value="6" description=""/>
+        <ValidValue name="Holiday" value="7" description=""/>
+      </Member>
+      <Member name="TradingSessionSubID" type="TradingSessionSubID" package="eobi" numericID="625" usage="optional" offset="13" cardinality="1" description="">
+        <ValidValue name="PreTrading" value="1" description=""/>
+        <ValidValue name="Continuous" value="3" description=""/>
+        <ValidValue name="Closing" value="4" description=""/>
+        <ValidValue name="PostTrading" value="5" description=""/>
+        <ValidValue name="Quiescent" value="7" description=""/>
+      </Member>
+      <Member name="TradSesStatus" type="TradSesStatus" package="eobi" numericID="340" usage="optional" offset="14" cardinality="1" description="">
+        <ValidValue name="Halted" value="1" description=""/>
+        <ValidValue name="Open" value="2" description=""/>
+        <ValidValue name="Closed" value="3" description=""/>
+      </Member>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" numericID="2705" usage="optional" offset="15" cardinality="1" description="">
+        <ValidValue name="Normal" value="0" description=""/>
+        <ValidValue name="Stressed" value="1" description=""/>
+      </Member>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" numericID="2447" usage="mandatory" offset="16" cardinality="1" description="">
+        <ValidValue name="No" value="0" description=""/>
+        <ValidValue name="Yes" value="1" description=""/>
+      </Member>
+      <Member name="Pad7" type="Pad7" package="eobi" numericID="25022" usage="unused" offset="17" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="QuoteRequest" package="eobi" type="QuoteRequest" numericID="13503" description="" functionalCategory="Trade Data" alias="Quote Request">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="QuoteRequest" value="8" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="optional" offset="16" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" numericID="54" usage="optional" offset="24" cardinality="1" description="">
+        <ValidValue name="Buy" value="1" description=""/>
+        <ValidValue name="Sell" value="2" description=""/>
+      </Member>
+      <Member name="Pad7" type="Pad7" package="eobi" numericID="25022" usage="unused" offset="25" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="32" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="SnapshotOrder" package="eobi" type="SnapshotOrder" numericID="13602" description="" functionalCategory="Snapshot" alias="Snapshot Order">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="OrderBookSnapshot" value="11" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Overlay" value="5" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Group name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description="">
+        <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" numericID="21008" usage="mandatory" offset="8" cardinality="1" description=""/>
+        <Member name="DisplayQty" type="DisplayQty" package="eobi" numericID="1138" usage="mandatory" offset="16" cardinality="1" description=""/>
+        <Member name="Side" type="Side" package="eobi" numericID="54" usage="mandatory" offset="24" cardinality="1" description="">
+          <ValidValue name="Buy" value="1" description=""/>
+          <ValidValue name="Sell" value="2" description=""/>
+        </Member>
+        <Member name="OrdType" type="OrdType" package="eobi" numericID="40" usage="optional" offset="25" cardinality="1" description="">
+          <ValidValue name="Market" value="1" description="Market Order"/>
+        </Member>
+        <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="26" cardinality="1" description=""/>
+        <Member name="Price" type="Price" package="eobi" numericID="44" usage="optional" offset="32" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+    <ApplicationMessage name="TopOfBook" package="eobi" type="TopOfBook" numericID="13504" description="" functionalCategory="Order Data" alias="Top of Book">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="TopOfBook" value="13" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="BidPx" type="BidPx" package="eobi" numericID="132" usage="optional" offset="24" cardinality="1" description=""/>
+      <Member name="OfferPx" type="OfferPx" package="eobi" numericID="133" usage="optional" offset="32" cardinality="1" description=""/>
+      <Member name="BidSize" type="BidSize" package="eobi" numericID="134" usage="optional" offset="40" cardinality="1" description=""/>
+      <Member name="OfferSize" type="OfferSize" package="eobi" numericID="135" usage="optional" offset="48" cardinality="1" description=""/>
+      <Member name="NumberOfBuyOrders" type="NumberOfBuyOrders" package="eobi" numericID="2449" usage="optional" offset="56" cardinality="1" description=""/>
+      <Member name="NumberOfSellOrders" type="NumberOfSellOrders" package="eobi" numericID="2450" usage="optional" offset="58" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" numericID="25019" usage="unused" offset="60" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="TradeReport" package="eobi" type="TradeReport" numericID="13201" description="" functionalCategory="Trade Data" alias="Trade Report">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataTrade" value="U22" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="TradeReport" value="4" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="New" value="0" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" numericID="880" usage="optional" offset="40" cardinality="1" description=""/>
+      <Member name="MatchType" type="MatchType" package="eobi" numericID="574" usage="optional" offset="44" cardinality="1" description="">
+        <ValidValue name="ConfirmedTradeReport" value="3" description="Manual Trade Entry"/>
+        <ValidValue name="CrossAuction" value="5" description="Trade from Uncrossing"/>
+        <ValidValue name="CallAuction" value="7" description="Trade from Auction"/>
+        <ValidValue name="LiquidityImprovementCross" value="13" description="Trade from Liquidity Improvement Cross"/>
+        <ValidValue name="ContinuousAuction" value="14" description="Price Without Turnover in Continuous Auction"/>
+      </Member>
+      <Member name="MatchSubType" type="MatchSubType" package="eobi" numericID="28610" usage="optional" offset="45" cardinality="1" description="">
+        <ValidValue name="OpeningAuction" value="1" description=""/>
+        <ValidValue name="ClosingAuction" value="2" description=""/>
+        <ValidValue name="IntradayAuction" value="3" description=""/>
+        <ValidValue name="CircuitBreakerAuction" value="4" description=""/>
+        <ValidValue name="IPOAuction" value="5" description=""/>
+      </Member>
+      <Member name="AlgorithmicTradeIndicator" type="AlgorithmicTradeIndicator" package="eobi" numericID="2667" usage="optional" offset="46" cardinality="1" description="">
+        <ValidValue name="AlgorithmicTrade" value="1" description=""/>
+      </Member>
+      <Member name="Pad1" type="Pad1" package="eobi" numericID="25016" usage="unused" offset="47" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" numericID="277" usage="optional" offset="48" cardinality="1" description="">
+        <ValidValue name="OutOfSequence" value="107" description="Out of sequence"/>
+        <ValidValue name="MidpointPrice" value="155" description="Midpoint price (BB)"/>
+        <ValidValue name="TradingOnTermsOfIssue" value="156" description="Trading On Terms Of Issue (BC)"/>
+        <ValidValue name="SpecialAuction" value="596" description="Special Auction (SA)"/>
+        <ValidValue name="TradeAtClose" value="624" description="Trade At Close (TC)"/>
+      </Member>
+      <Member name="Pad6" type="Pad6" package="eobi" numericID="25021" usage="unused" offset="50" cardinality="1" description=""/>
+    </ApplicationMessage>
+    <ApplicationMessage name="TradeReversal" package="eobi" type="TradeReversal" numericID="13200" description="" functionalCategory="Trade Data" alias="Trade Reversal">
+      <Member name="MsgType" hidden="true" type="MsgType" package="eobi" numericID="35" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="MarketDataTrade" value="U22" description=""/>
+      </Member>
+      <Member name="MarketDataType" hidden="true" type="MarketDataType" package="eobi" numericID="28842" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="TradeReversal" value="3" description=""/>
+      </Member>
+      <Member name="MDUpdateAction" hidden="true" type="MDUpdateAction" package="eobi" numericID="279" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Delete" value="2" description=""/>
+      </Member>
+      <Member name="SecurityIDSource" hidden="true" type="SecurityIDSource" package="eobi" numericID="22" usage="unused" offset="0" cardinality="1" description="">
+        <ValidValue name="Marketplace" value="M" description=""/>
+      </Member>
+      <Group name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description="">
+        <Member name="BodyLen" type="BodyLen" package="eobi" numericID="9" usage="mandatory" offset="0" cardinality="1" description=""/>
+        <Member name="TemplateID" type="TemplateID" package="eobi" numericID="28500" usage="mandatory" offset="2" cardinality="1" description=""/>
+        <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" numericID="34" usage="mandatory" offset="4" cardinality="1" description=""/>
+      </Group>
+      <Member name="SecurityID" type="SecurityID" package="eobi" numericID="48" usage="mandatory" offset="8" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" numericID="60" usage="mandatory" offset="16" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" numericID="32" usage="mandatory" offset="24" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" numericID="31" usage="mandatory" offset="32" cardinality="1" description=""/>
+      <Member name="TrdRegTSExecutionTime" type="TrdRegTSExecutionTime" package="eobi" numericID="21001" usage="optional" offset="40" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" numericID="880" usage="mandatory" offset="48" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" numericID="277" usage="optional" offset="52" cardinality="1" description="">
+        <ValidValue name="MidpointPrice" value="155" description="Midpoint price (BB)"/>
+        <ValidValue name="TradeAtClose" value="624" description="Trade At Close (TC)"/>
+      </Member>
+      <Member name="Pad2" type="Pad2" package="eobi" numericID="25017" usage="unused" offset="54" cardinality="1" description=""/>
+      <Member name="NoMDEntries" type="NoMDEntries" package="eobi" numericID="268" usage="mandatory" offset="56" cardinality="1" description=""/>
+      <Member name="Pad7" type="Pad7" package="eobi" numericID="25022" usage="unused" offset="57" cardinality="1" description=""/>
+      <Group name="MDTradeEntryGrp" type="MDTradeEntryGrpComp" package="eobi" minCardinality="0" cardinality="15" counter="NoMDEntries" description="">
+        <Member name="MDEntryPx" type="MDEntryPx" package="eobi" numericID="270" usage="optional" offset="64" cardinality="1" description=""/>
+        <Member name="MDEntrySize" type="MDEntrySize" package="eobi" numericID="271" usage="optional" offset="72" cardinality="1" description=""/>
+        <Member name="MDEntryType" type="MDEntryType" package="eobi" numericID="269" usage="mandatory" offset="80" cardinality="1" description="">
+          <ValidValue name="Trade" value="2" description=""/>
+          <ValidValue name="OpeningPrice" value="4" description=""/>
+          <ValidValue name="ClosingPrice" value="5" description=""/>
+          <ValidValue name="HighPrice" value="7" description=""/>
+          <ValidValue name="LowPrice" value="8" description=""/>
+        </Member>
+        <Member name="Pad7" type="Pad7" package="eobi" numericID="25022" usage="unused" offset="81" cardinality="1" description=""/>
+      </Group>
+    </ApplicationMessage>
+  </ApplicationMessages>
+  <!-- *************************************** Abstraction Layer 1 ****************************************
+		 This XML section contains a detailed description of data structures and DataTypes contained in 
+		 ApplicationMessages. It might be interesting for users who want:
+			 * all technical details of (sub-) Structures and DataTypes; 
+	       * a simple collapsed, C-like definition of all (sub-)structures;  
+			 * no context (Application Message) specific information (e.g. usages, offsets); 
+		 Note, structure members are only references to other sub-Structure and DataType definitions. -->
+  <Structures>
+    <Structure name="AddComplexInstrument" type="Message" numericID="13400" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="SecuritySubType" type="SecuritySubType" package="eobi" cardinality="1" description=""/>
+      <Member name="ProductComplex" type="ProductComplex" package="eobi" cardinality="1" description=""/>
+      <Member name="ImpliedMarketIndicator" type="ImpliedMarketIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad2" type="Pad2" package="eobi" cardinality="1" description=""/>
+      <Member name="LegRatioMultiplier" type="LegRatioMultiplier" package="eobi" cardinality="1" description=""/>
+      <Member name="NoLegs" type="NoLegs" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad3" type="Pad3" package="eobi" cardinality="1" description=""/>
+      <Member name="InstrmtLegGrp" type="InstrmtLegGrpComp" package="eobi" minCardinality="2" cardinality="20" counter="NoLegs" description=""/>
+    </Structure>
+    <Structure name="AuctionBBO" type="Message" numericID="13500" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="BidPx" type="BidPx" package="eobi" cardinality="1" description=""/>
+      <Member name="OfferPx" type="OfferPx" package="eobi" cardinality="1" description=""/>
+      <Member name="BidSize" type="BidSize" package="eobi" cardinality="1" description=""/>
+      <Member name="OfferSize" type="OfferSize" package="eobi" cardinality="1" description=""/>
+      <Member name="PotentialSecurityTradingEvent" type="PotentialSecurityTradingEvent" package="eobi" cardinality="1" description=""/>
+      <Member name="BidOrdType" type="BidOrdType" package="eobi" cardinality="1" description=""/>
+      <Member name="OfferOrdType" type="OfferOrdType" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad5" type="Pad5" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="AuctionClearingPrice" type="Message" numericID="13501" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="ImbalanceQty" type="ImbalanceQty" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="PotentialSecurityTradingEvent" type="PotentialSecurityTradingEvent" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="CrossRequest" type="Message" numericID="13502" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" cardinality="1" description=""/>
+      <Member name="CrossRequestType" type="CrossRequestType" package="eobi" cardinality="1" description=""/>
+      <Member name="InputSource" type="InputSource" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad5" type="Pad5" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="ExecutionSummary" type="Message" numericID="13202" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="AggressorTime" type="AggressorTime" package="eobi" cardinality="1" description=""/>
+      <Member name="RequestTime" type="RequestTime" package="eobi" cardinality="1" description=""/>
+      <Member name="ExecID" type="ExecID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="AggressorSide" type="AggressorSide" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad1" type="Pad1" package="eobi" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+      <Member name="RestingHiddenQty" type="RestingHiddenQty" package="eobi" cardinality="1" description=""/>
+      <Member name="RestingCxlQty" type="RestingCxlQty" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="FullOrderExecution" type="Message" numericID="13104" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" cardinality="1" description=""/>
+      <Member name="OrdType" type="OrdType" package="eobi" cardinality="1" description=""/>
+      <Member name="AlgorithmicTradeIndicator" type="AlgorithmicTradeIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad1" type="Pad1" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" cardinality="1" description=""/>
+      <Member name="Price" type="Price" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="Heartbeat" type="Message" numericID="13001" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="LastMsgSeqNumProcessed" type="LastMsgSeqNumProcessed" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="InstrmtLegGrpComp" type="Sequence" package="eobi" description="">
+      <Member name="LegSymbol" type="LegSymbol" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" cardinality="1" description=""/>
+      <Member name="LegSecurityID" type="LegSecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LegPrice" type="LegPrice" package="eobi" cardinality="1" description=""/>
+      <Member name="LegRatioQty" type="LegRatioQty" package="eobi" cardinality="1" description=""/>
+      <Member name="LegSecurityType" type="LegSecurityType" package="eobi" cardinality="1" description=""/>
+      <Member name="LegSide" type="LegSide" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad2" type="Pad2" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="InstrumentStateChange" type="Message" numericID="13301" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityStatus" type="SecurityStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingEvent" type="SecurityTradingEvent" package="eobi" cardinality="1" description=""/>
+      <Member name="SoldOutIndicator" type="SoldOutIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad2" type="Pad2" package="eobi" cardinality="1" description=""/>
+      <Member name="HighPx" type="HighPx" package="eobi" cardinality="1" description=""/>
+      <Member name="LowPx" type="LowPx" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="InstrumentSummary" type="Message" numericID="13601" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastUpdateTime" type="LastUpdateTime" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSExecutionTime" type="TrdRegTSExecutionTime" package="eobi" cardinality="1" description=""/>
+      <Member name="TotNoOrders" type="TotNoOrders" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityStatus" type="SecurityStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingEvent" type="SecurityTradingEvent" package="eobi" cardinality="1" description=""/>
+      <Member name="SoldOutIndicator" type="SoldOutIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="HighPx" type="HighPx" package="eobi" cardinality="1" description=""/>
+      <Member name="LowPx" type="LowPx" package="eobi" cardinality="1" description=""/>
+      <Member name="ProductComplex" type="ProductComplex" package="eobi" cardinality="1" description=""/>
+      <Member name="NoMDEntries" type="NoMDEntries" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" cardinality="1" description=""/>
+      <Member name="MDInstrumentEntryGrp" type="MDInstrumentEntryGrpComp" package="eobi" minCardinality="0" cardinality="15" counter="NoMDEntries" description=""/>
+    </Structure>
+    <Structure name="MDInstrumentEntryGrpComp" type="Sequence" package="eobi" description="">
+      <Member name="MDEntryPx" type="MDEntryPx" package="eobi" cardinality="1" description=""/>
+      <Member name="MDEntrySize" type="MDEntrySize" package="eobi" cardinality="1" description=""/>
+      <Member name="MDEntryType" type="MDEntryType" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad1" type="Pad1" package="eobi" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="MDTradeEntryGrpComp" type="Sequence" package="eobi" description="">
+      <Member name="MDEntryPx" type="MDEntryPx" package="eobi" cardinality="1" description=""/>
+      <Member name="MDEntrySize" type="MDEntrySize" package="eobi" cardinality="1" description=""/>
+      <Member name="MDEntryType" type="MDEntryType" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad7" type="Pad7" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="MassInstrumentStateChange" type="Message" numericID="13302" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="InstrumentScopeProductComplex" type="InstrumentScopeProductComplex" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityMassStatus" type="SecurityMassStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityMassTradingStatus" type="SecurityMassTradingStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="MassMarketCondition" type="MassMarketCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityMassTradingEvent" type="SecurityMassTradingEvent" package="eobi" cardinality="1" description=""/>
+      <Member name="MassSoldOutIndicator" type="MassSoldOutIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad1" type="Pad1" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="LastFragment" type="LastFragment" package="eobi" cardinality="1" description=""/>
+      <Member name="NoRelatedSym" type="NoRelatedSym" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" cardinality="1" description=""/>
+      <Member name="SecMassStatGrp" type="SecMassStatGrpComp" package="eobi" minCardinality="0" cardinality="24" counter="NoRelatedSym" description=""/>
+    </Structure>
+    <Structure name="MessageHeaderComp" type="Component" package="eobi" description="">
+      <Member name="BodyLen" type="BodyLen" package="eobi" cardinality="1" description=""/>
+      <Member name="TemplateID" type="TemplateID" package="eobi" cardinality="1" description=""/>
+      <Member name="MsgSeqNum" type="MsgSeqNum" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="OrderAdd" type="Message" numericID="13100" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="OrderDelete" type="Message" numericID="13102" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="OrderDetailsComp" type="Component" package="eobi" description="">
+      <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" cardinality="1" description=""/>
+      <Member name="DisplayQty" type="DisplayQty" package="eobi" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" cardinality="1" description=""/>
+      <Member name="OrdType" type="OrdType" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" cardinality="1" description=""/>
+      <Member name="Price" type="Price" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="OrderMassDelete" type="Message" numericID="13103" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="OrderModify" type="Message" numericID="13101" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSPrevTimePriority" type="TrdRegTSPrevTimePriority" package="eobi" cardinality="1" description=""/>
+      <Member name="PrevPrice" type="PrevPrice" package="eobi" cardinality="1" description=""/>
+      <Member name="PrevDisplayQty" type="PrevDisplayQty" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="OrderModifySamePrio" type="Message" numericID="13106" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimeIn" type="TrdRegTSTimeIn" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="PrevDisplayQty" type="PrevDisplayQty" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="PacketHeader" type="Message" numericID="13005" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="ApplSeqNum" type="ApplSeqNum" package="eobi" cardinality="1" description=""/>
+      <Member name="MarketSegmentID" type="MarketSegmentID" package="eobi" cardinality="1" description=""/>
+      <Member name="PartitionID" type="PartitionID" package="eobi" cardinality="1" description=""/>
+      <Member name="CompletionIndicator" type="CompletionIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="ApplSeqResetIndicator" type="ApplSeqResetIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="DSCP" type="DSCP" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="PartialOrderExecution" type="Message" numericID="13105" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" cardinality="1" description=""/>
+      <Member name="OrdType" type="OrdType" package="eobi" cardinality="1" description=""/>
+      <Member name="AlgorithmicTradeIndicator" type="AlgorithmicTradeIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad1" type="Pad1" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" cardinality="1" description=""/>
+      <Member name="Price" type="Price" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSTimePriority" type="TrdRegTSTimePriority" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="ProductStateChange" type="Message" numericID="13300" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TradingSessionID" type="TradingSessionID" package="eobi" cardinality="1" description=""/>
+      <Member name="TradingSessionSubID" type="TradingSessionSubID" package="eobi" cardinality="1" description=""/>
+      <Member name="TradSesStatus" type="TradSesStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad3" type="Pad3" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="ProductSummary" type="Message" numericID="13600" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="LastMsgSeqNumProcessed" type="LastMsgSeqNumProcessed" package="eobi" cardinality="1" description=""/>
+      <Member name="TradingSessionID" type="TradingSessionID" package="eobi" cardinality="1" description=""/>
+      <Member name="TradingSessionSubID" type="TradingSessionSubID" package="eobi" cardinality="1" description=""/>
+      <Member name="TradSesStatus" type="TradSesStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="FastMarketIndicator" type="FastMarketIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad7" type="Pad7" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="QuoteRequest" type="Message" numericID="13503" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="Side" type="Side" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad7" type="Pad7" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="SecMassStatGrpComp" type="Sequence" package="eobi" description="">
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="HighPx" type="HighPx" package="eobi" cardinality="1" description=""/>
+      <Member name="LowPx" type="LowPx" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityStatus" type="SecurityStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingStatus" type="SecurityTradingStatus" package="eobi" cardinality="1" description=""/>
+      <Member name="MarketCondition" type="MarketCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityTradingEvent" type="SecurityTradingEvent" package="eobi" cardinality="1" description=""/>
+      <Member name="SoldOutIndicator" type="SoldOutIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad3" type="Pad3" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="SnapshotOrder" type="Message" numericID="13602" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="OrderDetails" type="OrderDetailsComp" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="TopOfBook" type="Message" numericID="13504" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="BidPx" type="BidPx" package="eobi" cardinality="1" description=""/>
+      <Member name="OfferPx" type="OfferPx" package="eobi" cardinality="1" description=""/>
+      <Member name="BidSize" type="BidSize" package="eobi" cardinality="1" description=""/>
+      <Member name="OfferSize" type="OfferSize" package="eobi" cardinality="1" description=""/>
+      <Member name="NumberOfBuyOrders" type="NumberOfBuyOrders" package="eobi" cardinality="1" description=""/>
+      <Member name="NumberOfSellOrders" type="NumberOfSellOrders" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad4" type="Pad4" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="TradeReport" type="Message" numericID="13201" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" cardinality="1" description=""/>
+      <Member name="MatchType" type="MatchType" package="eobi" cardinality="1" description=""/>
+      <Member name="MatchSubType" type="MatchSubType" package="eobi" cardinality="1" description=""/>
+      <Member name="AlgorithmicTradeIndicator" type="AlgorithmicTradeIndicator" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad1" type="Pad1" package="eobi" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad6" type="Pad6" package="eobi" cardinality="1" description=""/>
+    </Structure>
+    <Structure name="TradeReversal" type="Message" numericID="13200" package="eobi" description="">
+      <Member name="MessageHeader" type="MessageHeaderComp" package="eobi" cardinality="1" description=""/>
+      <Member name="SecurityID" type="SecurityID" package="eobi" cardinality="1" description=""/>
+      <Member name="TransactTime" type="TransactTime" package="eobi" cardinality="1" description=""/>
+      <Member name="LastQty" type="LastQty" package="eobi" cardinality="1" description=""/>
+      <Member name="LastPx" type="LastPx" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdRegTSExecutionTime" type="TrdRegTSExecutionTime" package="eobi" cardinality="1" description=""/>
+      <Member name="TrdMatchID" type="TrdMatchID" package="eobi" cardinality="1" description=""/>
+      <Member name="TradeCondition" type="TradeCondition" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad2" type="Pad2" package="eobi" cardinality="1" description=""/>
+      <Member name="NoMDEntries" type="NoMDEntries" package="eobi" cardinality="1" description=""/>
+      <Member name="Pad7" type="Pad7" package="eobi" cardinality="1" description=""/>
+      <Member name="MDTradeEntryGrp" type="MDTradeEntryGrpComp" package="eobi" minCardinality="0" cardinality="15" counter="NoMDEntries" description=""/>
+    </Structure>
+  </Structures>
+  <DataTypes>
+    <DataType name="Counter" type="int" rootType="int" package="eobi" description=""/>
+    <DataType name="PriceType" type="float" rootType="floatDecimal" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="QuantityType" type="halfDecimal" rootType="floatDecimal" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="String" type="String" rootType="String" package="eobi" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="UTCTimestamp" type="int" rootType="int" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="float" type="floatDecimal" rootType="floatDecimal" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="floatDecimal" type="floatDecimal" rootType="floatDecimal" package="eobi" size="8" description="" noValue="0x8000000000000000"/>
+    <DataType name="halfDecimal" type="floatDecimal" rootType="floatDecimal" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="int" type="int" rootType="int" package="eobi" description=""/>
+    <DataType name="AggressorSide" type="int" rootType="int" numericID="2446" package="eobi" size="1" description="" minValue="1" maxValue="2" noValue="0xFF">
+      <ValidValue name="Buy" value="1" description="Triggered by the buy side"/>
+      <ValidValue name="Sell" value="2" description="Triggered by the sell side"/>
+    </DataType>
+    <DataType name="AggressorTime" type="UTCTimestamp" rootType="int" numericID="2445" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="AlgorithmicTradeIndicator" type="int" rootType="int" numericID="2667" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="AlgorithmicTrade" value="1" description=""/>
+    </DataType>
+    <DataType name="ApplSeqNum" type="int" rootType="int" numericID="1181" package="eobi" size="4" description="" minValue="0" maxValue="4294967294" noValue="0xFFFFFFFF"/>
+    <DataType name="ApplSeqResetIndicator" type="int" rootType="int" numericID="28841" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="NoReset" value="0" description="No Reset"/>
+      <ValidValue name="Reset" value="1" description="Reset"/>
+    </DataType>
+    <DataType name="BidOrdType" type="int" rootType="int" numericID="28784" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="Market" value="1" description="Market Order"/>
+    </DataType>
+    <DataType name="BidPx" type="PriceType" rootType="floatDecimal" numericID="132" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="BidSize" type="QuantityType" rootType="floatDecimal" numericID="134" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="BodyLen" type="int" rootType="int" numericID="9" package="eobi" size="2" description="" minValue="0" maxValue="65534" noValue="0xFFFF"/>
+    <DataType name="CompletionIndicator" type="int" rootType="int" numericID="6228" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="Incomplete" value="0" description=""/>
+      <ValidValue name="Complete" value="1" description=""/>
+    </DataType>
+    <DataType name="CrossRequestType" type="int" rootType="int" numericID="28771" package="eobi" size="1" description="" minValue="1" maxValue="2" noValue="0xFF">
+      <ValidValue name="CrossAnnouncement" value="1" description=""/>
+      <ValidValue name="LiquidityImprovementCross" value="2" description=""/>
+    </DataType>
+    <DataType name="DSCP" type="int" rootType="int" numericID="25204" package="eobi" size="1" description="" minValue="0" maxValue="254" noValue="0xFF"/>
+    <DataType name="DisplayQty" type="QuantityType" rootType="floatDecimal" numericID="1138" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="ExecID" type="UTCTimestamp" rootType="int" numericID="17" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="FastMarketIndicator" type="int" rootType="int" numericID="2447" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="No" value="0" description=""/>
+      <ValidValue name="Yes" value="1" description=""/>
+    </DataType>
+    <DataType name="HighPx" type="PriceType" rootType="floatDecimal" numericID="332" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="ImbalanceQty" type="QuantityType" rootType="floatDecimal" numericID="28893" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="ImpliedMarketIndicator" type="int" rootType="int" numericID="1144" package="eobi" size="1" description="" minValue="0" maxValue="3" noValue="0xFF">
+      <ValidValue name="NotImplied" value="0" description=""/>
+      <ValidValue name="ImpliedInOut" value="3" description=""/>
+    </DataType>
+    <DataType name="InputSource" type="int" rootType="int" numericID="979" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="CLIPClientBroker" value="1" description=""/>
+    </DataType>
+    <DataType name="InstrumentScopeProductComplex" type="int" rootType="int" numericID="1544" package="eobi" size="1" description="" minValue="1" maxValue="9" noValue="0xFF">
+      <ValidValue name="SimpleInstrument" value="1" description=""/>
+      <ValidValue name="StandardOptionStrategy" value="2" description=""/>
+      <ValidValue name="NonStandardOptionStrategy" value="3" description=""/>
+      <ValidValue name="VolatilityStrategy" value="4" description=""/>
+      <ValidValue name="FuturesSpread" value="5" description=""/>
+      <ValidValue name="InterProductSpread" value="6" description=""/>
+      <ValidValue name="StandardFuturesStrategy" value="7" description=""/>
+      <ValidValue name="PackAndBundle" value="8" description=""/>
+      <ValidValue name="Strip" value="9" description=""/>
+    </DataType>
+    <DataType name="LastFragment" type="int" rootType="int" numericID="893" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="N" value="0" description=""/>
+      <ValidValue name="Y" value="1" description=""/>
+    </DataType>
+    <DataType name="LastMsgSeqNumProcessed" type="int" rootType="int" numericID="369" package="eobi" size="4" description="" minValue="0" maxValue="4294967294" noValue="0xFFFFFFFF"/>
+    <DataType name="LastPx" type="PriceType" rootType="floatDecimal" numericID="31" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="LastQty" type="QuantityType" rootType="floatDecimal" numericID="32" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="LastUpdateTime" type="UTCTimestamp" rootType="int" numericID="779" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="LegPrice" type="PriceType" rootType="floatDecimal" numericID="566" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="LegRatioMultiplier" type="int" rootType="int" numericID="28900" package="eobi" size="4" description="" minValue="1" maxValue="2147483647" noValue="0xFFFFFFFF"/>
+    <DataType name="LegRatioQty" type="int" rootType="int" numericID="623" package="eobi" size="4" description="" minValue="-2147483647" maxValue="2147483647" noValue="0x80000000"/>
+    <DataType name="LegSecurityID" type="int" rootType="int" numericID="602" package="eobi" size="8" description="" minValue="-9223372036854775807" maxValue="9223372036854775807" noValue="0x8000000000000000"/>
+    <DataType name="LegSecurityIDSource" type="String" rootType="String" numericID="603" package="eobi" size="1" description="" range="\x01-\x7E" noValue="0x00">
+      <ValidValue name="Marketplace" value="M" description=""/>
+    </DataType>
+    <DataType name="LegSecurityType" type="int" rootType="int" numericID="609" package="eobi" size="1" description="" minValue="1" maxValue="2" noValue="0xFF">
+      <ValidValue name="LegSecurityMultiLeg" value="1" description=""/>
+      <ValidValue name="LegSecurityUnderlyingLeg" value="2" description=""/>
+    </DataType>
+    <DataType name="LegSide" type="int" rootType="int" numericID="624" package="eobi" size="1" description="" minValue="1" maxValue="2" noValue="0xFF">
+      <ValidValue name="Buy" value="1" description=""/>
+      <ValidValue name="Sell" value="2" description=""/>
+    </DataType>
+    <DataType name="LegSymbol" type="int" rootType="int" numericID="600" package="eobi" size="4" description="" minValue="-2147483647" maxValue="2147483647" noValue="0x80000000"/>
+    <DataType name="LowPx" type="PriceType" rootType="floatDecimal" numericID="333" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="MDEntryPx" type="PriceType" rootType="floatDecimal" numericID="270" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="MDEntrySize" type="QuantityType" rootType="floatDecimal" numericID="271" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="MDEntryType" type="int" rootType="int" numericID="269" package="eobi" size="1" description="" minValue="2" maxValue="204" noValue="0xFF">
+      <ValidValue name="Trade" value="2" description=""/>
+      <ValidValue name="OpeningPrice" value="4" description=""/>
+      <ValidValue name="ClosingPrice" value="5" description=""/>
+      <ValidValue name="HighPrice" value="7" description=""/>
+      <ValidValue name="LowPrice" value="8" description=""/>
+      <ValidValue name="TradeVolume" value="66" description=""/>
+      <ValidValue name="PreviousClosingPrice" value="101" description=""/>
+      <ValidValue name="OpeningAuction" value="200" description=""/>
+      <ValidValue name="IntradayAuction" value="201" description=""/>
+      <ValidValue name="CircuitBreakerAuction" value="202" description=""/>
+      <ValidValue name="ClosingAuction" value="203" description=""/>
+      <ValidValue name="IPOAuction" value="204" description=""/>
+    </DataType>
+    <DataType name="MDReportEvent" type="int" rootType="int" numericID="28827" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="ScopeDefinition" value="0" description=""/>
+    </DataType>
+    <DataType name="MDUpdateAction" type="int" rootType="int" numericID="279" package="eobi" size="1" description="" minValue="0" maxValue="5" noValue="0xFF">
+      <ValidValue name="New" value="0" description=""/>
+      <ValidValue name="Change" value="1" description=""/>
+      <ValidValue name="Delete" value="2" description=""/>
+      <ValidValue name="Overlay" value="5" description=""/>
+    </DataType>
+    <DataType name="MarketCondition" type="int" rootType="int" numericID="2705" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="Normal" value="0" description=""/>
+      <ValidValue name="Stressed" value="1" description=""/>
+    </DataType>
+    <DataType name="MarketDataType" type="int" rootType="int" numericID="28842" package="eobi" size="1" description="" minValue="0" maxValue="13" noValue="0xFF">
+      <ValidValue name="OrderBookMaintenance" value="1" description=""/>
+      <ValidValue name="OrderBookExecution" value="2" description=""/>
+      <ValidValue name="TradeReversal" value="3" description=""/>
+      <ValidValue name="TradeReport" value="4" description=""/>
+      <ValidValue name="AuctionBBO" value="5" description=""/>
+      <ValidValue name="AuctionClearingPrice" value="6" description=""/>
+      <ValidValue name="CrossTradeAnnouncement" value="7" description=""/>
+      <ValidValue name="QuoteRequest" value="8" description=""/>
+      <ValidValue name="MarketSegmentSnapshot" value="9" description=""/>
+      <ValidValue name="SingleInstrumentSnapshot" value="10" description=""/>
+      <ValidValue name="OrderBookSnapshot" value="11" description=""/>
+      <ValidValue name="MatchEvent" value="12" description=""/>
+      <ValidValue name="TopOfBook" value="13" description=""/>
+    </DataType>
+    <DataType name="MarketSegmentID" type="int" rootType="int" numericID="1300" package="eobi" size="4" description="" minValue="-2147483647" maxValue="2147483647" noValue="0x80000000"/>
+    <DataType name="MassMarketCondition" type="int" rootType="int" numericID="28894" package="eobi" size="1" description="" minValue="0" maxValue="1" noValue="0xFF">
+      <ValidValue name="Normal" value="0" description=""/>
+      <ValidValue name="Stressed" value="1" description=""/>
+    </DataType>
+    <DataType name="MassSoldOutIndicator" type="int" rootType="int" numericID="35155" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="SoldOut" value="1" description=""/>
+    </DataType>
+    <DataType name="MatchSubType" type="int" rootType="int" numericID="28610" package="eobi" size="1" description="" minValue="1" maxValue="5" noValue="0xFF">
+      <ValidValue name="OpeningAuction" value="1" description=""/>
+      <ValidValue name="ClosingAuction" value="2" description=""/>
+      <ValidValue name="IntradayAuction" value="3" description=""/>
+      <ValidValue name="CircuitBreakerAuction" value="4" description=""/>
+      <ValidValue name="IPOAuction" value="5" description=""/>
+    </DataType>
+    <DataType name="MatchType" type="int" rootType="int" numericID="574" package="eobi" size="1" description="" minValue="3" maxValue="14" noValue="0xFF">
+      <ValidValue name="ConfirmedTradeReport" value="3" description="Manual Trade Entry"/>
+      <ValidValue name="CrossAuction" value="5" description="Trade from Uncrossing"/>
+      <ValidValue name="CallAuction" value="7" description="Trade from Auction"/>
+      <ValidValue name="LiquidityImprovementCross" value="13" description="Trade from Liquidity Improvement Cross"/>
+      <ValidValue name="ContinuousAuction" value="14" description="Price Without Turnover in Continuous Auction"/>
+    </DataType>
+    <DataType name="MsgSeqNum" type="int" rootType="int" numericID="34" package="eobi" size="4" description="" minValue="0" maxValue="4294967294" noValue="0xFFFFFFFF"/>
+    <DataType name="MsgType" type="String" rootType="String" numericID="35" package="eobi" size="3" description="" range="\x01-\x7E" noValue="0x00">
+      <ValidValue name="MarketDataReport" value="U20" description=""/>
+      <ValidValue name="Heartbeat" value="0" description=""/>
+      <ValidValue name="MarketDataOrder" value="U21" description=""/>
+      <ValidValue name="MarketDataTrade" value="U22" description=""/>
+      <ValidValue name="TradingSessionStatus" value="h" description=""/>
+      <ValidValue name="SecurityStatus" value="f" description=""/>
+      <ValidValue name="SecurityMassStatus" value="CO" description=""/>
+      <ValidValue name="SecurityDefinitionUpdateReport" value="BP" description=""/>
+      <ValidValue name="MarketDataInstrument" value="U23" description=""/>
+    </DataType>
+    <DataType name="NoLegs" type="Counter" rootType="int" numericID="555" package="eobi" size="1" description="" minValue="2" maxValue="20" noValue="0xFF"/>
+    <DataType name="NoMDEntries" type="Counter" rootType="int" numericID="268" package="eobi" size="1" description="" minValue="0" maxValue="15" noValue="0xFF"/>
+    <DataType name="NoMarketSegments" type="int" rootType="int" numericID="1310" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="One" value="1" description=""/>
+    </DataType>
+    <DataType name="NoRelatedSym" type="Counter" rootType="int" numericID="146" package="eobi" size="1" description="" minValue="0" maxValue="24" noValue="0xFF"/>
+    <DataType name="NumberOfBuyOrders" type="int" rootType="int" numericID="2449" package="eobi" size="2" description="" minValue="0" maxValue="65534" noValue="0xFFFF"/>
+    <DataType name="NumberOfSellOrders" type="int" rootType="int" numericID="2450" package="eobi" size="2" description="" minValue="0" maxValue="65534" noValue="0xFFFF"/>
+    <DataType name="OfferOrdType" type="int" rootType="int" numericID="28785" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="Market" value="1" description="Market Order"/>
+    </DataType>
+    <DataType name="OfferPx" type="PriceType" rootType="floatDecimal" numericID="133" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="OfferSize" type="QuantityType" rootType="floatDecimal" numericID="135" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="OrdType" type="int" rootType="int" numericID="40" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="Market" value="1" description="Market Order"/>
+    </DataType>
+    <DataType name="Pad1" type="String" rootType="String" numericID="25016" package="eobi" size="1" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="Pad2" type="String" rootType="String" numericID="25017" package="eobi" size="2" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="Pad3" type="String" rootType="String" numericID="25018" package="eobi" size="3" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="Pad4" type="String" rootType="String" numericID="25019" package="eobi" size="4" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="Pad5" type="String" rootType="String" numericID="25020" package="eobi" size="5" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="Pad6" type="String" rootType="String" numericID="25021" package="eobi" size="6" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="Pad7" type="String" rootType="String" numericID="25022" package="eobi" size="7" description="" range="\x01-\x7E" noValue="0x00"/>
+    <DataType name="PartitionID" type="int" rootType="int" numericID="5948" package="eobi" size="1" description="" minValue="0" maxValue="254" noValue="0xFF"/>
+    <DataType name="PotentialSecurityTradingEvent" type="int" rootType="int" numericID="28872" package="eobi" size="1" description="" minValue="0" maxValue="10" noValue="0xFF">
+      <ValidValue name="None" value="0" description="None"/>
+      <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+    </DataType>
+    <DataType name="PrevDisplayQty" type="QuantityType" rootType="floatDecimal" numericID="28867" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="PrevPrice" type="PriceType" rootType="floatDecimal" numericID="28855" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="Price" type="PriceType" rootType="floatDecimal" numericID="44" package="eobi" size="8" description="" minValue="-92233720368.54775807" maxValue="92233720368.54775807" precision="8" noValue="0x8000000000000000"/>
+    <DataType name="ProductComplex" type="int" rootType="int" numericID="1227" package="eobi" size="1" description="" minValue="1" maxValue="9" noValue="0xFF">
+      <ValidValue name="SimpleInstrument" value="1" description=""/>
+      <ValidValue name="StandardOptionStrategy" value="2" description=""/>
+      <ValidValue name="NonStandardOptionStrategy" value="3" description=""/>
+      <ValidValue name="VolatilityStrategy" value="4" description=""/>
+      <ValidValue name="FuturesSpread" value="5" description=""/>
+      <ValidValue name="InterProductSpread" value="6" description=""/>
+      <ValidValue name="StandardFuturesStrategy" value="7" description=""/>
+      <ValidValue name="PackAndBundle" value="8" description=""/>
+      <ValidValue name="Strip" value="9" description=""/>
+    </DataType>
+    <DataType name="RequestTime" type="UTCTimestamp" rootType="int" numericID="5979" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="RestingCxlQty" type="QuantityType" rootType="floatDecimal" numericID="28869" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="RestingHiddenQty" type="QuantityType" rootType="floatDecimal" numericID="28868" package="eobi" size="8" description="" minValue="-922337203685477.5807" maxValue="922337203685477.5807" precision="4" noValue="0x8000000000000000"/>
+    <DataType name="SecurityID" type="int" rootType="int" numericID="48" package="eobi" size="8" description="" minValue="-9223372036854775807" maxValue="9223372036854775807" noValue="0x8000000000000000"/>
+    <DataType name="SecurityIDSource" type="String" rootType="String" numericID="22" package="eobi" size="1" description="" range="\x01-\x7E" noValue="0x00">
+      <ValidValue name="Marketplace" value="M" description=""/>
+    </DataType>
+    <DataType name="SecurityMassStatus" type="int" rootType="int" numericID="30965" package="eobi" size="1" description="" minValue="1" maxValue="12" noValue="0xFF">
+      <ValidValue name="Active" value="1" description=""/>
+      <ValidValue name="Inactive" value="2" description=""/>
+      <ValidValue name="Expired" value="4" description=""/>
+      <ValidValue name="KnockedOut" value="6" description=""/>
+      <ValidValue name="KnockOutRevoked" value="7" description=""/>
+      <ValidValue name="Suspended" value="9" description=""/>
+      <ValidValue name="PendingDeletion" value="11" description=""/>
+      <ValidValue name="KnockedOutAndSuspended" value="12" description=""/>
+    </DataType>
+    <DataType name="SecurityMassTradingEvent" type="int" rootType="int" numericID="1680" package="eobi" size="1" description="" minValue="10" maxValue="11" noValue="0xFF">
+      <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+      <ValidValue name="PriceVolatilityAuctionIsExtendedAgain" value="11" description="Price volatility, auction is extended again"/>
+    </DataType>
+    <DataType name="SecurityMassTradingStatus" type="int" rootType="int" numericID="1679" package="eobi" size="1" description="" minValue="2" maxValue="217" noValue="0xFF">
+      <ValidValue name="TradingHalt" value="2" description=""/>
+      <ValidValue name="MarketImbalanceBuy" value="7" description=""/>
+      <ValidValue name="MarketImbalanceSell" value="8" description=""/>
+      <ValidValue name="Closed" value="200" description=""/>
+      <ValidValue name="Restricted" value="201" description=""/>
+      <ValidValue name="Book" value="202" description=""/>
+      <ValidValue name="Continuous" value="203" description=""/>
+      <ValidValue name="OpeningAuction" value="204" description=""/>
+      <ValidValue name="OpeningAuctionFreeze" value="205" description=""/>
+      <ValidValue name="IntradayAuction" value="206" description=""/>
+      <ValidValue name="IntradayAuctionFreeze" value="207" description=""/>
+      <ValidValue name="CircuitBreakerAuction" value="208" description=""/>
+      <ValidValue name="CircuitBreakerAuctionFreeze" value="209" description=""/>
+      <ValidValue name="ClosingAuction" value="210" description=""/>
+      <ValidValue name="ClosingAuctionFreeze" value="211" description=""/>
+      <ValidValue name="IPOAuction" value="212" description=""/>
+      <ValidValue name="IPOAuctionFreeze" value="213" description=""/>
+      <ValidValue name="PreCall" value="214" description=""/>
+      <ValidValue name="Call" value="215" description=""/>
+      <ValidValue name="Freeze" value="216" description=""/>
+      <ValidValue name="TradeAtClose" value="217" description=""/>
+    </DataType>
+    <DataType name="SecurityStatus" type="int" rootType="int" numericID="965" package="eobi" size="1" description="" minValue="1" maxValue="12" noValue="0xFF">
+      <ValidValue name="Active" value="1" description=""/>
+      <ValidValue name="Inactive" value="2" description=""/>
+      <ValidValue name="Expired" value="4" description=""/>
+      <ValidValue name="KnockedOut" value="6" description=""/>
+      <ValidValue name="KnockOutRevoked" value="7" description=""/>
+      <ValidValue name="Suspended" value="9" description=""/>
+      <ValidValue name="PendingDeletion" value="11" description=""/>
+      <ValidValue name="KnockedOutAndSuspended" value="12" description=""/>
+    </DataType>
+    <DataType name="SecuritySubType" type="int" rootType="int" numericID="762" package="eobi" size="4" description="" minValue="-2147483647" maxValue="2147483647" noValue="0x80000000"/>
+    <DataType name="SecurityTradingEvent" type="int" rootType="int" numericID="1174" package="eobi" size="1" description="" minValue="10" maxValue="11" noValue="0xFF">
+      <ValidValue name="PriceVolatilityAuctionIsExtended" value="10" description="Price volatility, auction is extended"/>
+      <ValidValue name="PriceVolatilityAuctionIsExtendedAgain" value="11" description="Price volatility, auction is extended again"/>
+    </DataType>
+    <DataType name="SecurityTradingStatus" type="int" rootType="int" numericID="326" package="eobi" size="1" description="" minValue="2" maxValue="217" noValue="0xFF">
+      <ValidValue name="TradingHalt" value="2" description=""/>
+      <ValidValue name="MarketImbalanceBuy" value="7" description=""/>
+      <ValidValue name="MarketImbalanceSell" value="8" description=""/>
+      <ValidValue name="Closed" value="200" description=""/>
+      <ValidValue name="Restricted" value="201" description=""/>
+      <ValidValue name="Book" value="202" description=""/>
+      <ValidValue name="Continuous" value="203" description=""/>
+      <ValidValue name="OpeningAuction" value="204" description=""/>
+      <ValidValue name="OpeningAuctionFreeze" value="205" description=""/>
+      <ValidValue name="IntradayAuction" value="206" description=""/>
+      <ValidValue name="IntradayAuctionFreeze" value="207" description=""/>
+      <ValidValue name="CircuitBreakerAuction" value="208" description=""/>
+      <ValidValue name="CircuitBreakerAuctionFreeze" value="209" description=""/>
+      <ValidValue name="ClosingAuction" value="210" description=""/>
+      <ValidValue name="ClosingAuctionFreeze" value="211" description=""/>
+      <ValidValue name="IPOAuction" value="212" description=""/>
+      <ValidValue name="IPOAuctionFreeze" value="213" description=""/>
+      <ValidValue name="PreCall" value="214" description=""/>
+      <ValidValue name="Call" value="215" description=""/>
+      <ValidValue name="Freeze" value="216" description=""/>
+      <ValidValue name="TradeAtClose" value="217" description=""/>
+    </DataType>
+    <DataType name="SecurityType" type="String" rootType="String" numericID="167" package="eobi" size="4" description="" range="\x01-\x7E" noValue="0x00">
+      <ValidValue name="Option" value="OPT" description=""/>
+      <ValidValue name="Future" value="FUT" description=""/>
+      <ValidValue name="MultiLeg" value="MLEG" description=""/>
+    </DataType>
+    <DataType name="SecurityUpdateAction" type="String" rootType="String" numericID="980" package="eobi" size="1" description="" range="\x01-\x7E" noValue="0x00">
+      <ValidValue name="Add" value="A" description=""/>
+    </DataType>
+    <DataType name="Side" type="int" rootType="int" numericID="54" package="eobi" size="1" description="" minValue="1" maxValue="2" noValue="0xFF">
+      <ValidValue name="Buy" value="1" description=""/>
+      <ValidValue name="Sell" value="2" description=""/>
+    </DataType>
+    <DataType name="SoldOutIndicator" type="int" rootType="int" numericID="25155" package="eobi" size="1" description="" minValue="1" maxValue="1" noValue="0xFF">
+      <ValidValue name="SoldOut" value="1" description=""/>
+    </DataType>
+    <DataType name="TemplateID" type="int" rootType="int" numericID="28500" package="eobi" size="2" description="" minValue="0" maxValue="65534" noValue="0xFFFF"/>
+    <DataType name="TotNoOrders" type="Counter" rootType="int" numericID="68" package="eobi" size="2" description="" minValue="0" maxValue="65534" noValue="0xFFFF"/>
+    <DataType name="TradSesEvent" type="int" rootType="int" numericID="1368" package="eobi" size="1" description="" minValue="0" maxValue="3" noValue="0xFF">
+      <ValidValue name="TBD" value="0" description="To Be Defined"/>
+      <ValidValue name="StatusChange" value="3" description=""/>
+    </DataType>
+    <DataType name="TradSesStatus" type="int" rootType="int" numericID="340" package="eobi" size="1" description="" minValue="1" maxValue="3" noValue="0xFF">
+      <ValidValue name="Halted" value="1" description=""/>
+      <ValidValue name="Open" value="2" description=""/>
+      <ValidValue name="Closed" value="3" description=""/>
+    </DataType>
+    <DataType name="TradeCondition" type="int" rootType="int" numericID="277" package="eobi" size="2" description="" minValue="1" maxValue="624" noValue="0xFFFF">
+      <ValidValue name="ImpliedTrade" value="1" description=""/>
+      <ValidValue name="OutOfSequence" value="107" description="Out of sequence"/>
+      <ValidValue name="MidpointPrice" value="155" description="Midpoint price (BB)"/>
+      <ValidValue name="TradingOnTermsOfIssue" value="156" description="Trading On Terms Of Issue (BC)"/>
+      <ValidValue name="SpecialAuction" value="596" description="Special Auction (SA)"/>
+      <ValidValue name="TradeAtClose" value="624" description="Trade At Close (TC)"/>
+    </DataType>
+    <DataType name="TradingSessionID" type="int" rootType="int" numericID="336" package="eobi" size="1" description="" minValue="1" maxValue="7" noValue="0xFF">
+      <ValidValue name="Day" value="1" description=""/>
+      <ValidValue name="Morning" value="3" description=""/>
+      <ValidValue name="Evening" value="5" description=""/>
+      <ValidValue name="AfterHours" value="6" description=""/>
+      <ValidValue name="Holiday" value="7" description=""/>
+    </DataType>
+    <DataType name="TradingSessionSubID" type="int" rootType="int" numericID="625" package="eobi" size="1" description="" minValue="1" maxValue="7" noValue="0xFF">
+      <ValidValue name="PreTrading" value="1" description=""/>
+      <ValidValue name="Continuous" value="3" description=""/>
+      <ValidValue name="Closing" value="4" description=""/>
+      <ValidValue name="PostTrading" value="5" description=""/>
+      <ValidValue name="Quiescent" value="7" description=""/>
+    </DataType>
+    <DataType name="TransactTime" type="UTCTimestamp" rootType="int" numericID="60" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="TrdMatchID" type="int" rootType="int" numericID="880" package="eobi" size="4" description="" minValue="0" maxValue="4294967294" noValue="0xFFFFFFFF"/>
+    <DataType name="TrdRegTSExecutionTime" type="UTCTimestamp" rootType="int" numericID="21001" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="TrdRegTSPrevTimePriority" type="UTCTimestamp" rootType="int" numericID="21026" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="TrdRegTSTimeIn" type="UTCTimestamp" rootType="int" numericID="21002" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+    <DataType name="TrdRegTSTimePriority" type="UTCTimestamp" rootType="int" numericID="21008" package="eobi" size="8" description="" minValue="0" maxValue="18446744073709551614" noValue="0xFFFFFFFFFFFFFFFF"/>
+  </DataTypes>
+</Model>

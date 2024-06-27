@@ -387,7 +387,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   gint8 ber_class;
@@ -411,13 +411,13 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
   } ENDTRY;
 
   if (failed) {
-      return FALSE;
+      return false;
   }
 
   if (((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104)))) {
     dissect_t125(tvb, pinfo, parent_tree, NULL);
 
-    return TRUE;
+    return true;
   }
 
   /*
@@ -436,10 +436,10 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     case HF_T125_SEND_DATA_REQUEST:
     case HF_T125_SEND_DATA_INDICATION:
       dissect_t125(tvb, pinfo, parent_tree, NULL);
-      return TRUE;
+      return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 

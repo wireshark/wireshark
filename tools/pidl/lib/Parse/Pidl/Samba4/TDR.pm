@@ -9,25 +9,20 @@ use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
 use Parse::Pidl::Samba4 qw(is_intree choose_header);
 use Parse::Pidl::Typelist qw(mapTypeName);
 
-use Exporter;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(ParserType $ret $ret_hdr);
+use base Parse::Pidl::Base;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
+use warnings;
 
 sub new($) {
 	my ($class) = shift;
-	my $self = { ret => "", ret_hdr => "", tabs => "" };
+	my $self = { res => "", res_hdr => "", tabs => "" };
 	bless($self, $class);
 }
 
-sub indent($) { my $self = shift; $self->{tabs}.="\t"; }
-sub deindent($) { my $self = shift; $self->{tabs} = substr($self->{tabs}, 1); }
-sub pidl($$) { my $self = shift; $self->{ret} .= $self->{tabs}.(shift)."\n"; }
-sub pidl_hdr($$) { my $self = shift; $self->{ret_hdr} .= (shift)."\n"; }
 sub typearg($) { 
 	my $t = shift; 
 	return(", const char *name") if ($t eq "print");
@@ -277,7 +272,7 @@ sub Parser($$$$)
 	$self->pidl_hdr("");
 
 	foreach (@$idl) { $self->ParserInterface($_) if ($_->{TYPE} eq "INTERFACE"); }	
-	return ($self->{ret_hdr}, $self->{ret});
+	return ($self->{res_hdr}, $self->{res});
 }
 
 1;

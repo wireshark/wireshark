@@ -148,7 +148,7 @@ DESCRIPTION_FLAG = {
 }
 
 reg_code += """
-WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
+WS_DLL_PUBLIC_DEF const char plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const int plugin_want_major = VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = VERSION_MINOR;
 

@@ -21,10 +21,10 @@
 #define CRC16_INITIAL_VALUE       0xFFFF
 
 #ifndef STATIC_DATA
-static guint8  crc8_table[256];
-static guint32 crc32_table[256];
+static uint8_t crc8_table[256];
+static uint32_t crc32_table[256];
 
-extern guint16 crc16_table[256];
+extern uint16_t crc16_table[256];
 
 /*
   void wimax_mac_gen_crc32_table(void)
@@ -43,8 +43,8 @@ extern guint16 crc16_table[256];
 */
 void wimax_mac_gen_crc32_table(void)
 {
-  guint32 i, bit;
-  guint32 crc;
+  uint32_t i, bit;
+  uint32_t crc;
 
   /* little-endian (reflected) algorithm */
   for ( i = 0;  i < G_N_ELEMENTS(crc32_table);  i++ )
@@ -78,8 +78,8 @@ void wimax_mac_gen_crc32_table(void)
 */
 void wimax_mac_gen_crc8_table(void)
 {
-  guint  i, bit;
-  guint8 crc;
+  unsigned  i, bit;
+  uint8_t crc;
 
   for ( i = 0;  i < G_N_ELEMENTS(crc8_table);  i++ )
   {
@@ -98,7 +98,7 @@ void wimax_mac_gen_crc8_table(void)
 
 /*
 
-  guint32 wimax_mac_calc_crc32(guint8 *data, guint data_len)
+  uint32_t wimax_mac_calc_crc32(uint8_t *data, unsigned data_len)
 
   REQUIRES: wimax_mac_gen_crc32_table() must be called before
 
@@ -112,14 +112,14 @@ void wimax_mac_gen_crc8_table(void)
   SIDE EFFECTS:
 
 */
-guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
+uint32_t wimax_mac_calc_crc32(const uint8_t *data, unsigned data_len)
 {
-  guint32 crc=CRC32_INITIAL_VALUE;
-  guint i, j;
+  uint32_t crc=CRC32_INITIAL_VALUE;
+  unsigned i, j;
 
   for ( j = 0;  j < data_len;  j++ )
   {
-    i = ( (guint8)(crc>>24) ^ data[j] ) & 0xff;
+    i = ( (uint8_t)(crc>>24) ^ data[j] ) & 0xff;
     crc = ( crc<<8 ) ^ crc32_table[i];
   }
   return ~crc;
@@ -127,7 +127,7 @@ guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
 
 /*
 
-  guint16 wimax_mac_calc_crc16(guint8 *data, guint data_len)
+  uint16_t wimax_mac_calc_crc16(uint8_t *data, unsigned data_len)
 
   REQUIRES: crc16_table[] in crc_data.c
 
@@ -141,10 +141,10 @@ guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
   SIDE EFFECTS:
 
 */
-guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
+uint16_t wimax_mac_calc_crc16(const uint8_t *data, unsigned data_len)
 {
-  guint32 crc=CRC16_INITIAL_VALUE;
-  guint j;
+  uint32_t crc=CRC16_INITIAL_VALUE;
+  unsigned j;
 
   for ( j = 0;  j < data_len;  j++ )
   {
@@ -158,7 +158,7 @@ guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
 
 /*
 
-  guint8 wimax_mac_calc_crc8(guint8 *data, guint data_len)
+  uint8_t wimax_mac_calc_crc8(uint8_t *data, unsigned data_len)
 
   REQUIRES: wimax_mac_gen_crc8_table() must be called before
 
@@ -172,10 +172,10 @@ guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
   SIDE EFFECTS:
 
 */
-guint8 wimax_mac_calc_crc8(const guint8 *data, guint data_len)
+uint8_t wimax_mac_calc_crc8(const uint8_t *data, unsigned data_len)
 {
-  guint8 crc=0;
-  guint i;
+  uint8_t crc=0;
+  unsigned i;
 
   for(i = 0; i < data_len; i++)
   {

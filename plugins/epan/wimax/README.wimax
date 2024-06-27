@@ -70,7 +70,7 @@ Example: call_dissector(mgt_msg_handle, mgt_msg_tvb, pinfo, mgt_msg_tree);
 
 Notes
 --------
-1. All the burst data has to be defraged before passing it to the
+1. All the burst data has to be defragged before passing it to the
 WiMax burst dissectors.
 
 2. The wimax_pdu_burst_handler will automatically call

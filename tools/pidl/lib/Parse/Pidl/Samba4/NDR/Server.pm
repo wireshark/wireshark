@@ -7,6 +7,7 @@
 package Parse::Pidl::Samba4::NDR::Server;
 
 use strict;
+use warnings;
 use Parse::Pidl::Util;
 
 use vars qw($VERSION);
@@ -81,10 +82,10 @@ sub Boilerplate_Iface($)
 	my $if_version = $interface->{VERSION};
 
 	pidl "
-static NTSTATUS $name\__op_bind(struct dcesrv_call_state *dce_call, const struct dcesrv_interface *iface, uint32_t if_version)
+static NTSTATUS $name\__op_bind(struct dcesrv_connection_context *context, const struct dcesrv_interface *iface)
 {
 #ifdef DCESRV_INTERFACE_$uname\_BIND
-	return DCESRV_INTERFACE_$uname\_BIND(dce_call,iface);
+	return DCESRV_INTERFACE_$uname\_BIND(context,iface);
 #else
 	return NT_STATUS_OK;
 #endif
@@ -120,9 +121,6 @@ static NTSTATUS $name\__op_ndr_pull(struct dcesrv_call_state *dce_call, TALLOC_C
         /* unravel the NDR for the packet */
 	ndr_err = ndr_table_$name.calls[opnum].ndr_pull(pull, NDR_IN, *r);
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {
-		dcerpc_log_packet(dce_call->conn->packet_log_dir, 
-				  &ndr_table_$name, opnum, NDR_IN,
-				  &dce_call->pkt.u.request.stub_and_verifier);
 		dce_call->fault_code = DCERPC_FAULT_NDR;
 		return NT_STATUS_NET_WRITE_FAULT;
 	}
@@ -145,9 +143,6 @@ pidl "
 	}
 
 	if (dce_call->fault_code != 0) {
-		dcerpc_log_packet(dce_call->conn->packet_log_dir, 
-		          &ndr_table_$name, opnum, NDR_IN,
-				  &dce_call->pkt.u.request.stub_and_verifier);
 		return NT_STATUS_NET_WRITE_FAULT;
 	}
 
@@ -169,9 +164,6 @@ pidl "
 	}
 
 	if (dce_call->fault_code != 0) {
-		dcerpc_log_packet(dce_call->conn->packet_log_dir,
-		          &ndr_table_$name, opnum, NDR_IN,
-				  &dce_call->pkt.u.request.stub_and_verifier);
 		return NT_STATUS_NET_WRITE_FAULT;
 	}
 
@@ -201,6 +193,7 @@ static const struct dcesrv_interface dcesrv\_$name\_interface = {
 	.dispatch	    = $name\__op_dispatch,
 	.reply		    = $name\__op_reply,
 	.ndr_push	    = $name\__op_ndr_push,
+	.local		    = NULL,
 #ifdef DCESRV_INTERFACE_$uname\_FLAGS
 	.flags              = DCESRV_INTERFACE_$uname\_FLAGS
 #else
@@ -223,18 +216,33 @@ sub Boilerplate_Ep_Server($)
 static NTSTATUS $name\__op_init_server(struct dcesrv_context *dce_ctx, const struct dcesrv_endpoint_server *ep_server)
 {
 	int i;
+#ifdef DCESRV_INTERFACE_$uname\_NCACN_NP_SECONDARY_ENDPOINT
+	const char *ncacn_np_secondary_endpoint =
+		DCESRV_INTERFACE_$uname\_NCACN_NP_SECONDARY_ENDPOINT;
+#else
+	const char *ncacn_np_secondary_endpoint = NULL;
+#endif
 
 	for (i=0;i<ndr_table_$name.endpoints->count;i++) {
 		NTSTATUS ret;
 		const char *name = ndr_table_$name.endpoints->names[i];
 
-		ret = dcesrv_interface_register(dce_ctx, name, &dcesrv_$name\_interface, NULL);
+		ret = dcesrv_interface_register(dce_ctx,
+						name,
+						ncacn_np_secondary_endpoint,
+						&dcesrv_$name\_interface,
+						NULL);
 		if (!NT_STATUS_IS_OK(ret)) {
 			DEBUG(1,(\"$name\_op_init_server: failed to register endpoint \'%s\'\\n\",name));
 			return ret;
 		}
 	}
 
+	return NT_STATUS_OK;
+}
+
+static NTSTATUS $name\__op_shutdown_server(struct dcesrv_context *dce_ctx, const struct dcesrv_endpoint_server *ep_server)
+{
 	return NT_STATUS_OK;
 }
 
@@ -266,11 +274,19 @@ NTSTATUS dcerpc_server_$name\_init(TALLOC_CTX *ctx)
 	    /* fill in our name */
 	    .name = \"$name\",
 
+	    /* Initialization flag */
+	    .initialized = false,
+
 	    /* fill in all the operations */
 #ifdef DCESRV_INTERFACE_$uname\_INIT_SERVER
 	    .init_server = DCESRV_INTERFACE_$uname\_INIT_SERVER,
 #else
 	    .init_server = $name\__op_init_server,
+#endif
+#ifdef DCESRV_INTERFACE_$uname\_SHUTDOWN_SERVER
+	    .shutdown_server = DCESRV_INTERFACE_$uname\_SHUTDOWN_SERVER,
+#else
+	    .shutdown_server = $name\__op_shutdown_server,
 #endif
 	    .interface_by_uuid = $name\__op_interface_by_uuid,
 	    .interface_by_name = $name\__op_interface_by_name

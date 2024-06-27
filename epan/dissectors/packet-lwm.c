@@ -166,30 +166,30 @@ static const value_string lwm_cmd_multi_names[] = {
  *      Boolean value, whether it handles the packet or not.
  *---------------------------------------------------------------
  */
-static gboolean
+static bool
 dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8 endpt, srcep, dstep;
 
     /* 1) first byte must have bits 0000xxxx */
     if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
-        return FALSE;
+        return false;
 
     /* The header should be at least long enough for the base header. */
     if (tvb_reported_length(tvb) < LWM_HEADER_BASE_LEN)
-        return FALSE;
+        return false;
 
     /* The endpoints should either both be zero, or both non-zero. */
     endpt = tvb_get_guint8(tvb, 6);
     srcep = (endpt & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
     dstep = (endpt & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
     if ((srcep == 0) && (dstep != 0))
-        return FALSE;
+        return false;
     if ((srcep != 0) && (dstep == 0))
-        return FALSE;
+        return false;
 
     dissect_lwm(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 } /* dissect_lwm_heur */
 
 /*FUNCTION:------------------------------------------------------
@@ -522,7 +522,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         lwm_cmd = tvb_get_guint8(new_tvb, 0);
 
         col_clear(pinfo->cinfo, COL_INFO);  /*XXX: why ?*/
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+        col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING));
 
         lwm_cmd_tree = proto_tree_add_subtree(lwm_tree, new_tvb, 0, -1, ett_lwm_cmd_tree, &ti,

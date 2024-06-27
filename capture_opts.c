@@ -405,6 +405,27 @@ static gboolean get_filter_arguments(capture_options* capture_opts, const char* 
     }
 }
 
+void
+capture_opts_list_file_types(void) {
+
+    cmdarg_err("The available capture file types for the \"-F\" flag are:\n");
+    cmdarg_err_cont("%s", "    pcap - Wireshark/tcpdump/... - pcap");
+    cmdarg_err_cont("%s", "    pcapng - Wireshark/... - pcapng");
+}
+
+static gboolean get_file_type_argument(capture_options* capture_opts _U_, const
+ char* arg)
+{
+    if (strcmp(arg, "pcapng") == 0) {
+        capture_opts->use_pcapng = TRUE;
+    } else if (strcmp(arg, "pcap") == 0) {
+        capture_opts->use_pcapng = FALSE;
+    } else {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 /*
  * Given a string of the form "<ring buffer file>:<duration>", as might appear
  * as an argument to a "-b" option, parse it and set the arguments in
@@ -975,6 +996,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST);
         get_filter_arguments(capture_opts, optarg_str_p);
         break;
+    case 'F':        /* capture file type */
+        if (get_file_type_argument(capture_opts, optarg_str_p) == FALSE) {
+            capture_opts_list_file_types();
+            return 1;
+        }
+        break;
     case 'g':        /* enable group read access on the capture file(s) */
         capture_opts->group_read_access = TRUE;
         break;
@@ -1027,6 +1054,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
 #endif
     case 'n':        /* Use pcapng format */
+        cmdarg_err("'-n' is deprecated; use '-F pcapng' to set the output format to pcapng.");
         capture_opts->use_pcapng = TRUE;
         break;
     case 'p':        /* Don't capture in promiscuous mode */
@@ -1040,6 +1068,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         }
         break;
     case 'P':        /* Use pcap format */
+        cmdarg_err("'-P' is deprecated; use '-F pcap' to set the output format to pcap.");
         capture_opts->use_pcapng = FALSE;
         break;
 #ifdef HAVE_PCAP_REMOTE
@@ -1123,14 +1152,14 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         if (strcmp(optarg_str_p, "none") == 0) {
             ;
         } else if (strcmp(optarg_str_p, "gzip") == 0) {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
             ;
 #else
             cmdarg_err("'gzip' compression is not supported");
             return 1;
 #endif
         } else {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
             cmdarg_err("parameter of --compress-type can be 'none' or 'gzip'");
 #else
             cmdarg_err("parameter of --compress-type can only be 'none'");

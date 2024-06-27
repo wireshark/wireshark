@@ -1071,7 +1071,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         /* No checksum supplied in the packet. */
 
         gboolean ignore_zero_checksum = (ip_proto == IP_PROTO_UDP) &&
-            ((pinfo->src.type == AT_IPv4) || ((pinfo->src.type == AT_IPv6) && udp_ignore_ipv6_zero_checksum));
+            ((pinfo->src.type == AT_IPv4) ||
+             (pinfo->src.type == AT_NONE) ||
+             ((pinfo->src.type == AT_IPv6) && udp_ignore_ipv6_zero_checksum));
         proto_checksum_enum_e checksum_status;
 
         item = proto_tree_add_item(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, ENC_BIG_ENDIAN);

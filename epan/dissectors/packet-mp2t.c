@@ -1533,7 +1533,7 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     gint length;
@@ -1542,23 +1542,23 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     length = tvb_reported_length_remaining(tvb, offset);
     if (length == 0) {
         /* Nothing to check for */
-        return FALSE;
+        return false;
     }
     if ((length % MP2T_PACKET_SIZE) != 0) {
         /* Not a multiple of the MPEG-2 transport packet size */
-        return FALSE;
+        return false;
     } else {
         while (tvb_offset_exists(tvb, offset)) {
             if (tvb_get_guint8(tvb, offset) != MP2T_SYNC_BYTE) {
                 /* No sync byte at the appropriate offset */
-                return FALSE;
+                return false;
             }
             offset += MP2T_PACKET_SIZE;
         }
     }
 
     dissect_mp2t(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 

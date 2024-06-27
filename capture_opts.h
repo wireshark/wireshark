@@ -96,7 +96,7 @@ extern "C" {
 
 
 #define OPTSTRING_CAPTURE_COMMON \
-    "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
+    "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:F:i:" OPTSTRING_I "Lps:y:"
 
 #ifdef HAVE_PCAP_REMOTE
 /* Type of capture source */
@@ -360,6 +360,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *ws_opta
 /* log content of capture_opts */
 extern void
 capture_opts_log(const char *domain, enum ws_log_level level, capture_options *capture_opts);
+
+/* List supported file types for capturing. This is intentionally smaller
+ * than the list supported by libwiretap (and dumpcap isn't linked with
+ * libwiretap.) */
+extern void
+capture_opts_list_file_types(void);
 
 enum caps_query {
     CAPS_QUERY_LINK_TYPES      = 0x1,

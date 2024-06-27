@@ -886,7 +886,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 					if ( opi == OPI_OSESSKEY )
 					{
-						/* SQL Developer specifix fix */
+						/* SQL Developer specific fix */
 						offset += tvb_get_guint8(tvb, offset) == 2 ? 5 : 3;
 					}
 					else /* OPI_OAUTH */

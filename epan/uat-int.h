@@ -96,9 +96,18 @@ void uat_insert_record_idx(uat_t *uat, unsigned rec_idx, const void *src_record)
 
 /**
  * Removes the record with the given index from the internal record list.
+ * If the UAT has a free_cb it is called for the removed record.
  */
 WS_DLL_PUBLIC
 void uat_remove_record_idx(uat_t *uat, unsigned rec_idx);
+
+/**
+ * Removes the given number of records starting with the given index from
+ * the internal record list. If the UAT has a free_cb it is called for
+ * the removed records.
+ */
+WS_DLL_PUBLIC
+void uat_remove_record_range(uat_t *uat, unsigned rec_idx, unsigned count);
 
 /**
  * Moves the entry from the old position to the new one

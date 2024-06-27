@@ -828,18 +828,18 @@ static conversation_t* create_tftp_conversation(packet_info *pinfo)
   return conversation;
 }
 
-static gboolean
+static bool
 dissect_tftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (is_valid_request_body(tvb, pinfo)) {
     conversation_t* conversation = create_tftp_conversation(pinfo);
     dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
-static gboolean
+static bool
 dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Used to dissect TFTP packets where one can not assume
@@ -853,7 +853,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
    */
 
   if (tvb_captured_length(tvb) < MIN_HDR_LEN)
-    return FALSE;
+    return false;
 
   opcode = tvb_get_ntohs(tvb, 0);
 
@@ -862,7 +862,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     case TFTP_WRQ:
       /* These 2 opcodes have a NULL-terminated source file name after opcode. Verify */
       if (!is_valid_request_body(tvb, pinfo))
-        return FALSE;
+        return false;
      /* Intentionally dropping through here... */
     case TFTP_DATA:
     case TFTP_ACK:
@@ -883,16 +883,16 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case TFTP_ERR_OPT_FAIL:
           break;
         default:
-          return FALSE;
+          return false;
       }
       break;
     default:
-      return FALSE;
+      return false;
   }
 
   conversation = find_or_create_conversation(pinfo);
   dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
-  return TRUE;
+  return true;
 }
 
 static int

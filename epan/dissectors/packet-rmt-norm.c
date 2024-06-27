@@ -638,21 +638,21 @@ dissect_norm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8 byte1;
 
     if (tvb_reported_length(tvb) < 12)
-        return FALSE;  /* not enough to check */
+        return false;  /* not enough to check */
     byte1 = tvb_get_guint8(tvb, 0);
 
-    if (hi_nibble(byte1) != 1) return FALSE;
-    if (lo_nibble(byte1) < 1 || lo_nibble(byte1) > 6) return FALSE;
-    if (tvb_get_guint8(tvb, 1) > 20) return FALSE;
+    if (hi_nibble(byte1) != 1) return false;
+    if (lo_nibble(byte1) < 1 || lo_nibble(byte1) > 6) return false;
+    if (tvb_get_guint8(tvb, 1) > 20) return false;
 
     dissect_norm(tvb, pinfo, tree, data);
-    return TRUE; /* appears to be a NORM packet */
+    return true; /* appears to be a NORM packet */
 }
 
 void proto_register_norm(void)

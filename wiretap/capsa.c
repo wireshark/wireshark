@@ -7,10 +7,11 @@
  */
 
 #include "config.h"
+#include "capsa.h"
+
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "capsa.h"
 #include <wsutil/ws_assert.h>
 
 /*

@@ -1072,12 +1072,12 @@ typedef int register_dissect_func(packet_info *pinfo, proto_tree *tree, tvbuff_t
 /* esc registers */
 typedef struct
 {
-   guint16								reg;
-   guint16								length;
-   guint16								repeat;
+   uint16_t								reg;
+   uint16_t								length;
+   uint16_t								repeat;
    int*									phf;
    int* const							*bitmask_info;
-   gint*								pett;
+   int*								pett;
    register_dissect_func				*dissect;
 } ecat_esc_reg_info;
 
@@ -1198,13 +1198,13 @@ static ecat_esc_reg_info ecat_esc_registers [] =
 };
 
 /* esc dissector */
-static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 len, EcParserHDR* hdr, guint16 cnt)
+static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t len, EcParserHDR* hdr, uint16_t cnt)
 {
-   guint i;
-   gint r;
-   gint res = -1;
-   gint regOffset;
-   gint read = 0;
+   unsigned i;
+   int r;
+   int res = -1;
+   int regOffset;
+   int read = 0;
 
    if (len > 0 )
    {
@@ -1231,7 +1231,7 @@ static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *
             regOffset = ecat_esc_registers[i].reg;
             for ( r=0; r<ecat_esc_registers[i].repeat; r++ )
             {
-               if ( regOffset >= hdr->anAddrUnion.a.ado && regOffset+ecat_esc_registers[i].length <= (guint16)(hdr->anAddrUnion.a.ado + len) )
+               if ( regOffset >= hdr->anAddrUnion.a.ado && regOffset+ecat_esc_registers[i].length <= (uint16_t)(hdr->anAddrUnion.a.ado + len) )
                {
                   if ( cnt > 0 || !read )
                   {
@@ -1260,7 +1260,7 @@ static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *
 
    return res;
 }
-static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, gint offset)
+static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, int offset)
 {
    pHdr->cmd = tvb_get_guint8(tvb, offset++);
    pHdr->idx = tvb_get_guint8(tvb, offset++);
@@ -1270,7 +1270,7 @@ static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, gint offset)
    pHdr->intr = tvb_get_letohs(tvb, offset);
 }
 
-static void init_dc_measure(guint32* pDC, tvbuff_t *tvb, gint offset)
+static void init_dc_measure(uint32_t* pDC, tvbuff_t *tvb, int offset)
 {
    int i;
    for ( i=0; i<4; i++ )
@@ -1280,27 +1280,27 @@ static void init_dc_measure(guint32* pDC, tvbuff_t *tvb, gint offset)
    }
 }
 
-static guint16 get_wc(EcParserHDR* pHdr, tvbuff_t *tvb, gint offset)
+static uint16_t get_wc(EcParserHDR* pHdr, tvbuff_t *tvb, int offset)
 {
    return tvb_get_letohs(tvb, offset+EcParserHDR_Len+(pHdr->len&0x07ff));
 }
 
-static guint16 get_cmd_len(EcParserHDR* pHdr)
+static uint16_t get_cmd_len(EcParserHDR* pHdr)
 {
    return (EcParserHDR_Len+(pHdr->len&0x07ff)+2); /*Header + data + wc*/
 }
 
 
-static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, char *szText, gint nMax)
+static void EcSummaryFormater(uint32_t datalength, tvbuff_t *tvb, int offset, char *szText, int nMax)
 {
-   guint nSub=0;
-   guint nLen=0;
-   guint8  nCmds[4];
-   guint nLens[4];
+   unsigned nSub=0;
+   unsigned nLen=0;
+   uint8_t nCmds[4];
+   unsigned nLens[4];
    EcParserHDR ecFirst;
    EcParserHDR ecParser;
 
-   guint suboffset=0;
+   unsigned suboffset=0;
 
    init_EcParserHDR(&ecFirst, tvb, offset);
 
@@ -1331,8 +1331,8 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
    }
    if ( nSub == 1 )
    {
-      guint16 len = ecFirst.len&0x07ff;
-      guint16 cnt = get_wc(&ecFirst, tvb, offset);
+      uint16_t len = ecFirst.len&0x07ff;
+      uint16_t cnt = get_wc(&ecFirst, tvb, offset);
       snprintf ( szText, nMax, "'%s': Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ",
          convertEcCmdToText(ecFirst.cmd, EcCmdShort), len, ecFirst.anAddrUnion.a.adp, ecFirst.anAddrUnion.a.ado, cnt );
    }
@@ -1356,10 +1356,10 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
          nSub, nLen, convertEcCmdToText(ecFirst.cmd, EcCmdShort));
 }
 
-static void EcCmdFormatter(guint8 cmd, char *szText, gint nMax)
+static void EcCmdFormatter(uint8_t cmd, char *szText, int nMax)
 {
-   gint idx=0;
-   const gchar *szCmd = try_val_to_str_idx((guint32)cmd, EcCmdLong, &idx);
+   int idx=0;
+   const char *szCmd = try_val_to_str_idx((uint32_t)cmd, EcCmdLong, &idx);
 
    if ( idx != -1 )
       snprintf(szText, nMax, "Cmd        : %d (%s)", cmd, szCmd);
@@ -1368,10 +1368,10 @@ static void EcCmdFormatter(guint8 cmd, char *szText, gint nMax)
 }
 
 
-static void EcSubFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
+static void EcSubFormatter(tvbuff_t *tvb, int offset, char *szText, int nMax)
 {
    EcParserHDR ecParser;
-   guint16 len, cnt;
+   uint16_t len, cnt;
 
    init_EcParserHDR(&ecParser, tvb, offset);
    len = ecParser.len&0x07ff;
@@ -1414,14 +1414,14 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    tvbuff_t *next_tvb;
    proto_item *ti, *aitem = NULL;
    proto_tree *ecat_datagrams_tree = NULL;
-   guint offset = 0;
+   unsigned offset = 0;
    char szText[200];
    int nMax = sizeof(szText)-1;
 
-   guint ecLength=0;
-   guint subCount = 0;
-   const guint datagram_length = tvb_captured_length(tvb);
-   guint datagram_padding_bytes = 0;
+   unsigned ecLength=0;
+   unsigned subCount = 0;
+   const unsigned datagram_length = tvb_captured_length(tvb);
+   unsigned datagram_padding_bytes = 0;
    EcParserHDR ecHdr;
    heur_dtbl_entry_t *hdtbl_entry;
 
@@ -1473,10 +1473,10 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       proto_tree *ecat_datagram_tree = NULL, *ecat_header_tree = NULL, *ecat_dc_tree = NULL;
 
       proto_item *hidden_item;
-      guint32 subsize;
-      guint32 suboffset;
-      guint32 len;
-      guint16 cnt;
+      uint32_t subsize;
+      uint32_t suboffset;
+      uint32_t len;
+      uint16_t cnt;
       ETHERCAT_MBOX_HEADER mbox;
 
       suboffset = offset;
@@ -1568,7 +1568,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
       if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.a.ado == 0x900 && ecHdr.len >= 16 && cnt > 0 )
       {
-         guint32 pDC[4];
+         uint32_t pDC[4];
          init_dc_measure(pDC, tvb, suboffset);
 
          ecat_dc_tree = proto_tree_add_subtree(ecat_datagram_tree, tvb, suboffset, len, ett_ecat_dc, NULL, "Dc");
@@ -1631,8 +1631,8 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       }
       else if (dissect_esc_register(pinfo, ecat_datagram_tree, tvb, suboffset, len, &ecHdr, cnt) != 0)
       {
-         guint startOfData = offset + EcParserHDR_Len;
-         guint dataLength = len;
+         unsigned startOfData = offset + EcParserHDR_Len;
+         unsigned dataLength = len;
 
          if ( len >= ETHERCAT_MBOX_HEADER_LEN &&
            ((ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd == EC_CMD_TYPE_APWR || ecHdr.cmd == EC_CMD_TYPE_APRW || ecHdr.cmd == EC_CMD_TYPE_FPRW) || ((ecHdr.cmd==EC_CMD_TYPE_FPRD  || ecHdr.cmd==EC_CMD_TYPE_APRD) && cnt==1) ) &&
@@ -1649,7 +1649,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                case ETHERCAT_MBOX_TYPE_SOE:
                if ( mbox.Length <= 1500 )
                {
-                  guint MBoxLength = mbox.Length + ETHERCAT_MBOX_HEADER_LEN;
+                  unsigned MBoxLength = mbox.Length + ETHERCAT_MBOX_HEADER_LEN;
                   if ( MBoxLength > len )
                      MBoxLength = len;
 
@@ -3660,7 +3660,7 @@ void proto_register_ecat(void)
          },
       };
 
-   static gint *ett[] =
+   static int *ett[] =
       {
          &ett_ecat,
          &ett_ecat_header,

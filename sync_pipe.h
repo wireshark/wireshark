@@ -30,7 +30,7 @@
  * 4096 is a typical PIPE_BUF size for atomic writes, but we should have
  * only one writer and one reader so that shouldn't be an issue.
  */
-#define SP_MAX_MSG_LEN  16380
+#define SP_MAX_MSG_LEN  24572
 
 /*
  * Indications sent out on the sync pipe (from child to parent).

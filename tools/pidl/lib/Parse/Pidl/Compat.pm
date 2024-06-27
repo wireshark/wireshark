@@ -8,6 +8,7 @@ package Parse::Pidl::Compat;
 use Parse::Pidl qw(warning);
 use Parse::Pidl::Util qw(has_property);
 use strict;
+use warnings;
 
 use vars qw($VERSION);
 $VERSION = '0.01';

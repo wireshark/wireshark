@@ -13,8 +13,8 @@
  */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "dct3trace.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #include <stdlib.h>

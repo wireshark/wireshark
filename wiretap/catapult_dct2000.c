@@ -7,6 +7,8 @@
  */
 
 #include "config.h"
+#include "catapult_dct2000.h"
+
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,8 +17,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#include "catapult_dct2000.h"
 
 #define MAX_FIRST_LINE_LENGTH      150
 #define MAX_TIMESTAMP_LINE_LENGTH  50

@@ -1524,11 +1524,7 @@ set_open_status_str(int status, pcap_t *pcap_h,
 
 pcap_t *
 open_capture_device_pcap_create(
-#if defined(HAVE_PCAP_SET_TSTAMP_PRECISION)
-    capture_options* capture_opts,
-#else
     capture_options* capture_opts _U_,
-#endif
     interface_options *interface_opts, int timeout,
     cap_device_open_status *open_status,
     char (*open_status_str)[PCAP_ERRBUF_SIZE])
@@ -1576,33 +1572,27 @@ open_capture_device_pcap_create(
 
 #ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 	/*
-	 * If we're writing pcapng files, try to enable
-	 * nanosecond-resolution capture; any code that
-	 * can read pcapng files must be able to handle
-	 * nanosecond-resolution time stamps.  We don't
-	 * care whether it succeeds or fails - if it fails,
-	 * we just use the microsecond-precision time stamps
-	 * we get.
+	 * Try to enable nanosecond-resolution capture; any code
+	 * that can read pcapng files must be able to handle
+	 * nanosecond-resolution time stamps. We think at this
+	 * point that code that reads pcap files should recognize
+	 * the nanosecond-resolution pcap file magic number. If
+	 * it doesn't, we can downconvert via a program that
+	 * uses libwiretap.
 	 *
-	 * If we're writing pcap files, don't try to enable
-	 * nanosecond-resolution capture, as not all code
-	 * that reads pcap files recognizes the nanosecond-
-	 * resolution pcap file magic number.
 	 * We don't care whether this succeeds or fails; if it
 	 * fails (because we don't have pcap_set_tstamp_precision(),
 	 * or because we do but the OS or device doesn't support
-	 * nanosecond resolution timing), we just use microsecond-
-	 * resolution time stamps.
+	 * nanosecond resolution timing), we just use the microsecond-
+	 * resolution time stamps we get.
 	 */
-	if (capture_opts->use_pcapng) {
-		status = request_high_resolution_timestamp(pcap_h);
-		if (status < 0) {
-			/* Error. */
-			set_open_status_str(status, pcap_h, open_status_str);
-			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
-			pcap_close(pcap_h);
-			return NULL;
-		}
+	status = request_high_resolution_timestamp(pcap_h);
+	if (status < 0) {
+		/* Error. */
+		set_open_status_str(status, pcap_h, open_status_str);
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+		pcap_close(pcap_h);
+		return NULL;
 	}
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 

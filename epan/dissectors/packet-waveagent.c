@@ -1062,9 +1062,9 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_captured_length(tvb);
 }
 
-static gboolean dissect_waveagent_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_waveagent_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return (dissect_waveagent(tvb, pinfo, tree) > 0) ? TRUE : FALSE;
+    return dissect_waveagent(tvb, pinfo, tree) > 0;
 }
 
 

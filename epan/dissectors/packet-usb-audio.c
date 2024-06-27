@@ -2427,7 +2427,7 @@ dissect_v1_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     const gchar        *title = "Unknown Parameter Block";
     int                *parameter_hf = NULL;
     int                 attribute_size;
-    int                *vwalue_fields[] = {
+    int                *wvalue_fields[] = {
         NULL, /* Channel number or zero */
         NULL, /* Control selector if known */
         NULL
@@ -2448,8 +2448,8 @@ dissect_v1_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             title = "Selector Control Parameter Block";
             break;
         case USB_AUDIO_ENTITY_FEATURE_UNIT:
-            vwalue_fields[0] = &hf_wvalue_channel_number;
-            vwalue_fields[1] = &hf_wvalue_fu_cs_v1;
+            wvalue_fields[0] = &hf_wvalue_channel_number;
+            wvalue_fields[1] = &hf_wvalue_fu_cs_v1;
             control_selector_vals = v1_fu_cs_vals;
             if (control_selector == MUTE_CONTROL) {
                 parameter_hf = &hf_parameter_bmute;
@@ -2474,8 +2474,8 @@ dissect_v1_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree_add_item(tree, hf_brequest_v1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
-        if (vwalue_fields[0]) {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, vwalue_fields, ENC_LITTLE_ENDIAN);
+        if (wvalue_fields[0]) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, wvalue_fields, ENC_LITTLE_ENDIAN);
         } else {
             ti = proto_tree_add_item(tree, hf_wvalue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             /* Selector doesn't use wValue (must be zero), all others do use it */
@@ -2521,7 +2521,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     parameter_layout_t  layout = PARAMETER_LAYOUT_UNKNOWN;
     const gchar        *parameter_str = NULL;
     const gchar        *str;
-    int                *vwalue_fields[] = {
+    int                *wvalue_fields[] = {
         &hf_wvalue_channel_number,
         NULL, /* Control selector if known */
         NULL
@@ -2532,7 +2532,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     switch (entity) {
         case USB_AUDIO_ENTITY_CLOCK_SOURCE:
-            vwalue_fields[1] = &hf_wvalue_clksrc_cs;
+            wvalue_fields[1] = &hf_wvalue_clksrc_cs;
             control_selector_vals = v2_clksrc_cs_vals;
             if ((control_selector == V2_CS_SAM_FREQ_CONTROL) && (channel_number == 0)) {
                 layout = PARAMETER_LAYOUT_3;
@@ -2543,7 +2543,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
             break;
         case USB_AUDIO_ENTITY_CLOCK_SELECTOR:
-            vwalue_fields[1] = &hf_wvalue_clksel_cs;
+            wvalue_fields[1] = &hf_wvalue_clksel_cs;
             control_selector_vals = v2_clksel_cs_vals;
             if ((control_selector == V2_CX_CLOCK_SELECTOR_CONTROL) && (channel_number == 0)) {
                 layout = PARAMETER_LAYOUT_1;
@@ -2560,8 +2560,8 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     if (usb_conv_info->is_request) {
-        ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, vwalue_fields, ENC_LITTLE_ENDIAN);
-        if (vwalue_fields[1] == NULL) {
+        ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, wvalue_fields, ENC_LITTLE_ENDIAN);
+        if (wvalue_fields[1] == NULL) {
             /* Control selector not handled, mark as undecoded */
             expert_add_info(pinfo, ti, &ei_usb_audio_undecoded);
         }

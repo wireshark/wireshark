@@ -61,10 +61,12 @@
  * RFC 7291: DHCP Options for the Port Control Protocol (PCP)
  * RFC 7618: Dynamic Allocation of Shared IPv4 Addresses
  * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
+ * RFC 7724: Active DHCPv4 Lease Query
  * RFC 7839: Access-Network-Identifier Option in DHCP
  * RFC 8357: Generalized UDP Source Port for DHCP Relay
  * RFC 8910: Captive-Portal Identification in DHCP and Router Advertisements (RAs)
  * RFC 8925: IPv6-Only Preferred Option for DHCPv4
+ * RFC 8973: DDoS Open Threat Signaling (DOTS) Agent Discovery
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: https://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -622,6 +624,8 @@ static int hf_dhcp_option_rdnss_pref;				/* 146 */
 static int hf_dhcp_option_rdnss_prim_dns_server;			/* 146 */
 static int hf_dhcp_option_rdnss_sec_dns_server;			/* 146 */
 static int hf_dhcp_option_rdnss_domain;				/* 146 */
+static int hf_dhcp_option_dots_ri;				/* 147 */
+static int hf_dhcp_option_dots_address;				/* 148 */
 static int hf_dhcp_option_tftp_server_address;			/* 150 */
 static int hf_dhcp_option_bulk_lease_status_code;			/* 151 */
 static int hf_dhcp_option_bulk_lease_status_message;		/* 151 */
@@ -639,6 +643,7 @@ static int hf_dhcp_option_portparams_psid;				/* 159 */
 static int hf_dhcp_option_mudurl;					/* 161 */
 static int hf_dhcp_option_pxe_config_file;				/* 209 */
 static int hf_dhcp_option_pxe_path_prefix;				/* 210 */
+static int hf_dhcp_option_pxe_reboot_time;				/* 211 */
 static int hf_dhcp_option_6RD_ipv4_mask_len;			/* 212 */
 static int hf_dhcp_option_6RD_prefix_len;				/* 212 */
 static int hf_dhcp_option_6RD_prefix;				/* 212 */
@@ -981,6 +986,10 @@ static const value_string bulk_lease_dhcp_status_code_vals[] = {
 	{ 2, "QueryTerminated" },
 	{ 3, "MalformedQuery" },
 	{ 4, "NotAllowed" },
+	{ 5, "DataMissing" },
+	{ 6, "ConnectionActive" },
+	{ 7, "CatchUpComplete" },
+	{ 8, "TLSConnectionRefused" },
 	{ 0, NULL },
 };
 
@@ -1417,7 +1426,7 @@ static const string_string option242_avaya_static_vals[] = {
 #define DHCP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_dhcpopt_basic_type() */
-#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,108,112-113,116,118,136-138,142,150,153,156-157,161,209-210,252"
+#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,62,64-76,86-87,91-92,100-101,108,112-113,116,118,136-138,142,147-148,150,153,156-157,161,209-211,252"
 
 /* Re-define structure.	 Values to be updated by dhcp_init_protocol */
 static struct opt_info dhcp_opt[DHCP_OPT_NUM];
@@ -1570,8 +1579,8 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 144 */ { "Geospatial Location [TODO:RFC6225]",	opaque, NULL },
 /* 145 */ { "Forcerenew Nonce Capable",			special, NULL },
 /* 146 */ { "RDNSS Selection",				special, NULL },
-/* 147 */ { "Unassigned",				opaque, NULL },
-/* 148 */ { "Unassigned",				opaque, NULL },
+/* 147 */ { "DOTS Reference Identifier",		string, &hf_dhcp_option_dots_ri },
+/* 148 */ { "DOTS Address",				ipv4_list, &hf_dhcp_option_dots_address },
 /* 149 */ { "Unassigned",				opaque, NULL },
 /* 150 */ { "TFTP Server Address",			ipv4_list, &hf_dhcp_option_tftp_server_address },
 /* 151 */ { "Leasequery Status code",			special, NULL },
@@ -1634,7 +1643,7 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 208 */ { "PXELINUX Magic",				opaque, NULL },
 /* 209 */ { "PXE Configuration file",			string, &hf_dhcp_option_pxe_config_file },
 /* 210 */ { "PXE Path Prefix",				string, &hf_dhcp_option_pxe_path_prefix },
-/* 211 */ { "Reboot Time",				opaque, NULL },
+/* 211 */ { "Reboot Time",				time_in_u_secs, &hf_dhcp_option_pxe_reboot_time },
 /* 212 */ { "6RD",					opaque, NULL },
 /* 213 */ { "V4 Access Domain",				opaque, NULL },
 /* 214 */ { "Unassigned",				opaque, NULL },
@@ -4036,7 +4045,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4046,7 +4055,7 @@ dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* PXE protocol 2.1 as described in the Intel specs */
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, "PXEClient", strlen("PXEClient")) != 0))
-		return FALSE;
+		return false;
 
 	proto_item_append_text(tree, " (PXEClient)");
 	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
@@ -4056,7 +4065,7 @@ dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void
@@ -4600,7 +4609,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4639,13 +4648,13 @@ dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			offset = dissect_vendor_cablelabs_suboption(pinfo, tree, vendor_tree,
 				tvb, offset, tvb_reported_length(tvb));
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_aruba_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4654,16 +4663,16 @@ dissect_aruba_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, ARUBA_AP, strlen(ARUBA_AP)) != 0))
-		return FALSE;
+		return false;
 
 	proto_item_append_text(tree, " (Aruba AP)");
 	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
 
 	proto_tree_add_item(vendor_tree, hf_dhcp_option43_arubaap_controllerip, tvb, offset, tvb_reported_length(tvb), ENC_ASCII);
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4676,7 +4685,7 @@ dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_
 	/* Aruba  Instant AP */
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, ARUBA_INSTANT_AP, strlen(ARUBA_INSTANT_AP)) != 0))
-		return FALSE;
+		return false;
 
 	proto_item_append_text(tree, " (Aruba Instant AP)");
 
@@ -4690,7 +4699,7 @@ dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_
 	offset += (ampiplen+1);
 	proto_tree_add_item(vendor_tree, hf_dhcp_option43_arubaiap_password, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
 
-	return TRUE;
+	return true;
 }
 
 static const value_string option43_bsdp_suboption_vals[] = {
@@ -4842,7 +4851,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4851,7 +4860,7 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, APPLE_BSDP_SERVER, strlen(APPLE_BSDP_SERVER)) != 0))
-		return FALSE;
+		return false;
 
 	/* Apple BSDP */
 	proto_item_append_text(tree, " (Boot Server Discovery Protocol (BSDP))");
@@ -4862,7 +4871,7 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Cisco Vendor Specific Information */
@@ -4981,7 +4990,7 @@ dissect_vendor_cisco_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4990,7 +4999,7 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, CISCO_VCID, strlen(CISCO_VCID)) != 0))
-		return FALSE;
+		return false;
 
 	/* Cisco ACI Fabric*/
 	proto_item_append_text(tree, " (Cisco ACI Fabric)");
@@ -5001,7 +5010,7 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Aerohive (Extremenetworks) Vendor Specific Information */
@@ -5066,7 +5075,7 @@ dissect_vendor_aerohive_suboption(packet_info *pinfo, proto_item *v_ti, proto_tr
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -5075,7 +5084,7 @@ dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, AEROHIVE_VCID, strlen(AEROHIVE_VCID)) != 0))
-		return FALSE;
+		return false;
 
 	/* Cisco ACI Fabric*/
 	proto_item_append_text(tree, " (Aerohive)");
@@ -5086,7 +5095,7 @@ dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 static int
@@ -5307,7 +5316,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
@@ -5315,7 +5324,7 @@ dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree* vendor_tree;
 
 	if (tvb_reported_length(tvb) < 1)
-		return FALSE;
+		return false;
 
 	s_option = tvb_get_guint8(tvb, offset);
 	if ((s_option==58 || s_option==64 || s_option==65
@@ -5330,10 +5339,10 @@ dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, prot
 			offset = dissect_vendor_alcatel_suboption(pinfo, tree, vendor_tree,
 				tvb, offset, tvb_reported_length(tvb));
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 static const value_string option63_suboption_vals[] = {
@@ -6051,13 +6060,13 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 	}
 }
 
-static gboolean
+static bool
 dissect_packetcable_mta_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	guint8* vendor_id;
 
 	if (tvb_reported_length(tvb) < 8) {
-		return FALSE;
+		return false;
 	}
 
 	vendor_id = tvb_get_string_enc(pinfo->pool, tvb, 0, 8, ENC_ASCII|ENC_NA);
@@ -6065,10 +6074,10 @@ dissect_packetcable_mta_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo, proto
 		(strcmp((const char*)vendor_id, PACKETCABLE_MTA_CAP15) == 0) ||
 		(strcmp((const char*)vendor_id, PACKETCABLE_MTA_CAP20) == 0)) {
 		dissect_packetcable_mta_cap(tree, pinfo, tvb, 0, tvb_reported_length(tvb));
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /* DOCSIS Cable Modem device capabilities (option 60/option 125). */
@@ -6662,45 +6671,45 @@ dissect_docsis_cm_cap(packet_info *pinfo, proto_tree *v_tree, tvbuff_t *tvb, int
 	}
 }
 
-static gboolean
+static bool
 dissect_packetcable_cm_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	guint8* vendor_id;
 
 	if (tvb_reported_length(tvb) < 10) {
-		return FALSE;
+		return false;
 	}
 
 	vendor_id = tvb_get_string_enc(pinfo->pool, tvb, 0, 10, ENC_ASCII|ENC_NA);
 	if ((strcmp((const char*)vendor_id, PACKETCABLE_CM_CAP11) == 0) ||
 		(strcmp((const char*)vendor_id, PACKETCABLE_CM_CAP20) == 0)) {
 		dissect_docsis_cm_cap(pinfo, tree, tvb, 0, tvb_reported_length(tvb), FALSE);
-		return TRUE;
+		return true;
 	}
 
 	if ((strcmp((const char*)vendor_id, PACKETCABLE_CM_CAP30) == 0)) {
 		proto_tree_add_item(tree, hf_dhcp_option_vendor_class_data, tvb, 0, tvb_reported_length(tvb), ENC_ASCII);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_apple_bsdp_vendor_id_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 
 {
 	int vendor_id_len = (int)strlen(APPLE_BSDP_CLIENT);
 	if ((int)tvb_reported_length(tvb) < vendor_id_len) {
-		return FALSE;
+		return false;
 	}
 
 	if (tvb_memeql(tvb, 0, (const guint8*)APPLE_BSDP_CLIENT, vendor_id_len) == 0) {
 		proto_tree_add_item(tree, hf_dhcp_option_vendor_class_data, tvb, vendor_id_len, tvb_reported_length_remaining(tvb, vendor_id_len), ENC_ASCII);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -9963,6 +9972,16 @@ proto_register_dhcp(void)
 		    FT_STRING, BASE_NONE, NULL, 0x00,
 		    "RDNSS Domains and networks", HFILL }},
 
+		{ &hf_dhcp_option_dots_ri,
+		  { "DOTS Reference Identifier", "dhcp.option.dots.ri",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "Peer DOTS Agent name", HFILL }},
+
+		{ &hf_dhcp_option_dots_address,
+		  { "DOTS Address", "dhcp.option.dots.address",
+		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    "Peer DOTS Agent Address", HFILL }},
+
 		{ &hf_dhcp_option_tftp_server_address,
 		  { "TFTP Server Address", "dhcp.option.tftp_server_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -10047,6 +10066,11 @@ proto_register_dhcp(void)
 		  { "PXELINUX path prefix", "dhcp.option.pxe_path_prefix",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Option 210: PXE Path Prefix", HFILL }},
+
+		{ &hf_dhcp_option_pxe_reboot_time,
+		  { "PXELINUX Reboot Time", "dhcp.option.pxe_reboot_time",
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
+		    "Option 211: PXE Reboot Time", HFILL }},
 
 		{ &hf_dhcp_option_captive_portal,
 		  { "Captive Portal", "dhcp.option.captive_portal",

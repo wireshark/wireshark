@@ -10,11 +10,12 @@
  */
 
 #include "config.h"
+#include "busmaster.h"
+
 #include <wtap-int.h>
 #include <file_wrappers.h>
 #include <epan/dissectors/packet-socketcan.h>
 #include <wsutil/exported_pdu_tlvs.h>
-#include "busmaster.h"
 #include "busmaster_priv.h"
 #include <inttypes.h>
 #include <string.h>

@@ -499,13 +499,13 @@ void proto_reg_handoff_bpsec(void) {
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_BLOCKTYPE_BIB;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_bib, proto_bpsec, "Block Integrity Block");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_bib, proto_bpsec, NULL, "Block Integrity Block");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
         guint64 *key = g_new(guint64, 1);
         *key = BP_BLOCKTYPE_BCB;
-        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_bcb, proto_bpsec, "Block Confidentiality Block");
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_bcb, proto_bpsec, NULL, "Block Confidentiality Block");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
 

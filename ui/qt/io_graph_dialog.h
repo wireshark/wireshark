@@ -29,6 +29,7 @@
 #include <QIcon>
 #include <QMenu>
 #include <QTextStream>
+#include <QItemSelection>
 
 #include <vector>
 
@@ -257,6 +258,7 @@ private slots:
     void updateStatistics(void);
     void copyAsCsvClicked();
 
+    void graphUatSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_intervalComboBox_currentIndexChanged(int index);
     void on_todCheckBox_toggled(bool checked);
     void on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);

@@ -1097,7 +1097,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto
 	return TRUE;
 }
 
-static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
+static bool test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 				  proto_tree *tree, void *data _U_)
 {
 	conversation_t *conversation;
@@ -1109,9 +1109,9 @@ static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 						pinfo->destport, 0);
 		conversation_set_dissector(conversation, vnc_handle);
 		dissect_vnc(tvb, pinfo, tree, data);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 /* Returns true if additional session startup messages follow */

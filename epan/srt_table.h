@@ -135,10 +135,10 @@ WS_DLL_PUBLIC void free_srt_table(register_srt_t *srt, GArray* srt_array);
  */
 WS_DLL_PUBLIC void reset_srt_table(GArray* srt_array);
 
-/** Interator to walk srt tables and execute func
+/** Iterator to walk srt tables and execute func
  * Used for initialization
  *
- * @param func action to be performed on all converation tables
+ * @param func action to be performed on all conversation tables
  * @param user_data any data needed to help perform function
  */
 WS_DLL_PUBLIC void srt_table_iterate_tables(wmem_foreach_func func, gpointer user_data);

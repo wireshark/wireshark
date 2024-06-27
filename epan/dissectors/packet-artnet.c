@@ -6353,7 +6353,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
   opcode = tvb_get_letohs(tvb, offset);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_str(pinfo->cinfo, COL_INFO,
     val_to_str_ext_const(opcode, &artnet_opcode_vals_ext, "Unknown"));
 
 
@@ -7088,24 +7088,24 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 }
 
 /* Heuristic dissector */
-static gboolean
+static bool
 dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint64     qword;
 
   /* check if we atleast have the 8 byte header */
   if (tvb_captured_length(tvb) < 8)
-    return FALSE;
+    return false;
 
   /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e657400*/
   qword = tvb_get_ntoh64(tvb,0);
   if(qword != G_GUINT64_CONSTANT (0x4172742d4e657400))
-    return FALSE;
+    return false;
 
   /* if the header matches, dissect it */
   dissect_artnet(tvb, pinfo, tree, data);
 
-  return TRUE;
+  return true;
 }
 
 void
@@ -8837,7 +8837,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     { &hf_artnet_diag_data_port,
-      { "Locical port",
+      { "Logical port",
         "artnet.diag_data.port",
         FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }},

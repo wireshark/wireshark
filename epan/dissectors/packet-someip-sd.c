@@ -974,9 +974,9 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
 static void
 someipsd_entries_stats_tree_init(stats_tree *st) {
-    st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_ip_src, 0, FALSE, ST_FLG_SORT_TOP);
-    st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, STAT_DT_INT, TRUE);
+    st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_ip_src, 0, false, ST_FLG_SORT_TOP);
+    st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, STAT_DT_INT, true);
 }
 
 static void
@@ -1037,12 +1037,12 @@ someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_diss
     static gchar tmp_addr_str[256];
 
     snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_src), address_to_name(&pinfo->net_src));
-    tick_stat_node(st, st_str_ip_src, 0, FALSE);
-    int src_id = tick_stat_node(st, tmp_addr_str, st_node_ip_src, TRUE);
+    tick_stat_node(st, st_str_ip_src, 0, false);
+    int src_id = tick_stat_node(st, tmp_addr_str, st_node_ip_src, true);
 
     snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_dst), address_to_name(&pinfo->net_dst));
-    tick_stat_node(st, st_str_ip_dst, 0, FALSE);
-    int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, TRUE);
+    tick_stat_node(st, st_str_ip_dst, 0, false);
+    int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, true);
 
     int tmp_id;
     static gchar tmp_str[128];
@@ -1051,55 +1051,55 @@ someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_diss
         switch (data->entry_type) {
         case SD_ENTRY_STOP_OFFER_SERVICE:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Stop Offer Service", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Stop Offer Service", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Stop Offer Service", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Stop Offer Service", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         case SD_ENTRY_STOP_SUBSCRIBE_EVENTGROUP:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Stop Subscribe Eventgroup", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Stop Subscribe Eventgroup", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Stop Subscribe Eventgroup", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Stop Subscribe Eventgroup", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP_NACK:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Nack", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Nack", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Nack", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Nack", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         }
     } else {
         switch (data->entry_type) {
         case SD_ENTRY_FIND_SERVICE:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Find Service", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Find Service", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Find Service", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Find Service", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         case SD_ENTRY_OFFER_SERVICE:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Offer Service", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Offer Service", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Offer Service", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Offer Service", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Subscribe Eventgroup", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Subscribe Eventgroup", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
             stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
-            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Ack", src_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
-            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Ack", dst_id, TRUE);
-            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Ack", src_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Ack", dst_id, true);
+            tick_stat_node(st, tmp_str, tmp_id, false);
             break;
         }
     }

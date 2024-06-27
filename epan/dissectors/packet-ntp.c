@@ -274,7 +274,7 @@ static const struct {
 #define NTPCTRL_MORE_MASK 0x20
 #define NTPCTRL_OP_MASK 0x1f
 
-#define NTPCTRL_OP_UNSPEC 0		/* unspeciffied */
+#define NTPCTRL_OP_UNSPEC 0		/* unspecified */
 #define NTPCTRL_OP_READSTAT 1		/* read status */
 #define NTPCTRL_OP_READVAR 2		/* read variables */
 #define NTPCTRL_OP_WRITEVAR 3		/* write variables */
@@ -639,6 +639,8 @@ static const value_string ntp_ext_field_types[] = {
 	{ 0xC702, "IFF Identity Message Error Response" },
 	{ 0xC802, "GQ Identity Message Error Response" },
 	{ 0xC902, "MV Identity Message Error Response" },
+	{ 0xF323, "Monotonic Timestamp & Root Delay/Dispersion (exp)" },
+	{ 0xF324, "Network PTP Time correction (exp)" },
 	{ 0, NULL }
 };
 

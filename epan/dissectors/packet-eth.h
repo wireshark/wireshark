@@ -19,7 +19,7 @@ typedef struct _eth_hdr {
 	guint32 stream;  /* track conversations */
 } eth_hdr;
 
-/* conversations related struc */
+/* conversations related struct */
 struct eth_analysis {
 
     /* Initial frame starting this conversation

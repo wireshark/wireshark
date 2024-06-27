@@ -2116,7 +2116,7 @@ dissect_atn_ulcs(
     return offset;
 }
 
-static gboolean dissect_atn_ulcs_heur(
+static bool dissect_atn_ulcs_heur(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
@@ -2125,7 +2125,7 @@ static gboolean dissect_atn_ulcs_heur(
     /* do we have enough data*/
     /* at least session + presentation data or pdv-list */
     if (tvb_captured_length(tvb) < 2){
-        return FALSE; }
+        return false; }
 
     /* check for session/presentation/ACSE PDU's  */
     /* SPDU and PPDU are one octet each */
@@ -2158,7 +2158,7 @@ static gboolean dissect_atn_ulcs_heur(
                 pinfo,
                 tree,
                 (void*) TRUE);
-            return TRUE;
+            return true;
         default:  /* no SPDU */
             break;
     }
@@ -2176,12 +2176,12 @@ static gboolean dissect_atn_ulcs_heur(
         /* application protocol data (CM, CPDLC) */
         /* or an ACSE PDU */
             dissect_atn_ulcs(tvb, pinfo, tree, (void*) FALSE);
-            return TRUE;
+            return true;
             break;
         default:  /* no or unsupported PDU */
             break;
     }
-    return FALSE;
+    return false;
 }
 
 void proto_register_atn_ulcs (void)

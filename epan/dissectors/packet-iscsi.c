@@ -2626,7 +2626,7 @@ dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    setting for iSCSI in order to reduce the number of
    false positives.
 */
-static gboolean
+static bool
 dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     guint32 available_bytes = tvb_captured_length(tvb);
 
@@ -2634,7 +2634,7 @@ dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * minimum amount of information we need */
     if (available_bytes < 48 ){
         /* no, so give up */
-        return FALSE;
+        return false;
     }
 
     return dissect_iscsi(tvb, pinfo, tree, TRUE) != 0;

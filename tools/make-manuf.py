@@ -276,9 +276,10 @@ def main():
             # "Watts A\S"
             manuf = manuf.replace('\\', '/')
             if manuf == 'IEEE Registration Authority':
+                # These are held for subdivision into MA-M/MA-S
                 continue
-            if manuf == 'Private':
-                continue
+            #if manuf == 'Private':
+            #    continue
             if oui in oui_d[kind]:
                 action = 'Skipping'
                 print('{} - {} IEEE "{}" in favor of "{}"'.format(oui, action, manuf, oui_d[kind][oui]))

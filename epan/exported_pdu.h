@@ -102,7 +102,7 @@ WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const c
  Allocates and fills the exp_pdu_data_t struct with a common list of items
  The items that will be exported as the PDU are:
  1. Source IP
- 2. Destintaiton IP
+ 2. Destination IP
  3. Port type
  4. Source Port
  5. Destination Port

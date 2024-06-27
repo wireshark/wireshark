@@ -31,92 +31,92 @@ void proto_reg_handoff_mac_mgmt_msg_ucd(void);
 
 static dissector_handle_t ucd_handle;
 
-guint cqich_id_size;		/* Set for CQICH_Alloc_IE */
+unsigned cqich_id_size;		/* Set for CQICH_Alloc_IE */
 
-static gint proto_mac_mgmt_msg_ucd_decoder;
-static gint ett_mac_mgmt_msg_ucd_decoder;
+static int proto_mac_mgmt_msg_ucd_decoder;
+static int ett_mac_mgmt_msg_ucd_decoder;
 
 /* fix fields */
-static gint hf_ucd_res_timeout;
-static gint hf_ucd_bw_req_size;
-static gint hf_ucd_ranging_req_size;
-static gint hf_ucd_freq;
-/* static gint hf_ucd_subchan_params_num_chan; */
-static gint hf_ucd_ul_allocated_subchannles_bitmap;
-/* static gint hf_ucd_subchan_params_num_sym; */
-/* static gint hf_ucd_subchan_codes; */
+static int hf_ucd_res_timeout;
+static int hf_ucd_bw_req_size;
+static int hf_ucd_ranging_req_size;
+static int hf_ucd_freq;
+/* static int hf_ucd_subchan_params_num_chan; */
+static int hf_ucd_ul_allocated_subchannles_bitmap;
+/* static int hf_ucd_subchan_params_num_sym; */
+/* static int hf_ucd_subchan_codes; */
 
-static gint hf_ucd_ul_burst_reserved;
-static gint hf_ucd_ul_burst_uiuc;
-static gint hf_ucd_burst_fec;
-static gint hf_ucd_burst_ranging_data_ratio;
-/*static gint hf_ucd_burst_power_boost;
-*static gint hf_ucd_burst_tcs_enable;
+static int hf_ucd_ul_burst_reserved;
+static int hf_ucd_ul_burst_uiuc;
+static int hf_ucd_burst_fec;
+static int hf_ucd_burst_ranging_data_ratio;
+/*static int hf_ucd_burst_power_boost;
+*static int hf_ucd_burst_tcs_enable;
 */
 
-static gint hf_ucd_tlv_t_159_band_amc_allocation_threshold;
-static gint hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap;
-static gint hf_ucd_tlv_t_160_band_amc_release_threshold;
-static gint hf_ucd_tlv_t_161_band_amc_allocation_timer;
-static gint hf_ucd_tlv_t_162_band_amc_release_timer;
-static gint hf_ucd_tlv_t_163_band_status_report_max_period;
-static gint hf_ucd_tlv_t_164_band_amc_retry_timer;
-static gint hf_ucd_tlv_t_171_harq_ack_delay_dl_burst;
-static gint hf_ucd_tlv_t_170_safety_channel_retry_timer;
-static gint hf_ucd_tlv_t_172_cqich_band_amc_transition_delay;
-static gint hf_ucd_tlv_t_174_maximum_retransmission;
-static gint hf_ucd_tlv_t_177_normalized_cn_override2;
-static gint hf_ucd_tlv_t_177_normalized_cn_override2_first_line;
-static gint hf_ucd_tlv_t_177_normalized_cn_override2_list;
-static gint hf_ucd_tlv_t_176_size_of_cqich_id_field;
-static gint hf_ucd_tlv_t_186_upper_bound_aas_preamble;
-static gint hf_ucd_tlv_t_187_lower_bound_aas_preamble;
-static gint hf_ucd_tlv_t_188_allow_aas_beam_select_message;
-static gint hf_ucd_tlv_t_189_use_cqich_indication_flag;
-static gint hf_ucd_tlv_t_190_ms_specific_up_power_addjustment_step;
-static gint hf_ucd_tlv_t_191_ms_specific_down_power_addjustment_step;
-static gint hf_ucd_tlv_t_192_min_level_power_offset_adjustment;
-static gint hf_ucd_tlv_t_193_max_level_power_offset_adjustment;
-static gint hf_ucd_tlv_t_194_handover_ranging_codes;
-static gint hf_ucd_tlv_t_195_initial_ranging_interval;
-static gint hf_ucd_tlv_t_196_tx_power_report;
-static gint hf_ucd_tlv_t_196_tx_power_report_threshold;
-static gint hf_ucd_tlv_t_196_tx_power_report_interval;
-static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg;
-static gint hf_ucd_tlv_t_196_tx_power_report_threshold_icqch;
-static gint hf_ucd_tlv_t_196_tx_power_report_interval_icqch;
-static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg_icqch;
-/* static gint hf_ucd_tlv_t_197_normalized_cn_channel_sounding; */
-static gint hf_ucd_tlv_t_202_uplink_burst_profile_for_multiple_fec_types;
-static gint hf_ucd_tlv_t_203_ul_pusc_subchannel_rotation;
-static gint hf_ucd_tlv_t_205_relative_power_offset_ul_harq_burst;
-static gint hf_ucd_tlv_t_206_relative_power_offset_ul_burst_containing_mac_mgmt_msg;
-static gint hf_ucd_tlv_t_207_ul_initial_transmit_timing;
-static gint hf_ucd_tlv_t_210_fast_feedback_region;
-static gint hf_ucd_tlv_t_211_harq_ack_region;
-static gint hf_ucd_tlv_t_212_ranging_region;
-static gint hf_ucd_tlv_t_213_sounding_region;
-static gint hf_ucd_tlv_t_150_initial_ranging_codes;
-static gint hf_ucd_tlv_t_151_periodic_ranging_codes;
-static gint hf_ucd_tlv_t_152_bandwidth_request_codes;
-static gint hf_ucd_tlv_t_155_start_of_ranging_codes_group;
-static gint hf_ucd_tlv_t_156_permutation_base;
-static gint hf_ucd_ho_ranging_start;
-static gint hf_ucd_ho_ranging_end;
-static gint hf_ucd_initial_range_backoff_start;
-static gint hf_ucd_initial_range_backoff_end;
-static gint hf_ucd_bandwidth_backoff_start;
-static gint hf_ucd_bandwidth_backoff_end;
-static gint hf_ucd_periodic_ranging_backoff_start;
-static gint hf_ucd_periodic_ranging_backoff_end;
-static gint hf_ucd_config_change_count;
-static gint hf_ucd_ranging_backoff_start;
-static gint hf_ucd_ranging_backoff_end;
-static gint hf_ucd_request_backoff_start;
-static gint hf_ucd_request_backoff_end;
+static int hf_ucd_tlv_t_159_band_amc_allocation_threshold;
+static int hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap;
+static int hf_ucd_tlv_t_160_band_amc_release_threshold;
+static int hf_ucd_tlv_t_161_band_amc_allocation_timer;
+static int hf_ucd_tlv_t_162_band_amc_release_timer;
+static int hf_ucd_tlv_t_163_band_status_report_max_period;
+static int hf_ucd_tlv_t_164_band_amc_retry_timer;
+static int hf_ucd_tlv_t_171_harq_ack_delay_dl_burst;
+static int hf_ucd_tlv_t_170_safety_channel_retry_timer;
+static int hf_ucd_tlv_t_172_cqich_band_amc_transition_delay;
+static int hf_ucd_tlv_t_174_maximum_retransmission;
+static int hf_ucd_tlv_t_177_normalized_cn_override2;
+static int hf_ucd_tlv_t_177_normalized_cn_override2_first_line;
+static int hf_ucd_tlv_t_177_normalized_cn_override2_list;
+static int hf_ucd_tlv_t_176_size_of_cqich_id_field;
+static int hf_ucd_tlv_t_186_upper_bound_aas_preamble;
+static int hf_ucd_tlv_t_187_lower_bound_aas_preamble;
+static int hf_ucd_tlv_t_188_allow_aas_beam_select_message;
+static int hf_ucd_tlv_t_189_use_cqich_indication_flag;
+static int hf_ucd_tlv_t_190_ms_specific_up_power_addjustment_step;
+static int hf_ucd_tlv_t_191_ms_specific_down_power_addjustment_step;
+static int hf_ucd_tlv_t_192_min_level_power_offset_adjustment;
+static int hf_ucd_tlv_t_193_max_level_power_offset_adjustment;
+static int hf_ucd_tlv_t_194_handover_ranging_codes;
+static int hf_ucd_tlv_t_195_initial_ranging_interval;
+static int hf_ucd_tlv_t_196_tx_power_report;
+static int hf_ucd_tlv_t_196_tx_power_report_threshold;
+static int hf_ucd_tlv_t_196_tx_power_report_interval;
+static int hf_ucd_tlv_t_196_tx_power_report_a_p_avg;
+static int hf_ucd_tlv_t_196_tx_power_report_threshold_icqch;
+static int hf_ucd_tlv_t_196_tx_power_report_interval_icqch;
+static int hf_ucd_tlv_t_196_tx_power_report_a_p_avg_icqch;
+/* static int hf_ucd_tlv_t_197_normalized_cn_channel_sounding; */
+static int hf_ucd_tlv_t_202_uplink_burst_profile_for_multiple_fec_types;
+static int hf_ucd_tlv_t_203_ul_pusc_subchannel_rotation;
+static int hf_ucd_tlv_t_205_relative_power_offset_ul_harq_burst;
+static int hf_ucd_tlv_t_206_relative_power_offset_ul_burst_containing_mac_mgmt_msg;
+static int hf_ucd_tlv_t_207_ul_initial_transmit_timing;
+static int hf_ucd_tlv_t_210_fast_feedback_region;
+static int hf_ucd_tlv_t_211_harq_ack_region;
+static int hf_ucd_tlv_t_212_ranging_region;
+static int hf_ucd_tlv_t_213_sounding_region;
+static int hf_ucd_tlv_t_150_initial_ranging_codes;
+static int hf_ucd_tlv_t_151_periodic_ranging_codes;
+static int hf_ucd_tlv_t_152_bandwidth_request_codes;
+static int hf_ucd_tlv_t_155_start_of_ranging_codes_group;
+static int hf_ucd_tlv_t_156_permutation_base;
+static int hf_ucd_ho_ranging_start;
+static int hf_ucd_ho_ranging_end;
+static int hf_ucd_initial_range_backoff_start;
+static int hf_ucd_initial_range_backoff_end;
+static int hf_ucd_bandwidth_backoff_start;
+static int hf_ucd_bandwidth_backoff_end;
+static int hf_ucd_periodic_ranging_backoff_start;
+static int hf_ucd_periodic_ranging_backoff_end;
+static int hf_ucd_config_change_count;
+static int hf_ucd_ranging_backoff_start;
+static int hf_ucd_ranging_backoff_end;
+static int hf_ucd_request_backoff_start;
+static int hf_ucd_request_backoff_end;
 
-/* static gint hf_ucd_unknown_type; */
-static gint hf_ucd_invalid_tlv;
+/* static int hf_ucd_unknown_type; */
+static int hf_ucd_invalid_tlv;
 
 #if 0
 static const value_string vals_dcd_burst_tcs[] =
@@ -209,19 +209,19 @@ static const value_string vals_yes_no_str[] =
 /* UCD dissector */
 static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len, length;
-	gint  tlv_type, tlv_len, tlv_offset, tlv_value_offset;
+	unsigned offset = 0;
+	unsigned tvb_len, length;
+	int   tlv_type, tlv_len, tlv_offset, tlv_value_offset;
 	tlv_info_t tlv_info;
-	gchar* proto_str;
+	char* proto_str;
 
 	{	/* we are being asked for details */
 		proto_item *ucd_item;
 		proto_tree *ucd_tree;
-		guint ucd_ranging_backoff_start;
-		guint ucd_ranging_backoff_end;
-		guint ucd_request_backoff_start;
-		guint ucd_request_backoff_end;
+		unsigned ucd_ranging_backoff_start;
+		unsigned ucd_ranging_backoff_end;
+		unsigned ucd_request_backoff_start;
+		unsigned ucd_request_backoff_end;
 
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type UCD */
@@ -257,8 +257,8 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		{
 			proto_tree *tlv_tree;
 			proto_item *tlv_item1;
-			guint ul_burst_uiuc;
-			guint utemp;
+			unsigned ul_burst_uiuc;
+			unsigned utemp;
 			/* get the TLV information */
 			init_tlv_info(&tlv_info, tvb, offset);
 			/* get the TLV type */
@@ -1207,7 +1207,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_ucd_decoder,
 		};

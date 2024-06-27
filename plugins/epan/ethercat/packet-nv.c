@@ -45,9 +45,9 @@ static int hf_nv_quality;
 static int hf_nv_data;
 
 /*nv*/
-static void NvSummaryFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
+static void NvSummaryFormater(tvbuff_t *tvb, int offset, char *szText, int nMax)
 {
-   guint32 nvOffset = offset;
+   uint32_t nvOffset = offset;
 
    snprintf ( szText, nMax, "Network Vars from %d.%d.%d.%d.%d.%d - %d Var(s)",
       tvb_get_guint8(tvb, nvOffset),
@@ -59,9 +59,9 @@ static void NvSummaryFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax
       tvb_get_letohs(tvb, nvOffset+6));
 }
 
-static void NvPublisherFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
+static void NvPublisherFormater(tvbuff_t *tvb, int offset, char *szText, int nMax)
 {
-   guint32 nvOffset = offset;
+   uint32_t nvOffset = offset;
 
    snprintf ( szText, nMax, "Publisher %d.%d.%d.%d.%d.%d",
       tvb_get_guint8(tvb, nvOffset),
@@ -72,7 +72,7 @@ static void NvPublisherFormater(tvbuff_t *tvb, gint offset, char *szText, int nM
       tvb_get_guint8(tvb, nvOffset+5));
 }
 
-static void NvVarHeaderFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
+static void NvVarHeaderFormater(tvbuff_t *tvb, int offset, char *szText, int nMax)
 {
    snprintf ( szText, nMax, "Variable - Id = %d, Length = %d",
       tvb_get_letohs(tvb, offset),
@@ -83,11 +83,11 @@ static int dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
    proto_item *ti;
    proto_tree *nv_tree, *nv_header_tree, *nv_var_tree,*nv_varheader_tree;
-   gint offset = 0;
+   int offset = 0;
    char szText[200];
    int nMax = (int)sizeof(szText)-1;
 
-   gint i;
+   int i;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TC-NV");
 
@@ -98,7 +98,7 @@ static int dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
    if (tree)
    {
-      guint16 nv_count;
+      uint16_t nv_count;
 
       ti = proto_tree_add_item(tree, proto_nv, tvb, 0, -1, ENC_NA);
       nv_tree = proto_item_add_subtree(ti, ett_nv);
@@ -108,21 +108,21 @@ static int dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
       nv_header_tree = proto_item_add_subtree(ti, ett_nv_header);
 
-      ti= proto_tree_add_item(nv_header_tree, hf_nv_publisher, tvb, offset, (int)sizeof(guint8)*6, ENC_NA);
+      ti= proto_tree_add_item(nv_header_tree, hf_nv_publisher, tvb, offset, (int)sizeof(uint8_t)*6, ENC_NA);
       NvPublisherFormater(tvb, offset, szText, nMax);
       proto_item_set_text(ti, "%s", szText);
-      offset+=((int)sizeof(guint8)*6);
+      offset+=((int)sizeof(uint8_t)*6);
 
-      proto_tree_add_item(nv_header_tree, hf_nv_count, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(nv_header_tree, hf_nv_count, tvb, offset, (int)sizeof(uint16_t), ENC_LITTLE_ENDIAN);
       nv_count = tvb_get_letohs(tvb, offset);
-      offset+=(int)sizeof(guint16);
+      offset+=(int)sizeof(uint16_t);
 
-      proto_tree_add_item(nv_header_tree, hf_nv_cycleindex, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(nv_header_tree, hf_nv_cycleindex, tvb, offset, (int)sizeof(uint16_t), ENC_LITTLE_ENDIAN);
       offset = NvParserHDR_Len;
 
       for ( i=0; i < nv_count; i++ )
       {
-         guint16 var_length = tvb_get_letohs(tvb, offset+4);
+         uint16_t var_length = tvb_get_letohs(tvb, offset+4);
 
          ti = proto_tree_add_item(nv_tree, hf_nv_variable, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len+var_length, ENC_NA);
          NvVarHeaderFormater(tvb, offset, szText, nMax);
@@ -132,17 +132,17 @@ static int dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
          ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len, ENC_NA);
 
          nv_varheader_tree = proto_item_add_subtree(ti, ett_nv_varheader);
-         proto_tree_add_item(nv_varheader_tree, hf_nv_id, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
-         offset+=(int)sizeof(guint16);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_id, tvb, offset, (int)sizeof(uint16_t), ENC_LITTLE_ENDIAN);
+         offset+=(int)sizeof(uint16_t);
 
-         proto_tree_add_item(nv_varheader_tree, hf_nv_hash, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
-         offset+=(int)sizeof(guint16);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_hash, tvb, offset, (int)sizeof(uint16_t), ENC_LITTLE_ENDIAN);
+         offset+=(int)sizeof(uint16_t);
 
-         proto_tree_add_item(nv_varheader_tree, hf_nv_length, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
-         offset+=(int)sizeof(guint16);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_length, tvb, offset, (int)sizeof(uint16_t), ENC_LITTLE_ENDIAN);
+         offset+=(int)sizeof(uint16_t);
 
-         proto_tree_add_item(nv_varheader_tree, hf_nv_quality, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
-         offset+=(int)sizeof(guint16);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_quality, tvb, offset, (int)sizeof(uint16_t), ENC_LITTLE_ENDIAN);
+         offset+=(int)sizeof(uint16_t);
 
          proto_tree_add_item(nv_var_tree, hf_nv_data, tvb, offset, var_length, ENC_NA);
          offset+=var_length;
@@ -207,7 +207,7 @@ void proto_register_nv(void)
          },
       };
 
-   static gint *ett[] =
+   static int *ett[] =
       {
          &ett_nv,
          &ett_nv_header,

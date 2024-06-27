@@ -52,9 +52,7 @@ ETH_HFARR
 ETH_ETTARR
         };
 
-        proto_butc = proto_register_protocol(
-                "DCE/RPC BUTC", 
-		"BUTC", "butc");
+        proto_butc = proto_register_protocol("DCE/RPC BUTC", "BUTC", "butc");
 	proto_register_field_array(proto_butc, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }

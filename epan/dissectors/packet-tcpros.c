@@ -596,20 +596,20 @@ test_tcpros(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 	return FALSE;
 }
 
-static gboolean
+static bool
 dissect_tcpros_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	conversation_t *conversation;
 
 	if (!test_tcpros(pinfo, tvb, 0, data))
-		return FALSE;
+		return false;
 
 	conversation = find_or_create_conversation(pinfo);
 	conversation_set_dissector(conversation, tcpros_handle);
 
 	dissect_tcpros(tvb, pinfo, tree, data);
 
-	return TRUE;
+	return true;
 }
 
 

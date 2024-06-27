@@ -14,6 +14,7 @@ use Parse::Pidl::NDR qw(GetNextLevel);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use Parse::Pidl qw(fatal error);
 use strict;
+use warnings;
 
 use vars qw($VERSION);
 $VERSION = '0.01';

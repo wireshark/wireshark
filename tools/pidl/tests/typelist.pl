@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 56;
+use Test::More tests => 58;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -21,6 +21,7 @@ is("int32", expandAlias("int32"));
 is("uint32_t", mapScalarType("uint32"));
 is("void", mapScalarType("void"));
 is("uint64_t", mapScalarType("hyper"));
+is("int64_t", mapScalarType("int64"));
 is("double", mapScalarType("double"));
 
 my $x = { TYPE => "ENUM", NAME => "foo", EXTRADATA => 1 };
@@ -66,6 +67,7 @@ is(1, is_scalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM" }}));
 is(1, is_scalar("mytypedef"));
 
 is(1, scalar_is_reference("string"));
+is(1, scalar_is_reference("u16string"));
 is(0, scalar_is_reference("uint32"));
 is(0, scalar_is_reference({TYPE => "STRUCT", NAME => "echo_foobar"}));
 

@@ -238,7 +238,7 @@ typedef struct fp_info
     /* PCH Related data*/
     gint paging_indications;
     paging_indications_info_t* relevant_paging_indications; /* Info from previous frame */
-    /* Info from the current frame. Used to carry information from this frame to the converstaion info */
+    /* Info from the current frame. Used to carry information from this frame to the conversation info */
     paging_indications_info_t* current_paging_indications;
 
     /* HSDSCH Related data */

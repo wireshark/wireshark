@@ -6887,7 +6887,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     get_bssgp_msg_params(g_pdu_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
     if(msg_str){
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
+        col_add_str(pinfo->cinfo, COL_INFO, msg_str);
     }else{
         expert_add_info_format(pinfo, ti, &ei_bssgp_msg_type, "Unknown message 0x%x", g_pdu_type);
         return 1;

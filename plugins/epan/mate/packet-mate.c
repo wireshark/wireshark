@@ -36,8 +36,8 @@ static int hf_mate_gop_key;
 
 static expert_field ei_mate_undefined_attribute;
 
-static const gchar* pref_mate_config_filename = "";
-static const gchar* current_mate_config_filename;
+static const char* pref_mate_config_filename = "";
+static const char* current_mate_config_filename;
 
 #ifdef _AVP_DEBUGGING
 static int pref_avp_debug_general;
@@ -132,8 +132,8 @@ mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog
 	if (gog->cfg->show_times) {
 		gog_time_tree = proto_tree_add_subtree_format(gog_tree,tvb,0,0,gog->cfg->ett_times,NULL,"%s Times",gog->cfg->name);
 
-		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_start_time, tvb, 0, 0, gog->start_time);
-		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_last_time, tvb, 0, 0, gog->last_time - gog->start_time);
+		proto_tree_add_double(gog_time_tree, gog->cfg->hfid_start_time, tvb, 0, 0, gog->start_time);
+		proto_tree_add_double(gog_time_tree, gog->cfg->hfid_last_time, tvb, 0, 0, gog->last_time - gog->start_time);
 	}
 
 	gog_gops_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops, tvb, 0, 0, gog->num_of_gops);
@@ -151,13 +151,13 @@ mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog
 				if (gog->cfg->gop_tree_mode == GOP_BASIC_TREE) {
 					gog_gop_tree = proto_item_add_subtree(gog_gop_item, gog->cfg->ett_gog_gop);
 
-					proto_tree_add_float(gog_gop_tree, hf_mate_started_at, tvb,0,0,gog_gops->start_time);
+					proto_tree_add_double(gog_gop_tree, hf_mate_started_at, tvb,0,0,gog_gops->start_time);
 
-					proto_tree_add_float_format(gog_gop_tree, hf_mate_duration, tvb,0,0, gog_gops->last_time - gog_gops->start_time,
+					proto_tree_add_double_format(gog_gop_tree, hf_mate_duration, tvb,0,0, gog_gops->last_time - gog_gops->start_time,
 								    "%s Duration: %f", gog_gops->cfg->name, gog_gops->last_time - gog_gops->start_time);
 
 					if (gog_gops->released)
-						proto_tree_add_float_format(gog_gop_tree, hf_mate_released_time, tvb,0,0, gog_gops->release_time - gog_gops->start_time,
+						proto_tree_add_double_format(gog_gop_tree, hf_mate_released_time, tvb,0,0, gog_gops->release_time - gog_gops->start_time,
 									    "%s has been released, Time: %f", gog_gops->cfg->name, gog_gops->release_time - gog_gops->start_time);
 
 					proto_tree_add_uint(gog_gop_tree, hf_mate_number_of_pdus, tvb,0,0, gog_gops->num_of_pdus);
@@ -190,11 +190,11 @@ mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop
 	proto_item *gop_pdu_item;
 	proto_tree *gop_pdu_tree;
 	mate_pdu* gop_pdus;
-	float rel_time;
-	float pdu_rel_time;
-	const gchar* pdu_str;
-	const gchar* type_str;
-	guint32 pdu_item;
+	double rel_time;
+	double pdu_rel_time;
+	const char* pdu_str;
+	const char* type_str;
+	uint32_t pdu_item;
 
 	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);
 	gop_tree = proto_item_add_subtree(gop_item, gop->cfg->ett);
@@ -206,13 +206,13 @@ mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop
 	if (gop->cfg->show_times) {
 		gop_time_tree = proto_tree_add_subtree_format(gop_tree,tvb,0,0,gop->cfg->ett_times,NULL,"%s Times",gop->cfg->name);
 
-		proto_tree_add_float(gop_time_tree, gop->cfg->hfid_start_time, tvb, 0, 0, gop->start_time);
+		proto_tree_add_double(gop_time_tree, gop->cfg->hfid_start_time, tvb, 0, 0, gop->start_time);
 
 		if (gop->released) {
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_stop_time, tvb, 0, 0, gop->release_time - gop->start_time);
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time);
+			proto_tree_add_double(gop_time_tree, gop->cfg->hfid_stop_time, tvb, 0, 0, gop->release_time - gop->start_time);
+			proto_tree_add_double(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time);
 		} else {
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time);
+			proto_tree_add_double(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time);
 		}
 	}
 
@@ -240,7 +240,7 @@ mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop
 				pdu_str = "";
 			}
 
-			pdu_rel_time = gop_pdus->time_in_gop != 0.0 ? gop_pdus->time_in_gop - rel_time : (float) 0.0;
+			pdu_rel_time = gop_pdus->time_in_gop != 0.0 ? gop_pdus->time_in_gop - rel_time : 0.0;
 
 			proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,tvb,0,0,pdu_item,
 						   "%sPDU: %s %i (%f : %f)",pdu_str, type_str,
@@ -277,10 +277,10 @@ mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_item *item
 
 	pdu_item = proto_tree_add_uint(tree,pdu->cfg->hfid,tvb,0,0,pdu->id);
 	pdu_tree = proto_item_add_subtree(pdu_item, pdu->cfg->ett);
-	proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_rel_time, tvb, 0, 0, pdu->rel_time);
+	proto_tree_add_double(pdu_tree,pdu->cfg->hfid_pdu_rel_time, tvb, 0, 0, pdu->rel_time);
 
 	if (pdu->gop) {
-		proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_time_in_gop, tvb, 0, 0, pdu->time_in_gop);
+		proto_tree_add_double(pdu_tree,pdu->cfg->hfid_pdu_time_in_gop, tvb, 0, 0, pdu->time_in_gop);
 		mate_gop_tree(tree,pinfo,tvb,pdu->gop);
 
 		if (pdu->gop->gog)
@@ -359,7 +359,7 @@ proto_reg_handoff_mate(void)
 			if (mc) {
 				/* XXX: alignment warnings, what do they mean? */
 				proto_register_field_array(proto_mate, (hf_register_info*)(void *)mc->hfrs->data, mc->hfrs->len );
-				proto_register_subtree_array((gint**)(void*)mc->ett->data, mc->ett->len);
+				proto_register_subtree_array((int**)(void*)mc->ett->data, mc->ett->len);
 				register_init_routine(initialize_mate);
 				register_postseq_cleanup_routine(flush_mate_debug);
 
@@ -376,7 +376,7 @@ proto_reg_handoff_mate(void)
 				 * work. Set the tree as visible as with Lua postdissectors that
 				 * need all fields. It's overkill and bad for performance, though.
 				 */
-				epan_set_always_visible(TRUE);
+				epan_set_always_visible(true);
 
 				initialize_mate_runtime(mc);
 			}
@@ -392,9 +392,9 @@ void
 proto_register_mate(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_mate_started_at, { "Started at", "mate.started_at", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_mate_duration, { "Duration", "mate.duration", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_mate_released_time, { "Release time", "mate.released_time", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_mate_started_at, { "Started at", "mate.started_at", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_mate_duration, { "Duration", "mate.duration", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_mate_released_time, { "Release time", "mate.released_time", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mate_number_of_pdus, { "Number of Pdus", "mate.number_of_pdus", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mate_gop_key, { "GOP Key", "mate.gop_key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
@@ -416,7 +416,7 @@ proto_register_mate(void)
 	prefs_register_filename_preference(mate_module, "config",
 					   "Configuration Filename",
 					   "The name of the file containing the mate module's configuration",
-					   &pref_mate_config_filename, FALSE);
+					   &pref_mate_config_filename, false);
 #ifdef _AVP_DEBUGGING
 	prefs_register_uint_preference(mate_module, "avp_debug_general",
 					    "AVP Debug general",

@@ -34,25 +34,25 @@ proto_item*
 ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, const guint encoding);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and uint value retreived*/
+ * and returns proto_item* and uint value retrieved*/
 WS_DLL_PUBLIC
 proto_item*
 ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, guint32 *retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and int value retreived */
+ * and returns proto_item* and int value retrieved */
 WS_DLL_PUBLIC
 proto_item*
 ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gint32 *retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and string value retreived */
+ * and returns proto_item* and string value retrieved */
 WS_DLL_PUBLIC
 proto_item*
 ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, wmem_allocator_t *scope, const guint8 **retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and boolean value retreived */
+ * and returns proto_item* and boolean value retrieved */
 WS_DLL_PUBLIC
 proto_item*
 ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, bool *retval);

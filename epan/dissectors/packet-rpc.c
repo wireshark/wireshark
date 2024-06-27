@@ -318,8 +318,6 @@ typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 
 static void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 			      guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
-static char *rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog,
-	guint32 vers, guint32 proc);
 
 
 static guint32 rpc_program;
@@ -368,9 +366,9 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array)
 	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, tap_data);
 	for (i = 0; i < rpc_srt_table->num_procs; i++)
 	{
-		char *proc_name = rpc_proc_name_internal(NULL, tap_data->program, tap_data->version, i);
+		const char *proc_name = rpc_proc_name(NULL, tap_data->program, tap_data->version, i);
 		init_srt_table_row(rpc_srt_table, i, proc_name);
-		wmem_free(NULL, proc_name);
+		wmem_free(NULL, (void *)proc_name);
 	}
 }
 
@@ -473,8 +471,8 @@ rpc_proc_hash(gconstpointer k)
 
 
 /*	return the name associated with a previously registered procedure. */
-static char *
-rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog, guint32 vers, guint32 proc)
+const char *
+rpc_proc_name(wmem_allocator_t *allocator, guint32 prog, guint32 vers, guint32 proc)
 {
 	rpc_proc_info_key key;
 	dissector_handle_t dissect_function;
@@ -485,23 +483,16 @@ rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog, guint32 vers, 
 	key.proc = proc;
 
 	/* Look at both tables for possible procedure names */
-	/* XXX - dissector name, or protocol name? */
 	if ((dissect_function = dissector_get_custom_table_handle(subdissector_call_table, &key)) != NULL)
-		procname = wmem_strdup(allocator, dissector_handle_get_dissector_name(dissect_function));
+		procname = wmem_strdup(allocator, dissector_handle_get_description(dissect_function));
 	else if ((dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key)) != NULL)
-		procname = wmem_strdup(allocator, dissector_handle_get_dissector_name(dissect_function));
+		procname = wmem_strdup(allocator, dissector_handle_get_description(dissect_function));
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
 		procname = wmem_strdup_printf(allocator, "proc-%u", key.proc);
 	}
 	return procname;
-}
-
-const char *
-rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
-{
-	return rpc_proc_name_internal(wmem_packet_scope(), prog, vers, proc);
 }
 
 /*----------------------------------------*/
@@ -572,7 +563,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.call", g_memdup2(&key, sizeof(rpc_proc_info_key)),
-						create_dissector_handle_with_name(proc->dissect_call, value->proto_id, proc->strptr));
+						create_dissector_handle_with_name_and_description(proc->dissect_call, value->proto_id, NULL, proc->strptr));
 
 			if (proc->dissect_reply == NULL) {
 				fprintf(stderr, "OOPS: No reply handler for %s version %u procedure %s\n",
@@ -587,7 +578,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.reply", g_memdup2(&key, sizeof(rpc_proc_info_key)),
-					create_dissector_handle_with_name(proc->dissect_reply, value->proto_id, proc->strptr));
+					create_dissector_handle_with_name_and_description(proc->dissect_reply, value->proto_id, NULL, proc->strptr));
 		}
 	}
 }
@@ -1947,8 +1938,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key);
 	if (dissect_function != NULL) {
-		/* XXX - dissector name, or protocol name? */
-		procname = dissector_handle_get_dissector_name(dissect_function);
+		procname = dissector_handle_get_description(dissect_function);
 	}
 	else {
 		procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
@@ -2383,8 +2373,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		key.proc = proc;
 
 		if ((dissect_function = dissector_get_custom_table_handle(subdissector_call_table, &key)) != NULL) {
-			/* XXX - dissector name, or protocol name? */
-			procname = dissector_handle_get_dissector_name(dissect_function);
+			procname = dissector_handle_get_description(dissect_function);
 		}
 		else {
 			/* happens only with unknown program or version
@@ -2568,8 +2557,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key);
 		if (dissect_function != NULL) {
-			/* XXX - dissector name, or protocol name? */
-			procname = dissector_handle_get_dissector_name(dissect_function);
+			procname = dissector_handle_get_description(dissect_function);
 		}
 		else {
 			/* happens only with unknown program or version
@@ -3047,10 +3035,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return TRUE;
 }
 
-static gboolean
+static bool
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, RPC_UDP, 0,
+	return (bool)dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, RPC_UDP, 0,
 	    TRUE, FALSE);
 }
 
@@ -3903,12 +3891,12 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return saw_rpc;
 }
 
-static gboolean
+static bool
 dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct tcpinfo* tcpinfo = (struct tcpinfo *)data;
 
-	return dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE, tcpinfo, NULL);
+	return (bool)dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE, tcpinfo, NULL);
 }
 
 static int
@@ -3922,7 +3910,7 @@ dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_rpc_tls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
@@ -3931,9 +3919,9 @@ dissect_rpc_tls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		if (tlsinfo != NULL) {
 			*(tlsinfo->app_handle) = rpc_tls_handle;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 static int
@@ -4485,6 +4473,7 @@ proto_reg_handoff_rpc(void)
 	*/
 	dissector_add_uint_with_preference("tcp.port", RPC_TCP_PORT, rpc_tcp_handle);
 	dissector_add_uint_with_preference("udp.port", RPC_TCP_PORT, rpc_handle);
+	dissector_add_string("tls.alpn", "sunrpc", rpc_tls_handle);
 
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, "RPC over TCP", "rpc_tcp", proto_rpc, HEURISTIC_ENABLE);
 	heur_dissector_add("udp", dissect_rpc_heur, "RPC over UDP", "rpc_udp", proto_rpc, HEURISTIC_ENABLE);

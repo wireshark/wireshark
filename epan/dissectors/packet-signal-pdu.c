@@ -880,7 +880,7 @@ deregister_user_data_hfarray(hf_register_info **hf_array, guint *number_of_entri
         /* Unregister all fields */
         for (guint i = 0; i < dynamic_hf_size; i++) {
             if (dynamic_hf[i].p_id != NULL) {
-                if (*(dynamic_hf[i].p_id) != -1) {
+                if (*(dynamic_hf[i].p_id) > 0) {
                     proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
                 }
                 g_free(dynamic_hf[i].p_id);
@@ -914,7 +914,7 @@ create_hf_entry(hf_register_info *dynamic_hf, guint i, guint32 id, guint32 pos, 
     val64_string *vs = NULL;
 
     gint *hf_id = g_new(gint, 1);
-    *hf_id = -1;
+    *hf_id = 0;
 
     spdu_signal_value_name_t *sig_val = get_signal_value_name_config(id, pos);
     if (sig_val != NULL) {
@@ -952,7 +952,7 @@ create_hf_entry(hf_register_info *dynamic_hf, guint i, guint32 id, guint32 pos, 
 
     case HF_TYPE_NONE:
     default:
-        /* we bail out but have set hf_id to -1 before */
+        /* we bail out but have set hf_id to 0 before */
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_none", name);
         dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_none", SPDU_NAME_FILTER, filter_string);
         return hf_id;
@@ -2215,8 +2215,8 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *subtree = NULL;
 
     gchar      *value_name = NULL;
-    gint        hf_id_effective = -1;
-    gint        hf_id_raw = -1;
+    gint        hf_id_effective = 0;
+    gint        hf_id_raw = 0;
 
     gint offset_end = (gint)((8 * offset + offset_bits + item->bitlength_encoded_type) / 8);
     gint offset_end_bits = (gint)((8 * offset + offset_bits + item->bitlength_encoded_type) % 8);
@@ -2551,7 +2551,7 @@ dissect_spdu_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return dissect_spdu_payload(tvb, pinfo, tree, can_mapping->message_id, TRUE);
 }
 
-static gboolean
+static bool
 dissect_spdu_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_spdu_message_can(tvb, pinfo, tree, data) != 0;
 }
@@ -2570,7 +2570,7 @@ dissect_spdu_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return dissect_spdu_payload(tvb, pinfo, tree, flexray_mapping->message_id, TRUE);
 }
 
-static gboolean
+static bool
 dissect_spdu_message_flexray_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_spdu_message_flexray(tvb, pinfo, tree, data) != 0;
 }
@@ -2618,7 +2618,7 @@ dissect_spdu_message_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return dissect_spdu_payload(tvb, pinfo, tree, ipdum_mapping->message_id, TRUE);
 }
 
-static int
+static bool
 dissect_spdu_message_dlt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     dlt_info_t *pdu_info = (dlt_info_t *)data;
     DISSECTOR_ASSERT(pdu_info);
@@ -2626,20 +2626,20 @@ dissect_spdu_message_dlt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     spdu_dlt_mapping_uat_t *dlt_mapping = get_dlt_mapping(pdu_info->message_id, pdu_info->ecu_id);
 
     if (dlt_mapping == NULL) {
-        return 0;
+        return false;
     }
 
-    return dissect_spdu_payload(tvb, pinfo, tree, dlt_mapping->message_id, TRUE);
+    return dissect_spdu_payload(tvb, pinfo, tree, dlt_mapping->message_id, TRUE) != 0;
 }
 
-static gboolean
+static bool
 dissect_spdu_message_uds_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     uds_info_t *uds_info = (uds_info_t *)data;
     DISSECTOR_ASSERT(uds_info);
 
     spdu_uds_mapping_t *uds_mapping = get_uds_mapping(uds_info);
     if (uds_mapping == NULL) {
-        return FALSE;
+        return false;
     }
 
     return dissect_spdu_payload(tvb, pinfo, tree, uds_mapping->message_id, FALSE) != 0;

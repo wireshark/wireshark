@@ -48,9 +48,9 @@ static int hf_pn_mrp_other_mrm_prio;
 static int hf_pn_mrp_other_mrm_sa;
 static int hf_pn_mrp_manufacturer_data;
 
-static gint ett_pn_mrp;
-static gint ett_pn_mrp_type;
-static gint ett_pn_sub_tlv;
+static int ett_pn_mrp;
+static int ett_pn_mrp_type;
+static int ett_pn_sub_tlv;
 
 static const value_string pn_mrp_block_type_vals[] = {
     { 0x00, "MRP_End" },
@@ -143,7 +143,7 @@ static int
 dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
-    guint16  sequence_id;
+    uint16_t sequence_id;
     e_guid_t uuid;
 
 
@@ -161,10 +161,10 @@ static int
 dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
-    guint8      mac[6];
-    guint16     port_role;
-    guint16     interval;
-    guint16     blocked;
+    uint8_t     mac[6];
+    uint16_t    port_role;
+    uint16_t    interval;
+    uint16_t    blocked;
     proto_item *sub_item;
 
     /* MRP_SA */
@@ -202,7 +202,7 @@ dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static const char * mrp_Prio2msg(guint16 prio)
+static const char * mrp_Prio2msg(uint16_t prio)
 {
 
     if (prio == 0x0000)
@@ -229,12 +229,12 @@ static int
 dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
-    guint16     prio;
-    guint8      mac[6];
-    guint16     port_role;
-    guint16     ring_state;
-    guint16     transition;
-    guint32     time_stamp;
+    uint16_t    prio;
+    uint8_t     mac[6];
+    uint16_t    port_role;
+    uint16_t    ring_state;
+    uint16_t    transition;
+    uint32_t    time_stamp;
     proto_item *sub_item;
 
 
@@ -270,9 +270,9 @@ static int
 dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
-    guint16     prio;
-    guint8      mac[6];
-    guint16     interval;
+    uint16_t    prio;
+    uint8_t     mac[6];
+    uint16_t    interval;
     proto_item *sub_item;
 
 
@@ -302,9 +302,9 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_Ed1ManufacturerData(tvbuff_t *tvb, int offset,
-packet_info *pinfo, proto_tree *tree, guint8 *pLength)
+packet_info *pinfo, proto_tree *tree, uint8_t *pLength)
 {
-    guint16 u16MrpEd1ManufacturerData;
+    uint16_t u16MrpEd1ManufacturerData;
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_ed1_manufacturer_data,
         &u16MrpEd1ManufacturerData);
     *pLength -= 2;
@@ -315,14 +315,14 @@ static int
 dissect_PNMRP_SubOption2(tvbuff_t *tvb, int offset,
 packet_info *pinfo, proto_tree *tree)
 {
-    guint8    u8SubType;
-    guint8    u8Sublength;
+    uint8_t   u8SubType;
+    uint8_t   u8Sublength;
     proto_item *sub_item;
     proto_tree *sub_tree;
-    guint16     u16Prio;
-    guint16     u16OtherPrio;
-    guint8      mac[6];
-    guint8      otherMac[6];
+    uint16_t    u16Prio;
+    uint16_t    u16OtherPrio;
+    uint8_t     mac[6];
+    uint8_t     otherMac[6];
 
     sub_item = proto_tree_add_item(tree, hf_pn_mrp_sub_option2, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_sub_tlv);
@@ -379,10 +379,10 @@ packet_info *pinfo, proto_tree *tree)
 
 static int
 dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t length)
 {
-    guint32 oui;
-    guint8 u8MrpEd1Type;
+    uint32_t oui;
+    uint8_t u8MrpEd1Type;
 
     /* OUI (organizational unique id) */
     offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_mrp_oui, &oui);
@@ -435,10 +435,10 @@ static int
 dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
-    guint16   version;
-    guint8    type;
-    guint8    length;
-    gint      i;
+    uint16_t  version;
+    uint8_t   type;
+    uint8_t   length;
+    int       i;
     tvbuff_t *new_tvb;
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -510,7 +510,7 @@ dissect_PNMRP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_item *ti       = NULL;
     proto_tree *mrp_tree = NULL;
 
-    guint32 offset = 0;
+    uint32_t offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRP");
 
@@ -642,7 +642,7 @@ proto_register_pn_mrp (void)
         NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pn_mrp,
         &ett_pn_mrp_type,
         &ett_pn_sub_tlv

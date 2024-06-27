@@ -1443,7 +1443,7 @@ test_raknet_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, vo
     }
 }
 
-static gboolean
+static bool
 dissect_raknet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     if (test_raknet_heur(tvb, pinfo, tree, data)) {
@@ -1455,7 +1455,7 @@ dissect_raknet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         return call_dissector_only(raknet_handle, tvb, pinfo, tree, data) > 0;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 

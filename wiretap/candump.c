@@ -10,13 +10,14 @@
  */
 
 #include <config.h>
+#include "candump.h"
+
 #include <wtap-int.h>
 #include <file_wrappers.h>
 #include <wsutil/exported_pdu_tlvs.h>
 #include <string.h>
 #include <inttypes.h>
 #include <errno.h>
-#include "candump.h"
 #include "candump_priv.h"
 
 static bool candump_read(wtap *wth, wtap_rec *rec, Buffer *buf,

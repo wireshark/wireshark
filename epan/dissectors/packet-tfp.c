@@ -233,7 +233,7 @@ dissect_tfp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 }
 
 /* dissector function for dissecting USB payloads */
-static gboolean
+static bool
 dissect_tfp_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
@@ -244,10 +244,10 @@ dissect_tfp_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFP over USB");
 		col_clear(pinfo->cinfo, COL_INFO);
 		dissect_tfp_common(tvb, pinfo, tree);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /* protocol register function */

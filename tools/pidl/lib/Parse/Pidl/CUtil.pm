@@ -11,6 +11,7 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
+use warnings;
 
 sub get_pointer_to($)
 {

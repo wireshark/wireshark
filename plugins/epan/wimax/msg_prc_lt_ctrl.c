@@ -25,14 +25,14 @@ void proto_reg_handoff_mac_mgmt_msg_prc_lt_ctrl(void);
 
 static dissector_handle_t prc_handle;
 
-static gint proto_mac_mgmt_msg_prc_lt_ctrl_decoder;
+static int proto_mac_mgmt_msg_prc_lt_ctrl_decoder;
 
-static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder;
+static int ett_mac_mgmt_msg_prc_lt_ctrl_decoder;
 
 /* PRC-LT-CTRL fields */
-static gint hf_prc_lt_ctrl_precoding;
-static gint hf_prc_lt_ctrl_precoding_delay;
-/* static gint hf_prc_lt_ctrl_invalid_tlv; */
+static int hf_prc_lt_ctrl_precoding;
+static int hf_prc_lt_ctrl_precoding_delay;
+/* static int hf_prc_lt_ctrl_invalid_tlv; */
 
 static const value_string vals_turn_on[] = {
 	{0, "Turn off"},
@@ -44,7 +44,7 @@ static const value_string vals_turn_on[] = {
 /* Decode PRC-LT-CTRL messages. */
 static int dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *prc_lt_ctrl_item;
 	proto_tree *prc_lt_ctrl_tree;
 
@@ -100,7 +100,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_prc_lt_ctrl_decoder,
 		};

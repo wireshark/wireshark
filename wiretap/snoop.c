@@ -7,11 +7,12 @@
  */
 
 #include "config.h"
+#include "snoop.h"
+
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
-#include "snoop.h"
 #include <wsutil/802_11-utils.h>
 #include <wsutil/ws_roundup.h>
 

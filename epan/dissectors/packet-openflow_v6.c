@@ -3865,8 +3865,6 @@ static const value_string openflow_v6_table_feature_prop_type_values[] = {
     { OFPTFPT_APPLY_COPYFIELD,     "OFPTFPT_APPLY_COPYFIELD" },
     { OFPTFPT_APPLY_COPYFIELD_MISS,"OFPTFPT_APPLY_COPYFIELD_MISS" },
     { OFPTFPT_PACKET_TYPES,        "OFPTFPT_PACKET_TYPES" },
-    { OFPTFPT_EXPERIMENTER,        "OFPTFPT_EXPERIMENTER" },
-    { OFPTFPT_EXPERIMENTER_MISS,   "OFPTFPT_EXPERIMENTER_MISS" },
     { 0,                            NULL }
 };
 

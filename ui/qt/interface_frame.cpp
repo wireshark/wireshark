@@ -42,6 +42,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QUrl>
+#include <QMutex>
+#include <QDebug>
 
 #include <epan/prefs.h>
 
@@ -51,6 +53,8 @@
 const int stat_update_interval_ = 1000; // ms
 #endif
 const char *no_capture_link = "#no_capture";
+
+static QMutex scan_mutex;
 
 InterfaceFrame::InterfaceFrame(QWidget * parent)
 : QFrame(parent),
@@ -210,15 +214,20 @@ void InterfaceFrame::showEvent(QShowEvent *) {
 void InterfaceFrame::scanLocalInterfaces(GList *filter_list)
 {
     GList *if_list = NULL;
-    if (isVisible()) {
-        source_model_.stopStatistic();
-        if_stat_cache_t * stat_cache = capture_interface_stat_start(&global_capture_opts, &if_list);
-        source_model_.setCache(stat_cache);
+    if (scan_mutex.tryLock()) {
+        if (isVisible()) {
+            source_model_.stopStatistic();
+            if_stat_cache_t * stat_cache = capture_interface_stat_start(&global_capture_opts, &if_list);
+            source_model_.setCache(stat_cache);
+        }
+        mainApp->setInterfaceList(if_list);
+        free_interface_list(if_list);
+        scan_local_interfaces_filtered(filter_list, main_window_update);
+        mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
+        scan_mutex.unlock();
+    } else {
+        qWarning() << "scan mutex locked, can't scan interfaces";
     }
-    mainApp->setInterfaceList(if_list);
-    free_interface_list(if_list);
-    scan_local_interfaces_filtered(filter_list, main_window_update);
-    mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
 }
 #endif // HAVE_LIBPCAP
 

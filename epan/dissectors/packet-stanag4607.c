@@ -17,6 +17,8 @@ void proto_reg_handoff_stanag4607(void);
 static int proto_stanag4607;
 
 static int hf_4607_version;
+static int hf_4607_version_edition;
+static int hf_4607_version_version;
 static int hf_4607_packet_size;
 static int hf_4607_nationality;
 static int hf_4607_sec_class;
@@ -41,6 +43,56 @@ static int hf_4607_mission_time_day;
 
 /* Dwell Segment */
 static int hf_4607_dwell_mask;
+static int hf_4607_dwell_mask_7_7;
+static int hf_4607_dwell_mask_7_6;
+static int hf_4607_dwell_mask_7_5;
+static int hf_4607_dwell_mask_7_4;
+static int hf_4607_dwell_mask_7_3;
+static int hf_4607_dwell_mask_7_2;
+static int hf_4607_dwell_mask_7_1;
+static int hf_4607_dwell_mask_7_0;
+static int hf_4607_dwell_mask_6_7;
+static int hf_4607_dwell_mask_6_6;
+static int hf_4607_dwell_mask_6_5;
+static int hf_4607_dwell_mask_6_4;
+static int hf_4607_dwell_mask_6_3;
+static int hf_4607_dwell_mask_6_2;
+static int hf_4607_dwell_mask_6_1;
+static int hf_4607_dwell_mask_6_0;
+static int hf_4607_dwell_mask_5_7;
+static int hf_4607_dwell_mask_5_6;
+static int hf_4607_dwell_mask_5_5;
+static int hf_4607_dwell_mask_5_4;
+static int hf_4607_dwell_mask_5_3;
+static int hf_4607_dwell_mask_5_2;
+static int hf_4607_dwell_mask_5_1;
+static int hf_4607_dwell_mask_5_0;
+static int hf_4607_dwell_mask_4_7;
+static int hf_4607_dwell_mask_4_6;
+static int hf_4607_dwell_mask_4_5;
+static int hf_4607_dwell_mask_4_4;
+static int hf_4607_dwell_mask_4_3;
+static int hf_4607_dwell_mask_4_2;
+static int hf_4607_dwell_mask_4_1;
+static int hf_4607_dwell_mask_4_0;
+static int hf_4607_dwell_mask_3_7;
+static int hf_4607_dwell_mask_3_6;
+static int hf_4607_dwell_mask_3_5;
+static int hf_4607_dwell_mask_3_4;
+static int hf_4607_dwell_mask_3_3;
+static int hf_4607_dwell_mask_3_2;
+static int hf_4607_dwell_mask_3_1;
+static int hf_4607_dwell_mask_3_0;
+static int hf_4607_dwell_mask_2_7;
+static int hf_4607_dwell_mask_2_6;
+static int hf_4607_dwell_mask_2_5;
+static int hf_4607_dwell_mask_2_4;
+static int hf_4607_dwell_mask_2_3;
+static int hf_4607_dwell_mask_2_2;
+static int hf_4607_dwell_mask_2_1;
+static int hf_4607_dwell_mask_2_0;
+static int hf_4607_dwell_mask_spare;
+
 static int hf_4607_dwell_revisit_index;
 static int hf_4607_dwell_dwell_index;
 static int hf_4607_dwell_last_dwell;
@@ -136,11 +188,14 @@ static int hf_4607_platloc_vertical_velocity;
 static gint ett_4607_hdr;
 static gint ett_4607_seg;
 static gint ett_4607_rpt;
+static gint ett_4607_mask;
+static gint ett_4607_ver;
 
 /* Error pointers */
 static expert_field ei_bad_length;
 static expert_field ei_too_short;
 static expert_field ei_bad_packet_size;
+static expert_field ei_job_id_zero;
 
 static dissector_handle_t stanag4607_handle;
 
@@ -151,6 +206,27 @@ static const value_string stanag4607_class_vals[] = {
 	{   3, "CONFIDENTIAL" },
 	{   4, "RESTRICTED" },
 	{   5, "UNCLASSIFIED" },
+	{ 0, NULL }
+};
+
+static const value_string stanag4607_security_codes_vals[] = {
+	{ 0x0000, "NONE (NO-STATEMENT VALUE)" },
+	{ 0x0001, "EU (Releasable To European Commission)" },
+	{ 0x0002, "EUFOR (Releasable To European Union Force)" },
+	{ 0x0004, "ISAF (Releasable To International Security Assistance Force)" },
+	{ 0x0008, "KFOR (Releasable To Kosovo Force)" },
+	{ 0x0010, "NATO RESPONSE FORCE (Releaseable to NRF)" },
+	{ 0x0020, "NMI (Releasable To NATO Mission Iraq)" },
+	{ 0x0040, "PFP (Releasable To Partnership for Peace)" },
+	{ 0x0080, "RESOLUTE SUPPORT (Releasable To RS)" },
+	{ 0x0100, "THE PUBLIC (Releasable To The Public)" },
+	{ 0x0200, "UNDEFINED. FOR FUTURE USE" },
+	{ 0x0400, "UNDEFINED. FOR FUTURE USE" },
+	{ 0x0800, "UNDEFINED. FOR FUTURE USE" },
+	{ 0x1000, "UNDEFINED. FOR FUTURE USE" },
+	{ 0x2000, "UNDEFINED. FOR FUTURE USE" },
+	{ 0x4000, "UNDEFINED. FOR FUTURE USE" },
+	{ 0x8000, "UNDEFINED. FOR FUTURE USE" },
 	{ 0, NULL }
 };
 
@@ -305,7 +381,7 @@ static const value_string stanag4607_platform_vals[] = {
 	{   4, "Rotary Wing Radar" },
 	{   5, "Global Hawk-Navy" },
 	{   6, "HORIZON" },
-	{   7, "E-8 (Joint STARS)" },
+	{   7, "E-8C (Joint STARS)" },
 	{   8, "P-3C" },
 	{   9, "Predator" },
 	{  10, "RADARSAT2" },
@@ -334,12 +410,29 @@ static const value_string stanag4607_platform_vals[] = {
 	{  33, "Stryker" },
 	{  34, "AGS (HALE UAV)" },
 	{  35, "SIDM" },
-	{  36, "Reaper" },
+	{  36, "MQ-9 Reaper" },
 	{  37, "Warrior A" },
 	{  38, "Warrior" },
 	{  39, "Twin Otter" },
+	{  40, "LEMV" },
+	{  41, "P8A Poseidon" },
+	{  42, "A160" },
+	{  43, "MQ-1C Gray Eagle" },
+	{  44, "RQ-7C Shadow" },
+	{  45, "PGSS" },
+	{  46, "PTDS" },
+	{  47, "LRAS 3" },
+	{  48, "RAID Tower" },
+	{  49, "Heron" },
+	{  50, "Scan Eagle" },
+	{  51, "Fire Scout" },
+	{  52, "F35 Joint Strike Fighter" },
+	{  53, "F-61 Sea King (SKASac)" },
+	{  54, "Lynx Wildcat" },
+	{  55, "Merlin" },
+	{  56, "SDT (Système de Drone Tactique)" },
 	{  255, "Other" },
-	{ 0, NULL }
+	{  0, NULL }
 };
 
 static void
@@ -512,25 +605,53 @@ dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
  * given in Figure 2-1 titled "Dwell Segment Existence Mask Mapping."
  */
 #define SET(MASK,OFF) (((MASK)>>(OFF)) & G_GINT64_CONSTANT(1))
+#define D2      7*8+7
+#define D3      7*8+6
+#define D4      7*8+5
+#define D5      7*8+4
+#define D6      7*8+3
+#define D7      7*8+2
+#define D8      7*8+1
+#define D9      7*8+0
 #define D10     6*8+7
+#define D11     6*8+6
 #define D12     6*8+5
+#define D13     6*8+4
+#define D14     6*8+3
 #define D15     6*8+2
+#define D16     6*8+1
+#define D17     6*8+0
 #define D18     5*8+7
+#define D19     5*8+6
+#define D20     5*8+5
 #define D21     5*8+4
+#define D22     5*8+3
+#define D23     5*8+2
 #define D24     5*8+1
+#define D25     5*8+0
+#define D26     4*8+7
+#define D27     4*8+6
 #define D28     4*8+5
 #define D29     4*8+4
 #define D30     4*8+3
 #define D31     4*8+2
 #define D32_1   4*8+1
 #define D32_2   4*8+0
+#define D32_3   3*8+7
+#define D32_4   3*8+6
+#define D32_5   3*8+5
 #define D32_6   3*8+4
 #define D32_7   3*8+3
+#define D32_8   3*8+2
 #define D32_9   3*8+1
 #define D32_10  3*8+0
 #define D32_11  2*8+7
 #define D32_12  2*8+6
+#define D32_13  2*8+5
+#define D32_14  2*8+4
+#define D32_15  2*8+3
 #define D32_16  2*8+2
+#define D32_17  2*8+1
 #define D32_18  2*8+0
 
 /* Target Report */
@@ -549,11 +670,16 @@ dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
 	if (SET(mask, D32_2)) {
 		rpt_item = proto_tree_add_item(rpt_tree, hf_4607_dwell_report_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
+	if (SET(mask, D32_3)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_lon, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-	} else {
+	}
+	if (SET(mask, D32_4)) {
 		rpt_item = proto_tree_add_item(rpt_tree, hf_4607_dwell_report_delta_lat, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D32_5)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_delta_lon, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
@@ -569,6 +695,8 @@ dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
 	if (SET(mask, D32_7)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_radial, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D32_8)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_wrap, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
@@ -587,16 +715,24 @@ dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
 	if (SET(mask, D32_12)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_slant, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D32_13)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_cross, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D32_14)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_height, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
+	}
+	if (SET(mask, D32_15)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_radial, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 	if (SET(mask, D32_16)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_tag_app, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
+	}
+	if (SET(mask, D32_17)) {
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_tag_entity, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
@@ -617,12 +753,68 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 
 	mask = tvb_get_ntoh64(tvb, offset);
 
-	proto_tree_add_item(seg_tree, hf_4607_dwell_mask, tvb, offset, 8, ENC_BIG_ENDIAN);
+	static int* const mask_bits[] = {
+            &hf_4607_dwell_mask_7_7,
+			&hf_4607_dwell_mask_7_6,
+			&hf_4607_dwell_mask_7_5,
+			&hf_4607_dwell_mask_7_4,
+			&hf_4607_dwell_mask_7_3,
+			&hf_4607_dwell_mask_7_2,
+			&hf_4607_dwell_mask_7_1,
+			&hf_4607_dwell_mask_7_0,
+			&hf_4607_dwell_mask_6_7,
+			&hf_4607_dwell_mask_6_6,
+			&hf_4607_dwell_mask_6_5,
+			&hf_4607_dwell_mask_6_4,
+			&hf_4607_dwell_mask_6_3,
+			&hf_4607_dwell_mask_6_2,
+			&hf_4607_dwell_mask_6_1,
+			&hf_4607_dwell_mask_6_0,
+			&hf_4607_dwell_mask_5_7,
+			&hf_4607_dwell_mask_5_6,
+			&hf_4607_dwell_mask_5_5,
+			&hf_4607_dwell_mask_5_4,
+			&hf_4607_dwell_mask_5_3,
+			&hf_4607_dwell_mask_5_2,
+			&hf_4607_dwell_mask_5_1,
+			&hf_4607_dwell_mask_5_0,
+			&hf_4607_dwell_mask_4_7,
+			&hf_4607_dwell_mask_4_6,
+			&hf_4607_dwell_mask_4_5,
+			&hf_4607_dwell_mask_4_4,
+			&hf_4607_dwell_mask_4_3,
+			&hf_4607_dwell_mask_4_2,
+			&hf_4607_dwell_mask_4_1,
+			&hf_4607_dwell_mask_4_0,
+			&hf_4607_dwell_mask_3_7,
+			&hf_4607_dwell_mask_3_6,
+			&hf_4607_dwell_mask_3_5,
+			&hf_4607_dwell_mask_3_4,
+			&hf_4607_dwell_mask_3_3,
+			&hf_4607_dwell_mask_3_2,
+			&hf_4607_dwell_mask_3_1,
+			&hf_4607_dwell_mask_3_0,
+			&hf_4607_dwell_mask_2_7,
+			&hf_4607_dwell_mask_2_6,
+			&hf_4607_dwell_mask_2_5,
+			&hf_4607_dwell_mask_2_4,
+			&hf_4607_dwell_mask_2_3,
+			&hf_4607_dwell_mask_2_2,
+			&hf_4607_dwell_mask_2_1,
+			&hf_4607_dwell_mask_2_0,
+			&hf_4607_dwell_mask_spare,
+            NULL
+        };
+	proto_tree_add_bitmask(seg_tree, tvb, offset, hf_4607_dwell_mask, ett_4607_mask, mask_bits, ENC_BIG_ENDIAN);
 	offset += 8;
+
+	/* Mandatory fields, existence mask irrelevant */
 	proto_tree_add_item(seg_tree, hf_4607_dwell_revisit_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_dwell_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_last_dwell, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -630,64 +822,92 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	count = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(seg_tree, hf_4607_dwell_count, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_time, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_sensor_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_sensor_lon, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_sensor_alt, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
+	/* Optional or conditional fields, in accordance to presence mask */
 	if (SET(mask, D10)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_scale_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
+	if (SET(mask, D11)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_scale_lon, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	if (SET(mask, D12)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_unc_along, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
+	if (SET(mask, D13)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_unc_cross, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
+	if (SET(mask, D14)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_unc_alt, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 	if (SET(mask, D15)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_track, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D16)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
+	if (SET(mask, D17)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_vert_velocity, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 	if (SET(mask, D18)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_track_unc, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
+	}
+	if (SET(mask, D19)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_speed_unc, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D20)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_vv_unc, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 	if (SET(mask, D21)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_plat_heading, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D22)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_plat_pitch, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
+	}
+	if (SET(mask, D23)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_plat_roll, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
-	/* Mandatory Dwell Area */
+	/* Dwell Area */
+	/* Mandatory fields, existence mask irrelevant */
 	proto_tree_add_item(seg_tree, hf_4607_dwell_da_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_da_lon, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_da_range, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
+
 	proto_tree_add_item(seg_tree, hf_4607_dwell_da_angle, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
+	/* Optional or conditional fields, in accordance to presence mask */
 	if (SET(mask, D28)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_sensor_heading, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
@@ -818,11 +1038,9 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint32 offset = 0;
 	gint8 first_segment;
 
-	guint32 pkt_size = 0;
-	proto_item *ti = NULL;
-	proto_tree *hdr_tree = NULL;
-	proto_item *seg_type = NULL;
-	proto_tree *seg_tree = NULL;
+	guint32 pkt_size = 0, job_id;
+	proto_item *ti, *seg_type, *pver, *pedition;
+	proto_tree *hdr_tree, *seg_tree, *ver_tree;
 	guint8 seg_id = 0;
 
 	/* Basic length check */
@@ -849,20 +1067,40 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	}
 
 	/* The generic packet header */
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_stanag4607, tvb, 0, -1, ENC_NA);
-		hdr_tree = proto_item_add_subtree(ti, ett_4607_hdr);
-		proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII);
-		ti = proto_tree_add_item(hdr_tree, hf_4607_packet_size, tvb, 2, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII);
-		proto_tree_add_item(hdr_tree, hf_4607_sec_class, tvb, 8, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII);
-		proto_tree_add_item(hdr_tree, hf_4607_sec_code, tvb, 11, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII);
-		proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_stanag4607, tvb, 0, -1, ENC_NA);
+	hdr_tree = proto_item_add_subtree(ti, ett_4607_hdr);
+
+	/* Version is in format mn (ASCII) where m reflects edition and n version
+
+	   m="4" equates to A, m="5" equates to B, and so on
+	   n is the direct alphanumeric representation
+
+	   Note: STANAG 4607 has numbers up to 3 (Edition 3 Rev. 0 => "30").
+	   This changed with the transition to AEDP-4607.
+	*/
+	pver = proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII);
+	ver_tree = proto_item_add_subtree(pver, ett_4607_ver);
+	pedition = proto_tree_add_item(ver_tree, hf_4607_version_edition, tvb, 0, 1, ENC_ASCII);
+	guint8 edition = tvb_get_guint8(tvb, 0);
+	if(edition >= 48 && edition <= 51) {
+		/* ASCII char 48-51 (0-3) */
+		proto_item_append_text(pedition, " (STANAG 4607 Edition %c)", edition);
+	} else if(edition >= 52 && edition <= 57) {
+		/* ASCII char 52-57 (0-9) -> ASCII table offset 13 -> 52 (4) + 13 = 65 (A) */
+		proto_item_append_text(pedition, " (AEDP-4607 Edition %c)", edition + 13);
 	}
+	proto_tree_add_item(ver_tree, hf_4607_version_version, tvb, 1, 1, ENC_ASCII);
+
+	ti = proto_tree_add_item(hdr_tree, hf_4607_packet_size, tvb, 2, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII);
+	proto_tree_add_item(hdr_tree, hf_4607_sec_class, tvb, 8, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII);
+	proto_tree_add_item(hdr_tree, hf_4607_sec_code, tvb, 11, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII);
+	proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
+	job_id = tvb_get_guint32(tvb, 28, ENC_BIG_ENDIAN);
 	offset = 32;
 
 	pkt_size = tvb_get_ntohl(tvb, 2);
@@ -900,6 +1138,8 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				offset = dissect_mission(tvb, seg_tree, offset);
 				break;
 			case DWELL_SEGMENT:
+				if(job_id == 0)
+					proto_tree_add_expert(seg_tree, pinfo, &ei_job_id_zero, tvb, 0, 0);
 				offset = dissect_dwell(tvb, seg_tree, offset);
 				break;
 			case JOB_DEFINITION_SEGMENT:
@@ -935,6 +1175,18 @@ proto_register_stanag4607(void)
 			NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_4607_version_edition,
+			{ "Edition", "s4607.version.edition",
+			FT_STRING, BASE_NONE,
+			NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_4607_version_version,
+			{ "Version", "s4607.version.version",
+			FT_STRING, BASE_NONE,
+			NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_4607_packet_size,
 			{ "Packet Size", "s4607.size",
 			FT_UINT32, BASE_DEC,
@@ -962,7 +1214,7 @@ proto_register_stanag4607(void)
 		{ &hf_4607_sec_code,
 			{ "Security Codes", "s4607.sec.codes",
 			FT_UINT16, BASE_HEX,
-			NULL, 0x0,
+			VALS(stanag4607_security_codes_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_4607_exercise_indicator,
@@ -1011,6 +1263,300 @@ proto_register_stanag4607(void)
 			{ "Existence Mask", "s4607.dwell.mask",
 			FT_UINT64, BASE_HEX,
 			NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_7,
+			{ "Revisit Index (D2)", "s4607.dwell.mask.d2",
+			FT_BOOLEAN, 64,
+			NULL, 0x8000000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_6,
+			{ "Dwell Index (D3)", "s4607.dwell.mask.d3",
+			FT_BOOLEAN, 64,
+			NULL, 0x4000000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_5,
+			{ "Last Dwell of Revisit (D4)", "s4607.dwell.mask.d4",
+			FT_BOOLEAN, 64,
+			NULL, 0x2000000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_4,
+			{ "Target Report Count (D5)", "s4607.dwell.mask.d5",
+			FT_BOOLEAN, 64,
+			NULL, 0x1000000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_3,
+			{ "Dwell Time (D6)", "s4607.dwell.mask.d6",
+			FT_BOOLEAN, 64,
+			NULL, 0x0800000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_2,
+			{ "Sensor Position (Latitude) (D7)", "s4607.dwell.mask.d7",
+			FT_BOOLEAN, 64,
+			NULL, 0x0400000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_1,
+			{ "Sensor Position (Longitude) (D8)", "s4607.dwell.mask.d8",
+			FT_BOOLEAN, 64,
+			NULL, 0x0200000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_7_0,
+			{ "Sensor Position (Altitude) (D9)", "s4607.dwell.mask.d9",
+			FT_BOOLEAN, 64,
+			NULL, 0x0100000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_7,
+			{ "Scale Factor (Latitude Scale) (D10)", "s4607.dwell.mask.d10",
+			FT_BOOLEAN, 64,
+			NULL, 0x0080000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_6,
+			{ "Scale Factor (Longitude Scale) (D11)", "s4607.dwell.mask.d11",
+			FT_BOOLEAN, 64,
+			NULL, 0x0040000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_5,
+			{ "Sensor Position Uncertainty (Along Track) (D12)", "s4607.dwell.mask.d12",
+			FT_BOOLEAN, 64,
+			NULL, 0x0020000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_4,
+			{ "Sensor Position Uncertainty (Cross-Track) (D13)", "s4607.dwell.mask.d13",
+			FT_BOOLEAN, 64,
+			NULL, 0x0010000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_3,
+			{ "Sensor Position Uncertainty (Altitude) (D14)", "s4607.dwell.mask.d14",
+			FT_BOOLEAN, 64,
+			NULL, 0x0008000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_2,
+			{ "Sensor Track (D15)", "s4607.dwell.mask.d15",
+			FT_BOOLEAN, 64,
+			NULL, 0x0004000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_1,
+			{ "Sensor Speed (D16)", "s4607.dwell.mask.d16",
+			FT_BOOLEAN, 64,
+			NULL, 0x0002000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_6_0,
+			{ "Sensor Vertical Velocity (D17)", "s4607.dwell.mask.d17",
+			FT_BOOLEAN, 64,
+			NULL, 0x0001000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_7,
+			{ "Sensor Track Uncertainty (D18)", "s4607.dwell.mask.d18",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000800000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_6,
+			{ "Sensor Speed Uncertainty (D19)", "s4607.dwell.mask.d19",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000400000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_5,
+			{ "Sensor Vertical Velocity Uncertainty (D20)", "s4607.dwell.mask.d20",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000200000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_4,
+			{ "Platform Orientation (Heading) (D21)", "s4607.dwell.mask.d21",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000100000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_3,
+			{ "Platform Orientation (Pitch) (D22)", "s4607.dwell.mask.d22",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000080000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_2,
+			{ "Platform Orientation (Roll) (D23)", "s4607.dwell.mask.d23",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000040000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_1,
+			{ "Dwell Area (Center Latitude) (D24)", "s4607.dwell.mask.d24",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000020000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_5_0,
+			{ "Dwell Area (Center Longitude) (D25)", "s4607.dwell.mask.d25",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000010000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_7,
+			{ "Dwell Area (Range Half Extent) (D26)", "s4607.dwell.mask.d26",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000008000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_6,
+			{ "Dwell Area (Dwell Angle Half Extent) (D27)", "s4607.dwell.mask.d27",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000004000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_5,
+			{ "Sensor Orientation (Heading) (D28)", "s4607.dwell.mask.d28",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000002000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_4,
+			{ "Sensor Orientation (Pitch) (D29)", "s4607.dwell.mask.d29",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000001000000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_3,
+			{ "Sensor Orientation (Roll) (D30)", "s4607.dwell.mask.d30",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000800000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_2,
+			{ "Minimum Detectable Velocity, MDV (D31)", "s4607.dwell.mask.d31",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000400000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_1,
+			{ "MTI Report Index (D32.1)", "s4607.dwell.mask.d32_1",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000200000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_4_0,
+			{ "Target Location (Hi-Res Latitude) (D32.2)", "s4607.dwell.mask.d32_2",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000100000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_7,
+			{ "Target Location (Hi-Res Longitude) (D32.3)", "s4607.dwell.mask.d32_3",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000080000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_6,
+			{ "Target Location (Delta Latitude) (D32.4)", "s4607.dwell.mask.d32_4",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000040000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_5,
+			{ "Target Location (Delta Longitude) (D32.5)", "s4607.dwell.mask.d32_5",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000020000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_4,
+			{ "Target Location (Geodetic Height) (D32.6)", "s4607.dwell.mask.d32_6",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000010000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_3,
+			{ "Target Velocity Line-of-Sight Component (D32.7)", "s4607.dwell.mask.d32_7",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000008000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_2,
+			{ "Target Wrap Velocity (D32.8)", "s4607.dwell.mask.d32_8",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000004000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_1,
+			{ "Target SNR (D32.9)", "s4607.dwell.mask.d32_9",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000002000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_3_0,
+			{ "Target Classification (D32.10)", "s4607.dwell.mask.d32_10",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000001000000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_7,
+			{ "Target Class. Probability (D32.11)", "s4607.dwell.mask.d32_11",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000800000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_6,
+			{ "Target Measurement Uncertainty (Slant Range) (D32.12)", "s4607.dwell.mask.d32_12",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000400000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_5,
+			{ "Target Measurement Uncertainty (Cross Range) (D32.13)", "s4607.dwell.mask.d32_13",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000200000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_4,
+			{ "Target Measurement Uncertainty (Height) (D32.14)", "s4607.dwell.mask.d32_14",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000100000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_3,
+			{ "Target Measurement Uncertainty (Target Radial Velocity) (D32.15)", "s4607.dwell.mask.d32_15",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000080000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_2,
+			{ "Truth Tag (Application) (D32.16)", "s4607.dwell.mask.d32_16",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000040000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_1,
+			{ "Truth Tag (Entity) (D32.17)", "s4607.dwell.mask.d32_17",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000020000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_2_0,
+			{ "Target Radar Cross Section (D32.18)", "s4607.dwell.mask.d32_18",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000000010000,
+			NULL, HFILL }
+		},
+		{ &hf_4607_dwell_mask_spare,
+			{ "Spare", "s4607.dwell.mask.spare",
+			FT_UINT64, BASE_HEX,
+			NULL, 0x000000000000FFFF,
 			NULL, HFILL }
 		},
 		{ &hf_4607_dwell_revisit_index,
@@ -1601,6 +2147,8 @@ proto_register_stanag4607(void)
 		&ett_4607_hdr,
 		&ett_4607_seg,
 		&ett_4607_rpt,
+		&ett_4607_mask,
+		&ett_4607_ver,
 	};
 
 	static ei_register_info ei[] = {
@@ -1612,7 +2160,10 @@ proto_register_stanag4607(void)
 			  "Bad segment size", EXPFILL }},
 		{ &ei_bad_packet_size,
 			{ "s4607.bad_packet_size", PI_MALFORMED, PI_ERROR,
-			  "Bad packet size field", EXPFILL }}
+			  "Bad packet size field", EXPFILL }},
+		{ &ei_job_id_zero,
+			{ "s4607.job_id_zero", PI_MALFORMED, PI_WARN,
+			  "Segment present without valid Job ID", EXPFILL }}
 	};
 
 	expert_module_t* expert_4607;

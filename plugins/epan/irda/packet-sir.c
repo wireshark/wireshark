@@ -70,21 +70,21 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 	if (tvb_find_guint8(tvb, 0, -1, SIR_CE) == -1) {
 		return tvb;
 	} else {
-		guint length = tvb_captured_length(tvb);
-		guint offset;
-		guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, length);
-		guint8 *dst = data;
+		unsigned length = tvb_captured_length(tvb);
+		unsigned offset;
+		uint8_t *data = (uint8_t *)wmem_alloc(pinfo->pool, length);
+		uint8_t *dst = data;
 		tvbuff_t *next_tvb;
 
 		for (offset = 0; offset < length; )
 		{
-			guint8 c = tvb_get_guint8(tvb, offset++);
+			uint8_t c = tvb_get_guint8(tvb, offset++);
 			if ((c == SIR_CE) && (offset < length))
 				c = SIR_ESCAPE(tvb_get_guint8(tvb, offset++));
 			*dst++ = c;
 		}
 
-		next_tvb = tvb_new_child_real_data(tvb, data, (guint) (dst-data), (guint) (dst-data));
+		next_tvb = tvb_new_child_real_data(tvb, data, (unsigned) (dst-data), (unsigned) (dst-data));
 		add_new_data_source(pinfo, next_tvb, "Unescaped SIR");
 		return next_tvb;
 	}
@@ -110,9 +110,9 @@ checksum_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 {
-	gint offset = 0;
-	gint bof_offset;
-	gint eof_offset;
+	int offset = 0;
+	int bof_offset;
+	int eof_offset;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		bof_offset = tvb_find_guint8(tvb, offset, -1, SIR_BOF);
@@ -126,13 +126,13 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 			}
 			return tvb_captured_length(tvb);
 		} else {
-			guint preamble_len = bof_offset - offset;
-			gint data_offset = bof_offset + 1;
+			unsigned preamble_len = bof_offset - offset;
+			int data_offset = bof_offset + 1;
 			tvbuff_t* next_tvb = tvb_new_subset_length_caplen(tvb,
 				data_offset, eof_offset - data_offset, -1);
 			next_tvb = unescape_data(next_tvb, pinfo);
 			if (root) {
-				guint data_len = tvb_reported_length(next_tvb) < 2 ? 0 :
+				unsigned data_len = tvb_reported_length(next_tvb) < 2 ? 0 :
 					tvb_reported_length(next_tvb) - 2;
 				proto_tree* ti = proto_tree_add_protocol_format(root,
 						proto_sir, tvb, offset, eof_offset - offset + 1,
@@ -173,7 +173,7 @@ proto_reg_handoff_irsir(void)
 void
 proto_register_irsir(void)
 {
-	static gint* ett[] = { &ett_sir };
+	static int* ett[] = { &ett_sir };
 
 	static hf_register_info hf_sir[] = {
 		{ &hf_sir_bof,

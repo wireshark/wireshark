@@ -319,7 +319,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 }
 
 /* The heuristic dissector function checks if the UDP packet may be a cattp packet */
-static gboolean
+static bool
 dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) >= CATTP_HBLEN) { /* check of data is big enough for base header. */
@@ -330,23 +330,23 @@ dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         plen = tvb_get_ntohs(tvb, 8);  /* payload len */
 
         if (hlen+plen != tvb_reported_length(tvb)) /* check if data length is ok. */
-            return FALSE;
+            return false;
 
         /* ETSI TS 102 127 V15.0.0 and earlier releases say explicitly that
            the version bits must be 0. */
         ver = tvb_get_guint8(tvb, 0) & M_VERSION;
         if (ver != 0)
-            return FALSE;
+            return false;
 
         flags = tvb_get_guint8(tvb, 0) & M_FLAGS;
         if ( (flags & M_PDU_SYN) == F_SYN ||
              (flags & M_PDU_RST) == F_RST ||
              (flags & M_PDU_ACK) == F_ACK ) { /* check if flag combi is valid */
             dissect_cattp(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 /* Function to register the dissector, called by infrastructure. */

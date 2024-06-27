@@ -513,7 +513,7 @@ dissect_fcip_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_fcip_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return (dissect_fcip (tvb, pinfo, tree, TRUE));

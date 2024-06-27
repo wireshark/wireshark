@@ -1534,7 +1534,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     get_sgsap_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
     if (msg_str) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
+        col_add_str(pinfo->cinfo, COL_INFO, msg_str);
     }else{
         proto_tree_add_item(tree, hf_sgsap_unknown_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         return tvb_captured_length(tvb);

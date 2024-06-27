@@ -1633,8 +1633,8 @@ dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     DISSECTOR_ASSERT_NOT_REACHED();
 }
 
-static gboolean
-dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*
      * Heuristics to detect the WireGuard protocol:
@@ -1650,20 +1650,20 @@ dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     gboolean    reserved_is_zeroes;
 
     if (tvb_reported_length(tvb) < 4)
-        return FALSE;
+        return false;
 
     message_type = tvb_get_guint8(tvb, 0);
     reserved_is_zeroes = tvb_get_ntoh24(tvb, 1) == 0;
 
     if (!wg_is_valid_message_length(message_type, tvb_reported_length(tvb))) {
-        return FALSE;
+        return false;
     }
 
     switch (message_type) {
         case WG_TYPE_COOKIE_REPLY:
         case WG_TYPE_TRANSPORT_DATA:
             if (!reserved_is_zeroes)
-                return FALSE;
+                return false;
             break;
     }
 
@@ -1680,8 +1680,8 @@ dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         conversation_set_dissector(conversation, wg_handle);
     }
 
-    dissect_wg(tvb, pinfo, tree, NULL);
-    return TRUE;
+    dissect_wg(tvb, pinfo, tree, data);
+    return true;
 }
 
 static void

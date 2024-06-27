@@ -1675,11 +1675,11 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_diameter_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (check_diameter(tvb) != IS_DIAMETER) {
-		return FALSE;
+		return false;
 	}
 
 	conversation_set_dissector(find_or_create_conversation(pinfo), diameter_tcp_handle);
@@ -1687,7 +1687,7 @@ dissect_diameter_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
 			 get_diameter_pdu_len, dissect_diameter_common, data);
 
-	return TRUE;
+	return true;
 }
 
 static int

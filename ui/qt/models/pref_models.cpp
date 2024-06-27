@@ -47,6 +47,7 @@ PrefsItem::PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent)
     pref_(pref),
     module_(module),
     name_(module->name ? module->name : module->parent->name),
+    help_(QString()),
     changed_(false)
 {
     if (pref_ != NULL) {
@@ -59,9 +60,19 @@ PrefsItem::PrefsItem(const QString name, PrefsItem* parent)
     pref_(NULL),
     module_(NULL),
     name_(name),
+    help_(QString()),
     changed_(false)
 {
+}
 
+PrefsItem::PrefsItem(PrefsModel::PrefsModelType type, PrefsItem* parent)
+    : ModelHelperTreeItem<PrefsItem>(parent),
+    pref_(NULL),
+    module_(NULL),
+    name_(PrefsModel::typeToString(type)),
+    help_(PrefsModel::typeToHelp(type)),
+    changed_(false)
+{
 }
 
 PrefsItem::~PrefsItem()
@@ -111,6 +122,20 @@ QString PrefsItem::getModuleTitle() const
     Q_ASSERT(module_);
 
     return QString(module_->title);
+}
+
+QString PrefsItem::getModuleHelp() const
+{
+    if (module_ == nullptr)
+        return help_;
+
+    module_t *pref_module = module_;
+
+    while (pref_module->help == nullptr && pref_module->parent) {
+        pref_module = pref_module->parent;
+    }
+
+    return pref_module->help;
 }
 
 void PrefsItem::setChanged(bool changed)
@@ -280,27 +305,27 @@ void PrefsModel::populate()
     //Add the "specially handled" preferences
     PrefsItem *appearance_item, *appearance_subitem, *special_item;
 
-    appearance_item = new PrefsItem(typeToString(PrefsModel::Appearance), root_);
+    appearance_item = new PrefsItem(PrefsModel::Appearance, root_);
     root_->prependChild(appearance_item);
 
-    appearance_subitem = new PrefsItem(typeToString(PrefsModel::Layout), appearance_item);
+    appearance_subitem = new PrefsItem(PrefsModel::Layout, appearance_item);
     appearance_item->prependChild(appearance_subitem);
-    appearance_subitem = new PrefsItem(typeToString(PrefsModel::Columns), appearance_item);
+    appearance_subitem = new PrefsItem(PrefsModel::Columns, appearance_item);
     appearance_item->prependChild(appearance_subitem);
-    appearance_subitem = new PrefsItem(typeToString(PrefsModel::FontAndColors), appearance_item);
+    appearance_subitem = new PrefsItem(PrefsModel::FontAndColors, appearance_item);
     appearance_item->prependChild(appearance_subitem);
 
-    special_item = new PrefsItem(typeToString(PrefsModel::Capture), root_);
+    special_item = new PrefsItem(PrefsModel::Capture, root_);
     root_->prependChild(special_item);
-    special_item = new PrefsItem(typeToString(PrefsModel::Expert), root_);
+    special_item = new PrefsItem(PrefsModel::Expert, root_);
     root_->prependChild(special_item);
-    special_item = new PrefsItem(typeToString(PrefsModel::FilterButtons), root_);
+    special_item = new PrefsItem(PrefsModel::FilterButtons, root_);
     root_->prependChild(special_item);
 #ifdef HAVE_LIBGNUTLS
-    special_item = new PrefsItem(typeToString(PrefsModel::RSAKeys), root_);
+    special_item = new PrefsItem(PrefsModel::RSAKeys, root_);
     root_->prependChild(special_item);
 #endif
-    special_item = new PrefsItem(typeToString(PrefsModel::Advanced), root_);
+    special_item = new PrefsItem(PrefsModel::Advanced, root_);
     root_->prependChild(special_item);
 }
 
@@ -322,6 +347,44 @@ QString PrefsModel::typeToString(int type)
     }
 
     return typeStr;
+}
+
+QString PrefsModel::typeToHelp(int type)
+{
+    QString helpStr;
+
+    switch(type)
+    {
+        case Appearance:
+            helpStr = QString("ChCustPreferencesSection.html#_appearance");
+            break;
+        case Columns:
+            helpStr = QString("ChCustPreferencesSection.html#_columns");
+            break;
+        case FontAndColors:
+            helpStr = QString("ChCustPreferencesSection.html#_font_and_colors");
+            break;
+        case Layout:
+            helpStr = QString("ChCustPreferencesSection.html#_layout");
+            break;
+        case Capture:
+            helpStr = QString("ChCustPreferencesSection.html#_capture");
+            break;
+        case Expert:
+            helpStr = QString("ChCustPreferencesSection.html#ChCustPrefsExpertSection");
+            break;
+        case FilterButtons:
+            helpStr = QString("ChCustPreferencesSection.html#ChCustFilterButtons");
+            break;
+        case RSAKeys:
+            helpStr = QString("ChCustPreferencesSection.html#ChCustPrefsRSASection");
+            break;
+        case Advanced:
+            helpStr = QString("ChCustPreferencesSection.html#_advanced");
+            break;
+    }
+
+    return helpStr;
 }
 
 AdvancedPrefsModel::AdvancedPrefsModel(QObject * parent)
@@ -683,6 +746,8 @@ QVariant ModulePrefsModel::data(const QModelIndex &dataindex, int role) const
         return sourceModel()->data(modelIndex, role);
     case ModuleName:
         return item->getModuleName();
+    case ModuleHelp:
+        return item->getModuleHelp();
     default:
         break;
     }

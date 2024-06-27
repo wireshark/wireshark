@@ -1,0 +1,70 @@
+= Logray Quick Start
+
+Logray is a sibling application for Wireshark which focuses on system calls and log messages.
+It helps people understand, troubleshoot, and secure their systems via system calls and log messages similar to the way Wireshark helps people understand, troubleshoot, and secure their networks via packets.
+
+This document provides brief instructions for obtaining, using, and building Logray until more complete documentation comparable to the Wireshark Developer’s and User’s Guides can be written.
+
+== Getting Logray
+
+You can get Windows and macOS development packages from https://www.wireshark.org/download/automated/.
+Native system call captures aren't yet supported on those platforms, but they do come with the https://github.com/falcosecurity/plugins/blob/main/plugins/cloudtrail/README.md[CloudTrail plugin], which can pull AWS CloudTrail logs from an S3 bucket or SQS/SNS.
+
+If you wish to use Logray on Linux you will have to built it yourself.
+Instructions for doing that can be found in the <<building_logray,Building Logray>> section below.
+
+== Using Logray
+
+Logray shares a great deal of code with Wireshark, including most of its UI elements.
+If you are familiar with Wireshark, its interface and workflows should be familiar.
+
+One issue that you might run into initially is that system calls and logs deal with different information.
+As a result, the event list column preferences need to be configured to match the kind of data that you are analyzing.
+Logray's default configuration profile assumes that you are analyzing system calls.
+It ships with a "Cloudtrail" configuration profile which is geared toward CloudTrail events.
+You can find more information on working with configuration profiles in the https://www.wireshark.org/docs/wsug_html_chunked/ChCustConfigProfilesSection.html[Configuration Profiles] section in the Wireshark User's Guide.
+If you switch back and forth between system call and CloudTrail captures on a regular basis, you might find the "Automatic Profile Switching" feature useful.
+
+You can obtain system call captures using the https://github.com/draios/sysdig[sysdig command line tool] or by using Logray on a Linux system.
+
+The https://gitlab.com/wireshark/wireshark/-/blob/master/doc/falcodump.adoc[falcodump manpage] provides information how to use Falco Plugin extcap interface.
+
+== Building Logray[[building_logray]]
+
+Logray requires the same build environment as Wireshark.
+See the https://www.wireshark.org/docs/wsdg_html_chunked/[Wireshark Developer’s Guide] for instructions on setting that up.
+
+It additionally requires libsinsp and libscap from https://github.com/falcosecurity/libs/[falcosecurity/libs] and any desired plugins from https://github.com/falcosecurity/plugins/[falcosecurity/plugins].
+
+In order to build Logray, do the following:
+
+1. https://falco.org/docs/getting-started/source/[Build falcosecurity/libs].
+
+2. Build any desired https://github.com/falcosecurity/plugins/[Falco plugins] and copy them somewhere, such as `/usr/local/lib/falcosecurity/plugins`.
+
+3. Build the Wireshark sources with the following CMake options:
++
+--
+[horizontal]
+BUILD_logray:: Must be enabled, e.g. set to ON
+BUILD_falcodump:: Must be enabled, e.g. set to ON
+CMAKE_PREFIX_PATH:: If you installed libsinsp and libscap to a non-standard directory, https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html[this should point there].
+FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/path/to/libcloudtrail.so`.
+--
+
+.Example 1: Building on Linux using Make
+[sh]
+----
+# This assumes that falcosecurity-libs and the CloudTral plugin were installed in
+# `/opt/falco-libs/0.17.1`.
+cmake \
+  -DBUILD_logray=ON \
+  -DBUILD_falcodump=ON \
+  -DCMAKE_PREFIX_PATH=/opt/falco-libs/0.17.1 \
+  -DFALCO_PLUGINS=/opt/falco-libs/0.17.1/lib/falcosecurity/plugins/libcloudtrail.so \
+  ..
+make -j $(getconf _NPROCESSORS_ONLN)
+----
+
+
+If you want to add other Falco plugins later you can copy them to a `falco` subfolder in the Global Plugins folder. The path to the Global Plugins folder is shown in the About Logray Folders dialog.

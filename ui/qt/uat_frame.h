@@ -16,6 +16,8 @@
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 
+class QItemSelection;
+
 namespace Ui {
 class UatFrame;
 }
@@ -54,6 +56,7 @@ private slots:
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
     void modelRowsReset();
+    void uatTreeViewSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();

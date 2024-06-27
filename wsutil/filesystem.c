@@ -539,6 +539,13 @@ get_current_executable_path(void)
 
 static void trim_progfile_dir(void)
 {
+#ifdef _WIN32
+    char *namespace_last_dir = find_last_pathname_separator(progfile_dir);
+    if (namespace_last_dir && strncmp(namespace_last_dir + 1, CONFIGURATION_NAMESPACE_LOWER, sizeof(CONFIGURATION_NAMESPACE_LOWER)) == 0) {
+        *namespace_last_dir = '\0';
+    }
+#endif
+
     char *progfile_last_dir = find_last_pathname_separator(progfile_dir);
 
     if (! (progfile_last_dir && strncmp(progfile_last_dir + 1, "extcap", sizeof("extcap")) == 0)) {

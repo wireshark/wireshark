@@ -378,8 +378,8 @@ static void stream_hash_clean_stats(gpointer key _U_, gpointer value, gpointer u
 static void osmux_stats_tree_init(stats_tree *st)
 {
     wmem_map_foreach(osmux_stream_hash, stream_hash_clean_stats, NULL);
-    st_osmux_stats = stats_tree_create_node(st, st_str_total_pkts, 0, STAT_DT_INT, TRUE);
-    st_osmux_stats_conn = stats_tree_create_node(st, st_str_conn, st_osmux_stats, STAT_DT_INT, TRUE);
+    st_osmux_stats = stats_tree_create_node(st, st_str_total_pkts, 0, STAT_DT_INT, true);
+    st_osmux_stats_conn = stats_tree_create_node(st, st_str_conn, st_osmux_stats, STAT_DT_INT, true);
 }
 
 static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
@@ -392,33 +392,33 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
 
     stream_name = stream_str(stream, pinfo);
 
-    tick_stat_node(st, st_str_total_pkts, 0, TRUE);
+    tick_stat_node(st, st_str_total_pkts, 0, true);
 
     if (!stream->stats.node_id) {
-        tick_stat_node(st, st_str_conn, st_osmux_stats, TRUE);
-        stream->stats.node_id = stats_tree_create_node(st, stream_name, st_osmux_stats_conn, STAT_DT_INT, TRUE);
+        tick_stat_node(st, st_str_conn, st_osmux_stats, true);
+        stream->stats.node_id = stats_tree_create_node(st, stream_name, st_osmux_stats_conn, STAT_DT_INT, true);
     }
 
-    tick_stat_node(st, stream_name, st_osmux_stats_conn, TRUE);
-    tick_stat_node(st, st_str_pkts, stream->stats.node_id, TRUE);
+    tick_stat_node(st, stream_name, st_osmux_stats_conn, true);
+    tick_stat_node(st, st_str_pkts, stream->stats.node_id, true);
 
     ft_name = wmem_strdup_printf(pinfo->pool, "Field: FT: %s", osmuxh->is_old_dummy ? "Old Dummy" : osmux_ft_vals[osmuxh->ft].strptr);
-    tick_stat_node(st, ft_name, stream->stats.node_id, TRUE);
+    tick_stat_node(st, ft_name, stream->stats.node_id, true);
 
     if (osmuxh->ft == OSMUX_FT_AMR && !osmuxh->is_old_dummy) {
 
-        increase_stat_node(st, st_str_amr, stream->stats.node_id, TRUE, osmuxh->ctr+1);
-        avg_stat_node_add_value_notick(st, st_str_amr, stream->stats.node_id, TRUE, osmuxh->ctr+1);
+        increase_stat_node(st, st_str_amr, stream->stats.node_id, true, osmuxh->ctr+1);
+        avg_stat_node_add_value_notick(st, st_str_amr, stream->stats.node_id, true, osmuxh->ctr+1);
 
-        increase_stat_node(st, st_str_rtp_m, stream->stats.node_id, TRUE, osmuxh->rtp_m);
-        avg_stat_node_add_value_notick(st, st_str_rtp_m, stream->stats.node_id, TRUE, osmuxh->rtp_m);
+        increase_stat_node(st, st_str_rtp_m, stream->stats.node_id, true, osmuxh->rtp_m);
+        avg_stat_node_add_value_notick(st, st_str_rtp_m, stream->stats.node_id, true, osmuxh->rtp_m);
 
 
         /* Calculate relative transmit time */
         if ((stream->stats.prev_ts.secs == 0 && stream->stats.prev_ts.nsecs == 0) || osmuxh->rtp_m) {
-            avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, TRUE, 0);
-            avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, TRUE, 0);
-            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, TRUE, 0);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, true, 0);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, true, 0);
+            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, true, 0);
             stream->stats.jitter = 0;
         } else {
             nstime_t diff_rx;
@@ -430,9 +430,9 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
             Dij = diff_rx_ms - diff_tx_ms;
             abs_Dij = Dij * ( Dij >= 0 ? 1 : -1 );
             stream->stats.jitter = stream->stats.jitter + ((double) abs_Dij - stream->stats.jitter)/16.0;
-            avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, TRUE, Dij);
-            avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, TRUE, abs_Dij);
-            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, TRUE, (gint) stream->stats.jitter);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, true, Dij);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, true, abs_Dij);
+            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, true, (gint) stream->stats.jitter);
         }
         stream->stats.prev_ts = pinfo->abs_ts;
         stream->stats.prev_seq = osmuxh->seq;
@@ -440,24 +440,24 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
         /* Check sequence numbers */
         if (!stream->stats.amr_received || (stream->stats.last_seq + 1) % 256 == osmuxh->seq ) {
             /* normal case */
-            tick_stat_node(st, st_str_seq_ord, stream->stats.node_id, TRUE);
+            tick_stat_node(st, st_str_seq_ord, stream->stats.node_id, true);
             stream->stats.last_seq = osmuxh->seq;
             stream->stats.amr_received = TRUE;
         } else if (stream->stats.last_seq == osmuxh->seq) {
             /* Last packet is repeated */
-            tick_stat_node(st, st_str_seq_rep, stream->stats.node_id, TRUE);
+            tick_stat_node(st, st_str_seq_rep, stream->stats.node_id, true);
         } else if ((stream->stats.last_seq + 1) % 256 < osmuxh->seq) {
             /* Normal packet loss */
-            increase_stat_node(st, st_str_seq_lost, stream->stats.node_id, TRUE, osmuxh->seq - stream->stats.last_seq - 1);
+            increase_stat_node(st, st_str_seq_lost, stream->stats.node_id, true, osmuxh->seq - stream->stats.last_seq - 1);
             stream->stats.last_seq = osmuxh->seq;
         } else if (stream->stats.last_seq - osmuxh->seq > 0x008F) {
             /* If last_Seq is a lot higher, a wraparound occurred with packet loss */
-            increase_stat_node(st, st_str_seq_lost, stream->stats.node_id, TRUE, 255 - stream->stats.last_seq + osmuxh->seq);
+            increase_stat_node(st, st_str_seq_lost, stream->stats.node_id, true, 255 - stream->stats.last_seq + osmuxh->seq);
             stream->stats.last_seq = osmuxh->seq;
         } else if (stream->stats.last_seq > osmuxh->seq || osmuxh->seq - stream->stats.last_seq > 0x008F) {
             /* Out of order packet */
-            tick_stat_node(st, st_str_seq_ooo, stream->stats.node_id, TRUE);
-            increase_stat_node(st, st_str_seq_lost, stream->stats.node_id, TRUE, -1);
+            tick_stat_node(st, st_str_seq_ooo, stream->stats.node_id, true);
+            increase_stat_node(st, st_str_seq_lost, stream->stats.node_id, true, -1);
         }
 
     }

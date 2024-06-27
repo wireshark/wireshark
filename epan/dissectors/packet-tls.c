@@ -1160,18 +1160,18 @@ is_sslv2_clienthello(tvbuff_t *tvb)
     return TRUE;
 }
 
-static int
+static bool
 dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t     *conversation;
 
     if (!is_sslv3_or_tls(tvb) && !is_sslv2_clienthello(tvb)) {
-        return 0;
+        return false;
     }
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector_from_frame_number(conversation, pinfo->num, tls_handle);
-    return dissect_ssl(tvb, pinfo, tree, data);
+    return dissect_ssl(tvb, pinfo, tree, data) > 0;
 }
 
 static void
@@ -4904,7 +4904,7 @@ proto_register_tls(void)
         ssl_common_register_options(ssl_module, &ssl_options, FALSE);
     }
 
-    /* heuristic dissectors for any premable e.g. CredSSP before RDP */
+    /* heuristic dissectors for any preamble e.g. CredSSP before RDP */
     ssl_heur_subdissector_list = register_heur_dissector_list_with_description("tls", "TLS data", proto_tls);
 
     ssl_common_register_ssl_alpn_dissector_table("tls.alpn",

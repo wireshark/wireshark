@@ -7,10 +7,11 @@
  */
 
 #include "config.h"
+#include "btsnoop.h"
+
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "btsnoop.h"
 
 /*
  * Symbian's btsnoop format is derived from Sun's snoop format.

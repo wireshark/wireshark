@@ -247,46 +247,46 @@ static int hf_wimaxmacphy_ul_sub_burst_sounding_reserved;
 static int hf_wimaxmacphy_ul_sub_burst_mimo_chase_matrix;
 
 /* Initialize the subtree pointers */
-static gint ett_wimaxmacphy;
-static gint ett_wimaxmacphy_primitive;
-static gint ett_wimaxmacphy_prim_harq_ack;
-static gint ett_wimaxmacphy_prim_fast_feedback;
-static gint ett_wimaxmacphy_prim_fast_feedback_type_coding;
-static gint ett_wimaxmacphy_dl_zone_descriptor;
-static gint ett_wimaxmacphy_dl_zone_stc;
-static gint ett_wimaxmacphy_dl_zone_aas;
-static gint ett_wimaxmacphy_dl_burst_descriptor;
-static gint ett_wimaxmacphy_dl_burst_map;
-static gint ett_wimaxmacphy_dl_burst_normal;
-static gint ett_wimaxmacphy_dl_burst_papr;
-static gint ett_wimaxmacphy_dl_sub_burst_descriptor;
-static gint ett_wimaxmacphy_dl_sub_burst_harq_chase;
-static gint ett_wimaxmacphy_dl_sub_burst_mimo_chase;
-static gint ett_wimaxmacphy_dl_burst_opt_aas;
-static gint ett_wimaxmacphy_dl_burst_opt_mimo;
-static gint ett_wimaxmacphy_ul_zone_descriptor;
-static gint ett_wimaxmacphy_ul_zone_aas;
-static gint ett_wimaxmacphy_ul_burst_descriptor;
-static gint ett_wimaxmacphy_ul_burst_harq_ack;
-static gint ett_wimaxmacphy_ul_burst_fast_feedback;
-static gint ett_wimaxmacphy_ul_burst_initial_ranging;
-static gint ett_wimaxmacphy_ul_burst_periodic_ranging;
-static gint ett_wimaxmacphy_ul_burst_papr_safety_zone;
-static gint ett_wimaxmacphy_ul_burst_sounding_zone;
-static gint ett_wimaxmacphy_ul_burst_noise_floor;
-static gint ett_wimaxmacphy_ul_burst_normal_data;
-static gint ett_wimaxmacphy_ul_burst_opt_aas;
-static gint ett_wimaxmacphy_ul_burst_opt_mimo;
-static gint ett_wimaxmacphy_ul_sub_burst_descriptor;
-static gint ett_wimaxmacphy_ul_pilot_patterns;
-static gint ett_wimaxmacphy_ul_feedback_type_coding;
-static gint ett_wimaxmacphy_ul_sub_burst_mini_subchannel;
-static gint ett_wimaxmacphy_ul_sub_burst_fast_feedback;
-static gint ett_wimaxmacphy_ul_sub_burst_harq_ack;
-static gint ett_wimaxmacphy_ul_sub_burst_sounding_signal;
-static gint ett_wimaxmacphy_ul_sub_burst_harq_chase;
-static gint ett_wimaxmacphy_ul_sub_burst_mimo_chase;
-static gint ett_wimaxmacphy_ul_sub_burst_sub_allocation_specific;
+static int ett_wimaxmacphy;
+static int ett_wimaxmacphy_primitive;
+static int ett_wimaxmacphy_prim_harq_ack;
+static int ett_wimaxmacphy_prim_fast_feedback;
+static int ett_wimaxmacphy_prim_fast_feedback_type_coding;
+static int ett_wimaxmacphy_dl_zone_descriptor;
+static int ett_wimaxmacphy_dl_zone_stc;
+static int ett_wimaxmacphy_dl_zone_aas;
+static int ett_wimaxmacphy_dl_burst_descriptor;
+static int ett_wimaxmacphy_dl_burst_map;
+static int ett_wimaxmacphy_dl_burst_normal;
+static int ett_wimaxmacphy_dl_burst_papr;
+static int ett_wimaxmacphy_dl_sub_burst_descriptor;
+static int ett_wimaxmacphy_dl_sub_burst_harq_chase;
+static int ett_wimaxmacphy_dl_sub_burst_mimo_chase;
+static int ett_wimaxmacphy_dl_burst_opt_aas;
+static int ett_wimaxmacphy_dl_burst_opt_mimo;
+static int ett_wimaxmacphy_ul_zone_descriptor;
+static int ett_wimaxmacphy_ul_zone_aas;
+static int ett_wimaxmacphy_ul_burst_descriptor;
+static int ett_wimaxmacphy_ul_burst_harq_ack;
+static int ett_wimaxmacphy_ul_burst_fast_feedback;
+static int ett_wimaxmacphy_ul_burst_initial_ranging;
+static int ett_wimaxmacphy_ul_burst_periodic_ranging;
+static int ett_wimaxmacphy_ul_burst_papr_safety_zone;
+static int ett_wimaxmacphy_ul_burst_sounding_zone;
+static int ett_wimaxmacphy_ul_burst_noise_floor;
+static int ett_wimaxmacphy_ul_burst_normal_data;
+static int ett_wimaxmacphy_ul_burst_opt_aas;
+static int ett_wimaxmacphy_ul_burst_opt_mimo;
+static int ett_wimaxmacphy_ul_sub_burst_descriptor;
+static int ett_wimaxmacphy_ul_pilot_patterns;
+static int ett_wimaxmacphy_ul_feedback_type_coding;
+static int ett_wimaxmacphy_ul_sub_burst_mini_subchannel;
+static int ett_wimaxmacphy_ul_sub_burst_fast_feedback;
+static int ett_wimaxmacphy_ul_sub_burst_harq_ack;
+static int ett_wimaxmacphy_ul_sub_burst_sounding_signal;
+static int ett_wimaxmacphy_ul_sub_burst_harq_chase;
+static int ett_wimaxmacphy_ul_sub_burst_mimo_chase;
+static int ett_wimaxmacphy_ul_sub_burst_sub_allocation_specific;
 
 static expert_field ei_wimaxmacphy_unknown;
 
@@ -989,10 +989,10 @@ static const value_string wimaxmacphy_ul_sub_burst_mimo_chase_matrix_vals[]=
     { 0,    NULL}
 };
 
-static gint dissect_wimaxmacphy_dl_sub_burst_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_wimaxmacphy_dl_sub_burst_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint       start_offset = offset;
-    guint8      sub_burst_type;
+    unsigned    start_offset = offset;
+    uint8_t     sub_burst_type;
     proto_tree *subtree;
 
     sub_burst_type = tvb_get_guint8(tvb, offset);
@@ -1080,10 +1080,10 @@ static gint dissect_wimaxmacphy_dl_sub_burst_descriptor(tvbuff_t *tvb, guint off
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint       start_offset = offset;
-    guint8      burst_type, burst_type_extension, sub_burst_descriptor_count, sub_burst;
+    unsigned    start_offset = offset;
+    uint8_t     burst_type, burst_type_extension, sub_burst_descriptor_count, sub_burst;
     proto_item *item;
     proto_tree *subtree, *opt_tree;
 
@@ -1217,7 +1217,7 @@ static guint dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, guint offset
     for (sub_burst = 0; sub_burst < sub_burst_descriptor_count; ++sub_burst)
     {
         proto_tree *sub_burst_descriptor_tree;
-        guint       sub_burst_descriptor_length;
+        unsigned    sub_burst_descriptor_length;
 
         sub_burst_descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
                  ett_wimaxmacphy_dl_sub_burst_descriptor, &item, "Sub-Burst Descriptor %u", sub_burst);
@@ -1232,10 +1232,10 @@ static guint dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, guint offset
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint       start_offset = offset;
-    guint8      zone_type, burst_descriptor_count, burst;
+    unsigned    start_offset = offset;
+    uint8_t     zone_type, burst_descriptor_count, burst;
     proto_item *item;
     proto_tree *subtree;
 
@@ -1323,7 +1323,7 @@ static guint dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, guint offset,
     for (burst = 0; burst < burst_descriptor_count; ++burst)
     {
         proto_tree *burst_descriptor_tree;
-        guint       burst_descriptor_length;
+        unsigned    burst_descriptor_length;
 
         /* note: we'll adjust the length later */
         burst_descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
@@ -1340,11 +1340,11 @@ static guint dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, guint offset,
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_dl_subframe_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_dl_subframe_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint  start_offset = offset;
-    guint8 zone_descriptor_count;
-    guint8 zone;
+    unsigned  start_offset = offset;
+    uint8_t zone_descriptor_count;
+    uint8_t zone;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_subframe_subframe_type,          tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1374,7 +1374,7 @@ static guint dissect_wimaxmacphy_dl_subframe_descriptor(tvbuff_t *tvb, guint off
     {
         proto_item *item;
         proto_tree *zone_descriptor_tree;
-        guint zone_descriptor_length;
+        unsigned zone_descriptor_length;
 
         zone_descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_wimaxmacphy_dl_zone_descriptor, &item, "Zone Descriptor %u", zone);
 
@@ -1389,10 +1389,10 @@ static guint dissect_wimaxmacphy_dl_subframe_descriptor(tvbuff_t *tvb, guint off
     return offset - start_offset;
 }
 
-static gint dissect_wimaxmacphy_ul_sub_burst_sub_allocation_specific_part(tvbuff_t *tvb, guint offset,
-    packet_info *pinfo _U_, proto_tree *tree, guint8 sub_burst_type)
+static int dissect_wimaxmacphy_ul_sub_burst_sub_allocation_specific_part(tvbuff_t *tvb, unsigned offset,
+    packet_info *pinfo _U_, proto_tree *tree, uint8_t sub_burst_type)
 {
-    guint       start_offset = offset;
+    unsigned    start_offset = offset;
     proto_item *item, *opt_item;
     proto_tree *subtree, *opt_tree;
 
@@ -1466,12 +1466,12 @@ static gint dissect_wimaxmacphy_ul_sub_burst_sub_allocation_specific_part(tvbuff
     return offset - start_offset;
 }
 
-static gint dissect_wimaxmacphy_ul_sub_burst_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_wimaxmacphy_ul_sub_burst_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8      sub_burst_type;
+    uint8_t     sub_burst_type;
     proto_item *feedback_item;
     proto_tree *subtree, *feedback_tree;
-    guint       start_offset = offset;
+    unsigned    start_offset = offset;
 
     sub_burst_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_wimaxmacphy_ul_sub_burst_type,    tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1585,13 +1585,13 @@ static gint dissect_wimaxmacphy_ul_sub_burst_descriptor(tvbuff_t *tvb, guint off
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint8      burst_type, burst_type_extension;
-    guint8      sub_burst_descriptor_count, sub_burst;
+    uint8_t     burst_type, burst_type_extension;
+    uint8_t     sub_burst_descriptor_count, sub_burst;
     proto_item *item, *pilot_patterns_item;
     proto_tree *subtree, *opt_tree, *pilot_patterns_tree;
-    guint       start_offset = offset;
+    unsigned    start_offset = offset;
 
     burst_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_wimaxmacphy_ul_burst_type,                      tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1844,7 +1844,7 @@ static guint dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, guint offset
     for (sub_burst = 0; sub_burst < sub_burst_descriptor_count; ++sub_burst)
     {
         proto_tree *sub_burst_descriptor_tree;
-        guint       sub_burst_descriptor_length;
+        unsigned    sub_burst_descriptor_length;
 
         sub_burst_descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_wimaxmacphy_ul_sub_burst_descriptor, &item, "Sub-Burst Descriptor %u", sub_burst);
 
@@ -1859,10 +1859,10 @@ static guint dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, guint offset
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint       start_offset = offset;
-    guint8      zone_type, burst_descriptor_count, burst;
+    unsigned    start_offset = offset;
+    uint8_t     zone_type, burst_descriptor_count, burst;
     proto_item *item;
 
     zone_type = tvb_get_guint8(tvb, offset);
@@ -1932,7 +1932,7 @@ static guint dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, guint offset,
     for (burst = 0; burst < burst_descriptor_count; ++burst)
     {
         proto_tree *burst_descriptor_tree;
-        guint burst_descriptor_length;
+        unsigned burst_descriptor_length;
 
         burst_descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_wimaxmacphy_ul_burst_descriptor, &item, "Burst Descriptor %u", burst);
 
@@ -1946,11 +1946,11 @@ static guint dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, guint offset,
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_ul_subframe_descriptor(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_ul_subframe_descriptor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint  start_offset = offset;
-    guint8 zone_descriptor_count;
-    guint8 zone;
+    unsigned  start_offset = offset;
+    uint8_t zone_descriptor_count;
+    uint8_t zone;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_subframe_subframe_type,          tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1983,7 +1983,7 @@ static guint dissect_wimaxmacphy_ul_subframe_descriptor(tvbuff_t *tvb, guint off
     {
         proto_item *item;
         proto_tree *zone_descriptor_tree;
-        guint zone_descriptor_length;
+        unsigned zone_descriptor_length;
 
         zone_descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_wimaxmacphy_ul_zone_descriptor, &item, "Zone Descriptor %u", zone);
 
@@ -1997,10 +1997,10 @@ static guint dissect_wimaxmacphy_ul_subframe_descriptor(tvbuff_t *tvb, guint off
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_phy_txstart_request(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_txstart_request(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 txvector_length;
-    guint   subframe_descriptor_length;
+    uint16_t txvector_length;
+    unsigned   subframe_descriptor_length;
 
     txvector_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_length_of_txvector, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2017,7 +2017,7 @@ static guint dissect_wimaxmacphy_phy_txstart_request(tvbuff_t *tvb, guint offset
     return txvector_length + 2;
 }
 
-static guint dissect_wimaxmacphy_phy_txstart_confirmation(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_txstart_confirmation(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2029,7 +2029,7 @@ static guint dissect_wimaxmacphy_phy_txstart_confirmation(tvbuff_t *tvb, guint o
     return 2;
 }
 
-static guint dissect_wimaxmacphy_phy_txstart_indication(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_txstart_indication(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_txstart_indication_status, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2047,9 +2047,9 @@ static guint dissect_wimaxmacphy_phy_txstart_indication(tvbuff_t *tvb, guint off
     return 6;
 }
 
-static guint dissect_wimaxmacphy_phy_txsdu_request(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_txsdu_request(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint length;
+    unsigned length;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_dl_zone_number,              tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_sub_burst_burst_split_point, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2062,7 +2062,7 @@ static guint dissect_wimaxmacphy_phy_txsdu_request(tvbuff_t *tvb, guint offset, 
     return length + 2;
 }
 
-static guint dissect_wimaxmacphy_phy_txsdu_confirmation(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_txsdu_confirmation(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_dl_zone_number,              tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_sub_burst_burst_split_point, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2082,7 +2082,7 @@ static guint dissect_wimaxmacphy_phy_txsdu_confirmation(tvbuff_t *tvb, guint off
     return 6;
 }
 
-static guint dissect_wimaxmacphy_phy_txend_indication(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_txend_indication(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,                                tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2104,10 +2104,10 @@ static guint dissect_wimaxmacphy_phy_txend_indication(tvbuff_t *tvb, guint offse
     return 6;
 }
 
-static guint dissect_wimaxmacphy_phy_rxstart_request(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_rxstart_request(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 rxvector_length;
-    guint   subframe_descriptor_length;
+    uint16_t rxvector_length;
+    unsigned   subframe_descriptor_length;
 
     rxvector_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_length_of_rxvector, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2125,7 +2125,7 @@ static guint dissect_wimaxmacphy_phy_rxstart_request(tvbuff_t *tvb, guint offset
     return rxvector_length + 2;
 }
 
-static guint dissect_wimaxmacphy_phy_rxstart_confirmation(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_rxstart_confirmation(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,       tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2137,7 +2137,7 @@ static guint dissect_wimaxmacphy_phy_rxstart_confirmation(tvbuff_t *tvb, guint o
     return 2;
 }
 
-static guint dissect_wimaxmacphy_phy_rxstart_indication(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_rxstart_indication(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,                   tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2149,12 +2149,12 @@ static guint dissect_wimaxmacphy_phy_rxstart_indication(tvbuff_t *tvb, guint off
     return 2;
 }
 
-static guint dissect_wimaxmacphy_phy_rxsdu_indication(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_rxsdu_indication(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8      indication_type;
+    uint8_t     indication_type;
     proto_item *feedback_item;
     proto_tree *subtree, *feedback_tree;
-    guint       length, start_offset = offset;
+    unsigned    length, start_offset = offset;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_issid,                     tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2258,9 +2258,9 @@ static guint dissect_wimaxmacphy_phy_rxsdu_indication(tvbuff_t *tvb, guint offse
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_phy_rxend_indication(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_rxend_indication(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint start_offset = offset;
+    unsigned start_offset = offset;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,                   tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2286,9 +2286,9 @@ static guint dissect_wimaxmacphy_phy_rxend_indication(tvbuff_t *tvb, guint offse
     return offset - start_offset;
 }
 
-static guint dissect_wimaxmacphy_phy_rxcdma_indication(tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+static unsigned dissect_wimaxmacphy_phy_rxcdma_indication(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint start_offset = offset;
+    unsigned start_offset = offset;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_zonexid,                   tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2340,8 +2340,8 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree *wimaxmacphy_tree, *primitive_tree;
     proto_item *item;
 
-    guint  offset = 0;
-    guint8 message_type;
+    unsigned  offset = 0;
+    uint8_t message_type;
 
     /* Ensure minimum size */
     if (tvb_reported_length(tvb) < WIMAXMACPHY_HEADER_SIZE)
@@ -5353,7 +5353,7 @@ proto_register_wimaxmacphy(void)
         };
 
         /* Protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_wimaxmacphy,
         &ett_wimaxmacphy_primitive,
         &ett_wimaxmacphy_prim_harq_ack,

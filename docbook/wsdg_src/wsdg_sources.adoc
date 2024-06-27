@@ -380,7 +380,7 @@ all log output generated at or above this level is sent to the log output.
 Note that if the <<ChSrcBuildType,build type>> is not set to `Debug`
 then by default all log output for the logging levels "debug" and
 "noisy" will be optimized away by the compiler and cannot be emitted to the log
-output, regardless of the logging setings. To enable debug logging for all build
+output, regardless of the logging settings. To enable debug logging for all build
 types, set the CMake variable `-DENABLE_DEBUG=ON`.
 
 There is also a special "echo" logging level used exclusively for temporary debugging print outs (usually

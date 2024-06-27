@@ -2532,7 +2532,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_captured_length(tvb);
 }
 
-static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation = NULL;
     guint16 status_code = 0;
@@ -2542,7 +2542,7 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if ((tvb_reported_length(tvb) <  GVSP_MIN_PACKET_SIZE) ||
         (tvb_captured_length(tvb) < 5))
     {
-        return FALSE;
+        return false;
     }
 
     /* Larger packet size if Extended ID flag is set */
@@ -2550,7 +2550,7 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     if ((format & GVSP_EXTENDED_ID_BIT) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
     {
-        return FALSE;
+        return false;
     }
 
     /* Check for valid status codes */
@@ -2572,18 +2572,18 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 payloadtype = tvb_get_ntohs(tvb, 8);
                 payloadtype &= 0x3FFF;
                 if (try_val_to_str_ext(payloadtype, &payloadtypenames_ext) == NULL ){
-                    return FALSE;
+                    return false;
                 }
             }
 
             conversation = find_or_create_conversation(pinfo);
             conversation_set_dissector(conversation, gvsp_handle);
             dissect_gvsp(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 /*

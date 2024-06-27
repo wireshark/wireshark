@@ -16,18 +16,19 @@
 #define CRC_H
 
 #include <glib.h>
+#include <stdint.h>
 
 /* use lookup tables to compute CRC values */
 #ifdef STATIC_DATA
-extern guint8  crc8_table[];
-extern guint32 crc32_table[];
+extern uint8_t crc8_table[];
+extern uint32_t crc32_table[];
 #else
 void wimax_mac_gen_crc32_table(void);
 void wimax_mac_gen_crc8_table(void);
 #endif
 
-guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len);
-guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len);
-guint8 wimax_mac_calc_crc8(const guint8 *data, guint data_len);
+uint32_t wimax_mac_calc_crc32(const uint8_t *data, unsigned data_len);
+uint16_t wimax_mac_calc_crc16(const uint8_t *data, unsigned data_len);
+uint8_t wimax_mac_calc_crc8(const uint8_t *data, unsigned data_len);
 
 #endif /* CRC_H */

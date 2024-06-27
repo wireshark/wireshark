@@ -689,23 +689,23 @@ dissect_proxy_v2(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     return offset;
 }
 
-static gboolean
+static bool
 dissect_proxy_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t* conv = find_or_create_conversation(pinfo);
     if (is_proxy_v2(tvb)) {
         conversation_set_dissector(conv, proxy_v2_handle);
         dissect_proxy_v2(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     } else if (is_proxy_v1(tvb, NULL)) {
         conversation_set_dissector(conv, proxy_v1_handle);
         dissect_proxy_v1(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 dissect_proxy_heur_udp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
     int offset;
@@ -723,14 +723,14 @@ dissect_proxy_heur_udp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
              * won't get called on the second pass. */
             dissect_proxy_proxied(tvb, pinfo, tree, offset, data, NULL);
         }
-        return TRUE;
+        return true;
 #if 0
     /* Proxy v1 is only for TCP */
     } else if (is_proxy_v1(tvb, NULL)) {
         dissect_proxy_v1(tvb, pinfo, tree, data);
 #endif
     }
-    return FALSE;
+    return false;
 }
 
 void

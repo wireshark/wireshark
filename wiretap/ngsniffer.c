@@ -41,11 +41,11 @@
  *
  */
 #include "config.h"
+#include "ngsniffer.h"
 
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "ngsniffer.h"
 #include <wsutil/ws_assert.h>
 
 /* Magic number in Sniffer files. */

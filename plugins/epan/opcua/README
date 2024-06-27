@@ -28,7 +28,7 @@ Protocol Mappings:
 
 Binary (TCP): The fastest and most flexible version (small footprint, no XML and SOAP necessary)
               can easily be tunneled (SSH, IPSEC, etc.), redirected, ...
-SOAP version: Easy to implement with verious tools like .Net, JAVA, gSOAP, etc.
+SOAP version: Easy to implement with various tools like .Net, JAVA, gSOAP, etc.
               Better to communicate through firewalls via HTTP.
 SOAP with Binary Attachment: Combines the advantages of both.
               The messages are encoded as Binary, and transported via SOAP as binary

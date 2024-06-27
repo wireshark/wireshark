@@ -343,14 +343,14 @@ dissect_address_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
   };
   proto_item *addr_item;
 
-  addr_item = proto_tree_add_mac48_detail(&eth_dst, &eth_addr, ett_addr, tvb, tree, 0);
+  proto_tree_add_mac48_detail(&eth_dst, &eth_addr, ett_addr, tvb, tree, 0);
+
+  addr_item = proto_tree_add_mac48_detail(&eth_src, &eth_addr, ett_addr, tvb, tree, 6);
   if (check_group) {
     if (tvb_get_guint8(tvb, 6) & 0x01) {
       expert_add_info(pinfo, addr_item, &ei_eth_src_not_group);
     }
   }
-
-  proto_tree_add_mac48_detail(&eth_src, &eth_addr, ett_addr, tvb, tree, 6);
 }
 
 static void
@@ -834,7 +834,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
 
     int payload_length = tvb_reported_length(tvb) - payload_offset;
-    bool dissected = FALSE;
+    bool dissected = false;
 
     if (fcs_len != 4) {
       /* Try trailer dissection without an FCS */

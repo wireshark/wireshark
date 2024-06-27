@@ -3388,7 +3388,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                     GET_PDU_FROM_OFFSET(offset)
                     /* if there are no sub-messages, get the usual message body size.   */
                     /* Note that we do not dissect properly yet sub-messages - but they */
-                    /* are not used in the protcol either */
+                    /* are not used in the protocol either */
                     pdu_len = tvb_get_letohl(tvb, offset + 10);
                     pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE   */
                                                    /* data header, which is sizeof_SpiceDataHeader (18) bytes long) */
@@ -3436,15 +3436,15 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return 0;
 }
 
-static gboolean
+static bool
 test_spice_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     if ((tvb_reported_length(tvb) >= 4) && (tvb_get_ntohl(tvb, 0) == SPICE_MAGIC)) {
         dissect_spice(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 /* Register the protocol with Wireshark */

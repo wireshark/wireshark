@@ -137,8 +137,8 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "iseries.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #include <stdlib.h>

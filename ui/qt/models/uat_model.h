@@ -82,7 +82,7 @@ private:
 
     epan_uat *uat_;
     bool applying_;
-    QList<bool> dirty_records;
-    QList<QMap<int, QString> > record_errors;
+    QVector<bool> dirty_records;
+    QVector<QMap<int, QString> > record_errors;
 };
 #endif // UAT_MODEL_H

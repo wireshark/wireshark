@@ -938,7 +938,7 @@ static int dissect_gbcs_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_gbcs_tunnel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     switch (tvb_get_guint8(tvb, 0)) {
@@ -948,10 +948,10 @@ dissect_gbcs_tunnel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         case 0xDD:
         case 0xDF:
             dissect_gbcs_tunnel(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
 
         default:
-            return FALSE;
+            return false;
     }
 }
 

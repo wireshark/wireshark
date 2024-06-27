@@ -1,77 +1,36 @@
 #!/usr/bin/env python
 
-import os, Logs
-from samba_utils import MODE_755
+from waflib import Logs, Errors
 
 # This function checks if a perl module is installed on the system.
 def check_system_perl_module(conf, module, version=None):
-    bundle_name = module.replace('::', '_')
     module_check = module
 
     # Create module string with version
     if version:
         module_check = module + ' ' + str(version)
 
-    # Check if we have to bundle it.
-    if conf.LIB_MUST_BE_BUNDLED(bundle_name.lower()):
-        return False
-
     # Check for system perl module
-    if not conf.check_perl_module(module_check):
+    if conf.check_perl_module(module_check) is None:
         return False
-
-    conf.define('USING_SYSTEM_%s' % bundle_name.upper(), 1)
 
     return True
 
-def set_options(opt):
+def options(opt):
     return
 
 def configure(conf):
     # Check if perl(Parse::Yapp::Driver) is available.
-    check_system_perl_module(conf, "Parse::Yapp::Driver", 1.05)
-
-    # we need a recent version of MakeMaker to get the right man page names
-    if conf.CHECK_PERL_MANPAGE():
-        conf.env.PERLMAN1EXT = conf.CHECK_PERL_MANPAGE(section='1')
-        conf.env.PERLMAN3EXT = conf.CHECK_PERL_MANPAGE(section='3')
-        conf.DEFINE('HAVE_PERL_MAKEMAKER', 1)
+    if not check_system_perl_module(conf,
+                                    "Parse::Yapp::Driver",
+                                    1.05):
+        raise Errors.WafError('perl module "Parse::Yapp::Driver" not found')
 
     # yapp is used for building the parser
-    conf.find_program('yapp', var='YAPP')
-    conf.find_program('pod2man', var='POD2MAN')
+    if not conf.find_program('yapp', var='YAPP'):
+        raise Errors.WafError('yapp not found')
 
 def build(bld):
-    bld.INSTALL_FILES('${BINDIR}', 'pidl', chmod=MODE_755, perl_fixup=True)
-
-    bld.RECURSE('lib')
-
-    if not bld.CONFIG_SET('HAVE_PERL_MAKEMAKER'):
-        return
-
-    pidl_manpages = {
-        'pidl': 'man1/pidl.${PERLMAN1EXT}',
-        'lib/Parse/Pidl/NDR.pm': 'man3/Parse::Pidl::NDR.${PERLMAN3EXT}',
-        'lib/Parse/Pidl/Wireshark/Conformance.pm': 'man3/Parse::Pidl::Wireshark::Conformance.${PERLMAN3EXT}',
-        'lib/Parse/Pidl/Dump.pm': 'man3/Parse::Pidl::Dump.${PERLMAN3EXT}',
-        'lib/Parse/Pidl/Util.pm': 'man3/Parse::Pidl::Util.${PERLMAN3EXT}',
-        'lib/Parse/Pidl/Wireshark/NDR.pm': 'man3/Parse::Pidl::Wireshark::NDR.${PERLMAN3EXT}'
-    }
-
-    for k, v in pidl_manpages.iteritems():
-        pidl_manpages[k] = bld.EXPAND_VARIABLES(v)
-
-    # use perl to build the manpages
-    bld.env.pidl_srcdir = os.path.join(bld.srcnode.abspath(), 'pidl')
-
-    bld.SET_BUILD_GROUP('final')
-    if 'POD2MAN' in bld.env and bld.env['POD2MAN'] != '':
-        for src, manpage in pidl_manpages.iteritems():
-            bld(rule='${POD2MAN} -c "Samba Documentation" ${SRC} ${TGT}',
-                shell=True,
-                source=src,
-                install_path=os.path.dirname(bld.EXPAND_VARIABLES('${MANDIR}/'+manpage)),
-                target=os.path.basename(manpage))
 
     # we want to prefer the git version of the parsers if we can.
     # Only if the source has changed do we want to re-run yapp
@@ -95,9 +54,8 @@ $ git add lib/Parse/Pidl/IDL.pm lib/Parse/Pidl/Expr.pm
 $ git commit
 $ cd -
 
-If your 100% sure you haven't changed idl.yp and expr.yp
+If you're 100% sure you haven't changed idl.yp and expr.yp
 try this to avoid this message:
 
 $ touch ../pidl/lib/Parse/Pidl/IDL.pm ../pidl/lib/Parse/Pidl/Expr.pm
 ''')
-

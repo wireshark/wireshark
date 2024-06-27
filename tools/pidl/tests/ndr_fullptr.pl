@@ -3,6 +3,7 @@
 # (C) 2006 Jelmer Vernooij <jelmer@samba.org>.
 # Published under the GNU General Public License.
 use strict;
+use warnings;
 
 use Test::More tests => 1 * 8;
 use FindBin qw($RealBin);
@@ -17,7 +18,7 @@ test_samba4_ndr("fullptr-push-dup",
 	[public] uint16 echo_TestFull([in,ptr] uint32 *x, [in,ptr] uint32 *y);
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	uint32_t v = 13;
 	struct echo_TestFull r;
 	r.in.x = &v; 

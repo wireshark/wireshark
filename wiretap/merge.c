@@ -15,6 +15,7 @@
 #include "config.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+#include "merge.h"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -32,7 +33,6 @@
 #endif
 
 #include <string.h>
-#include "merge.h"
 #include "wtap_opttypes.h"
 #include "wtap-int.h"
 
@@ -1042,8 +1042,24 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
 
         if (*err != 0) {
             /* I/O error reading from in_file */
-            status = MERGE_ERR_CANT_READ_INFILE;
-            break;
+            if (*err == WTAP_ERR_SHORT_READ) {
+                /*
+                 * A truncated file is not a fatal error, just stop reading
+                 * from that file, report it, and keep going.
+                 * XXX - What about WTAP_ERR_BAD_FILE? Are there *any*
+                 * read errors, as opposed to not being able to open the file
+                 * or write a record, that make us want to abort the entire
+                 * merge?
+                 */
+                report_cfile_read_failure(in_file->filename, *err, *err_info);
+                *err = 0;
+                g_free(*err_info);
+                *err_info = NULL;
+                continue;
+            } else {
+                status = MERGE_ERR_CANT_READ_INFILE;
+                break;
+            }
         }
 
         count++;

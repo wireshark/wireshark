@@ -385,11 +385,11 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     return tvb_captured_length(tvb);
 }
 
-static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvbparse_peek(tvbparse_init(pinfo->pool, tvb, 0, -1, NULL, want_ignore), want_heur)) {
         dissect_xml(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     } else if (pref_heuristic_unicode) {
         const guint8 *data_str;
         tvbuff_t     *unicode_tvb;
@@ -412,10 +412,10 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         if (tvbparse_peek(tvbparse_init(pinfo->pool, unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
             dissect_xml(unicode_tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name)

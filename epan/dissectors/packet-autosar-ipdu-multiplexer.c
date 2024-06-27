@@ -761,7 +761,7 @@ dissect_ipdum_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return dissect_ipdum_payload(tvb, pinfo, tree, can_mapping->message_id);
 }
 
-static gboolean
+static bool
 dissect_ipdum_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_ipdum_message_can(tvb, pinfo, tree, data) != 0;
 }
@@ -780,7 +780,7 @@ dissect_ipdum_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return dissect_ipdum_payload(tvb, pinfo, tree, flexray_mapping->message_id);
 }
 
-static gboolean
+static bool
 dissect_ipdum_message_flexray_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_ipdum_message_flexray(tvb, pinfo, tree, data) != 0;
 }

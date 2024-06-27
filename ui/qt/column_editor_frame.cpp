@@ -23,6 +23,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QAbstractItemView>
 
 ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
@@ -41,10 +42,32 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
         ui->typeComboBox->addItem(col_format_desc(i), QVariant(i));
     }
 
+    // We want a behavior where the occurrenceLineEdit and type line edit
+    // will shrink, but where they won't expand past their needed space.
+    // Setting a stretch factor will make them expand (ignoring their
+    // SizePolicy) unless we also set the maximum width to their size hints.
+    //
+    ui->horizontalLayout->setStretchFactor(ui->titleLineEdit, 2);
+    ui->horizontalLayout->setStretchFactor(ui->occurrenceLineEdit, 1);
+    ui->occurrenceLineEdit->setMaximumWidth(ui->occurrenceLineEdit->sizeHint().width());
+    // On Windows, this is necessary to make the popup be the width of the
+    // longest item, instead of the width matching the combobox and using
+    // ellipses. (Linux has the popup wider by default.)
+    ui->typeComboBox->view()->setMinimumWidth(ui->typeComboBox->sizeHint().width());
+    // This lets the typeComboBox shrink a bit if the width is very small.
+    ui->typeComboBox->setMinimumContentsLength(20);
+
     connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
             ui->fieldsNameLineEdit, &FieldFilterEdit::checkCustomColumn);
     connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
             this, &ColumnEditorFrame::checkCanResolve);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->typeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ColumnEditorFrame::typeChanged);
+#else
+    connect(ui->typeComboBox, &QComboBox::currentIndexChanged, this,
+            &ColumnEditorFrame::typeChanged);
+#endif
 }
 
 ColumnEditorFrame::~ColumnEditorFrame()
@@ -78,6 +101,34 @@ void ColumnEditorFrame::setFields(int index)
         ui->resolvedCheckBox->setEnabled(false);
     }
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
+}
+
+void ColumnEditorFrame::typeChanged(int index)
+{
+    // The fieldsNameLineEdit and occurrenceLineEdit are only relevant if the
+    // typeComboBox is COL_CUSTOM. The text for "Custom" is small. So when
+    // COL_CUSTOM is selected, shrink the size of the typeComboBox to what is
+    // necessary for "Custom" and give extra space to the fieldsNameLineEdit.
+    // For any other column type, do the reverse.
+    if (index == COL_CUSTOM) {
+        int width = fontMetrics().boundingRect(ui->typeComboBox->currentText()).width();
+        if (!ui->typeComboBox->itemIcon(index).isNull()) {
+            width += ui->typeComboBox->iconSize().width() + 4;
+        }
+        QStyleOptionComboBox opt;
+        opt.initFrom(ui->typeComboBox);
+        QSize sh(width, ui->typeComboBox->height());
+        width = ui->typeComboBox->style()->sizeFromContents(QStyle::CT_ComboBox, &opt, sh, ui->typeComboBox).width();
+        ui->typeComboBox->setMaximumWidth(width);
+        ui->fieldsNameLineEdit->setMaximumWidth(16777215); // Default (no) maximum
+        ui->horizontalLayout->setStretchFactor(ui->typeComboBox, 1);
+        ui->horizontalLayout->setStretchFactor(ui->fieldsNameLineEdit, 4);
+    } else {
+        ui->typeComboBox->setMaximumWidth(ui->typeComboBox->sizeHint().width());
+        ui->fieldsNameLineEdit->setMaximumWidth(ui->fieldsNameLineEdit->sizeHint().width());
+        ui->horizontalLayout->setStretchFactor(ui->typeComboBox, 2);
+        ui->horizontalLayout->setStretchFactor(ui->fieldsNameLineEdit, 1);
+    }
 }
 
 void ColumnEditorFrame::editColumn(int column)

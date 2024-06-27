@@ -150,14 +150,14 @@ dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 /* heuristic dissector */
-static gboolean
+static bool
 dissect_carp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (!test_carp_packet(tvb, pinfo, tree, data))
-        return FALSE;
+        return false;
 
     dissect_carp(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void proto_register_carp(void)

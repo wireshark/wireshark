@@ -620,7 +620,7 @@ sametime_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
 {
    const struct SametimeTap *pi = (const struct SametimeTap *)p;
 
-   tick_stat_node(st, st_str_packet, 0, FALSE);
+   tick_stat_node(st, st_str_packet, 0, false);
    if (pi->message_type != -1)
       stats_tree_tick_pivot(st, st_node_message_type, val_to_str(pi->message_type, messagetypenames, "Unknown (0x%04x)"));
 
@@ -640,7 +640,7 @@ sametime_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
 static void
 sametime_stats_tree_init(stats_tree* st)
 {
-   st_node_packet = stats_tree_create_node(st, st_str_packet, 0, STAT_DT_INT, TRUE);
+   st_node_packet = stats_tree_create_node(st, st_str_packet, 0, STAT_DT_INT, true);
    st_node_message_type = stats_tree_create_pivot(st, st_str_message_type, st_node_packet);
    st_node_send_type = stats_tree_create_pivot(st, st_str_send_type, st_node_packet);
    st_node_user_status = stats_tree_create_pivot(st, st_str_user_status, st_node_packet);

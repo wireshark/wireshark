@@ -1092,33 +1092,33 @@ dissect_srt_udp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 }
 
 
-static gboolean
+static bool
 dissect_srt_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conv;
 
     /* Must have at least 24 captured bytes for heuristic check */
     if (tvb_captured_length(tvb) < 24)
-        return FALSE;
+        return false;
 
     /* detect handshake control packet */
     if (tvb_get_ntohl(tvb, 0) != (0x80000000 | UMSG_HANDSHAKE))
-        return FALSE;
+        return false;
 
     /* must be version 4 or 5*/
     const guint32 version = tvb_get_ntohl(tvb, 16);
     if (version != 4 && version != 5)
-        return FALSE;
+        return false;
 
     /* SRT: must be DGRAM. STREAM is not supported in SRT */
     if (version == 4 && tvb_get_ntohl(tvb, 20) != SRT_DGRAM)
-        return FALSE;
+        return false;
 
     conv = find_or_create_conversation(pinfo);
     conversation_set_dissector(conv, srt_udp_handle);
     dissect_srt_udp(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 

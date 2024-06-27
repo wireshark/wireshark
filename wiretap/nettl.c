@@ -10,12 +10,12 @@
  */
 
 #include "config.h"
+#include "nettl.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "nettl.h"
 
 /* HP nettl file header */
 

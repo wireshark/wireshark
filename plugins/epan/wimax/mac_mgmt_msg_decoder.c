@@ -23,11 +23,11 @@
 void proto_register_mac_mgmt_msg(void);
 void proto_reg_handoff_mac_mgmt_msg(void);
 
-static gint proto_mac_mgmt_msg_decoder;
-static gint ett_mac_mgmt_msg_decoder;
+static int proto_mac_mgmt_msg_decoder;
+static int ett_mac_mgmt_msg_decoder;
 
-static gint hf_mac_mgmt_msg_type;
-static gint hf_mac_mgmt_msg_values;
+static int hf_mac_mgmt_msg_type;
+static int hf_mac_mgmt_msg_values;
 
 static expert_field ei_empty_payload;
 
@@ -110,8 +110,8 @@ static value_string_ext mgt_msg_abbrv_vals_ext = VALUE_STRING_EXT_INIT(mgt_msg_a
 
 static int dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint message_type;
+	unsigned offset = 0;
+	unsigned message_type;
 	proto_item *message_item;
 	proto_tree *message_tree;
 	const char* mgt_msg_str;
@@ -179,7 +179,7 @@ void proto_register_mac_mgmt_msg(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_decoder,
 		};

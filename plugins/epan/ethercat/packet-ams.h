@@ -659,29 +659,29 @@ typedef enum
 
 typedef struct AmsNetId_
 {
-   guint8 b[6];
+   uint8_t b[6];
 } AmsNetId;
 #define AmsNetId_Len (int)sizeof(AmsNetId)
 
 typedef struct AmsAddr_
 {
    AmsNetId   netId;
-   guint16    port;
+   uint16_t   port;
 } AmsAddr;
 
 typedef union ErrCodeUnion
 {
-   gint32 errCode;
-   gint32 hRcv;
+   int32_t errCode;
+   int32_t hRcv;
 } ErrCodeUnion;
 
 typedef union tUserUnion
 {
-   gint32 hUser;
+   int32_t hUser;
    struct
    {
-      guint16 fragmentNo;
-      guint16 packetNo;
+      uint16_t fragmentNo;
+      uint16_t packetNo;
    } a;
 } UserUnion;
 
@@ -689,9 +689,9 @@ typedef struct
 {
    AmsAddr target;
    AmsAddr sender;
-   guint16 cmdId;
-   guint16 stateFlags;
-   guint32 cbData;
+   uint16_t cmdId;
+   uint16_t stateFlags;
+   uint32_t cbData;
 
    ErrCodeUnion anErrCodeUnion;
    UserUnion aUserUnion;
@@ -780,9 +780,9 @@ typedef struct
 #define ADSIGRP_SUMUP_READ          0xF080
 
 #define ADSIGRP_SUMUP_WRITE         0xF081
-#define ADS_SUMUP_IGRP(p, i)        (((guint32*)p)[(i)*3+0])
-#define ADS_SUMUP_IOFFS(p, i)       (((guint32*)p)[(i)*3+1])
-#define ADS_SUMUP_LENGTH(p, i)      (((guint32*)p)[(i)*3+2])
+#define ADS_SUMUP_IGRP(p, i)        (((uint32_t*)p)[(i)*3+0])
+#define ADS_SUMUP_IOFFS(p, i)       (((uint32_t*)p)[(i)*3+1])
+#define ADS_SUMUP_LENGTH(p, i)      (((uint32_t*)p)[(i)*3+2])
 
 #define ADSIGRP_DEVICE_DATA 0xF100
    #define ADSIOFFS_DEVDATA_ADSSTATE        0x0000
@@ -968,109 +968,109 @@ typedef enum nAdsTransMode
 /* ADS AMS command */
 /*typedef struct
 {
-   guint32 hNotification;
-   guint32 cbSampleSize;
-   guint8  data[ANYSIZE_ARRAY];
+   uint32_t hNotification;
+   uint32_t cbSampleSize;
+   uint8_t data[ANYSIZE_ARRAY];
 } AdsNotificationSample, *PAdsNotificationSample;*/
 #define AdsNotificationSample_Min_Len 4
 
 typedef struct
 {
-   guint32 invokeId;
+   uint32_t invokeId;
 } TAdsReadDeviceInfoReq;
 
 #define TAdsReadDeviceInfoReq_Len (int)sizeof(TAdsReadDeviceInfoReq)
 
 /*typedef struct
 {
-   guint16 adsState;
-   guint16 deviceState;
-   guint32 cbLength;
-   guint16 firstDataWord;
+   uint16_t adsState;
+   uint16_t deviceState;
+   uint32_t cbLength;
+   uint16_t firstDataWord;
 } TAdsWriteControlReq, TAdsWriteControlInd;*/
 #define TAdsWriteControlReq_Len 10
 
 typedef struct
 {
-   guint32 invokeId;
+   uint32_t invokeId;
 } TAdsReadStateReq;
 #define TAdsReadStateReq_Len (int)sizeof(TAdsReadStateReq)
 
 typedef struct
 {
-   guint32 indexGroup;
-   guint32 indexOffset;
-   guint32 cbLength;
+   uint32_t indexGroup;
+   uint32_t indexOffset;
+   uint32_t cbLength;
 } TAdsReadReq;
 #define TAdsReadReq_Len (int)sizeof(TAdsReadReq)
 
 /*typedef struct
 {
-   guint32 indexGroup;
-   guint32 indexOffset;
-   guint32 cbLength;
-   guint16 firstDataWord;
+   uint32_t indexGroup;
+   uint32_t indexOffset;
+   uint32_t cbLength;
+   uint16_t firstDataWord;
 } TAdsWriteReq;*/
 #define TAdsWriteReq_Len 14
 
 /*
 typedef struct
 {
-   guint32 indexGroup;
-   guint32 indexOffset;
-   guint32 cbReadLength;
-   guint32 cbWriteLength;
-   guint16 firstDataWord;
+   uint32_t indexGroup;
+   uint32_t indexOffset;
+   uint32_t cbReadLength;
+   uint32_t cbWriteLength;
+   uint16_t firstDataWord;
 } TAdsReadWriteReq;*/
 #define TAdsReadWriteReq_Len 18
 
 typedef struct
 {
-   guint32 cbLength;
-   guint32 nTransMode;
-   guint32 nMaxDelay;
-   guint32 nCycleTime;
-   guint8  nCmpMax[sizeof(double)];
-   guint8  nCmpMin[sizeof(double)];
+   uint32_t cbLength;
+   uint32_t nTransMode;
+   uint32_t nMaxDelay;
+   uint32_t nCycleTime;
+   uint8_t nCmpMax[sizeof(double)];
+   uint8_t nCmpMin[sizeof(double)];
 } AdsNotificationAttrib;
 
 typedef struct
 {
-   guint32               indexGroup;
-   guint32               indexOffset;
+   uint32_t              indexGroup;
+   uint32_t              indexOffset;
    AdsNotificationAttrib noteAttrib;
 } TAdsAddDeviceNotificationReq;
 #define TAdsAddDeviceNotificationReq_Len (int)sizeof(TAdsAddDeviceNotificationReq)
 
 typedef struct
 {
-   guint32   hNotification;
+   uint32_t  hNotification;
 }  TAdsDelDeviceNotificationReq;
 #define TAdsDelDeviceNotificationReq_Len (int)sizeof(TAdsDelDeviceNotificationReq)
 
 typedef struct
 {
-   guint32 cbLength;
-   guint32 nStamps;
+   uint32_t cbLength;
+   uint32_t nStamps;
 }  TAdsDeviceNotificationReq;
 #define TAdsDeviceNotificationReq_Len (int)sizeof(TAdsDeviceNotificationReq)
 
 typedef struct
 {
-   guint32  result;
+   uint32_t result;
 } TAdsRes;
 #define TAdsRes_Len (int)sizeof(TAdsRes)
 
 typedef struct
 {
-   guint8  version;
-   guint8  revision;
-   guint16 build;
+   uint8_t version;
+   uint8_t revision;
+   uint16_t build;
 } AdsVersion, *PAdsVersion;
 
 typedef struct
 {
-   guint32    result;
+   uint32_t   result;
    AdsVersion version;
    char       sName[ADS_FIXEDNAMESIZE];
 } TAdsReadDeviceInfoRes;
@@ -1078,50 +1078,50 @@ typedef struct
 
 typedef struct
 {
-   guint32 result;
+   uint32_t result;
 } TAdsWriteControlRes;
 #define TAdsWriteControlRes_Len (int)sizeof(TAdsWriteControlRes)
 
 typedef struct
 {
-   guint32 result;
-   guint16 adsState;
-   guint16 deviceState;
+   uint32_t result;
+   uint16_t adsState;
+   uint16_t deviceState;
 } TAdsReadStateRes;
 #define TAdsReadStateRes_Len (int)sizeof(TAdsReadStateRes)
 
 typedef struct
 {
-   guint32 result;
-   guint32 cbLength;
-   guint16 firstDataWord;
+   uint32_t result;
+   uint32_t cbLength;
+   uint16_t firstDataWord;
 } TAdsReadRes;
 #define TAdsReadRes_Len (int)sizeof(TAdsReadRes)
 
 typedef struct
 {
-   guint32 result;
-   guint32 cbLength;
-   guint16 firstDataWord;
+   uint32_t result;
+   uint32_t cbLength;
+   uint16_t firstDataWord;
 } TAdsReadWriteRes;
 #define TAdsReadWriteRes_Len (int)sizeof(TAdsReadWriteRes)
 
 typedef struct
 {
-   guint32 result;
+   uint32_t result;
 } TAdsWriteRes;
 #define TAdsWriteRes_Len (int)sizeof(TAdsWriteRes)
 
 typedef struct
 {
-   guint32 result;
-   guint32 handle;
+   uint32_t result;
+   uint32_t handle;
 }  TAdsAddDeviceNotificationRes;
 #define TAdsAddDeviceNotificationRes_Len (int)sizeof(TAdsAddDeviceNotificationRes)
 
 typedef struct
 {
-   guint32 result;
+   uint32_t result;
 }  TAdsDelDeviceNotificationRes;
 #define TAdsDelDeviceNotificationRes_Len (int)sizeof(TAdsDelDeviceNotificationRes)
 
@@ -1129,8 +1129,8 @@ typedef struct
 /* structure for decoding the header -----------------------------------------*/
 /*typedef struct
 {
-   guint16 reserved;
-   guint32 cbLength;
+   uint16_t reserved;
+   uint32_t cbLength;
 } TcpAdsParserHDR;
 typedef TcpAdsParserHDR;*/
 #define TcpAdsParserHDR_Len 6

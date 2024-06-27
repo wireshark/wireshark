@@ -15,7 +15,7 @@
 #include "unit_strings.h"
 
 /** Returns the unit string appropriate for the 32 bit value. */
-const char* unit_name_string_get_value(guint32 value, const unit_name_string* units)
+const char* unit_name_string_get_value(uint32_t value, const unit_name_string* units)
 {
     if (units->plural == NULL)
         return units->singular;
@@ -24,7 +24,7 @@ const char* unit_name_string_get_value(guint32 value, const unit_name_string* un
 }
 
 /** Returns the unit string appropriate for the 64 bit value. */
-const char* unit_name_string_get_value64(guint64 value, const unit_name_string* units)
+const char* unit_name_string_get_value64(uint64_t value, const unit_name_string* units)
 {
     if (units->plural == NULL)
         return units->singular;

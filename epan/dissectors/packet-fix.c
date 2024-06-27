@@ -416,7 +416,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 /* Code to actually dissect the packets */
-static gboolean
+static bool
 dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conv;
@@ -424,29 +424,29 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* get at least the fix version: 8=FIX.x.x */
     if (fix_marker(tvb, 0) != 0) {
         /* not a fix packet */
-        return FALSE;
+        return false;
     }
 
     conv = find_or_create_conversation(pinfo);
     conversation_set_dissector(conv, fix_handle);
 
     dissect_fix_pdus(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 dissect_fix_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
     /* get at least the fix version: 8=FIX.x.x */
     if (fix_marker(tvb, 0) != 0) {
         /* not a fix packet */
-        return FALSE;
+        return false;
     }
 
     dissect_fix_pdus(tvb, pinfo, tree, data);
     *(tlsinfo->app_handle) = fix_handle;
-    return TRUE;
+    return true;
 }
 
 /* this format is require because a script is used to build the C function

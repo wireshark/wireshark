@@ -72,7 +72,7 @@ static const value_string element_type_str[] = {
     /*** These are the ITU values ***/
     {0x51, "Report"},
     {0x53, "Keep Alive"},
-    {0x07, "PVC Status"},
+    //{0x07, "PVC Status"},
 
     {0,       NULL }
 };

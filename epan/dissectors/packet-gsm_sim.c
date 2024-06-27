@@ -809,6 +809,8 @@ static const value_string seek_mode_vals[] = {
  * current work-around is to simply merge all of them into one value_string
  * array */
 
+/* N.B. this combined value_string has lots of duplicate values... */
+
 /* Files at the MF level */
 static const value_string mf_dfs[] = {
 	{ 0x3f00, "MF" },

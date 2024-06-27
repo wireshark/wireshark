@@ -18172,7 +18172,7 @@ add_ff_eht_mimo_control_etc(proto_tree *tree _U_, tvbuff_t *tvb _U_,
   }
   if (nr_index == 0 || nr_index > 7) {
     expert_add_info_format(pinfo, mci, &ei_ieee80211_eht_invalid_nc_nr,
-                           "Nr indices (%d) 0 and > 7 are resered", nr_index);
+                           "Nr indices (%d) 0 and > 7 are reserved", nr_index);
     return offset;
   }
   offset += 5;
@@ -37606,7 +37606,7 @@ static int * const ranging_headers2[] = {
 };
 
 static int
-dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *tree, int offset, guint fcs_len)
 {
   proto_tree        *common_tree = NULL;
@@ -37629,7 +37629,7 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   trigger_type = tvb_get_guint8(tvb, offset) & 0x0F;
-  common_info_b54_55 = tvb_get_guint8(tvb, offset + 5);
+  common_info_b54_55 = tvb_get_guint8(tvb, offset + 6);
   if ((common_info_b54_55 >> 6) == 0x03)
     eht_trigger = FALSE;
 

@@ -602,7 +602,7 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Does not throw an exception. */
-gboolean
+bool
 tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 {
 	guint abs_offset = 0, abs_length;
@@ -615,13 +615,13 @@ tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 	 * error or an overly large value from packet data).
 	 */
 	if (length < 0)
-		return FALSE;
+		return false;
 
 	exception = check_offset_length_no_exception(tvb, offset, length, &abs_offset, &abs_length);
 	if (exception)
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 /* Validates that 'length' bytes, where 'length' is a 64-bit unsigned
@@ -722,7 +722,7 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 		THROW(ReportedBoundsError);
 }
 
-gboolean
+bool
 tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset = 0;
@@ -732,17 +732,12 @@ tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 
 	exception = compute_offset(tvb, offset, &abs_offset);
 	if (exception)
-		return FALSE;
+		return false;
 
 	/* compute_offset only throws an exception on >, not >= because of the
 	 * comment above check_offset_length_no_exception, but here we want the
 	 * opposite behaviour so we check ourselves... */
-	if (abs_offset < tvb->length) {
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
+	return abs_offset < tvb->length;
 }
 
 guint
@@ -1769,7 +1764,7 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 	return retval;
 }
 
-static gboolean
+static bool
 parse_month_name(const char *name, int *tm_mon)
 {
 	static const char months[][4] = { "Jan", "Feb", "Mar", "Apr", "May",
@@ -1777,10 +1772,10 @@ parse_month_name(const char *name, int *tm_mon)
 	for (int i = 0; i < 12; i++) {
 		if (memcmp(months[i], name, 4) == 0) {
 			*tm_mon = i;
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 /*
@@ -3949,7 +3944,7 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset, const guint bufs
 	gint     stringlen;
 	guint    abs_offset = 0;
 	gint     limit, len = 0;
-	gboolean decreased_max = FALSE;
+	bool     decreased_max = false;
 
 	/* Only read to end of tvbuff, w/o throwing exception. */
 	check_offset_length(tvb, offset, -1, &abs_offset, &len);
@@ -3983,7 +3978,7 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset, const guint bufs
 
 	if ((guint)len < bufsize) {
 		limit = len;
-		decreased_max = TRUE;
+		decreased_max = true;
 	}
 	else {
 		limit = bufsize;
@@ -4061,7 +4056,8 @@ tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size
 	return len;
 }
 
-gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
+bool
+tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
 	guint abs_offset, abs_length = length;
@@ -4072,12 +4068,13 @@ gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 	}
 	for (guint i = 0; i < abs_length; i++, buf++)
 		if (!g_ascii_isprint(*buf))
-			return FALSE;
+			return false;
 
-	return TRUE;
+	return true;
 }
 
-gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset, const gint length)
+bool
+tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
 	guint abs_offset, abs_length = length;
@@ -4090,7 +4087,8 @@ gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 	return isprint_utf8_string(buf, abs_length);
 }
 
-gboolean tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset, const gint length)
+bool
+tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
 	guint abs_offset, abs_length = length;
@@ -4101,9 +4099,9 @@ gboolean tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset, const gint length)
 	}
 	for (guint i = 0; i < abs_length; i++, buf++)
 		if (!g_ascii_isdigit(*buf))
-			return FALSE;
+			return false;
 
-	return TRUE;
+	return true;
 }
 
 static ws_mempbrk_pattern pbrk_crlf;
@@ -4133,7 +4131,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	gint   eol_offset;
 	int    linelen;
 	guchar found_needle = 0;
-	static gboolean compiled = FALSE;
+	static bool compiled = false;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -4146,7 +4144,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 
 	if (!compiled) {
 		ws_mempbrk_compile(&pbrk_crlf, "\r\n");
-		compiled = TRUE;
+		compiled = true;
 	}
 
 	/*
@@ -4253,11 +4251,11 @@ gint
 tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next_offset)
 {
 	gint     cur_offset, char_offset;
-	gboolean is_quoted;
+	bool     is_quoted;
 	guchar   c = 0;
 	gint     eob_offset;
 	int      linelen;
-	static gboolean compiled = FALSE;
+	static bool compiled = false;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -4266,7 +4264,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 
 	if (!compiled) {
 		ws_mempbrk_compile(&pbrk_crlf_dquote, "\r\n\"");
-		compiled = TRUE;
+		compiled = true;
 	}
 
 	/*
@@ -4276,7 +4274,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 	eob_offset = offset + len;
 
 	cur_offset = offset;
-	is_quoted  = FALSE;
+	is_quoted  = false;
 	for (;;) {
 			/*
 		 * Is this part of the string quoted?
@@ -4312,7 +4310,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 			 * as we're processing a quoted string, it's a
 			 * closing quote.
 			 */
-			is_quoted = FALSE;
+			is_quoted = false;
 		} else {
 			/*
 			 * OK, what is it?
@@ -4322,7 +4320,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 				 * Un-quoted "; it begins a quoted
 				 * string.
 				 */
-				is_quoted = TRUE;
+				is_quoted = true;
 			} else {
 				/*
 				 * It's a CR or LF; we've found a line
@@ -4477,7 +4475,7 @@ int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offs
 	gint   eot_offset;
 	int    tokenlen;
 	guchar found_needle = 0;
-	static gboolean compiled = FALSE;
+	static bool compiled = false;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -4490,7 +4488,7 @@ int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offs
 
 	if (!compiled) {
 		ws_mempbrk_compile(&pbrk_whitespace, " \r\n");
-		compiled = TRUE;
+		compiled = true;
 	}
 
 	/*

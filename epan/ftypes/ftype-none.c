@@ -45,7 +45,7 @@ ftype_register_none(void)
 		NULL,				/* is_negative */
 		NULL,				/* len */
 		NULL,				/* slice */
-		NULL,				/* biwise_and */
+		NULL,				/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */

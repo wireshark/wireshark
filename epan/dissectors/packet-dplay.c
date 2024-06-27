@@ -1072,18 +1072,18 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     }
 }
-static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint32 dplay_id, token;
 
     if(tvb_captured_length(tvb) < 25)
-        return FALSE;
+        return false;
 
     /* The string play = 0x706c6179 */
     dplay_id = tvb_get_ntohl(tvb, 20);
     if( dplay_id == 0x706c6179) {
         dissect_dplay(tvb, pinfo, tree);
-        return TRUE;
+        return true;
     }
 
 
@@ -1096,14 +1096,14 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         int offset;
         for (offset = 12; offset <= 20; offset++)
           if (tvb_get_guint8(tvb, offset) != 0)
-            return FALSE;
+            return false;
 
         dissect_dplay_player_msg(tvb, pinfo, tree);
-        return TRUE;
+        return true;
       }
     }
 
-    return FALSE;
+    return false;
 }
 
 void proto_register_dplay(void)

@@ -1209,7 +1209,7 @@ iostat_draw(void *arg)
     }
     printf("\n");
     g_free(iot->items);
-    g_free(iot->filters);
+    g_free((gpointer)iot->filters);
     g_free(iot->max_vals);
     g_free(iot->max_frame);
     g_free(iot->hf_indexes);

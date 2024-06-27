@@ -11,8 +11,8 @@
  */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "netscreen.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #include <stdlib.h>

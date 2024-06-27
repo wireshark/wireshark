@@ -223,7 +223,7 @@ static gint ett_bt_utp_extension;
 
 static bool enable_version0;
 static guint max_window_size = V1_MAX_WINDOW_SIZE;
-/* XXX: Desegementation and OOO-reassembly are not supported yet */
+/* XXX: Desegmentation and OOO-reassembly are not supported yet */
 static gboolean utp_desegment;
 /*static gboolean utp_reassemble_out_of_order = FALSE;*/
 static bool utp_analyze_seq = true;
@@ -1096,8 +1096,8 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   return 0;
 }
 
-static gboolean
-dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   gint version;
   version = get_utp_version(tvb);
@@ -1110,10 +1110,10 @@ dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     conversation_set_dissector_from_frame_number(conversation, pinfo->num, bt_utp_handle);
 
     dissect_bt_utp(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 static void

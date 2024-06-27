@@ -7,11 +7,11 @@
  */
 
 #include "config.h"
+#include "netxray.h"
 
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "netxray.h"
 #include "atm.h"
 
 /* Capture file header, *including* magic number, is padded to 128 bytes. */

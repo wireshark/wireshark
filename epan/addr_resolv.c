@@ -297,6 +297,7 @@ e_addr_resolve gbl_resolv_flags = {
     FALSE,  /* network_name */
     FALSE,  /* transport_name */
     TRUE,   /* dns_pkt_addr_resolution */
+    FALSE,  /* handshake_sni_addr_resolution */
     TRUE,   /* use_external_net_name_resolver */
     FALSE,  /* vlan_name */
     FALSE,  /* ss7 point code names */
@@ -3191,6 +3192,11 @@ addr_resolve_pref_init(module_t *nameres)
             "Use address/name pairs found in captured DNS packets for name resolution.",
             &gbl_resolv_flags.dns_pkt_addr_resolution);
 
+    prefs_register_bool_preference(nameres, "handshake_sni_addr_resolution",
+            "Use SNI information from captured handshake packets",
+            "Use the Server Name Indication found in TLS handshakes for name resolution.",
+            &gbl_resolv_flags.handshake_sni_addr_resolution);
+
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
             "Use your system's DNS settings for name resolution",
             "Use your system's configured name resolver"
@@ -3273,6 +3279,7 @@ disable_name_resolution(void) {
     gbl_resolv_flags.network_name                       = FALSE;
     gbl_resolv_flags.transport_name                     = FALSE;
     gbl_resolv_flags.dns_pkt_addr_resolution            = FALSE;
+    gbl_resolv_flags.handshake_sni_addr_resolution      = FALSE;
     gbl_resolv_flags.use_external_net_name_resolver     = FALSE;
     gbl_resolv_flags.vlan_name                          = FALSE;
     gbl_resolv_flags.ss7pc_name                         = FALSE;

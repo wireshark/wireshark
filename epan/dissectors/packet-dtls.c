@@ -562,7 +562,7 @@ static guint8 dtls_cid_length(SslSession *session, gboolean is_from_server)
   return cid_length;
 }
 
-static gboolean
+static bool
 dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 {
@@ -605,7 +605,7 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
           session = ssl_session ? &ssl_session->session : NULL;
         }
         if (session == NULL) {
-          return FALSE;
+          return false;
         }
         offset += (record_type & DTLS13_S_BIT_MASK) ? 2 : 1;
         if (record_type & DTLS13_L_BIT_MASK) {
@@ -630,15 +630,15 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       offset += record_length;
       if (offset == length) {
         dissect_dtls(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
       }
     }
 
     if (pinfo->fragmented && offset >= 13) {
       dissect_dtls(tvb, pinfo, tree, data);
-      return TRUE;
+      return true;
     }
-    return FALSE;
+    return false;
   }
 
   /* This packet was truncated by the capture process due to a snapshot
@@ -864,7 +864,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   /* show decrypted data info, if available */
   if (decrypted) {
-    gboolean  dissected;
+    bool  dissected;
     guint16   saved_match_port;
     /* try to dissect decrypted data*/
     ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
@@ -888,7 +888,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                           dissector_handle_get_dissector_name(session->app_handle));
       }
 
-      dissected = call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
+      dissected = (bool)call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
     }
     else {
       /* try heuristic subdissectors */

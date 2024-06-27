@@ -28,8 +28,8 @@ struct ua_keyset {
     unsigned char server_key[32]; /**< server encryption key */
     unsigned int client_key_len; /**< AES key length: 16 (AES-128) or 32 (AES-256) */
     unsigned int server_key_len; /**< AES key length: 16 (AES-128) or 32 (AES-256) */
-    unsigned int client_sig_len; /**< Client side symmetric signture length. */
-    unsigned int server_sig_len; /**< Server side symmetric signture length. */
+    unsigned int client_sig_len; /**< Client side symmetric signature length. */
+    unsigned int server_sig_len; /**< Server side symmetric signature length. */
 };
 
 int ua_keysets_init(void);

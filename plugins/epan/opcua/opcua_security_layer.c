@@ -52,13 +52,13 @@ void registerSequenceLayerTypes(int proto)
 }
 
 /* The symmetric security header consists only of one field. */
-void parseSecurityHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, struct ua_metadata *data _U_)
+void parseSecurityHeader(proto_tree *tree, tvbuff_t *tvb, int *pOffset, struct ua_metadata *data _U_)
 {
     proto_tree_add_item(tree, hf_opcua_security_tokenid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 
 /* Sequence header can optionally be encrypted. */
-void parseSequenceHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, struct ua_metadata *data)
+void parseSequenceHeader(proto_tree *tree, tvbuff_t *tvb, int *pOffset, struct ua_metadata *data)
 {
     if (!data->encrypted) {
         proto_tree_add_item(tree, hf_opcua_sequence_seqno, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
@@ -67,13 +67,13 @@ void parseSequenceHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, struct 
 }
 
 /* Parse symmetric security footer (signed only) */
-void parseSecurityFooterSO(proto_tree *tree, tvbuff_t *tvb, gint offset, guint sig_len)
+void parseSecurityFooterSO(proto_tree *tree, tvbuff_t *tvb, int offset, unsigned sig_len)
 {
     proto_tree_add_item(tree, hf_opcua_security_signature, tvb, offset, sig_len, ENC_NA);
 }
 
 /* Parse symmetric security footer (signed and encrypted) */
-void parseSecurityFooterSAE(proto_tree *tree, tvbuff_t *tvb, gint offset, guint pad_len, guint sig_len)
+void parseSecurityFooterSAE(proto_tree *tree, tvbuff_t *tvb, int offset, unsigned pad_len, unsigned sig_len)
 {
     proto_tree_add_item(tree, hf_opcua_security_padding, tvb, offset, pad_len + 1, ENC_NA);
     proto_tree_add_item(tree, hf_opcua_security_signature, tvb, offset + pad_len + 1, sig_len, ENC_NA);

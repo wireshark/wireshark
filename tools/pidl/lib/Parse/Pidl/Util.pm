@@ -6,11 +6,12 @@ package Parse::Pidl::Util;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str unmake_str print_uuid MyDumper genpad);
+@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str unmake_str print_uuid MyDumper genpad parse_int parse_range);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
+use warnings;
 
 use Parse::Pidl::Expr;
 use Parse::Pidl qw(error);
@@ -189,6 +190,41 @@ sub genpad($)
 	my $ns = (length($s)-$lt);
 	return "\t"x($nt)." "x($ns);
 }
+
+=item B<parse_int>
+
+Try to convert hex and octal strings to numbers. If a string doesn't
+look hexish or octish it will be left as is. If the unconverted string
+is actually a decimal number, Perl is likely to handle it correctly.
+
+=cut
+
+sub parse_int {
+	my $s = shift;
+	if ($s =~ /^0[xX][0-9A-Fa-f]+$/) {
+		return hex $s;
+	}
+	if ($s =~ /^0[0-7]+$/) {
+		return oct $s;
+	}
+	return $s;
+}
+
+=item B<parse_range>
+
+Read a range specification that might contain hex or octal numbers,
+and work out what those numbers are.
+
+=cut
+
+sub parse_range {
+	my $range = shift;
+	my ($low, $high) = split(/,/, $range, 2);
+	$low = parse_int($low);
+	$high = parse_int($high);
+	return ($low, $high);
+}
+
 
 =back
 

@@ -3233,7 +3233,7 @@ gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree *tree, guint32 fid, void *data)
 {
-	gboolean result=0;
+	bool result=false;
 	gboolean save_fragmented;
 	guint reported_len;
 

@@ -167,21 +167,21 @@ class TestDissectGprpc:
                 '-d', 'tcp.port==44363,http2',
                 '-2', # make http2.body.reassembled.in available
                 '-Y', # Case1: In frame28, one http DATA contains 4 completed grpc messages (json data seq=1,2,3,4).
-                      '(frame.number == 28 && grpc && json.value.number == "1" && json.value.number == "2"'
-                      ' && json.value.number == "3" && json.value.number == "4" && http2.body.reassembled.in == 45) ||'
+                      '(frame.number == 28 && grpc && json.value.number == 1 && json.value.number == 2'
+                      ' && json.value.number == 3 && json.value.number == 4 && http2.body.reassembled.in == 45) ||'
                       # Case2: In frame28, last grpc message (the 5th) only has 4 bytes, which need one more byte
                       # to be a message head. a completed message is reassembled in frame45. (json data seq=5)
-                      '(frame.number == 45 && grpc && http2.body.fragment == 28 && json.value.number == "5"'
+                      '(frame.number == 45 && grpc && http2.body.fragment == 28 && json.value.number == 5'
                       ' && http2.body.reassembled.in == 61) ||'
                       # Case3: In frame45, one http DATA frame contains two partial fragment, one is part of grpc
                       # message of previous http DATA (frame28), another is first part of grpc message of next http
                       # DATA (which will be reassembled in next http DATA frame61). (json data seq=6)
-                      '(frame.number == 61 && grpc && http2.body.fragment == 45 && json.value.number == "6") ||'
+                      '(frame.number == 61 && grpc && http2.body.fragment == 45 && json.value.number == 6) ||'
                       # Case4: A big grpc message across frame100, frame113, frame126 and finally reassembled in frame139.
                       '(frame.number == 100 && grpc && http2.body.reassembled.in == 139) ||'
                       '(frame.number == 113 && !grpc && http2.body.reassembled.in == 139) ||'
                       '(frame.number == 126 && !grpc && http2.body.reassembled.in == 139) ||'
-                      '(frame.number == 139 && grpc && json.value.number == "9") ||'
+                      '(frame.number == 139 && grpc && json.value.number == 9) ||'
                       # Case5: An large grpc message of 200004 bytes.
                       '(frame.number == 164 && grpc && grpc.message_length == 200004)',
             ), encoding='utf-8', env=test_env)

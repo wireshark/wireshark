@@ -1,5 +1,5 @@
 ##########################################
-# Converts ODL stuctures to IDL structures
+# Converts ODL structures to IDL structures
 # (C) 2004-2005, 2008 Jelmer Vernooij <jelmer@samba.org>
 
 package Parse::Pidl::ODL;
@@ -10,6 +10,7 @@ use Parse::Pidl::Util qw(has_property unmake_str);
 use Parse::Pidl::Typelist qw(hasType getType);
 use File::Basename;
 use strict;
+use warnings;
 
 use vars qw($VERSION);
 $VERSION = '0.01';

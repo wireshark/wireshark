@@ -309,6 +309,8 @@ typedef struct drb_mapping_t
    configuration protocol (e.g. RRC) */
 void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping);
 
+/* Return mode of bearer, or 0 if not found/known */
+guint8 get_mac_lte_channel_mode(guint16 ueid, guint8 drbid);
 
 /* Dedicated DRX config. Used to verify that a sensible config is given.
    Also, beginning to configure MAC with this config and (optionally) show

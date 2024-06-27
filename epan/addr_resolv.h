@@ -50,6 +50,7 @@ typedef struct _e_addr_resolve {
   bool network_name;                      /**< Whether to resolve IPv4, IPv6, and IPX addresses into host names */
   bool transport_name;                    /**< Whether to resolve TCP/UDP/DCCP/SCTP ports into service names */
   bool dns_pkt_addr_resolution;           /**< Whether to resolve addresses using captured DNS packets */
+  bool handshake_sni_addr_resolution;     /**< Whether to resolve addresses using SNI information found in captured handshake packets */
   bool use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
   bool vlan_name;                         /**< Whether to resolve VLAN IDs to names */
   bool ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */

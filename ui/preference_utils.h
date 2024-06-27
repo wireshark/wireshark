@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __PREFRENCE_UTILS_H__
-#define __PREFRENCE_UTILS_H__
+#ifndef __PREFERENCE_UTILS_H__
+#define __PREFERENCE_UTILS_H__
 
 #include <glib.h>
 
@@ -118,4 +118,4 @@ void save_migrated_uat(const char *uat_name, bool *old_pref);
 }
 #endif /* __cplusplus */
 
-#endif /* __PREFRENCE_UTILS_H__ */
+#endif /* __PREFERENCE_UTILS_H__ */

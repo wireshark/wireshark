@@ -319,7 +319,7 @@ void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
  *
  * When looked for it will try to match in order all the given candidates. If
  * every candidate is found in the given order it will return a composed
- * element whose subelements are the matcheed elemets.
+ * element whose subelements are the matched elements.
  *
  * The list of candidates is terminated with a NULL.
  *

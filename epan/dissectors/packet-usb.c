@@ -4139,9 +4139,9 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
         return tvb_captured_length(next_tvb);
 
     if (try_heuristics && heur_subdissector_list) {
-        ret = dissector_try_heuristic(heur_subdissector_list,
+        bool dissector_found = dissector_try_heuristic(heur_subdissector_list,
                 next_tvb, pinfo, use_setup_tree ? setup_tree : tree, &hdtbl_entry, usb_conv_info);
-        if (ret)
+        if (dissector_found)
             return tvb_captured_length(next_tvb);
     }
 

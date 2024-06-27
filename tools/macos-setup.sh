@@ -173,6 +173,7 @@ fi
 LUA_VERSION=5.4.6
 SNAPPY_VERSION=1.1.10
 ZSTD_VERSION=1.5.5
+ZLIBNG_VERSION=2.1.6
 LIBXML2_VERSION=2.11.5
 LZ4_VERSION=1.9.4
 SBC_VERSION=2.0
@@ -249,35 +250,35 @@ AUTOMAKE_VERSION=1.16.5
 LIBTOOL_VERSION=2.4.6
 
 install_curl() {
-    if [ "$CURL_VERSION" -a ! -f curl-$CURL_VERSION-done ] ; then
+    if [ "$CURL_VERSION" ] && [ ! -f "curl-$CURL_VERSION-done" ] ; then
         echo "Downloading, building, and installing curl:"
-        [ -f curl-$CURL_VERSION.tar.bz2 ] || curl --fail --location --remote-name https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
+        [ -f "curl-$CURL_VERSION.tar.bz2" ] || curl --fail --location --remote-name "https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2"
         $no_build && echo "Skipping installation" && return
-        bzcat curl-$CURL_VERSION.tar.bz2 | tar xf -
-        cd curl-$CURL_VERSION
+        bzcat "curl-$CURL_VERSION.tar.bz2" | tar xf -
+        cd "curl-$CURL_VERSION"
         ./configure "${CONFIGURE_OPTS[@]}"
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ..
-        touch curl-$CURL_VERSION-done
+        touch "curl-$CURL_VERSION-done"
     fi
 }
 
 uninstall_curl() {
     if [ -n "$installed_curl_version" ] ; then
         echo "Uninstalling curl:"
-        cd curl-$installed_curl_version
+        cd "curl-$installed_curl_version"
         $DO_MAKE_UNINSTALL
         make distclean
         cd ..
-        rm curl-$installed_curl_version-done
+        rm "curl-$installed_curl_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf curl-$installed_curl_version
-            rm -rf curl-$installed_curl_version.tar.bz2
+            rm -rf "curl-$installed_curl_version"
+            rm -rf "curl-$installed_curl_version.tar.bz2"
         fi
 
         installed_curl_version=""
@@ -285,7 +286,7 @@ uninstall_curl() {
 }
 
 install_xz() {
-    if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
+    if [ "$XZ_VERSION" ] && [ ! -f xz-$XZ_VERSION-done ] ; then
         echo "Downloading, building, and installing xz:"
         [ -f xz-$XZ_VERSION.tar.bz2 ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2
         $no_build && echo "Skipping installation" && return
@@ -308,18 +309,18 @@ install_xz() {
 uninstall_xz() {
     if [ -n "$installed_xz_version" ] ; then
         echo "Uninstalling xz:"
-        cd xz-$installed_xz_version
+        cd "xz-$installed_xz_version"
         $DO_MAKE_UNINSTALL
         make distclean
         cd ..
-        rm xz-$installed_xz_version-done
+        rm "xz-$installed_xz_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf xz-$installed_xz_version
-            rm -rf xz-$installed_xz_version.tar.bz2
+            rm -rf "xz-$installed_xz_version"
+            rm -rf "xz-$installed_xz_version.tar.bz2"
         fi
 
         installed_xz_version=""
@@ -329,18 +330,18 @@ uninstall_xz() {
 uninstall_lzip() {
     if [ -n "$installed_lzip_version" ] ; then
         echo "Uninstalling lzip:"
-        cd lzip-$installed_lzip_version
+        cd "lzip-$installed_lzip_version"
         $DO_MAKE_UNINSTALL
         make distclean
         cd ..
-        rm lzip-$installed_lzip_version-done
+        rm "lzip-$installed_lzip_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf lzip-$installed_lzip_version
-            rm -rf lzip-$installed_lzip_version.tar.gz
+            rm -rf "lzip-$installed_lzip_version"
+            rm -rf "lzip-$installed_lzip_version.tar.gz"
         fi
 
         installed_lzip_version=""
@@ -350,18 +351,18 @@ uninstall_lzip() {
 uninstall_pcre() {
     if [ -n "$installed_pcre_version" ] ; then
         echo "Uninstalling leftover pcre:"
-        cd pcre-$installed_pcre_version
+        cd "pcre-$installed_pcre_version"
         $DO_MAKE_UNINSTALL
         make distclean
         cd ..
-        rm pcre-$installed_pcre_version-done
+        rm "pcre-$installed_pcre_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf pcre-$installed_pcre_version
-            rm -rf pcre-$installed_pcre_version.tar.bz2
+            rm -rf "pcre-$installed_pcre_version"
+            rm -rf "pcre-$installed_pcre_version.tar.bz2"
         fi
 
         installed_pcre_version=""
@@ -369,7 +370,7 @@ uninstall_pcre() {
 }
 
 install_pcre2() {
-    if [ "$PCRE2_VERSION" -a ! -f "pcre2-$PCRE2_VERSION-done" ] ; then
+    if [ "$PCRE2_VERSION" ] && [ ! -f "pcre2-$PCRE2_VERSION-done" ] ; then
         echo "Downloading, building, and installing pcre2:"
         [ -f "pcre2-$PCRE2_VERSION.tar.bz2" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://github.com/PhilipHazel/pcre2/releases/download/pcre2-$PCRE2_VERSION/pcre2-10.39.tar.bz2"
         $no_build && echo "Skipping installation" && return
@@ -394,7 +395,7 @@ uninstall_pcre2() {
         while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt"; echo)
         rm "pcre2-$installed_pcre2_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
@@ -851,7 +852,7 @@ install_glib() {
         #
         # Starting with GLib 2.28.8, xz-compressed tarballs are available.
         #
-        [ -f glib-$GLIB_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.gnome.org/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz
+        [ -f glib-$GLIB_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://download.gnome.org/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz"
         $no_build && echo "Skipping installation" && return
         xzcat glib-$GLIB_VERSION.tar.xz | tar xf -
         cd glib-$GLIB_VERSION
@@ -998,7 +999,7 @@ EOF
                 #
                 #    https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
                 #
-                if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
+                if grep -qs '#define.*MACOSX' "$includedir/ffi/fficonfig.h"
                 then
                     # It's defined, nothing to do
                     CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
@@ -1763,7 +1764,47 @@ uninstall_zstd() {
         installed_zstd_version=""
     fi
 }
+#$ZLIBNG_VERSION
+install_zlibng() {
+    if [ "$ZLIBNG_VERSION" ] && [ ! -f zlib-ng-$ZLIBNG_VERSION-done ] ; then
+        echo "Downloading, building, and installing zlib-ng:"
+        [ -f $ZLIBNG_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$ZLIBNG_VERSION.tar.gz
+        $no_build && echo "Skipping installation" && return
+        gzcat $ZLIBNG_VERSION.tar.gz | tar xf -
+        cd zlib-ng-$ZLIBNG_VERSION
+        mkdir build
+        cd build
+        "${DO_CMAKE[@]}" .. 
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        cd ../..
+        touch zlib-ng-$ZLIBNG_VERSION-done
+    fi
+}
 
+uninstall_zlibng() {
+    if [ -n "$installed_zstd_version" ] ; then
+        echo "Uninstalling zlibng:"
+        cd "zlib-ng-$installed_zlibng_version"
+        $DO_MAKE_UNINSTALL
+        #
+        # XXX not sure what to do here...
+        #
+        make clean
+        cd ..
+        rm "zlib-ng-$installed_zlibng_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "zlib-ng-$installed_zlibng_version"
+            rm -rf "zlib-ng-$installed_zlibng_version.tar.gz"
+        fi
+
+        installed_zlibng_version=""
+    fi
+}
 install_libxml2() {
     if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
         echo "Downloading, building, and installing libxml2:"
@@ -2979,6 +3020,16 @@ install_all() {
         uninstall_zstd -r
     fi
 
+    if [ -n "$installed_zlibng_version" ] && [ "$installed_zlibng_version" != "$ZLIBNG_VERSION" ] ; then
+        echo "Installed zlibng version is $installed_zlibng_version"
+        if [ -z "$ZLIBNG_VERSION" ] ; then
+            echo "zlibng is not requested"
+        else
+            echo "Requested zlibng version is $ZLIBNG_VERSION"
+        fi
+        uninstall_zlibng -r
+    fi
+
     if [ -n "$installed_lua_version" -a \
               "$installed_lua_version" != "$LUA_VERSION" ] ; then
         echo "Installed Lua version is $installed_lua_version"
@@ -3412,6 +3463,8 @@ install_all() {
 
     install_zstd
 
+    install_zlibng
+
     install_libxml2
 
     install_lz4
@@ -3513,6 +3566,8 @@ uninstall_all() {
 
         uninstall_zstd
 
+        uninstall_zlibng
+
         uninstall_libxml2
 
         uninstall_lz4
@@ -3585,7 +3640,7 @@ uninstall_all() {
 # code will attempt to get you there, but is not perfect (particularly
 # if someone copies the script).
 
-topdir="$( pwd )/$( dirname $0 )/.."
+topdir="$( pwd )/$( dirname "$0" )/.."
 cd "$topdir"
 
 # Preference of the support libraries directory:
@@ -3759,6 +3814,7 @@ then
     installed_lua_version=$( ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/' )
     installed_snappy_version=$( ls snappy-*-done 2>/dev/null | sed 's/snappy-\(.*\)-done/\1/' )
     installed_zstd_version=$( ls zstd-*-done 2>/dev/null | sed 's/zstd-\(.*\)-done/\1/' )
+    installed_zlibng_version=$( ls zlibng-*-done 2>/dev/null | sed 's/zlibng-\(.*\)-done/\1/' )
     installed_libxml2_version=$( ls libxml2-*-done 2>/dev/null | sed 's/libxml2-\(.*\)-done/\1/' )
     installed_lz4_version=$( ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/' )
     installed_sbc_version=$( ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/' )

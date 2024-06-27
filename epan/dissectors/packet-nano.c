@@ -812,13 +812,13 @@ static gboolean test_nano(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_,
     return TRUE;
 }
 
-static gboolean dissect_nano_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_nano_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
     struct nano_session_state *session_state;
 
     if (!test_nano(pinfo, tvb, 0, data))
-        return FALSE;
+        return false;
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, nano_tcp_handle);
@@ -835,22 +835,22 @@ static gboolean dissect_nano_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     dissect_nano_tcp(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean dissect_nano_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_nano_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
 
     if (!test_nano(pinfo, tvb, 0, data))
-        return FALSE;
+        return false;
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, nano_handle);
 
     dissect_nano(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 void proto_register_nano(void)

@@ -352,14 +352,14 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 magic, type;
 
 	/* We need at least this much to tell whether this is NBD or not */
 	if(tvb_captured_length(tvb)<4){
-		return FALSE;
+		return false;
 	}
 
 	/* Check if it looks like NBD */
@@ -368,7 +368,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	case NBD_REQUEST_MAGIC:
 		/* requests are 28 bytes or more */
 		if(tvb_captured_length(tvb)<28){
-			return FALSE;
+			return false;
 		}
 		/* verify type */
 		type=tvb_get_ntohl(tvb, 4);
@@ -378,7 +378,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		case NBD_CMD_DISC:
 			break;
 		default:
-			return FALSE;
+			return false;
 		}
 
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 28, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
@@ -386,15 +386,15 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	case NBD_RESPONSE_MAGIC:
 		/* responses are 16 bytes or more */
 		if(tvb_captured_length(tvb)<16){
-			return FALSE;
+			return false;
 		}
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
-		return TRUE;
+		return true;
 	default:
 		break;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void proto_register_nbd(void)

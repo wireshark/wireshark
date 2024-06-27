@@ -1918,34 +1918,34 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param data raw packet private data.
 */
-static gboolean
+static bool
 dissect_zbee_nwk_heur_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
     guint8              fcf;
 
     /* We must have the IEEE 802.15.4 headers. */
-    if (packet == NULL) return FALSE;
+    if (packet == NULL) return false;
     /* ZigBee green power never uses 16-bit source addresses. */
-    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) return FALSE;
+    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) return false;
 
     /* If the frame type and version are not sane, then it's probably not ZGP. */
     fcf = tvb_get_guint8(tvb, 0);
-    if (zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_VERSION) != ZBEE_VERSION_GREEN_POWER) return FALSE;
-    if (!try_val_to_str(zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE), zbee_nwk_gp_frame_types)) return FALSE;
+    if (zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_VERSION) != ZBEE_VERSION_GREEN_POWER) return false;
+    if (!try_val_to_str(zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE), zbee_nwk_gp_frame_types)) return false;
 
     /* ZigBee greenpower frames are either sent to broadcast or the extended address. */
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT && packet->dst16 == IEEE802154_BCAST_ADDR) {
         dissect_zbee_nwk_gp(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
     /* 64-bit destination addressing mode support. */
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         dissect_zbee_nwk_gp(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 } /* dissect_zbee_nwk_heur_gp */
 
 /**

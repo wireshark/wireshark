@@ -524,12 +524,12 @@ dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *d
 }
 
 
-static int
-heur_dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_npm_heur(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   const guint length = tvb_captured_length(message_tvb);
   if (length < 4)
-    return FALSE;
+    return false;
 
   /* For TCP, UDP or DCCP:
       Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
@@ -537,29 +537,29 @@ heur_dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, vo
   switch(type) {
     case NETPERFMETER_DATA:
       if (length < 48 + 8)
-        return FALSE;
+        return false;
       /* Identify NetPerfMeter flow by payload pattern */
       for(int i = 0; i < 8; i++) {
         guint8 d = tvb_get_guint8(message_tvb, 48 + i);
         if( (d != 30 + i) && (d != 127 - i) )
-          return FALSE;
+          return false;
       }
       break;
     case NETPERFMETER_IDENTIFY_FLOW:
       if (length < 24 + 2)
-        return FALSE;
+        return false;
       if (tvb_get_ntoh64(message_tvb, 8) != NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER) {
         /* Identify NetPerfMeter flow by NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER */
-        return FALSE;
+        return false;
       }
       break;
     default:
       /* Not a NetPerfMeter packet */
-        return FALSE;
+        return false;
       break;
   }
-
-  return dissect_npm(message_tvb, pinfo, tree, data);
+  dissect_npm(message_tvb, pinfo, tree, data);
+  return true;
 }
 
 
@@ -847,9 +847,9 @@ proto_reg_handoff_npm(void)
   dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npm_handle);
 
   /* Heuristic dissector for TCP, UDP and DCCP */
-  heur_dissector_add("tcp",  heur_dissect_npm, "NetPerfMeter over TCP",  "netperfmeter_tcp",  proto_npm, HEURISTIC_ENABLE);
-  heur_dissector_add("udp",  heur_dissect_npm, "NetPerfMeter over UDP",  "netperfmeter_udp",  proto_npm, HEURISTIC_ENABLE);
-  heur_dissector_add("dccp", heur_dissect_npm, "NetPerfMeter over DCCP", "netperfmeter_dccp", proto_npm, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp",  dissect_npm_heur, "NetPerfMeter over TCP",  "netperfmeter_tcp",  proto_npm, HEURISTIC_ENABLE);
+  heur_dissector_add("udp",  dissect_npm_heur, "NetPerfMeter over UDP",  "netperfmeter_udp",  proto_npm, HEURISTIC_ENABLE);
+  heur_dissector_add("dccp", dissect_npm_heur, "NetPerfMeter over DCCP", "netperfmeter_dccp", proto_npm, HEURISTIC_ENABLE);
 }
 
 /*

@@ -1045,8 +1045,16 @@
         <translation>Первый пакет</translation>
     </message>
     <message>
+        <source>First event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Last packet</source>
         <translation>Последний пакет</translation>
+    </message>
+    <message>
+        <source>Last event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1085,6 +1093,10 @@
         <translation>Потерянные пакеты</translation>
     </message>
     <message>
+        <source>Dropped events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture filter</source>
         <translation>Фильтр захвата</translation>
     </message>
@@ -1095,6 +1107,10 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Ограничение на размер пакета (snaplen)</translation>
+    </message>
+    <message>
+        <source>Event size limit (snaplen)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>
@@ -1149,6 +1165,10 @@
         <translation>Пакеты</translation>
     </message>
     <message>
+        <source>Events</source>
+        <translation type="unfinished">События</translation>
+    </message>
+    <message>
         <source>Time span, s</source>
         <translation>Временной промежуток, с</translation>
     </message>
@@ -1159,6 +1179,10 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Средний размер пакета, Б</translation>
+    </message>
+    <message>
+        <source>Average event size, B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1175,6 +1199,10 @@
     <message>
         <source>Packet Comments</source>
         <translation>Комментарии к пакету</translation>
+    </message>
+    <message>
+        <source>Event Comments</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1619,10 +1647,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="vanished">Несколько файлов: Указан слишком большой размер файла. Размер файла не может превышать 2 ГиБ.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -4063,29 +4087,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Удалить этот график.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>Добавить новый график.</translation>
-    </message>
-    <message>
-        <source>Duplicate this graph.</source>
-        <translation>Дублировать этот график.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Очистить все графики.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>Переместить этот график вверх.</translation>
+        <source>Remove the selected graph(s).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move this graph downwards.</source>
-        <translation>Переместить этот график вниз.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) downwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4461,7 +4484,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Access Denied</source>
+        <source>All Execs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5262,6 +5285,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply changes</source>
         <translation>Применить изменения</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeDelegate</name>
+    <message>
+        <source>default</source>
+        <translation type="unfinished">по умолчанию</translation>
     </message>
 </context>
 <context>
@@ -6760,6 +6790,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>%Ln байт</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation>Байт %1</translation>
@@ -7387,6 +7425,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>%Ln байт</numerusform>
             <numerusform>%Ln байт</numerusform>
             <numerusform>%Ln байт</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -8837,6 +8883,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>PACKETS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EVENTS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10923,6 +10973,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Недопустимый фильтр.</translation>
     </message>
     <message>
+        <source>Event List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>Этот фильтр не производит тестирование.</translation>
     </message>
@@ -12549,22 +12615,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Создать новую запись.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>Удалить эту запись.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>Копировать эту запись.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Переместить запись выше.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Переместить запись ниже.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12590,20 +12654,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Создать новую запись.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>Удалить эту запись.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>Копировать эту запись.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Переместить запись выше.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Переместить запись ниже.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

@@ -142,7 +142,7 @@ WS_DLL_PUBLIC gchar* rel_oid_encoded2string(wmem_allocator_t *scope, const guint
 WS_DLL_PUBLIC gchar* oid_subid2string(wmem_allocator_t *scope, guint32 *subids, guint len);
 WS_DLL_PUBLIC gchar* rel_oid_subid2string(wmem_allocator_t *scope, guint32 *subids, guint len, gboolean is_absolute);
 
-/* these return a formated string as human readable as posible */
+/* these return a formated string as human readable as possible */
 WS_DLL_PUBLIC gchar *oid_resolved(wmem_allocator_t *scope, guint len, guint32 *subids);
 WS_DLL_PUBLIC gchar *oid_resolved_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint len);
 WS_DLL_PUBLIC gchar *rel_oid_resolved_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint len);

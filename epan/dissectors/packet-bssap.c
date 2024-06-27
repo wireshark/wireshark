@@ -2111,7 +2111,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* Is it a BSSAP/BSAP packet?
@@ -2126,21 +2126,21 @@ dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     {
     case 0x00:
         if (tvb_get_guint8(tvb, 1) != (tvb_reported_length(tvb) - 2)) {
-            return FALSE;
+            return false;
         }
         if (tvb_get_guint8(tvb, 2) == 0x40 && tvb_get_guint8(tvb, 3) != 0x01) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 0x01:
         if (tvb_get_guint8(tvb, 2) != (tvb_reported_length(tvb) - 3)) {
-            return FALSE;
+            return false;
         }
         break;
 
     default:
-        return FALSE;
+        return false;
     }
 
     switch (default_protocol_global) {
@@ -2159,7 +2159,7 @@ dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Register the protocol with Wireshark */

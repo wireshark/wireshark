@@ -386,8 +386,8 @@ find_end_line(tvbuff_t *tvb, gint start)
     return -1;
 }
 
-static gboolean
-dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t* conversation;
 
@@ -401,10 +401,10 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             /* Set dissector */
             conversation_set_dissector(conversation, msrp_handle);
         }
-        dissect_msrp(tvb, pinfo, tree, NULL);
-        return TRUE;
+        dissect_msrp(tvb, pinfo, tree, data);
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 /* Code to actually dissect the packets */

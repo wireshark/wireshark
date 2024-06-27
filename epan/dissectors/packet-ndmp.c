@@ -3379,17 +3379,17 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
  *  dissect_ndmp_message will register a dissect_ndmp NDMP handle
  *  as the protocol dissector for this conversation.
  */
-static int
+static bool
 dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (tvb_captured_length(tvb) < 28)
-		return 0;
+		return false;
 	if (!check_if_ndmp(tvb, pinfo))
-		return 0;
+		return false;
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
 			 get_ndmp_pdu_len, dissect_ndmp_message, data);
-	return tvb_captured_length(tvb);
+	return true;
 }
 
 

@@ -7,11 +7,11 @@
  */
 
 #include "config.h"
+#include "radcom.h"
 
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "radcom.h"
 
 struct frame_date {
 	uint16_t	year;

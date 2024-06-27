@@ -1031,8 +1031,16 @@
         <translation>처음 패킷</translation>
     </message>
     <message>
+        <source>First event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Last packet</source>
         <translation>마지막 패킷</translation>
+    </message>
+    <message>
+        <source>Last event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1071,6 +1079,10 @@
         <translation>누락된 패킷</translation>
     </message>
     <message>
+        <source>Dropped events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture filter</source>
         <translation>캡처 필터</translation>
     </message>
@@ -1081,6 +1093,10 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>패킷 크기 제한(snaplen)</translation>
+    </message>
+    <message>
+        <source>Event size limit (snaplen)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>
@@ -1135,6 +1151,10 @@
         <translation>패킷 수</translation>
     </message>
     <message>
+        <source>Events</source>
+        <translation type="unfinished">이벤트</translation>
+    </message>
+    <message>
         <source>Time span, s</source>
         <translation>시간 간격, 초</translation>
     </message>
@@ -1145,6 +1165,10 @@
     <message>
         <source>Average packet size, B</source>
         <translation>평균 패킷 크기, 바이트</translation>
+    </message>
+    <message>
+        <source>Average event size, B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1161,6 +1185,10 @@
     <message>
         <source>Packet Comments</source>
         <translation>패킷 주석</translation>
+    </message>
+    <message>
+        <source>Event Comments</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1607,10 +1635,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="vanished">여러 파일: 요청한 파일 크기가 너무 큽니다. 파일 최대 크기는 2 GiB입니다.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -4031,29 +4055,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>이 그래프를 삭제합니다.</translation>
-    </message>
-    <message>
         <source>Add a new graph.</source>
         <translation>새로운 그래프를 추가합니다.</translation>
-    </message>
-    <message>
-        <source>Duplicate this graph.</source>
-        <translation>이 그래프를 복제합니다.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>모든 그래프를 지웁니다.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>이 그래프를 위로 이동합니다.</translation>
+        <source>Remove the selected graph(s).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move this graph downwards.</source>
-        <translation>이 그래프를 아래로 이동합니다.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) downwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4429,8 +4452,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>모든 이벤트</translation>
     </message>
     <message>
-        <source>Access Denied</source>
-        <translation>접근 거부됨</translation>
+        <source>All Execs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5230,6 +5253,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply changes</source>
         <translation>변경 사항 적용</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeDelegate</name>
+    <message>
+        <source>default</source>
+        <translation type="unfinished">기본값</translation>
     </message>
 </context>
 <context>
@@ -6722,6 +6752,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>%Ln바이트</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation>바이트 %1</translation>
@@ -7345,6 +7381,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>%Ln byte(s)</source>
         <translation>
             <numerusform>%Ln바이트</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -8781,6 +8823,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>PACKETS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EVENTS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10867,6 +10913,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>잘못된 필터입니다.</translation>
     </message>
     <message>
+        <source>Event List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>필터에서 아무것도 시험하지 않습니다.</translation>
     </message>
@@ -12485,22 +12547,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>새 항목을 만듭니다.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>이 항목을 삭제합니다.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>이 항목을 복사합니다.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>항목을 위로 이동합니다.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>항목을 아래로 이동합니다.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12526,20 +12586,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>새 항목을 만듭니다.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>이 항목을 삭제합니다.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>이 항목을 복사합니다.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>항목을 위로 이동합니다.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>항목을 아래로 이동합니다.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

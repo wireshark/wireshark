@@ -21,18 +21,18 @@
  */
 
 /* Initialize the protocol and registered fields */
-static int proto_ems = -1;
+static int proto_ems;
 
-static int hf_ems_prn    = -1;
-static int hf_ems_year   = -1;
-static int hf_ems_month  = -1;
-static int hf_ems_day    = -1;
-static int hf_ems_hour   = -1;
-static int hf_ems_minute = -1;
-static int hf_ems_second = -1;
-static int hf_ems_mt     = -1;
+static int hf_ems_prn;
+static int hf_ems_year;
+static int hf_ems_month;
+static int hf_ems_day;
+static int hf_ems_hour;
+static int hf_ems_minute;
+static int hf_ems_second;
+static int hf_ems_mt;
 
-static int ett_ems = -1;
+static int ett_ems;
 
 static dissector_handle_t  ems_handle;
 

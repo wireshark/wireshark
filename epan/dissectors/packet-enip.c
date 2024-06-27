@@ -3415,7 +3415,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    proto_tree_add_item( dlr_tree, hf_dlr_sequenceid, tvb, DLR_MPF_SEQUENCE_ID, 4, ENC_BIG_ENDIAN );
 
    /* Add frame type to col info */
-   col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+   col_add_str(pinfo->cinfo, COL_INFO,
        val_to_str(dlr_frametype, dlr_frame_type_vals, "Unknown (0x%04x)") );
 
    if ( dlr_frametype == DLR_FT_BEACON )

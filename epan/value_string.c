@@ -27,10 +27,10 @@
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar *
-val_to_str(const guint32 val, const value_string *vs, const char *fmt)
+const char *
+val_to_str(const uint32_t val, const value_string *vs, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -41,10 +41,10 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
     return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
-gchar *
-val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *vs, const char *fmt)
+char *
+val_to_str_wmem(wmem_allocator_t *scope, const uint32_t val, const value_string *vs, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -58,11 +58,11 @@ val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
-const gchar *
-val_to_str_const(const guint32 val, const value_string *vs,
+const char *
+val_to_str_const(const uint32_t val, const value_string *vs,
         const char *unknown_str)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
@@ -77,10 +77,10 @@ val_to_str_const(const guint32 val, const value_string *vs,
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-const gchar *
-try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx)
+const char *
+try_val_to_str_idx(const uint32_t val, const value_string *vs, int *idx)
 {
-    gint i = 0;
+    int i = 0;
 
     DISSECTOR_ASSERT(idx != NULL);
 
@@ -99,17 +99,17 @@ try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx)
 }
 
 /* Like try_val_to_str_idx(), but doesn't return the index. */
-const gchar *
-try_val_to_str(const guint32 val, const value_string *vs)
+const char *
+try_val_to_str(const uint32_t val, const value_string *vs)
 {
-    gint ignore_me;
+    int ignore_me;
     return try_val_to_str_idx(val, vs, &ignore_me);
 }
 
-const gchar *
+const char *
 char_val_to_str(char val, const value_string *vs, const char *msg)
 {
-    const gchar *ret;
+    const char *ret;
     char buf[7];
 
     DISSECTOR_ASSERT(msg != NULL);
@@ -124,10 +124,10 @@ char_val_to_str(char val, const value_string *vs, const char *msg)
 
 /* 64-BIT VALUE STRING */
 
-const gchar *
-val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
+const char *
+val64_to_str(const uint64_t val, const val64_string *vs, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -138,11 +138,11 @@ val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
     return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
-const gchar *
-val64_to_str_const(const guint64 val, const val64_string *vs,
+const char *
+val64_to_str_const(const uint64_t val, const val64_string *vs,
         const char *unknown_str)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
@@ -153,10 +153,10 @@ val64_to_str_const(const guint64 val, const val64_string *vs,
     return unknown_str;
 }
 
-const gchar *
-try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx)
+const char *
+try_val64_to_str_idx(const uint64_t val, const val64_string *vs, int *idx)
 {
-    gint i = 0;
+    int i = 0;
 
     DISSECTOR_ASSERT(idx != NULL);
 
@@ -174,10 +174,10 @@ try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx)
     return NULL;
 }
 
-const gchar *
-try_val64_to_str(const guint64 val, const val64_string *vs)
+const char *
+try_val64_to_str(const uint64_t val, const val64_string *vs)
 {
-    gint ignore_me;
+    int ignore_me;
     return try_val64_to_str_idx(val, vs, &ignore_me);
 }
 
@@ -187,10 +187,10 @@ try_val64_to_str(const guint64 val, const val64_string *vs)
  * and return values instead */
 
 /* Like val_to_str except backwards */
-guint32
-str_to_val(const gchar *val, const value_string *vs, const guint32 err_val)
+uint32_t
+str_to_val(const char *val, const value_string *vs, const uint32_t err_val)
 {
-    gint i;
+    int i;
 
     i = str_to_val_idx(val, vs);
 
@@ -202,10 +202,10 @@ str_to_val(const gchar *val, const value_string *vs, const guint32 err_val)
 }
 
 /* Find the index of a string in a value_string, or -1 when not present */
-gint
-str_to_val_idx(const gchar *val, const value_string *vs)
+int
+str_to_val_idx(const char *val, const value_string *vs)
 {
-    gint i = 0;
+    int i = 0;
 
     if(vs) {
 
@@ -261,8 +261,8 @@ str_to_val_idx(const gchar *val, const value_string *vs)
  * Returns a pointer to an epan-scoped'd and initialized value_string_ext
  * struct. */
 value_string_ext *
-value_string_ext_new(const value_string *vs, guint vs_tot_num_entries,
-        const gchar *vs_name)
+value_string_ext_new(const value_string *vs, unsigned vs_tot_num_entries,
+        const char *vs_name)
 {
     value_string_ext *vse;
 
@@ -292,8 +292,8 @@ value_string_ext_free(value_string_ext *vse)
 }
 
 /* Like try_val_to_str for extended value strings */
-const gchar *
-try_val_to_str_ext(const guint32 val, value_string_ext *vse)
+const char *
+try_val_to_str_ext(const uint32_t val, value_string_ext *vse)
 {
     if (vse) {
         const value_string *vs = vse->_vs_match2(val, vse);
@@ -307,13 +307,13 @@ try_val_to_str_ext(const guint32 val, value_string_ext *vse)
 }
 
 /* Like try_val_to_str_idx for extended value strings */
-const gchar *
-try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
+const char *
+try_val_to_str_idx_ext(const uint32_t val, value_string_ext *vse, int *idx)
 {
     if (vse) {
         const value_string *vs = vse->_vs_match2(val, vse);
         if (vs) {
-            *idx = (gint) (vs - vse->_vs_p);
+            *idx = (int) (vs - vse->_vs_p);
             return vs->strptr;
         }
     }
@@ -322,10 +322,10 @@ try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
 }
 
 /* Like val_to_str for extended value strings */
-const gchar *
-val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
+const char *
+val_to_str_ext(const uint32_t val, value_string_ext *vse, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -336,10 +336,10 @@ val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
     return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
-gchar *
-val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext *vse, const char *fmt)
+char *
+val_to_str_ext_wmem(wmem_allocator_t *scope, const uint32_t val, value_string_ext *vse, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -351,11 +351,11 @@ val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext
 }
 
 /* Like val_to_str_const for extended value strings */
-const gchar *
-val_to_str_ext_const(const guint32 val, value_string_ext *vse,
+const char *
+val_to_str_ext_const(const uint32_t val, value_string_ext *vse,
         const char *unknown_str)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
@@ -368,10 +368,10 @@ val_to_str_ext_const(const guint32 val, value_string_ext *vse,
 
 /* Fallback linear matching algorithm for extended value strings */
 static const value_string *
-_try_val_to_str_linear(const guint32 val, value_string_ext *vse)
+_try_val_to_str_linear(const uint32_t val, value_string_ext *vse)
 {
     const value_string *vs_p = vse->_vs_p;
-    guint i;
+    unsigned i;
     for (i=0; i<vse->_vs_num_entries; i++) {
         if (vs_p[i].value == val)
             return &(vs_p[i]);
@@ -381,9 +381,9 @@ _try_val_to_str_linear(const guint32 val, value_string_ext *vse)
 
 /* Constant-time matching algorithm for contiguous extended value strings */
 static const value_string *
-_try_val_to_str_index(const guint32 val, value_string_ext *vse)
+_try_val_to_str_index(const uint32_t val, value_string_ext *vse)
 {
-    guint32 i;
+    uint32_t i;
 
     i = val - vse->_vs_first_value;
     if (i < vse->_vs_num_entries) {
@@ -397,14 +397,14 @@ _try_val_to_str_index(const guint32 val, value_string_ext *vse)
 static int
 val_to_str_compar(const void *v_needle, const void *v_item)
 {
-    guint32 needle = *(const guint32 *)v_needle;
-    guint32 value = ((const value_string *)v_item)->value;
+    uint32_t needle = *(const uint32_t *)v_needle;
+    uint32_t value = ((const value_string *)v_item)->value;
     return needle > value ? 1 : (needle < value ? -1 : 0);
 }
 
 /* log(n)-time matching for sorted extended value strings */
 static const value_string *
-_try_val_to_str_bsearch(const guint32 val, value_string_ext *vse)
+_try_val_to_str_bsearch(const uint32_t val, value_string_ext *vse)
 {
     return bsearch(&val, vse->_vs_p, vse->_vs_num_entries,
                    sizeof vse->_vs_p[0], val_to_str_compar);
@@ -418,10 +418,10 @@ _try_val_to_str_bsearch(const guint32 val, value_string_ext *vse)
  * - Verifies that the value_string is terminated by {0, NULL}
  */
 const value_string *
-_try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
+_try_val_to_str_ext_init(const uint32_t val, value_string_ext *vse)
 {
     const value_string *vs_p           = vse->_vs_p;
-    const guint         vs_num_entries = vse->_vs_num_entries;
+    const unsigned      vs_num_entries = vse->_vs_num_entries;
 
     /* The matching algorithm used:
      * VS_LIN_SEARCH - slow linear search (as in a normal value string)
@@ -449,9 +449,9 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
      * google two's complement.
      */
 
-    guint32 prev_value;
-    guint32 first_value;
-    guint   i;
+    uint32_t prev_value;
+    uint32_t first_value;
+    unsigned   i;
 
     DISSECTOR_ASSERT((vs_p[vs_num_entries].value  == 0) &&
                      (vs_p[vs_num_entries].strptr == NULL));
@@ -542,8 +542,8 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
  * Returns a pointer to an epan-scoped'd and initialized val64_string_ext
  * struct. */
 val64_string_ext *
-val64_string_ext_new(const val64_string *vs, guint vs_tot_num_entries,
-        const gchar *vs_name)
+val64_string_ext_new(const val64_string *vs, unsigned vs_tot_num_entries,
+        const char *vs_name)
 {
     val64_string_ext *vse;
 
@@ -573,8 +573,8 @@ val64_string_ext_free(val64_string_ext *vse)
 }
 
 /* Like try_val_to_str for extended value strings */
-const gchar *
-try_val64_to_str_ext(const guint64 val, val64_string_ext *vse)
+const char *
+try_val64_to_str_ext(const uint64_t val, val64_string_ext *vse)
 {
     if (vse) {
         const val64_string *vs = vse->_vs_match2(val, vse);
@@ -588,13 +588,13 @@ try_val64_to_str_ext(const guint64 val, val64_string_ext *vse)
 }
 
 /* Like try_val_to_str_idx for extended value strings */
-const gchar *
-try_val64_to_str_idx_ext(const guint64 val, val64_string_ext *vse, gint *idx)
+const char *
+try_val64_to_str_idx_ext(const uint64_t val, val64_string_ext *vse, int *idx)
 {
     if (vse) {
         const val64_string *vs = vse->_vs_match2(val, vse);
         if (vs) {
-            *idx = (gint) (vs - vse->_vs_p);
+            *idx = (int) (vs - vse->_vs_p);
             return vs->strptr;
         }
     }
@@ -603,10 +603,10 @@ try_val64_to_str_idx_ext(const guint64 val, val64_string_ext *vse, gint *idx)
 }
 
 /* Like val_to_str for extended value strings */
-const gchar *
-val64_to_str_ext(const guint64 val, val64_string_ext *vse, const char *fmt)
+const char *
+val64_to_str_ext(const uint64_t val, val64_string_ext *vse, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -617,10 +617,10 @@ val64_to_str_ext(const guint64 val, val64_string_ext *vse, const char *fmt)
     return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
-gchar *
-val64_to_str_ext_wmem(wmem_allocator_t *scope, const guint64 val, val64_string_ext *vse, const char *fmt)
+char *
+val64_to_str_ext_wmem(wmem_allocator_t *scope, const uint64_t val, val64_string_ext *vse, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -632,11 +632,11 @@ val64_to_str_ext_wmem(wmem_allocator_t *scope, const guint64 val, val64_string_e
 }
 
 /* Like val_to_str_const for extended value strings */
-const gchar *
-val64_to_str_ext_const(const guint64 val, val64_string_ext *vse,
+const char *
+val64_to_str_ext_const(const uint64_t val, val64_string_ext *vse,
         const char *unknown_str)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
@@ -649,10 +649,10 @@ val64_to_str_ext_const(const guint64 val, val64_string_ext *vse,
 
 /* Fallback linear matching algorithm for extended value strings */
 static const val64_string *
-_try_val64_to_str_linear(const guint64 val, val64_string_ext *vse)
+_try_val64_to_str_linear(const uint64_t val, val64_string_ext *vse)
 {
     const val64_string *vs_p = vse->_vs_p;
-    guint i;
+    unsigned i;
     for (i=0; i<vse->_vs_num_entries; i++) {
         if (vs_p[i].value == val)
             return &(vs_p[i]);
@@ -662,9 +662,9 @@ _try_val64_to_str_linear(const guint64 val, val64_string_ext *vse)
 
 /* Constant-time matching algorithm for contiguous extended value strings */
 static const val64_string *
-_try_val64_to_str_index(const guint64 val, val64_string_ext *vse)
+_try_val64_to_str_index(const uint64_t val, val64_string_ext *vse)
 {
-    guint64 i;
+    uint64_t i;
 
     i = val - vse->_vs_first_value;
     if (i < vse->_vs_num_entries) {
@@ -678,14 +678,14 @@ _try_val64_to_str_index(const guint64 val, val64_string_ext *vse)
 static int
 val64_to_str_compar(const void *v_needle, const void *v_item)
 {
-    guint64 needle = *(const guint64 *)v_needle;
-    guint64 value = ((const val64_string *)v_item)->value;
+    uint64_t needle = *(const uint64_t *)v_needle;
+    uint64_t value = ((const val64_string *)v_item)->value;
     return needle > value ? 1 : (needle < value ? -1 : 0);
 }
 
 /* log(n)-time matching for sorted extended value strings */
 static const val64_string *
-_try_val64_to_str_bsearch(const guint64 val, val64_string_ext *vse)
+_try_val64_to_str_bsearch(const uint64_t val, val64_string_ext *vse)
 {
     return bsearch(&val, vse->_vs_p, vse->_vs_num_entries,
                    sizeof vse->_vs_p[0], val64_to_str_compar);
@@ -699,10 +699,10 @@ _try_val64_to_str_bsearch(const guint64 val, val64_string_ext *vse)
  * - Verifies that the val64_string is terminated by {0, NULL}
  */
 const val64_string *
-_try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
+_try_val64_to_str_ext_init(const uint64_t val, val64_string_ext *vse)
 {
     const val64_string *vs_p           = vse->_vs_p;
-    const guint         vs_num_entries = vse->_vs_num_entries;
+    const unsigned      vs_num_entries = vse->_vs_num_entries;
 
     /* The matching algorithm used:
      * VS_LIN_SEARCH - slow linear search (as in a normal value string)
@@ -730,9 +730,9 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
      * google two's complement.
      */
 
-    guint64 prev_value;
-    guint64 first_value;
-    guint   i;
+    uint64_t prev_value;
+    uint64_t first_value;
+    unsigned   i;
 
     DISSECTOR_ASSERT((vs_p[vs_num_entries].value  == 0) &&
                      (vs_p[vs_num_entries].strptr == NULL));
@@ -791,10 +791,10 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
  * also strings (instead of unsigned integers) */
 
 /* Like val_to_str except for string_string */
-const gchar *
-str_to_str(const gchar *val, const string_string *vs, const char *fmt)
+const char *
+str_to_str(const char *val, const string_string *vs, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -806,10 +806,10 @@ str_to_str(const gchar *val, const string_string *vs, const char *fmt)
 }
 
 /* Like try_val_to_str_idx except for string_string */
-const gchar *
-try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx)
+const char *
+try_str_to_str_idx(const char *val, const string_string *vs, int *idx)
 {
-    gint i = 0;
+    int i = 0;
 
     if(vs) {
         while (vs[i].strptr) {
@@ -826,10 +826,10 @@ try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx)
 }
 
 /* Like try_val_to_str except for string_string */
-const gchar *
-try_str_to_str(const gchar *val, const string_string *vs)
+const char *
+try_str_to_str(const char *val, const string_string *vs)
 {
-    gint ignore_me;
+    int ignore_me;
     return try_str_to_str_idx(val, vs, &ignore_me);
 }
 
@@ -839,10 +839,10 @@ try_str_to_str(const gchar *val, const string_string *vs)
  * integer ranges (for example, 0-10, 11-19, etc.) instead of single values. */
 
 /* Like val_to_str except for range_string */
-const gchar *
-rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
+const char *
+rval_to_str(const uint32_t val, const range_string *rs, const char *fmt)
 {
-    const gchar *ret = NULL;
+    const char *ret = NULL;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -854,11 +854,11 @@ rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
 }
 
 /* Like val_to_str_const except for range_string */
-const gchar *
-rval_to_str_const(const guint32 val, const range_string *rs,
+const char *
+rval_to_str_const(const uint32_t val, const range_string *rs,
         const char *unknown_str)
 {
-    const gchar *ret = NULL;
+    const char *ret = NULL;
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
@@ -870,10 +870,10 @@ rval_to_str_const(const guint32 val, const range_string *rs,
 }
 
 /* Like try_val_to_str_idx except for range_string */
-const gchar *
-try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx)
+const char *
+try_rval_to_str_idx(const uint32_t val, const range_string *rs, int *idx)
 {
-    gint i = 0;
+    int i = 0;
 
     if(rs) {
         while(rs[i].strptr) {
@@ -890,18 +890,18 @@ try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx)
 }
 
 /* Like try_val_to_str except for range_string */
-const gchar *
-try_rval_to_str(const guint32 val, const range_string *rs)
+const char *
+try_rval_to_str(const uint32_t val, const range_string *rs)
 {
-    gint ignore_me = 0;
+    int ignore_me = 0;
     return try_rval_to_str_idx(val, rs, &ignore_me);
 }
 
 /* Like try_val_to_str_idx except for range_string */
-const gchar *
-try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx)
+const char *
+try_rval64_to_str_idx(const uint64_t val, const range_string *rs, int *idx)
 {
-    gint i = 0;
+    int i = 0;
 
     if(rs) {
         while(rs[i].strptr) {
@@ -918,10 +918,10 @@ try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx)
 }
 
 /* Like try_val64_to_str except for range_string */
-const gchar *
-try_rval64_to_str(const guint64 val, const range_string *rs)
+const char *
+try_rval64_to_str(const uint64_t val, const range_string *rs)
 {
-    gint ignore_me = 0;
+    int ignore_me = 0;
     return try_rval64_to_str_idx(val, rs, &ignore_me);
 }
 
@@ -929,10 +929,10 @@ try_rval64_to_str(const guint64 val, const range_string *rs)
 /* BYTE BUFFER TO STRING MATCHING */
 
 /* Like val_to_str except for bytes_string */
-const gchar *
-bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs, const char *fmt)
+const char *
+bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string *bs, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -949,10 +949,10 @@ bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs,
 }
 
 /* Like try_val_to_str except for bytes_string */
-const gchar *
-try_bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs)
+const char *
+try_bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string *bs)
 {
-    guint i = 0;
+    unsigned i = 0;
 
     if (bs) {
         while (bs[i].strptr) {
@@ -968,10 +968,10 @@ try_bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string 
 
 /* Like val_to_str, but tries to find a prefix (instead of an exact) match
    of any prefix from the bytes_string array bs against the haystack. */
-const gchar *
-bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
+const char *
+bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
 {
-    const gchar *ret;
+    const char *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
@@ -985,10 +985,10 @@ bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const byte
 
 /* Like try_val_to_str, but tries to find a prefix (instead of an exact) match
    of any prefix from the bytes_string array bs against the haystack. */
-const gchar *
-try_bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs)
+const char *
+try_bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const bytes_string *bs)
 {
-    guint i = 0;
+    unsigned i = 0;
 
     if (bs) {
         while (bs[i].strptr) {
@@ -1007,22 +1007,22 @@ try_bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const 
 
 /* Functions for use by proto_registrar_dump_values(), see proto.c */
 
-gboolean
+bool
 value_string_ext_validate(const value_string_ext *vse)
 {
     if (vse == NULL)
-        return FALSE;
+        return false;
 #ifndef _WIN32  /* doesn't work on Windows for refs from another DLL ?? */
     if ((vse->_vs_match2 != _try_val_to_str_ext_init) &&
         (vse->_vs_match2 != _try_val_to_str_linear)   &&
         (vse->_vs_match2 != _try_val_to_str_bsearch)  &&
         (vse->_vs_match2 != _try_val_to_str_index))
-        return FALSE;
+        return false;
 #endif
-    return TRUE;
+    return true;
 }
 
-const gchar *
+const char *
 value_string_ext_match_type_str(const value_string_ext *vse)
 {
     if (vse->_vs_match2 == _try_val_to_str_ext_init)
@@ -1036,22 +1036,22 @@ value_string_ext_match_type_str(const value_string_ext *vse)
     return "[Invalid]";
 }
 
-gboolean
+bool
 val64_string_ext_validate(const val64_string_ext *vse)
 {
     if (vse == NULL)
-        return FALSE;
+        return false;
 #ifndef _WIN32  /* doesn't work on Windows for refs from another DLL ?? */
     if ((vse->_vs_match2 != _try_val64_to_str_ext_init) &&
         (vse->_vs_match2 != _try_val64_to_str_linear)   &&
         (vse->_vs_match2 != _try_val64_to_str_bsearch)  &&
         (vse->_vs_match2 != _try_val64_to_str_index))
-        return FALSE;
+        return false;
 #endif
-    return TRUE;
+    return true;
 }
 
-const gchar *
+const char *
 val64_string_ext_match_type_str(const val64_string_ext *vse)
 {
     if (vse->_vs_match2 == _try_val64_to_str_ext_init)

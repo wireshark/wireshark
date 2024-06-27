@@ -486,7 +486,8 @@ print_usage(FILE *output)
     fprintf(output, "                           syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: \"mNd\" enabled, or\n");
     fprintf(output, "                           as set in preferences)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
+    // Note: the order of the flags here matches the options in the settings dialog e.g. "dsN" only have an effect if "n" is set
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mtndsNvg\"\n");
     fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
     fprintf(output, "                           \"Decode As\", see the man page for details\n");
     fprintf(output, "                           Example: tcp.port==8888,http\n");
@@ -513,7 +514,7 @@ print_usage(FILE *output)
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture file comment, if supported\n");
     fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-    fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
+    fprintf(output, "  -F <output file type>    set the output file type; default is pcapng.\n");
     fprintf(output, "                           an empty \"-F\" option will list the file types\n");
     fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
     fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
@@ -2140,8 +2141,15 @@ main(int argc, char *argv[])
                     use_pcapng = TRUE;
                 } else if (out_file_type == wtap_pcap_file_type_subtype()) {
                     use_pcapng = FALSE;
+                } else if (out_file_type == wtap_pcap_nsec_file_type_subtype()) {
+                    /* XXX - We request nanosecond time resolution regardless.
+                     * In the future wiretap might treat the two pcap subtypes
+                     * the same.
+                     */
+                    use_pcapng = FALSE;
                 } else {
                     cmdarg_err("Live captures can only be saved in pcap or pcapng format.");
+                    capture_opts_list_file_types();
                     exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }

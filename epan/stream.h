@@ -70,7 +70,7 @@ WS_DLL_PUBLIC stream_t *find_stream ( const struct conversation *conv, int p2p_d
    to this frame, but the idea is that you use the number of the frame being
    disassembled, and the byte-offset within that frame.
 */
-WS_DLL_PUBLIC stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32 framenum, guint32 offset );
+WS_DLL_PUBLIC stream_pdu_fragment_t *stream_find_frag( stream_t *stream, uint32_t framenum, uint32_t offset );
 
 /* add a new fragment to the fragment tables for the stream. The framenum and
  * offset are keys allowing future access with stream_find_frag(), tvb is the
@@ -85,12 +85,12 @@ WS_DLL_PUBLIC stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32
  * This essentially means that you can only add fragments on the first pass
  * through the stream.
  */
-WS_DLL_PUBLIC stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guint32 offset,
-					tvbuff_t *tvb, packet_info *pinfo, gboolean more_frags );
+WS_DLL_PUBLIC stream_pdu_fragment_t *stream_add_frag( stream_t *stream, uint32_t framenum, uint32_t offset,
+					tvbuff_t *tvb, packet_info *pinfo, bool more_frags );
 
 /* Get the length of a fragment previously found by stream_find_frag().
  */
-extern guint32 stream_get_frag_length( const stream_pdu_fragment_t *frag);
+extern uint32_t stream_get_frag_length( const stream_pdu_fragment_t *frag);
 
 /* Get a handle on the top of the chain of fragment_datas underlying this PDU
  * frag can be any fragment within a PDU, and it will always return the head of
@@ -115,7 +115,7 @@ WS_DLL_PUBLIC tvbuff_t *stream_process_reassembled(
 /* Get the PDU number. PDUs are numbered from zero within a stream.
  * frag can be any fragment within a PDU.
  */
-extern guint32 stream_get_pdu_no( const stream_pdu_fragment_t *frag);
+extern uint32_t stream_get_pdu_no( const stream_pdu_fragment_t *frag);
 
 /* initialise the stream routines */
 void stream_init( void );

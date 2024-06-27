@@ -606,7 +606,7 @@ getControlChannelFrameType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelcrframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    /*Check the control channel frame types and add the name to the subtree and strcat the name to the info column*/
+    /*Check the control channel frame types and add the name to the subtree Info column*/
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(cctype->command>>2, command_vals, "Unknown"));
 
     if (cctype->cr == 1) /*Command C/R*/{

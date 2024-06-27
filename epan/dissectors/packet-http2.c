@@ -682,7 +682,7 @@ header_fields_post_update_cb(void)
 
         for (guint i = 0; i < num_header_fields; i++) {
             hf_id = g_new(gint,1);
-            *hf_id = -1;
+            *hf_id = 0;
             header_name = g_strdup(header_fields[i].header_name);
             header_name_key = g_ascii_strdown(header_name, -1);
 
@@ -1945,7 +1945,7 @@ try_append_method_path_info(packet_info *pinfo, proto_tree *tree,
 static proto_item*
 try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 length, const char *header_name, const char *header_value)
 {
-    int hf_id = -1;
+    int hf_id;
     header_field_info *hfi;
     proto_item* ti = NULL;
 
@@ -2890,11 +2890,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
                         /* Populate the content type so we can dissect the body later */
                         body_info->content_type = wmem_strndup(wmem_file_scope(), "multipart/mixed", 15);
                         body_info->content_type_parameters = wmem_strdup_printf(wmem_file_scope(), "boundary=\"%s\"", boundary);
-                        dissector_handle_t handle = dissector_get_string_handle(media_type_dissector_table, body_info->content_type);
                         metadata_used_for_media_type_handle.media_str = body_info->content_type_parameters;
-                        if (handle) {
-                            dissector_add_uint("http2.streamid", stream_info->stream_id, handle);
-                        }
                         dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
                             data_tvb, pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
                     }
@@ -4202,7 +4198,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
@@ -4214,30 +4210,30 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* A http2 conversation was previously started, assume it is still active */
     if (session) {
       dissect_http2(tvb, pinfo, tree, data);
-      return TRUE;
+      return true;
     }
 
     if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n). */
-        return FALSE;
+        return false;
     }
 
     /* Remember http2 conversation. */
     get_http2_session(pinfo, conversation);
     dissect_http2(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 dissect_http2_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct tlsinfo *tlsinfo = (struct tlsinfo *) data;
     if (dissect_http2_heur(tvb, pinfo, tree, NULL)) {
         *(tlsinfo->app_handle) = http2_handle;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void
@@ -4939,7 +4935,7 @@ proto_register_http2(void)
 
 static void http2_stats_tree_init(stats_tree* st)
 {
-    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, STAT_DT_INT, TRUE);
+    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, STAT_DT_INT, true);
     st_node_http2_type = stats_tree_create_pivot(st, st_str_http2_type, st_node_http2);
 
 }
@@ -4947,7 +4943,7 @@ static void http2_stats_tree_init(stats_tree* st)
 static tap_packet_status http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     const struct HTTP2Tap *pi = (const struct HTTP2Tap *)p;
-    tick_stat_node(st, st_str_http2, 0, FALSE);
+    tick_stat_node(st, st_str_http2, 0, false);
     stats_tree_tick_pivot(st, st_node_http2_type,
             val_to_str(pi->type, http2_type_vals, "Unknown type (%d)"));
 

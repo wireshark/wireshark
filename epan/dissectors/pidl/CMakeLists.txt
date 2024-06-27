@@ -7,9 +7,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-# TODO fix srvsvc wkssvc
 set(PIDL_DISSECTOR_NAMES
 	atsvc
+	browser
 	clusapi
 	dfs
 	dnsserver
@@ -32,15 +32,18 @@ set(PIDL_DISSECTOR_NAMES
 	nspi
 	rfr
 	samr
-	#srvsvc
+	srvsvc
 	svcctl
 	winreg
 	winspool
 	witness
-	#wkssvc
+	wkssvc
 	wzcsvc
 )
 
+set(PIDL_DISSECTOR_browser_EXTRA_DEPS
+	srvsvc/srvsvc.idl
+)
 set(PIDL_DISSECTOR_clusapi_EXTRA_DEPS
 	clusapi/clusapi.idl
 )

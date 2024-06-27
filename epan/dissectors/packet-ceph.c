@@ -7075,12 +7075,12 @@ int dissect_ceph_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static
-gboolean dissect_ceph_heur(tvbuff_t *tvb, packet_info *pinfo,
+bool dissect_ceph_heur(tvbuff_t *tvb, packet_info *pinfo,
 			   proto_tree *tree, void *data)
 {
 	conversation_t *conv;
 
-	if (tvb_memeql(tvb, 0, C_BANNER, C_BANNER_SIZE_MIN) != 0) return FALSE;
+	if (tvb_memeql(tvb, 0, C_BANNER, C_BANNER_SIZE_MIN) != 0) return false;
 
 	/*** It's ours! ***/
 
@@ -7089,7 +7089,7 @@ gboolean dissect_ceph_heur(tvbuff_t *tvb, packet_info *pinfo,
 	conversation_set_dissector(conv, ceph_handle);
 
 	dissect_ceph(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 /* Register the protocol with Wireshark.

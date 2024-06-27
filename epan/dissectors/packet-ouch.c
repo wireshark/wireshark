@@ -309,13 +309,14 @@ static int hf_ouch_trade_correction_reason;
  * formatting function. */
 static void
 ouch_tree_add_timestamp(
+    packet_info *pinfo,
     proto_tree *tree,
     const int hf,
     tvbuff_t *tvb,
     gint offset)
 {
     guint64 ts = tvb_get_ntoh64(tvb, offset);
-    char *buf = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
+    char *buf = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
     guint32 tmp, hours, mins, secs, nsecs;
 
     nsecs = (guint32)(ts % G_GUINT64_CONSTANT(1000000000));
@@ -554,7 +555,7 @@ dissect_ouch(
             break;
 
         case 'A': /* Accepted */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -737,7 +738,7 @@ dissect_ouch(
             break;
 
         case 'S': /* System Event */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -750,7 +751,7 @@ dissect_ouch(
             break;
 
         case 'R': /* Replaced */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -855,7 +856,7 @@ dissect_ouch(
             break;
 
         case 'C': /* Canceled */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -880,7 +881,7 @@ dissect_ouch(
             break;
 
         case 'D': /* AIQ Canceled */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -923,7 +924,7 @@ dissect_ouch(
             break;
 
         case 'E': /* Executed */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -960,7 +961,7 @@ dissect_ouch(
             break;
 
         case 'B': /* Broken Trade */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -985,7 +986,7 @@ dissect_ouch(
             break;
 
         case 'F': /* Trade Correction (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1028,7 +1029,7 @@ dissect_ouch(
             break;
 
         case 'G': /* Executed with Reference Price (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1077,7 +1078,7 @@ dissect_ouch(
             break;
 
         case 'K': /* Price Correction */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1108,7 +1109,7 @@ dissect_ouch(
             break;
 
         case 'J': /* Rejected Order */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1127,7 +1128,7 @@ dissect_ouch(
             break;
 
         case 'P': /* Cancel Pending */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1140,7 +1141,7 @@ dissect_ouch(
             break;
 
         case 'I': /* Cancel Reject */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1153,7 +1154,7 @@ dissect_ouch(
             break;
 
         case 'T': /* Order Priority Update (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1184,7 +1185,7 @@ dissect_ouch(
             break;
 
         case 'm': /* Order Modified (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1229,7 +1230,7 @@ dissect_ouch(
  * code, and since we know that we're being called from SOUP, we can
  * check the passed-in length too: if the type code and the length
  * match, we guess at OUCH. */
-static gboolean
+static bool
 dissect_ouch_heur(
     tvbuff_t *tvb,
     packet_info *pinfo,
@@ -1242,114 +1243,114 @@ dissect_ouch_heur(
     switch (msg_type) {
     case 'O': /* Enter order (with or without optional customer type) */
         if (msg_len != 48 && msg_len != 49) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'U': /* Replace order or Replaced (4.0, 4.1) or Replaced (4.2) */
         if (msg_len != 47 && msg_len != 79 && msg_len != 80) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'X': /* Cancel order */
         if (msg_len != 19) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'M': /* Modify Order or Order Modified (added 4.2) */
         if (msg_len != 20 && msg_len != 28) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'S': /* System event */
         if (msg_len != 10) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'A': /* Accepted */
         if (msg_len != 65 && msg_len != 66) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'C': /* Canceled */
         if (msg_len != 28) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'D': /* AIQ Canceled */
         if (msg_len != 37) {
-            return FALSE;
+            return false;
         }
         break;
     case 'E': /* Executed */
         if (msg_len != 40) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'F': /* Trade Correction */
         if (msg_len != 41) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'G': /* Executed with Reference Price */
         if (msg_len != 45) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'B': /* Broken Trade */
         if (msg_len != 32) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'K': /* Correction */
         if (msg_len != 36) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'J': /* Rejected */
         if (msg_len != 24) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'P': /* Cancel Pending */
         if (msg_len != 23) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'I': /* Cancel Reject */
         if (msg_len != 23) {
-            return FALSE;
+            return false;
         }
         break;
 
     case 'T': /* Order Priority Update */
         if (msg_len != 36) {
-            return FALSE;
+            return false;
         }
         break;
 
     default:
         /* Not a known OUCH message code */
-        return FALSE;
+        return false;
     }
 
     /* Perform dissection of this (initial) packet */
     dissect_ouch(tvb, pinfo, tree, NULL);
 
-    return TRUE;
+    return true;
 }
 
 

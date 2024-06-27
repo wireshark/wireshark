@@ -6,12 +6,11 @@
  */
 
 #include "config.h"
+#include "ber.h"
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
-#include "ber.h"
-
 
 #define BER_CLASS_UNI   0
 #define BER_CLASS_APP   1

@@ -156,6 +156,11 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     return trailer_length;
 }
 
+static bool dissect_prp_redundancy_control_trailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
+{
+	return dissect_prp_redundancy_control_trailer(tvb, pinfo, parent_tree, data) > 0;
+}
+
 /* Register the protocol with Wireshark */
 void proto_register_prp(void)
 {
@@ -209,7 +214,7 @@ void proto_register_prp(void)
     proto_register_field_array(proto_prp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    heur_dissector_add("eth.trailer", dissect_prp_redundancy_control_trailer,
+    heur_dissector_add("eth.trailer", dissect_prp_redundancy_control_trailer_heur,
         "PRP Trailer", "prp_eth", proto_prp, HEURISTIC_ENABLE);
 }
 

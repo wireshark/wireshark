@@ -214,7 +214,7 @@ static expert_field ei_fp_expecting_tdd;
 static expert_field ei_fp_bad_payload_checksum;
 static expert_field ei_fp_e_rnti_t2_edch_frames;
 static expert_field ei_fp_crci_no_subdissector;
-static expert_field ei_fp_timing_adjustmentment_reported;
+static expert_field ei_fp_timing_adjustment_reported;
 static expert_field ei_fp_mac_is_sdus_miscount;
 static expert_field ei_fp_maybe_srb;
 static expert_field ei_fp_transport_channel_type_unknown;
@@ -1096,7 +1096,7 @@ dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
     }
 
-    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustmentment_reported, "Timing adjustmentment reported (%.3f ms)", ((float)(toa) / 8));
+    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustment_reported, "Timing adjustment reported (%.3f ms)", ((float)(toa) / 8));
 
     return offset;
 }
@@ -2205,7 +2205,7 @@ dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustmentment_reported, "Timing adjustmentment reported (%.3f ms)", ((float)(toa) / 8));
+    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustment_reported, "Timing adjustment reported (%.3f ms)", ((float)(toa) / 8));
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " CFN = %u, ToA = %d", cfn, toa);
@@ -4070,7 +4070,7 @@ set_both_sides_umts_fp_conv_data(packet_info *pinfo, umts_fp_conversation_info_t
 
 }
 static gboolean
-heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -4204,7 +4204,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     fp_fach_channel_info_t* fp_fach_channel_info;
@@ -4314,7 +4314,7 @@ heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     fp_fach_channel_info_t* fp_fach_channel_info;
@@ -4429,7 +4429,7 @@ heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     fp_rach_channel_info_t* fp_rach_channel_info;
@@ -4542,7 +4542,7 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -4755,7 +4755,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
 }
 static gboolean
-heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -4883,7 +4883,7 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -5050,7 +5050,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static gboolean
-heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -5223,7 +5223,7 @@ heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* fail since the FP conversation info is never attached */
 /* Useful for DCH streams containing CS data and don't have their own heuristic method */
 static gboolean
-heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -5318,42 +5318,42 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /* This method wraps the heuristic dissectors of all supported channels */
-static gboolean
-heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gboolean match;
 
     match = heur_dissect_fp_dcch_over_dch(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_fach1(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_fach2(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_rach(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_pch(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_hsdsch_type_1(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_hsdsch_type_2(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_edch_type_1(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     /* NOTE: Add new heuristic dissectors BEFORE the 'unknown format' dissector */
     /* since it might 'swallow' packets if the UDP stream is framed as 'CHANNEL_UNKNOWN' */
     match = heur_dissect_fp_unknown_format(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 static guint8 fakes =5; /*[] ={1,5,8};*/
@@ -7035,7 +7035,7 @@ void proto_register_fp(void)
         { &ei_fp_spare_extension, { "fp.spare-extension.expert", PI_UNDECODED, PI_WARN, "Spare Extension present (%u bytes)", EXPFILL }},
         { &ei_fp_bad_payload_checksum, { "fp.payload-crc.bad", PI_CHECKSUM, PI_WARN, "Bad payload checksum.", EXPFILL }},
         { &ei_fp_stop_hsdpa_transmission, { "fp.stop_hsdpa_transmission", PI_RESPONSE_CODE, PI_NOTE, "Stop HSDPA transmission", EXPFILL }},
-        { &ei_fp_timing_adjustmentment_reported, { "fp.timing_adjustmentment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustmentment reported (%.3f ms)", EXPFILL }},
+        { &ei_fp_timing_adjustment_reported, { "fp.timing_adjustment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustment reported (%.3f ms)", EXPFILL }},
         { &ei_fp_expecting_tdd, { "fp.expecting_tdd", PI_MALFORMED, PI_NOTE, "Error: expecting TDD-384 or TDD-768", EXPFILL }},
         { &ei_fp_ddi_not_defined, { "fp.ddi_not_defined", PI_MALFORMED, PI_ERROR, "DDI %u not defined for this UE!", EXPFILL }},
         { &ei_fp_unable_to_locate_ddi_entry, { "fp.unable_to_locate_ddi_entry", PI_UNDECODED, PI_ERROR, "Unable to locate DDI entry.", EXPFILL }},

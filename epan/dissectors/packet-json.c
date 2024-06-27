@@ -435,7 +435,7 @@ static proto_item*
 json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, packet_info* pinfo, gboolean use_compact)
 {
 	proto_item* ti;
-	int hf_id = -1;
+	int hf_id;
 
 	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(json_header_fields_hash, key_str);
 	if (json_data_decoder_rec == NULL) {
@@ -1029,8 +1029,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 			break;
 
 		case JSON_TOKEN_NUMBER:
-			/* XXX, convert to number */
-			proto_tree_add_item(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, ENC_ASCII);
+			proto_tree_add_double(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, g_ascii_strtod(value_str, NULL));
 
 			break;
 
@@ -1232,26 +1231,26 @@ init_json_parser(void) {
 }
 
 /* This function tries to understand if the payload is json or not */
-static gboolean
+static bool
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint len = tvb_captured_length(tvb);
 	const guint8* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
 
 	if (json_validate(buf, len) == FALSE)
-		return FALSE;
+		return false;
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
 }
 
 /* This function tries to understand if the payload is sitting on top of AC DR */
-static gboolean
+static bool
 dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
 	if (acdr_prot == ACDR_VoiceAI)
 		return dissect_json_heur(tvb, pinfo, tree, data);
-	return FALSE;
+	return false;
 }
 
 static void
@@ -1306,8 +1305,8 @@ proto_register_json(void)
 			  "JSON string value", HFILL }
 		},
 		{ &hf_json_value_number,
-			{ /* FT_DOUBLE/ FT_INT64? */ 	 "Number value", "json.value.number",
-			  FT_STRING, BASE_NONE, NULL, 0x00,
+			{ "Number value", "json.value.number",
+			  FT_DOUBLE, BASE_NONE, NULL, 0x00,
 			  "JSON number value", HFILL }
 		},
 		{ &hf_json_value_false,

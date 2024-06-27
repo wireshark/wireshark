@@ -899,17 +899,17 @@ dissect_lnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_lnet_ib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* We can tell if this is an LNet payload by looking at the first
      * 32-bit word for our magic number. */
     if (tvb_captured_length(tvb) < 4 || tvb_get_letohl(tvb, 0) != LNET_PROTO_IB_MAGIC)
         /* Not an LNet payload. */
-        return FALSE;
+        return false;
 
     dissect_lnet_message(tvb, pinfo, tree, GUINT_TO_POINTER(EXTRA_IB_HEADER_SIZE));
-    return TRUE;
+    return true;
 }
 
 void

@@ -40,9 +40,9 @@ static gint ett_rk512_measurement_data;
 static gint ett_rk512_measurement_data_value;
 static gint ett_rk512_continuous_data;
 
-static expert_field ei_rk512_reply_header = EI_INIT;
-static expert_field ei_rk512_data_type = EI_INIT;
-static expert_field ei_rk512_checksum = EI_INIT;
+static expert_field ei_rk512_reply_header;
+static expert_field ei_rk512_data_type;
+static expert_field ei_rk512_checksum;
 
 //Preferences
 static guint rk512_num_measurements_pts = 541;
@@ -122,7 +122,7 @@ dissect_rk512_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
 	proto_tree		*rk512_tree, *continous_data_tree, *measurement_tree;
 	proto_item		*ti, *header_item, *continous_data_item, *data_item;
-	int			offset = 0, start_offset;
+	int				offset = 0, start_offset;
 	guint32			tag, block_type, data_type, sub_data_type, size;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RK512");
@@ -224,7 +224,7 @@ dissect_rk512(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_captured_length(tvb);
 }
 
-static int
+static bool
 dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
 	gint signature_start, offset;
@@ -233,7 +233,7 @@ dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
 	signature_start = tvb_find_tvb(tvb, tvb_header_signature, 0);
 	if (signature_start == -1) {
-		return 0;
+		return false;
 	}
 
 	//keep track of the offset for verification of upcoming fields
@@ -241,27 +241,28 @@ dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
 	//Make sure there are enough bytes for the rest of the field checks
 	if (tvb_captured_length_remaining(tvb, offset) < 2)
-		return 0;
+		return false;
 
 	//Make sure it's supported block type
 	block_type = tvb_get_ntohs(tvb, offset);
 	if (try_val_to_str(block_type, data_block_type_vals) == NULL)
-		return 0;
+		return false;
 
 	offset += 2;
 	if (block_type == BLOCKNUM_CONTINUOUSDATA)
 	{
 		guint16 datatype;
 		if (tvb_captured_length_remaining(tvb, offset) < 18)
-			return 0;
+			return false;
 
 		datatype = tvb_get_ntohs(tvb, offset+14);
 		if (try_val_to_str(datatype, datatype_vals) == NULL)
-			return 0;
+			return false;
 	}
 
 	rk512_tvb = tvb_new_subset_remaining(tvb, signature_start);
-	return dissect_rk512(rk512_tvb, pinfo, tree, data);
+	dissect_rk512(rk512_tvb, pinfo, tree, data);
+	return true;
 }
 
 static void
@@ -273,7 +274,7 @@ rk512_shutdown(void)
 static void
 rk512_fmt_version( gchar *result, guint32 revision )
 {
-    snprintf( result, ITEM_LABEL_LENGTH, "%d.%d",
+		snprintf( result, ITEM_LABEL_LENGTH, "%d.%d",
 		(guint8)(revision & 0xFF), (guint8)(( revision & 0xFF00 ) >> 8));
 }
 
@@ -309,10 +310,10 @@ proto_register_rk512(void)
 			{ "Measurement datatype", "rk512.measurement.data_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rk512_measurement_data,
 			{ "Measurement data", "rk512.measurement.data", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-                { &hf_rk512_measurement_data_distance,
-                        { "Distance", "rk512.measurement.data.distance", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL } },
-                { &hf_rk512_measurement_data_flags,
-                        { "Flags", "rk512.measurement.data.flags", FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL } },
+		{ &hf_rk512_measurement_data_distance,
+			{ "Distance", "rk512.measurement.data.distance", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL } },
+		{ &hf_rk512_measurement_data_flags,
+			{ "Flags", "rk512.measurement.data.flags", FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL } },
 		{ &hf_rk512_checksum,
 			{ "Checksum", "rk512.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rk512_checksum_status,

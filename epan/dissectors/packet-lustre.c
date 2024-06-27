@@ -5804,7 +5804,7 @@ process_opcode_ost(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
          * REP: [OST_BODY][RCS]  */
         offset = dissect_struct_ost_body(tvb, offset, tree);
         if (pb_type == PTL_RPC_MSG_REQUEST) {
-            // @@ iooobj.buf_count determins number of niobufs
+            // @@ iooobj.buf_count determines number of niobufs
             // niobuf have BUFFERS after them
             offset = dissect_struct_obd_ioobj(tvb, offset, tree, LUSTRE_REC_OFF+1);
             offset = dissect_struct_niobuf_remote(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+2);

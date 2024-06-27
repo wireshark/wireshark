@@ -46,7 +46,7 @@ typedef struct {
 	GList		*data_link_types_rfmon; /* GList of data_link_info_t's */
 	GList		*timestamp_types;   /* GList of timestamp_info_t's */
 	int status;
-	char *primary_msg;   /* If non-NULL, the query failed, and a message explaing why */
+	char *primary_msg;   /* If non-NULL, the query failed, and a message explaining why */
 	const char *secondary_msg; /* An optional supplementary message */
 } if_capabilities_t;
 

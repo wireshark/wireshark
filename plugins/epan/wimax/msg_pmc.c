@@ -30,26 +30,26 @@ static int dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 static dissector_handle_t pmc_req_handle;
 static dissector_handle_t pmc_rsp_handle;
 
-static gint proto_mac_mgmt_msg_pmc_req_decoder;
-static gint proto_mac_mgmt_msg_pmc_rsp_decoder;
+static int proto_mac_mgmt_msg_pmc_req_decoder;
+static int proto_mac_mgmt_msg_pmc_rsp_decoder;
 
-static gint ett_mac_mgmt_msg_pmc_decoder;
+static int ett_mac_mgmt_msg_pmc_decoder;
 
 /* Setup protocol subtree array */
-static gint *ett[] =
+static int *ett[] =
 {
 	&ett_mac_mgmt_msg_pmc_decoder,
 };
 
 /* PMC fields */
-static gint hf_pmc_req_pwr_control_mode_change;
-static gint hf_pmc_req_pwr_control_mode_change_cor2;
-static gint hf_pmc_req_tx_power_level;
-static gint hf_pmc_req_confirmation;
-static gint hf_pmc_req_reserved;
-static gint hf_pmc_rsp_start_frame;
-static gint hf_pmc_rsp_power_adjust;
-static gint hf_pmc_rsp_offset_BS_per_MS;
+static int hf_pmc_req_pwr_control_mode_change;
+static int hf_pmc_req_pwr_control_mode_change_cor2;
+static int hf_pmc_req_tx_power_level;
+static int hf_pmc_req_confirmation;
+static int hf_pmc_req_reserved;
+static int hf_pmc_rsp_start_frame;
+static int hf_pmc_rsp_power_adjust;
+static int hf_pmc_rsp_offset_BS_per_MS;
 
 /* STRING RESOURCES */
 static const value_string vals_pmc_req_pwr[] = {
@@ -163,7 +163,7 @@ void proto_register_mac_mgmt_msg_pmc_rsp(void)
 /* Decode PMC-REQ messages. */
 static int dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *pmc_req_item;
 	proto_tree *pmc_req_tree;
 
@@ -188,12 +188,12 @@ static int dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinf
 /* Decode PMC-RSP messages. */
 static int dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *pmc_rsp_item;
 	proto_tree *pmc_rsp_tree;
-	guint8 pwr_control_mode;
-	gint8 value;
-	gfloat power_change;
+	uint8_t pwr_control_mode;
+	int8_t value;
+	float power_change;
 
 	{	/* we are being asked for details */
 

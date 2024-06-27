@@ -75,13 +75,11 @@ typedef struct _tap_rtp_stat_t {
     double          max_jitter;
     double          max_skew;
     double          mean_jitter;
-    uint32_t        max_nr;
-    uint16_t        start_seq_nr;
-    uint16_t        stop_seq_nr;
-    uint32_t        total_nr;
-    uint32_t        sequence;
-    bool            under;
-    int             seq_cycles;
+    uint32_t        max_nr; /**< The frame number of the last packet by timestamp */
+    uint32_t        start_seq_nr; /**< (extended) base_seq per RFC 3550 A.1 */
+    uint32_t        stop_seq_nr; /**< (extended) max_seq per RFC 3550 A.1 */
+    uint32_t        total_nr; /**< total number of received packets */
+    uint32_t        sequence; /**< total number of sequence errors */
     uint16_t        pt;
     int             reg_pt;
     uint32_t        first_packet_num;

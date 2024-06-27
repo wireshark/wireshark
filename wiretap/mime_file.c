@@ -17,6 +17,7 @@
  */
 
 #include "config.h"
+#include "mime_file.h"
 
 #include <sys/types.h>
 
@@ -31,7 +32,6 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
-#include "mime_file.h"
 
 typedef struct {
 	const uint8_t *magic;

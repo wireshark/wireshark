@@ -5607,7 +5607,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         wtap_compression_type compression_type,
         gboolean discard_comments, gboolean dont_reopen)
 {
-    gchar           *err_info;
+    gchar           *err_info = "Unknown error";
     gchar           *fname_new = NULL;
     wtap_dumper     *pdh;
     frame_data      *fdata;

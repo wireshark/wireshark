@@ -64,7 +64,7 @@ static gint ett_rlm;
 /* #define ???	?? */
 
 /* Code to actually dissect the packets */
-static gboolean
+static bool
 dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
@@ -75,17 +75,17 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	if (pinfo->srcport < 3000 || pinfo->srcport > 3015
 			|| pinfo->destport < 3000 || pinfo->destport > 3015
 			|| pinfo->destport != pinfo->srcport)
-		return FALSE;
+		return false;
 
 	if (tvb_captured_length(tvb) < 2)
-		return FALSE;
+		return false;
 
 	version  = tvb_get_guint8(tvb, 0);
 	rlm_type = tvb_get_guint8(tvb, 1);
 
 	/* we only know about version 2, and I've only seen 8 byte packets */
 	if (tvb_captured_length(tvb) != 8 || version != 2) {
-		return FALSE;
+		return false;
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLM");
@@ -126,7 +126,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		proto_tree_add_item(rlm_tree, hf_rlm_unknown2, tvb, 6, 2, ENC_BIG_ENDIAN);
 	}
 
-	return TRUE;
+	return true;
 }
 
 

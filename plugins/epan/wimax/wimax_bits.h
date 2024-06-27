@@ -55,7 +55,7 @@
 /* extract the word at the given nibble address 'n' of tvbuff_t 't' */
 #define TVB_NIB_WORD(n,t) \
     (n) & 1 \
-    ? (gint)((tvb_get_ntohl((t), (n)/2) >> 12) & 0x0000FFFF) \
+    ? (int)((tvb_get_ntohl((t), (n)/2) >> 12) & 0x0000FFFF) \
     : tvb_get_ntohs((t), (n)/2)
 
 /* extract the word at the given nibble address 'n' of tvbuff_t 't' */
@@ -155,11 +155,11 @@
       | TVB_BIT_BITS64b(bit,tvb,num) )
 
 #define TVB_BIT_BITS(bit, tvb, num) \
-    ((num) ==  1 ? (gint)TVB_BIT_BIT(bit,tvb) : \
-    ((num) <=  9 ? (gint)TVB_BIT_BITS16(bit,tvb,num) : \
-    ((num) <= 24 ? (gint)TVB_BIT_BITS32(bit,tvb,num) : \
-    ((num) <= 32 ? (gint)TVB_BIT_BITS64(bit,tvb,num) : \
-                   (gint)0 ))))
+    ((num) ==  1 ? (int)TVB_BIT_BIT(bit,tvb) : \
+    ((num) <=  9 ? (int)TVB_BIT_BITS16(bit,tvb,num) : \
+    ((num) <= 24 ? (int)TVB_BIT_BITS32(bit,tvb,num) : \
+    ((num) <= 32 ? (int)TVB_BIT_BITS64(bit,tvb,num) : \
+                   (int)0 ))))
 
 /* to highlight bitfields correctly in wireshark
  * AddItem(..., WSADDR(buf,bit), WSLEN(bit), ...) */

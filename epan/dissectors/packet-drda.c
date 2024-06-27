@@ -2632,7 +2632,7 @@ dissect_drda_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 
-static gboolean
+static bool
 dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t * conversation;
@@ -2650,10 +2650,10 @@ dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             /* Dissect the packet */
             dissect_drda_tcp(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 void

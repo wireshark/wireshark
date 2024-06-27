@@ -7057,15 +7057,15 @@ test_wassp(tvbuff_t *tvb)
 
 
 
-static gboolean
+static bool
 dissect_wassp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (!test_wassp(tvb))
 	{
-		return FALSE;
+		return false;
 	}
 	dissect_wassp(tvb, pinfo, tree);
-	return TRUE;
+	return true;
 }
 
 static int

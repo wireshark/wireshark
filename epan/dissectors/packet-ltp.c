@@ -1046,7 +1046,7 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 	ltp_rpt_ack_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, -1,
 												ett_rpt_ack_segm, &ltp_rpt_ack_item, "Report Ack Segment");
 
-	/* Extracing receipt serial number info */
+	/* Extracting receipt serial number info */
 	item_rpt_sno = add_sdnv64_to_tree(ltp_rpt_ack_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_ack_sno, &rpt_sno, &rpt_sno_size);
 	segment_offset += rpt_sno_size;
 
@@ -1364,13 +1364,13 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	return offset;
 }
 
-static gboolean
+static bool
 dissect_ltp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const int packet_len = tvb_reported_length(tvb);
 	if (packet_len <= LTP_MIN_DATA_BUFFER)
 	{
-		return FALSE;
+		return false;
 	}
 
 	int offset = 0;
@@ -1393,11 +1393,11 @@ dissect_ltp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	ENDTRY;
 	if (offset != packet_len)
 	{
-		return FALSE;
+		return false;
 	}
 
 	dissect_ltp(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 /// Conversation address for the session receiver
@@ -1581,17 +1581,17 @@ static int st_node_blks = -1;
 static void
 ltp_stats_tree_init(stats_tree *st)
 {
-	st_node_segs = stats_tree_create_node(st, st_str_segs, 0, STAT_DT_INT, FALSE);
-	st_node_red = stats_tree_create_node(st, st_str_red, st_node_segs, STAT_DT_INT, TRUE);
-	stats_tree_create_node(st, st_str_corr_orig, st_node_red, STAT_DT_INT, FALSE);
-	stats_tree_create_node(st, st_str_corr_ret, st_node_red, STAT_DT_INT, FALSE);
-	st_node_green = stats_tree_create_node(st, st_str_green, st_node_segs, STAT_DT_INT, FALSE);
-	st_node_rpt = stats_tree_create_node(st, st_str_rpt, st_node_segs, STAT_DT_INT, TRUE);
-	stats_tree_create_node(st, st_str_corr_orig, st_node_rpt, STAT_DT_INT, FALSE);
-	stats_tree_create_node(st, st_str_corr_ret, st_node_rpt, STAT_DT_INT, FALSE);
-	stats_tree_create_node(st, st_str_canc_src, st_node_segs, STAT_DT_INT, FALSE);
-	stats_tree_create_node(st, st_str_canc_dst, st_node_segs, STAT_DT_INT, FALSE);
-	stats_tree_create_node(st, st_str_ack, st_node_segs, STAT_DT_INT, FALSE);
+	st_node_segs = stats_tree_create_node(st, st_str_segs, 0, STAT_DT_INT, false);
+	st_node_red = stats_tree_create_node(st, st_str_red, st_node_segs, STAT_DT_INT, true);
+	stats_tree_create_node(st, st_str_corr_orig, st_node_red, STAT_DT_INT, false);
+	stats_tree_create_node(st, st_str_corr_ret, st_node_red, STAT_DT_INT, false);
+	st_node_green = stats_tree_create_node(st, st_str_green, st_node_segs, STAT_DT_INT, false);
+	st_node_rpt = stats_tree_create_node(st, st_str_rpt, st_node_segs, STAT_DT_INT, true);
+	stats_tree_create_node(st, st_str_corr_orig, st_node_rpt, STAT_DT_INT, false);
+	stats_tree_create_node(st, st_str_corr_ret, st_node_rpt, STAT_DT_INT, false);
+	stats_tree_create_node(st, st_str_canc_src, st_node_segs, STAT_DT_INT, false);
+	stats_tree_create_node(st, st_str_canc_dst, st_node_segs, STAT_DT_INT, false);
+	stats_tree_create_node(st, st_str_ack, st_node_segs, STAT_DT_INT, false);
 
 	st_node_engs = stats_tree_create_pivot(st, st_str_engs, 0);
 	st_node_blks = stats_tree_create_pivot(st, st_str_blks, 0);
@@ -1602,7 +1602,7 @@ ltp_stats_tree_packet(stats_tree *st, packet_info *pinfo _U_, epan_dissect_t *ed
 {
 	const ltp_tap_info_t *tap = (const ltp_tap_info_t *)p;
 
-	tick_stat_node(st, st_str_segs, 0, FALSE);
+	tick_stat_node(st, st_str_segs, 0, false);
 
 	switch (tap->seg_type)
 	{
@@ -1610,37 +1610,37 @@ ltp_stats_tree_packet(stats_tree *st, packet_info *pinfo _U_, epan_dissect_t *ed
 	case 0x1:
 	case 0x2:
 	case 0x3:
-		avg_stat_node_add_value_int(st, st_str_red, 0, FALSE, tap->seg_size);
-		avg_stat_node_add_value_int(st, tap->corr_orig ? st_str_corr_orig : st_str_corr_ret, st_node_red, TRUE, tap->seg_size);
+		avg_stat_node_add_value_int(st, st_str_red, 0, false, tap->seg_size);
+		avg_stat_node_add_value_int(st, tap->corr_orig ? st_str_corr_orig : st_str_corr_ret, st_node_red, true, tap->seg_size);
 		break;
 	case 0x4:
 	case 0x7:
-		avg_stat_node_add_value_int(st, st_str_green, 0, FALSE, tap->seg_size);
+		avg_stat_node_add_value_int(st, st_str_green, 0, false, tap->seg_size);
 		break;
 	case 0x8:
-		avg_stat_node_add_value_int(st, st_str_rpt, 0, FALSE, tap->seg_size);
-		avg_stat_node_add_value_int(st, tap->corr_orig ? st_str_corr_orig : st_str_corr_ret, st_node_rpt, TRUE, tap->seg_size);
+		avg_stat_node_add_value_int(st, st_str_rpt, 0, false, tap->seg_size);
+		avg_stat_node_add_value_int(st, tap->corr_orig ? st_str_corr_orig : st_str_corr_ret, st_node_rpt, true, tap->seg_size);
 		break;
 	case 0xc:
-		avg_stat_node_add_value_int(st, st_str_canc_src, 0, FALSE, tap->seg_size);
+		avg_stat_node_add_value_int(st, st_str_canc_src, 0, false, tap->seg_size);
 		break;
 	case 0xe:
-		avg_stat_node_add_value_int(st, st_str_canc_dst, 0, FALSE, tap->seg_size);
+		avg_stat_node_add_value_int(st, st_str_canc_dst, 0, false, tap->seg_size);
 		break;
 	case 0x9:
 	case 0xd:
 	case 0xf:
-		avg_stat_node_add_value_int(st, st_str_ack, 0, FALSE, tap->seg_size);
+		avg_stat_node_add_value_int(st, st_str_ack, 0, false, tap->seg_size);
 		break;
 	}
 
-	tick_stat_node(st, st_str_engs, 0, TRUE);
+	tick_stat_node(st, st_str_engs, 0, true);
 	const char *eng_id = wmem_strdup_printf(pinfo->pool, "%" PRIu64, tap->sess_id.orig_eng_id);
-	int st_eng_id = tick_stat_node(st, eng_id, st_node_engs, TRUE);
+	int st_eng_id = tick_stat_node(st, eng_id, st_node_engs, true);
 	if (tap->block_size > 0)
 	{
-		avg_stat_node_add_value_int(st, st_str_blks, 0, TRUE, tap->block_size);
-		avg_stat_node_add_value_int(st, eng_id, st_node_blks, FALSE, tap->block_size);
+		avg_stat_node_add_value_int(st, st_str_blks, 0, true, tap->block_size);
+		avg_stat_node_add_value_int(st, eng_id, st_node_blks, false, tap->block_size);
 	}
 
 	const address *eng_addr = NULL;
@@ -1666,7 +1666,7 @@ ltp_stats_tree_packet(stats_tree *st, packet_info *pinfo _U_, epan_dissect_t *ed
 	const gchar *eng_addr_str = eng_addr ? address_to_display(pinfo->pool, eng_addr) : NULL;
 	if (eng_addr_str)
 	{
-		tick_stat_node(st, eng_addr_str, st_eng_id, FALSE);
+		tick_stat_node(st, eng_addr_str, st_eng_id, false);
 	}
 
 	return TAP_PACKET_REDRAW;

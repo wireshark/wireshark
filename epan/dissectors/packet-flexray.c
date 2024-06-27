@@ -241,8 +241,8 @@ flexray_set_source_and_destination_columns(packet_info *pinfo, flexray_info_t *f
         clear_address(&pinfo->dl_dst);
         clear_address(&pinfo->dst);
 
-        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "%s", tmp->sender_name);
-        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "%s", tmp->receiver_name);
+        col_add_str(pinfo->cinfo, COL_DEF_SRC, tmp->sender_name);
+        col_add_str(pinfo->cinfo, COL_DEF_DST, tmp->receiver_name);
         return true;
     }
     return false;

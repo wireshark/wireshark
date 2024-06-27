@@ -7,13 +7,13 @@
  */
 
 #include "config.h"
+#include "i4btrace.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "i4b_trace.h"
-#include "i4btrace.h"
 
 typedef struct {
 	bool byte_swapped;

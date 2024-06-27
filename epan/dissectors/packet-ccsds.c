@@ -23,8 +23,8 @@ void proto_reg_handoff_ccsds(void);
 /*
  * See
  *
- *  http://public.ccsds.org/publications/archive/133x0b1c1.pdf section 4.1  -- CCSDS 133.0-B-1 replaces CCSDS 701.0-B-2
- *  http://www.everyspec.com/NASA/NASA+-+JSC/NASA+-+SSP+PUBS/download.php?spec=SSP_52050E.003096.pdf section 3.1.3
+ *  https://public.ccsds.org/Pubs/133x0b1s.pdf section 4.1  -- CCSDS 133.0-B-1 replaces CCSDS 701.0-B-2
+ *  http://everyspec.com/NASA/NASA-JSC/NASA-SSP-PUBS/download.php?spec=SSP_52050E.003096.pdf section 3.1.3
  *
  * for some information.
  */

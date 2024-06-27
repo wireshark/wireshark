@@ -35,7 +35,7 @@ enum sdp_trace_id_hf_type
 /*
  *  Information needed to set up a trace id in RTP(t ex SIP CallId )
  */
-#define SDP_INFO_OFFSET 10 /* Max number of SDP data occurensies in a single frame */
+#define SDP_INFO_OFFSET 10 /* Max number of SDP data occurrences in a single frame */
 
 typedef struct _sdp_setup_info {
     int  hf_id;                         /* Header field to use */

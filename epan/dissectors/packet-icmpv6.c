@@ -4388,7 +4388,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             heur_dtbl_entry_t *hdtbl_entry;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            gboolean result = dissector_try_heuristic(icmpv6_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
+            bool result = dissector_try_heuristic(icmpv6_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
             if (!result) {
                 offset += call_data_dissector(next_tvb, pinfo, icmp6_tree);
             }

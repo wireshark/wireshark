@@ -13,5 +13,5 @@
 **
 ******************************************************************************/
 
-void dispatchService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int ServiceId);
+void dispatchService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int ServiceId);
 

@@ -1,4 +1,4 @@
-Wireshark 4.3.0 (v4.3.0rc0-87-g9c90105c365a)
+Wireshark 4.3.0 (v4.3.0rc1-45-gc1fe4ce86d11)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -51,7 +51,7 @@ Processing:
   -R <read filter>, --read-filter <read filter>
                            packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
+  -N <name resolve flags>  enable specific name resolution(s): "mtndsNvg"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
                            "Decode As", see the man page for details
                            Example: tcp.port==8888,http
@@ -86,6 +86,8 @@ User interface:
 
 Output:
   -w <outfile|->           set the output filename (or '-' for stdout)
+  -F <capture type>        set the output file type; default is pcapng.
+                           an empty "-F" option will list the file types.
   --capture-comment <comment>
                            add a capture file comment, if supported
   --temp-dir <directory>   write temporary files to this directory

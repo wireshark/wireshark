@@ -22,6 +22,8 @@
  */
 
 #include "config.h"
+#include "peekclassic.h"
+
 #include <string.h>
 
 #include <wsutil/epochs.h>
@@ -30,7 +32,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "peekclassic.h"
 
 /* CREDITS
  *

@@ -7,8 +7,8 @@
  */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "dbs-etherwatch.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #include <stdlib.h>

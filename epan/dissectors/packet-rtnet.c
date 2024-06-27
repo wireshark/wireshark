@@ -391,7 +391,7 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMA-V1");
 
   /* set the info column */
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(msg, tdma_v1_msg_vals, "Unknown (0x%04x)"));
 
   if (root) {
@@ -506,7 +506,7 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMA");
 
   /* Set the info column */
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_str(pinfo->cinfo, COL_INFO,
                  val_to_str(msg, tdma_msg_vals, "Unknown (0x%04x)"));
 
   if (root) {
@@ -672,7 +672,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   vers_id = tvb_get_guint8(tvb, offset);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_str(pinfo->cinfo, COL_INFO,
            val_to_str(vers_id, rtcfg_msg_vals, "Unknown (0x%04x)"));
 
   if( rtcfg_tree )

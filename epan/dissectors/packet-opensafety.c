@@ -2400,10 +2400,10 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     return ( handled ? TRUE : FALSE );
 }
 
-static gboolean
+static bool
 dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data )
 {
-    gboolean        result     = FALSE;
+    bool             result     = false;
     proto_tree      *epl_tree = NULL;
     guint8  epl_msgtype = 0;
 
@@ -2428,7 +2428,7 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
         /* We check if we have a asynchronous message, or a synchronous message. In case of
          * asynchronous messages, SPDO packages are not valid. */
 
-        result = opensafety_package_dissector("openSAFETY/Powerlink", "",
+        result = (bool)opensafety_package_dissector("openSAFETY/Powerlink", "",
                 FALSE, FALSE, 0, message_tvb, pinfo, epl_tree, epl_msgtype );
 
         bDissector_Called_Once_Before = FALSE;
@@ -2473,6 +2473,12 @@ dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
     return result;
 }
 
+static bool
+dissect_opensafety_siii_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return (bool)dissect_opensafety_siii(tvb, pinfo, tree, data);
+}
+
 static gboolean
 dissect_opensafety_pn_io(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
@@ -2491,6 +2497,13 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
 
     return result;
 }
+
+static bool
+dissect_opensafety_pn_io_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return (bool)dissect_opensafety_pn_io(tvb, pinfo, tree, data);
+}
+
 
 static gboolean
 dissect_opensafety_mbtcp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
@@ -3097,7 +3110,7 @@ proto_reg_handoff_opensafety(void)
 
     /* EPL & SercosIII dissector registration */
     heur_dissector_add("epl_data",  dissect_opensafety_epl, "openSAFETY over EPL", "opensafety_epl_data", proto_opensafety, HEURISTIC_ENABLE);
-    heur_dissector_add("sercosiii", dissect_opensafety_siii, "openSAFETY over SercosIII", "opensafety_sercosiii", proto_opensafety, HEURISTIC_ENABLE);
+    heur_dissector_add("sercosiii", dissect_opensafety_siii_heur, "openSAFETY over SercosIII", "opensafety_sercosiii", proto_opensafety, HEURISTIC_ENABLE);
 
     /* Modbus TCP dissector registration */
     dissector_add_string("modbus.data", "data", opensafety_mbtcp_handle);
@@ -3108,7 +3121,7 @@ proto_reg_handoff_opensafety(void)
      */
     if ( find_dissector("pn_io") != NULL )
     {
-        heur_dissector_add("pn_io", dissect_opensafety_pn_io, "openSAFETY over Profinet", "opensafety_pn_io", proto_opensafety, HEURISTIC_DISABLE);
+        heur_dissector_add("pn_io", dissect_opensafety_pn_io_heur, "openSAFETY over Profinet", "opensafety_pn_io", proto_opensafety, HEURISTIC_DISABLE);
     }
     else
     {

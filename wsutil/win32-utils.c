@@ -53,7 +53,7 @@ protect_arg (const char *argv)
         p++;
     }
 
-    q = new_arg = g_malloc (len + need_dblquotes*2 + 1);
+    q = new_arg = g_malloc (len + (need_dblquotes ? 2 : 0) + 1);
     p = argv;
 
     if (need_dblquotes)

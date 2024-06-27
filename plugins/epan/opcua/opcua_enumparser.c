@@ -22,34 +22,34 @@
 
 #include "opcua_enumparser.h"
 
-gint ett_opcua_array_NodeIdType;
-gint ett_opcua_array_NamingRuleType;
-gint ett_opcua_array_OpenFileMode;
-gint ett_opcua_array_TrustListMasks;
-gint ett_opcua_array_IdType;
-gint ett_opcua_array_NodeClass;
-gint ett_opcua_array_ApplicationType;
-gint ett_opcua_array_MessageSecurityMode;
-gint ett_opcua_array_UserTokenType;
-gint ett_opcua_array_SecurityTokenRequestType;
-gint ett_opcua_array_NodeAttributesMask;
-gint ett_opcua_array_AttributeWriteMask;
-gint ett_opcua_array_BrowseDirection;
-gint ett_opcua_array_BrowseResultMask;
-gint ett_opcua_array_ComplianceLevel;
-gint ett_opcua_array_FilterOperator;
-gint ett_opcua_array_TimestampsToReturn;
-gint ett_opcua_array_HistoryUpdateType;
-gint ett_opcua_array_PerformUpdateType;
-gint ett_opcua_array_MonitoringMode;
-gint ett_opcua_array_DataChangeTrigger;
-gint ett_opcua_array_DeadbandType;
-gint ett_opcua_array_EnumeratedTestType;
-gint ett_opcua_array_RedundancySupport;
-gint ett_opcua_array_ServerState;
-gint ett_opcua_array_ModelChangeStructureVerbMask;
-gint ett_opcua_array_AxisScaleEnumeration;
-gint ett_opcua_array_ExceptionDeviationFormat;
+int ett_opcua_array_NodeIdType;
+int ett_opcua_array_NamingRuleType;
+int ett_opcua_array_OpenFileMode;
+int ett_opcua_array_TrustListMasks;
+int ett_opcua_array_IdType;
+int ett_opcua_array_NodeClass;
+int ett_opcua_array_ApplicationType;
+int ett_opcua_array_MessageSecurityMode;
+int ett_opcua_array_UserTokenType;
+int ett_opcua_array_SecurityTokenRequestType;
+int ett_opcua_array_NodeAttributesMask;
+int ett_opcua_array_AttributeWriteMask;
+int ett_opcua_array_BrowseDirection;
+int ett_opcua_array_BrowseResultMask;
+int ett_opcua_array_ComplianceLevel;
+int ett_opcua_array_FilterOperator;
+int ett_opcua_array_TimestampsToReturn;
+int ett_opcua_array_HistoryUpdateType;
+int ett_opcua_array_PerformUpdateType;
+int ett_opcua_array_MonitoringMode;
+int ett_opcua_array_DataChangeTrigger;
+int ett_opcua_array_DeadbandType;
+int ett_opcua_array_EnumeratedTestType;
+int ett_opcua_array_RedundancySupport;
+int ett_opcua_array_ServerState;
+int ett_opcua_array_ModelChangeStructureVerbMask;
+int ett_opcua_array_AxisScaleEnumeration;
+int ett_opcua_array_ExceptionDeviationFormat;
 
 /** NodeIdType enum table */
 static const value_string g_NodeIdTypeTable[] = {
@@ -63,7 +63,7 @@ static const value_string g_NodeIdTypeTable[] = {
 };
 static int hf_opcua_NodeIdType;
 
-void parseNodeIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseNodeIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_NodeIdType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -76,7 +76,7 @@ static const value_string g_NamingRuleTypeTable[] = {
 };
 static int hf_opcua_NamingRuleType;
 
-void parseNamingRuleType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseNamingRuleType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_NamingRuleType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -90,7 +90,7 @@ static const value_string g_OpenFileModeTable[] = {
 };
 static int hf_opcua_OpenFileMode;
 
-void parseOpenFileMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseOpenFileMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_OpenFileMode, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -106,7 +106,7 @@ static const value_string g_TrustListMasksTable[] = {
 };
 static int hf_opcua_TrustListMasks;
 
-void parseTrustListMasks(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseTrustListMasks(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_TrustListMasks, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -120,7 +120,7 @@ static const value_string g_IdTypeTable[] = {
 };
 static int hf_opcua_IdType;
 
-void parseIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_IdType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -139,7 +139,7 @@ static const value_string g_NodeClassTable[] = {
 };
 static int hf_opcua_NodeClass;
 
-void parseNodeClass(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseNodeClass(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_NodeClass, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -153,7 +153,7 @@ static const value_string g_ApplicationTypeTable[] = {
 };
 static int hf_opcua_ApplicationType;
 
-void parseApplicationType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseApplicationType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_ApplicationType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -167,7 +167,7 @@ static const value_string g_MessageSecurityModeTable[] = {
 };
 static int hf_opcua_MessageSecurityMode;
 
-void parseMessageSecurityMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseMessageSecurityMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_MessageSecurityMode, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -182,7 +182,7 @@ static const value_string g_UserTokenTypeTable[] = {
 };
 static int hf_opcua_UserTokenType;
 
-void parseUserTokenType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseUserTokenType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_UserTokenType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -194,7 +194,7 @@ static const value_string g_SecurityTokenRequestTypeTable[] = {
 };
 static int hf_opcua_SecurityTokenRequestType;
 
-void parseSecurityTokenRequestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseSecurityTokenRequestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_SecurityTokenRequestType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -236,7 +236,7 @@ static const value_string g_NodeAttributesMaskTable[] = {
 };
 static int hf_opcua_NodeAttributesMask;
 
-void parseNodeAttributesMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseNodeAttributesMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_NodeAttributesMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -273,7 +273,7 @@ static const value_string g_AttributeWriteMaskTable[] = {
 };
 static int hf_opcua_AttributeWriteMask;
 
-void parseAttributeWriteMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseAttributeWriteMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_AttributeWriteMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -287,7 +287,7 @@ static const value_string g_BrowseDirectionTable[] = {
 };
 static int hf_opcua_BrowseDirection;
 
-void parseBrowseDirection(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseBrowseDirection(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_BrowseDirection, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -302,7 +302,7 @@ static const value_string g_ComplianceLevelTable[] = {
 };
 static int hf_opcua_ComplianceLevel;
 
-void parseComplianceLevel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseComplianceLevel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_ComplianceLevel, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -330,7 +330,7 @@ static const value_string g_FilterOperatorTable[] = {
 };
 static int hf_opcua_FilterOperator;
 
-void parseFilterOperator(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseFilterOperator(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_FilterOperator, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -345,7 +345,7 @@ static const value_string g_TimestampsToReturnTable[] = {
 };
 static int hf_opcua_TimestampsToReturn;
 
-void parseTimestampsToReturn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseTimestampsToReturn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_TimestampsToReturn, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -359,7 +359,7 @@ static const value_string g_HistoryUpdateTypeTable[] = {
 };
 static int hf_opcua_HistoryUpdateType;
 
-void parseHistoryUpdateType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseHistoryUpdateType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_HistoryUpdateType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -373,7 +373,7 @@ static const value_string g_PerformUpdateTypeTable[] = {
 };
 static int hf_opcua_PerformUpdateType;
 
-void parsePerformUpdateType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parsePerformUpdateType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_PerformUpdateType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -386,7 +386,7 @@ static const value_string g_MonitoringModeTable[] = {
 };
 static int hf_opcua_MonitoringMode;
 
-void parseMonitoringMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseMonitoringMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_MonitoringMode, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -399,7 +399,7 @@ static const value_string g_DataChangeTriggerTable[] = {
 };
 static int hf_opcua_DataChangeTrigger;
 
-void parseDataChangeTrigger(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseDataChangeTrigger(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_DataChangeTrigger, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -412,7 +412,7 @@ static const value_string g_DeadbandTypeTable[] = {
 };
 static int hf_opcua_DeadbandType;
 
-void parseDeadbandType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseDeadbandType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_DeadbandType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -425,7 +425,7 @@ static const value_string g_EnumeratedTestTypeTable[] = {
 };
 static int hf_opcua_EnumeratedTestType;
 
-void parseEnumeratedTestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseEnumeratedTestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_EnumeratedTestType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -441,7 +441,7 @@ static const value_string g_RedundancySupportTable[] = {
 };
 static int hf_opcua_RedundancySupport;
 
-void parseRedundancySupport(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseRedundancySupport(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_RedundancySupport, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -459,7 +459,7 @@ static const value_string g_ServerStateTable[] = {
 };
 static int hf_opcua_ServerState;
 
-void parseServerState(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseServerState(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_ServerState, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -474,7 +474,7 @@ static const value_string g_ModelChangeStructureVerbMaskTable[] = {
 };
 static int hf_opcua_ModelChangeStructureVerbMask;
 
-void parseModelChangeStructureVerbMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseModelChangeStructureVerbMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_ModelChangeStructureVerbMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -487,7 +487,7 @@ static const value_string g_AxisScaleEnumerationTable[] = {
 };
 static int hf_opcua_AxisScaleEnumeration;
 
-void parseAxisScaleEnumeration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseAxisScaleEnumeration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_AxisScaleEnumeration, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -502,7 +502,7 @@ static const value_string g_ExceptionDeviationFormatTable[] = {
 };
 static int hf_opcua_ExceptionDeviationFormat;
 
-void parseExceptionDeviationFormat(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseExceptionDeviationFormat(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_ExceptionDeviationFormat, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
@@ -539,13 +539,13 @@ static const value_string g_AttributeIdTable[] = {
 };
 static int hf_opcua_AttributeId;
 
-void parseAttributeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseAttributeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_AttributeId, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset += 4;
 }
 
 /** Setup enum subtree array */
-static gint *ett[] =
+static int *ett[] =
 {
     &ett_opcua_array_NodeIdType,
     &ett_opcua_array_NamingRuleType,

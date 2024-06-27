@@ -7,6 +7,8 @@
  */
 
 #include "config.h"
+#include "netmon.h"
+
 #include <errno.h>
 #include <string.h>
 #include <wsutil/unicode-utils.h>
@@ -14,7 +16,6 @@
 #include "file_wrappers.h"
 #include "atm.h"
 #include "pcap-encap.h"
-#include "netmon.h"
 
 /* The file at
  *

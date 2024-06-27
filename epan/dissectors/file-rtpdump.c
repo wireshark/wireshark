@@ -227,7 +227,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     return tvb_len;
 }
 
-static gboolean
+static bool
 dissect_rtpdump_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
     return dissect_rtpdump(tvb, pinfo, parent_tree, data) > 0;
