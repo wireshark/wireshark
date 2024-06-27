@@ -31,7 +31,6 @@ void proto_reg_handoff_mac_lte(void);
 
 /* TODO:
  * - use proto_tree_add_bitmask..() APIs for sets of bits where possible
- * - add a field mac-lte.lcid that can filter in both directions
  */
 
 /* Initialize the protocol and registered fields. */
@@ -123,6 +122,7 @@ static int hf_mac_lte_slsch_subheader;
 
 static int hf_mac_lte_sch_reserved;
 static int hf_mac_lte_sch_format2;
+static int hf_mac_lte_lcid;
 static int hf_mac_lte_dlsch_lcid;
 static int hf_mac_lte_ulsch_lcid;
 static int hf_mac_lte_sch_extended;
@@ -4765,6 +4765,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* Also add LCID as a hidden, direction-less field */
+            proto_item *bi_di_lcid = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_lcid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_item_set_hidden(bi_di_lcid);
+
             if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                          "(%s",
@@ -4778,6 +4782,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Downlink */
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* Also add LCID as a hidden, direction-less field */
+            proto_item *bi_di_lcid = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_lcid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_item_set_hidden(bi_di_lcid);
+
             if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                          "(%s",
@@ -4874,6 +4882,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             elcids[number_of_headers] = elcid + 32;
             proto_tree_add_uint_format_value(pdu_subheader_tree, hf_mac_lte_sch_elcid, tvb, offset,
                                              1, elcid, "%u (%u)", elcids[number_of_headers], elcid);
+            /* Also add hidden as LCID */
+            proto_item *bi_di_lcid = proto_tree_add_uint(pdu_subheader_tree, hf_mac_lte_lcid, tvb, offset, 1, elcids[number_of_headers]);
+            proto_item_set_hidden(bi_di_lcid);
             offset++;
         }
 
@@ -8726,6 +8737,13 @@ void proto_register_mac_lte(void)
             { "Extension",
               "mac-lte.sch.extended", FT_UINT8, BASE_HEX, NULL, 0x20,
               "Extension - i.e. further headers after this one", HFILL
+            }
+        },
+        /* Will be hidden, but useful for bi-directional filtering */
+        { &hf_mac_lte_lcid,
+            { "LCID",
+              "mac-lte.lcid", FT_UINT8, BASE_HEX, NULL, 0x1f,
+              "Logical Channel Identifier", HFILL
             }
         },
         { &hf_mac_lte_dlsch_lcid,
