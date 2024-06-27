@@ -326,7 +326,8 @@ all the optional components other than
 
 * “MSVC ... VS 2022 {cpp}” item with the “... build tools (Latest)”
 * “Windows 11 SDK”
-* “{cpp} CMake tools for Windows"
+* “{cpp} CMake tools for Windows”
+* “MSVC ... Spectre-mitigated libs” (optional)
 
 (unless you want to use them for purposes other than Wireshark).
 
@@ -347,11 +348,9 @@ variants. For details see <<ChToolsMSChain>>.
 
 You may have to do this as Administrator.
 
-Compiling with gcc or Clang is not recommended and will
-certainly not work (at least not without a lot of advanced
-tweaking). For further details on this topic, see
-<<ChToolsGNUChain>>. This may change in future as releases
-of Visual Studio add more cross-platform support.
+It might be possible to build Wireshark using https://clang.llvm.org/docs/MSVCCompatibility.html[clang-cl], but this has not been tested.
+Compiling with plain gcc or Clang is not recommended and will certainly not work (at least not without a lot of advanced tweaking).
+For further details on this topic, see <<ChToolsGNUChain>>. This may change in future as releases of Visual Studio add more cross-platform support.
 
 // XXX - mention the compiler and PSDK web installers -
 // which significantly reduce download size - and find out the
