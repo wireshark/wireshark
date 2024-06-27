@@ -1726,7 +1726,7 @@ typedef struct dynamic_lcid_drb_mapping_t {
 
 typedef struct ue_dynamic_drb_mappings_t {
     dynamic_lcid_drb_mapping_t mapping[39];  /* Index is LCID */
-    guint8 drb_to_lcid_mappings[32];         /* Also map drbid -> lcid */
+    guint8 drb_to_lcid_mappings[33];         /* Also map drbid -> lcid */
 } ue_dynamic_drb_mappings_t;
 
 static GHashTable *mac_lte_ue_channels_hash;
@@ -8287,6 +8287,42 @@ static guint8 get_mac_lte_channel_priority(guint16 ueid, guint8 lcid,
         return ue_mappings->mapping[lcid].ul_priority;
     }
 }
+
+/* Return mode of bearer, or 0 if not found/known */
+guint8 get_mac_lte_channel_mode(guint16 ueid, guint8 drbid)
+{
+    ue_dynamic_drb_mappings_t *ue_mappings;
+
+    /* Look up the mappings for this UE */
+    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
+    if (!ue_mappings) {
+        return 0;
+    }
+
+    if (drbid > 32) {
+        return 0;
+    }
+    /* Need sensible lcid */
+    guint8 lcid = ue_mappings->drb_to_lcid_mappings[drbid];
+    if (lcid < 3) {
+        /* Not valid */
+        return 0;
+    }
+
+    /* Lcid needs ot have mapping */
+    if (!ue_mappings->mapping[lcid].valid) {
+        return 0;
+    }
+    rlc_channel_type_t channel_type = ue_mappings->mapping[lcid].channel_type;
+    /* What mode does the channel type correspond to? */
+    if (channel_type >= rlcAM)  {
+        return RLC_AM_MODE;
+    }
+    else {
+        return RLC_UM_MODE;
+    }
+}
+
 
 /* Configure the DRX state for this UE (from RRC) */
 void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo)

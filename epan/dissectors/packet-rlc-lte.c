@@ -411,7 +411,7 @@ typedef struct
     struct rlc_channel_reassembly_info *reassembly_info;
 } channel_sequence_analysis_status;
 
-/* The sequence analysis channel hash table */
+/* The sequence analysis channel hash table (channel_hash_key* -> channel_sequence_analysis_status*) */
 static wmem_map_t *sequence_analysis_channel_hash;
 
 
@@ -442,7 +442,8 @@ typedef struct
 } sequence_analysis_report;
 
 
-/* The sequence analysis frame report hash table instance itself   */
+/* The sequence analysis frame report hash table instance itself, lookup when visited */
+/* rlc_result_hash_key* -> sequence_analysis_report* */
 static wmem_map_t *sequence_analysis_report_hash;
 
 
@@ -3135,6 +3136,59 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid,
     params->ext_li_field = ul_ext_li_field ? UL_EXT_LI : NO_EXT_LI;
     params->ext_li_field |= dl_ext_li_field ? DL_EXT_LI : NO_EXT_LI;
 }
+
+void rlc_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid)
+{
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
+    /* Need to reset current state of any entries in sequence_analysis_channel_hash */
+    channel_hash_key   channel_key;
+    channel_sequence_analysis_status     *p_channel_status;
+
+    channel_key.ueId = ueid;
+
+    /* SRBs (1-2, both directions) */
+    channel_key.channelType = CHANNEL_TYPE_SRB;
+    for (uint32_t channelId=1; channelId <= 2; ++channelId) {
+        for (uint32_t direction=0; direction <=1; ++direction) {
+            /* Update key */
+            channel_key.channelId = channelId;
+            channel_key.direction = direction;
+
+            /* Lookup existing channel status */
+            p_channel_status = (channel_sequence_analysis_status*)wmem_map_lookup(sequence_analysis_channel_hash, &channel_key);
+            if (p_channel_status) {
+                /* Reset if already exists */
+                p_channel_status->previousSequenceNumber = -1;
+                p_channel_status->previousFrameNum = 0;
+                p_channel_status->previousSegmentIncomplete = 0;
+            }
+        }
+    }
+
+    /* DRBs (1-32, both directions) */
+    channel_key.channelType = CHANNEL_TYPE_DRB;
+    for (uint32_t channelId=1; channelId <= 32; ++channelId) {
+        for (uint32_t direction=0; direction <=1; ++direction) {
+            /* Update key */
+            channel_key.channelId = channelId;
+            channel_key.direction = direction;
+
+            /* Lookup existing channel status */
+            p_channel_status = (channel_sequence_analysis_status*)wmem_map_lookup(sequence_analysis_channel_hash, &channel_key);
+            if (p_channel_status) {
+                /* Reset if already exists */
+                p_channel_status->previousSequenceNumber = -1;
+                p_channel_status->previousFrameNum = 0;
+                p_channel_status->previousSegmentIncomplete = 0;
+            }
+        }
+    }
+}
+
+
 
 void proto_register_rlc_lte(void)
 {

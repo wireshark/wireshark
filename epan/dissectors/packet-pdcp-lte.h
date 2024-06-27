@@ -185,6 +185,9 @@ void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame
 void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
 void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
 
+/* Reset UE's bearers */
+void pdcp_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid, gboolean including_drb_am);
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

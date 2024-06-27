@@ -68,6 +68,9 @@ void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8
 /* Configure LI field for AM DRB channels. */
 void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gboolean ul_ext_li_field, gboolean dl_ext_li_field);
 
+/* Reset UE's bearers */
+void rlc_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid);
+
 /**********************************************************************/
 /* UDP framing format                                                 */
 /* -----------------------                                            */

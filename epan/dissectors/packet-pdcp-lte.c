@@ -28,6 +28,8 @@
 /* #define HAVE_SNOW3G */
 /* #define HAVE_ZUC */
 
+#include "packet-mac-lte.h"
+#include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
 void proto_register_pdcp_lte(void);
@@ -574,7 +576,7 @@ typedef struct
 } pdcp_channel_status;
 
 /* The sequence analysis channel hash table.
-   Maps key -> status */
+   Maps pdcp_channel_hash_key -> *pdcp_channel_status */
 static wmem_map_t *pdcp_sequence_analysis_channel_hash;
 
 
@@ -1627,6 +1629,59 @@ void set_pdcp_lte_security_algorithms_failed(guint16 ueid)
         ue_security->ciphering = ue_security->previous_ciphering;
     }
 }
+
+/* Reset UE's bearers */
+void pdcp_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid, gboolean including_drb_am)
+{
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
+    pdcp_channel_hash_key channel_key;
+    pdcp_channel_status  *p_channel_status;
+
+    channel_key.notUsed = 0;
+    channel_key.ueId = ueid;
+    channel_key.plane = SIGNALING_PLANE;
+
+    /* SRBs (1-2, both directions) */
+    for (uint32_t channelId=1; channelId <= 2; ++channelId) {
+        for (uint32_t direction=0; direction <=1; ++direction) {
+            /* Update key */
+            channel_key.channelId = channelId;
+            channel_key.direction = direction;
+
+            p_channel_status = (pdcp_channel_status*)wmem_map_lookup(pdcp_sequence_analysis_channel_hash,
+                                                                     get_channel_hash_key(&channel_key));
+            if (p_channel_status) {
+                p_channel_status->hfn = 0;
+                p_channel_status->previousFrameNum = 0;
+                p_channel_status->previousSequenceNumber = -1;
+            }
+        }
+    }
+
+    /* DRBs (1-32, both directions) */
+    channel_key.plane = USER_PLANE;
+    for (uint32_t channelId=1; channelId <= 32; ++channelId) {
+        for (uint32_t direction=0; direction <=1; ++direction) {
+            /* Update key */
+            channel_key.channelId = channelId;
+            channel_key.direction = direction;
+
+            p_channel_status = (pdcp_channel_status*)wmem_map_lookup(pdcp_sequence_analysis_channel_hash,
+                                                                     get_channel_hash_key(&channel_key));
+            if (p_channel_status) {
+                if (including_drb_am || get_mac_lte_channel_mode(ueid, channelId) == RLC_UM_MODE) {
+                    p_channel_status->hfn = 0;
+                    p_channel_status->previousFrameNum = 0;
+                    p_channel_status->previousSequenceNumber = -1;
+                }
+            }
+        }
+    }
+}
+
 
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset,

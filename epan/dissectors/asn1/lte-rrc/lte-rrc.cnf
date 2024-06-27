@@ -2430,19 +2430,48 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLDedicatedMessageSegment-r16");
 
 #.FN_HDR RRCConnectionReestablishmentRequest
-
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP. Only SRBs and UM (not AM) DRBs */
+    pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, true);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentRequest");
 
 #.FN_HDR RRCConnectionRequest
-
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP */
+    pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, true);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRequest");
 
 #.FN_HDR RRCConnectionResumeRequest-r13
-
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP */
+    /* TODO: more complicated, skip PDCP reset for now */
+    // pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, true);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeRequest-r13");
 
 #.FN_HDR RRCEarlyDataRequest-r15
-
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP */
+    pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, false);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCEarlyDataRequest-r15");
 
 #.FN_HDR CSFBParametersRequestCDMA2000
@@ -3818,15 +3847,48 @@ SL-V2X-PreconfigCommPool-r14/threshS-RSSI-CBR-r14 DISPLAY=BASE_CUSTOM STRINGS=CF
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationRequest-NB-r16");
 
 #.FN_HDR RRCConnectionReestablishmentRequest-NB
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP. Only SRBs and UM (not AM) DRBs */
+    pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, true);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentRequest-NB");
 
 #.FN_HDR RRCConnectionRequest-NB
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP */
+    pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, true);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRequest-NB");
 
 #.FN_HDR RRCConnectionResumeRequest-NB
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP */
+    /* TODO: more complicated, skip PDCP reset for now */
+    // pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, true);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeRequest-NB");
 
 #.FN_HDR RRCEarlyDataRequest-NB-r15
+  /* Inform RLC & PDCP - need UE identifier */
+  mac_lte_info *p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    /* Tell RLC this UE is trying to (re)connect */
+    rlc_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid);
+    /* And PDCP */
+    pdcp_lte_reset_ue_bearers(actx->pinfo, p_mac_lte_info->ueid, false);
+  }
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCEarlyDataRequest-NB-r15");
 
 #.FN_HDR SCPTMConfiguration-NB-r14
