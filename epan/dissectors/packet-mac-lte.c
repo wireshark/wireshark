@@ -842,10 +842,10 @@ static const value_string mch_lcid_vals[] =
 
 
 /* Does this LCID relate to CCCH? */
-static gboolean is_ccch_lcid(uint8_t lcid, uint8_t direction)
+static bool is_ccch_lcid(uint8_t lcid, uint8_t direction)
 {
     if (lcid==0) {
-        return TRUE;
+        return true;
     }
     else {
         /* Extra UL CCCH LCIDs */
@@ -855,7 +855,7 @@ static gboolean is_ccch_lcid(uint8_t lcid, uint8_t direction)
 
 /* Does this LCID represent variable-length data SDU?
    N.B. assuming that all CCCH LCIDs do have associated SDU */
-static gboolean is_data_lcid(uint8_t lcid, uint8_t direction)
+static bool is_data_lcid(uint8_t lcid, uint8_t direction)
 {
     return lcid<=10 || is_ccch_lcid(lcid, direction);
 }
@@ -1806,7 +1806,7 @@ typedef struct DLHarqBuffers {
 static GHashTable *mac_lte_dl_harq_hash;
 
 typedef struct DLHARQResult {
-    gboolean    previousSet, nextSet;
+    bool        previousSet, nextSet;
     guint       previousFrameNum;
     guint       timeSincePreviousFrame;
     guint       nextFrameNum;
@@ -1928,10 +1928,10 @@ static GHashTable *mac_lte_sr_request_hash;
 
 typedef struct drx_running_state_t
 {
-    gboolean     firstCycleStartSet;
+    bool         firstCycleStartSet;
 
     /* Cycle information */
-    gboolean     inShortCycle;
+    bool         inShortCycle;
 
     /* Timers */
     nstime_t     currentTime;  /* absolute time of last PDU. Used to detect whole
@@ -2006,10 +2006,10 @@ static guint mac_lte_framenum_instance_hash_func(gconstpointer v)
 
 
 /* Initialise the UE DRX state */
-static void init_drx_ue_state(drx_state_t *drx_state, gboolean at_init)
+static void init_drx_ue_state(drx_state_t *drx_state, bool at_init)
 {
     int i;
-    drx_state->state_before.inShortCycle = FALSE;
+    drx_state->state_before.inShortCycle = false;
     if (at_init) {
         drx_state->state_before.onDurationTimer = G_GUINT64_CONSTANT(0);
     }
@@ -2089,9 +2089,9 @@ static void mac_lte_drx_stop_timer(drx_state_t *p_state, drx_timer_type_t timer_
 }
 
 /* Has the specified timer expired?  */
-static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_type_t timer_type, guint8 timer_id,
-                                              gboolean before_event,
-                                              guint64 *time_until_expires)
+static bool mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_type_t timer_type, guint8 timer_id,
+                                          bool    before_event,
+                                          guint64 *time_until_expires)
 {
     guint64 *pTimer = NULL;
     drx_running_state_t *state_to_use;
@@ -2123,13 +2123,13 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
             break;
 
         default:
-            return FALSE;
+            return false;
     }
 
     /* TODO: verify using SFN/SF ? */
     if (state_to_use->currentTicks == *pTimer) {
         *time_until_expires = 0;
-        return TRUE;
+        return true;
     }
 
     if (state_to_use->currentTicks > *pTimer) {
@@ -2139,7 +2139,7 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
         *time_until_expires = *pTimer - state_to_use->currentTicks;
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -2221,7 +2221,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 
             ue_state->state_before.currentTicks = SFN*10 + SF;
 
-            ue_state->state_before.firstCycleStartSet = TRUE;
+            ue_state->state_before.firstCycleStartSet = true;
         }
 
         /* Will loop around these checks, once for each subframe between previous
@@ -2231,7 +2231,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 
         /* If > ~10s since last PDU, just zero all timers (except onDuration) */
         if ((pinfo->abs_ts.secs - ue_state->state_before.currentTime.secs) >= 9) {
-            init_drx_ue_state(ue_state, FALSE);
+            init_drx_ue_state(ue_state, false);
         }
 
         while ((ue_state->state_before.currentSFN != SFN) || (ue_state->state_before.currentSF != SF)) {
@@ -2241,8 +2241,8 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 
             /* Short -> long transition */
             if (ue_state->state_before.inShortCycle) {
-                if (mac_lte_drx_has_timer_expired(ue_state, drx_short_cycle_timer, 0, TRUE, &time_until_expires)) {
-                    ue_state->state_before.inShortCycle = FALSE;
+                if (mac_lte_drx_has_timer_expired(ue_state, drx_short_cycle_timer, 0, true, &time_until_expires)) {
+                    ue_state->state_before.inShortCycle = false;
                 }
             }
 
@@ -2262,7 +2262,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             /* Check for HARQ RTT Timer expiring.
                In practice only one could expire in any given subframe... */
             for (harq_id = 0 ; harq_id < 8; harq_id++) {
-                if (mac_lte_drx_has_timer_expired(ue_state, drx_rtt_timer, harq_id, TRUE, &time_until_expires)) {
+                if (mac_lte_drx_has_timer_expired(ue_state, drx_rtt_timer, harq_id, true, &time_until_expires)) {
                     /* Start the Retransmission timer */
                     mac_lte_drx_start_timer(ue_state, drx_retx_timer, harq_id);
                 }
@@ -2271,9 +2271,9 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             /* Reception of DRX command is dealt with separately at the moment... */
 
             /* Inactivity timer expired */
-            if (mac_lte_drx_has_timer_expired(ue_state, drx_inactivity_timer, 0, TRUE, &time_until_expires)) {
+            if (mac_lte_drx_has_timer_expired(ue_state, drx_inactivity_timer, 0, true, &time_until_expires)) {
                 if (ue_state->config.shortCycleConfigured) {
-                    ue_state->state_before.inShortCycle = TRUE;
+                    ue_state->state_before.inShortCycle = true;
                     mac_lte_drx_start_timer(ue_state, drx_short_cycle_timer, 0);
                 }
             }
@@ -2304,7 +2304,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 /* Convenience function to get a pointer for the hash_func to work with */
 static gpointer get_drx_result_hash_key(guint32 frameNumber,
                                         guint pdu_instance,
-                                        gboolean do_persist)
+                                        bool do_persist)
 {
     static drx_state_key_t key;
     drx_state_key_t *p_key;
@@ -2328,7 +2328,7 @@ static gpointer get_drx_result_hash_key(guint32 frameNumber,
 
 /* Set DRX information to display for the current MAC frame.
    Only called on first pass through frames. */
-static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gboolean before_event, guint pdu_instance)
+static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, bool before_event, guint pdu_instance)
 {
     /* Look up state of this UE */
     ue_parameters_t *ue_params = (ue_parameters_t *)g_hash_table_lookup(mac_lte_ue_parameters,
@@ -2346,12 +2346,12 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
             *frame_result = ue_params->drx_state;
 
             /* And store in table */
-            g_hash_table_insert(mac_lte_drx_frame_result, get_drx_result_hash_key(pinfo->num, pdu_instance, TRUE), frame_result);
+            g_hash_table_insert(mac_lte_drx_frame_result, get_drx_result_hash_key(pinfo->num, pdu_instance, true), frame_result);
         }
         else {
             /* After update, so just copy ue_state 'state' info after part of frame */
             frame_result = (drx_state_t*)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                             get_drx_result_hash_key(pinfo->num, pdu_instance, FALSE));
+                                                             get_drx_result_hash_key(pinfo->num, pdu_instance, false));
             if (frame_result != NULL) {
                 /* Deep-copy updated state from UE */
                 frame_result->state_after = ue_params->drx_state.state_before;
@@ -2362,7 +2362,7 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
 
 /* Show DRX information associated with this MAC frame */
 static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                          mac_lte_info *p_mac_lte_info, gboolean before_event, guint pdu_instance)
+                          mac_lte_info *p_mac_lte_info, bool before_event, guint pdu_instance)
 {
     drx_state_t         *frame_state;
     drx_running_state_t *state_to_show;
@@ -2371,7 +2371,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     /* Look up entry by frame number in result table */
     frame_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                     get_drx_result_hash_key(pinfo->num, pdu_instance, FALSE));
+                                                     get_drx_result_hash_key(pinfo->num, pdu_instance, false));
 
     /* Show available information */
     if (frame_state != NULL) {
@@ -2535,12 +2535,11 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 /* Info we might learn from SIB2 to label RAPIDs seen in PRACH and RARs */
-static gboolean s_rapid_ranges_configured;
+static bool     s_rapid_ranges_configured;
 static guint    s_rapid_ranges_groupA;
 static guint    s_rapid_ranges_RA;
 
-/* Return TRUE if we have been configured.  Set out parameter to point at
-   a literal string tha may be safely referenced afterwards */
+/* Return string description of rapid */
 static const gchar *get_mac_lte_rapid_description(guint8 rapid)
 {
     if (!s_rapid_ranges_configured) {
@@ -2616,7 +2615,7 @@ call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo
 }
 
 /* Dissect context fields in the format described in packet-mac-lte.h.
-   Return TRUE if the necessary information was successfully found */
+   Return true if the necessary information was successfully found */
 gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
                                         packet_info *pinfo, proto_tree *tree, gint *p_offset)
 {
@@ -2636,7 +2635,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
     p_mac_lte_info->rntiType = tvb_get_guint8(tvb, offset++);
 
-    p_mac_lte_info->sfnSfInfoPresent = FALSE; /* Set this to true later if the relative tag is read */
+    p_mac_lte_info->sfnSfInfoPresent = FALSE; /* Set this to TRUE later if the relative tag is read */
 
     /* Initialize RNTI with a default value in case optional field is not present */
     switch (p_mac_lte_info->rntiType) {
@@ -2869,7 +2868,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static bool dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree, void *data _U_)
+                                 proto_tree *tree, void *data _U_)
 {
     gint                 offset = 0;
     struct mac_lte_info  *p_mac_lte_info;
@@ -3043,7 +3042,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             /* Don't want columns to be replaced now */
             if (global_mac_lte_layer_to_show == ShowPHYLayer) {
-                col_set_writable(pinfo->cinfo, -1, FALSE);
+                col_set_writable(pinfo->cinfo, -1, false);
             }
         }
     }
@@ -3130,7 +3129,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             /* Don't want columns to be replaced now */
             if (global_mac_lte_layer_to_show == ShowPHYLayer) {
-                col_set_writable(pinfo->cinfo, -1, FALSE);
+                col_set_writable(pinfo->cinfo, -1, false);
             }
         }
     }
@@ -3380,7 +3379,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     guint       number_of_rars         = 0; /* No of RAR bodies expected following headers */
     guint8     *rapids                 = (guint8 *)wmem_alloc(pinfo->pool, MAX_RAR_PDUS * sizeof(guint8));
     guint32     temp_rapid;
-    gboolean    backoff_indicator_seen = FALSE;
+    bool        backoff_indicator_seen = false;
     guint32     backoff_indicator      = 0;
     guint8      extension;
     guint       n;
@@ -3451,7 +3450,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             if (backoff_indicator_seen) {
                 expert_add_info(pinfo, bi_ti, &ei_mac_lte_rar_bi_present);
             }
-            backoff_indicator_seen = TRUE;
+            backoff_indicator_seen = true;
 
             write_pdu_label_and_info(pdu_ti, rar_header_ti, pinfo,
                                      "(Backoff Indicator=%sms)",
@@ -3645,7 +3644,7 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 /* Does this header entry correspond to a fixed-sized control element? */
-static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
+static bool is_fixed_sized_control_element(guint8 lcid, guint8 direction)
 {
     if (direction == DIRECTION_UPLINK) {
         /* Uplink */
@@ -3661,10 +3660,10 @@ static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
             case TRUNCATED_BSR_LCID:
             case SHORT_BSR_LCID:
             case LONG_BSR_LCID:
-                return TRUE;
+                return true;
 
             default:
-                return FALSE;
+                return false;
         }
     }
     else {
@@ -3682,17 +3681,17 @@ static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
             case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
             case TIMING_ADVANCE_LCID:
             case DRX_COMMAND_LCID:
-                return TRUE;
+                return true;
 
             default:
-                return FALSE;
+                return false;
         }
     }
 }
 
 
 /* Is this a BSR report header? */
-static int is_bsr_lcid(guint8 lcid)
+static bool is_bsr_lcid(guint8 lcid)
 {
     return ((lcid == TRUNCATED_BSR_LCID) ||
             (lcid == SHORT_BSR_LCID) ||
@@ -3739,7 +3738,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     if (global_mac_lte_layer_to_show != ShowRLCLayer) {
         /* Don't want these columns replaced */
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
     }
     else {
         /* Clear info column before first RLC PDU */
@@ -3758,7 +3757,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     call_with_catch_all(rlc_lte_handle, rb_tvb, pinfo, tree);
 
     /* Let columns be written to again */
-    col_set_writable(pinfo->cinfo, -1, TRUE);
+    col_set_writable(pinfo->cinfo, -1, true);
 }
 
 
@@ -3819,7 +3818,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
 
                         /* Resend detected! Store result pointing back. */
                         result = wmem_new0(wmem_file_scope(), DLHARQResult);
-                        result->previousSet = TRUE;
+                        result->previousSet = true;
                         result->previousFrameNum = lastData->framenum;
                         result->timeSincePreviousFrame = total_gap;
                         g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->num), result);
@@ -3830,7 +3829,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
                             original_result = wmem_new0(wmem_file_scope(), DLHARQResult);
                             g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
                         }
-                        original_result->nextSet = TRUE;
+                        original_result->nextSet = true;
                         original_result->nextFrameNum = pinfo->num;
                         original_result->timeToNextFrame = total_gap;
                     }
@@ -3845,7 +3844,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
 
         /* Store this frame's details in table */
         thisData = &(ueData->harqid[transport_block][harq_id]);
-        thisData->inUse = TRUE;
+        thisData->inUse = true;
         thisData->length = length;
         tvb_memcpy(tvb, thisData->data, 0, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
@@ -3887,13 +3886,13 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
 }
 
 
-/* Return TRUE if the given packet is thought to be a retx */
-int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
+/* Return true if the given packet is thought to be a retx */
+bool is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
 {
     struct mac_lte_info *p_mac_lte_info = (struct mac_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
 
     if (p_mac_lte_info == NULL) {
-        return FALSE;
+        return false;
     }
 
     if (direction == DIRECTION_UPLINK) {
@@ -3903,7 +3902,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
     else {
         /* Use answer if told directly */
         if (p_mac_lte_info->dl_retx == dl_retx_yes) {
-            return TRUE;
+            return true;
         }
         else {
             /* Otherwise look up in table */
@@ -3969,7 +3968,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
 
                             /* Original detected!!! Store result pointing back */
                             result = wmem_new0(wmem_file_scope(), ULHARQResult);
-                            result->previousSet = TRUE;
+                            result->previousSet = true;
                             result->previousFrameNum = lastData->framenum;
                             result->timeSincePreviousFrame = total_gap;
                             g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->num), result);
@@ -3980,7 +3979,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
                                 original_result = wmem_new0(wmem_file_scope(), ULHARQResult);
                                 g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
                             }
-                            original_result->nextSet = TRUE;
+                            original_result->nextSet = true;
                             original_result->nextFrameNum = pinfo->num;
                             original_result->timeToNextFrame = total_gap;
                         }
@@ -3996,7 +3995,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
 
         /* Store this frame's details in table */
         thisData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
-        thisData->inUse = TRUE;
+        thisData->inUse = true;
         thisData->length = tvb_reported_length_remaining(tvb, offset);
         tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
@@ -4049,7 +4048,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
 
 /* Look up SRResult associated with a given frame. Will create one if necessary
    if can_create is set */
-static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
+static SRResult *GetSRResult(guint32 frameNum, bool can_create)
 {
     SRResult *result;
     result = (SRResult *)g_hash_table_lookup(mac_lte_sr_request_hash, GUINT_TO_POINTER(frameNum));
@@ -4123,7 +4122,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                     case SR_Failure:
                         /* This is an error, since we hadn't send an SR... */
-                        result = GetSRResult(pinfo->num, TRUE);
+                        result = GetSRResult(pinfo->num, true);
                         result->type = InvalidSREvent;
                         result->status = None;
                         result->event = SR_Failure;
@@ -4143,13 +4142,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         state->status = None;
 
                         /* Set result info */
-                        result = GetSRResult(pinfo->num, TRUE);
+                        result = GetSRResult(pinfo->num, true);
                         result->type = GrantAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
                         result->timeDifference = timeSinceRequest;
 
                         /* Also set forward link for SR */
-                        resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
+                        resultForSRFrame = GetSRResult(state->lastSRFramenum, true);
                         resultForSRFrame->type = SRLeadingToGrant;
                         resultForSRFrame->frameNum = pinfo->num;
                         resultForSRFrame->timeDifference = timeSinceRequest;
@@ -4157,7 +4156,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                     case SR_Request:
                         /* Another request when already have one pending */
-                        result = GetSRResult(pinfo->num, TRUE);
+                        result = GetSRResult(pinfo->num, true);
                         result->type = InvalidSREvent;
                         result->status = SR_Outstanding;
                         result->event = SR_Request;
@@ -4170,13 +4169,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         state->status = SR_Failed;
 
                         /* Set result info for failure frame */
-                        result = GetSRResult(pinfo->num, TRUE);
+                        result = GetSRResult(pinfo->num, true);
                         result->type = FailureAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
                         result->timeDifference = timeSinceRequest;
 
                         /* Also set forward link for SR */
-                        resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
+                        resultForSRFrame = GetSRResult(state->lastSRFramenum, true);
                         resultForSRFrame->type = SRLeadingToFailure;
                         resultForSRFrame->frameNum = pinfo->num;
                         resultForSRFrame->timeDifference = timeSinceRequest;
@@ -4199,14 +4198,14 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                         state->status = SR_Outstanding;
 
-                        result = GetSRResult(pinfo->num, TRUE);
+                        result = GetSRResult(pinfo->num, true);
                         result->status = SR_Outstanding;
                         result->event = SR_Request;
                         break;
 
                     case SR_Failure:
                         /* 2 failures in a row.... */
-                        result = GetSRResult(pinfo->num, TRUE);
+                        result = GetSRResult(pinfo->num, true);
                         result->type = InvalidSREvent;
                         result->status = SR_Failed;
                         result->event = SR_Failure;
@@ -4217,7 +4216,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Get stored result for this frame */
-    result = GetSRResult(pinfo->num, FALSE);
+    result = GetSRResult(pinfo->num, false);
     if (result == NULL) {
         /* For an SR frame, there should always be either a PDCCH grant or indication
            that the SR has failed */
@@ -4307,7 +4306,7 @@ static GHashTable *mac_lte_tti_info_result_hash;
 /* Work out which UE this is within TTI (within direction). Return answer */
 static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
 {
-    gboolean same_tti = FALSE;
+    bool same_tti = false;
     tti_info_t *tti_info;
 
     /* Just return any previous result */
@@ -4336,7 +4335,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
                            ((nseconds_between_packets+500) / 1000);
 
         if (total_us_gap < 1000) {
-            same_tti = TRUE;
+            same_tti = true;
         }
     }
 
@@ -4631,12 +4630,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item *pdu_header_ti;
     proto_tree *pdu_header_tree;
 
-    gboolean   have_seen_data_header = FALSE;
+    bool       have_seen_data_header = false;
     guint8     number_of_padding_subheaders = 0;
-    gboolean   have_seen_non_padding_control = FALSE;
-    gboolean   have_seen_sc_mcch_sc_mtch_header = FALSE;
-    gboolean   have_seen_bsr = FALSE;
-    gboolean   expecting_body_data = FALSE;
+    bool       have_seen_non_padding_control = false;
+    bool       have_seen_sc_mcch_sc_mtch_header = false;
+    bool       have_seen_bsr = false;
+    bool       expecting_body_data = false;
     guint32    is_truncated = FALSE;
 
     /* Maintain/show UEs/TTI count */
@@ -4663,11 +4662,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             update_drx_info(pinfo, p_mac_lte_info);
 
             /* Store 'before' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info, TRUE, pdu_instance);
+            set_drx_info(pinfo, p_mac_lte_info, true, pdu_instance);
         }
 
         /* Show current DRX state in tree as 'before' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE, pdu_instance);
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, true, pdu_instance);
 
         /* Changes of state caused by events */
         if (!PINFO_FD_VISITED(pinfo)) {
@@ -4807,11 +4806,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Remember if we've seen a data subheader */
         if (is_data_lcid(lcids[number_of_headers], p_mac_lte_info->direction) || lcids[number_of_headers] == EXT_LOGICAL_CHANNEL_ID_LCID) {
-            have_seen_data_header = TRUE;
-            expecting_body_data = TRUE;
+            have_seen_data_header = true;
+            expecting_body_data = true;
         }
         if ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) && (lcids[number_of_headers] == SC_MCCH_SC_MTCH_LCID)) {
-            have_seen_sc_mcch_sc_mtch_header = TRUE;
+            have_seen_sc_mcch_sc_mtch_header = true;
         }
 
         /* Show an expert item if a control subheader (except Padding) appears
@@ -4831,7 +4830,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 expert_add_info(pinfo, lcid_ti, &ei_mac_lte_control_bsr_multiple);
                 return;
             }
-            have_seen_bsr = TRUE;
+            have_seen_bsr = true;
         }
 
         /* Should not see padding after non-padding control... */
@@ -4859,7 +4858,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) &&
             (lcids[number_of_headers] != PADDING_LCID) &&
             (lcids[number_of_headers] != SC_MCCH_SC_MTCH_LCID)) {
-            have_seen_non_padding_control = TRUE;
+            have_seen_non_padding_control = true;
         }
 
         /* Ensure that SC-MCCH or SC-MTCH header is not multiplexed with other LCID than Padding */
@@ -6448,7 +6447,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Data SDUs treated identically for Uplink or downlink channels */
         proto_item *sdu_ti;
         guint16 data_length;
-        gboolean rlc_called_for_sdu = FALSE;
+        bool    rlc_called_for_sdu = false;
 
         /* Break out if meet padding */
         if (lcids[n] == PADDING_LCID) {
@@ -6576,7 +6575,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Hide raw view of bytes */
             proto_item_set_hidden(sdu_ti);
-            rlc_called_for_sdu = TRUE;
+            rlc_called_for_sdu = true;
 
             call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
         }
@@ -6596,7 +6595,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 /* Hide raw view of bytes */
                 proto_item_set_hidden(sdu_ti);
-                rlc_called_for_sdu = TRUE;
+                rlc_called_for_sdu = true;
             }
         }
 
@@ -6664,7 +6663,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             if (rlc_channel_type != rlcRaw) {
                 /* Hide raw view of bytes */
                 proto_item_set_hidden(sdu_ti);
-                rlc_called_for_sdu = TRUE;
+                rlc_called_for_sdu = true;
             }
 
         }
@@ -6675,7 +6674,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Hide raw view of bytes */
             proto_item_set_hidden(sdu_ti);
-            rlc_called_for_sdu = TRUE;
+            rlc_called_for_sdu = true;
 
             call_with_catch_all(lte_rrc_sc_mcch_handle, rrc_tvb, pinfo, tree);
         }
@@ -6766,11 +6765,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (global_mac_lte_show_drx) {
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Store 'after' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info, FALSE, pdu_instance);
+            set_drx_info(pinfo, p_mac_lte_info, false, pdu_instance);
         }
 
         /* Show current DRX state in tree as 'after' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, FALSE, pdu_instance);
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, false, pdu_instance);
     }
 }
 
@@ -6791,10 +6790,10 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     proto_item *pdu_header_ti, *sched_info_ti = NULL;
     proto_tree *pdu_header_tree;
 
-    gboolean   have_seen_data_header = FALSE;
+    bool       have_seen_data_header = false;
     guint8     number_of_padding_subheaders = 0;
-    gboolean   have_seen_non_padding_control = FALSE;
-    gboolean   expecting_body_data = FALSE;
+    bool       have_seen_non_padding_control = false;
+    bool       expecting_body_data = false;
     guint32    is_truncated = FALSE;
 
     write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, "MCH: ");
@@ -6868,8 +6867,8 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
         /* Remember if we've seen a data subheader */
         if (lcids[number_of_headers] <= 28) {
-            have_seen_data_header = TRUE;
-            expecting_body_data = TRUE;
+            have_seen_data_header = true;
+            expecting_body_data = true;
         }
 
         /* Show an expert item if a control subheader (except Padding) appears
@@ -6899,7 +6898,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Remember that we've seen non-padding control */
         if ((lcids[number_of_headers] > 28) &&
             (lcids[number_of_headers] != PADDING_LCID)) {
-            have_seen_non_padding_control = TRUE;
+            have_seen_non_padding_control = true;
         }
 
 
@@ -7236,7 +7235,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *pdu_header_tree, *pdu_subheader_tree;
 
     guint8   number_of_padding_subheaders = 0;
-    gboolean expecting_body_data = FALSE;
+    bool     expecting_body_data = false;
     gboolean is_truncated;
     guint32  reserved, version;
 
@@ -7327,7 +7326,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Remember if we've seen a data subheader */
         if (is_data_lcid(lcids[number_of_headers], p_mac_lte_info->direction)) {
-            expecting_body_data = TRUE;
+            expecting_body_data = true;
         }
 
         /* Should not see padding after non-padding control... */
@@ -7995,10 +7994,10 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     update_drx_info(pinfo, p_mac_lte_info);
 
                     /* Store 'before' snapshot of UE state for this frame */
-                    set_drx_info(pinfo, p_mac_lte_info, TRUE, pdu_instance);
+                    set_drx_info(pinfo, p_mac_lte_info, true, pdu_instance);
                 }
                 /* Show current DRX state in tree as 'before' */
-                show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE, pdu_instance);
+                show_drx_info(pinfo, tree, tvb, p_mac_lte_info, true, pdu_instance);
             }
         }
 
@@ -8101,7 +8100,7 @@ static void mac_lte_init_protocol(void)
     mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_instance_hash_func, mac_lte_framenum_instance_hash_equal);
 
     /* Forget this setting */
-    s_rapid_ranges_configured = FALSE;
+    s_rapid_ranges_configured = false;
 }
 
 static void mac_lte_cleanup_protocol(void)
@@ -8344,7 +8343,7 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
         ue_params->drx_state_valid = TRUE;
 
         /* Clearing state when new config comes in... */
-        init_drx_ue_state(&ue_params->drx_state, TRUE);
+        init_drx_ue_state(&ue_params->drx_state, true);
 
         /* Copy in new config */
         ue_params->drx_state.config = *drx_config;
@@ -8376,7 +8375,7 @@ void set_mac_lte_rapid_ranges(guint group_A, guint all_RA)
 {
     s_rapid_ranges_groupA = group_A;
     s_rapid_ranges_RA = all_RA;
-    s_rapid_ranges_configured = TRUE;
+    s_rapid_ranges_configured = true;
 }
 
 /* Configure the BSR sizes for this UE (from RRC) */
@@ -10988,12 +10987,12 @@ void proto_register_mac_lte(void)
         "Source of LCID -> drb channel settings",
         "Set whether LCID -> drb Table is taken from static table (below) or from "
         "info learned from control protocol (e.g. RRC)",
-        &global_mac_lte_lcid_drb_source, lcid_drb_source_vals, FALSE);
+        &global_mac_lte_lcid_drb_source, lcid_drb_source_vals, false);
 
     lcid_drb_mappings_uat = uat_new("Static LCID -> drb Table",
                                     sizeof(lcid_drb_mapping_t),
                                     "drb_logchans",
-                                    TRUE,
+                                    true,
                                     &lcid_drb_mappings,
                                     &num_lcid_drb_mappings,
                                     UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
@@ -11024,7 +11023,7 @@ void proto_register_mac_lte(void)
     prefs_register_enum_preference(mac_lte_module, "layer_to_show",
         "Which layer info to show in Info column",
         "Can show PHY, MAC or RLC layer info in Info column",
-        &global_mac_lte_layer_to_show, show_info_col_vals, FALSE);
+        &global_mac_lte_layer_to_show, show_info_col_vals, false);
 
     prefs_register_bool_preference(mac_lte_module, "decode_cr_body",
         "Decode CR body as UL CCCH",

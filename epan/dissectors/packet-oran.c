@@ -301,13 +301,13 @@ static bool pref_showIQSampleValues = true;
 
 
 static const enum_val_t compression_options[] = {
-    { "COMP_NONE",                  "No Compression",                   COMP_NONE },
-    { "COMP_BLOCK_FP",              "Block Floating Point Compression", COMP_BLOCK_FP },
-    { "COMP_BLOCK_SCALE",           "Block Scaling Compression",        COMP_BLOCK_SCALE },
-    { "COMP_U_LAW",                 "u-Law Compression",                COMP_U_LAW },
-    { "COMP_MODULATION",            "Modulation Compression",           COMP_MODULATION },
-    { "BFP_AND_SELECTIVE_RE",       "BFP + selective RE sending",       BFP_AND_SELECTIVE_RE },
-    { "MOD_COMPR_AND_SELECTIVE_RE", "mod-compr + selective RE sending", MOD_COMPR_AND_SELECTIVE_RE },
+    { "COMP_NONE",                             "No Compression",                   COMP_NONE },
+    { "COMP_BLOCK_FP",                         "Block Floating Point Compression", COMP_BLOCK_FP },
+    { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",        COMP_BLOCK_SCALE },
+    { "COMP_U_LAW",                            "u-Law Compression",                COMP_U_LAW },
+    { "COMP_MODULATION",                       "Modulation Compression",           COMP_MODULATION },
+    { "BFP_AND_SELECTIVE_RE",                  "BFP + selective RE sending",       BFP_AND_SELECTIVE_RE },
+    { "MOD_COMPR_AND_SELECTIVE_RE",            "mod-compr + selective RE sending", MOD_COMPR_AND_SELECTIVE_RE },
     { "BFP_AND_SELECTIVE_RE_WITH_MASKS",       "BFP + selective RE sending with masks in section header",       BFP_AND_SELECTIVE_RE_WITH_MASKS },
     { "MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS", "mod-compr + selective RE sending with masks in section header", MOD_COMPR_AND_SELECTIVE_RE },
     { NULL, NULL, 0 }
@@ -374,16 +374,16 @@ enum section_c_types {
 };
 
 static const range_string section_types[] = {
-    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink"},
-    { SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels"},
-    { SEC_C_RSVD2,             SEC_C_RSVD2,             "Reserved for future use"},
-    { SEC_C_PRACH,             SEC_C_PRACH,             "PRACH and mixed-numerology channels"},
-    { SEC_C_RSVD4,             SEC_C_RSVD4,             "Reserved for future use"},
-    { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "UE scheduling information (UE-ID assignment to section)"},
-    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information"},
-    { SEC_C_LAA,               SEC_C_LAA,               "LAA"},
-    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "ACK/NACK Feedback"},
-    { 9,                       255,                     "Reserved for future use"},
+    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink" },
+    { SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels" },
+    { SEC_C_RSVD2,             SEC_C_RSVD2,             "Reserved for future use" },
+    { SEC_C_PRACH,             SEC_C_PRACH,             "PRACH and mixed-numerology channels" },
+    { SEC_C_RSVD4,             SEC_C_RSVD4,             "Reserved for future use" },
+    { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "UE scheduling information (UE-ID assignment to section)" },
+    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information" },
+    { SEC_C_LAA,               SEC_C_LAA,               "LAA" },
+    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "ACK/NACK Feedback" },
+    { 9,                       255,                     "Reserved for future use" },
     { 0, 0, NULL} };
 
 static const range_string section_types_short[] = {
@@ -395,7 +395,7 @@ static const range_string section_types_short[] = {
     { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "(UE scheduling info)" },
     { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)" },
     { SEC_C_LAA,               SEC_C_LAA,               "(LAA)" },
-    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)"},
+    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)" },
     { 9,                       255,                     "Reserved for future use" },
     { 0, 0, NULL }
 };
@@ -637,7 +637,7 @@ static const true_false_string tfs_partial_full_sf = {
 /* Config (and worked-out allocations) bundles for ext11 (dynamic BFW) */
 typedef struct {
     /* Ext 6 config */
-    gboolean ext6_set;
+    bool    ext6_set;
 
     guint8   ext6_rbg_size;      /* number of PRBs allocated by bitmask */
 
@@ -645,7 +645,7 @@ typedef struct {
     guint8   ext6_bits_set[28];  /* Which bit position this entry has */
 
     /* Ext 12 config */
-    gboolean ext12_set;
+    bool     ext12_set;
     guint    ext12_num_pairs;
 #define MAX_BFW_EXT12_PAIRS 128
     struct {
@@ -654,7 +654,7 @@ typedef struct {
     } ext12_pairs[MAX_BFW_EXT12_PAIRS];
 
     /* Ext 13 config */
-    gboolean ext13_set;
+    bool     ext13_set;
     guint    ext13_num_start_prbs;
 #define MAX_BFW_EXT13_ALLOCATIONS 128
     guint    ext13_start_prbs[MAX_BFW_EXT13_ALLOCATIONS];
@@ -666,7 +666,7 @@ typedef struct {
     struct {
         guint32  start;      /* first prb of bundle */
         guint32  end;        /* last prb of bundle*/
-        gboolean is_orphan;  /* TRUE if not complete (i.e., < numBundPrb) */
+        bool     is_orphan;  /* true if not complete (i.e., < numBundPrb) */
     } bundles[MAX_BFW_BUNDLES];
 } ext11_settings_t;
 
@@ -698,7 +698,7 @@ static void ext11_work_out_bundles(guint startPrbc,
                 if (settings->bundles[bundles_set].end > (startPrbc+numPrbc-1)) {
                     /* Extends beyond end, so counts but is an orphan bundle */
                     settings->bundles[bundles_set].end = numPrbc;
-                    settings->bundles[bundles_set].is_orphan = TRUE;
+                    settings->bundles[bundles_set].is_orphan = true;
                 }
                 bundles_set++;
                 if (bundles_set == MAX_BFW_BUNDLES) {
@@ -723,7 +723,7 @@ static void ext11_work_out_bundles(guint startPrbc,
             /* Does it go beyond the end? */
             if (settings->bundles[n].end > startPrbc+numPrbc) {
                 settings->bundles[n].end = numPrbc+numPrbc;
-                settings->bundles[n].is_orphan = TRUE;
+                settings->bundles[n].is_orphan = true;
             }
         }
         if (settings->num_bundles == MAX_BFW_BUNDLES) {
@@ -745,7 +745,7 @@ static void ext11_work_out_bundles(guint startPrbc,
                 /* Does it go beyond the end? */
                 if (settings->bundles[idx].end > prb_offset + settings->ext12_pairs[p].num_prb) {
                     settings->bundles[idx].end = prb_offset + settings->ext12_pairs[p].num_prb;
-                    settings->bundles[idx].is_orphan = TRUE;
+                    settings->bundles[idx].is_orphan = true;
                 }
                 /* Range check / return */
                 settings->num_bundles++;
@@ -777,7 +777,7 @@ static void ext11_work_out_bundles(guint startPrbc,
                 settings->bundles[alloc_start+n].end =   settings->bundles[alloc_start+n].start + numBundPrb-1;
                 if (settings->bundles[alloc_start+n].end > settings->ext13_start_prbs[alloc] + numPrbc) {
                     settings->bundles[alloc_start+n].end = settings->ext13_start_prbs[alloc] + numPrbc;
-                    settings->bundles[alloc_start+n].is_orphan = TRUE;
+                    settings->bundles[alloc_start+n].is_orphan = true;
                 }
             }
         }
@@ -796,7 +796,7 @@ static void ext11_work_out_bundles(guint startPrbc,
             /* Does it go beyond the end? */
             if (settings->bundles[n].end > startPrbc+numPrbc) {
                 settings->bundles[n].end = numPrbc+numPrbc;
-                settings->bundles[n].is_orphan = TRUE;
+                settings->bundles[n].is_orphan = true;
             }
         }
     }
@@ -971,7 +971,7 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
  * Depends upon passed-in bfwCompMeth (field may be empty) */
 static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
                                 proto_item *ti, guint32 bfw_comp_method,
-                                guint32 *exponent, gboolean *supported)
+                                guint32 *exponent, bool *supported)
 {
     /* Subtree */
     proto_item *bfwcompparam_ti = proto_tree_add_string_format(tree, hf_oran_bfwCompParam,
@@ -983,18 +983,18 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                            " (meth=%s)", val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
 
 
-    *supported = FALSE;
+    *supported = false;
     switch (bfw_comp_method) {
         case COMP_NONE:         /* no compression */
             /* In this case, bfwCompParam is absent! */
-            *supported = TRUE;
+            *supported = true;
             break;
         case COMP_BLOCK_FP:     /* block floating point */
             /* 4 reserved bits +  exponent */
             proto_tree_add_item_ret_uint(bfwcompparam_tree, hf_oran_exponent,
                                          tvb, offset, 1, ENC_BIG_ENDIAN, exponent);
             proto_item_append_text(bfwcompparam_ti, " exponent=%u", *exponent);
-            *supported = TRUE;
+            *supported = true;
             offset++;
             break;
         case COMP_BLOCK_SCALE:  /* block scaling */
@@ -1081,7 +1081,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                   proto_item *comp_meth_ti, guint32 bfwcomphdr_comp_meth,
                                   guint8 iq_width,
                                   guint bundle_number,
-                                  guint first_prb, guint last_prb, gboolean is_orphan)
+                                  guint first_prb, guint last_prb, bool is_orphan)
 {
     /* Set bundle name */
     char bundle_name[32];
@@ -1107,7 +1107,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_item_set_hidden(bundleid_ti);
 
     /* bfwCompParam */
-    gboolean compression_method_supported = FALSE;
+    bool compression_method_supported = false;
     guint32  exponent = 0;
     offset = dissect_bfwCompParam(tvb, bundle_tree, pinfo, offset, comp_meth_ti,
                                   bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
@@ -1188,7 +1188,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     guint32 ueId = 0;
     guint32 beamId = 0;
     proto_item *beamId_ti = NULL;
-    gboolean beamId_ignored = FALSE;
+    bool beamId_ignored = false;
 
     /* Config affecting ext11 bundles (initially unset) */
     ext11_settings_t ext11_settings;
@@ -1553,7 +1553,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* bfwCompParam */
                 guint32 exponent = 0;
-                gboolean compression_method_supported = FALSE;
+                bool compression_method_supported = false;
                 offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
                                               bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
@@ -1750,7 +1750,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Summary */
                     proto_item_set_len(set_ti, (bit_offset+7)/8 - set_start_offset);
                     proto_item_append_text(set_ti, " (mcScaleReMask=%u  csf=%s  mcScaleOffset=%u)",
-                                           (guint)mcScaleReMask, tfs_get_true_false((gboolean)csf), (guint)mcScaleOffset);
+                                           (guint)mcScaleReMask, tfs_get_true_false((bool)csf), (guint)mcScaleOffset);
                 }
 
                 proto_item_append_text(extension_ti, " (%u sets)", sets);
@@ -1768,7 +1768,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 6: /* Non-contiguous PRB allocation in time and frequency domain */
             {
                 /* Update ext6 recorded info */
-                ext11_settings.ext6_set = TRUE;
+                ext11_settings.ext6_set = true;
 
                 /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
@@ -1938,7 +1938,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
 
                 guint32 num_bundles;
-                gboolean orphaned_prbs = FALSE;
+                bool orphaned_prbs = false;
 
                 if (!disableBFWs) {
                     /********************************************/
@@ -2006,7 +2006,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             proto_item_append_text(ti, " (Bundle %u)", n);
                         }
                         else {
-                            orphaned_prbs = TRUE;
+                            orphaned_prbs = true;
                             proto_item_append_text(ti, " (Orphaned PRBs)");
                         }
                         offset += 2;
@@ -2026,7 +2026,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 12: /* Non-Contiguous PRB Allocation with Frequency Ranges */
             {
-                ext11_settings.ext12_set = TRUE;
+                ext11_settings.ext12_set = true;
 
                 /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2079,7 +2079,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 13:  /* PRB Allocation with Frequency Hopping */
             {
                 /* Will update settings for ext11 */
-                ext11_settings.ext13_set = TRUE;
+                ext11_settings.ext13_set = true;
 
                 guint32 extlen_remaining_bytes = (extlen*4) - 2;
                 guint8 allocation_index;
@@ -2194,7 +2194,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* beamId in section header should be ignored */
                 if (beamId_ti && !beamId_ignored) {
                     proto_item_append_text(beamId_ti, " (ignored)");
-                    beamId_ignored = TRUE;
+                    beamId_ignored = true;
                 }
 
                 /* disableBFWs */
@@ -2256,7 +2256,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     offset += 2;
 
                     /* bfwCompParam (TODO: present in disableBFWs case?) */
-                    gboolean compression_method_supported = FALSE;
+                    bool compression_method_supported = false;
                     guint32  exponent = 0;
                     offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
                                                   bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
@@ -2693,7 +2693,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     guint sample_bit_width;
     gint compression;
-    gboolean includeUdCompHeader;
+    bool includeUdCompHeader;
 
     if (direction == DIR_UPLINK) {
         sample_bit_width = pref_sample_bit_width_uplink;
@@ -4233,7 +4233,7 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
         "The bit width of a sample in the Uplink (if no udcompHdr)", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
-        "Uplink User Data Compression", &pref_iqCompressionUplink, compression_options, TRUE);
+        "Uplink User Data Compression", &pref_iqCompressionUplink, compression_options, true);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
@@ -4242,7 +4242,7 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
         "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
-        "Downlink User Data Compression", &pref_iqCompressionDownlink, compression_options, TRUE);
+        "Downlink User Data Compression", &pref_iqCompressionDownlink, compression_options, true);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
