@@ -111,9 +111,15 @@ void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t
 
 cip_service_info_t* cip_get_service_enip(guint32 class_id, guint8 service_id);
 
+extern int dissect_ingress_tcp_udp_ports_supported(packet_info *pinfo, proto_tree *tree, proto_item *item,
+   tvbuff_t *tvb, int offset, int total_len);
+extern int dissect_ingress_egress_rules(packet_info *pinfo, proto_tree *tree, proto_item *item,
+   tvbuff_t *tvb, int offset, int total_len);
+extern int dissect_ingress_egress_set_rules(packet_info *pinfo, proto_tree *tree, proto_item *item,
+   tvbuff_t *tvb, int offset, gboolean request);
 extern int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern const value_string lldp_cip_subtypes[];
 
-extern attribute_info_t enip_attribute_vals[106];
+extern attribute_info_t enip_attribute_vals[118];
 
 #endif /* PACKET_ENIP_H */

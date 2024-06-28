@@ -1279,6 +1279,12 @@ value_string_ext cip_gs_vals_ext = VALUE_STRING_EXT_INIT(cip_gs_vals);
 #define CM_ES_NODE_ADDRESS_CHANGED_AFTER_SCHEDULED    0x812
 #define CM_ES_NOT_CONFIGURED_MULTICAST                0x813
 #define CM_ES_INVALID_PROD_CONS_DATA_FORMAT           0x814
+#define CM_ES_EGRESS_RULE_DENY                        0x916
+#define CM_ES_EGRESS_RULE_CIPHER_NOT_ALLOWED          0x917
+#define CM_ES_NO_MATCHING_INGRESS_RULE                0x918
+#define CM_ES_INGRESS_RULE_DENY                       0x919
+#define CM_ES_INGRESS_RULE_DENY_NON_SECURE            0x91A
+#define CM_ES_NO_MATCHING_EGRESS_RULE                 0x91B
 
 /* Translate function to string - CIP Extended Status codes */
 static const value_string cip_cm_ext_st_vals[] = {
@@ -1368,6 +1374,12 @@ static const value_string cip_cm_ext_st_vals[] = {
    { CM_ES_NODE_ADDRESS_CHANGED_AFTER_SCHEDULED,   "Node address has changed since the network was scheduled" },
    { CM_ES_NOT_CONFIGURED_MULTICAST,               "Not configured for off-subnet multicast" },
    { CM_ES_INVALID_PROD_CONS_DATA_FORMAT,          "Invalid produce/consume data format" },
+   { CM_ES_EGRESS_RULE_DENY,                       "Egress Rule deny" },
+   { CM_ES_EGRESS_RULE_CIPHER_NOT_ALLOWED,         "Egress Rule Cipher not allowed" },
+   { CM_ES_NO_MATCHING_INGRESS_RULE,               "No matching Ingress Rules" },
+   { CM_ES_INGRESS_RULE_DENY,                      "Ingress Rule deny" },
+   { CM_ES_INGRESS_RULE_DENY_NON_SECURE,           "Ingress Rule deny non-secure" },
+   { CM_ES_NO_MATCHING_EGRESS_RULE,                "No matching Egress Rule" },
 
    { 0,                          NULL }
 };
@@ -3457,6 +3469,7 @@ const value_string cip_class_names_vals[] = {
    { 0x60,     "Authority"                      },
    { 0x61,     "Password Authenticator"         },
    { 0x62,     "Certificate Authenticator"      },
+   { 0x63,     "Ingress Egress"                 },
    { 0x67,     "PCCC Class"                     },
    { 0xF0,     "ControlNet"                     },
    { 0xF1,     "ControlNet Keeper"              },

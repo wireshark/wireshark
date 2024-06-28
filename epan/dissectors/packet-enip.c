@@ -5,7 +5,7 @@
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.34
  *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.30
- *    CIP Volume 8: CIP Security, Edition 1.13
+ *    CIP Volume 8: CIP Security, Edition 1.17
  *
  * Copyright 2003-2004
  * Magnus Hansson <mah@hms.se>
@@ -356,8 +356,11 @@ static int hf_eip_security_psk_identity_size;
 static int hf_eip_security_psk_identity;
 static int hf_eip_security_psk_size;
 static int hf_eip_security_psk;
+static int hf_eip_security_psk_usage;
 static int hf_eip_security_num_active_certs;
 static int hf_eip_security_num_trusted_auths;
+static int hf_eip_security_num_trusted_identities;
+static int hf_eip_security_num_crl;
 static int hf_eip_cert_name;
 static int hf_eip_cert_state;
 static int hf_eip_cert_encoding;
@@ -371,6 +374,17 @@ static int hf_eip_cert_cert_name;
 static int hf_eip_cert_verify_certificate;
 static int hf_lldp_subtype;
 static int hf_lldp_mac_address;
+static int hf_ingress_egress_num_ranges;
+static int hf_ingress_egress_port_range_low;
+static int hf_ingress_egress_port_range_high;
+static int hf_ingress_egress_num_rules;
+static int hf_ingress_egress_rule_string;
+static int hf_ingress_egress_rules_change_count;
+static int hf_ingress_egress_apply_behav_break_connections;
+static int hf_ingress_egress_apply_behav_reserved;
+static int hf_ingress_egress_apply_behavior;
+static int hf_ingress_egress_ins_num;
+static int hf_ingress_egress_ins;
 
 /* Initialize the subtree pointers */
 static gint ett_enip;
@@ -394,9 +408,12 @@ static gint ett_eip_security_capability_flags;
 static gint ett_eip_security_psk;
 static gint ett_eip_security_active_certs;
 static gint ett_eip_security_trusted_auths;
+static gint ett_eip_security_trusted_identities;
+static gint ett_eip_security_crl;
 static gint ett_eip_cert_capability_flags;
 static gint ett_eip_cert_num_certs;
 static gint ett_security_profiles;
+static gint ett_ingress_egress_apply_behavior;
 static gint ett_iana_port_state_flags;
 static gint ett_connection_info;
 static gint ett_connection_path_info;
@@ -428,6 +445,8 @@ static expert_field ei_mal_eip_security_allow_cipher_suites;
 static expert_field ei_mal_eip_security_preshared_keys;
 static expert_field ei_mal_eip_security_active_certs;
 static expert_field ei_mal_eip_security_trusted_auths;
+static expert_field ei_mal_eip_security_trusted_identities;
+static expert_field ei_mal_eip_security_crl;
 static expert_field ei_mal_eip_cert_capability_flags;
 static expert_field ei_mal_cpf_item_length_mismatch;
 static expert_field ei_mal_cpf_item_minimum_size;
@@ -715,6 +734,14 @@ static const value_string eip_security_state_vals[] = {
    { 5,  "Pull Model Disabled" },
 
    { 0,  NULL }
+};
+
+static const value_string eip_security_psk_usage_vals[] = {
+   { 0, "Server" },
+   { 1, "Client" },
+   { 2, "Any Usage" },
+
+   { 0, NULL },
 };
 
 static const value_string eip_cert_state_vals[] = {
@@ -2045,7 +2072,7 @@ dissect_eip_security_preshared_keys(packet_info *pinfo, proto_tree *tree, proto_
          return total_len;
       }
       offset++;
-      proto_tree_add_item(psk_tree, hf_eip_security_psk_identity, tvb, offset, id_size, ENC_NA);
+      proto_tree_add_item(psk_tree, hf_eip_security_psk_identity, tvb, offset, id_size, ENC_ASCII);
       offset += id_size;
 
       proto_tree_add_item_ret_uint(psk_tree, hf_eip_security_psk_size, tvb, offset, 1, ENC_NA, &psk_size);
@@ -2055,17 +2082,20 @@ dissect_eip_security_preshared_keys(packet_info *pinfo, proto_tree *tree, proto_
          expert_add_info(pinfo, item, &ei_mal_eip_security_preshared_keys);
          return total_len;
       }
-      proto_tree_add_item(psk_tree, hf_eip_security_psk, tvb, offset, psk_size, ENC_NA);
+      proto_tree_add_item(psk_tree, hf_eip_security_psk, tvb, offset, psk_size, ENC_ASCII);
       offset += psk_size;
+
+      proto_tree_add_item(psk_tree, hf_eip_security_psk_usage, tvb, offset, 1, ENC_NA);
+      offset++;
+
    }
    proto_item_set_len(ti, offset-start_offset);
    return offset-start_offset;
 }
 
 static int
-dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                                   int offset, int total_len)
-
+dissect_eip_security_cert_epath_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int total_len,
+   expert_field *expert_info, int hf_num_of_certs, const gint ett_index)
 {
    guint32 i, num, path_size;
    proto_item *ti;
@@ -2074,12 +2104,12 @@ dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_it
 
    if (total_len < 1)
    {
-      expert_add_info(pinfo, item, &ei_mal_eip_security_active_certs);
+      expert_add_info(pinfo, item, expert_info);
       return total_len;
    }
 
-   ti = proto_tree_add_item_ret_uint(tree, hf_eip_security_num_active_certs, tvb, offset, 1, ENC_NA, &num);
-   cert_tree = proto_item_add_subtree(ti, ett_eip_security_active_certs);
+   ti = proto_tree_add_item_ret_uint(tree, hf_num_of_certs, tvb, offset, 1, ENC_NA, &num);
+   cert_tree = proto_item_add_subtree(ti, ett_index);
    offset++;
 
    for (i = 0; i < num; i++)
@@ -2092,39 +2122,31 @@ dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_it
 }
 
 static int
-dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                                   int offset, int total_len)
-
+dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int total_len)
 {
-   guint32 i, num, path_size;
-   proto_item *ti;
-   proto_tree* cert_tree;
-   int start_offset = offset;
-
-   if (total_len < 1)
-   {
-      expert_add_info(pinfo, item, &ei_mal_eip_security_trusted_auths);
-      return total_len;
-   }
-
-   ti = proto_tree_add_item_ret_uint(tree, hf_eip_security_num_trusted_auths, tvb, offset, 1, ENC_NA, &num);
-   cert_tree = proto_item_add_subtree(ti, ett_eip_security_trusted_auths);
-   offset++;
-
-   for (i = 0; i < num; i++)
-   {
-      path_size = dissect_padded_epath_len_usint(pinfo, cert_tree, ti, tvb, offset, total_len);
-      offset += path_size;
-   }
-   proto_item_set_len(ti, offset-start_offset);
-   return offset-start_offset;
+   return dissect_eip_security_cert_epath_list(pinfo, tree, item, tvb, offset, total_len,
+      &ei_mal_eip_security_active_certs, hf_eip_security_num_active_certs, ett_eip_security_active_certs);
 }
 
 static int
-dissect_eip_security_cert_revocation_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                                   int offset, int total_len)
+dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int total_len)
 {
-   return dissect_padded_epath_len_usint(pinfo, tree, item, tvb, offset, total_len);
+   return dissect_eip_security_cert_epath_list(pinfo, tree, item, tvb, offset, total_len,
+      &ei_mal_eip_security_trusted_auths, hf_eip_security_num_trusted_auths, ett_eip_security_trusted_auths);
+}
+
+static int
+dissect_eip_security_cert_revocation_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int total_len)
+{
+   return dissect_eip_security_cert_epath_list(pinfo, tree, item, tvb, offset, total_len,
+      &ei_mal_eip_security_crl, hf_eip_security_num_crl, ett_eip_security_crl);
+}
+
+static int
+dissect_eip_security_trusted_identities(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int total_len)
+{
+   return dissect_eip_security_cert_epath_list(pinfo, tree, item, tvb, offset, total_len,
+      &ei_mal_eip_security_trusted_identities, hf_eip_security_num_trusted_identities, ett_eip_security_trusted_identities);
 }
 
 static int
@@ -2211,6 +2233,89 @@ static int dissect_certificate_management_object_verify_certificate(packet_info 
    else
    {
       return 0;
+   }
+}
+
+/// Ingress Egress - Attributes
+int dissect_ingress_tcp_udp_ports_supported(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   guint32 port_ranges_array_size;
+   proto_tree_add_item_ret_uint(tree, hf_ingress_egress_num_ranges, tvb, offset, 2, ENC_LITTLE_ENDIAN, &port_ranges_array_size);
+   int parsed_len = 2;
+
+   for (guint32 i = 0; i < port_ranges_array_size; i++)
+   {
+      proto_item *port_range_item;
+      proto_tree *port_range_tree = proto_tree_add_subtree_format(tree, tvb, offset + parsed_len, 4, ett_cmd_data, &port_range_item, "Port Range: %d", i + 1);
+      proto_tree_add_item(port_range_tree, hf_ingress_egress_port_range_low, tvb, offset + parsed_len, 2, ENC_LITTLE_ENDIAN);
+      parsed_len += 2;
+      proto_tree_add_item(port_range_tree, hf_ingress_egress_port_range_high, tvb, offset + parsed_len, 2, ENC_LITTLE_ENDIAN);
+      parsed_len += 2;
+   }
+
+   return parsed_len;
+}
+
+int dissect_ingress_egress_rules(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   guint32 array_size;
+   proto_tree_add_item_ret_uint(tree, hf_ingress_egress_num_rules, tvb, offset, 2, ENC_LITTLE_ENDIAN, &array_size);
+   int parsed_len = 2;
+
+   proto_item *rule_string_item;
+   proto_tree *rules_string_tree = proto_tree_add_subtree_format(tree, tvb, offset + parsed_len, 0, ett_cmd_data, &rule_string_item, "Rules: ");
+
+   for (guint32 i = 0; i < array_size; i++)
+   {
+      parsed_len += dissect_cip_string_type(pinfo, rules_string_tree, item, tvb, offset + parsed_len, hf_ingress_egress_rule_string, CIP_SHORT_STRING_TYPE);
+   }
+
+   return parsed_len;
+}
+
+
+/// Ingress Egress - Services
+int dissect_ingress_egress_set_rules(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, gboolean request)
+{
+   if (!request)
+   {
+       return 0;
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_ingress_egress_rules_change_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+      static int* const apply_behavior[] = {
+         &hf_ingress_egress_apply_behav_break_connections,
+         &hf_ingress_egress_apply_behav_reserved,
+         NULL
+      };
+
+      proto_tree_add_bitmask(tree, tvb, offset + 4, hf_ingress_egress_apply_behavior, ett_ingress_egress_apply_behavior, apply_behavior, ENC_LITTLE_ENDIAN);
+
+      guint32 instance_rules_array_size;
+      proto_tree_add_item_ret_uint(tree, hf_ingress_egress_ins_num, tvb, offset + 8, 2, ENC_LITTLE_ENDIAN, &instance_rules_array_size);
+      int parsed_len = 10;
+
+      for (guint32 i = 0; i < instance_rules_array_size; i++)
+      {
+         proto_item *instance_rule_item;
+         proto_tree *instance_rule_tree = proto_tree_add_subtree_format(tree, tvb, offset + parsed_len, 0, ett_cmd_data, &instance_rule_item, "Instance Rule: %d", i + 1);
+         proto_tree_add_item(instance_rule_tree, hf_ingress_egress_ins, tvb, offset + parsed_len, 2, ENC_LITTLE_ENDIAN);
+         parsed_len += 2;
+
+         proto_item *ingress_rules_item;
+         proto_tree *ingress_rules_tree = proto_tree_add_subtree(instance_rule_tree, tvb, offset + parsed_len, 0, ett_cmd_data, &ingress_rules_item, "Ingress Rules");
+         parsed_len += dissect_ingress_egress_rules(pinfo, ingress_rules_tree, ingress_rules_item, tvb, offset + parsed_len, tvb_reported_length_remaining(tvb, offset + parsed_len));
+
+         proto_item *egress_rules_item;
+         proto_tree *egress_rules_tree = proto_tree_add_subtree(instance_rule_tree, tvb, offset + parsed_len, 0, ett_cmd_data, &egress_rules_item, "Egress Rules");
+         parsed_len += dissect_ingress_egress_rules(pinfo, egress_rules_tree, egress_rules_item, tvb, offset + parsed_len, tvb_reported_length_remaining(tvb, offset + parsed_len));
+      }
+
+      return parsed_len;
    }
 }
 
@@ -2399,6 +2504,7 @@ attribute_info_t enip_attribute_vals[] = {
    {0x5E, FALSE, 9, 8, "Verify Client Certificate", cip_bool, &hf_eip_security_verify_client_cert, NULL},
    {0x5E, FALSE, 10, 9, "Send Certificate Chain", cip_bool, &hf_eip_security_send_cert_chain, NULL},
    {0x5E, FALSE, 11, 10, "Check Expiration", cip_bool, &hf_eip_security_check_expiration, NULL},
+   {0x5E, FALSE, 12, 11, "Trusted Identities", cip_dissector_func, NULL, dissect_eip_security_trusted_identities},
 
     /* Certificate Management Object (class attributes) */
    {0x5F, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -2417,12 +2523,42 @@ attribute_info_t enip_attribute_vals[] = {
    {0x5F, FALSE, 3, 2, "Device Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_device_cert},
    {0x5F, FALSE, 4, 3, "CA Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_ca_cert},
    {0x5F, FALSE, 5, 4, "Certificate Encoding", cip_usint, &hf_eip_cert_encoding, NULL },
+
+   /* Ingress Egress Object (class attributes) */
+   {0x63, TRUE, 1,  0, CLASS_ATTRIBUTE_1_NAME,              cip_uint, &hf_attr_class_revision, NULL},
+   {0x63, TRUE, 2,  1, CLASS_ATTRIBUTE_2_NAME,              cip_uint, &hf_attr_class_max_instance, NULL},
+   {0x63, TRUE, 3,  2, CLASS_ATTRIBUTE_3_NAME,              cip_uint, &hf_attr_class_num_instance, NULL},
+   {0x63, TRUE, 4, -1, CLASS_ATTRIBUTE_4_NAME,              cip_dissector_func, NULL, dissect_optional_attr_list},
+   {0x63, TRUE, 5, -1, CLASS_ATTRIBUTE_5_NAME,              cip_dissector_func, NULL, dissect_optional_service_list},
+   {0x63, TRUE, 6,  3, CLASS_ATTRIBUTE_6_NAME,              cip_uint, &hf_attr_class_num_class_attr, NULL},
+   {0x63, TRUE, 7,  4, CLASS_ATTRIBUTE_7_NAME,              cip_uint, &hf_attr_class_num_inst_attr, NULL},
+   {0x63, TRUE, 8,  5, "Ingress Rules TCP Ports Supported", cip_dissector_func, NULL, dissect_ingress_tcp_udp_ports_supported},
+   {0x63, TRUE, 9,  6, "Ingress Rules UDP Ports Supported", cip_dissector_func, NULL, dissect_ingress_tcp_udp_ports_supported},
+
+   /* Ingress Egress Object (instance attributes) */
+   {0x63, FALSE, 1, 0, "Ingress Rules", cip_dissector_func, NULL, dissect_ingress_egress_rules},
+   {0x63, FALSE, 2, 1, "Egress Rules", cip_dissector_func, NULL, dissect_ingress_egress_rules},
+
 };
 
 // Table of CIP services defined by this dissector.
 static cip_service_info_t enip_obj_spec_service_table[] = {
+    // CIP Security
+    { 0x5D, 0x4B, "Begin_Config", NULL },
+    { 0x5D, 0x4C, "Kick_Timer", NULL },
+    { 0x5D, 0x4D, "End_Config", NULL },
+    { 0x5D, 0x4E, "Object_Cleanup", NULL },
+
+    // EtherNet/IP Security
+    { 0x5E, 0x4B, "Begin_Config", NULL },
+    { 0x5E, 0x4C, "Kick_Timer", NULL },
+    { 0x5E, 0x4E, "Abort_Config", NULL },
+
     // Certificate Management
     { 0x5F, 0x4C, "Verify_Certificate", dissect_certificate_management_object_verify_certificate },
+
+    // Ingress Egress Object
+    { 0x63, 0x4B, "Set_Rules", dissect_ingress_egress_set_rules },
 
     // TCP/IP Interface
     { 0xF5, 0x4C, "Set_Port_Admin_State", dissect_tcpip_set_port_admin_state },
@@ -3748,6 +3884,51 @@ proto_register_enip(void)
           FT_UINT8, BASE_DEC, VALS(eip_security_state_vals), 0,
           NULL, HFILL }},
 
+      { &hf_ingress_egress_num_ranges,
+        { "Number of Port Ranges", "cip.ingress_egress.num_port_ranges",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_port_range_low,
+        { "Port Range Low", "cip.ingress_egress.port_range.low",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_port_range_high,
+        { "Port Range High", "cip.ingress_egress.port_range.high",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_num_rules,
+        { "Number of Rules", "cip.ingress_egress.num_rules",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_rule_string,
+        { "Rule String", "cip.ingress_egress.rule_string",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_rules_change_count,
+        { "Rules Change Count", "cip.ingress_egress.rules_change_count",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_apply_behavior,
+        { "Apply Behavior", "cip.ingress_egress.apply_behavior",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_apply_behav_break_connections,
+        { "Break Connections", "cip.ingress_egress.apply_behavior.break_connections",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x00000001,
+          NULL, HFILL } },
+      { &hf_ingress_egress_apply_behav_reserved,
+        { "Reserved", "cip.ingress_egress.apply_behavior.reserved",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFE,
+          NULL, HFILL } },
+      { &hf_ingress_egress_ins_num,
+        { "Number of Instance Rules", "cip.ingress_egress.num_instances",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+      { &hf_ingress_egress_ins,
+        { "Instance Number", "cip.ingress_egress.instance",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
       { &hf_enip_iana_port_state_flags,
         { "IANA Port State", "enip.iana_port_state_flags",
           FT_UINT8, BASE_HEX, NULL, 0,
@@ -4720,7 +4901,7 @@ proto_register_enip(void)
 
       { &hf_eip_security_psk_identity,
         { "PSK Identity", "cip.eip_security.psk_identity",
-          FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
+          FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_eip_security_psk_size,
@@ -4730,7 +4911,12 @@ proto_register_enip(void)
 
       { &hf_eip_security_psk,
         { "PSK", "cip.eip_security.psk",
-          FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_eip_security_psk_usage,
+        { "PSK Usage", "cip.eip_security.psk_usage",
+          FT_UINT8, BASE_DEC, VALS(eip_security_psk_usage_vals), 0,
           NULL, HFILL }},
 
       { &hf_eip_security_num_active_certs,
@@ -4740,6 +4926,14 @@ proto_register_enip(void)
 
       { &hf_eip_security_num_trusted_auths,
         { "Number of Trusted Authorities", "cip.eip_security.num_trusted_auths",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+      { &hf_eip_security_num_trusted_identities,
+        { "Number of Trusted Identities", "cip.eip_security.num_trusted_identities",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+      { &hf_eip_security_num_crl,
+        { "Number of Certificate Revocation Lists", "cip.eip_security.num_crl",
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
@@ -4832,9 +5026,12 @@ proto_register_enip(void)
       &ett_eip_security_psk,
       &ett_eip_security_active_certs,
       &ett_eip_security_trusted_auths,
+      &ett_eip_security_trusted_identities,
+      &ett_eip_security_crl,
       &ett_eip_cert_capability_flags,
       &ett_eip_cert_num_certs,
       &ett_security_profiles,
+      &ett_ingress_egress_apply_behavior,
       &ett_iana_port_state_flags,
       &ett_connection_info,
       &ett_connection_path_info,
@@ -4868,6 +5065,8 @@ proto_register_enip(void)
       { &ei_mal_eip_security_preshared_keys, { "cip.malformed.eip_security.preshared_keys", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Pre-Shared Keys", EXPFILL }},
       { &ei_mal_eip_security_active_certs, { "cip.malformed.eip_security.active_certs", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Active Device Certificates", EXPFILL }},
       { &ei_mal_eip_security_trusted_auths, { "cip.malformed.eip_security.trusted_auths", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Trusted Authorities", EXPFILL }},
+      { &ei_mal_eip_security_trusted_identities, { "cip.malformed.eip_security.trusted_identities", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Trusted Identities", EXPFILL }},
+      { &ei_mal_eip_security_crl, { "cip.malformed.eip_security.crl", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Certificate Revocation List", EXPFILL }},
       { &ei_mal_eip_cert_capability_flags, { "cip.malformed.eip_cert.capability_flags", PI_MALFORMED, PI_ERROR, "Malformed EIP Certificate Management Capability Flags", EXPFILL }},
       { &ei_mal_cpf_item_length_mismatch, { "enip.malformed.cpf_item_length_mismatch", PI_MALFORMED, PI_ERROR, "CPF Item Length Mismatch", EXPFILL } },
       { &ei_mal_cpf_item_minimum_size, { "enip.malformed.cpf_item_minimum_size", PI_MALFORMED, PI_ERROR, "CPF Item Minimum Size is 4", EXPFILL } },
