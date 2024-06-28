@@ -1,11 +1,13 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Attributes and values defined in RFC 4603.
 #	http://www.ietf.org/rfc/rfc4603.txt
 #
-#	$Id: 9e77c74791920f192e4d95b0600c99659af03962 $
+#	$Id: f7ab4955af90a78ba08114ee4661597b84638496 $
 #
 ##############################################################################
 

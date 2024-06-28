@@ -1,10 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #        Attributes and values defined in RFC 7268
 #        http://www.ietf.org/rfc/rfc7268.txt
 #
-#	$Id: e01186a235cde7d51fe1e271c5096da01faa5f2e $
+#	$Id: 8ac2b3442e2b0ba4732d43585f8c1daeb6eea3e9 $
 #
 
 ATTRIBUTE	Allowed-Called-Station-Id		174	string

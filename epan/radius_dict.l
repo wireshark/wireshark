@@ -310,6 +310,7 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 <ATTR_W_ID>signed			{ yyextra->attr_type = radius_signed;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>combo-ip			{ yyextra->attr_type = radius_combo_ip;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>tlv				{ yyextra->attr_type = radius_tlv;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>vsa				{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>[0-9a-z_-]+			{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_TYPE>has_tag[,]?		{ yyextra->has_tag = true; }
 <ATTR_W_TYPE>encrypt=[123][,]?		{ yyextra->encrypted = (unsigned) strtoul(yytext+8,NULL,10); }

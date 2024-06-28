@@ -1,0 +1,65 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 51fd76e85db92ccd83252b0fd81b4e31457476c9 $
+#
+#        Attributes and values defined in RFC 8045
+#        http://www.ietf.org/rfc/rfc8045.txt
+#
+
+ATTRIBUTE	IP-Port-Limit-Info			241.5	tlv
+ATTRIBUTE	IP-Port-Range				241.6	tlv
+ATTRIBUTE	IP-Port-Forwarding-Map			241.7	tlv
+
+#
+#  These attributes can appear in all of the above TLVs.  There is
+#  currently no way to describe this using the existing dictionary
+#  format.
+#
+ATTRIBUTE	IP-Port-Type				241.5.1	integer
+ATTRIBUTE	IP-Port-Limit				241.5.2	integer
+ATTRIBUTE	IP-Port-Ext-IPv4-Addr			241.5.3	ipaddr
+ATTRIBUTE	IP-Port-Int-IPv4-Addr			241.5.4	ipaddr
+ATTRIBUTE	IP-Port-Int-IPv6-Addr			241.5.5	ipv6addr
+ATTRIBUTE	IP-Port-Int-Port			241.5.6	integer
+ATTRIBUTE	IP-Port-Ext-Port			241.5.7	integer
+ATTRIBUTE	IP-Port-Alloc				241.5.8	integer
+ATTRIBUTE	IP-Port-Range-Start			241.5.9	integer
+ATTRIBUTE	IP-Port-Range-End			241.5.10	integer
+ATTRIBUTE	IP-Port-Local-Id			241.5.11	string
+
+VALUE	IP-Port-Alloc			Reserved		0
+VALUE	IP-Port-Alloc			Allocation		1
+VALUE	IP-Port-Alloc			Deallocation		2
+
+ATTRIBUTE	IP-Port-Range-Type			241.6.1	integer
+ATTRIBUTE	IP-Port-Range-Limit			241.6.2	integer
+ATTRIBUTE	IP-Port-Range-Ext-IPv4-Addr		241.6.3	ipaddr
+ATTRIBUTE	IP-Port-Range-Int-IPv4-Addr		241.6.4	ipaddr
+ATTRIBUTE	IP-Port-Range-Int-IPv6-Addr		241.6.5	ipv6addr
+ATTRIBUTE	IP-Port-Range-Int-Port			241.6.6	integer
+ATTRIBUTE	IP-Port-Range-Ext-Port			241.6.7	integer
+ATTRIBUTE	IP-Port-Range-Alloc			241.6.8	integer
+ATTRIBUTE	IP-Port-Range-Range-Start		241.6.9	integer
+ATTRIBUTE	IP-Port-Range-Range-End			241.6.10	integer
+ATTRIBUTE	IP-Port-Range-Local-Id			241.6.11	string
+
+VALUE	IP-Port-Range-Alloc		Reserved		0
+VALUE	IP-Port-Range-Alloc		Allocation		1
+VALUE	IP-Port-Range-Alloc		Deallocation		2
+
+ATTRIBUTE	IP-Port-Map-Type			241.7.1	integer
+ATTRIBUTE	IP-Port-Map-Limit			241.7.2	integer
+ATTRIBUTE	IP-Port-Map-Ext-IPv4-Addr		241.7.3	ipaddr
+ATTRIBUTE	IP-Port-Map-Int-IPv4-Addr		241.7.4	ipaddr
+ATTRIBUTE	IP-Port-Map-Int-IPv6-Addr		241.7.5	ipv6addr
+ATTRIBUTE	IP-Port-Map-Int-Port			241.7.6	integer
+ATTRIBUTE	IP-Port-Map-Ext-Port			241.7.7	integer
+ATTRIBUTE	IP-Port-Map-Alloc			241.7.8	integer
+ATTRIBUTE	IP-Port-Map-Range-Start			241.7.9	integer
+ATTRIBUTE	IP-Port-Map-Range-End			241.7.10	integer
+ATTRIBUTE	IP-Port-Map-Local-Id			241.7.11	string
+
+VALUE	IP-Port-Map-Alloc		Reserved		0
+VALUE	IP-Port-Map-Alloc		Allocation		1
+VALUE	IP-Port-Map-Alloc		Deallocation		2

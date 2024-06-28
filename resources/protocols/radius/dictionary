@@ -1,6 +1,12 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # Version $Id$
+#
+# 2024-06-27 Updated based upon FreeRadius v3.2.4 dictionary file
+#	     - Added : rfc8045 (commented out for now), rfc8559
+#	     - Uncommented : rfc7499, rfc7930
 #
 # 2014-10-26 Updated based upon FreeRadius v3.0.4 dictionary file
 #	     - Added : actelis, aerohive, alvarion.wimax.v2_2, bluecoat, broadsoft, brocade, bskyb,
@@ -39,25 +45,30 @@
 #	composed of Attribute/Value Pairs.  The value of each attribute
 #	is specified as one of a few data types.  Valid data types are:
 #
-#	text       - printable, generally UTF-8 encoded (subset of 'string')
-#	string     - 0-253 octets
+#	string     - printable text, generally UTF-8 encoded.  (The RFCs call this "text")
 #	ipaddr     - 4 octets in network byte order
-#	integer    - 32 bit value in big endian order (high byte first)
-#                    [wireshark uses this type for non-standard 1-2-3 and 8 byte integers as well]
+#	ipv4prefix - 1 octet reserved, one octet prefix, 4 octets ipaddr
+#	integer    - 32 bit value in big endian order
+#	             [wireshark uses this type for non-standard 1-2-3 and 8 byte integers as well]
+#	integer64  - 64 bit value in big endian order
 #	date       - 32 bit value in big endian order - seconds since
 #		     00:00:00 GMT,  Jan.  1,  1970
 #	ifid       - 8 octets in network byte order
 #	ipv6addr   - 16 octets in network byte order
-#	ipv6prefix - 18 octets in network byte order
+#	ipv6prefix - 1 octet reserved, one octet prefix, 16 octets ipv6addr
+#	tlv	   - type-length-value
 #
 #	FreeRADIUS includes data types which are not defined
 #	in the RFC's.  These data types are:
 #
 #	abinary - Ascend's binary filter format.
-#	ether      - 6 octets of hh:hh:hh:hh:hh:hh
-#		     where 'h' is hex digits, upper or lowercase.
+#	byte    - 8 bit unsigned integer
+#	ether   - 6 octets of hh:hh:hh:hh:hh:hh
+#		  where 'h' is hex digits, upper or lowercase.
+#	short   - 16-bit unsigned integer in network byte order
+#	signed  - 32-bit signed integer in network byte order
 #	octets  - raw octets, printed and input as hex strings.
-#		  e.g.: 0x123456789abcdef
+#		  e.g.: 0x123456789abcdef  The RFCs call this "string".
 #
 # 	FreeRADIUS uses a number of data types which are defined in
 #	RFC 6929.  These data types should NEVER be used in any other
@@ -121,6 +132,8 @@ $INCLUDE dictionary.rfc7155
 $INCLUDE dictionary.rfc7268
 $INCLUDE dictionary.rfc7499
 $INCLUDE dictionary.rfc7930
+#$INCLUDE dictionary.rfc8045
+$INCLUDE dictionary.rfc8559
 
 #
 #	Mostly values which have been allocated by IANA under
@@ -300,41 +313,6 @@ $INCLUDE custom.includes
 
 #
 #	And finally the server internal attributes.
+#	These are attributes which NEVER go into a RADIUS packet.
 #
 ###$INCLUDE dictionary.freeradius.internal
-
-#
-#	Miscellaneous attributes defined in weird places that
-#	don't really belong anywhere else...
-#
-ATTRIBUTE	Originating-Line-Info			94	string
-
-#  As defined in draft-sterman-aaa-sip-00.txt
-ATTRIBUTE	Digest-Response				206	string
-ATTRIBUTE	Digest-Attributes			207	octets	# stupid format
-
-#
-#	Integer Translations
-#
-VALUE	Service-Type			Voice			12
-VALUE	Service-Type			Fax			13
-VALUE	Service-Type			Modem-Relay		14
-VALUE	Service-Type			IAPP-Register		15
-VALUE	Service-Type			IAPP-AP-Check		16
-
-VALUE	Framed-Protocol			GPRS-PDP-Context	7
-
-VALUE	NAS-Port-Type			Wireless-CDMA2000	22
-VALUE	NAS-Port-Type			Wireless-UMTS		23
-VALUE	NAS-Port-Type			Wireless-1X-EV		24
-VALUE	NAS-Port-Type			IAPP			25
-
-VALUE   NAS-Port-Type                   FTTP                    26
-VALUE   NAS-Port-Type                   Wireless-802.16         27
-VALUE   NAS-Port-Type                   Wireless-802.20         28
-VALUE   NAS-Port-Type                   Wireless-802.22         29
-
-VALUE   NAS-Port-Type                   xPON                    35
-VALUE   NAS-Port-Type                   Wireless-XGP            36
-
-VALUE	Framed-Protocol			PPTP			9

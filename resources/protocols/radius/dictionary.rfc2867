@@ -1,10 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Attributes and values defined in RFC 2867.
 #	http://www.ietf.org/rfc/rfc2867.txt
 #
-#	$Id: eb80d3c3f20d596758b768dd2c09cf0420ff71fb $
+#	$Id: 821f860b452b3cfc6c7f7d0023601a3192c8f1b4 $
 #
 ATTRIBUTE	Acct-Tunnel-Connection			68	string
 ATTRIBUTE	Acct-Tunnel-Packets-Lost		86	integer

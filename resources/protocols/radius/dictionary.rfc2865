@@ -1,9 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Attributes and values defined in RFC 2865.
 #	http://www.ietf.org/rfc/rfc2865.txt
 #
-#	$Id$
+#	$Id: 6e2319a96710c2a341e24133abd81fde98a6eb55 $
 #
 ATTRIBUTE	User-Name				1	string
 ATTRIBUTE	User-Password				2	string encrypt=1
@@ -30,7 +32,7 @@ ATTRIBUTE	Framed-Route				22	string
 ATTRIBUTE	Framed-IPX-Network			23	ipaddr
 ATTRIBUTE	State					24	octets
 ATTRIBUTE	Class					25	octets
-ATTRIBUTE	Vendor-Specific				26	octets
+ATTRIBUTE	Vendor-Specific				26	vsa
 ATTRIBUTE	Session-Timeout				27	integer
 ATTRIBUTE	Idle-Timeout				28	integer
 ATTRIBUTE	Termination-Action			29	integer

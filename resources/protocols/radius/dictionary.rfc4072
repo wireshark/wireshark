@@ -1,9 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Attributes and values defined in RFC 4072
 #	http://www.ietf.org/rfc/rfc4072.txt
 #
-#	$Id$
+#	$Id: 3bb543f2c9080b567d3ecc077f1d556e1ff87cca $
 #
 
-ATTRIBUTE	EAP-Key-Name				102	string
+ATTRIBUTE	EAP-Key-Name				102	octets

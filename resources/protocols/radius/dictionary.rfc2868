@@ -1,10 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Attributes and values defined in RFC 2868.
 #	http://www.ietf.org/rfc/rfc2868.txt
 #
-#	$Id: 1d3e829f5248162add8f94227bcefd406d0305a8 $
+#	$Id: 8535eef3c6d21b74d5642a3c1482124c84e61dbb $
 #
 ATTRIBUTE	Tunnel-Type				64	integer	has_tag
 ATTRIBUTE	Tunnel-Medium-Type			65	integer	has_tag
