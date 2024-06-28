@@ -3023,7 +3023,8 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             blf_set_xml_channels(params, params->buf->data, ws_buffer_length(params->buf));
         }
 
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(params->buf), (uint32_t)ws_buffer_length(params->buf));
+        /* Override the timestamp with 0 for metadata objects. Thay can only occur at the beginning of the file, and they usually alrady have a timestamp of 0. */
+        blf_init_rec(params, 0, 0, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(params->buf), (uint32_t)ws_buffer_length(params->buf));
         return BLF_APPTEXT_METADATA;
         break;
     case BLF_APPTEXT_COMMENT:
