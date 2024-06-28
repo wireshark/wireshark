@@ -537,7 +537,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
         }
 
         /* remember custodian, for use in checking cteb validity */
-        col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+        col_set_writable(pinfo->cinfo, COL_INFO, true);
         col_clear_fence(pinfo->cinfo, COL_INFO);
         if (col_text && strstr(col_text, " > ")) {
             if (! strstr(col_text, "[multiple]")) {
@@ -598,7 +598,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          * Add Source/Destination to INFO Field
          */
 
-        col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+        col_set_writable(pinfo->cinfo, COL_INFO, true);
         col_clear_fence(pinfo->cinfo, COL_INFO);
         if (col_text && strstr(col_text, " > "))
             col_append_str(pinfo->cinfo, COL_INFO, ", [multiple]");

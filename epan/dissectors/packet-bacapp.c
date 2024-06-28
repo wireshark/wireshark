@@ -14100,7 +14100,7 @@ fLOPR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
     guint8  tag_no, tag_info;
     guint32 lvt;
 
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
@@ -14148,7 +14148,7 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     guint32     lvt;
     proto_tree *subtree    = tree;
 
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -14923,7 +14923,7 @@ fWritePropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (offset >= tvb_reported_length(tvb))
         return offset;
 
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
     return fWriteAccessSpecification(tvb, pinfo, tree, offset);
 }
 
@@ -14965,7 +14965,7 @@ fPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 static guint
 fBACnetPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 list)
 {
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
     return fPropertyReference(tvb, pinfo, tree, offset, 0, list);
 }
 
@@ -14983,7 +14983,7 @@ fBACnetObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             break;
         case 1: /* PropertyIdentifier and propertyArrayIndex */
             offset = fPropertyReference(tvb, pinfo, tree, offset, 1, 0);
-            col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+            col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
             /* FALLTHROUGH */
         default:
             lastoffset = offset; /* Set loop end condition */
@@ -15614,7 +15614,7 @@ fReadRangeAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
     /* itemData */
     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (tag_is_opening(tag_info)) {
-        col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+        col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
         subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "itemData");
         offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
         offset  = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
@@ -15760,14 +15760,14 @@ fAtomicReadFileAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 static guint
 fReadPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offset)
 {
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
     return fReadAccessSpecification(tvb, pinfo, subtree, offset);
 }
 
 static guint
 fReadPropertyMultipleAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
     return fReadAccessResult(tvb, pinfo, tree, offset);
 }
 
@@ -16331,7 +16331,7 @@ fWritePropertyMultipleError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8  tag_no     = 0, tag_info = 0;
     guint32 lvt        = 0;
 
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, false); /* don't set all infos into INFO column */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         switch (fTagNo(tvb, offset)) {

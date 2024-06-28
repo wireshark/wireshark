@@ -3190,8 +3190,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	 * applied */
 	save_info_writable = col_get_writable(pinfo->cinfo, COL_INFO);
 	save_proto_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
-	col_set_writable(pinfo->cinfo, COL_PROTOCOL, TRUE);
-	col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+	col_set_writable(pinfo->cinfo, COL_PROTOCOL, true);
+	col_set_writable(pinfo->cinfo, COL_INFO, true);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 	col_clear(pinfo->cinfo, COL_INFO);

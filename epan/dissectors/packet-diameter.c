@@ -456,11 +456,11 @@ dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	gboolean save_writable;
+	bool save_writable;
 
 	/* Ensure the packet is displayed as Diameter, not EAP */
 	save_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
-	col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+	col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
 
 	call_dissector(eap_handle, tvb, pinfo, tree);
 
@@ -1053,8 +1053,8 @@ proto_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_
 {
 	proto_avp_t *t = (proto_avp_t *)a->type_data;
 
-	col_set_writable(c->pinfo->cinfo, COL_PROTOCOL, FALSE);
-	col_set_writable(c->pinfo->cinfo, COL_INFO, FALSE);
+	col_set_writable(c->pinfo->cinfo, COL_PROTOCOL, false);
+	col_set_writable(c->pinfo->cinfo, COL_INFO, false);
 
 	if (!t->handle) {
 		t->handle = find_dissector(t->name);

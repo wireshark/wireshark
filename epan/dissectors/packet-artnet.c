@@ -5142,7 +5142,7 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
   tvbuff_t *next_tvb;
   guint16   length;
   guint     size;
-  gboolean  save_info;
+  bool      save_info;
 
   proto_tree_add_item(tree, hf_artnet_output_sequence, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5167,7 +5167,7 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
   size = tvb_reported_length_remaining(tvb, offset);
 
   save_info = col_get_writable(pinfo->cinfo, COL_INFO);
-  col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+  col_set_writable(pinfo->cinfo, COL_INFO, false);
 
   next_tvb = tvb_new_subset_length(tvb, offset, length);
 
@@ -5311,7 +5311,7 @@ dissect_artnet_nzs(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *p
     /* Nzs -> DMX data */
 
     save_info = col_get_writable(pinfo->cinfo, COL_INFO);
-    col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+    col_set_writable(pinfo->cinfo, COL_INFO, false);
 
     next_tvb = tvb_new_subset_length(tvb, offset, length);
 
@@ -5830,7 +5830,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
   size = tvb_reported_length_remaining(tvb, offset);
 
   save_info = col_get_writable(pinfo->cinfo, COL_INFO);
-  col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+  col_set_writable(pinfo->cinfo, COL_INFO, false);
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 

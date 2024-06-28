@@ -6205,15 +6205,15 @@ dissect_llrp_probe_reply_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pd
 static guint32
 dissect_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree, guint32 data_offset, guint32 length)
 {
-  gboolean         save_info;
-  gboolean         save_protocol;
+  bool             save_info;
+  bool             save_protocol;
   guint32          data_end;
   tvbuff_t        *next_tvb;
 
   save_info     = col_get_writable(pinfo->cinfo, COL_INFO);
   save_protocol = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
-  col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
-  col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+  col_set_writable(pinfo->cinfo, COL_INFO, false);
+  col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
 
   data_end = data_offset + length;
   next_tvb = tvb_new_subset_length(tvb, data_offset, length);

@@ -963,13 +963,13 @@ static gboolean display_slot = TRUE;
 static void
 f5eth_set_info_col_slot(packet_info *pinfo, guint ingress, guint slot, guint tmm)
 {
-    gboolean col_writable;
+    bool col_writable;
     /*
      * HTTP and other protocols set writable to false to protect
      * their data.  We don't care.
      */
     col_writable = col_get_writable(pinfo->cinfo, COL_INFO);
-    col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+    col_set_writable(pinfo->cinfo, COL_INFO, true);
 
     if (ingress != 0) {
         DISSECTOR_ASSERT(info_format_in_slot);
@@ -995,13 +995,13 @@ f5eth_set_info_col_slot(packet_info *pinfo, guint ingress, guint slot, guint tmm
 static void
 f5eth_set_info_col_noslot(packet_info *pinfo, guint ingress, guint slot _U_, guint tmm)
 {
-    gboolean col_writable;
+    bool col_writable;
     /*
      * HTTP and other protocols set writable to false to protect
      * their data.  We don't care.
      */
     col_writable = col_get_writable(pinfo->cinfo, COL_INFO);
-    col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+    col_set_writable(pinfo->cinfo, COL_INFO, true);
 
     if (ingress != 0) {
         col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, info_format_in_noslot, tmm);
@@ -1031,7 +1031,7 @@ f5eth_set_info_col_inout(packet_info *pinfo, guint ingress, guint slot _U_, guin
      * their data.  We don't care.
      */
     col_writable = col_get_writable(pinfo->cinfo, COL_INFO);
-    col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+    col_set_writable(pinfo->cinfo, COL_INFO, true);
 
     if (ingress != 0) {
         col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "%s", info_format_in_only);

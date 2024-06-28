@@ -1060,7 +1060,7 @@ found:
         ngap_tree = tree;
     }
     save_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
-    col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+    col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
     call_dissector_with_data(subdissector, tvb, pinfo, ngap_tree, NULL);
     col_set_writable(pinfo->cinfo, COL_PROTOCOL, save_writable);
     return tvb_captured_length(tvb);

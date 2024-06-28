@@ -2837,7 +2837,7 @@ dissect_diameter_3gpp_sm_rp_ui(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         parent_message_is_request = diam_sub_dis_inf->parent_message_is_request;
     }
 
-    col_set_writable(pinfo->cinfo, -1, FALSE);
+    col_set_writable(pinfo->cinfo, -1, false);
 
     if ((length > 0) && (cmd != 0)) {
         switch (cmd){

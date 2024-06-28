@@ -975,7 +975,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
 Common_Exit:
-    col_set_writable(pinfo->cinfo, -1, FALSE);
+    col_set_writable(pinfo->cinfo, -1, false);
 
     return afterwelcome;
 }
@@ -1329,7 +1329,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                      wmem_strbuf_get_str(src_addr), wmem_strbuf_get_str(dst_addr));
     }
 
-    col_set_writable(pinfo->cinfo, -1, FALSE);
+    col_set_writable(pinfo->cinfo, -1, false);
 
     while( tree && (complete_messages > 0) ) {
         proto_item *jxta_msg_tree_item = NULL;

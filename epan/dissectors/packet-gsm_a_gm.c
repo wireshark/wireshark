@@ -5100,9 +5100,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 							 * dissect the embedded message
 							*/
 							/* In this case we do not want the columns updated */
-							col_set_writable(pinfo->cinfo, -1, FALSE);
+							col_set_writable(pinfo->cinfo, -1, false);
 							call_dissector(handle, l3_tvb, pinfo, pco_tree);
-							col_set_writable(pinfo->cinfo, -1, TRUE);
+							col_set_writable(pinfo->cinfo, -1, true);
 						}
 						else
 						{

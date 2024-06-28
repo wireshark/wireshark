@@ -7032,7 +7032,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 save_writable = col_get_writable (pinfo->cinfo, -1);
 
                 /* Disable overwriting of the info column by the sub dissectors*/
-                col_set_writable (pinfo->cinfo, -1, FALSE);
+                col_set_writable (pinfo->cinfo, -1, false);
                 /* Save the source and destination addresses */
                 copy_address_shallow(&save_dl_src, &pinfo->dl_src);
                 copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);

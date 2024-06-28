@@ -1889,7 +1889,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
             proto_tree_add_item(ft_tree, hf_gquic_crypto_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
 
             if (gquic_info->version == 50) {
-	        message_tag = tvb_get_ntohl(tvb, offset);
+                message_tag = tvb_get_ntohl(tvb, offset);
                 ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &message_tag_str);
                 proto_item_append_text(ti, " (%s)", val_to_str_const(message_tag, message_tag_vals, "Unknown Tag"));
                 col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
@@ -1898,9 +1898,9 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset);
 	    } else { /* T050 and T051 */
                 tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
-                col_set_writable(pinfo->cinfo, -1, FALSE);
+                col_set_writable(pinfo->cinfo, -1, false);
                 call_dissector_with_data(tls13_handshake_handle, next_tvb, pinfo, ft_tree, GUINT_TO_POINTER(crypto_offset));
-                col_set_writable(pinfo->cinfo, -1, TRUE);
+                col_set_writable(pinfo->cinfo, -1, true);
                 offset += (guint32)crypto_length;
 	    }
 
