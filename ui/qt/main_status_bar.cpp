@@ -599,7 +599,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         action->setEnabled(enable_edit);
         ctx_menu_->addSeparator();
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         QMenu * importMenu = new QMenu(tr("Import"), ctx_menu_);
         action = importMenu->addAction(tr("From Zip File..."), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);

@@ -1080,7 +1080,7 @@ QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent, b
     return result;
 }
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
 QStringList ProfileModel::exportFileList(QModelIndexList items)
 {
     QStringList result;

@@ -80,7 +80,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     import_button_ = pd_ui_->buttonBox->addButton(tr("Import", "noun"), QDialogButtonBox::ActionRole);
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     export_button_ = pd_ui_->buttonBox->addButton(tr("Export", "noun"), QDialogButtonBox::ActionRole);
 
     QMenu * importMenu = new QMenu(import_button_);
@@ -167,7 +167,7 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
         ret = exec();
         break;
     case ImportZipProfile:
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         importFromZip();
 #endif
         break;
@@ -175,12 +175,12 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
         importFromDirectory();
         break;
     case ExportSingleProfile:
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         exportProfiles();
 #endif
         break;
     case ExportAllProfiles:
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         exportProfiles(true);
 #endif
         break;
@@ -263,7 +263,7 @@ void ProfileDialog::updateWidgets()
     import_button_->setToolTip(msg);
     import_button_->setEnabled(enable_import);
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     bool contains_user = false;
     bool enable_export = false;
 
@@ -308,7 +308,7 @@ void ProfileDialog::updateWidgets()
 
         msg = tr("%Ln Selected Personal Profile(s)...", "", user_profiles);
         pd_ui_->hintLabel->setText(msg);
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         export_selected_entry_->setText(msg);
 #endif
     }
@@ -328,7 +328,7 @@ void ProfileDialog::updateWidgets()
         }
 
         pd_ui_->copyToolButton->setEnabled(true);
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         export_selected_entry_->setText(msg);
 #endif
     }
@@ -576,7 +576,7 @@ void ProfileDialog::filterChanged(const QString &text)
         pd_ui_->profileTreeView->setCurrentIndex(active);
 }
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
 void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
 {
     QAction * action = qobject_cast<QAction *>(sender());

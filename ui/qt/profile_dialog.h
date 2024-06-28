@@ -54,7 +54,7 @@ private:
     Ui::ProfileDialog *pd_ui_;
     QPushButton *ok_button_;
     QPushButton *import_button_;
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     QPushButton *export_button_;
     QAction *export_selected_entry_;
 #endif
@@ -68,7 +68,7 @@ private:
 
 private slots:
     void currentItemChanged(const QModelIndex & c = QModelIndex(), const QModelIndex & p = QModelIndex());
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     void exportProfiles(bool exportAllPersonalProfiles = false);
     void importFromZip();
 #endif

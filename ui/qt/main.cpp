@@ -235,11 +235,15 @@ gather_wireshark_qt_compiled_info(feature_list l)
 #endif
 #endif /* _WIN32 */
 
+#ifdef HAVE_MINIZIPNG
+    with_feature(l, "Minizip-ng");
+#else
 #ifdef HAVE_MINIZIP
     with_feature(l, "Minizip");
 #else
     without_feature(l, "Minizip");
 #endif
+#endif /* HAVE_MINIZIPNG*/
 }
 
 void

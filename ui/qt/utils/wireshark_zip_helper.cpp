@@ -11,15 +11,19 @@
 
 #include <ui/qt/utils/wireshark_zip_helper.h>
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
 #include "config.h"
 
 #include <iosfwd>
 #include <iostream>
 #include <zlib.h>  // For Z_DEFLATED, etc.
+#ifdef HAVE_MINIZIP
 #include <minizip/unzip.h>
 #include <minizip/zip.h>
-
+#else
+#include <minizip-ng/unzip.h>
+#include <minizip-ng/zip.h>
+#endif
 #include "epan/prefs.h"
 #include "wsutil/file_util.h"
 

@@ -100,7 +100,7 @@ public:
 
     bool userProfilesExist() const;
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     bool exportProfiles(QString filename, QModelIndexList items, QString * err = Q_NULLPTR);
     int importProfilesFromZip(QString filename, int *skippedCnt = Q_NULLPTR, QStringList *result = Q_NULLPTR);
 #endif
@@ -141,7 +141,7 @@ private:
     int findByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false) const;
     int findAsReference(QString reference) const;
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     static bool acceptFile(QString fileName, int fileSize);
     static QString cleanName(QString fileName);
 #endif
@@ -153,7 +153,7 @@ private:
     QVariant dataToolTipRole(const QModelIndex & idx) const;
     QVariant dataPath(const QModelIndex & idx) const;
 
-#ifdef HAVE_MINIZIP
+#if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     QStringList exportFileList(QModelIndexList items);
 #endif
     bool copyTempToProfile(QString tempPath, QString profilePath, bool *wasEmpty = Q_NULLPTR);

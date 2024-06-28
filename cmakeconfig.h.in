@@ -158,6 +158,9 @@
 /* Define to use the minizip library */
 #cmakedefine HAVE_MINIZIP 1
 
+/* Define to use the minizip-ng library */
+#cmakedefine HAVE_MINIZIPNG 1
+
 /* Define if `dos_date' (with underscore) field exists in `zip_fileinfo'  */
 #cmakedefine HAVE_MZCOMPAT_DOS_DATE 1
 
