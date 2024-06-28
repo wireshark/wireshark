@@ -1152,7 +1152,7 @@ sub Parse($$$$$)
 	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be
-	found at https://gitlab.com/wireshark/wireshark/-/wikis/Pidl
+	found at https://wiki.wireshark.org/Pidl
 */
 
 ";
