@@ -587,7 +587,12 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     case DecodeAsBASE64:
     {
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
-        field_bytes_ = QByteArray::fromBase64(QByteArray::fromRawData((const char *)bytes, length));
+        QByteArray ba = QByteArray::fromRawData((const char *)bytes, length);
+        if (ba.contains('-') || ba.contains('_')) {
+            field_bytes_ = QByteArray::fromBase64(ba, QByteArray::Base64UrlEncoding);
+        } else {
+            field_bytes_ = QByteArray::fromBase64(ba, QByteArray::Base64Encoding);
+        }
         break;
     }
 
