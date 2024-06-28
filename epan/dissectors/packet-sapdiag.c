@@ -1579,11 +1579,11 @@ dissect_sapdiag_rfc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	/* Call the RFC internal dissector.
 	 * TODO: This should be enabled when the RFC dissector is merged as they depend on each other.
 	 */
-	if (global_sapdiag_rfc_dissection == TRUE && FALSE){
+	if (global_sapdiag_rfc_dissection && false){
 		rfc_handle = find_dissector("saprfcinternal");
 		if (rfc_handle){
 			/* Set the column to not writable so the RFC dissector doesn't override the Diag info */
-			col_set_writable(pinfo->cinfo, -1, FALSE);
+			col_set_writable(pinfo->cinfo, -1, false);
 			/* Create a new tvb buffer and call the dissector */
 			next_tvb = tvb_new_subset_length(tvb, offset, item_length);
 			call_dissector(rfc_handle, next_tvb, pinfo, tree);

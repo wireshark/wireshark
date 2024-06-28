@@ -291,7 +291,7 @@ dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 	tvbuff_t *eth_tvb;
 
 #ifdef MINT_DEVELOPMENT
-	col_set_writable(pinfo->cinfo, -1, FALSE);
+	col_set_writable(pinfo->cinfo, -1, false);
 #endif
 
 	eth_tvb = tvb_new_subset_length(tvb, offset, length);
@@ -304,7 +304,7 @@ dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 	offset += length;
 
 #ifdef MINT_DEVELOPMENT
-	col_set_writable(pinfo->cinfo, -1, TRUE);
+	col_set_writable(pinfo->cinfo, -1, true);
 #endif
 	return offset;
 }

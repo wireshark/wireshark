@@ -4502,7 +4502,7 @@ again:
          *  <Protocol>   to <SSH>
          */
         col_set_fence(pinfo->cinfo, COL_INFO);
-        col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+        col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
         first_pdu = FALSE;
         offset += another_pdu_follows;
         seq += another_pdu_follows;

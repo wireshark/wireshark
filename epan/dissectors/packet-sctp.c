@@ -4651,9 +4651,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     dissect_i_forward_tsn_chunk(chunk_tvb, length, chunk_tree, chunk_item);
     break;
   case SCTP_PKTDROP_CHUNK_ID:
-    col_set_writable(pinfo->cinfo, -1, FALSE);
+    col_set_writable(pinfo->cinfo, -1, false);
     dissect_pktdrop_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item, flags_item);
-    col_set_writable(pinfo->cinfo, -1, TRUE);
+    col_set_writable(pinfo->cinfo, -1, true);
     break;
   case SCTP_PAD_CHUNK_ID:
     dissect_pad_chunk(chunk_tvb, length, chunk_tree, chunk_item);

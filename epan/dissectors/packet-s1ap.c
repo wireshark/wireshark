@@ -10396,7 +10396,7 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
   if ((g_s1ap_dissect_container)&&(parameter_tvb) && (tvb_reported_length(parameter_tvb) > 0)) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     /* Don't want elements inside container to write to info column */
-    col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, false);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     switch(s1ap_data->handover_type_value){
@@ -10452,7 +10452,7 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
       break;
     }
     /* Enable writing of the column again */
-    col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, true);
   }
 
 

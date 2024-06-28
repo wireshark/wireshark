@@ -1588,7 +1588,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         pinfo->flags.in_error_pkt = TRUE;
 
         /* Disable update/change of column info */
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
 
         dissect_openflow_message_v4(tvb, pinfo, data_tree, offset);
 
@@ -1596,7 +1596,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         pinfo->flags.in_error_pkt = save_in_error_pkt;
 
         /* Restore the capability of update/change column info */
-        col_set_writable(pinfo->cinfo, -1, TRUE);
+        col_set_writable(pinfo->cinfo, -1, true);
 
         /*offset += length - 12;*/
         }
@@ -1748,7 +1748,7 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
     proto_tree *data_tree;
     tvbuff_t *next_tvb;
-    gboolean save_writable;
+    bool     save_writable;
     gboolean save_in_error_pkt;
     address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
 
@@ -1794,7 +1794,7 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         copy_address_shallow(&save_dst, &pinfo->dst);
 
         /* dissect data */
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
         next_tvb = tvb_new_subset_length(tvb, offset, length - offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
 
@@ -2314,7 +2314,7 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     guint16 acts_len;
     gint32 acts_end;
     tvbuff_t *next_tvb;
-    gboolean save_writable;
+    bool     save_writable;
     gboolean save_in_error_pkt;
     address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
 
@@ -2357,7 +2357,7 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         copy_address_shallow(&save_dst, &pinfo->dst);
 
         /* dissect data */
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
         next_tvb = tvb_new_subset_length(tvb, offset, length - offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
 

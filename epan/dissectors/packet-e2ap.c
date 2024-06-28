@@ -2695,9 +2695,9 @@ dissect_e2ap_T_e2nodeComponentRequestPart(tvbuff_t *tvb _U_, int offset _U_, asn
   if (e2ap_data->component_configuration_dissector) {
     col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "|");
     col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
-    col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, false);
     call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
-    col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, true);
   }
 
 
@@ -2714,9 +2714,9 @@ dissect_e2ap_T_e2nodeComponentResponsePart(tvbuff_t *tvb _U_, int offset _U_, as
 
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   if (e2ap_data->component_configuration_dissector) {
-    col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, false);
     call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
-    col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, true);
   }
 
 

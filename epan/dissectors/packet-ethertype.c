@@ -245,11 +245,11 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		guint gleantype, payload_etype;
 
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", ethertype_data->etype);
-		col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+		col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
 
 		description = try_val_to_str(ethertype_data->etype, etype_vals);
 		col_add_str(pinfo->cinfo, COL_INFO, description);
-		col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+		col_set_writable(pinfo->cinfo, COL_INFO, false);
 		if (reported_length >= 1) {
 			gleantype = (tvb_get_guint8(tvb, ethertype_data->payload_offset) & 0xF0) >> 4;
 			switch (gleantype) {

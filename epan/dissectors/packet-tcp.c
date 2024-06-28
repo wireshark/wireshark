@@ -5005,7 +5005,7 @@ again:
          */
         col_set_fence(pinfo->cinfo, COL_INFO);
         cleared_writable |= col_get_writable(pinfo->cinfo, COL_PROTOCOL);
-        col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+        col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
         first_pdu = FALSE;
         offset += another_pdu_follows;
         seq += another_pdu_follows;
@@ -5015,7 +5015,7 @@ again:
          * proto,colinfo tap will break
          */
         if(cleared_writable) {
-            col_set_writable(pinfo->cinfo, COL_PROTOCOL, TRUE);
+            col_set_writable(pinfo->cinfo, COL_PROTOCOL, true);
         }
     }
 

@@ -3929,10 +3929,10 @@ dissect_rpc_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	struct tlsinfo* tlsinfo = (struct tlsinfo *)data;
 
-	col_set_writable(pinfo->cinfo, COL_PROTOCOL, TRUE);
+	col_set_writable(pinfo->cinfo, COL_PROTOCOL, true);
 	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE, NULL, tlsinfo)) {
-		col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
-		col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+		col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
+		col_set_writable(pinfo->cinfo, COL_INFO, false);
 	} else {
 		dissect_rpc_continuation(tvb, pinfo, tree);
 	}

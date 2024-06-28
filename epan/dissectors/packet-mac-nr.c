@@ -2000,7 +2000,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     if (global_mac_nr_layer_to_show != ShowRLCLayer) {
         /* Don't want these columns replaced */
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
     }
     else {
         /* Clear info column before first RLC PDU */
@@ -2019,7 +2019,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     call_with_catch_all(rlc_nr_handle, rb_tvb, pinfo, tree);
 
     /* Let columns be written to again */
-    col_set_writable(pinfo->cinfo, -1, TRUE);
+    col_set_writable(pinfo->cinfo, -1, true);
 }
 
 /* see 3GPP 38.133 Table 10.1.17.1-1 */

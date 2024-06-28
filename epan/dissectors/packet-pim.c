@@ -547,7 +547,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
          * explicitly state that.
          */
         pim_length = 8;
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+		col_set_writable(pinfo->cinfo, -1, false);
     } else {
         /*
          * Other message - checksum the entire packet.
@@ -1183,7 +1183,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * this register will overwrite the PIM info in the columns.
          */
         pim_length = 8;
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
     } else {
         /*
          * Other message - checksum the entire packet.

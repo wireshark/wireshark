@@ -28560,9 +28560,9 @@ dissect_rnsap_RANAP_RelocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn
     return offset;
 
   /* Calling RANAP dissector but preventing changes to the protocol column */
-  col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, FALSE);
+  col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, false);
   call_dissector_only(ranap_handle, parameter_tvb, actx->pinfo, tree, NULL);
-  col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, TRUE);
+  col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, true);
 
 
   return offset;

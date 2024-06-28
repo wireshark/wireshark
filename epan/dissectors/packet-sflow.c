@@ -686,7 +686,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     proto_item       *ti;
     /* stuff for saving column state before calling other dissectors.
      * Thanks to Guy Harris for the tip. */
-    gboolean          save_writable;
+    bool              save_writable;
     gboolean          save_in_error_pkt;
     address           save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
 
@@ -744,7 +744,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
         pinfo->flags.in_error_pkt = TRUE;
     }
 
-    col_set_writable(pinfo->cinfo, -1, FALSE);
+    col_set_writable(pinfo->cinfo, -1, false);
     copy_address_shallow(&save_dl_src, &pinfo->dl_src);
     copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
     copy_address_shallow(&save_net_src, &pinfo->net_src);

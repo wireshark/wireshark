@@ -2021,12 +2021,12 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ((global_pdcp_lte_layer_to_show == ShowRLCLayer) &&
         (p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0) != NULL)) {
 
-        col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+        col_set_writable(pinfo->cinfo, COL_INFO, false);
     }
     else {
         /* TODO: won't help with multiple PDCP-or-traffic PDUs / frame... */
         col_clear(pinfo->cinfo, COL_INFO);
-        col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+        col_set_writable(pinfo->cinfo, COL_INFO, true);
     }
 
     /* Create pdcp tree. */
@@ -2560,10 +2560,10 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (rrc_handle != 0) {
                 /* Call RRC dissector if have one */
                 tvbuff_t *rrc_payload_tvb = tvb_new_subset_length(payload_tvb, offset, data_length);
-                gboolean was_writable = col_get_writable(pinfo->cinfo, COL_INFO);
+                bool was_writable = col_get_writable(pinfo->cinfo, COL_INFO);
 
                 /* We always want to see this in the info column */
-                col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+                col_set_writable(pinfo->cinfo, COL_INFO, true);
 
                 call_dissector_only(rrc_handle, rrc_payload_tvb, pinfo, pdcp_tree, NULL);
 
@@ -2636,7 +2636,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                         /* Don't update info column for ROHC unless configured to */
                         if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
-                            col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                            col_set_writable(pinfo->cinfo, COL_INFO, false);
                         }
 
                         switch (tvb_get_guint8(ip_payload_tvb, 0) & 0xf0) {
@@ -2653,7 +2653,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                         /* Freeze the columns again because we don't want other layers writing to info */
                         if (global_pdcp_lte_layer_to_show == ShowTrafficLayer) {
-                            col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                            col_set_writable(pinfo->cinfo, COL_INFO, false);
                         }
 
                     }
@@ -2690,7 +2690,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* Only enable writing to column if configured to show ROHC */
             if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
-                col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                col_set_writable(pinfo->cinfo, COL_INFO, false);
             }
             else {
                 col_clear(pinfo->cinfo, COL_INFO);

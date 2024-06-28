@@ -895,7 +895,7 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     /* Stop the Ethernet frame from overwriting the columns */
     if((type == OFPT_1_0_PACKET_IN) || (type == OFPT_1_0_PACKET_OUT)){
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        col_set_writable(pinfo->cinfo, -1, false);
     }
 
     /* Create display subtree for the protocol */

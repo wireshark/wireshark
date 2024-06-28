@@ -1920,7 +1920,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 					 * as an EAP packet.
 					 */
 					save_writable = col_get_writable(pinfo->cinfo, -1);
-					col_set_writable(pinfo->cinfo, -1, FALSE);
+					col_set_writable(pinfo->cinfo, -1, false);
 
 					call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
 

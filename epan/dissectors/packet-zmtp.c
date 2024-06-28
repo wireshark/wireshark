@@ -286,9 +286,9 @@ static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
         dissector_handle_t protocol_handle = find_dissector(protocol);
         if (protocol_handle) {
             TRY {
-                col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                col_set_writable(pinfo->cinfo, COL_INFO, false);
                 call_dissector_only(protocol_handle, data_tvb, pinfo, tree, NULL);
-                col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
+                col_set_writable(pinfo->cinfo, COL_INFO, true);
             }
             CATCH_ALL {
             }

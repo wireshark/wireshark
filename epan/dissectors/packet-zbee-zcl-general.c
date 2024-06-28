@@ -13766,7 +13766,7 @@ dissect_zbee_zcl_gp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvb_composite_append(gtvb, tvb_new_subset_length(tvb, offset, payload_size));
         tvb_composite_finalize(gtvb);
         /* prevent overwriting COL_INFO */
-        col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+        col_set_writable(pinfo->cinfo, COL_INFO, false);
         call_dissector_only(zgp_handle, gtvb, pinfo, tree, NULL);
         col_set_writable(pinfo->cinfo, COL_INFO, writable);
         offset += payload_size;
