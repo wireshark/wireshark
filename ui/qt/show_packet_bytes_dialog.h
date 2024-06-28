@@ -30,6 +30,11 @@ class ShowPacketBytesDialog;
 class ShowPacketBytesTextEdit;
 }
 
+struct uncompress_list_t {
+    QString name;
+    tvbuff_t *(*function)(tvbuff_t *, int, int);
+};
+
 class ShowPacketBytesDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -80,6 +85,7 @@ private:
     const field_info  *finfo_;
     QByteArray  field_bytes_;
     QString     hint_label_;
+    QString     decode_as_name_;
     QPushButton *print_button_;
     QPushButton *copy_button_;
     QPushButton *save_as_button_;

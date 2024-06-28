@@ -180,6 +180,10 @@ void ShowPacketBytesDialog::updateHintLabel()
 {
     QString hint = hint_label_;
 
+    if (!decode_as_name_.isEmpty()) {
+        hint.append(" " + tr("Decoded as %1.").arg(decode_as_name_));
+    }
+
     if (start_ > 0 || end_ < (finfo_->length - 1)) {
         hint.append(" <span style=\"color: red\">" +
                     tr("Displaying %Ln byte(s).", "", end_ - start_ + 1) +
@@ -194,7 +198,6 @@ void ShowPacketBytesDialog::on_sbStart_valueChanged(int value)
     start_ = value;
     ui->sbEnd->setMinimum(value);
 
-    updateHintLabel();
     updateFieldBytes();
 }
 
@@ -203,7 +206,6 @@ void ShowPacketBytesDialog::on_sbEnd_valueChanged(int value)
     end_ = value;
     ui->sbStart->setMaximum(value);
 
-    updateHintLabel();
     updateFieldBytes();
 }
 
@@ -577,6 +579,8 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     if (!finfo_->ds_tvb)
         return;
 
+    decode_as_name_.clear();
+
     switch (recent.gui_show_bytes_decode) {
 
     case DecodeAsNone:
@@ -590,20 +594,37 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
         QByteArray ba = QByteArray::fromRawData((const char *)bytes, length);
         if (ba.contains('-') || ba.contains('_')) {
             field_bytes_ = QByteArray::fromBase64(ba, QByteArray::Base64UrlEncoding);
+            decode_as_name_ = "base64url";
         } else {
             field_bytes_ = QByteArray::fromBase64(ba, QByteArray::Base64Encoding);
+            decode_as_name_ = "base64";
         }
         break;
     }
 
     case DecodeAsCompressed:
     {
-        tvbuff *uncompr_tvb = tvb_uncompress_zlib(finfo_->ds_tvb, start, length);
-        if (uncompr_tvb) {
-            bytes = tvb_get_ptr(uncompr_tvb, 0, -1);
-            field_bytes_ = QByteArray((const char *)bytes, tvb_reported_length(uncompr_tvb));
-            tvb_free(uncompr_tvb);
-        } else {
+        static const QList<uncompress_list_t> tvb_uncompress_list = {
+            { "lz77", tvb_uncompress_lz77 },
+            { "lz77huff", tvb_uncompress_lz77huff },
+            { "lznt1", tvb_uncompress_lznt1 },
+            { "snappy", tvb_uncompress_snappy },
+            { "zlib", tvb_uncompress_zlib },
+            { "zstd", tvb_uncompress_zstd },
+        };
+        tvbuff_t *uncompr_tvb = NULL;
+
+        for (auto &tvb_uncompress : tvb_uncompress_list) {
+            uncompr_tvb = tvb_uncompress.function(finfo_->ds_tvb, start, length);
+            if (uncompr_tvb) {
+                bytes = tvb_get_ptr(uncompr_tvb, 0, -1);
+                field_bytes_ = QByteArray((const char *)bytes, tvb_reported_length(uncompr_tvb));
+                decode_as_name_ = tr("compressed %1").arg(tvb_uncompress.name);
+                tvb_free(uncompr_tvb);
+                break;
+            }
+        }
+        if (!uncompr_tvb) {
             field_bytes_.clear();
         }
         break;
@@ -655,6 +676,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     }
 
     updatePacketBytes();
+    updateHintLabel();
 }
 
 void ShowPacketBytesDialog::updatePacketBytes(void)
