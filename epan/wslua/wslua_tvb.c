@@ -1373,7 +1373,7 @@ WSLUA_METHOD TvbRange_uncompress_hpack_huff(lua_State* L) {
         return 0;
     }
 
-    uncompr_tvb = tvb_child_uncompress_lz77(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
+    uncompr_tvb = tvb_child_uncompress_hpack_huff(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
     if (uncompr_tvb) {
        add_new_data_source (lua_pinfo, uncompr_tvb, name);
        if (push_TvbRange(L,uncompr_tvb,0,tvb_captured_length(uncompr_tvb))) {
