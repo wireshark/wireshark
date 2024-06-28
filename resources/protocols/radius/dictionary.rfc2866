@@ -1,9 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors#
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Attributes and values defined in RFC 2866.
 #	http://www.ietf.org/rfc/rfc2866.txt
 #
-#	$Id$
+#	$Id: 4b6bda40c1098b488c0f10414c287004790df486 $
 #
 ATTRIBUTE	Acct-Status-Type			40	integer
 ATTRIBUTE	Acct-Delay-Time				41	integer
@@ -22,6 +24,7 @@ ATTRIBUTE	Acct-Link-Count				51	integer
 
 VALUE	Acct-Status-Type		Start			1
 VALUE	Acct-Status-Type		Stop			2
+VALUE	Acct-Status-Type		Alive			3   # dup
 VALUE	Acct-Status-Type		Interim-Update		3
 VALUE	Acct-Status-Type		Accounting-On		7
 VALUE	Acct-Status-Type		Accounting-Off		8

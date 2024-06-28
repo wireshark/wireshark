@@ -8,24 +8,39 @@
 VENDOR		Microsoft			311
 
 BEGIN-VENDOR	Microsoft
-ATTRIBUTE	MS-CHAP-Response			1	octets
+ATTRIBUTE	MS-CHAP-Response			1	octets[50]
 ATTRIBUTE	MS-CHAP-Error				2	string
-ATTRIBUTE	MS-CHAP-CPW-1				3	octets
-ATTRIBUTE	MS-CHAP-CPW-2				4	octets
+ATTRIBUTE	MS-CHAP-CPW-1				3	octets[70]
+ATTRIBUTE	MS-CHAP-CPW-2				4	octets[84]
 ATTRIBUTE	MS-CHAP-LM-Enc-PW			5	octets
 ATTRIBUTE	MS-CHAP-NT-Enc-PW			6	octets
-##ATTRIBUTE	MS-MPPE-Encryption-Policy		7	octets  ##[wireshark]
-ATTRIBUTE	MS-MPPE-Encryption-Policy		7	integer ##[wireshark]
+ATTRIBUTE	MS-MPPE-Encryption-Policy		7	integer
+
+VALUE	MS-MPPE-Encryption-Policy	Encryption-Allowed	1
+VALUE	MS-MPPE-Encryption-Policy	Encryption-Required	2
+
 # This is referred to as both singular and plural in the RFC.
 # Plural seems to make more sense.
-##ATTRIBUTE	MS-MPPE-Encryption-Type			8	octets  ##[wireshark]
-##ATTRIBUTE	MS-MPPE-Encryption-Types		8	octets  ##[wireshark]
-ATTRIBUTE	MS-MPPE-Encryption-Type			8	integer ##[wireshark]
-ATTRIBUTE	MS-MPPE-Encryption-Types		8	integer ##[wireshark]
+ATTRIBUTE	MS-MPPE-Encryption-Type			8	integer
+ATTRIBUTE	MS-MPPE-Encryption-Types		8	integer
+
+# The values below from FreeRADIUS are incorrect according to the RFC.
+#VALUE	MS-MPPE-Encryption-Types	RC4-40bit-Allowed	1
+#VALUE	MS-MPPE-Encryption-Types	RC4-128bit-Allowed	2
+#VALUE	MS-MPPE-Encryption-Types	RC4-40or128-bit-Allowed	6
+VALUE MS-MPPE-Encryption-Types  None                            0  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  RC4-40                          2  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  RC4-128                         4  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  RC4-40-128                      6  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  Stateless                       8  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  RC4-40-Stateless               10  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  RC4-128-Stateless              12  ##[wireshark]
+VALUE MS-MPPE-Encryption-Types  RC4-40-128-Stateless           14  ##[wireshark]
+
 ATTRIBUTE	MS-RAS-Vendor				9	integer	# content is Vendor-ID
 ATTRIBUTE	MS-CHAP-Domain				10	string
 ATTRIBUTE	MS-CHAP-Challenge			11	octets
-ATTRIBUTE	MS-CHAP-MPPE-Keys			12	octets  encrypt=1
+ATTRIBUTE	MS-CHAP-MPPE-Keys			12	octets[24]  encrypt=1
 ATTRIBUTE	MS-BAP-Usage				13	integer
 ATTRIBUTE	MS-Link-Utilization-Threshold		14	integer # values are 1-100
 ATTRIBUTE	MS-Link-Drop-Time-Limit			15	integer
@@ -40,16 +55,16 @@ ATTRIBUTE	MS-Filter				22	octets
 ATTRIBUTE	MS-Acct-Auth-Type			23	integer
 ATTRIBUTE	MS-Acct-EAP-Type			24	integer
 
-ATTRIBUTE	MS-CHAP2-Response			25	octets
+ATTRIBUTE	MS-CHAP2-Response			25	octets[50]
 ATTRIBUTE	MS-CHAP2-Success			26	octets
-ATTRIBUTE	MS-CHAP2-CPW				27	octets
+ATTRIBUTE	MS-CHAP2-CPW				27	octets[68]
 
 ATTRIBUTE	MS-Primary-DNS-Server			28	ipaddr
 ATTRIBUTE	MS-Secondary-DNS-Server			29	ipaddr
 ATTRIBUTE	MS-Primary-NBNS-Server			30	ipaddr
 ATTRIBUTE	MS-Secondary-NBNS-Server		31	ipaddr
 
-#ATTRIBUTE	MS-ARAP-Challenge	33	octets
+#ATTRIBUTE	MS-ARAP-Challenge			33	octets[8]
 
 ## MS-RNAP
 #
@@ -102,21 +117,6 @@ ATTRIBUTE	MS-TSG-Device-Redirection		63	integer
 #
 #	Integer Translations
 #
-#       MS-MPPE-Encryption-Policy Values   ##[wireshark]
-
-VALUE           MS-MPPE-Encryption-Policy       Encryption-Allowed      1  ##[wireshark]
-VALUE           MS-MPPE-Encryption-Policy       Encryption-Required     2  ##[wireshark]
-
-#       MS-MPPE-Encryption-Types Values  ##[wireshark]
-
-VALUE MS-MPPE-Encryption-Types  None                            0  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  RC4-40                          2  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  RC4-128                         4  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  RC4-40-128                      6  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  Stateless                       8  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  RC4-40-Stateless               10  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  RC4-128-Stateless              12  ##[wireshark]
-VALUE MS-MPPE-Encryption-Types  RC4-40-128-Stateless           14  ##[wireshark]
 
 #	MS-BAP-Usage Values
 

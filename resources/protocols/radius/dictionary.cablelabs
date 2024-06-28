@@ -1,10 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 ##############################################################################
 #
 #	CableLabs
 #
-#	$Id: 62bac6d3b84783b55c4350487377d72a0d1daf69 $
+#	$Id: 26f78189b2f853d85f8507bcdd01287037b4c0aa $
 #
 ##############################################################################
 

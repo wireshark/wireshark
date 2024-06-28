@@ -1,14 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2021 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
 # This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
-# Version $Id$
+#
 ##############################################################################
 #
 #	Dictionary for Huawei-3Com.  See also dictionary.huawei
 #
 #	http://www.h3c.com
 #
-#	$Id$
+#	$Id: be9eeee0919af69942c7048075e081c96b65a8d5 $
 #
 ##############################################################################
 
@@ -16,78 +16,80 @@ VENDOR		H3C				25506
 
 BEGIN-VENDOR	H3C
 
-ATTRIBUTE	Input-Peak-Rate				1	integer
-ATTRIBUTE	Input-Average-Rate			2	integer
-ATTRIBUTE	Input-Basic-Rate			3	integer
-ATTRIBUTE	Output-Peak-Rate			4	integer
-ATTRIBUTE	Output-Average-Rate			5	integer
-ATTRIBUTE	Output-Basic-Rate			6	integer
-ATTRIBUTE	Remanent-Volume				15	integer
-ATTRIBUTE	ISP-ID					17	string
-ATTRIBUTE	Command					20	integer
+ATTRIBUTE	H3C-Input-Peak-Rate			1	integer
+ATTRIBUTE	H3C-Input-Average-Rate			2	integer
+ATTRIBUTE	H3C-Input-Basic-Rate			3	integer
+ATTRIBUTE	H3C-Output-Peak-Rate			4	integer
+ATTRIBUTE	H3C-Output-Average-Rate			5	integer
+ATTRIBUTE	H3C-Output-Basic-Rate			6	integer
+ATTRIBUTE	H3C-Remanent-Volume			15	integer
+ATTRIBUTE	H3C-ISP-ID				17	string
+ATTRIBUTE	H3C-Command				20	integer
 
-VALUE	Command				Trigger-Request		1
-VALUE	Command				Terminate-Request	2
-VALUE	Command				SetPolicy		3
-VALUE	Command				Result			4
-VALUE	Command				PortalClear		5
+VALUE	H3C-Command			Trigger-Request		1
+VALUE	H3C-Command			Terminate-Request	2
+VALUE	H3C-Command			SetPolicy		3
+VALUE	H3C-Command			Result			4
+VALUE	H3C-Command			PortalClear		5
 
-ATTRIBUTE	Control-Identifier			24	integer
-ATTRIBUTE	Result-Code				25	integer
-ATTRIBUTE	Connect_Id				26	integer
-ATTRIBUTE	Portal-URL				27	string
-ATTRIBUTE	Ftp-Directory				28	string
-ATTRIBUTE	Exec-Privilege				29	integer
+ATTRIBUTE	H3C-Control-Identifier			24	integer
+ATTRIBUTE	H3C-Result-Code				25	integer
+ATTRIBUTE	H3C-Connect_Id				26	integer
+ATTRIBUTE	H3C-Portal-URL				27	string
+ATTRIBUTE	H3C-Ftp-Directory			28	string
+ATTRIBUTE	H3C-Exec-Privilege			29	integer
 
-VALUE	Exec-Privilege			Visit			0
-VALUE	Exec-Privilege			Monitor			1
-VALUE	Exec-Privilege			System			2
-VALUE	Exec-Privilege			Manage			3
+VALUE	H3C-Exec-Privilege		Visit			0
+VALUE	H3C-Exec-Privilege		Monitor			1
+VALUE	H3C-Exec-Privilege		System			2
+VALUE	H3C-Exec-Privilege		Manage			3
 
-ATTRIBUTE	NAT-IP-Address				32	ipaddr
-ATTRIBUTE	NAT-Start-Port				33	integer
-ATTRIBUTE	NAT-End-Port				34	integer
-ATTRIBUTE	NAS-Startup-Timestamp			59	integer
-ATTRIBUTE	Ip-Host-Addr				60	string
-ATTRIBUTE	User-Notify				61	string
-ATTRIBUTE	User-HeartBeat				62	string
-ATTRIBUTE	IPv4-Multicast-Receive-Group		98	ipaddr
-ATTRIBUTE	IPv6-Multicast-Receive-Group		100	ipv6addr
-ATTRIBUTE	MLD-Access-Limit			101	integer
-ATTRIBUTE	L2TP-Local-Name				102	string
-ATTRIBUTE	IGMP-Access-Limit			103	integer
-ATTRIBUTE	VPN-Instance				104	string
-ATTRIBUTE	ANCP-Profile				105	string
-ATTRIBUTE	Longitude-Latitude			111	string
-ATTRIBUTE	Client-Primary-DNS			135	ipaddr
-ATTRIBUTE	Client-Secondary-DNS			136	ipaddr
-ATTRIBUTE	User-Group				140	string
-ATTRIBUTE	Security-Level				141	integer
-ATTRIBUTE	Acct-IPv6-Input-Octets			144	integer
-ATTRIBUTE	Acct-IPv6-Output-Octets			145	integer
-ATTRIBUTE	Acct-IPv6-Input-Packets			146	integer
-ATTRIBUTE	Acct-IPv6-Output-Packets		147	integer
-ATTRIBUTE	Acct-IPv6-Input-Gigawords		146	integer
-ATTRIBUTE	Acct-IPv6-Output-Gigawords		147	integer
-ATTRIBUTE	User-Role				155	string
-ATTRIBUTE	Input-Interval-Octets			201	integer
-ATTRIBUTE	Output-Interval-Octets			202	integer
-ATTRIBUTE	Input-Interval-Packets			203	integer
-ATTRIBUTE	Output-Interval-Packets			204	integer
-ATTRIBUTE	Input-Interval-Gigawords		205	integer
-ATTRIBUTE	Output-Interval-Gigawords		206	integer
-ATTRIBUTE	Backup-NAS-IP				207	ipaddr
-ATTRIBUTE	Av-Pair					210	string
-ATTRIBUTE	Accounting-Level			215	integer
-ATTRIBUTE	Ita-Policy				216	string
-ATTRIBUTE	NAS-Port-Name				230	string
-ATTRIBUTE	Auth-Detail-Result			246	integer
-ATTRIBUTE	Input-Committed-Burst-Size		247	integer
-ATTRIBUTE	Output-Committed-Burst-Size		248	integer
-ATTRIBUTE	Authentication-Type			249	integer
-ATTRIBUTE	WEB-URL					250	string
-ATTRIBUTE	Subscriber-ID				251	string
-ATTRIBUTE	Subscriber-Profile			252	string
-ATTRIBUTE	Product-ID				255	string
+ATTRIBUTE	H3C-NAT-IP-Address			32	ipaddr
+ATTRIBUTE	H3C-NAT-Start-Port			33	integer
+ATTRIBUTE	H3C-NAT-End-Port			34	integer
+ATTRIBUTE	H3C-NAS-Startup-Timestamp		59	integer
+ATTRIBUTE	H3C-Ip-Host-Addr			60	string
+ATTRIBUTE	H3C-User-Notify				61	string
+ATTRIBUTE	H3C-User-HeartBeat			62	string
+ATTRIBUTE	H3C-IPv4-Multicast-Receive-Group	98	ipaddr
+ATTRIBUTE	H3C-IPv6-Multicast-Receive-Group	100	ipv6addr
+ATTRIBUTE	H3C-MLD-Access-Limit			101	integer
+ATTRIBUTE	H3C-L2TP-Local-Name			102	string
+ATTRIBUTE	H3C-IGMP-Access-Limit			103	integer
+ATTRIBUTE	H3C-VPN-Instance			104	string
+ATTRIBUTE	H3C-ANCP-Profile			105	string
+ATTRIBUTE	H3C-Up-Priority				106	integer
+ATTRIBUTE	H3C-Down-Priority			107	integer
+ATTRIBUTE	H3C-Longitude-Latitude			111	string
+ATTRIBUTE	H3C-Client-Primary-DNS			135	ipaddr
+ATTRIBUTE	H3C-Client-Secondary-DNS		136	ipaddr
+ATTRIBUTE	H3C-User-Group				140	string
+ATTRIBUTE	H3C-Security-Level			141	integer
+ATTRIBUTE	H3C-Acct-IPv6-Input-Octets		144	integer
+ATTRIBUTE	H3C-Acct-IPv6-Output-Octets		145	integer
+ATTRIBUTE	H3C-Acct-IPv6-Input-Packets		146	integer
+ATTRIBUTE	H3C-Acct-IPv6-Output-Packets		147	integer
+ATTRIBUTE	H3C-Acct-IPv6-Input-Gigawords		146	integer
+ATTRIBUTE	H3C-Acct-IPv6-Output-Gigawords		147	integer
+ATTRIBUTE	H3C-User-Role				155	string
+ATTRIBUTE	H3C-Input-Interval-Octets		201	integer
+ATTRIBUTE	H3C-Output-Interval-Octets		202	integer
+ATTRIBUTE	H3C-Input-Interval-Packets		203	integer
+ATTRIBUTE	H3C-Output-Interval-Packets		204	integer
+ATTRIBUTE	H3C-Input-Interval-Gigawords		205	integer
+ATTRIBUTE	H3C-Output-Interval-Gigawords		206	integer
+ATTRIBUTE	H3C-Backup-NAS-IP			207	ipaddr
+ATTRIBUTE	H3C-Av-Pair				210	string
+ATTRIBUTE	H3C-Accounting-Level			215	integer
+ATTRIBUTE	H3C-Ita-Policy				216	string
+ATTRIBUTE	H3C-NAS-Port-Name			230	string
+ATTRIBUTE	H3C-Auth-Detail-Result			246	integer
+ATTRIBUTE	H3C-Input-Committed-Burst-Size		247	integer
+ATTRIBUTE	H3C-Output-Committed-Burst-Size		248	integer
+ATTRIBUTE	H3C-Authentication-Type			249	integer
+ATTRIBUTE	H3C-WEB-URL				250	string
+ATTRIBUTE	H3C-Subscriber-ID			251	string
+ATTRIBUTE	H3C-Subscriber-Profile			252	string
+ATTRIBUTE	H3C-Product-ID				255	string
 
 END-VENDOR	H3C

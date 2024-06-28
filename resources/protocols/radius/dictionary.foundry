@@ -1,11 +1,10 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-#
-#  dictionary.foundry
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	As posted to the list by Thomas Keitel <tkeitel@arc.nasa.gov>
 #
-# Version:	$Id: 341ae94a3fa1af08d995bcbaa9f883c09429ffe3 $
+# Version:	$Id: 4b3487008e14b61a1d6790c7a57f7396ca441b66 $
 #
 
 VENDOR		Foundry				1991
@@ -22,7 +21,13 @@ ATTRIBUTE	Foundry-802.1x-Valid-Lookup		7	integer
 ATTRIBUTE	Foundry-MAC-Based-Vlan-QoS		8	integer
 ATTRIBUTE	Foundry-INM-Role-Aor-List		9	string
 ATTRIBUTE	Foundry-SI-Context-Role			10	string
+# Foundry-COA-Command appears to stomp on Foundry-SI-Context-Role (different departments)
+# https://www.brocade.com/content/html/en/fastiron-os/08-0-60/fastiron-08060-securityguide/GUID-A3193D90-3FF4-4B04-8C6D-084743FDE91C.html
+ATTRIBUTE	Foundry-COA-Command			10	string
 ATTRIBUTE	Foundry-SI-Role-Template		11	string
+# Foundry-Voice-Phone-Config appears to stomp on Foundry-SI-Role-Template (different departments)
+# http://docs.ruckuswireless.com/fastiron/08.0.60/fastiron-08060-securityguide/GUID-7E649B6D-A80B-40FD-A19A-478ED22C3E2A.html
+ATTRIBUTE	Foundry-Voice-Phone-Config		11	string
 
 VALUE	Foundry-INM-Privilege		AAA_pri_0		0
 VALUE	Foundry-INM-Privilege		AAA_pri_1		1

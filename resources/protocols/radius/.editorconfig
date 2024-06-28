@@ -1,0 +1,4 @@
+# RADIUS dictionaries, FreeRADIUS format
+[dictionary.*]
+indent_style = tab
+indent_size = 8

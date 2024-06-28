@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Actelis dictionary
 #
-#	$Id: 94b6e99842e6afacd3db78d957b350919de5bc66 $
+#	$Id: e0710539f3a6a5df2fe8f47346ffab6900b5072b $
 #
 ##############################################################################
 
