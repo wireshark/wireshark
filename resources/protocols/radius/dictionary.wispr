@@ -1,19 +1,17 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # dictionary.wispr
 #
-#	VSAs originally by
-#	"James Underwood" <underwood@comcast.net>
+#  Attributes from the Wireless Broadband Alliance (used to be Wispr)
 #
-# Version:    $Id: 2296e60a3912ca078f19f81457d20658950bc63d $
+#  Updated attributes are at
 #
-#	For documentation on WISPr RADIUS attributes, see:
+#	https://github.com/wireless-broadband-alliance/RADIUS-VSA
 #
-#	Wi-Fi Alliance - Wireless ISP Roaming - Best Current Practices v1,
-#	Feb 2003, p 14
+# Version:    $Id: 8ac0b830b5532339e38dbe15d20399b5b660785d $
 #
-#	http://www.weca.net/OpenSection/downloads/WISPr_V1.0.pdf
 
 VENDOR		WISPr				14122
 
@@ -33,5 +31,12 @@ ATTRIBUTE	WISPr-Bandwidth-Max-Down		8	integer
 ATTRIBUTE	WISPr-Session-Terminate-Time		9	string
 ATTRIBUTE	WISPr-Session-Terminate-End-Of-Day	10	string
 ATTRIBUTE	WISPr-Billing-Class-Of-Service		11	string
+
+ATTRIBUTE	WBA-Offered-Service			12	string
+ATTRIBUTE	WBA-Financial-Clearing-Provider		13	string
+ATTRIBUTE	WBA-Data-Clearing-Provider		14	string
+ATTRIBUTE	WBA-Linear-Volume-Rate			15	octets
+ATTRIBUTE	WBA-Identity-Provider			16	string
+ATTRIBUTE	WBA-Custom-SLA			17	string
 
 END-VENDOR	WISPr

@@ -1,5 +1,6 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Obsolete names for backwards compatibility with older users files.
 #	Move the $INCLUDE in the main dictionary file to the end if you want
@@ -20,7 +21,7 @@ ATTRIBUTE	Old-Password				17	string
 ATTRIBUTE	Port-Message				18	string
 ATTRIBUTE	Dialback-No				19	string
 ATTRIBUTE	Dialback-Name				20	string
-ATTRIBUTE	Challenge-State				24	string
+ATTRIBUTE	Challenge-State				24	octets
 VALUE	Framed-Compression		Van-Jacobsen-TCP-IP	1
 VALUE	Framed-Compression		VJ-TCP-IP		1
 VALUE	Service-Type			Shell-User		6

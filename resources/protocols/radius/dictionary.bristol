@@ -1,11 +1,10 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-#
-# dictionary.bristol
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #  RoamNode VSA's
 #
-# Version:      $Id: 6537b7c577988c6741cbcb2b7214536c6be9f7d6 $
+# Version:      $Id: d2fe1f1199d369f960a2a3da36ebd77ae062dcd3 $
 #
 
 VENDOR		Bristol				4363

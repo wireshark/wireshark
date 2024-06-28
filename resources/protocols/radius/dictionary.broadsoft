@@ -1,11 +1,9 @@
-#
-# dictionary.broadsoft
-#
-#
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 
 VENDOR		BroadSoft			6431
-#
+
 BEGIN-VENDOR	BroadSoft
 
 #ATTRIBUTE	BWAS-Call-Detail-Record-Version		0	string

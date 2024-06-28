@@ -1,0 +1,82 @@
+# -*- text -*-
+# Copyright (C) 2021 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Cambium VSA's
+#
+#	$Id: 5c136ec2523c44b30b40ae606389a94f96c22589 $
+#
+#	Derived from:
+#	https://community.cambiumnetworks.com/t/40501
+#	https://community.cambiumnetworks.com/t/40752
+#	https://community.cambiumnetworks.com/t/50024
+#
+##############################################################################
+
+VENDOR		Cambium				17713
+
+BEGIN-VENDOR	Cambium
+
+ATTRIBUTE	Cambium-Auth-Role				1	integer
+
+VALUE	Cambium-Auth-Role	Invalid			0
+VALUE	Cambium-Auth-Role	Read-Only		1
+VALUE	Cambium-Auth-Role	System-Admin		2
+VALUE	Cambium-Auth-Role	Security-Officer	3
+VALUE	Cambium-Auth-Role	Deliberately-Bad	4
+
+ATTRIBUTE	Cambium-ePMP-Data-VLAN-Id			21	integer
+ATTRIBUTE	Cambium-ePMP-Management-VLAN-Id			22	integer
+
+ATTRIBUTE	Cambium-ePMP-Max-Burst-Uplink-Rate		26	integer
+ATTRIBUTE	Cambium-ePMP-Max-Burst-Downlink-Rate		27	integer
+
+ATTRIBUTE	Cambium-ePMP-UserLevel				50	integer
+
+VALUE	Cambium-ePMP-UserLevel		Install		2
+VALUE	Cambium-ePMP-UserLevel		Admin		3
+VALUE	Cambium-ePMP-UserLevel		User		4
+VALUE	Cambium-ePMP-UserLevel		Read-Only	5
+
+ATTRIBUTE	Cambium-ePMP-SM-Priority			51	integer
+
+VALUE	Cambium-ePMP-SM-Priority	Normal		0
+VALUE	Cambium-ePMP-SM-Priority	High		1
+VALUE	Cambium-ePMP-SM-Priority	Low		2
+
+ATTRIBUTE	Cambium-ePMP-VLAN-Membersip-Set			52	integer
+ATTRIBUTE	Cambium-ePMP-Management-VLAN-Priority		53	integer
+ATTRIBUTE	Cambium-ePMP-Data-VLAN-Priority			54	integer
+ATTRIBUTE	Cambium-ePMP-Separate-Management-VLAN-Id	55	integer
+ATTRIBUTE	Cambium-ePMP-Separate-Management-VLAN-Priority 	56	integer
+ATTRIBUTE	Cambium-ePMP-Multicast-VLAN-Id			57	integer
+ATTRIBUTE	Cambium-ePMP-VLAN-Mapping			58	integer
+
+ATTRIBUTE	Cambium-Traffic-Quota-Limit-Up			151	integer
+ATTRIBUTE	Cambium-Traffic-Quota-Limit-Down		152	integer
+ATTRIBUTE	Cambium-Traffic-Quota-Limit-Up-Gigwords		153	integer
+ATTRIBUTE	Cambium-Traffic-Quota-Limit-Down-Gigwords	154	integer
+ATTRIBUTE	Cambium-Traffic-Quota-Limit-Total		155	integer
+ATTRIBUTE	Cambium-Traffic-Quota-Limit-Total-Gigwords	156	integer
+ATTRIBUTE	Cambium-VLAN-Pool-Id				157	string
+
+ATTRIBUTE	Cambium-Authorize-Classes			158	tlv
+BEGIN-TLV	Cambium-Authorize-Classes
+	ATTRIBUTE	Cambium-Authorize-Class-Name			1	string
+	ATTRIBUTE	Cambium-Authorize-Bytes-Left			2	integer64
+END-TLV	Cambium-Authorize-Classes
+
+ATTRIBUTE	Cambium-Traffic-Classes-Acct			159	tlv
+BEGIN-TLV	Cambium-Traffic-Classes-Acct
+	ATTRIBUTE	Cambium-Acct-Class-Name				1	string
+	ATTRIBUTE	Cambium-Acct-Input-Octets			2	integer
+	ATTRIBUTE	Cambium-Acct-Output-Octets			3	integer
+	ATTRIBUTE	Cambium-Acct-Input-Packets			4	integer
+	ATTRIBUTE	Cambium-Acct-Output-Packets			5	integer
+END-TLV	Cambium-Traffic-Classes-Acct
+
+ATTRIBUTE	Cambium-Walled-Garden-State			160	integer
+
+END-VENDOR	Cambium

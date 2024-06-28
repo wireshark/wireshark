@@ -1,28 +1,75 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
-#  dictionary.aerohive
+#  Aerohive (now Extreme Networks, Inc.)
 #
-#  Aerohive
-#
-#	$Id: 114e4cfda976c0d483c74b2c4785976d5fc6beae $
+#	$Id: 53b4daec44ca4be34cea0b68d0ead5d88c25a310 $
 #
 VENDOR		Aerohive			26928
 
 BEGIN-VENDOR	Aerohive
+#BEGIN-VENDOR Extreme
 
+# Source: http://docs.aerohive.com/330000/docs/help/english/ng/Content/reference/docs/radius-dictionary.htm
+# Last-updated-date 25-October-2017
+# Extreme supports a small set of Vendor-Specific-Attributes for
+# administrative access to HiveManager Classic, and a different set
+# of Vendor-Specific-Attributes for HiveOS. Both are documented in
+# this file.
+
+# Most customer will wish to import this file in it’s entirety into
+# their local RADIUS data store.
+
+# Beginning of HiveManager Classic VSAs
 # The following ATTRIBUTE and VALUE definitions are required.
 ATTRIBUTE	AH-HM-Admin-Group-Id			1	integer
 VALUE	AH-HM-Admin-Group-Id		Read-Only-Admin		0
 VALUE	AH-HM-Admin-Group-Id		Super-Admin		1
 VALUE	AH-HM-Admin-Group-Id		Read-Write-Admin	2
 
-# Attr-26.26928.212 = 0x43382d36362d35442d32462d33432d3430
-#                   = 4338-3636-3544-3246-3343-3430
-#                   = C8-66-5D-2F-3C-40
-#                   = AP Mgt0 MAC Address
-
 # The following is an example of an admin group that you can define.
 #VALUE  AH-HM-Admin-Group-Id            Admin-Group100          100
+
+# End of HiveManager Classic VSAs
+# Beginning of HiveOS VSAs
+
+ATTRIBUTE	Extreme-User-Vlan			1	integer
+ATTRIBUTE	Extreme-Libsip-Patron-Info		3	octets encrypt=2
+ATTRIBUTE	Extreme-Libsip-Action			4	integer
+ATTRIBUTE	Extreme-Libsip-Additional-Message	5	octets
+ATTRIBUTE	Extreme-User-Profile-Attribute		6	integer
+ATTRIBUTE	Extreme-Data-Usage-Limit		7	octets
+ATTRIBUTE	Extreme-AVPair				8	string
+ATTRIBUTE	Extreme-Radius-Code			9	integer
+ATTRIBUTE	Extreme-PPSK-Request			201	octets
+ATTRIBUTE	Extreme-PPSK-PMK			202	octets
+ATTRIBUTE	Extreme-IDM-Message			203	integer
+ATTRIBUTE	Extreme-NT-Identity			204	integer
+ATTRIBUTE	Extreme-User-Language			205	string
+ATTRIBUTE	Extreme-Time-Zone-Offset		207	integer
+ATTRIBUTE	Extreme-Daylight-Saving-Offset		208	integer
+ATTRIBUTE	Extreme-Client-Monitor-Session		209	octets
+ATTRIBUTE	Extreme-Client-Monitor-Problem		210	integer
+ATTRIBUTE	Extreme-IDM-Redirect-URL		211	string
+ATTRIBUTE	Extreme-MGT-MAC-Address			212	string
+ATTRIBUTE	Extreme-Auth-Source			213	integer
+
+#
+# Integer Translations
+#
+
+# Extreme-Libsip-Action Values
+VALUE	Extreme-Libsip-Action		Permit			0
+VALUE	Extreme-Libsip-Action		Restricted		1
+VALUE	Extreme-Libsip-Action		Deny			2
+
+# Extreme-Radius-Code Values
+VALUE	Extreme-Radius-Code		Disconnect-Request	1
+VALUE	Extreme-Radius-Code		COA-Request		2
+
+# Extreme-Auth-Source
+VALUE	Extreme-Auth-Source		Service			1
+VALUE	Extreme-Auth-Source		Non-Service		2
 
 END-VENDOR      Aerohive

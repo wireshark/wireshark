@@ -1,0 +1,55 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Dictionary for NetElastic.
+#
+#	$Id: 96cdef06c2492e3d28b70931357ab7b6c2074eca $
+#
+##############################################################################
+
+VENDOR		NetElastic				54268
+
+BEGIN-VENDOR	NetElastic
+
+ATTRIBUTE	NetElastic-Input-Burst-Size		1	integer
+ATTRIBUTE	NetElastic-Input-Average-Rate		2	integer
+ATTRIBUTE	NetElastic-Input-Peak-Rate		3	integer
+ATTRIBUTE	NetElastic-Output-Burst-Size		4	integer
+ATTRIBUTE	NetElastic-Output-Average-Rate		5	integer
+ATTRIBUTE	NetElastic-Output-Peak-Rate		6	integer
+ATTRIBUTE	NetElastic-Remanent-Volume		15	integer
+ATTRIBUTE	NetElastic-ISP-ID			17	string
+ATTRIBUTE	NetElastic-PortalURL			27	string
+ATTRIBUTE	NetElastic-Qos-Profile-Name		31	string
+ATTRIBUTE	NetElastic-Lease-Time			74	integer
+ATTRIBUTE	NetElastic-Input-Peak-Burst-Size	77	integer
+ATTRIBUTE	NetElastic-Output-Peak-Burst-Size	78	integer
+ATTRIBUTE	NetElastic-Data-Filter			82	string
+ATTRIBUTE	NetElastic-Portal-Mode			85	integer
+ATTRIBUTE	NetElastic-Policy-Name			95	string
+ATTRIBUTE	NetElastic-Primary-DNS			135	ipaddr
+ATTRIBUTE	NetElastic-Secondary-DNS		136	ipaddr
+ATTRIBUTE	NetElastic-Domain-Name			138	string
+ATTRIBUTE	NetElastic-HTTP-Redirect-URL		140	string
+ATTRIBUTE	NetElastic-Acct-IPv6-Input-Octets	144	integer
+ATTRIBUTE	NetElastic-Acct-IPv6-Output-Octets	145	integer
+ATTRIBUTE	NetElastic-Acct-IPv6-Input-Packets	146	integer
+ATTRIBUTE	NetElastic-Acct-IPv6-Output-Packets	147	integer
+ATTRIBUTE	NetElastic-Acct-IPv6-Input-Gigawords	148	integer
+ATTRIBUTE	NetElastic-Acct-IPv6-Output-Gigawords	149	integer
+ATTRIBUTE	NetElastic-User-Mac			153	string
+ATTRIBUTE	NetElastic-Framed-IPv6-Address		158	ipv6addr
+ATTRIBUTE	NetElastic-NAT-Public-Address		161	ipaddr
+ATTRIBUTE	NetElastic-NAT-Start-Port		162	integer
+ATTRIBUTE	NetElastic-NAT-End-Port			163	integer
+ATTRIBUTE	NetElastic-Tariff-Input-Octets		247	string
+ATTRIBUTE	NetElastic-Tariff-Output-Octets		248	string
+ATTRIBUTE	NetElastic-Tariff-Input-Gigawords	249	string
+ATTRIBUTE	NetElastic-Tariff-Output-Gigawords	250	string
+ATTRIBUTE	NetElastic-Remanent-Volume-Type		251	integer
+ATTRIBUTE	NetElastic-Web-COA			252	integer
+
+END-VENDOR	NetElastic

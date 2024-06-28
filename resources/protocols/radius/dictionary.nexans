@@ -1,9 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 # Nexans Active Networking Systems dictionary  http://www.nexans.de/ans
 #
-# Version:      $Id: a72140d0a1785fc47e0a23e74d3312b6e7f51fe2 $
+# Version:      $Id: a4f62103ea6504b8580edeab529c5643d1a89518 $
 #
 #               Hubert Theissen <h.theissen@nexans.com>
 #

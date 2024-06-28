@@ -1,12 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	ASN Attributes.
 #
 #	Taken from http://svn.asn.pl/misc/freeradius/dictionary.asn
 #
-#	$Id: 97fc9f140da31dd0d6958c5133979dadc12815fd $
+#	$Id: cebb30a31db5456cf120179aec43d41db692cda2 $
 #
 ##############################################################################
 

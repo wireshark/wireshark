@@ -1,0 +1,63 @@
+# -*- text -*-
+# # Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# # This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# # Version $Id: 00757cd5a08021ad9683432f9eb9adf27898778a $
+# #
+# #        Attributes and values defined in RFC 8045
+# #        http://www.ietf.org/rfc/rfc8045.txt
+# #
+##############################################################################
+##
+##	TrippLite attributes
+##
+##	$Id: 00757cd5a08021ad9683432f9eb9adf27898778a $
+##
+###############################################################################
+
+VENDOR		TrippLite			850
+
+BEGIN-VENDOR	TrippLite
+
+#
+## Access is granted to the various facilities within the PowerAlert software
+## by means of the TrippLite-Authorization attribute, which is a comma-delimited
+## string of facility-code to access-level pairs.
+##
+## Facility Codes: default, security, networksettings, systemsettings, systreminfo,
+## logging, devicestatus, devicecontrols, deviceevents,
+## deviceloads, actions, schedules, discovery
+##
+## Access Levels: none (or 0), ro (or 1), rw (or 2)
+##
+## Example: default=rw,security=none,systemsettings=ro
+##
+## - The default access for all non-specified facilitys is read/write
+## - The user has no access to the security facility
+##
+
+ATTRIBUTE	TrippLite-Authorization			1	string
+
+#
+## Comma-delimited string of outlet security realms from 1 through 32 to which
+## an otherwise restricted user has read-write access.
+##
+## Example: 1-5,10,15
+##
+## - User has read-write access to realms 1, 2, 3, 4 and 5
+## - User has read-write access to realms 10 and 15
+##
+
+ATTRIBUTE	TrippLite-Outlet-Realms			2	string
+
+#
+## Simple message, usually sent as part of accounting
+##
+
+ATTRIBUTE	TrippLite-Message			3	string
+
+#
+## PADM20 user role. Role with same name should exists on the device.
+##
+ATTRIBUTE	TrippLite-User-Role			4	string
+
+END-VENDOR TrippLite

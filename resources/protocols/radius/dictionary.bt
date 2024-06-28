@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	British Telecom VSA's
 #
-#	$Id: d68427f3f8643879425fea275bfd6843034a4980 $
+#	$Id: 61c2ddec252e6ae3392bb72ff42f754ee1f83867 $
 #
 ##############################################################################
 

@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	HP ProCurve VSA's
 #
-#	$Id: 4df7faf87ecfc1348817a8406758daa31d5532f6 $
+#	$Id: b4bafece895c77720a4fffce6c5f6bc7eaeab88e $
 #
 ##############################################################################
 
@@ -19,15 +21,19 @@ BEGIN-VENDOR	HP
 ATTRIBUTE	HP-Privilege-Level			1	integer
 ATTRIBUTE	HP-Command-String			2	string
 ATTRIBUTE	HP-Command-Exception			3	integer
-ATTRIBUTE	HP-Management-Protocol			26	integer
 
 # Dynamic port-access attributes
 ATTRIBUTE	HP-Port-Client-Limit-Dot1x		10	integer
 ATTRIBUTE	HP-Port-Client-Limit-MA			11	integer
 ATTRIBUTE	HP-Port-Client-Limit-WA			12	integer
 ATTRIBUTE	HP-Port-Auth-Mode-Dot1x			13	integer
+ATTRIBUTE	HP-Port-MA-Port-Mode			14	integer
 ATTRIBUTE	HP-Port-Bounce-Host			23	integer
 ATTRIBUTE	HP-Captive-Portal-URL			24	string
+ATTRIBUTE	HP-User-Role				25	string
+ATTRIBUTE	HP-Management-Protocol			26	integer
+ATTRIBUTE	HP-CPPM-Role				27	string
+ATTRIBUTE	HP-CPPM-Secondary-Role			28	string
 
 # Client QoS attributes
 ATTRIBUTE	HP-Port-Priority-Regeneration-Table	40	string
@@ -43,11 +49,22 @@ ATTRIBUTE	HP-Ip-Filter-Raw			61	string
 
 # Client ACL attributes
 ATTRIBUTE	HP-Nas-Filter-Rule			61	string
+ATTRIBUTE	HP-Access-Profile			62	string
 ATTRIBUTE	HP-Nas-Rules-IPv6			63	integer
 
 # VLAN assignment attributes
 ATTRIBUTE	HP-Egress-VLANID			64	integer
 ATTRIBUTE	HP-Egress-VLAN-Name			65	string
+ATTRIBUTE	HP-Bonjour-Inbound-Profile		66	string
+ATTRIBUTE	HP-Bonjour-Outbound-Profile		67	string
+
+# AAA for REST
+ATTRIBUTE	HP-URI-String				80	string
+ATTRIBUTE	HP-URI-Json-String			81	string
+ATTRIBUTE	HP-URI-Access				82	string
+ATTRIBUTE	HP-URI-Exception			83	integer
+
+ATTRIBUTE	HP-VC-groups				192	string
 
 # See http://wiki.freeradius.org/vendor/HP#Capability-advertisements
 ATTRIBUTE	HP-Capability-Advert			255	octets

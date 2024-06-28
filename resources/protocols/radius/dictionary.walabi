@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Walabi Store & Forward FAX attributes.
 #
-#	$Id: 9f7c85e6d9096872bfba1254288a84a3baa4feef $
+#	$Id: 8f0167333f7f4e73551b15ca26c5fb63ea66b53c $
 #
 ##############################################################################
 

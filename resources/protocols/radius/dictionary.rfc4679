@@ -17,12 +17,12 @@ BEGIN-VENDOR	ADSL-Forum
 #  DHCP options.
 #
 ATTRIBUTE	ADSL-Forum-DHCP-Vendor-Specific		255	tlv
-BEGIN-TLV
+BEGIN-TLV	ADSL-Forum-DHCP-Vendor-Specific
 	ATTRIBUTE	ADSL-Forum-Device-Manufacturer-OUI	1	octets
 	ATTRIBUTE	ADSL-Forum-Device-Serial-Number		2	string
 	ATTRIBUTE	ADSL-Forum-Device-Product-Class		3	string
 	ATTRIBUTE	ADSL-Forum-Gateway-Manufacturer-OUI	4	octets
-END-TLV
+END-TLV	ADSL-Forum-DHCP-Vendor-Specific
 
 #
 #  The first two attributes are prefixed with "ADSL-" because of

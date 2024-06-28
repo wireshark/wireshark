@@ -1,9 +1,10 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # dictionary.garderos
 #
-# Version: $Id: e0e317820a1e8c8046e0b16a5a6a0c2a4dfc2b2d $
+# Version: $Id: c401784d5243df6f45dc9b23cd7ed24d848b9260 $
 #
 #	For documentation on Garderos attributes, see:
 #

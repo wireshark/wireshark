@@ -1,0 +1,34 @@
+# -*- text -*-
+# Copyright (C) 2021 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Based on https://www.calix.com/content/dam/calix/mycalix-misc/lib/tp/cms/ug/r15-x/index.htm?toc136037.htm?5793.htm
+#
+#	$Id: 4bcd1bf407894f53beb774926dec0e12a08a37c1 $
+#
+##############################################################################
+
+VENDOR		Calix				6321
+
+BEGIN-VENDOR	Calix
+
+ATTRIBUTE	Calix-Role				1	string
+ATTRIBUTE	Calix-CMS-User-Group			220	string
+ATTRIBUTE	Calix-CMS-Alarm-Filter			221	integer
+
+VALUE	Calix-CMS-Alarm-Filter		Disabled		0
+VALUE	Calix-CMS-Alarm-Filter		Enabled			1
+
+ATTRIBUTE	Calix-CMS-Event-Filter			222	integer
+
+VALUE	Calix-CMS-Event-Filter		Disabled		0
+VALUE	Calix-CMS-Event-Filter		Enabled			1
+
+ATTRIBUTE	Calix-CMS-Threshold-Event-Filter	223	integer
+
+VALUE	Calix-CMS-Threshold-Event-Filter Disabled		0
+VALUE	Calix-CMS-Threshold-Event-Filter Enabled		1
+
+END-VENDOR	Calix

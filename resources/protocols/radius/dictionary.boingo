@@ -1,0 +1,48 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+# Boingo Wi-Fi - http://www.boingo.com/
+#
+# Version:      $Id:
+#
+#               Jorge Pereira <jpereiran@gmail.com>
+#
+##############################################################################
+
+VENDOR		Boingo				22472
+
+BEGIN-VENDOR	Boingo
+
+ATTRIBUTE	BW-Venue-Id				7	string
+ATTRIBUTE	BW-Venue-TZ				8	string
+ATTRIBUTE	BW-Service-Type				9	string
+ATTRIBUTE	BW-Class				10	string
+ATTRIBUTE	BW-Venue-Description			11	string
+ATTRIBUTE	BW-Venue-Price-Type			12	string
+ATTRIBUTE	BW-Venue-Port-Type			13	string
+ATTRIBUTE	BW-ISO-Country-Code			14	string
+ATTRIBUTE	BW-e164-Country-Code			15	string
+ATTRIBUTE	BW-State-Name				16	string
+ATTRIBUTE	BW-City-Name				17	string
+ATTRIBUTE	BW-Area-Code				18	integer
+ATTRIBUTE	CL-Brand				19	string
+ATTRIBUTE	CL-Software-Version			20	string
+ATTRIBUTE	CL-Reg-Number				21	string
+ATTRIBUTE	CL-Method-Version			22	string
+ATTRIBUTE	CL-Token-Version			23	string
+ATTRIBUTE	CL-APDB-Version				24	string
+ATTRIBUTE	CL-User-Agent				25	string
+ATTRIBUTE	CL-SSC					26	string
+ATTRIBUTE	BW-User-Group				27	string
+ATTRIBUTE	BW-Venue-Name				29	string
+ATTRIBUTE	BW-Category				30	string
+ATTRIBUTE	BW-User-Role				32	string
+ATTRIBUTE	BW-User-Name				33	string
+ATTRIBUTE	BW-User-Password			34	string
+ATTRIBUTE	BW-User-Prefix				35	string
+ATTRIBUTE	BW-User-Realm				36	string
+ATTRIBUTE	BW-Operator-Name			37	string
+
+END-VENDOR      Boingo

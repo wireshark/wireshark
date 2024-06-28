@@ -1,5 +1,7 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Alvarion VSAs, also known as Breezecom / Breezenet.
@@ -28,7 +30,7 @@
 #	Why anyone thought this was a good idea is beyond rational
 #	understanding.
 #
-#	$Id: 2d9c38b154a66fc2d61112708252d9f4da2ccba0 $
+#	$Id: 91589ec882bb2bc15d7439e2e6a22c03e29f9a39 $
 #
 ##############################################################################
 

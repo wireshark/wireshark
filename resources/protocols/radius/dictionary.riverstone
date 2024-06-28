@@ -1,11 +1,13 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #  Riverstone Networks' RADIUS VSAs
 #  *** For RapidOS Versions 9.1 and above ONLY ***
 #
-#  $Id: e4e5655bbc9cf5854c1c716d64bef23bb3b7c5c3 $
+#  $Id: d941b26c5da689b591f9a7295b0e85e313b7d3ea $
 #
 ##############################################################################
 

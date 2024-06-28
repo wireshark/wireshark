@@ -1,0 +1,33 @@
+# -*- text -*-
+# SPDX-License-Identifier: CC-BY-4.0
+# Copyright (C) 2023 SmartShare Systems
+#
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+# Please contact SmartShare Systems directly if you need a copy under a different license.
+#
+# Version $Id: f955337d31c1bea1ccf84946678d3070b5a006a6 $
+
+##############################################################################
+#
+#	SmartShare Systems Vendor-Specific Attributes
+#	dictionary.smartsharesystems
+#	https://www.smartsharesystems.com/
+#
+##############################################################################
+
+VENDOR		SmartShareSystems		30585
+
+BEGIN-VENDOR	SmartShareSystems
+
+# The globally unique identity (e.g. hardware serial number) of the Proxy (instance) forwarding the packet,
+# in ASCII format (upper case only).
+ATTRIBUTE	SSS-Proxy-Id				2	string
+
+# The FQDN (Fully Qualified Domain Name) of the Proxy (cluster) forwarding the packet.
+ATTRIBUTE	SSS-Proxy-Identifier			3	string
+
+# Location of the Proxy (cluster) forwarding the packet, in free form UTF-8 format.
+ATTRIBUTE	SSS-Proxy-Location			4	string
+
+END-VENDOR	SmartShareSystems

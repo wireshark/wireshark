@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	UT Starcom (China)
 #
-#	$Id: 00e5be1c628e54afc635988a39dfd8daeadf59ae $
+#	$Id: 152d5c1d01342429ecfbc78324d63ae744a9d89f $
 #
 ##############################################################################
 

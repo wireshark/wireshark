@@ -1,0 +1,39 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+
+VENDOR		Mimosa				43356
+
+BEGIN-VENDOR	Mimosa
+
+ATTRIBUTE	Mimosa-Device-Configuration-Parameter	1	string
+ATTRIBUTE	Mimosa-FirmwareVersion-Parameter	2	string
+ATTRIBUTE	Mimosa-FirmwareLocation-Parameter	3	string
+ATTRIBUTE	Mimosa-WirelessProtocol-Parameter	4	string
+ATTRIBUTE	Mimosa-ManagementIPAddressMode-Parameter 5	string
+ATTRIBUTE	Mimosa-ManagementIPAddress-Parameter	6	ipaddr
+ATTRIBUTE	Mimosa-ManagementIPNetmask-Parameter	7	ipaddr
+ATTRIBUTE	Mimosa-ManagementIPGateway-Parameter	8	ipaddr
+ATTRIBUTE	Mimosa-ManagementVlanStatus-Parameter	9	byte
+ATTRIBUTE	Mimosa-ManagementVlan-Parameter		10	string
+ATTRIBUTE	Mimosa-ManagementPassword-Parameter	11	string
+ATTRIBUTE	Mimosa-DeviceName-Parameter		12	string
+ATTRIBUTE	Mimosa-TrafficShapingPeak-Parameter	13	string
+ATTRIBUTE	Mimosa-TrafficShapingCommitted-Parameter 14	string
+ATTRIBUTE	Mimosa-EthernetPortSpeed-Parameter	15	string
+ATTRIBUTE	Mimosa-DNS1-Parameter			16	ipaddr
+ATTRIBUTE	Mimosa-DNS2-Parameter			17	ipaddr
+ATTRIBUTE	Mimosa-HTTPPort-Parameter		18	integer
+ATTRIBUTE	Mimosa-EnableHTTPS-Parameter		19	byte
+ATTRIBUTE	Mimosa-HTTPSPort-Parameter		20	integer
+ATTRIBUTE	Mimosa-CloudManagement-Parameter	21	byte
+ATTRIBUTE	Mimosa-EnableSNMP-Parameter		22	byte
+ATTRIBUTE	Mimosa-SNMPCommunityString-Parameter	23	string
+ATTRIBUTE	Mimosa-SNMPTrapServer-Parameter		24	ipaddr
+ATTRIBUTE	Mimosa-NTPServerAddress-Parameter	25	string
+ATTRIBUTE	Mimosa-EnableSyslog-Parameter		26	byte
+ATTRIBUTE	Mimosa-SyslogServerAddress-Parameter	27	ipaddr
+ATTRIBUTE	Mimosa-SyslogPort-Parameter		28	integer
+ATTRIBUTE	Mimosa-SyslogProtocol-Parameter		29	string
+
+END-VENDOR Mimosa

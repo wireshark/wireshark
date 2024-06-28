@@ -1,12 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	BlueCoat VSAs
 #
 #	See also dictionary.packeteer for former Packeteer products.
 #
-#	$Id: 1568f4bbc16b7e83b8894ec6088b9931451bb726 $
+#	$Id: 0af3c51c3b88dc7ed375311582d0c34fb1ec6b33 $
 #
 ##############################################################################
 

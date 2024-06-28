@@ -1,19 +1,15 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-#
-# dictionary.cisco
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #		Accounting VSAs originally by
 #		"Marcelo M. Sosa Lugones" <marcelo@sosa.com.ar>
 #
-# Version:	$Id: 52cbe9c8f9d24d17eaf91faae5084ac832a509d1 $
+# Version:	$Id: c62922820c592c5f60be01a34b845c2242cb50ab $
 #
 #  For documentation on Cisco RADIUS attributes, see:
 #
-# http://wayback.archive.org/web/20090614232619/http://www.cisco.com/en/US/docs/net_mgmt/cisco_secure_access_control_server_for_windows/4.1/user/A_RADAtr.html
-# http://www.cisco.com/c/en/us/td/docs/ios/12_2/security/configuration/guide/fsecur_c/scfrdat3.html#wpxref30314
-# http://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_usr_radatt/configuration/xe-16/sec-usr-radatt-xe-16-book.html
-# http://www.cisco.com/en/US/docs/net_mgmt/cisco_secure_access_control_server_for_windows/4.1/user/A_RADAtr.html
+# http://www.cisco.com/univercd/cc/td/doc/product/access/acs_serv/vapp_dev/vsaig3.htm
 #
 #  For general documentation on Cisco RADIUS configuration, see:
 #
@@ -71,6 +67,27 @@ ATTRIBUTE	h323-incoming-conf-id			35	string
 ATTRIBUTE	Cisco-Policy-Up				37	string
 ATTRIBUTE	Cisco-Policy-Down			38	string
 
+ATTRIBUTE	Cisco-Relay-Information-Option		46	string
+ATTRIBUTE	Cisco-DHCP-User-Class			47	string
+ATTRIBUTE	Cisco-DHCP-Vendor-Class			48	string
+
+ATTRIBUTE	Cisco-DHCP-Relay-GiAddr			50	string
+ATTRIBUTE	Cisco-Service-Name			51	string
+ATTRIBUTE	Cisco-Parent-Session-Id			52	string
+
+ATTRIBUTE	Cisco-Sub-QoS-Pol-In			55	string
+ATTRIBUTE	Cisco-Sub-QoS-Pol-Out			56	string
+ATTRIBUTE	Cisco-In-ACL				57	string
+ATTRIBUTE	Cisco-Out-ACL				58	string
+ATTRIBUTE	Cisco-Sub-PBR-Policy-In			59	string
+ATTRIBUTE	Cisco-Sub-Activate-Service		60	string
+ATTRIBUTE	Cisco-IPv6-In-ACL			61	string
+ATTRIBUTE	Cisco-IPv6-Out-ACL			62	string
+ATTRIBUTE	Cisco-Sub-Deactivate-Service		63	string
+
+ATTRIBUTE	Cisco-DHCP-Subscriber-Id		65	string
+ATTRIBUTE	Cisco-DHCPv6-Link-Address		66	string
+
 ATTRIBUTE	sip-conf-id				100	string
 ATTRIBUTE	h323-credit-amount			101	string
 ATTRIBUTE	h323-credit-time			102	string
@@ -106,25 +123,6 @@ ATTRIBUTE	dsp-id					151	string
 #
 #	Extra attributes sent by the Cisco, if you configure
 #	"radius-server vsa accounting" (requires IOS11.2+).
-#
-#	According to
-#
-#		http://wayback.archive.org/web/20021219025345/http://www.cisco.com/en/US/products/hw/iad/ps4349/products_installation_guide_chapter09186a008007e511.html
-#
-#	the first byte Command-Code value is a binary command code
-#	and the other bytes after it are an string argument to the
-#	command:
-#
-#		Command code	Command			Argument
-#
-#		\001		Account Logon		Account name
-#		\002		Account Logoff		Account name
-#		\004		Account PING		Service name
-#		\013		Service Logon		Service name
-#		\014		Service Logoff		Service name
-#		\016		Service Access Order	DNS server search order
-#							separated by semicolons
-#		\017		Service Message		Message text
 #
 ATTRIBUTE	Cisco-Multilink-ID			187	integer
 ATTRIBUTE	Cisco-Num-In-Multilink			188	integer

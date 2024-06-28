@@ -1,0 +1,19 @@
+# -*- text -*-
+# Copyright (C) 2023 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: f4a83a5d7614d3451f385529b3c89575782719c5 $
+VENDOR		TPLink				11863
+
+BEGIN-VENDOR	TPLink
+
+ATTRIBUTE	TPLink-Recv-limit			1	integer
+ATTRIBUTE	TPLink-Xmit-limit			2	integer
+ATTRIBUTE	TPLink-Authentication-FindKey		3	octets
+ATTRIBUTE	TPLink-Authentication-FoundKey		4	octets
+ATTRIBUTE	TPLink-User-Command			5	string
+ATTRIBUTE	TPLink-Site				6	string
+ATTRIBUTE	TPLink-Omada				7	string
+ATTRIBUTE	TPLink-Redirect-Url			8	string
+ATTRIBUTE	TPLink-Portal-Access-Status		9	integer
+
+END-VENDOR TPLink

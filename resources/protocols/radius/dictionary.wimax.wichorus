@@ -1,5 +1,7 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	This is a WiMAX dictionary for the WiChorus line of products.
@@ -8,7 +10,7 @@
 #
 ##############################################################################
 #
-#	$Id: c3dd1e620496eba6467928136d0c81dcb907eb7b $
+#	$Id: aa2e3d36bc374c5579eff86a02528faca2e78aad $
 #
 ##############################################################################
 

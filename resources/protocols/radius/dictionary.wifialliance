@@ -1,0 +1,94 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#       WiFi-Alliance attributes for Hotspot 2.0
+#
+#       $Id: a8955618027ba007beb09c82bf1eeafd1cddf4f1 $
+#
+##############################################################################
+
+VENDOR		WiFi-Alliance			40808
+
+BEGIN-VENDOR	WiFi-Alliance
+
+#  0                   1                   2                   3
+#   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#  | Server Method | Subscription Remediation Server URL
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#
+#  Server Method
+#
+#	0 = OMA DM
+#	1 = Soap XML SPP
+#	2..255 reserved
+#
+ATTRIBUTE	HS20-Subscription-Remediation-Needed	1	octets
+ATTRIBUTE	HS20-AP-Version				2	byte
+
+#  0                   1                   2                   3
+#   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#  |    Version    |    PPS MO UpdateIdentifier    |
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#
+#  Version
+#
+#	0 = release 1
+#	1 = release 2
+#
+ATTRIBUTE	HS20-Mobile-Device-Version		3	octets
+
+#  0                   1                   2                   3
+#   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#  |      Code     |        Re-auth Delay          |     URL
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#
+#  Code
+#
+#	0 = User's subscription does not allow or no longer allows access at this BSS
+#	1 = User's subscription does not allow or no longer allows access at this ESS
+#
+#
+#  Re-Auth delay = delay in seconds that a mobile device waits before attempting
+#  	   	   reassociation.
+#		   0 == delay is decided by the mobile device.
+#
+#  URL = UTF-8 encoded URL.
+#  	Which provides a webpage explaining why the mobile device was
+#	not authorized (or is no longer authorized)
+#
+ATTRIBUTE	HS20-Deauthentication-Request		4	octets
+
+#  0                   1                   2                   3
+#   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#  |       SWT     |   Session Information URL
+#  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#
+#  SWT = Session Warning Time is the number of minutes of advance
+#  notice an AP shall provide to the mobile device before terminating
+#  its session. When SWT is set to the special value of 255, the AP
+#  (802.1X authenticator) chooses the session warning time value.
+#
+#  Session Information URL field: URL which is transmitted to a mobile
+#  device in a BSS Transition Management Request frame SWT minutes
+#  before the mobile device’s session is terminated. The URL provides
+#  the location of a webpage with information for the user on how to
+#  extend the session.
+#
+ATTRIBUTE	HS20-Session-Information-URL		5	octets
+
+#  Values are:
+#
+#  5A-03-BA-00-00 OpenRoaming for All Identities, settlement-free, no personal data requested, baseline QoS
+#  5A-03-BA-08-00 "OpenRoaming for Educational or Research Identities, settlement-free, no personal data requested, baseline QoS"
+ATTRIBUTE      HS20-Roaming-Consortium                 6       octets
+
+
+
+END-VENDOR    WiFi-Alliance

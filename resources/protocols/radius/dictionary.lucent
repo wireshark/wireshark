@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Lucent VSAs, in their own "magic" 16-bit format.
 #
-#	$Id: 09b923ffdee8e1e1a2b05a0c28c456e7531b9448 $
+#	$Id: bf4bf88ed7e6c067dbb30a924fce5ee052147ba5 $
 #
 ##############################################################################
 

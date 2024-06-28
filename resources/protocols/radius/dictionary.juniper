@@ -1,11 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #  dictionary.juniper
 #
 #	As posted to the list by Eric Kilfoil <ekilfoil@uslec.net>
 #
-# Version:	$Id: d294e4bdf7957f51d95584bb9b85a65737a74592 $
+# Version:	$Id: 15b6e6f90da6beeb6684f7a62cf0afda543e58b7 $
 #
 
 VENDOR		Juniper				2636
@@ -22,6 +23,7 @@ ATTRIBUTE	Juniper-Interactive-Command		8	string
 ATTRIBUTE	Juniper-Configuration-Change		9	string
 ATTRIBUTE	Juniper-User-Permissions		10	string
 ATTRIBUTE	Juniper-Junosspace-Profile		11	String
+ATTRIBUTE	Juniper-Junosspace-Profiles		11	String
 
 ATTRIBUTE	Juniper-CTP-Group			21	integer
 ATTRIBUTE	Juniper-CTPView-APP-Group		22	integer
@@ -46,6 +48,16 @@ ATTRIBUTE	Juniper-Local-Group-Name		46	string
 ATTRIBUTE	Juniper-Local-Interface			47	string
 ATTRIBUTE	Juniper-Switching-Filter		48	string
 ATTRIBUTE	Juniper-VoIP-Vlan			49	string
+ATTRIBUTE	Juniper-CWA-Redirect			50	string
+
+ATTRIBUTE	Juniper-AV-Pair				52	string
+
+ATTRIBUTE	Juniper-DHCPv4-Options			55	octets
+ATTRIBUTE	Juniper-DHCPv6-Options			207	octets
+ATTRIBUTE	Juniper-DHCPv4-Packet-Header		208	octets
+ATTRIBUTE	Juniper-DHCPv6-Packet-Header		209	octets
+ATTRIBUTE	Juniper-Acct-Request-Reason		210	uint32
+
 
 VALUE	Juniper-CTPView-APP-Group	Net_View		1
 VALUE	Juniper-CTPView-APP-Group	Net_Admin		2
@@ -59,5 +71,9 @@ VALUE	Juniper-CTP-Group		Auditor			4
 VALUE	Juniper-CTPView-OS-Group	Web_Manager		1
 VALUE	Juniper-CTPView-OS-Group	System_Admin		2
 VALUE	Juniper-CTPView-OS-Group	Auditor			3
+
+VALUE	Juniper-Acct-Request-Reason	IPv4-Active		0x0004
+VALUE	Juniper-Acct-Request-Reason	IPv6-Active		0x0010
+VALUE	Juniper-Acct-Request-Reason	Session-Active		0x0040
 
 END-VENDOR	Juniper

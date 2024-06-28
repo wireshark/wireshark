@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Arbor networks.
 #
-#	$Id: 2013fbd8a8359eda87b72c408b5e6b426fd3985c $
+#	$Id: 8ac3a0716ec0bb3b645eeb87699d911a9cfe9c22 $
 #
 ##############################################################################
 

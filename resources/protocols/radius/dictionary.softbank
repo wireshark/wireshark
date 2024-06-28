@@ -1,0 +1,32 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors#
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+#############################################################################
+#
+#	Softbank VSAs
+#
+#	$Id: 9ee8c0361f6dc7b94386c9cec0c78286454f35eb $
+#
+##############################################################################
+
+VENDOR		SoftBank			22197
+
+BEGIN-VENDOR	SoftBank
+
+ATTRIBUTE	SoftBank-BB-Unit-MAC			1	string
+ATTRIBUTE	SoftBank-BB-Unit-Manufacturer		2	string
+ATTRIBUTE	SoftBank-BB-Unit-Model			3	string
+ATTRIBUTE	SoftBank-BB-Unit-HW-Revision		4	string
+
+ATTRIBUTE	SoftBank-TFTP-Config-Server		185	ipaddr
+ATTRIBUTE	SoftBank-TFTP-Config-File		186	string
+ATTRIBUTE	SoftBank-DNS-IPv6-Primary		198	ipv6addr
+ATTRIBUTE	SoftBank-DNS-IPv6-Secondary		199	ipv6addr
+ATTRIBUTE	SoftBank-Syslog-Server			201	ipv6addr
+ATTRIBUTE	SoftBank-SNTP-Server			203	ipv6addr
+ATTRIBUTE	SoftBank-IPv4-Tunnel-Local-Address	204	ipaddr
+ATTRIBUTE	SoftBank-IPv4-Tunnel-Endpoint		207	ipv6addr
+ATTRIBUTE	SoftBank-RouteInfo-Server		215	string
+
+END-VENDOR      SoftBank

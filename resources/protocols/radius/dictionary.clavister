@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Clavister VSAs
 #
-#	$Id: 0b06be9ce73341d98df0a102b4dabbd748efd6e7 $
+#	$Id: bc59c64e5cbf0804a15c3d4fdbb95375fab633de $
 #
 ##############################################################################
 

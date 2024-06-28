@@ -1,7 +1,6 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-#
-# dictionary.lcs
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #                             originally by
 #                             "Eugen K. " <>
@@ -37,5 +36,7 @@ ATTRIBUTE	LCS-VPN-IPv6-Rule			23	string
 ATTRIBUTE	LCS-Routing-Tag				24	integer
 ATTRIBUTE	LCS-IKEv2-IPv4-Route			25	string
 ATTRIBUTE	LCS-IKEv2-IPv6-Route			26	string
+ATTRIBUTE	LCS-IKEv2-DNS-Domain			27	string
+ATTRIBUTE	LCS-Load-Balancer			28	string
 
 END-VENDOR   Lancom

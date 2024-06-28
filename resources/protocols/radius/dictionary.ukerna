@@ -1,28 +1,39 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	GSS-EAP VSAs
 #
-#	$Id: dbf19e8427b2a4ab96d6b6b21e4295ec09f73c3c $
+#	$Id: fddb1f4243501a70a9bda7186914846b328f5e0e $
 #
 
 VENDOR		UKERNA				25622
 
 BEGIN-VENDOR	UKERNA
 
+#  Previously-vendor-defined IANA attributes
 ATTRIBUTE	UKERNA-GSS-Acceptor-Service-Name	128	string
 ATTRIBUTE	UKERNA-GSS-Acceptor-Host-Name		129	string
 ATTRIBUTE	UKERNA-GSS-Acceptor-Service-Specific	130	string
 ATTRIBUTE	UKERNA-GSS-Acceptor-Realm-Name		131	string
+
+#  ABFAB-specific attributes for attributes and unlang recipe items
 ATTRIBUTE	SAML-AAA-Assertion			132	string
 ATTRIBUTE	EAP-Channel-Binding-Message		135	octets
 ATTRIBUTE	Trust-Router-COI			136	string
 ATTRIBUTE	Trust-Router-APC			137	string
+
+#  ABFAB-specific TargetedIds for the three realms of 'influence'
 ATTRIBUTE	Moonshot-Host-TargetedId		138	string
 ATTRIBUTE	Moonshot-Realm-TargetedId		139	string
 ATTRIBUTE	Moonshot-TR-COI-TargetedId		140	string
+
+#  ABFAB-specific attributes for the unlang generation of the above
 ATTRIBUTE	Moonshot-MSTID-GSS-Acceptor		141	string
 ATTRIBUTE	Moonshot-MSTID-Namespace		142	string
 ATTRIBUTE	Moonshot-MSTID-TargetedId		143	string
+
+#  ABFAB-specific OTP token value
 ATTRIBUTE	Moonshot-OTP-Secret			144	string
+
 END-VENDOR UKERNA

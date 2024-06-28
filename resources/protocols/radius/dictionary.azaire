@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Azaire VSAs
 #
-#	$Id: f68589e325ff9d7eff3cd486caabfb2d238ba5f4 $
+#	$Id: 304797f9f90d0d46bc862a17fe5482bc2f95e63a $
 #
 ##############################################################################
 

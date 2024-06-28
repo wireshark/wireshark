@@ -1,11 +1,13 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors#
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #       For TERENA VSA's
 #
 #	The reference for these values is:
 #       http://www.terena.org/activities/tf-emc2/oid.html
 #
-#       $Id: 9637e3debc73eff0332bc198837db24ea2935b5f $
+#       $Id: 7b7b857f39df8b91da11af3ce9d701dea1454d20 $
 #
 VENDOR		TERENA				25178
 

@@ -1,0 +1,93 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: a4c3a0511b5a33ac90ae0ac6e64199a03e5a4dc4 $
+#
+# 	VAS Experts dictionary
+#
+VENDOR		VasExperts			43823
+
+BEGIN-VENDOR	VasExperts
+
+ATTRIBUTE	VasExperts-Policing-Profile		1	string
+ATTRIBUTE	VasExperts-Service-Profile		2	string
+ATTRIBUTE	VasExperts-Enable-Service		3	string
+ATTRIBUTE	VasExperts-Multi-IP-User		4	integer
+ATTRIBUTE	VasExperts-UserName			5	string
+ATTRIBUTE	VasExperts-Service-Type			6	integer
+ATTRIBUTE	VasExperts-Restrict-User		7	integer
+ATTRIBUTE	VasExperts-Enable-Interconnect		8	integer
+ATTRIBUTE	VasExperts-OutVLAN			9	integer
+ATTRIBUTE	VasExperts-Command-Code			10	integer   # CoA command code
+ATTRIBUTE	VasExperts-OutMAC			11	string
+
+VALUE	VasExperts-Service-Type		Auth			0   # L3-authorization, known IP
+VALUE	VasExperts-Service-Type		DHCP			1   # DHCP
+VALUE	VasExperts-Service-Type		PAP			2   # PAP authorization
+VALUE	VasExperts-Service-Type		CHAP			3   # CHAP authorization
+VALUE	VasExperts-Service-Type		MS_CHAPv2		4   # MS-CHAPv2 authorization
+VALUE	VasExperts-Service-Type		MAC_QinQ		5   # MAC/QinQ authorization
+VALUE	VasExperts-Service-Type		ARP			6   # ARP
+VALUE	VasExperts-Service-Type		DHCPv6			7   # DHCPv6
+
+VALUE	VasExperts-Command-Code		Check-Acct		1   # Check Accounting session for Framed-IP-Address
+
+# Accounting
+ATTRIBUTE	VasExperts-Acct-Traffic-Class-Name	16	string
+ATTRIBUTE	VasExperts-Acct-Traffic-Class-Input-Octets 17	integer64
+ATTRIBUTE	VasExperts-Acct-Traffic-Class-Output-Octets 18	integer64
+ATTRIBUTE	VasExperts-Acct-Traffic-Class-Input-Packets 19	integer64
+ATTRIBUTE	VasExperts-Acct-Traffic-Class-Output-Packets 20	integer64
+ATTRIBUTE	VasExperts-NAT-IP			21	ipaddr     # NAT 1:1 white address
+
+# DHCP -> Radius attributes
+ATTRIBUTE	VasExperts-DHCP-Hostname		32	octets  # DHCP Opt12
+ATTRIBUTE	VasExperts-DHCP-ClientId		33	octets  # DHCP Opt61
+ATTRIBUTE	VasExperts-DHCP-ClassId			34	octets  # DHCP Opt60
+ATTRIBUTE	VasExperts-DHCP-RelayInfo		35	octets  # DHCP Opt82
+ATTRIBUTE	VasExperts-DHCP-ClientIP		36	ipaddr  # DHCP Opt50
+ATTRIBUTE	VasExperts-DHCP-Request			37	integer
+ATTRIBUTE	VasExperts-DHCP-RelayRemoteId		38	octets  # DHCP Opt82 subopt 2
+ATTRIBUTE	VasExperts-DHCP-RelayCircuitId		39	octets  # DHCP Opt82 subopt 1
+
+VALUE	VasExperts-DHCP-Request		Discover		0
+VALUE	VasExperts-DHCP-Request		Inform			1
+VALUE	VasExperts-DHCP-Request		Request			2
+
+# Radius -> DHCP (Access-Accept, Access-Reject)
+ATTRIBUTE	VasExperts-DHCP-Option			40	octets  # Any DHCP option in binary form
+ATTRIBUTE	VasExperts-DHCP-DNS			41	ipaddr  # DNS IP address
+ATTRIBUTE	VasExperts-DHCP-Gateway			42	ipaddr  # Gateway IP address
+ATTRIBUTE	VasExperts-BOOTP-SName			43	string  # BOOTP SName
+ATTRIBUTE	VasExperts-BOOTP-File			44	string  # BOOTP File
+ATTRIBUTE	VasExperts-DHCP-Option-IP		45	string  # IPv4 option: "opt:192.168.6.90", for example: "42:192.168.6.90"
+ATTRIBUTE	VasExperts-DHCP-Option-Num		46	string  # Numeric option: "opt:1500", for example: "58:3600"
+ATTRIBUTE	VasExperts-DHCP-Option-String		47	string  # String option: "opt:text", for example: "56:Hello from DHCP!"
+ATTRIBUTE	VasExperts-DHCP-Option-Bin		48	string  # Binary option in hex form: "opt:xxxxxxxx", for example: "58:100E"
+
+ATTRIBUTE	VasExperts-ARP-SourceIP			60	ipaddr  # ARP source IP
+ATTRIBUTE	VasExperts-ARP-TargetIP			61	ipaddr  # ARP target IP
+
+# DHCPv6 -> Radius attributes
+ATTRIBUTE	VasExperts-DHCPv6-Request		70	integer # DHCPv6 request type
+ATTRIBUTE	VasExperts-DHCPv6-UserClass		71	octets  # DHCPv6 User Class option
+ATTRIBUTE	VasExperts-DHCPv6-VendorClass		72	octets  # DHCPv6 Vendor Class option
+ATTRIBUTE	VasExperts-DHCPv6-RemoteId		73	octets  # DHCPv6 RemoteId option [RFC 4649]
+ATTRIBUTE	VasExperts-DHCPv6-SubsId		74	octets  # DHCPv6 SubscriberId option [RFC 4580]
+ATTRIBUTE	VasExperts-DHCPv6-Delegated		75	integer # DHCPv6 flag: (1) - CPE requests delegated prefix, (0) - does not
+
+# Radius -> DHCPv6 attributes
+ATTRIBUTE	VasExperts-DHCP-Option-IPv6		80	string  # IPv6 option: "opt:2001:fde3::709", for example: "22:2001:fde3::709"
+ATTRIBUTE	VasExperts-DHCP-Option-IPv6-Prefix	81	string  # IPv6 prefix option: "opt:2001:fde3/64"
+ATTRIBUTE	VasExperts-DHCP6-Option-Num		82	string  # DHCPv6 numeric option: "opt:1500", for example: "58:3600"
+ATTRIBUTE	VasExperts-DHCP6-Option-String		83	string  # DHCPv6 string option: "opt:text", for example: "56:Hello from DHCP!"
+ATTRIBUTE	VasExperts-DHCP6-Option-Bin		84	string  # DHCPv6 binary option in hex form: "opt:xxxxxxxx", for example: "58:100E"
+
+VALUE	VasExperts-DHCPv6-Request	Solicit			1
+VALUE	VasExperts-DHCPv6-Request	Request			3
+VALUE	VasExperts-DHCPv6-Request	Renew			5
+VALUE	VasExperts-DHCPv6-Request	Rebind			6
+
+# Attributes 250 - 255 are dedicated to the customer's private use and are not used (ignored) by pcrf
+
+END-VENDOR      VasExperts

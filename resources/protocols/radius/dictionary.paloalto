@@ -1,10 +1,13 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2021 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 2025932cabed172377132d22b3dcbdef92725eb8 $
+#
 ##############################################################################
 #
 #	Palo Alto Networks.
 #
-#	$Id: 0d2e46353ac931a0b901f6007b6dd0222875bb23 $
+#	$Id: 2025932cabed172377132d22b3dcbdef92725eb8 $
 #
 ##############################################################################
 
@@ -17,5 +20,10 @@ ATTRIBUTE	PaloAlto-Admin-Access-Domain		2	string
 ATTRIBUTE	PaloAlto-Panorama-Admin-Role		3	string
 ATTRIBUTE	PaloAlto-Panorama-Admin-Access-Domain	4	string
 ATTRIBUTE	PaloAlto-User-Group			5	string
+ATTRIBUTE	PaloAlto-User-Domain			6	string
+ATTRIBUTE	PaloAlto-Client-Source-IP		7	string
+ATTRIBUTE	PaloAlto-Client-OS			8	string
+ATTRIBUTE	PaloAlto-Client-Hostname		9	string
+ATTRIBUTE	PaloAlto-GlobalProtect-Client-Version	10	string
 
 END-VENDOR	PaloAlto

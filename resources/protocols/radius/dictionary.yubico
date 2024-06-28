@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Yubico VSA's
 #
-#	$Id: 618597605ce29d7bee6887bf2c2cd10e72009593 $
+#	$Id: a40ea555f79f323af44bdf83a38491e287721920 $
 #
 ##############################################################################
 

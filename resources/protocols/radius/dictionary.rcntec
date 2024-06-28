@@ -1,0 +1,19 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: a1cdae175b1c7b74f40216eb52d11f5b50af0eec $
+###########################################################
+# Resilient Cloud Network Technologies (RCNTEC)
+# Dictionary for RCNTEC's RPCM hardware, https://rpcm.pro
+# Contributed by Sergey Minakov <ser@rcntec.com>
+#
+#
+###########################################################
+
+VENDOR		RCNTEC				46235
+BEGIN-VENDOR	RCNTEC
+
+ATTRIBUTE	RCNTEC-RPCM-Group			1	string
+ATTRIBUTE	RCNTEC-RPCM-Session-Expire		2	integer
+
+END-VENDOR	RCNTEC

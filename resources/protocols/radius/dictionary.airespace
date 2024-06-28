@@ -1,16 +1,10 @@
 # -*- text -*-
-#
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	As found on the net.
 #
-#	$Id: 5d952f9bb26324e61f139aef9ae9e552ed36dcb9 $
-#
-# See
-#
-#    http://www.cisco.com/c/en/us/td/docs/wireless/controller/8-1/configuration-guide/b_cg81/b_cg81_chapter_01010.html
-#    http://www.cisco.com/c/en/us/support/docs/wireless/4100-series-wireless-lan-controllers/96103-wlc-attributes.html
-#    https://supportforums.cisco.com/discussion/12456936/radius-bandwidth-limit-guest-wlan
+#	$Id: 1a49ec651fac41bd3aa620d3a75b467d863ea071 $
 #
 VENDOR		Airespace			14179
 

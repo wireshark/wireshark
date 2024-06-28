@@ -1,0 +1,43 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Dictionary for Covaro Networks
+#
+#	$Id: 7959a0bc6d964e2142f581581e9a80ab7e0c2d5c $
+#
+##############################################################################
+
+VENDOR		Covaro				18022
+
+BEGIN-VENDOR	Covaro
+
+ATTRIBUTE	Covaro-User-Privilege			1	integer
+
+VALUE	Covaro-User-Privilege		SUPERUSER		1
+VALUE	Covaro-User-Privilege		PROVISIONING		2
+VALUE	Covaro-User-Privilege		MAINTENANCE		3
+VALUE	Covaro-User-Privilege		RETRIEVE		4
+
+ATTRIBUTE	Covaro-Max-Sessions			2	integer
+ATTRIBUTE	Covaro-Session-Timeout			3	integer
+
+ATTRIBUTE	Covaro-Inhibit-Message			4	integer
+
+VALUE	Covaro-Inhibit-Message		N			0
+VALUE	Covaro-Inhibit-Message		Y			1
+
+ATTRIBUTE	Covaro-Inhibit-Dbchg			5	integer
+
+VALUE	Covaro-Inhibit-Dbchg		N			0
+VALUE	Covaro-Inhibit-Dbchg		Y			1
+
+ATTRIBUTE	Covaro-Inhibit-Pmrept			6	integer
+
+VALUE	Covaro-Inhibit-Pmrept		N			0
+VALUE	Covaro-Inhibit-Pmrept		Y			1
+
+END-VENDOR	Covaro
+

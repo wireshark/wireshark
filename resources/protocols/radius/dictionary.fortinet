@@ -1,11 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Fortinet's VSA's
-#	As posted to the list by Richie Lee.
 #
-#	$Id: 5011d0df266b0e645de11b7ac781c888161f99e3 $
+#	2019-0502
+#
+#	$Id: d730a1db4fd398d3ba864a608a2c752df5db928f $
 #
 ##############################################################################
 
@@ -22,9 +25,31 @@ ATTRIBUTE	Fortinet-Vdom-Name			3	string
 ATTRIBUTE	Fortinet-Client-IPv6-Address		4	octets
 ATTRIBUTE	Fortinet-Interface-Name			5	string
 ATTRIBUTE	Fortinet-Access-Profile			6	string
-
-#
-# Integer Translations
-#
+ATTRIBUTE	Fortinet-SSID				7	string
+ATTRIBUTE	Fortinet-AP-Name			8	string
+ATTRIBUTE	Fortinet-FAC-Auth-Status		11	string
+ATTRIBUTE	Fortinet-FAC-Token-ID			12	string
+ATTRIBUTE	Fortinet-FAC-Challenge-Code		15	string
+ATTRIBUTE	Fortinet-Webfilter-Category-Allow	16	octets
+ATTRIBUTE	Fortinet-Webfilter-Category-Block	17	octets
+ATTRIBUTE	Fortinet-Webfilter-Category-Monitor	18	octets
+ATTRIBUTE	Fortinet-AppCtrl-Category-Allow		19	octets
+ATTRIBUTE	Fortinet-AppCtrl-Category-Block		20	octets
+ATTRIBUTE	Fortinet-AppCtrl-Risk-Allow		21	octets
+ATTRIBUTE	Fortinet-AppCtrl-Risk-Block		22	octets
+ATTRIBUTE	Fortinet-WirelessController-Device-MAC	23	ether
+ATTRIBUTE	Fortinet-WirelessController-WTP-ID	24	string
+ATTRIBUTE	Fortinet-WirelessController-Assoc-Time	25	date
+ATTRIBUTE	Fortinet-FortiWAN-AVPair		26	string
+ATTRIBUTE	Fortinet-FDD-Access-Profile		30	string
+ATTRIBUTE	Fortinet-FDD-Trusted-Hosts		31	string
+ATTRIBUTE	Fortinet-FDD-SPP-Name			32	string
+ATTRIBUTE	Fortinet-FDD-Is-System-Admin		33	string
+ATTRIBUTE	Fortinet-FDD-Is-SPP-Admin		34	string
+ATTRIBUTE	Fortinet-FDD-SPP-Policy-Group		35	string
+ATTRIBUTE	Fortinet-FDD-Allow-API-Access		36	string
+ATTRIBUTE	Fortinet-Fpc-User-Role			40	string
+ATTRIBUTE	Fortinet-Tenant-Identification		41	string
+ATTRIBUTE	Fortinet-Host-Port-AVPair		42	string
 
 END-VENDOR Fortinet

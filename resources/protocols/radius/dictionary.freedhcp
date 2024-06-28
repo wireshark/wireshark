@@ -1,5 +1,7 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	DHCP options carried inside of RADIUS VSAs.
@@ -10,7 +12,7 @@
 #
 #	Despite those issues, this dictionary is still useful.
 #
-#	$Id: 3ae9968cb721da0197ed1745fcfe88314efec894 $
+#	$Id: fe2836d173571160f72bf2fc2ac7eb5595662af1 $
 #
 ##############################################################################
 

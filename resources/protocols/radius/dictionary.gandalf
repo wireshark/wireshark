@@ -1,19 +1,16 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-#  Gandalf dictionary
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # Version:	1.00	24-July-2003 Blaise St-Laurent <bstlaurent@okiok.com>
 #
 #	Notes: Dictionary was made specifically for the Gandalf XpressWay
 #		RLAN with Link Authentication through RADIUS
 #
-#	$Id: 258b192f136914bcac3a65a8f770717406e1a4a0 $
+#	$Id: 207001337b940297bd5b6b01a979975e5b3fe678 $
 #
 VENDOR		Gandalf				64
 
-#
-#	Vendor-specific attributes
-#
 BEGIN-VENDOR	Gandalf
 
 ATTRIBUTE	Gandalf-Remote-LAN-Name			0	string

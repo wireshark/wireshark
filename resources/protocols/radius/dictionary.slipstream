@@ -1,12 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	For Slipstream dialup accelerator servers
 #	Created based on
 # 	slipstream_sp_6.0_installation_and_configuration_guide.pdf
 #
-#	$Id: 0d273ad347f117349d84e9c67d7b300564faa163 $
+#	$Id: 62746621aae00bf8260fdfa3d176a4ae33e3d12b $
 #
 ##############################################################################
 

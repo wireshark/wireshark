@@ -1,5 +1,6 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # Shiva dictionary.
 #
@@ -15,7 +16,7 @@
 #	the main dictionary file.
 #
 # Version:	1.00  27-Apr-1999  contributed by Alan DeKok
-#		$Id: b2a3c3d432e02650d9452962536e15de7021fdb8 $
+#		$Id: 08da819a7a8505393ffa9b31b06329a5580b39b9 $
 #
 
 VENDOR		Shiva				166

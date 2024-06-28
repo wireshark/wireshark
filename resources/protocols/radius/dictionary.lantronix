@@ -1,0 +1,13 @@
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+# Lantronix SLC Secure Lantronix Console Manager
+# Provides SLC-specific user attributes
+#
+VENDOR		Lantronix			244
+
+BEGIN-VENDOR	Lantronix
+
+ATTRIBUTE	Lantronix-User-Attributes		1	string
+
+END-VENDOR Lantronix

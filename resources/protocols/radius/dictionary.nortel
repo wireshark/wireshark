@@ -1,12 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 9f6ac833faf9e4badbc09b5b0d1980d86d0b0fd6 $
 ##############################################################################
 #
 #	Nortel Passport 8600 VSA's.
 #
 #	http://www142.nortelnetworks.com/bvdoc/setips/july04/engineeringtipstricksv12.pdf
 #
-#	$Id: 922991260cb7c3fc61b0f41b59503c05fc2cf370 $
+#	$Id: 9f6ac833faf9e4badbc09b5b0d1980d86d0b0fd6 $
 #
 ##############################################################################
 
@@ -17,6 +19,18 @@ ATTRIBUTE	Nortel-User-Role			110	string
 
 ATTRIBUTE	Nortel-Privilege-Level			166	integer
 
+ATTRIBUTE	Fabric-Attach-VLAN-Create		170	integer
+ATTRIBUTE	Fabric-Attach-VLAN-ISID			171	string
+ATTRIBUTE	Fabric-Attach-VLAN-PVID			172	integer
+
+ATTRIBUTE	Fabric-Attach-Switch-Mode		180	integer
+ATTRIBUTE	Fabric-Attach-Client-Id			181	string
+ATTRIBUTE	Fabric-Attach-Client-Type		182	string
+ATTRIBUTE	Fabric-Attach-Client-PSK		183	integer
+ATTRIBUTE	Fabric-Attach-Client-Trust		184	integer
+ATTRIBUTE	Fabric-Attach-Client-Trusted-Binding	185	string
+ATTRIBUTE	Fabric-Attach-Service-Request		186	string
+
 ATTRIBUTE	Passport-Command-Scope			200	integer
 ATTRIBUTE	Passport-Command-Impact			201	integer
 ATTRIBUTE	Passport-Customer-Identifier		202	integer
@@ -25,6 +39,9 @@ ATTRIBUTE	Passport-AllowedOut-Access		204	integer
 ATTRIBUTE	Passport-Login-Directory		205	string
 ATTRIBUTE	Passport-Timeout-Protocol		206	integer
 ATTRIBUTE	Passport-Role				207	string
+
+VALUE	Fabric-Attach-VLAN-Create	No			0
+VALUE	Fabric-Attach-VLAN-Create	Yes			1
 
 VALUE	Nortel-Privilege-Level		VoiceMailAdmin		0
 VALUE	Nortel-Privilege-Level		ContactCenter		1

@@ -1,9 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ######################################################################
 #
 #	Nokia dictionary
-#	$Id: a55f0b68b4adfea317f4e7b45ddc234a309add6b $
+#	$Id: d522ff7d9bdff9dad68536b584b4b2a8c4a4e695 $
 #
 ######################################################################
 

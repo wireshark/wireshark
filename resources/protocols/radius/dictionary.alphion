@@ -1,0 +1,74 @@
+# -*- text -*-
+# Copyright (C) 2024 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	$Id: fe9403aac12641fa10dfa8b34bc31c218da6369d $
+#
+##############################################################################
+
+VENDOR		Alphion				8742
+BEGIN-VENDOR    Alphion
+
+ATTRIBUTE	Alphion-User-Role			1	string
+ATTRIBUTE	Alphion-User-Vlan			2	integer
+ATTRIBUTE	Alphion-Priv-Admin-User			3	integer
+ATTRIBUTE	Alphion-Admin-Role			4	string
+ATTRIBUTE	Alphion-Essid-Name			5	string
+ATTRIBUTE	Alphion-Location-Id			6	string
+ATTRIBUTE	Alphion-Port-Identifier			7	string
+ATTRIBUTE	Alphion-MMS-User-Template		8	string
+ATTRIBUTE	Alphion-Named-User-Vlan			9	string
+ATTRIBUTE	Alphion-AP-Group			10	string
+
+ATTRIBUTE	Alphion-Framed-IPv6-Address		11	string
+ATTRIBUTE	Alphion-Device-Type			12	string
+ATTRIBUTE	Alphion-No-DHCP-Fingerprint		14	integer
+ATTRIBUTE	Alphion-Mdps-Device-Udid		15	string
+ATTRIBUTE	Alphion-Mdps-Device-Imei		16	string
+ATTRIBUTE	Alphion-Mdps-Device-Iccid		17	string
+ATTRIBUTE	Alphion-Mdps-Max-Devices		18	integer
+ATTRIBUTE	Alphion-Mdps-Device-Name		19	string
+ATTRIBUTE	Alphion-Mdps-Device-Product		20	string
+
+ATTRIBUTE	Alphion-Mdps-Device-Version		21	string
+ATTRIBUTE	Alphion-Mdps-Device-Serial		22	string
+ATTRIBUTE	Alphion-CPPM-Role			23	string
+ATTRIBUTE	Alphion-AirGroup-User-Name		24	string
+ATTRIBUTE	Alphion-AirGroup-Shared-User		25	string
+ATTRIBUTE	Alphion-AirGroup-Shared-Role		26	string
+ATTRIBUTE	Alphion-AirGroup-Device-Type		27	integer
+ATTRIBUTE	Alphion-Auth-Survivability		28	string
+ATTRIBUTE	Alphion-AS-User-Name			29	string
+ATTRIBUTE	Alphion-AS-Credential-Hash		30	string
+
+ATTRIBUTE	Alphion-WorkSpace-App-Name		31	string
+ATTRIBUTE	Alphion-Mdps-Provisioning-Settings	32	string
+ATTRIBUTE	Alphion-Mdps-Device-Profile		33	string
+
+ATTRIBUTE	Alphion-AP-IP-Address			34	ipaddr
+
+ATTRIBUTE	Alphion-AirGroup-Shared-Group		35	string
+ATTRIBUTE	Alphion-User-Group			36	string
+ATTRIBUTE	Alphion-Network-SSO-Token		37	string
+ATTRIBUTE	Alphion-AirGroup-Version		38	integer
+
+ATTRIBUTE	Alphion-Port-Bounce-Host		40	integer
+
+ATTRIBUTE	Alphion-Calea-Server-Ip			41	ipaddr
+ATTRIBUTE	Alphion-Admin-Path			42	string
+ATTRIBUTE	Alphion-Captive-Portal-URL		43	string
+ATTRIBUTE	Alphion-MPSK-Passphrase			44	octets encrypt=2
+ATTRIBUTE	Alphion-ACL-Server-Query-Info		45	string
+ATTRIBUTE	Alphion-Command-String			46	string
+
+VALUE	Alphion-AirGroup-Device-Type	Personal-Device		1
+VALUE	Alphion-AirGroup-Device-Type	Shared-Device		2
+VALUE	Alphion-AirGroup-Device-Type	Deleted-Device		3
+
+VALUE	Alphion-AirGroup-Version	AirGroup-v1		1
+VALUE	Alphion-AirGroup-Version	AirGroup-v2		2
+
+END-VENDOR Alphion
+

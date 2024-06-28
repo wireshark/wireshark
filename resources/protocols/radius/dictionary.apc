@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-##############################################################################
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+#############################################################################
 #
 #	http://nam-en.apc.com/cgi-bin/nam_en.cfg/php/enduser/std_adp.php?p_faqid=8012
 #
-#	$Id: 85927c4d69650236df456c97156172e4221cd5d7 $
+#	$Id: 00efbab7aed13d28c546d5ac813e894bf85be943 $
 #
 ##############################################################################
 
@@ -32,5 +34,6 @@ VALUE	APC-Service-Type		Device			2
 VALUE	APC-Service-Type		ReadOnly		3
 VALUE	APC-Service-Type		Outlet			4
 VALUE	APC-Service-Type		Card			5
+VALUE	APC-Service-Type		NetworkOnly		6
 
 END-VENDOR APC

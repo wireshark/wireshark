@@ -1,5 +1,7 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Cisco's VLAN Query Protocol
@@ -9,7 +11,7 @@
 #
 #	The default destination port is 1589.
 #
-#	$Id: 78fa95cf475798736674cbba97d8653a3ba78408 $
+#	$Id: 34650df37394d1331f80f7baf50d788b252b45c1 $
 #
 ##############################################################################
 

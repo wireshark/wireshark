@@ -1,0 +1,51 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	From yqsi@hillstonenet.com 2015/11/2
+#
+#	$Id: b1cf2e2b41345d832ff58581dc33b3b0e90341b4 $
+#
+##############################################################################
+
+VENDOR		Hillstone			28557
+
+BEGIN-VENDOR	Hillstone
+
+ATTRIBUTE	Hillstone-User-vsys-id			1	integer
+ATTRIBUTE	Hillstone-User-Type			2	integer
+ATTRIBUTE	Hillstone-User-Admin-Privilege		3	integer
+ATTRIBUTE	Hillstone-User-Login-Type		4	integer
+ATTRIBUTE	Hillstone-User-Mobile-Number		5	string
+ATTRIBUTE	Hillstone-User-Mobile-Operator		6	integer
+ATTRIBUTE	Hillstone-User-Policy-dst-ip-begin	7	ipaddr
+ATTRIBUTE	Hillstone-User-Policy-dst-ip-end	8	ipaddr
+ATTRIBUTE	Hillstone-User-Role-Bame		9	string
+ATTRIBUTE	Hillstone-VPN-DHCP-Gateway		100	string
+ATTRIBUTE	Hillstone-VPN-DHCP-Mask			101	string
+ATTRIBUTE	Hillstone-VPN-DHCP-Pool			102	string
+ATTRIBUTE	Hillstone-VPN-WINS			103	string
+ATTRIBUTE	Hillstone-VPN-DNS			104	string
+ATTRIBUTE	Hillstone-VPN-Split-Route		105	string
+ATTRIBUTE	Hillstone-VPN-Tunnel-IP			106	string
+ATTRIBUTE	Hillstone-VPN-SNAT			107	integer
+
+VALUE	Hillstone-User-Type		HS-User-l2tp		1
+VALUE	Hillstone-User-Type		HS-User-8021x		2
+VALUE	Hillstone-User-Type		HS-User-smartvpn	4
+VALUE	Hillstone-User-Type		HS-User-normal		8
+VALUE	Hillstone-User-Type		HS-User-Admin		16
+
+VALUE	Hillstone-User-Login-Type	HS-Admin-Console	1
+VALUE	Hillstone-User-Login-Type	HS-Admin-Telnet		2
+VALUE	Hillstone-User-Login-Type	HS-Admin-SSH		4
+VALUE	Hillstone-User-Login-Type	HS-Admin-HTTP		8
+VALUE	Hillstone-User-Login-Type	HS-Admin-HTTPS		16
+
+VALUE	Hillstone-User-Mobile-Operator	HS-Mobile-ChinaMobile	1
+VALUE	Hillstone-User-Mobile-Operator	HS-Mobile-ChinaUnicom	2
+VALUE	Hillstone-User-Mobile-Operator	HS-Mobile-ChinaTelecom	3
+
+END-VENDOR      Hillstone

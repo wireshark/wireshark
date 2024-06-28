@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Ericsson dictionary
 #
-#	$Id: f0825d1048699daab7dd236a74f1d738ead98fee $
+#	$Id: da715df7464f20faec711eef579497b50ef0c792 $
 #
 ##############################################################################
 
@@ -82,7 +84,6 @@ ATTRIBUTE	Ericsson-ViG-Redirecting-num-NP		78	integer
 ATTRIBUTE	Ericsson-ViG-Redirecting-num-PI		79	integer
 ATTRIBUTE	Ericsson-ViG-Redirecting-num-RFD	80	integer
 ATTRIBUTE	Ericsson-ViG-Time-stamp-UTC		81	integer
-ATTRIBUTE	Ericsson-ViG-Time-stamp-UTC		81	integer
 ATTRIBUTE	Ericsson-ViG-Time-stamp-TZ		82	integer
 ATTRIBUTE	Ericsson-ViG-Time-stamp-DST		83	integer
 ATTRIBUTE	Ericsson-ViG-Session-routing-duration	84	integer
@@ -110,7 +111,6 @@ ATTRIBUTE	Ericsson-ViG-Internal-Rel-reason-orig	105	integer
 ATTRIBUTE	Ericsson-ViG-Service-ID			106	integer
 ATTRIBUTE	Ericsson-ViG-User-ID			107	string
 ATTRIBUTE	Ericsson-ViG-Service-Name		108	string
-ATTRIBUTE	Ericsson-ViG-Test-Call-Indicator	109	integer
 ATTRIBUTE	Ericsson-ViG-Test-Call-Indicator	109	integer
 ATTRIBUTE	Ericsson-ViG-Emergency-Call-Indicator	110	integer
 ATTRIBUTE	Ericsson-ViG-Calling-ID			111	string

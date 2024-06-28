@@ -1,0 +1,41 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Dictionary for Ciena
+#
+#	$Id: 28e090a20d18ccb972403120131ca5b6d43bf193 $
+#
+##############################################################################
+
+VENDOR		Ciena				1271
+
+BEGIN-VENDOR	Ciena
+
+ATTRIBUTE	Ciena-CN4200-Priv-Level			1	integer
+
+VALUE	Ciena-CN4200-Priv-Level		limited			1
+VALUE	Ciena-CN4200-Priv-Level		admin			2
+VALUE	Ciena-CN4200-Priv-Level		super-user		3
+VALUE	Ciena-CN4200-Priv-Level		diag			4
+
+ATTRIBUTE	Ciena-CES-Priv-Level			10	integer
+
+VALUE	Ciena-CES-Priv-Level		limited			1
+VALUE	Ciena-CES-Priv-Level		admin			2
+VALUE	Ciena-CES-Priv-Level		super-user		3
+VALUE	Ciena-CES-Priv-Level		diag			4
+
+ATTRIBUTE	Ciena-CES-NACM-Groups			11	string
+
+ATTRIBUTE	Ciena-BP-Role				220	string
+ATTRIBUTE	Ciena-NCS-Role				240	integer
+ATTRIBUTE	Ciena-OC-Role				250	string
+ATTRIBUTE	Ciena-CS-Client-IP			253	ipaddr
+ATTRIBUTE	Ciena-CS-Acc-Level			254	integer
+ATTRIBUTE	Ciena-CS-Priv-Level			255	integer
+
+END-VENDOR	Ciena
+

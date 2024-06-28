@@ -1,5 +1,5 @@
-#
-# dictionary.ericsson.packet.core.networks
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 
 VENDOR		Ericsson-Packet-Core-Networks	10923

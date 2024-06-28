@@ -1,0 +1,41 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Dictionary for ADVA Optical Networking Fiber Service Platform
+#
+# 	$Id: b056a70ecdfe84c2b0cd0bd3926040e7846b74f7 $
+#
+# http://www.advaoptical.com
+#
+##############################################################################
+
+VENDOR		Adva				2544
+
+BEGIN-VENDOR	Adva
+
+ATTRIBUTE	Adva-User-Level				100	integer
+
+VALUE	Adva-User-Level			Super			5
+VALUE	Adva-User-Level			Admin			4
+VALUE	Adva-User-Level			Provision		3
+VALUE	Adva-User-Level			Operate_Control		2
+VALUE	Adva-User-Level			Reserved		1
+VALUE	Adva-User-Level			Retrieve		0
+
+ATTRIBUTE	Adva-UUM-User-Level			102	integer
+
+VALUE	Adva-UUM-User-Level		Root			5
+VALUE	Adva-UUM-User-Level		Admin			4
+VALUE	Adva-UUM-User-Level		Provision		3
+VALUE	Adva-UUM-User-Level		Operator		2
+VALUE	Adva-UUM-User-Level		Reserved		1
+VALUE	Adva-UUM-User-Level		Monitor			0
+
+# ADVA Network Manager settings
+ATTRIBUTE	Adva-Auth-Level-NM			101	string
+
+END-VENDOR	Adva
+

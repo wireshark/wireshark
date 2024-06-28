@@ -1,11 +1,10 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
-#
-# dictionary.freeswitch
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # cparker@segv.org
 #
-# Version:	$Id: ad9e04752d451c2ca75840b774ce824d9e44eddc $
+# Version:	$Id: 0592e4cdf460c628c75c8a570516ab07a8d43ced $
 #
 
 VENDOR		Freeswitch			27880

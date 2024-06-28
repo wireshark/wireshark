@@ -1,0 +1,18 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+#
+# dictionary.pfsense
+# pfSense Captive Portal Dictionary
+#
+# https://github.com/pfsense/pfsense/blob/master/src/usr/share/doc/radius/dictionary.pfsense
+#
+
+VENDOR		pfSense				13644
+
+BEGIN-VENDOR	pfSense
+
+ATTRIBUTE	pfSense-Bandwidth-Max-Up		1	integer
+ATTRIBUTE	pfSense-Bandwidth-Max-Down		2	integer
+ATTRIBUTE	pfSense-Max-Total-Octets		3	integer
+
+END-VENDOR	pfSense

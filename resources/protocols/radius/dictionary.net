@@ -1,0 +1,132 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+#  From https://support.sonus.net/display/UXDOC50/Vendor+Specific+Attributes+Reference
+
+VENDOR		NET				177
+
+BEGIN-VENDOR	NET
+
+#  MSC/Media related attributes
+ATTRIBUTE	NET-Fwd-Flow-In-Realm			11	string  #  unsupported
+ATTRIBUTE	NET-Fwd-Flow-In-Src-Addr		12	string
+ATTRIBUTE	NET-Fwd-Flow-In-Src-Port		13	integer
+ATTRIBUTE	NET-Fwd-Flow-In-Dst-Addr		14	string
+ATTRIBUTE	NET-Fwd-Flow-In-Dst-Port		15	integer
+ATTRIBUTE	NET-Fwd-Flow-Out-Realm			16	string  #  unsupported
+ATTRIBUTE	NET-Fwd-Flow-Out-Src-Addr		17	string
+ATTRIBUTE	NET-Fwd-Flow-Out-Src-Port		18	integer
+ATTRIBUTE	NET-Fwd-Flow-Out-Dst-Addr		19	string
+ATTRIBUTE	NET-Fwd-Flow-Out-Dst-Port		20	integer
+ATTRIBUTE	NET-Bwd-Flow-In-Realm			21	string  #  unsupported
+ATTRIBUTE	NET-Bwd-Flow-In-Src-Addr		22	string
+ATTRIBUTE	NET-Bwd-Flow-In-Src-Port		23	integer
+ATTRIBUTE	NET-Bwd-Flow-In-Dst-Addr		24	string
+ATTRIBUTE	NET-Bwd-Flow-In-Dst-Port		25	integer
+ATTRIBUTE	NET-Bwd-Flow-Out-Realm			26	string  #  unsupported
+ATTRIBUTE	NET-Bwd-Flow-Out-Src-Addr		27	string
+ATTRIBUTE	NET-Bwd-Flow-Out-Src-Port		28	integer
+ATTRIBUTE	NET-Bwd-Flow-Out-Dst-Addr		29	string
+ATTRIBUTE	NET-Bwd-Flow-Out-Dst-Port		30	integer
+ATTRIBUTE	NET-Fwd-Flow-Media-Type			31	string
+ATTRIBUTE	NET-Fwd-Flow-PTime			32	integer
+ATTRIBUTE	NET-Fwd-Octets				33	integer
+ATTRIBUTE	NET-Fwd-Packets				34	integer
+ATTRIBUTE	NET-Fwd-RTCP-Packets-Lost		35	integer  #  future
+ATTRIBUTE	NET-Fwd-RTCP-Avg-Jitter			36	integer  #  future
+ATTRIBUTE	NET-Fwd-RTP-Avg-Latency			37	integer
+ATTRIBUTE	NET-Fwd-RTCP-MaxJitter			38	integer  #  future
+ATTRIBUTE	NET-Fwd-RTP-MaxLatency			39	integer
+ATTRIBUTE	NET-Fwd-RTP-Packets-Lost		40	integer
+ATTRIBUTE	NET-Fwd-RTP-Avg-Jitter			41	integer
+ATTRIBUTE	NET-Fwd-RTP-MaxJitter			42	integer
+ATTRIBUTE	NET-Bwd-Octets				43	integer
+ATTRIBUTE	NET-Bwd-Packets				44	integer
+ATTRIBUTE	NET-Bwd-RTCP-Packets-Lost		45	integer  #  future
+ATTRIBUTE	NET-Bwd-RTCP-Avg-Jitter			46	integer  #  future
+ATTRIBUTE	NET-Bwd-RTP-Avg-Latency			47	integer
+ATTRIBUTE	NET-Bwd-RTCP-MaxJitter			48	integer  #  future
+ATTRIBUTE	NET-Bwd-RTP-MaxLatency			49	integer
+ATTRIBUTE	NET-Bwd-RTP-Packets-Lost		50	integer
+ATTRIBUTE	NET-Bwd-RTP-Avg-Jitter			51	integer
+ATTRIBUTE	NET-Bwd-RTP-MaxJitter			52	integer
+
+#  Generic Session and Signaling Group related metrics
+ATTRIBUTE	NET-Session-Ingress-CallId		60	integer
+ATTRIBUTE	NET-Session-Egress-CallId		61	integer
+ATTRIBUTE	NET-Session-Generic-Id			62	integer
+ATTRIBUTE	NET-Routing-Table-Number		63	integer
+ATTRIBUTE	NET-Ingress-Signaling-Group		64	integer
+ATTRIBUTE	NET-Egress-Signaling-Group		65	integer
+ATTRIBUTE	NET-Primary-Routing-Number		66	string
+ATTRIBUTE	NET-Egress-Final-Routing-Num		67	string
+ATTRIBUTE	NET-Ingress-Channel-Number		68	integer
+ATTRIBUTE	NET-Egress-Channel-Number		69	integer
+ATTRIBUTE	NET-Call-Type				70	integer
+ATTRIBUTE	NET-Call-Origin				71	integer
+ATTRIBUTE	NET-Calling-Number			72	string
+ATTRIBUTE	NET-Called-Number			73	string
+ATTRIBUTE	NET-Calling-Name			74	string
+ATTRIBUTE	NET-Disconnect-Cause			75	integer
+ATTRIBUTE	NET-Abort-Cause				76	integer
+ATTRIBUTE	NET-Ingress-Channel-Id			77	string
+ATTRIBUTE	NET-Egress-Channel-Id			78	string
+ATTRIBUTE	NET-Call-Priority			79	string
+
+#  Generic Call related attributes
+ATTRIBUTE	NET-Call-Number-Type			90	string
+ATTRIBUTE	NET-Call-Plan				91	string
+ATTRIBUTE	NET-Original-Called-Number		92	string
+ATTRIBUTE	NET-Original-Called-Type		93	string
+ATTRIBUTE	NET-Original-Called-Plan		94	string
+ATTRIBUTE	NET-Called-Name				95	string
+ATTRIBUTE	NET-Namespace				96	string
+ATTRIBUTE	NET-Precedence				97	string
+ATTRIBUTE	NET-Presentation			98	string
+ATTRIBUTE	NET-Screening				99	string
+ATTRIBUTE	NET-Transfer-Capability			100	string
+ATTRIBUTE	NET-Transfer-Mode			101	string
+ATTRIBUTE	NET-Transfer-Rate			102	string
+ATTRIBUTE	NET-User-Rate				103	string
+
+#  Generic time related attributes
+ATTRIBUTE	NET-Setup-Time				110	string
+ATTRIBUTE	NET-Alert-Time				111	string
+ATTRIBUTE	NET-Connect-Time			112	string
+ATTRIBUTE	NET-Disconnect-Time			113	string
+ATTRIBUTE	NET-Inbound-Seize-Time			114	string
+ATTRIBUTE	NET-Outbound-Seize-Time			115	string
+ATTRIBUTE	NET-Call-Duration			116	integer
+ATTRIBUTE	NET-Post-Dial-Delay			117	integer
+ATTRIBUTE	NET-Disconnect-Initiator		118	integer
+
+#  SIP related
+ATTRIBUTE	NET-P-Asserted-ID			130	string
+ATTRIBUTE	NET-SIP-Diversion			131	string
+ATTRIBUTE	NET-Ingress-Local-Addr			132	string
+ATTRIBUTE	NET-Ingress-Remote-Addr			133	string
+ATTRIBUTE	NET-Egress-Local-Addr			134	string
+ATTRIBUTE	NET-Egress-Remote-Addr			135	string
+ATTRIBUTE	NET-Ingress-Net-Interface-Id		136	integer
+ATTRIBUTE	NET-Egress-Net-Interface-Id		137	integer
+ATTRIBUTE	NET-Refer-Call-Transfer-Id		138	string
+ATTRIBUTE	NET-Session-Forked-Call-Id		139	string
+ATTRIBUTE	NET-Redirect-Number			140	string
+ATTRIBUTE	NET-Redirect-Ip-Address			141	string
+ATTRIBUTE	NET-Session-Ingress-Realm		142	string
+ATTRIBUTE	NET-Session-Egress-Realm		143	string
+ATTRIBUTE	NET-Ingress-Signaling-Port-Num		144	integer
+ATTRIBUTE	NET-Egress-Signaling-Port-Num		145	integer
+ATTRIBUTE	NET-Transport-Type			146	integer
+ATTRIBUTE	NET-P-Preferred-ID			147	string
+ATTRIBUTE	NET-Replaced-Header			148	string
+
+#  Generic parameters
+ATTRIBUTE	NET-Firmware-Version			160	string
+ATTRIBUTE	NET-Local-Time-Zone			161	string
+ATTRIBUTE	NET-Gw-Id				162	string
+ATTRIBUTE	NET-Time-And-Day			163	string
+ATTRIBUTE	NET-Log-Time				164	string
+
+END-VENDOR	NET

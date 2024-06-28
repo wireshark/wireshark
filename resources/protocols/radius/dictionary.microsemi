@@ -1,10 +1,10 @@
 # -*- text -*-
-#
-#  dictionary.microsemi
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	As posted to the list by Simon Butcher <simon.butcher@microsemi.com>
 #
-# Version:	$Id: b1a4b3791eb6a29216e80da1d9551666c100e956 $
+# Version:	$Id: 68967fa1c86ac3f104b70421980d10bdee0c1b28 $
 #
 
 VENDOR		Microsemi			40676

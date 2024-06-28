@@ -1,5 +1,6 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # dictionary.patton
 #               Dictionary for Patton IADs.
@@ -8,18 +9,21 @@
 #
 # Version:      @(#)dictionary.patton  5.00  urtho  20-Jan-2010
 # Version:      @(#)dictionary.patton  1.00  urtho  08-Sep-2006
-#  $Id: a2b6eb15b5593bec3a0530ac6a62d8655f03bc5b $
+#  $Id: 66b41c7541b9190d149e946480b84f8f539ce584 $
 
 VENDOR		Patton				1768
 
 BEGIN-VENDOR	Patton
 
 ATTRIBUTE	Patton-Protocol				16	string
+ATTRIBUTE	Patton-Group				17	string
+ATTRIBUTE	Patton-Web-Privilege-Level		18	string
 ATTRIBUTE	Patton-Setup-Time			32	string
 ATTRIBUTE	Patton-Connect-Time			33	string
 ATTRIBUTE	Patton-Disconnect-Time			34	string
 ATTRIBUTE	Patton-Disconnect-Cause			35	integer
 ATTRIBUTE	Patton-Disconnect-Source		36	string
+ATTRIBUTE	Patton-Disconnect-Reason		37	string
 ATTRIBUTE	Patton-Called-Unique-Id			48	string
 ATTRIBUTE	Patton-Called-IP-Address		49	ipaddr
 ATTRIBUTE	Patton-Called-Numbering-Plan		50	string

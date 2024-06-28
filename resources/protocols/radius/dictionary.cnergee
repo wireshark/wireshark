@@ -1,7 +1,6 @@
 # -*- text -*-
-# Copyright (C) 2017 The Cnergee Access Server project
-#
-# dictionary.cnergee
+# Copyright (C) 2019 The Cnergee Access Server project
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 
 VENDOR		Cnergee				49426
@@ -31,6 +30,14 @@ ATTRIBUTE	BELRAS-REDIFF-Speed			20	integer
 ATTRIBUTE	BELRAS-TORRENT-Speed			21	integer
 ATTRIBUTE	BELRAS-BELCACHE-Speed			22	integer
 ATTRIBUTE	BELRAS-DHCP-Lease-Time			23	integer
+ATTRIBUTE	BELRAS-Group				24	integer
+ATTRIBUTE	BELRAS-LIMIT				25	string
+ATTRIBUTE	BELRAS-Auth				26	string
+ATTRIBUTE	BELRAS-Acct				27	string
+ATTRIBUTE	BELRAS-Framed-IP-Address		28	string
+ATTRIBUTE	BELRAS-BL				29	string
+ATTRIBUTE	BELRAS-IN				30	string
+ATTRIBUTE	BELRAS-CO				31	string
 
 VALUE	BELRAS-redirect-Pool		Deleted			1
 VALUE	BELRAS-redirect-Pool		Disabled		2

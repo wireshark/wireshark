@@ -1,10 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
 ##############################################################################
 #
 #	Efficient IP VSA's
 #
-#	$Id: 3c1dd7519f360e6421531dbb731082a11589e667 $
+#	$Id: 3c6fb2ccbcbcc8d93adfd091e24fc7f670e70b03 $
 #
 ##############################################################################
 

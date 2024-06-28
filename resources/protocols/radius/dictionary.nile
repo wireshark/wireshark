@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	https://nilesecure.co/
+#
+#	$Id: 95f9545fe57942108c76b406bb4daf5ab7c0e017 $
+#
+##############################################################################
+
+VENDOR		Nile				58313
+BEGIN-VENDOR	Nile
+
+ATTRIBUTE	Nile-Redirect-URL			1	string
+ATTRIBUTE	Nile-Netseg				2	string
+ATTRIBUTE	Nile-AVPair				3	string
+
+END-VENDOR	Nile

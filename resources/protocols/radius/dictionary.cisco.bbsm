@@ -1,11 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	 Cisco Building Broadband Service Manager Dictionary
 #
 #	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_soft/csacs4nt/csnt30/user/ad.htm
 #
-#	$Id: 307973f6fe763ddb04490b81d00c005720e4aa83 $
+#	$Id: 4efbca65cde4a2c37ed69eb1380befe087cb909f $
 #
 VENDOR		Cisco-BBSM			5263
 

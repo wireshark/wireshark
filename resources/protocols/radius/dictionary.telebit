@@ -1,11 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Telebit dictionary
 #
 #	Telebit was acquired by Cisco in 1996.
 #
-#	$Id: f5d82ecb9ecbdc01f7ad770aa838782919238443 $
+#	$Id: fc36c278ac3c0801b4f1f64df41617283732aa48 $
 #
 VENDOR		Telebit				117
 

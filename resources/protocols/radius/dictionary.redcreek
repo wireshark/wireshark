@@ -1,8 +1,9 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	http://www.redcreek.com
-#	$Id: a5e286770d6c10293f0a8c22ebfb6c04a4ca9da9 $
+#	$Id: d8a5f86907bb429a7d2ada787e1e0374562d6d2a $
 #
 
 VENDOR		RedCreek			1958
