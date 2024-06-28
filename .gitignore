@@ -20,7 +20,8 @@
 *.lo
 *.obj
 *.pyc
-*.so*
+*.so
+*.so.*
 *.[oa]
 *.dylib
 *grammar.out
