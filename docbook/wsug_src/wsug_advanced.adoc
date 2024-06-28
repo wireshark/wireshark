@@ -235,6 +235,8 @@ menu:Compressed[]:: This will decompress the buffer using zlib.
 
 menu:Hex Digits[]:: This will decode from a string of hex digits. Non-hex characters are skipped.
 
+menu:Percent-Encoding[]:: This will decode from a Percent-Encoded string.
+
 menu:Quoted-Printable[]:: This will decode from a Quoted-Printable string.
 
 menu:ROT-13[]:: This will decode ROT-13 encoded text.
