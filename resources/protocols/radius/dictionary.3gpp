@@ -1,14 +1,12 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	3GPP stuff.
 #
-#	http://pda.etsi.org/exchangefolder/ts_129061v080300p.pdf
-#	ETSI TS 129 061 V8.3.0 (2009-06)
+#	ftp://ftp.3gpp.org/specs/2002-06/R1999/29_series/29061-3a0.zip
 #
-#       [wireshark] 2009-07-07:  Updated FreeRadius 2.1.6 dictionary.3gpp
-#                                 based upon the above specification.
-#
-#	$Id$
+#	$Id: ce5b6bc571f2d93183775ab983467ec44c0df19f $
 #
 VENDOR		3GPP				10415
 
@@ -28,7 +26,7 @@ ATTRIBUTE	3GPP-GGSN-Address			7	ipaddr
 ATTRIBUTE	3GPP-IMSI-MCC-MNC			8	string
 ATTRIBUTE	3GPP-GGSN-MCC-MNC			9	string
 ATTRIBUTE	3GPP-NSAPI				10	string
-ATTRIBUTE	3GPP-Session-Stop-Indicator		11	octets
+ATTRIBUTE	3GPP-Session-Stop-Indicator		11	byte
 ATTRIBUTE	3GPP-Selection-Mode			12	string
 ATTRIBUTE	3GPP-Charging-Characteristics		13	string
 ATTRIBUTE	3GPP-Charging-Gateway-IPv6-Address	14	ipv6addr
@@ -36,21 +34,26 @@ ATTRIBUTE	3GPP-SGSN-IPv6-Address			15	ipv6addr
 ATTRIBUTE	3GPP-GGSN-IPv6-Address			16	ipv6addr
 
 #
-#    This attribute is really an array of IPv6 addresses.
-#    Why the heck couldn't they just send multiple attributes?
+#	This attribute is really an array of IPv6 addresses.
+#	Why the heck couldn't they just send multiple attributes?
 #
 ATTRIBUTE	3GPP-IPv6-DNS-Servers			17	octets
 
 ATTRIBUTE	3GPP-SGSN-MCC-MNC			18	string
-ATTRIBUTE	3GPP-Teardown-Indicator			19	octets
+ATTRIBUTE	3GPP-Teardown-Indicator			19	byte
 ATTRIBUTE	3GPP-IMEISV				20	string
-ATTRIBUTE	3GPP-RAT-Type				21	integer
+ATTRIBUTE	3GPP-RAT-Type				21	byte
+
+#
+#  See	http://www.3gpp.org/DynaReport/29061.htm
+#	http://www.3gpp.org/DynaReport/29274.htm
+#
 ATTRIBUTE	3GPP-User-Location-Info			22	octets
-ATTRIBUTE	3GPP-MS-TimeZone			23	octets
+ATTRIBUTE	3GPP-MS-TimeZone			23	octets[2]
 ATTRIBUTE	3GPP-Camel-Charging-Info		24	octets
 ATTRIBUTE	3GPP-Packet-Filter			25	octets
-ATTRIBUTE	3GPP-Negotiated-DSCP			26	integer
-ATTRIBUTE	3GPP-Allocate-IP-Type			27	integer
+ATTRIBUTE	3GPP-Negotiated-DSCP			26	byte
+ATTRIBUTE	3GPP-Allocate-IP-Type			27	byte
 
 ATTRIBUTE	External-Identifier			28	octets
 ATTRIBUTE	TWAN-Identifier				29	octets
@@ -83,28 +86,27 @@ ATTRIBUTE	3GPP-Session-Id				128	octets
 ATTRIBUTE	3GPP-GCI				129	octets
 ATTRIBUTE	Supported-Features			628	tlv
 
-VALUE	3GPP-PDP-Type		IPv4		0
-VALUE	3GPP-PDP-Type		PPP		1
-VALUE	3GPP-PDP-Type		IPv6		2
-VALUE	3GPP-PDP-Type		IPv4v6		3
+VALUE	3GPP-PDP-Type			IPv4			0
+VALUE	3GPP-PDP-Type			PPP			1
+VALUE	3GPP-PDP-Type			IPv6			2
+VALUE	3GPP-PDP-Type			IPv4v6			3
 
-VALUE	3GPP-RAT-Type		Reserved	0
-VALUE	3GPP-RAT-Type		UTRAN		1
-VALUE	3GPP-RAT-Type		GERAN		2
-VALUE	3GPP-RAT-Type		WLAN		3
-VALUE	3GPP-RAT-Type		GAN		4
-VALUE	3GPP-RAT-Type		HSPA-Evolution	5
-VALUE	3GPP-RAT-Type		EUTRAN		6
-VALUE	3GPP-RAT-Type		Virtual		7
-VALUE	3GPP-RAT-Type		IEEE-802-16e	101
-VALUE	3GPP-RAT-Type		3GPP2-eHRPD	102
-VALUE	3GPP-RAT-Type		3GPP2-HRPD	103
-VALUE	3GPP-RAT-Type		3GPP2-1xRTT	104
-VALUE	3GPP-RAT-Type		3GPP2-UMB	105
+VALUE	3GPP-RAT-Type			Reserved		0
+VALUE	3GPP-RAT-Type			UTRAN			1
+VALUE	3GPP-RAT-Type			GERAN			2
+VALUE	3GPP-RAT-Type			WLAN			3
+VALUE	3GPP-RAT-Type			GAN			4
+VALUE	3GPP-RAT-Type			HSPA-Evolution		5
+VALUE	3GPP-RAT-Type			EUTRAN			6
+VALUE	3GPP-RAT-Type			Virtual			7
+VALUE	3GPP-RAT-Type			IEEE-802.16e		101
+VALUE	3GPP-RAT-Type			3GPP2-eHRPD		102
+VALUE	3GPP-RAT-Type			3GPP2-HRPD		103
+VALUE	3GPP-RAT-Type			3GPP2-1xRTT		104
 
-VALUE	3GPP-Allocate-IP-Type	Do-Not-Allocate-IPv4-IPv6	0
-VALUE	3GPP-Allocate-IP-Type	Allocate-IPv4			1
-VALUE	3GPP-Allocate-IP-Type	Allocate-IPv6-Prefix		2
-VALUE	3GPP-Allocate-IP-Type	Allocate-IPv4-IPv6-Prefix	3
+VALUE	3GPP-Allocate-IP-Type		Do-Not-Allocate		0
+VALUE	3GPP-Allocate-IP-Type		Allocate-IPv4-Address	1
+VALUE	3GPP-Allocate-IP-Type		Allocate-IPv6-Prefix	2
+VALUE	3GPP-Allocate-IP-Type		Allocate-IPv4-and-IPv6	3
 
-END-VENDOR    3GPP
+END-VENDOR	3GPP

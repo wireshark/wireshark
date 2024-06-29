@@ -1,74 +1,75 @@
 # -*- text -*-
-# Copyright (C) 2017 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
-#       Dictionary for Extreme Networks VSA's.
-#       http://www.extremenetworks.com/
+#	Dictionary for Extreme Networks VSA's.
+#	http://www.extremenetworks.com/
 #
-#       $Id$
+#	$Id: d180bb93a248c0686a70438caa749a790f74124b $
 #
-VENDOR			Extreme				1916
+VENDOR		Extreme				1916
 
 BEGIN-VENDOR	Extreme
 
 # Legacy Altitude/Summit Wireless
-ATTRIBUTE	Extreme-Service-Type				1		integer
-ATTRIBUTE	Extreme-Current-SSID				2		string
-ATTRIBUTE	Extr_Wlan_Allowed_SSID				3		string
-ATTRIBUTE	Extreme-Wlan-Index				4		integer
-ATTRIBUTE	Extr_Wlan_QoS_Profile				5		integer
-ATTRIBUTE	Extr_Wlan_Allowed_Radio				6		string
-ATTRIBUTE	Guest-User-Expiry-Date-Time			7		string
-ATTRIBUTE	Guest-User-Start-Date-Time			8		string
-ATTRIBUTE	Extr_MU_Posture_Status				9		string
-ATTRIBUTE	Extreme-Downlink-Limit-Kbps			10		integer
-ATTRIBUTE	Extreme-Uplink-Limit-Kbps			11		integer
-ATTRIBUTE	Extreme-User-Group				12		string
-ATTRIBUTE	Extreme-Login-Service				100		integer
+ATTRIBUTE	Extreme-Service-Type			1	integer
+ATTRIBUTE	Extreme-Current-SSID			2	string
+ATTRIBUTE	Extr_Wlan_Allowed_SSID			3	string
+ATTRIBUTE	Extreme-Wlan-Index			4	integer
+ATTRIBUTE	Extr_Wlan_QoS_Profile			5	integer
+ATTRIBUTE	Extr_Wlan_Allowed_Radio			6	string
+ATTRIBUTE	Guest-User-Expiry-Date-Time		7	string
+ATTRIBUTE	Guest-User-Start-Date-Time		8	string
+ATTRIBUTE	Extr_MU_Posture_Status			9	string
+ATTRIBUTE	Extreme-Downlink-Limit-Kbps		10	integer
+ATTRIBUTE	Extreme-Uplink-Limit-Kbps		11	integer
+ATTRIBUTE	Extreme-User-Group			12	string
+ATTRIBUTE	Extreme-Login-Service			100	integer
 
 #
-ATTRIBUTE	Extreme-NAS-IP-Address				101		ipaddr
+ATTRIBUTE	Extreme-NAS-IP-Address			101	ipaddr
 
 
 # XOS Attributes
-ATTRIBUTE	Extreme-CLI-Authorization			201		integer
-ATTRIBUTE	Extreme-Shell-Command				202		string
-ATTRIBUTE	Extreme-Netlogin-Vlan				203		string
-ATTRIBUTE	Extreme-Netlogin-Url				204		string
-ATTRIBUTE	Extreme-Netlogin-Url-Desc			205		string
-ATTRIBUTE	Extreme-Netlogin-Only				206		integer
-ATTRIBUTE	Extreme-User-Location				208		string
-ATTRIBUTE	Extreme-Netlogin-Vlan-Tag			209		integer
-ATTRIBUTE	Extreme-Netlogin-Extended-Vlan			211		string
-ATTRIBUTE	Extreme-Security-Profile			212		string
-ATTRIBUTE	Extreme-VM-Name					213		string
-ATTRIBUTE	Extreme-VM-VPP-Name				214		string
-ATTRIBUTE	Extreme-VM-IP-Addr				215		ipaddr
-ATTRIBUTE	Extreme-VM-VLAN-ID				216		integer
-ATTRIBUTE	Extreme-VM-VR-Name				217		string
-ATTRIBUTE	Extreme-Netlogin-VR-Name			218		string
-ATTRIBUTE	Extreme-NSI-Type				230		integer		has_tag
-ATTRIBUTE	Extreme-NSI-ID					231		string		has_tag
-ATTRIBUTE   Extreme-Email-Address           233     string
+ATTRIBUTE	Extreme-CLI-Authorization		201	integer
+ATTRIBUTE	Extreme-Shell-Command			202	string
+ATTRIBUTE	Extreme-Netlogin-Vlan			203	string
+ATTRIBUTE	Extreme-Netlogin-Url			204	string
+ATTRIBUTE	Extreme-Netlogin-Url-Desc		205	string
+ATTRIBUTE	Extreme-Netlogin-Only			206	integer
+ATTRIBUTE	Extreme-User-Location			208	string
+ATTRIBUTE	Extreme-Netlogin-Vlan-Tag		209	integer
+ATTRIBUTE	Extreme-Netlogin-Extended-Vlan		211	string
+ATTRIBUTE	Extreme-Security-Profile		212	string
+ATTRIBUTE	Extreme-VM-Name				213	string
+ATTRIBUTE	Extreme-VM-VPP-Name			214	string
+ATTRIBUTE	Extreme-VM-IP-Addr			215	ipaddr
+ATTRIBUTE	Extreme-VM-VLAN-ID			216	integer
+ATTRIBUTE	Extreme-VM-VR-Name			217	string
+ATTRIBUTE	Extreme-Netlogin-VR-Name		218	string
+ATTRIBUTE	Extreme-NSI-Type			230	integer		has_tag
+ATTRIBUTE	Extreme-NSI-ID				231	string		has_tag
+ATTRIBUTE	Extreme-Email-Address			233	string
 
-VALUE	Extreme-Service-Type			Monitor			1
-VALUE	Extreme-Service-Type			Help-Desk-Manager	2
-VALUE	Extreme-Service-Type			Network-Administrator	4
-VALUE	Extreme-Service-Type			System-Administrator	8
-VALUE	Extreme-Service-Type			Web-User-Administrator	16
-VALUE	Extreme-Service-Type			Super-User		32768
+VALUE	Extreme-Service-Type		Monitor			1
+VALUE	Extreme-Service-Type		Help-Desk-Manager	2
+VALUE	Extreme-Service-Type		Network-Administrator	4
+VALUE	Extreme-Service-Type		System-Administrator	8
+VALUE	Extreme-Service-Type		Web-User-Administrator	16
+VALUE	Extreme-Service-Type		Super-User		32768
 
-VALUE	Extreme-Login-Service			HTTP			16
-VALUE	Extreme-Login-Service			SSH			32
-VALUE	Extreme-Login-Service			Telnet			64
-VALUE	Extreme-Login-Service			Console			128
-VALUE	Extreme-Login-Service			All			240
+VALUE	Extreme-Login-Service		HTTP			16
+VALUE	Extreme-Login-Service		SSH			32
+VALUE	Extreme-Login-Service		Telnet			64
+VALUE	Extreme-Login-Service		Console			128
+VALUE	Extreme-Login-Service		All			240
 
-VALUE	Extreme-CLI-Authorization		Disabled		0
-VALUE	Extreme-CLI-Authorization		Enabled			1
+VALUE	Extreme-CLI-Authorization	Disabled		0
+VALUE	Extreme-CLI-Authorization	Enabled			1
 
-VALUE	Extreme-Netlogin-Only			Disabled		0
-VALUE	Extreme-Netlogin-Only			Enabled			1
+VALUE	Extreme-Netlogin-Only		Disabled		0
+VALUE	Extreme-Netlogin-Only		Enabled			1
 
-VALUE	Extreme-NSI-Type			VNI-OR-ISID		1
+VALUE	Extreme-NSI-Type		VNI-OR-ISID		1
 
-END-VENDOR      Extreme
+END-VENDOR	Extreme

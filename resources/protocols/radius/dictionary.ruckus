@@ -1,5 +1,6 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 #	Ruckus Wireless, Inc. dictionary
 #
@@ -28,6 +29,7 @@ ATTRIBUTE	Ruckus-Accept-Enhancement-Reason	12	integer
 ATTRIBUTE	Ruckus-Sta-Inner-Id			13	string
 ATTRIBUTE	Ruckus-BSSID				14	octets
 
+ATTRIBUTE	Ruckus-FlexAuth-AVP			20	string
 
 ATTRIBUTE	Ruckus-Triplets				101	octets
 ATTRIBUTE	Ruckus-IMSI				102	octets
@@ -65,35 +67,51 @@ ATTRIBUTE	Ruckus-Eth-Profile-Id			133	integer
 ATTRIBUTE	Ruckus-Zone-Name			134	string
 ATTRIBUTE	Ruckus-Wlan-Name			135	string
 ATTRIBUTE	Ruckus-AP-Roamed			136	integer
-ATTRIBUTE	Ruckus-Read-Preference			137	string
+ATTRIBUTE	Ruckus-Read-Preference			137	octets
 ATTRIBUTE	Ruckus-Client-Host-Name			138	string
 ATTRIBUTE	Ruckus-Client-Os-Type			139	string
 ATTRIBUTE	Ruckus-Client-Os-Class			140	string
 ATTRIBUTE	Ruckus-Vlan-Pool			141	string
-ATTRIBUTE	Ruckus-Dpsk				142	octets
+
+# 0x00 + (PBKDF2(HMAC−SHA1, passphrase, ssid, 4096, 256))
+# for a length of 33 octets.
+ATTRIBUTE	Ruckus-DPSK				142	octets
 ATTRIBUTE	Ruckus-CP-Token				143	string
 ATTRIBUTE	Ruckus-Max-DL-UL-Quota			144	integer
 ATTRIBUTE	Ruckus-Traffic-Class-Attribute-Ids	145	string
 ATTRIBUTE	Ruckus-TC-Attr-Ids-With-Quota		146	tlv
-ATTRIBUTE	Ruckus-TC-Name-Quota			146.1	string
-ATTRIBUTE	Ruckus-TC-Quota				146.2	octets
+BEGIN-TLV	Ruckus-TC-Attr-Ids-With-Quota
+	ATTRIBUTE	Ruckus-TC-Name-Quota			1	string
+	ATTRIBUTE	Ruckus-TC-Quota				2	octets
+END-TLV	Ruckus-TC-Attr-Ids-With-Quota
+
 ATTRIBUTE	Ruckus-Nat-Pool-Name			147	string
 ATTRIBUTE	Ruckus-Sta-SVlan-Id			148	integer
 ATTRIBUTE	Ruckus-TC-Acct-Ctrs			149	tlv
-ATTRIBUTE	Ruckus-Acct-Ctrs_TC-Name		149.1	string
-ATTRIBUTE	Ruckus-Acct-Ctrs_Input-Octets		149.2	octets
-ATTRIBUTE	Ruckus-Acct-Ctrs_Output-Octets		149.3	octets
-ATTRIBUTE	Ruckus-Acct-Ctrs_Input-Packets		149.4	octets
-ATTRIBUTE	Ruckus-Acct-Ctrs_Output-Packets		149.5	octets
+BEGIN-TLV	Ruckus-TC-Acct-Ctrs
+	ATTRIBUTE	Ruckus-Acct-Ctrs_TC-Name		1	string
+	ATTRIBUTE	Ruckus-Acct-Ctrs_Input-Octets		2	integer
+	ATTRIBUTE	Ruckus-Acct-Ctrs_Output-Octets		3	integer
+	ATTRIBUTE	Ruckus-Acct-Ctrs_Input-Packets		4	integer
+	ATTRIBUTE	Ruckus-Acct-Ctrs_Output-Packets		5	integer
+END-TLV	Ruckus-TC-Acct-Ctrs
 
 ATTRIBUTE	Ruckus-AAA-Id				152	string
 ATTRIBUTE	Ruckus-DPSK-Params			153	tlv
-ATTRIBUTE	Ruckus-DPSK-AKM-Suite			153.1	octets
-ATTRIBUTE	Ruckus-DPSK-Cipher			153.2	byte
-ATTRIBUTE	Ruckus-DPSK-Anonce			153.3	octets
-ATTRIBUTE	Ruckus-DPSK-EAPOL-Key-Frame		153.4	octets
-
+BEGIN-TLV	Ruckus-DPSK-Params
+	ATTRIBUTE	Ruckus-DPSK-AKM-Suite			1	octets
+	ATTRIBUTE	Ruckus-DPSK-Cipher			2	byte
+	ATTRIBUTE	Ruckus-DPSK-Anonce			3	octets
+	ATTRIBUTE	Ruckus-DPSK-EAPOL-Key-Frame		4	octets
+END-TLV	Ruckus-DPSK-Params
+ATTRIBUTE	Ruckus-Cluster-Name			154	string
+ATTRIBUTE	Ruckus-Domain-Name			155	string
+ATTRIBUTE	Ruckus-Client-Device-Type		156	string
 ATTRIBUTE	Ruckus-Vlan-Name			157	string
+
+# Ruckus SmartCell Insight Attributes
+ATTRIBUTE Ruckus-SCI-Role		200 string
+ATTRIBUTE Ruckus-SCI-Resource-Group		201 string
 
 #
 #  Integer Translations
@@ -149,4 +167,3 @@ VALUE	Ruckus-Accounting-Status	Accounting-On		1
 VALUE	Ruckus-Accounting-Status	Accounting-Off		0
 
 END-VENDOR Ruckus
-

@@ -198,10 +198,13 @@ $INCLUDE dictionary.checkpoint
 $INCLUDE dictionary.chillispot
 $INCLUDE dictionary.ciena
 $INCLUDE dictionary.cisco
-$INCLUDE dictionary.cisco.asa
+#$INCLUDE dictionary.cisco.asa
 #
-#	 The Cisco VPN300 dictionary is the same as the altiga one.
+#	 The Cisco VPN300 dictionary uses the same Vendor ID as the ASA one.
 #	 You shouldn't use both at the same time.
+#
+#   Note : the altiga dictionary, not listed here, also uses the same Vendor ID
+# [wireshark: We enable the Cisco VPN3000 dictionary by default]
 #
 $INCLUDE dictionary.cisco.vpn3000
 $INCLUDE dictionary.cisco.bbsm
