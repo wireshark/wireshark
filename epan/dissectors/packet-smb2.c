@@ -11808,23 +11808,24 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		offset = dissect_smb2_comp_transform_header(pinfo, header_tree, tvb, offset,
 							    scti, &comp_tvb, &plain_tvb);
 
+		comp_tree = proto_tree_add_subtree(header_tree, tvb, offset,
+						   tvb_reported_length_remaining(tvb, offset),
+						   ett_smb2_compressed, NULL,
+						   "Compressed SMB3 data");
+		proto_tree_add_item(comp_tree, hf_smb2_comp_transform_data,
+				    tvb, offset,
+				    tvb_reported_length_remaining(tvb, offset),
+				    ENC_NA);
+
 		if (plain_tvb) {
-			comp_tree = proto_tree_add_subtree(header_tree, plain_tvb, 0,
-							   tvb_reported_length_remaining(plain_tvb, 0),
-							   ett_smb2_decompressed, &decomp_item,
-							   "Decompressed SMB3 data");
+			proto_tree *decomp_tree;
+
+			decomp_tree = proto_tree_add_subtree(header_tree, plain_tvb, 0,
+							     tvb_reported_length_remaining(plain_tvb, 0),
+							     ett_smb2_decompressed, &decomp_item,
+							     "Decompressed SMB3 data");
 			proto_item_set_generated(decomp_item);
-			dissect_smb2(plain_tvb, pinfo, comp_tree, FALSE);
-		} else {
-			comp_tree = proto_tree_add_subtree(header_tree, tvb, offset,
-							   tvb_reported_length_remaining(tvb, offset),
-							   ett_smb2_compressed, NULL,
-							   "Compressed SMB3 data");
-			/* show the compressed payload only if we cant uncompress it */
-			proto_tree_add_item(comp_tree, hf_smb2_comp_transform_data,
-					    tvb, offset,
-					    tvb_reported_length_remaining(tvb, offset),
-					    ENC_NA);
+			dissect_smb2(plain_tvb, pinfo, decomp_tree, FALSE);
 		}
 
 		offset += tvb_reported_length_remaining(tvb, offset);
