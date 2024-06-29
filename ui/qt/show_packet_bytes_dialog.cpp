@@ -180,14 +180,14 @@ void ShowPacketBytesDialog::updateHintLabel()
 {
     QString hint = hint_label_;
 
-    if (!decode_as_name_.isEmpty()) {
-        hint.append(" " + tr("Decoded as %1.").arg(decode_as_name_));
-    }
-
     if (start_ > 0 || end_ < (finfo_->length - 1)) {
         hint.append(" <span style=\"color: red\">" +
-                    tr("Displaying %Ln byte(s).", "", end_ - start_ + 1) +
+                    tr("Using %Ln byte(s).", "", end_ - start_ + 1) +
                     "</span>");
+    }
+
+    if (!decode_as_name_.isEmpty()) {
+        hint.append(" " + tr("Decoded as %1.").arg(decode_as_name_));
     }
 
     ui->hintLabel->setText("<small><i>" + hint + "</i></small>");

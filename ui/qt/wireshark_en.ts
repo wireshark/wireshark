@@ -11414,10 +11414,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>Displaying %Ln byte(s).</source>
+        <source>Using %Ln byte(s).</source>
         <translation type="unfinished">
-            <numerusform>Displaying %Ln byte.</numerusform>
-            <numerusform>Displaying %Ln bytes.</numerusform>
+            <numerusform>Using %Ln byte.</numerusform>
+            <numerusform>Using %Ln bytes.</numerusform>
         </translation>
     </message>
     <message>
