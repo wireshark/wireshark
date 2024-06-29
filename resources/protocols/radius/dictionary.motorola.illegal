@@ -1,0 +1,29 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Motorola Canopy attributes.
+#
+#	See also dictionary.motorola.illegal.  You can use that one
+#	by listing it in raddb/dictionary.
+#
+#	$Id: bbddb370e49cb87443e6e21dbf8f18884a33cc98 $
+#
+##############################################################################
+
+ATTRIBUTE	Motorola-Canopy-Shared-Secret		224	string
+ATTRIBUTE	Motorola-Canopy-SULDR			225	string
+ATTRIBUTE	Motorola-Canopy-SDLDR			226	string
+ATTRIBUTE	Motorola-Canopy-ULBA			227	string
+ATTRIBUTE	Motorola-Canopy-DLBA			228	string
+ATTRIBUTE	Motorola-Canopy-Enable			229	string
+ATTRIBUTE	Motorola-Canopy-LPSULDR			230	string
+ATTRIBUTE	Motorola-Canopy-LPSDLDR			231	string
+ATTRIBUTE	Motorola-Canopy-HPCENABLE		232	string
+ATTRIBUTE	Motorola-Canopy-HPSULDR			233	string
+ATTRIBUTE	Motorola-Canopy-HPSDLDR			234	string
+ATTRIBUTE	Motorola-Canopy-HIGHERBW		235	string
+ATTRIBUTE	Motorola-Canopy-CIRENABLE		236	string
+

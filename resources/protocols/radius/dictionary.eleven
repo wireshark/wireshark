@@ -52,3 +52,4 @@ ATTRIBUTE	Eleven-EAPOL-APMAC			4	octets
 #
 ATTRIBUTE	Eleven-EAPOL-STMAC			5	octets
 
+END-VENDOR Eleven

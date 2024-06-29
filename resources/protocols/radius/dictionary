@@ -134,6 +134,7 @@ $INCLUDE dictionary.iana
 #
 #$INCLUDE dictionary.usr.illegal
 #$INCLUDE dictionary.ascend.illegal
+#$INCLUDE dictionary.motorola.illegal
 
 #
 #  Commented out because of attribute conflicts.

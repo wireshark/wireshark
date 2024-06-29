@@ -4,13 +4,13 @@
 #
 ##############################################################################
 #
-#	$Id: 576e0d358ebfae4b0aebd47d265dba5dad9db866 $
+#	$Id: 5ff85332c1748d534f315003972dcc381f5f3eab $
 #
 ##############################################################################
 
-VENDOR		CKey				61349
+VENDOR		Ckey				61349
 
-BEGIN-VENDOR	CKey
+BEGIN-VENDOR	Ckey
 
 ATTRIBUTE	CKey-Auth-Info				10	integer
 
@@ -35,3 +35,5 @@ VALUE	CKey-Auth-Info			Cannot-Login-Time	33
 VALUE	CKey-Auth-Info			Org-Reject		34
 VALUE	CKey-Auth-Info			Static-PWD-Or-PIN-Error	2324
 VALUE	CKey-Auth-Info			Unknown-Error		0xffffffff
+
+END-VENDOR	Ckey

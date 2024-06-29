@@ -34,7 +34,7 @@ ATTRIBUTE	3GPP2-Diffserv-Class-Option		5	integer
 
 #  Contains embedded 3GPP2 accounting attributes.
 ATTRIBUTE	3GPP2-Accounting-Container		6	octets
-ATTRIBUTE	3GPP2-Home-Agent-IP-Address		7	octets ## if 4 octets: ipaddr; if 16: ipv6 address
+ATTRIBUTE	3GPP2-Home-Agent-IP-Address		7	combo-ip
 
 # A number formed from the concatenation of the home RADIUS IP address,
 # the FA IP address, and a 32-bit Unix timestamp, all encoded as 8 ASCII
