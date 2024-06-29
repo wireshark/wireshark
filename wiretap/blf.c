@@ -1245,37 +1245,35 @@ static void
 blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, int pkt_encap, uint16_t channel, uint16_t hwchannel, unsigned caplen, unsigned len) {
     params->rec->rec_type = REC_TYPE_PACKET;
     params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    params->rec->presence_flags = WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    params->rec->ts_rel_cap_valid = false;
     switch (flags) {
     case BLF_TIMESTAMP_RESOLUTION_10US:
+        params->rec->presence_flags |= WTAP_HAS_TS;
         params->rec->tsprec = WTAP_TSPREC_10_USEC;
         object_timestamp *= 10000;
         object_timestamp += params->blf_data->start_offset_ns;
+        params->rec->ts_rel_cap_valid = true;
         break;
 
     case BLF_TIMESTAMP_RESOLUTION_1NS:
+        params->rec->presence_flags |= WTAP_HAS_TS;
         params->rec->tsprec = WTAP_TSPREC_NSEC;
         object_timestamp += params->blf_data->start_offset_ns;
+        params->rec->ts_rel_cap_valid = true;
         break;
 
     default:
-        if (flags == 0 && object_timestamp == 0) {
-            /* This is not an error, but is used for metadata at the beginning of the file. */
-            params->rec->tsprec = WTAP_TSPREC_NSEC;
-            object_timestamp = params->blf_data->start_offset_ns;
-        }
-        else {
+        /* Metadata objects have both flags and timestamp equal to zero, so that combination is not an error. */
+        if (flags != 0 || object_timestamp != 0) {
             /*
              * XXX - report this as an error?
              *
              * Or provide a mechanism to allow file readers to report
              * a warning (an error that the reader tries to work
              * around and that the caller should report)?
-             *
-             * Set the timestamp to params->blf_data->start_offset_ns also here?
              */
             ws_debug("Unknown combination of flags and timestamp (0x%x, %" PRIu64 ")", flags, object_timestamp);
-            params->rec->tsprec = WTAP_TSPREC_NSEC;
             object_timestamp = 0;
         }
         break;
@@ -1289,7 +1287,6 @@ blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, in
     tmp_ts.secs = params->blf_data->start_offset_ns / (1000 * 1000 * 1000);
     tmp_ts.nsecs = params->blf_data->start_offset_ns % (1000 * 1000 * 1000);
     nstime_delta(&params->rec->ts_rel_cap, &params->rec->ts, &tmp_ts);
-    params->rec->ts_rel_cap_valid = true;
 
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
     params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel, hwchannel, NULL);
