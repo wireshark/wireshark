@@ -616,7 +616,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 
         for (auto &tvb_uncompress : tvb_uncompress_list) {
             uncompr_tvb = tvb_uncompress.function(finfo_->ds_tvb, start, length);
-            if (uncompr_tvb) {
+            if (uncompr_tvb && tvb_reported_length(uncompr_tvb) > 0) {
                 bytes = tvb_get_ptr(uncompr_tvb, 0, -1);
                 field_bytes_ = QByteArray((const char *)bytes, tvb_reported_length(uncompr_tvb));
                 decode_as_name_ = tr("compressed %1").arg(tvb_uncompress.name);
