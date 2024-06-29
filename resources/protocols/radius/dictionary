@@ -121,6 +121,21 @@ $INCLUDE dictionary.rfc8559
 $INCLUDE dictionary.iana
 
 #
+#	These dictionaries define attributes in the IETF managed space.
+#	(i.e. 1..255). This is wrong.  We include them here to allow them.
+#	The IETF allocated ones are listed below, which gives them priority.
+
+#	i.e. don't do this.  Don't use these attributes
+#
+#	[wireshark: We move this section after the IETF managed dictionaries
+#	so that if uncommented they override the conflicting IETF allocated
+#	attributes. It would be nice to have this as a Wireshark pref instead
+#	of forcing people to uncomment or include a file.]
+#
+#$INCLUDE dictionary.usr.illegal
+#$INCLUDE dictionary.ascend.illegal
+
+#
 #  Commented out because of attribute conflicts.
 #
 #$INCLUDE dictionary.alvarion.wimax.v2_2

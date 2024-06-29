@@ -1,0 +1,49 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	USE dictionary that illegally uses the RFC space.
+#
+#	$Id: b75176732fd503a902a9ba17ab33000a9c417c86 $
+#
+##############################################################################
+#
+#	USR specific attributes
+#
+# Prompt value should be 1 for echo, 0 for no echo, default 1.
+#ATTRIBUTE	Prompt			64	integer
+ATTRIBUTE	Multi-Link-Flag				126	integer
+ATTRIBUTE	Char-Noecho				250	integer
+
+#
+#	USR specific Integer Translations
+#
+
+VALUE	Termination-Action		Manage-Resources	2
+
+VALUE	Acct-Status-Type		Modem-Start		4
+VALUE	Acct-Status-Type		Modem-Stop		5
+VALUE	Acct-Status-Type		Cancel			6
+
+VALUE	Multi-Link-Flag			True			1
+VALUE	Multi-Link-Flag			False			0
+
+#	USR specific Authentication Types
+
+#
+#  These are commented out because the conflict with the standard
+#  definitions.
+#
+#VALUE		Acct-Authentic		None			0
+#VALUE		Acct-Authentic		Remote			3
+#VALUE		Acct-Authentic		RADIUS			4
+#VALUE		Acct-Authentic		MNET			5
+#VALUE		Acct-Authentic		KCHAP			6
+#VALUE		Acct-Authentic		TACACS			7
+#VALUE		Acct-Authentic		Realm			8
+#VALUE		Acct-Authentic		Local			9
+#VALUE		Acct-Authentic		File			10
+#VALUE		Acct-Authentic		Local-VPN		11
+

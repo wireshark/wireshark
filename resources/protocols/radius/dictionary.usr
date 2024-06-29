@@ -1,54 +1,14 @@
 # -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
 #
 # dictionary.usr	USR Robotics dictionary.
 #
 #		Taken from the dictionary included with the USR RADIUS server,
 #		and adjusted a bit.
 #
-# Version:	$Id$
+# Version:	$Id: 4847f84c69457b3025e47621bb228cddce924f66 $
 #
-
-#
-#	USR specific attributes
-#
-# Prompt value should be 1 for echo, 0 for no echo, default 1.
-#ATTRIBUTE	Prompt			64	integer
-ATTRIBUTE	Multi-Link-Flag				126	integer
-ATTRIBUTE	Char-Noecho				250	integer
-
-#
-#	USR specific Integer Translations
-#
-
-#Taken from the website:
-#https://bitbucket.org/02strich/openvpn-auth-radius/src/b52f7f5e1acd/RadiusClass/utilities/dictionary
-#
-
-VALUE	Termination-Action		Manage-Resources	2
-
-VALUE	Acct-Status-Type		Modem-Start		4
-VALUE	Acct-Status-Type		Modem-Stop		5
-VALUE	Acct-Status-Type		Cancel			6
-
-VALUE	Multi-Link-Flag			True			1
-VALUE	Multi-Link-Flag			False			0
-
-#	USR specific Authentication Types
-
-#
-#  These are commented out because the conflict with the standard
-#  definitions.
-#
-#VALUE		Acct-Authentic		None			0
-#VALUE		Acct-Authentic		Remote			3
-#VALUE		Acct-Authentic		RADIUS			4
-#VALUE		Acct-Authentic		MNET			5
-#VALUE		Acct-Authentic		KCHAP			6
-#VALUE		Acct-Authentic		TACACS			7
-#VALUE		Acct-Authentic		Realm			8
-#VALUE		Acct-Authentic		Local			9
-#VALUE		Acct-Authentic		File			10
-#VALUE		Acct-Authentic		Local-VPN		11
 
 #
 #	USR Extensions: USR Vendor-Specific stuff.
@@ -314,8 +274,6 @@ ATTRIBUTE	USR-Routing-Protocol			0x9826	integer
 ATTRIBUTE	USR-Modem-Group				0x9827	integer
 ATTRIBUTE	USR-Modem-Training-Time			0x9842	integer
 ATTRIBUTE	USR-Interface-Index			0x9843	integer
-ATTRIBUTE	USR-Multicast-Proxy        0x984d integer
-ATTRIBUTE	USR-Multicast-Forwarding        0x9850 integer
 ATTRIBUTE	USR-MP-MRRU				0x982f	integer
 
 ATTRIBUTE	USR-SAP-Filter-In			0x9002	string
@@ -385,15 +343,7 @@ ATTRIBUTE	USR-IGMP-Query-Interval			0x9851	integer
 ATTRIBUTE	USR-IGMP-Maximum-Response-Time		0x9852	integer
 ATTRIBUTE	USR-IGMP-Robustness			0x9853	integer
 ATTRIBUTE	USR-IGMP-Version			0x9854	integer
-ATTRIBUTE	USR-Call-Arrival-Time			0x9858	integer
-ATTRIBUTE	USR-Call-End-Time			0x9859	integer
 ATTRIBUTE	USR-Callback-Type			0x986a	integer
-ATTRIBUTE	USR-Pre-shared-MN-Key			0x9873	integer
-ATTRIBUTE	USR-MIP-NAI								0x9874	string
-ATTRIBUTE	USR-Agent									0x9876  integer
-ATTRIBUTE	USR-Mobile-Session-ID			0x9885	integer
-ATTRIBUTE	USR-Mobile-Accounting-Type 0x9886 integer
-
 ATTRIBUTE	USR-Request-Type			0xf001	integer
 ATTRIBUTE	USR-RMMIE-Num-Of-Updates		0x01ce	integer
 ATTRIBUTE	USR-RMMIE-Manufacturer-ID		0x01df	integer
@@ -463,52 +413,51 @@ ATTRIBUTE	USR-Dvmrp-Retransmit-Prunes		0x987b	integer
 ATTRIBUTE	USR-Dvmrp-Non-Pruners			0x987c	integer
 ATTRIBUTE	USR-Dvmrp-Route-Transit			0x987d	integer
 ATTRIBUTE	USR-Dvmrp-Input-Filter			0x987e	string
-ATTRIBUTE	USR-Dvmrp-Output-Filter				0x9880	string
-ATTRIBUTE	USR-Policy-Access					0x9881	integer
-ATTRIBUTE	USR-Policy-Configuration			0x9882	integer
-ATTRIBUTE	USR-Policy-Filename					0x9883	string
-ATTRIBUTE	USR-Policy-Type						0x9884	integer
-ATTRIBUTE	USR-Mobile-Session-ID				0x9885	integer
-ATTRIBUTE	USR-Mobile-Accounting-Type			0x9886	integer
-ATTRIBUTE	USR-Mobile-Service-Option			0x9887	integer
-ATTRIBUTE	USR-Wallclock-Timestamp				0x9888	integer
-ATTRIBUTE	USR-Dvmrp-Initial-Flooding			0x988a	integer
-ATTRIBUTE	USR-HARC-Disconnect-Code			0x988b integer
-ATTRIBUTE	USR-Telnet-Options					0x988c	integer
-ATTRIBUTE	USR-CDMA-PktData-Network-ID			0x988d	integer
+ATTRIBUTE	USR-Dvmrp-Output-Filter			0x9880	string
+ATTRIBUTE	USR-Policy-Access			0x9881	integer
+ATTRIBUTE	USR-Policy-Configuration		0x9882	integer
+ATTRIBUTE	USR-Policy-Filename			0x9883	string
+ATTRIBUTE	USR-Policy-Type				0x9884	integer
+ATTRIBUTE	USR-Mobile-Session-ID			0x9885	integer
+ATTRIBUTE	USR-Mobile-Accounting-Type		0x9886	integer
+ATTRIBUTE	USR-Mobile-Service-Option		0x9887	integer
+ATTRIBUTE	USR-Wallclock-Timestamp			0x9888	integer
+ATTRIBUTE	USR-Dvmrp-Initial-Flooding		0x988a	integer
+ATTRIBUTE	USR-Telnet-Options			0x988c	integer
+ATTRIBUTE	USR-CDMA-PktData-Network-ID		0x988d	integer
 ATTRIBUTE	USR-Auth-Next-Server-Address		0x988e	ipaddr
-ATTRIBUTE	USR-User-PPP-AODI-Type				0x988f	integer
+ATTRIBUTE	USR-User-PPP-AODI-Type			0x988f	integer
 ATTRIBUTE	USR-MLPPP-Fragmentation-Threshld	0x9890	integer
 ATTRIBUTE	USR-Unnumbered-Local-IP-Address		0x9891	ipaddr
-ATTRIBUTE	USR-Traffic-Threshold				0x9892	integer
-ATTRIBUTE	USR-Keep-Alive-Interval				0x9893	integer
-ATTRIBUTE	Virtual-Server-ID					0x9894	integer
-ATTRIBUTE	USR-X25-Trunk-Profile				0x9895	string
+ATTRIBUTE	USR-Traffic-Threshold			0x9892	integer
+ATTRIBUTE	USR-Keep-Alive-Interval			0x9893	integer
+ATTRIBUTE	Virtual-Server-ID			0x9894	integer
+ATTRIBUTE	USR-X25-Trunk-Profile			0x9895	string
 ATTRIBUTE	USR-X25-Acct-Input-Segment-Count	0x9896	integer
 ATTRIBUTE	USR-X25-Acct-Output-Segment-Coun	0x9897	integer
-ATTRIBUTE	USR-X25-Acct-Segment-Size			0x9898	integer
+ATTRIBUTE	USR-X25-Acct-Segment-Size		0x9898	integer
 ATTRIBUTE	USR-X25-Acct-Termination-Code		0x9899	integer
 ATTRIBUTE	USR-X25-SVC-Logical-Channel-Numb	0x989a	integer
 ATTRIBUTE	USR-Nailed-B-Channel-Indicator		0x989b	integer
-ATTRIBUTE	USR-X25-SVC-Call-Attributes			0x989c	integer
-ATTRIBUTE	USR-Init-Reg-Server-Addr			0x989d	ipaddr
-ATTRIBUTE	USR-Re-Reg-Server-Addr				0x989e	ipaddr
-ATTRIBUTE	USR-Bytes-TX-Remain					0x989f	integer
-ATTRIBUTE	USR-Bytes-RX-Remain					0x98a0	integer
-ATTRIBUTE	USR-Session-Time-Remain				0x98a1	integer
-ATTRIBUTE	USR-Pre-Paid-Enabled				0x98a2	integer
-ATTRIBUTE	USR-Reg-Server-Prov-Timeout			0x98a3	integer
-ATTRIBUTE	USR-Redirect						0x98a4	integer
-ATTRIBUTE	USR-VLAN-Tag						0x98a5	integer
-ATTRIBUTE	USR-Rad-IP-Pool-Definition			0x98a6	string
+ATTRIBUTE	USR-X25-SVC-Call-Attributes		0x989c	integer
+ATTRIBUTE	USR-Init-Reg-Server-Addr		0x989d	ipaddr
+ATTRIBUTE	USR-Re-Reg-Server-Addr			0x989e	ipaddr
+ATTRIBUTE	USR-Bytes-TX-Remain			0x989f	integer
+ATTRIBUTE	USR-Bytes-RX-Remain			0x98a0	integer
+ATTRIBUTE	USR-Session-Time-Remain			0x98a1	integer
+ATTRIBUTE	USR-Pre-Paid-Enabled			0x98a2	integer
+ATTRIBUTE	USR-Reg-Server-Prov-Timeout		0x98a3	integer
+ATTRIBUTE	USR-Redirect				0x98a4	integer
+ATTRIBUTE	USR-VLAN-Tag				0x98a5	integer
+ATTRIBUTE	USR-Rad-IP-Pool-Definition		0x98a6	string
 ATTRIBUTE	USR-Rad-NMC-Call-Progress-Status	0x98a7	integer
-ATTRIBUTE	USR-Rad-NMC-Blocks_RX				0x98a8	integer
-ATTRIBUTE	USR-Total-Bytes-Remain 				0x98b8 integer
-ATTRIBUTE	USR-Forward-Rate-Limit 				0x98b9 integer
-ATTRIBUTE	USR-Reverse-Rate-Limit 				0x98bc integer
+ATTRIBUTE	USR-Rad-NMC-Blocks_RX			0x98a8	integer
+ATTRIBUTE	USR-Total-Bytes-Remain 			0x98b8 integer
+ATTRIBUTE	USR-Forward-Rate-Limit 			0x98b9 integer
+ATTRIBUTE	USR-Reverse-Rate-Limit 			0x98bc integer
 
-ATTRIBUTE	USR-NAS-Type						0xf002	integer
-ATTRIBUTE	USR-Auth-Mode						0xf003	integer
+ATTRIBUTE	USR-NAS-Type				0xf002	integer
+ATTRIBUTE	USR-Auth-Mode				0xf003	integer
 #
 #	Integer Translations
 #
@@ -1669,7 +1618,7 @@ VALUE	CW-Trans-Cld-Party-E164-Type	Subscriber-Number	5
 VALUE	CW-Trans-Cld-Party-E164-Type	Abbreviated-Number	6
 VALUE	CW-Trans-Cld-Party-E164-Type	Reserved		7
 
-VALUE USR-Pre-Paid-Enabled Phase2-active-Time-counted 1
-VALUE USR-Pre-Paid-Enabled Phase2-Transfer/Reciev-Packet-counted 2
-VALUE USR-Pre-Paid-Enabled Phase2-Total-Packet-counted 3
+VALUE	USR-Pre-Paid-Enabled		Phase2-active-Time-counted 1
+VALUE	USR-Pre-Paid-Enabled		Phase2-Transfer/Reciev-Packet-counted 2
+VALUE	USR-Pre-Paid-Enabled		Phase2-Total-Packet-counted 3
 END-VENDOR USR

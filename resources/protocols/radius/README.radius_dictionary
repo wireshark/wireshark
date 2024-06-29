@@ -61,10 +61,11 @@ A few dictionaries have minor spelling or capitalization fixes.
 9. dictionary.travelping
    - Has additional Attributes as defined in the master (pre-4.0) branch of FreeRADIUS.
 
+1.0 dictionary.usr
+   - Has additional ATTRIBUTEs and VALUEs added by Wireshark commits, e.g.
+     455381dace25101fd7cb8ab74c307c8b03650221 and 91f44b2940cb36f3eaf0580726155bb58304ebb6
 
 [Dec-01-2010]
- Commented out global VSA:s from dictionary.ascend to avoid name clashes with IANA assigned VSA:s
- https://gitlab.com/wireshark/wireshark/-/issues/5455
 
 1. dictionary.wimax
    - Freeradius 2.1.6 dictionary.wimax plus:
