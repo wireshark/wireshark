@@ -6,8 +6,7 @@ need those. The pre-4.0 branch of FreeRADIUS removes them into a separate
 directory.
 
 tlv types are unwrapped with BEGIN-TLV / END-TLV to accommodate Wireshark's
-parser. Note this doesn't work for sub-TLVs of sub-TLVs (#7050) or TLVs within
-extended attributes.
+parser. Note this might not work for TLVs within extended attributes.
 
 A few dictionaries have minor spelling or capitalization fixes.
 
@@ -84,14 +83,3 @@ A few dictionaries have minor spelling or capitalization fixes.
 15. dictionary.usr
    - Has additional ATTRIBUTEs and VALUEs added by Wireshark commits, e.g.
      455381dace25101fd7cb8ab74c307c8b03650221 and 91f44b2940cb36f3eaf0580726155bb58304ebb6
-
-[Dec-01-2010]
-
-1. dictionary.wimax
-   - Freeradius 2.1.6 dictionary.wimax plus:
-      Added missing END-VENDOR WIMAX statement.
-   - Note that Attribute WiMAX-MN-hHA-MIP4-SPI [11] had a type of "octets"
-     in the previous Wireshark version of this file.
-     This attribute in the FreeRadius version of this file
-     has an attribute type of "integer".
-

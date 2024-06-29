@@ -121,6 +121,12 @@ DIAG_OFF_FLEX()
  *	internal, array, and virtual as attribute flags (not
  *	documented in the man page);
  *
+ * We alter the dictionaries for TLVs by unwrapping them. It would be
+ * better to support the format as-is. We look up the TLVs by name;
+ * this probably doesn't work with the current master (pre-4.0) version
+ * of FreeRADIUS's dictionary files, because the vendor prefix was removed
+ * from the attributes, so they're not as likely to be unique.
+ *
  * We should, perhaps, adopt FreeRADIUS's dictionary-parsing code in
  * src/lib/dict.c and use that, rather than writing our own parser.
  * See bug 13176.
@@ -152,7 +158,9 @@ typedef struct {
 	bool concat;
 	char* current_vendor;
 	unsigned current_vendor_evs_type;
-	char* current_attr;
+
+	int tlv_stack_ptr;
+	char* tlv_stack[MAX_INCLUDE_DEPTH];
 
 	char* directory;
 	char* fullpaths[MAX_INCLUDE_DEPTH];
@@ -228,27 +236,40 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 <BEGIN_VENDOR_FORMAT>\n {BEGIN WS_OUT;}
 
 <END_VENDOR>[^\n]* {
-    if (yyextra->current_vendor) {
-        g_free(yyextra->current_vendor);
-        yyextra->current_vendor = NULL;
-    }
-    yyextra->current_vendor_evs_type = 0;
-    BEGIN WS_OUT;
+	if (yyextra->current_vendor) {
+		g_free(yyextra->current_vendor);
+		yyextra->current_vendor = NULL;
+	}
+	yyextra->current_vendor_evs_type = 0;
+	BEGIN WS_OUT;
 }
 
 <BEGIN_TLV>[0-9a-z_-]+ {
-    if (yyextra->current_attr) {
-        g_free(yyextra->current_attr);
-    }
-    yyextra->current_attr = g_strdup(yytext);
-    BEGIN WS_OUT;
+	yyextra->tlv_stack_ptr++;
+	if ( yyextra->tlv_stack_ptr >= MAX_INCLUDE_DEPTH ) {
+		g_string_append_printf(yyextra->error, "TLV %s nested too deeply in %s:%i\n",
+				yytext, yyextra->fullpaths[yyextra->include_stack_ptr],
+				yyextra->linenums[yyextra->include_stack_ptr]);
+		yyterminate();
+	}
+	yyextra->tlv_stack[yyextra->tlv_stack_ptr] = g_strdup(yytext);
+	/* XXX - Do we really need the BEGIN-TLV? We could do this after
+	 * encountering a tlv type. */
+	BEGIN WS_OUT;
 }
 <END_TLV>[^\n]* {
-    if (yyextra->current_attr) {
-        g_free(yyextra->current_attr);
-        yyextra->current_attr = NULL;
-    }
-    BEGIN WS_OUT;
+	if (yyextra->tlv_stack[yyextra->tlv_stack_ptr]) {
+		g_free(yyextra->tlv_stack[yyextra->tlv_stack_ptr]);
+		yyextra->tlv_stack[yyextra->tlv_stack_ptr] = NULL;
+	}
+	if ( --yyextra->tlv_stack_ptr < 0 ) {
+		g_string_append_printf(yyextra->error, "END-TLV would go below stack level 0 in %s:%i\n",
+				yyextra->fullpaths[yyextra->include_stack_ptr],
+				yyextra->linenums[yyextra->include_stack_ptr]);
+		yyterminate();
+	}
+	/* XXX - We could parse yytext and see if it matches */
+	BEGIN WS_OUT;
 }
 
 <VENDOR>[0-9a-z_-]+   {
@@ -330,7 +351,7 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
     bool attribute_ok;
 
     yyextra->attr_vendor = g_strdup(yytext);
-    attribute_ok = add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->current_attr);
+    attribute_ok = add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->tlv_stack[yyextra->tlv_stack_ptr]);
     g_free(yyextra->attr_id);
     g_free(yyextra->attr_vendor);
     g_free(yyextra->attr_name);
@@ -343,7 +364,7 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
         BEGIN JUNK;
 }
 <ATTR_W_TYPE>\n						{
-    add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->current_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->current_attr);
+    add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->current_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->tlv_stack[yyextra->tlv_stack_ptr]);
     g_free(yyextra->attr_id);
     g_free(yyextra->attr_name);
     yyextra->linenums[yyextra->include_stack_ptr]++;
@@ -623,18 +644,16 @@ static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char
 
 	a = (radius_attr_info_t*)g_hash_table_lookup(state->dict->attrs_by_name, attr);
 
-	if (! a) {
+	if (!a) {
+		a = (radius_attr_info_t*)g_hash_table_lookup(state->dict->tlvs_by_name, attr);
+	}
+
+	if (!a) {
 		g_string_append_printf(state->error, "Attr: '%s', does not exist in %s:%i \n", attr, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr]);
 		return false;
 	}
 
-	if (type == radius_tlv) {
-		g_string_append_printf(state->error, "sub-TLV: '%s', sub-TLV's type is specified as tlv in %s:%i \n", name, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr]);
-		return false;
-	}
-
-
-	if (! a->tlvs_by_id) {
+	if (!a->tlvs_by_id) {
 		a->tlvs_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
 	}
 
@@ -712,6 +731,10 @@ static void setup_tlvs(void *k _U_, void *v, void *p) {
 		s->vs = (value_string*)(void *)g_array_free(vs.a, false);
 		g_free(key);
 	}
+
+	if (s->tlvs_by_id) {
+		g_hash_table_foreach(s->tlvs_by_id, setup_tlvs, p);
+	}
 }
 
 static void setup_attrs(void *k _U_, void *v, void *p) {
@@ -777,17 +800,20 @@ bool radius_load_dictionary (radius_dictionary_t* d, char* dir, const char* file
 	state.concat = false;
 	state.current_vendor = NULL;
 	state.current_vendor_evs_type = 0;
-	state.current_attr = NULL;
 
 	state.directory = g_strdup(dir);
 
 	state.fullpaths[0] = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    state.directory,filename);
 	state.linenums[0] = 1;
+	state.tlv_stack[0] = NULL;
 	for (i = 1; i < MAX_INCLUDE_DEPTH; i++) {
 		state.fullpaths[i] = NULL;
 		state.linenums[i] = 1;
+		state.tlv_stack[i] = NULL;
 	}
+
+	state.tlv_stack_ptr = 0;
 
 	state.error = g_string_new("");
 
@@ -826,6 +852,7 @@ bool radius_load_dictionary (radius_dictionary_t* d, char* dir, const char* file
 
 	for (i = 0; i < MAX_INCLUDE_DEPTH; i++) {
 		g_free(state.fullpaths[i]);
+		g_free(state.tlv_stack[i]);
 	}
 
 	g_hash_table_foreach(state.dict->attrs_by_id,setup_attrs,&state);

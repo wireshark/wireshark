@@ -143,6 +143,7 @@ $INCLUDE dictionary.iana
 #$INCLUDE dictionary.openser
 #enabled in lieu of dictionary.starent by request in #10688
 $INCLUDE dictionary.starent.vsa1
+#$INCLUDE dictionary.wimax.alvarion
 #$INCLUDE dictionary.wimax.wichorus
 
 #
