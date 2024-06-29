@@ -2390,7 +2390,7 @@ static int dissect_tcpip_set_port_admin_state(packet_info *pinfo, proto_tree *tr
    }
 }
 
-attribute_info_t enip_attribute_vals[] = {
+const attribute_info_t enip_attribute_vals[] = {
 
     /* TCP/IP Object (class attributes) */
    {0xF5, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },

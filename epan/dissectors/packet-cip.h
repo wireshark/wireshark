@@ -614,11 +614,11 @@ enum cip_elem_data_types {
 };
 
 extern void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals);
-extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
+extern const attribute_info_t * cip_get_attribute(guint class_id, guint instance, guint attribute);
 extern cip_service_info_t* cip_get_service_one_table(cip_service_info_t* services, size_t size, guint32 class_id, guint8 service_id);
 extern void cip_rpi_api_fmt(gchar *s, guint32 value);
 
-extern int  dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, attribute_info_t* attr, int offset, int total_len);
+extern int  dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, const attribute_info_t* attr, int offset, int total_len);
 extern void dissect_cip_data(proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t *preq_info, proto_item* msp_item, gboolean is_msp_item);
 extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
 extern int dissect_cip_utime(proto_tree* tree, tvbuff_t* tvb, int offset, int hf_datetime);

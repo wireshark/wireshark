@@ -273,7 +273,7 @@ static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *device
                                           tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
     guint16 class_id, instance, attribute;
-    attribute_info_t* att_info;
+    const attribute_info_t* att_info;
     gint start_offset = offset, length;
     proto_item* ti;
 
@@ -312,7 +312,7 @@ static gint body_type_8_over_16_dissection(guint8 data_length, proto_tree *devic
                                            tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
     guint16 class_id, instance, attribute;
-    attribute_info_t* att_info;
+    const attribute_info_t* att_info;
     proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_16, NULL, "DeviceNet 8/16");
@@ -343,7 +343,7 @@ static gint body_type_16_over_8_dissection(guint8 data_length, proto_tree *devic
                                            packet_info *pinfo _U_, gint offset)
 {
     guint16 class_id, instance, attribute;
-    attribute_info_t* att_info;
+    const attribute_info_t* att_info;
     proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_16_8, NULL, "DeviceNet 16/8");
@@ -375,7 +375,7 @@ static gint body_type_16_over_16_dissection(guint8 data_length, proto_tree *devi
                                             packet_info *pinfo _U_, gint offset)
 {
     guint16 class_id, instance, attribute;
-    attribute_info_t* att_info;
+    const attribute_info_t* att_info;
     proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, 4, ett_devicenet_16_16, NULL, "DeviceNet 16/16");

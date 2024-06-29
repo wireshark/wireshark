@@ -806,7 +806,7 @@ static int dissect_connection_configuration_bits(packet_info* pinfo _U_, proto_t
    return 1;
 }
 
-attribute_info_t cip_motion_attribute_vals[] = {
+const attribute_info_t cip_motion_attribute_vals[] = {
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 31, -1, "Time Data Set", cip_dissector_func, NULL, dissect_time_data_set },
@@ -1350,7 +1350,7 @@ dissect_get_axis_attr_list_request(tvbuff_t* tvb, proto_tree* tree, guint32 offs
          increment_size += 4;
       }
 
-      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      const attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
       if (pattribute != NULL)
       {
          proto_item_append_text(attr_item, " (%s)", pattribute->text);
@@ -1364,7 +1364,7 @@ dissect_get_axis_attr_list_request(tvbuff_t* tvb, proto_tree* tree, guint32 offs
 static int dissect_motion_attribute(packet_info *pinfo, tvbuff_t* tvb, int offset, guint32 attribute_id,
    guint32 instance_id, proto_item* attr_item, proto_tree* attr_tree, guint8 dimension, guint32 attribute_size)
 {
-   attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+   const attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
    int parsed_len = 0;
 
    if (pattribute != NULL)
@@ -1500,7 +1500,7 @@ static void dissect_set_cyclic_list_request(tvbuff_t* tvb, proto_tree* tree, gui
       guint32 attribute_id;
       proto_item* attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_cyclic_list_attribute_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
 
-      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      const attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
       if (pattribute != NULL)
       {
          proto_item_append_text(attr_item, " (%s)", pattribute->text);
@@ -1527,7 +1527,7 @@ static void dissect_set_cyclic_list_respone(tvbuff_t* tvb, proto_tree* tree, gui
       guint32 attribute_id;
       proto_item* attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_cyclic_list_attribute_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
 
-      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      const attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
       if (pattribute != NULL)
       {
          proto_item_append_text(attr_item, " (%s)", pattribute->text);
@@ -1648,7 +1648,7 @@ dissect_set_axis_attr_list_response(tvbuff_t* tvb, proto_tree* tree, guint32 off
       /* Add the response status to the tree */
       proto_tree_add_item(attr_tree, hf_cip_svc_set_axis_attr_sts, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN);
 
-      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      const attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
       if (pattribute != NULL)
       {
          proto_item_append_text(attr_item, " (%s)", pattribute->text);

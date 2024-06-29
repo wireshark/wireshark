@@ -56,7 +56,7 @@ extern void add_safety_data_type_to_info_column(packet_info *pinfo, enum enip_co
 ** Exported variables
 */
 extern const value_string cipsafety_snn_date_vals[8];
-extern attribute_info_t cip_safety_attribute_vals[51];
+extern const attribute_info_t cip_safety_attribute_vals[51];
 extern const range_string safety_max_consumer_numbers[];
 
 #endif /* PACKET_CIPSAFETY_H */

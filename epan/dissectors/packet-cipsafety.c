@@ -2203,7 +2203,7 @@ static int dissect_sercosiii_safety_network_number(packet_info *pinfo _U_, proto
     return 6;
 }
 
-attribute_info_t cip_safety_attribute_vals[] = {
+const attribute_info_t cip_safety_attribute_vals[] = {
 
    /* Safety Supervisor */
    {0x39, TRUE, 99, -1, "Subclass", cip_uint, &hf_cip_ssupervisor_class_subclass, NULL},

@@ -16,6 +16,6 @@
 
 extern int dissect_motion_configuration_block(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, int offset);
 
-extern attribute_info_t cip_motion_attribute_vals[20];
+extern const attribute_info_t cip_motion_attribute_vals[20];
 
 #endif /* PACKET_CIPMOTION_H */
