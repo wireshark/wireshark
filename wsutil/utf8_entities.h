@@ -47,6 +47,8 @@
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /*  8594 / 0x2192 */
 #define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /*  8596 / 0x2194 */
 
+#define UTF8_SQUARE_ROOT                "\xe2\x88\x9a"      /*  8730 / 0x221a */
+
 /* macOS command key */
 #define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /*  8984 / 0x2318 */
 
