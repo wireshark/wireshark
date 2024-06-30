@@ -73,7 +73,8 @@ typedef enum _wmem_allocator_type_t {
 WS_DLL_PUBLIC
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)
-G_GNUC_MALLOC;
+G_GNUC_MALLOC
+G_GNUC_ALLOC_SIZE(2);
 
 /** Allocate memory sufficient to hold one object of the given type.
  *
@@ -112,7 +113,8 @@ G_GNUC_MALLOC;
 WS_DLL_PUBLIC
 void *
 wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
-G_GNUC_MALLOC;
+G_GNUC_MALLOC
+G_GNUC_ALLOC_SIZE(2);
 
 /** Allocate memory sufficient to hold one object of the given type.
  * Initializes the allocated memory with zeroes.
@@ -160,7 +162,8 @@ wmem_free(wmem_allocator_t *allocator, void *ptr);
  */
 WS_DLL_PUBLIC
 void *
-wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size);
+wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
+G_GNUC_ALLOC_SIZE(3);
 
 /** Frees all the memory allocated in a pool. Depending on the allocator
  * implementation used this can be significantly cheaper than calling
