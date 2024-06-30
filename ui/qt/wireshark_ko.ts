@@ -11468,12 +11468,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>다른 이름으로 저장…</translation>
     </message>
     <message>
+        <source>Decoded as %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Selected Packet Bytes As…</source>
         <translation>선택한 패킷 바이트를 다른 이름으로 저장…</translation>
     </message>
+    <message>
+        <source>compressed %1</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
-        <source>Displaying %Ln byte(s).</source>
-        <translation>
+        <source>Using %Ln byte(s).</source>
+        <oldsource>Displaying %Ln byte(s).</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln바이트를 표시하고 있습니다.</numerusform>
         </translation>
     </message>
