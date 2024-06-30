@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <wsutil/pint.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-ubx.h"
 
@@ -53,10 +54,20 @@ static int hf_ubx_gal_inav_word0_spare;
 static int hf_ubx_gal_inav_word0_wn;
 static int hf_ubx_gal_inav_word0_tow;
 
+static int hf_ubx_gal_inav_word1;
+static int hf_ubx_gal_inav_word1_type;
+static int hf_ubx_gal_inav_word1_iodnav;
+static int hf_ubx_gal_inav_word1_t0e;
+static int hf_ubx_gal_inav_word1_m0;
+static int hf_ubx_gal_inav_word1_e;
+static int hf_ubx_gal_inav_word1_sqrta;
+static int hf_ubx_gal_inav_word1_reserved;
+
 static dissector_table_t ubx_gal_inav_word_dissector_table;
 
 static int ett_ubx_gal_inav;
 static int ett_ubx_gal_inav_word0;
+static int ett_ubx_gal_inav_word1;
 static int ett_ubx_gal_inav_sar;
 
 static const value_string GAL_PAGE_TYPE[] = {
@@ -71,6 +82,27 @@ static const value_string GAL_SSP[] = {
     {0x2f, "SSP 3"},
     {0, NULL},
 };
+
+/* Format mean anomaly at reference time */
+static void fmt_m0(gchar *label, gint64 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" G_GINT64_FORMAT " * 2^-31 semi-circles", c);
+}
+
+/* Format eccentricity */
+static void fmt_e(gchar *label, guint64 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" G_GUINT64_FORMAT " * 2^-33", c);
+}
+
+/* Format square root of the semi-major axis */
+static void fmt_sqrt_a(gchar *label, guint64 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" G_GUINT64_FORMAT " * 2^-19 " UTF8_SQUARE_ROOT "m", c);
+}
+
+/* Format ephemeris reference time */
+static void fmt_t0e(gchar *label, guint32 c) {
+    c = c * 60;
+    snprintf(label, ITEM_LABEL_LENGTH, "%ds", c);
+}
 
 /* Dissect Galileo E1-B I/NAV navigation message */
 static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
@@ -173,6 +205,24 @@ static int dissect_ubx_gal_inav_word0(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     return tvb_captured_length(tvb);
 }
 
+/* Dissect word 1 - Ephemeris (1/4) */
+static int dissect_ubx_gal_inav_word1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Word 1 (Ephemeris (1/4))");
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word1, tvb, 0, 16, ENC_NA);
+    proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word1);
+
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_type,     tvb,  0, 1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_iodnav,   tvb,  0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_t0e,      tvb,  2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_m0,       tvb,  3, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_e,        tvb,  7, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_sqrta,    tvb,  8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_reserved, tvb, 15, 1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_ubx_gal_inav(void) {
 
     static hf_register_info hf[] = {
@@ -195,12 +245,22 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_pad,           {"Pad",           "gal_inav.pad",           FT_UINT8,   BASE_HEX,  NULL,                0x0,                NULL, HFILL}},
 
         // Word 0
-        {&hf_ubx_gal_inav_word0,         {"Word 0",        "gal_inav.word0",         FT_NONE,       BASE_NONE, NULL, 0x0,  NULL, HFILL}},
-        {&hf_ubx_gal_inav_word0_type,    {"Type",          "gal_inav.word0.type",    FT_UINT8,      BASE_HEX,  NULL, 0xfc, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word0_time,    {"Time",          "gal_inav.word0.time",    FT_UINT8,      BASE_HEX,  NULL, 0x03, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word0_spare,   {"Spare",         "gal_inav.word0.spare",   FT_BYTES,      BASE_NONE|SEP_SPACE, NULL, 0x0,  NULL, HFILL}},
-        {&hf_ubx_gal_inav_word0_wn,      {"Week Number",   "gal_inav.word0.wn",      FT_UINT32,     BASE_DEC,  NULL, 0xfff00000,  NULL, HFILL}},
-        {&hf_ubx_gal_inav_word0_tow,     {"Time of Week",  "gal_inav.word0.tow",     FT_UINT32,     BASE_DEC,  NULL, 0x000fffff,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0,         {"Word 0 (Spare Word)", "gal_inav.word0",         FT_NONE,       BASE_NONE, NULL, 0x0,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_type,    {"Type",                "gal_inav.word0.type",    FT_UINT8,      BASE_HEX,  NULL, 0xfc, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_time,    {"Time",                "gal_inav.word0.time",    FT_UINT8,      BASE_HEX,  NULL, 0x03, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_spare,   {"Spare",               "gal_inav.word0.spare",   FT_BYTES,      BASE_NONE|SEP_SPACE, NULL, 0x0,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_wn,      {"Week Number",         "gal_inav.word0.wn",      FT_UINT32,     BASE_DEC,  NULL, 0xfff00000,  NULL, HFILL}},
+        {&hf_ubx_gal_inav_word0_tow,     {"Time of Week",        "gal_inav.word0.tow",     FT_UINT32,     BASE_DEC,  NULL, 0x000fffff,  NULL, HFILL}},
+
+        // Word 1
+        {&hf_ubx_gal_inav_word1,         {"Word 1 (Ephemeris (1/4))",                 "gal_inav.word1",          FT_NONE,   BASE_NONE, NULL, 0x0,    NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_type,    {"Type",                                     "gal_inav.word1.type",     FT_UINT8,  BASE_HEX,  NULL, 0xfc,   NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_iodnav,  {"IOD_nav",                                  "gal_inav.word1.iod_nav",  FT_UINT16, BASE_DEC,  NULL, 0x03ff, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_t0e,     {"Ephemeris reference time (t_0e)",          "gal_inav.word1.t_0e",     FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_t0e), 0xfffc, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_m0,      {"Mean anomaly at reference time (M_0)",     "gal_inav.word1.m_0",      FT_INT64,  BASE_CUSTOM, CF_FUNC(&fmt_m0),     0x03fffffffc000000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_e,       {"Eccentricity (e)",                         "gal_inav.word1.e",        FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_e),      0x03fffffffc000000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_sqrta,   {"Square root of the semi-major axis (" UTF8_SQUARE_ROOT "a)", "gal_inav.word1.sqrt_a",   FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_sqrt_a), 0x00000003fffffffc, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_reserved,{"Reserved",                                 "gal_inav.word1.reserved", FT_UINT8,  BASE_HEX, NULL, 0x03, NULL, HFILL}},
     };
 
     static gint *ett[] = {
@@ -223,4 +283,5 @@ void proto_reg_handoff_ubx_gal_inav(void) {
     dissector_add_uint("ubx.rxm.sfrbx.gnssid", GNSS_ID_GALILEO, create_dissector_handle(dissect_ubx_gal_inav, proto_ubx_gal_inav));
 
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 0, create_dissector_handle(dissect_ubx_gal_inav_word0, proto_ubx_gal_inav));
+    dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 1, create_dissector_handle(dissect_ubx_gal_inav_word1, proto_ubx_gal_inav));
 }
