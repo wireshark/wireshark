@@ -189,11 +189,9 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* Dissect word 0 - I/NAV Spare Word */
 static int dissect_ubx_gal_inav_word0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-    guint8 inav_type = tvb_get_guint8(tvb, 0) >> 2;
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Word 0 (Spare Word)");
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Word %i", inav_type);
-
-    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word0, tvb, 0, 128 / 8, ENC_NA);
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word0, tvb, 0, 16, ENC_NA);
     proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word0);
 
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_type,  tvb,  0,  1, ENC_NA);
