@@ -3660,7 +3660,7 @@ prefs_register_modules(void)
 
     prefs_register_enum_preference(gui_module, "packet_list_elide_mode",
                        "Elide mode",
-                       "The position of \"...\" in packet list text.",
+                       "The position of \"...\" (ellipsis) in packet list text.",
                        (int*)(void*)(&prefs.gui_packet_list_elide_mode), gui_packet_list_elide_mode, false);
     prefs_register_uint_preference(gui_module, "decimal_places1",
             "Count of decimal places for values of type 1",
