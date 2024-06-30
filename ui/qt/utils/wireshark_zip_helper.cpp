@@ -21,8 +21,7 @@
 #include <minizip/unzip.h>
 #include <minizip/zip.h>
 #else
-#include <minizip-ng/unzip.h>
-#include <minizip-ng/zip.h>
+#include <minizip-ng/mz_compat.h>
 #endif
 #include "epan/prefs.h"
 #include "wsutil/file_util.h"

@@ -17,14 +17,14 @@ endif()
 find_path(MINIZIPNG_INCLUDE_DIR
   NAMES
     unzip.h
-    minizip-ng/unzip.h
+    minizip-ng/mz_compat.h
   HINTS
     ${MINIZIPNG_INCLUDE_DIRS}
     "${MINIZIPNG_HINTS}/include"
 )
 
 get_filename_component(MINIZIPNG_PARENT_DIR ${MINIZIPNG_INCLUDE_DIR} DIRECTORY)
-if(EXISTS "${MINIZIPNG_PARENT_DIR}/minizip-ng/unzip.h")
+if(EXISTS "${MINIZIPNG_PARENT_DIR}/minizip-ng/mz_compat.h")
   set(MINIZIPNG_INCLUDE_DIR "${MINIZIPNG_PARENT_DIR}")
 endif()
 
