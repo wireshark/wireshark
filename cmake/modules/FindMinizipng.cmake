@@ -16,7 +16,6 @@ endif()
 
 find_path(MINIZIPNG_INCLUDE_DIR
   NAMES
-    unzip.h
     minizip-ng/mz_compat.h
   HINTS
     ${MINIZIPNG_INCLUDE_DIRS}
@@ -75,13 +74,17 @@ find_library(ZSTD_LIBRARY
 
   list(APPEND MINIZIPNG_LIBRARIES ${ZSTD_LIBRARY})
 
-find_library(Bcrypt_LIBRARY
-  NAMES
-    Bcrypt
-  HINTS
-)
+  if (WIN32)
+    find_library(Bcrypt_LIBRARY
+      NAMES
+	Bcrypt
+      HINTS
+    )
 
-  list(APPEND MINIZIPNG_LIBRARIES ${Bcrypt_LIBRARY})
+    list(APPEND MINIZIPNG_LIBRARIES ${Bcrypt_LIBRARY})
+  endif()
+# do we need openssl on *nix*
+
 
 #  message(STATUS "Minizip-ng, MINIZIPNG_LIBRARIES ${MINIZIPNG_LIBRARIES}")
 
