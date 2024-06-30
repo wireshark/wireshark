@@ -524,9 +524,6 @@ rrc_init(void) {
                        NULL,      /* data pointer, optional */
                        NULL,
                        rrc_free_value);
-
-    /* Global U-RNTI / C-RNTI map to be used in RACH channels */
-    rrc_global_urnti_crnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 static void
@@ -640,6 +637,9 @@ void proto_register_rrc(void) {
                                  "Show NAS PDU in root packet details",
                                  "Whether the NAS PDU should be shown in the root packet details tree",
                                  &rrc_nas_in_root_tree);
+
+    /* Global U-RNTI / C-RNTI map to be used in RACH channels */
+    rrc_global_urnti_crnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 
