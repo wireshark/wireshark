@@ -799,7 +799,7 @@ image::images/ws-help-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===
 |Menu Item|Accelerator|Description
-|menu:Contents[]|F1| This menu item brings up the Wireshark User's Guide you're reading right now.
+|menu:User's Guide[]|F1| This menu item brings up the Wireshark User's Guide you're reading right now.
 |menu:Manual Pages[...]|| This menu item starts a Web browser showing one of the locally installed html manual pages.
 |menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:{wireshark-main-url}[].
 |menu:FAQs[]|| This menu item starts a Web browser showing various FAQs.

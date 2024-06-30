@@ -659,10 +659,11 @@
   </action>
   <action name="actionHelpContents">
    <property name="text">
-    <string>&amp;Contents</string>
+    <string>&amp;User's Guide</string>
    </property>
+   <!-- This tooltip is replaced with the URL -->
    <property name="toolTip">
-    <string>Help contents</string>
+    <string>Wireshark User's Guide</string>
    </property>
    <property name="shortcut">
     <string notr="true">F1</string>
