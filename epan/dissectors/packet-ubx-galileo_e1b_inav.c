@@ -14,9 +14,7 @@
 
 #include "config.h"
 
-#include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/tfs.h>
 #include <wsutil/pint.h>
 
 #include "packet-ubx.h"
