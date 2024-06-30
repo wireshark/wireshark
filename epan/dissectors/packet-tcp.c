@@ -1979,6 +1979,7 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
     tcppd->pnum = ++tcpd->pnum;
 
     nstime_delta(&tcppd->ts_del, &pinfo->abs_ts, &tcpd->ts_prev);
+    tcppd->tcp_snd_manual_analysis = 0;
 
     tcpd->ts_prev.secs=pinfo->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
