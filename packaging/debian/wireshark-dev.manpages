@@ -1,3 +1,3 @@
-obj-*/doc/idl2wrs.1
-obj-*/doc/idl2deb.1
-obj-*/doc/asn2deb.1
+obj-*/doc/man_pages/idl2wrs.1
+obj-*/doc/man_pages/idl2deb.1
+obj-*/doc/man_pages/asn2deb.1

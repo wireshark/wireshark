@@ -24,14 +24,14 @@ set(HTML_INSTALL_FILES)
 
 macro (ADD_MAN_PAGE _page_name _man_section)
 	if(ASCIIDOCTOR_FOUND)
-		list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.html)
+		list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/man_pages/${_page_name}.html)
 
 		if (${_man_section} EQUAL 1)
-			list(APPEND MAN1_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${_page_name}.adoc)
-			list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
+			list(APPEND MAN1_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/man_pages/${_page_name}.adoc)
+			list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/man_pages/${_page_name}.${_man_section})
 		elseif (${_man_section} EQUAL 4)
-			list(APPEND MAN4_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${_page_name}.adoc)
-			list(APPEND MAN4_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
+			list(APPEND MAN4_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/man_pages/${_page_name}.adoc)
+			list(APPEND MAN4_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/man_pages/${_page_name}.${_man_section})
 		else()
 			message(FATAL_ERROR "Unsupported manual page section ${_man_section} for ${_page_name}")
 		endif()
@@ -89,7 +89,7 @@ set(WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN4_FILES ${MAN4_INSTALL_FILES} PARENT_SCOP
 set(LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES ${WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES} PARENT_SCOPE)
 set(LOGRAY_BUNDLE_RESOURCE_SHARE_MAN4_FILES ${WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN4_FILES} PARENT_SCOPE)
 
-set(MAN_INCLUDES diagnostic-options.adoc dissection-options.adoc)
+set(MAN_INCLUDES man_pages/diagnostic-options.adoc man_pages/dissection-options.adoc man_pages/files.adoc)
 
 if(ASCIIDOCTOR_FOUND)
 	ASCIIDOCTOR2ROFFMAN(1 ${MAN1_SOURCE_FILES})

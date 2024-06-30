@@ -142,13 +142,13 @@ if(ASCIIDOCTOR_EXECUTABLE)
     ENDMACRO()
 
     # Generate one or more ROFF man pages
-    MACRO(ASCIIDOCTOR2ROFFMAN _man_section)
+    function(ASCIIDOCTOR2ROFFMAN _man_section)
         set(_input_adoc)
         set(_output_man)
         foreach(_src_file ${ARGN})
             list(APPEND _input_adoc ${_src_file})
             GET_FILENAME_COMPONENT(_source_base_name ${_src_file} NAME_WE )
-            list(APPEND _output_man ${_source_base_name}.${_man_section} )
+            list(APPEND _output_man man_pages/${_source_base_name}.${_man_section} )
         endforeach()
 
         ADD_CUSTOM_COMMAND(
@@ -156,26 +156,23 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 ${_output_man}
             COMMAND ${_asciidoctor_common_command}
                 --backend manpage
-                --destination-dir ${CMAKE_CURRENT_BINARY_DIR}
+                --destination-dir ${CMAKE_CURRENT_BINARY_DIR}/man_pages
                 ${_input_adoc}
             DEPENDS
                 ${MAN_INCLUDES}
                 ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${_input_adoc}
         )
-        unset(_src_file)
-        unset(_input_adoc)
-        unset(_output_man)
-    ENDMACRO()
+    endfunction()
 
     # Generate one or more HTML man pages
-    MACRO(ASCIIDOCTOR2HTMLMAN)
+    function(ASCIIDOCTOR2HTMLMAN)
         set(_input_adoc)
         set(_output_man)
         foreach(_src_file ${ARGN})
             list(APPEND _input_adoc ${_src_file})
             GET_FILENAME_COMPONENT(_source_base_name ${_src_file} NAME_WE )
-            list(APPEND _output_man ${_source_base_name}.html )
+            list(APPEND _output_man man_pages/${_source_base_name}.html )
         endforeach()
 
         ADD_CUSTOM_COMMAND(
@@ -183,17 +180,14 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 ${_output_man}
             COMMAND ${_asciidoctor_common_command}
                 --backend html
-                --destination-dir ${CMAKE_CURRENT_BINARY_DIR}
+                --destination-dir ${CMAKE_CURRENT_BINARY_DIR}/man_pages
                 ${_input_adoc}
             DEPENDS
                 ${MAN_INCLUDES}
                 ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${_input_adoc}
         )
-        unset(_src_file)
-        unset(_input_adoc)
-        unset(_output_man)
-    ENDMACRO()
+    endfunction()
 
     # news: release-notes.txt
     #         ${CMAKE_COMMAND} -E copy_if_different release-notes.txt ../NEWS
