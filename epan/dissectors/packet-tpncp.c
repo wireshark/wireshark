@@ -38,10 +38,6 @@
 
 #define MAX_TPNCP_DB_ENTRY_LEN 3000
 
-#define MAX_TPNCP_DB_SIZE 5000
-#define MAX_ENUMS_NUM 1000
-#define MAX_ENUM_ENTRIES 1000
-
 /*---------------------------------------------------------------------------*/
 
 void proto_register_tpncp(void);
@@ -78,13 +74,13 @@ typedef struct tpncp_data_field_info
  * Desegmentation of TPNCP over TCP */
 static gboolean tpncp_desegment = TRUE;
 
-/* Database for storing information about all TPNCP events.
- * XXX: ToDo: allocate at runtime as needed*/
-static tpncp_data_field_info tpncp_events_info_db[MAX_TPNCP_DB_SIZE];
+/* Database for storing information about all TPNCP events. */
+static tpncp_data_field_info **tpncp_events_info_db;
+guint tpncp_events_info_len;
 
-/* Database for storing information about all TPNCP commands.
- * XXX: ToDo: allocate at runtime as needed*/
-static tpncp_data_field_info tpncp_commands_info_db[MAX_TPNCP_DB_SIZE];
+/* Database for storing information about all TPNCP commands. */
+static tpncp_data_field_info **tpncp_commands_info_db;
+guint tpncp_commands_info_len;
 
 /* Global variables for bitfields representation. */
 static gint bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
@@ -111,13 +107,11 @@ static bool global_tpncp_load_db;
 static dissector_handle_t tpncp_handle;
 static dissector_handle_t tpncp_tcp_handle;
 
-/* XXX: ToDo: allocate at runtime as needed
- *      The following allocates something on the order of 2M of static memory !
- *      Also: Runtime value_string_ext arrays should be used*/
-static value_string tpncp_commands_id_vals[MAX_TPNCP_DB_SIZE];
-static value_string tpncp_events_id_vals[MAX_TPNCP_DB_SIZE];
-static value_string tpncp_enums_id_vals[MAX_ENUMS_NUM][MAX_ENUM_ENTRIES];
-static gchar *tpncp_enums_name_vals[MAX_ENUMS_NUM];
+/* TODO: Runtime value_string_ext arrays should be used*/
+static value_string *tpncp_commands_id_vals;
+static value_string *tpncp_events_id_vals;
+static value_string **tpncp_enums_id_vals;
+static gchar **tpncp_enums_name_vals;
 
 static gint hf_size;
 static gint hf_allocated;
@@ -135,7 +129,7 @@ enum AddressFamily {
 
 static void
 dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
-                   gint *offset, tpncp_data_field_info *data_fields_info, gint ver, guint encoding)
+                   gint *offset, tpncp_data_field_info **data_fields_info, gint ver, guint encoding)
 {
     gint8 g_char;
     guint8 g_uchar;
@@ -147,7 +141,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
     gint channel_b_offset = 0, rtp_tx_state_offset = 0, rtp_state_size = 0;
     const gint initial_offset = *offset;
 
-    for (field = &data_fields_info[data_id]; field; field = field->p_next) {
+    for (field = data_fields_info[data_id]; field; field = field->p_next) {
         if (field->since > 0 && field->since > ver)
             continue;
         switch (field->special_type) {
@@ -313,7 +307,7 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             if (len > 8)
                 proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
             offset += 16;
-            if (id < MAX_TPNCP_DB_SIZE && tpncp_events_info_db[id].size && len > 12) {
+            if (id < tpncp_events_info_len && tpncp_events_info_db[id] != NULL && len > 12) {
                 event_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Event: %s (%d)",
@@ -330,7 +324,7 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         if (try_val_to_str(id, tpncp_commands_id_vals)) {
             proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
             offset += 12;
-            if (id < MAX_TPNCP_DB_SIZE && tpncp_commands_info_db[id].size && len > 8) {
+            if (id < tpncp_commands_info_len && tpncp_commands_info_db[id] != NULL && len > 8) {
                 command_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Command: %s (%d)",
@@ -446,32 +440,34 @@ fgetline(gchar *buffer, int size, FILE *file)
 }
 
 static gint
-fill_tpncp_id_vals(value_string string[], FILE *file)
+fill_tpncp_id_vals(value_string **strings, FILE *file)
 {
-    gint i = 0, tpncp_id = 0;
-    gchar *tpncp_name, *line_in_file;
+    wmem_array_t *vs_arr;
+    gchar *line_in_file;
 
     if (file == NULL) return -1;
 
     line_in_file = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
-    line_in_file[0] = 0;
-    tpncp_name = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
-    tpncp_name[0] = 0;
+    vs_arr = wmem_array_new(NULL, sizeof **strings);
 
     while (fgetline(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) && !feof(file)) {
+        gint tpncp_id = 0;
+        gchar tpncp_name[256];
+
         if (!strncmp(line_in_file, "#####", 5))
             break;
         if (sscanf(line_in_file, "%255s %d", tpncp_name, &tpncp_id) == 2) {
-            string[i].strptr = wmem_strdup(wmem_epan_scope(), tpncp_name);
-            string[i].value = (guint32) tpncp_id;
-            if (i >= MAX_TPNCP_DB_SIZE - 1)
-                break;
-            i++;
+            value_string const string = {
+                .value  = (guint32)tpncp_id,
+                .strptr = wmem_strdup(wmem_epan_scope(), tpncp_name)
+            };
+            wmem_array_append_one(vs_arr, string);
         }
     }
 
+    wmem_array_set_null_terminator(vs_arr);
+    *strings = wmem_array_finalize(vs_arr);
     g_free(line_in_file);
-    g_free(tpncp_name);
 
     return 0;
 }
@@ -479,53 +475,60 @@ fill_tpncp_id_vals(value_string string[], FILE *file)
 /*---------------------------------------------------------------------------*/
 
 static gint
-fill_enums_id_vals(FILE *file)
+fill_enums_id_vals(gchar ***enum_names, value_string ***enum_value_strings, FILE *file)
 {
-    gint i = 0, enum_id = 0, enum_val = 0;
-    gboolean first_entry = TRUE;
-    gchar *line_in_file = NULL, *enum_name = NULL, *enum_type = NULL, *enum_str = NULL;
+    wmem_array_t *enum_name_arr, *enum_vs_arr, *enum_vs = NULL;
+    gchar *line_in_file;
+    gchar enum_type[256];
 
     line_in_file = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
-    enum_name = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
-    enum_type = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
-    enum_str = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_type[0] = '\0';
 
-    *line_in_file = *enum_name = *enum_type = *enum_str = 0;
+    enum_name_arr = wmem_array_new(NULL, sizeof **enum_names);
+    enum_vs_arr = wmem_array_new(NULL, sizeof **enum_value_strings);
+
     while (fgetline(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file)) {
+        gchar enum_name[256], enum_str[256];
+        gint enum_id;
+
         if (!strncmp(line_in_file, "#####", 5))
             break;
         if (sscanf(line_in_file, "%255s %255s %d", enum_name, enum_str, &enum_id) == 3) {
-            if (strcmp(enum_type, enum_name)) {
-                if (!first_entry) {
-                    tpncp_enums_id_vals[enum_val][i].strptr = NULL;
-                    tpncp_enums_id_vals[enum_val][i].value = 0;
-                    if (enum_val < (MAX_ENUMS_NUM - 2)) {
-                        enum_val++; i = 0;
-                    } else {
-                        break;
-                    }
-                } else {
-                    first_entry = FALSE;
+            if (strcmp(enum_type, enum_name) != 0) {
+                /* New record. */
+                if (enum_vs != NULL) {
+                    /* The previous enum_vs is now complete. */
+                    wmem_array_set_null_terminator(enum_vs);
+                    value_string *new_enum_vs = wmem_array_finalize(enum_vs);
+                    wmem_array_append_one(enum_vs_arr, new_enum_vs);
                 }
-                tpncp_enums_name_vals[enum_val] = wmem_strdup(wmem_epan_scope(), enum_name);
-                (void) g_strlcpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
+                enum_vs = wmem_array_sized_new(NULL, sizeof ***enum_value_strings, 10);
+
+                gchar *enum_name_alloc = wmem_strdup(wmem_epan_scope(), enum_name);
+                wmem_array_append_one(enum_name_arr, enum_name_alloc);
+                g_strlcpy(enum_type, enum_name, sizeof enum_type);
             }
-            tpncp_enums_id_vals[enum_val][i].strptr = wmem_strdup(wmem_epan_scope(), enum_str);
-            tpncp_enums_id_vals[enum_val][i].value = enum_id;
-            if (i < (MAX_ENUM_ENTRIES - 1)) {
-                i++;
-            } else {
-                break;
-            }
+            value_string const vs = {
+                .value  = enum_id,
+                .strptr = wmem_strdup(wmem_epan_scope(), enum_str)
+            };
+            wmem_array_append_one(enum_vs, vs);
         }
     }
 
-    tpncp_enums_name_vals[enum_val + 1] = NULL;
+    if (enum_vs != NULL) {
+        /* The final enum_vs is now complete. */
+        wmem_array_set_null_terminator(enum_vs);
+        value_string *new_enum_vs = wmem_array_finalize(enum_vs);
+        wmem_array_append_one(enum_vs_arr, new_enum_vs);
+    }
 
+    wmem_array_set_null_terminator(enum_name_arr);
+    *enum_names = (gchar **)wmem_array_finalize(enum_name_arr);
+
+    wmem_array_set_null_terminator(enum_vs_arr);
+    *enum_value_strings = (value_string **)wmem_array_finalize(enum_vs_arr);
     g_free(line_in_file);
-    g_free(enum_name);
-    g_free(enum_type);
-    g_free(enum_str);
 
     return 0;
 }
@@ -564,7 +567,7 @@ static gboolean add_hf(hf_register_info *hf_entr)
 }
 
 static gint
-init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
+init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *data_fields_len, FILE *file)
 {
     static gboolean was_registered = FALSE;
     gchar tpncp_db_entry[MAX_TPNCP_DB_ENTRY_LEN];
@@ -577,9 +580,9 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     guint idx, since, ip_addr_field;
     tpncp_data_field_info *field = NULL;
     hf_register_info hf_entr;
-    gboolean* registered_struct_ids = wmem_alloc0_array(wmem_epan_scope(), gboolean, MAX_TPNCP_DB_SIZE);
+    wmem_array_t *data_fields_info_arr;
 
-    static hf_register_info hf_tpncp[] = {
+    hf_register_info hf_tpncp[] = {
         {
             &hf_tpncp_version,
             {
@@ -704,6 +707,8 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     is_address_family = FALSE;
     ip_addr_field = 0;
 
+    data_fields_info_arr = wmem_array_new(NULL, sizeof **data_fields_info);
+
     /* Register standard data. */
     while (fgetline(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file)) {
         special_type = TPNCP_NORMAL;
@@ -812,18 +817,21 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
 
         is_address_family = FALSE;
         if (current_data_id != data_id) { /* new data */
-            if (data_id >= MAX_TPNCP_DB_SIZE) {
-                report_failure("ERROR! The data_id %d is too large.", data_id);
-                continue;
+            tpncp_data_field_info **fp;
+
+            while (wmem_array_get_count(data_fields_info_arr) <= (guint)data_id) {
+                static const tpncp_data_field_info **empty = NULL;
+                wmem_array_append_one(data_fields_info_arr, empty);
             }
-            if (registered_struct_ids[data_id] == TRUE) {
+            fp = (tpncp_data_field_info **)wmem_array_index(data_fields_info_arr, data_id);
+            if (*fp != NULL) {
                 report_failure(
                     "ERROR! The data_id %d already registered. Cannot register two identical events/command",
                     data_id);
                 continue;
             }
-            registered_struct_ids[data_id] = TRUE;
-            field = &data_fields_info[data_id];
+            field = wmem_new0(wmem_epan_scope(), tpncp_data_field_info);
+            *fp = field;
             current_data_id = data_id;
         } else {
             field->p_next = wmem_new(wmem_epan_scope(), tpncp_data_field_info);
@@ -899,6 +907,9 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
         field->since = since;
     }
 
+    *data_fields_len = wmem_array_get_count(data_fields_info_arr);
+    *data_fields_info = (tpncp_data_field_info **)wmem_array_finalize(data_fields_info_arr);
+
     return 0;
 }
 
@@ -916,11 +927,11 @@ init_tpncp_db(void)
     /* Open file with TPNCP data. */
     if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL)
         return (-1);
-    fill_tpncp_id_vals(tpncp_events_id_vals, file);
-    fill_tpncp_id_vals(tpncp_commands_id_vals, file);
-    fill_enums_id_vals(file);
-    init_tpncp_data_fields_info(tpncp_events_info_db, file);
-    init_tpncp_data_fields_info(tpncp_commands_info_db, file);
+    fill_tpncp_id_vals(&tpncp_events_id_vals, file);
+    fill_tpncp_id_vals(&tpncp_commands_id_vals, file);
+    fill_enums_id_vals(&tpncp_enums_name_vals, &tpncp_enums_id_vals, file);
+    init_tpncp_data_fields_info(&tpncp_events_info_db, &tpncp_events_info_len, file);
+    init_tpncp_data_fields_info(&tpncp_commands_info_db, &tpncp_commands_info_len, file);
 
     fclose(file);
     return 0;
