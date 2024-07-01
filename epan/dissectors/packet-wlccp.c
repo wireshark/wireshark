@@ -3399,7 +3399,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_scm_bridge_disable_flag,
 		  { "Bridge disable flag", "wlccp.scm_bridge_disable_flag",
 		    FT_UINT8, BASE_DEC, NULL,
-		    F_SCM_BRIDGE_DISABLE, "Set to on to indicate that secondary briding is disabled", HFILL }
+		    F_SCM_BRIDGE_DISABLE, "Set to on to indicate that secondary bridging is disabled", HFILL }
 		},
 
 		{ &hf_wlccp_scm_node_id,

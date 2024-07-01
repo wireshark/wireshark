@@ -2224,7 +2224,7 @@ proto_register_elf(void)
         { &hf_elf_eh_frame_code_alignment_factor,
             { "Code Alignment Factor",                     "elf.eh_frame.code_alignment_factor",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "An unsigned LEB128 encoded value that is factored out of all advance location instructions that are associated with this CIE or its FDEs. This value shall be multiplied by the delta argument of an adavance location instruction to obtain the new location value.", HFILL }
+            "An unsigned LEB128 encoded value that is factored out of all advance location instructions that are associated with this CIE or its FDEs. This value shall be multiplied by the delta argument of an advance location instruction to obtain the new location value.", HFILL }
         },
         { &hf_elf_eh_frame_data_alignment_factor,
             { "Data Alignment Factor",                     "elf.eh_frame.data_alignment_factor",

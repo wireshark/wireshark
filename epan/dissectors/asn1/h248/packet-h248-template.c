@@ -482,7 +482,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
         if ( c->msg->committed ) {
             if (wildcard == GCP_WILDCARD_ALL) {
                 for (ct = c->ctx->terms.next; ct; ct = ct->next) {
-                    /* XXX not handling more wilcards in one msg */
+                    /* XXX not handling more wildcards in one msg */
                     if ( ct->term->start == m ) {
                         return ct->term;
                     }
@@ -527,7 +527,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                     return ct->term;
                 } else {
                     for (ct = c->ctx->terms.next; ct; ct = ct->next) {
-                        /* XXX not handling more wilcards in one msg */
+                        /* XXX not handling more wildcards in one msg */
                         if ( ct->term->buffer == NULL && tr->cmds->cmd->msg == ct->term->start ) {
                             ct->term->str = wmem_strdup(wmem_file_scope(), t->str);
                             ct->term->buffer = (const guint8 *)wmem_memdup(wmem_file_scope(), t->buffer,t->len);
@@ -1710,7 +1710,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
         wmem_tree_insert32(packages, pkg->id, s_pkg);
         return;
     };
-    if(pkg_default) reg_action = MERGE_PKG_HIGH; /* always make new package overide default */
+    if(pkg_default) reg_action = MERGE_PKG_HIGH; /* always make new package override default */
     s_pkg = s_find_package_id(pkg->id);
     if (s_pkg == NULL) { /* no need to merge - package not in tree */
         s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);

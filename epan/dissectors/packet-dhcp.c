@@ -2137,7 +2137,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	ti_value = proto_tree_add_item(v_tree, hf_dhcp_option_value, tvb, voff+2, optlen, ENC_NA);
 	proto_item_set_hidden(ti_value);
 
-	/* prepate data for dissector table */
+	/* prepare data for dissector table */
 	option_tvb = tvb_new_subset_length(tvb, voff+2, optlen);
 	option_data.option = code;
 	option_data.overload = overload_p;

@@ -3497,7 +3497,7 @@ typedef struct _fix_field {
     static const  value_string TargetStrategy_val[] = {
         { 1, "VWAP" },
         { 2, "PARTICIPATE" },
-        { 3, "MININIZE MARKET IMPACT" },
+        { 3, "MINIMIZE MARKET IMPACT" },
         { 0, NULL }
     };
 

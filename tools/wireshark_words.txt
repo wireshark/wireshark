@@ -286,6 +286,7 @@ ccache
 cccid
 ccitt
 ccpch
+ccsds
 ccsid
 cctrch
 cdma2000
@@ -341,6 +342,7 @@ cipso
 circularly
 citrix
 cksum
+clasportinfo
 classifiers
 classmark
 classmark3
@@ -391,6 +393,7 @@ comcast
 commaize
 comms
 communication
+commview
 companded
 compat
 compatibiity
@@ -464,6 +467,7 @@ ctxinst
 ctype
 cumulated
 cumulatively
+curvezmq
 customizable
 customization
 customizing
@@ -876,6 +880,7 @@ gentoo
 geoip
 geolocation
 geonw
+geospatial
 geostd
 gerald
 geran
@@ -943,6 +948,7 @@ hbreq
 hcidump
 headend
 hebrew
+heimdal
 hellman
 heuristic
 heuristicly
@@ -1050,6 +1056,7 @@ initializing
 initiators
 inkey
 inline
+inlined
 inmarsat
 inoage
 inode
@@ -1223,6 +1230,7 @@ loran
 lossy
 lsarpc
 lscap
+lsflags
 lstat
 ltype
 lucent
@@ -1475,6 +1483,7 @@ notational
 notif
 notifier
 notset
+notsupp
 notused
 novell
 november
@@ -1565,6 +1574,7 @@ optimizations
 optimizer
 optiplex
 optreq
+optrsp
 optus
 ordinal
 organisation
@@ -1769,6 +1779,7 @@ quiesce
 quiescing
 quintuplet
 quintuplets
+quotactl
 r3info
 radcom
 radeon
@@ -1883,6 +1894,7 @@ remapping
 remediation
 removability
 renegotiation
+renesas
 renumbering
 reoptimization
 reoptimized
@@ -2061,6 +2073,7 @@ serialization
 serialize
 serialized
 serializes
+serverlst
 servlet
 sessionid
 sessionkey
@@ -2096,6 +2109,7 @@ signaling
 signon
 simplestatusbit
 simulcast
+simulcrypt
 singulation
 sinsp
 sinteger
@@ -2158,6 +2172,7 @@ srcport
 srtcp
 srvcc
 srvsvc
+ss7pcs
 sscop
 sshdump
 sshkey
@@ -2165,12 +2180,14 @@ ssupervisor
 stainfo
 stanag
 standardization
+starttls
 stateful
 statfs
 statsum
 statusbar
 stderr
 stdin
+stdio
 stdout
 steinigke
 stevens
@@ -2253,10 +2270,13 @@ symantec
 symbl
 symlink
 synchronisation
+synchronise
+synchronised
 synchronizer
 synchronizing
 synchronously
 syncman
+syncookie
 syniverse
 synphasor
 syntaxes

@@ -460,7 +460,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_3GPP2
-#define ETHERTYPE_3GPP2			0x88D2	/* This will be used in a revision of the Interoperabi */
+#define ETHERTYPE_3GPP2			0x88D2	/* This will be used in a revision of the Interoperability */
 #endif						/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
 						/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 

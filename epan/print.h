@@ -90,7 +90,7 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
 #define HEXDUMP_SOURCE_MASK           (0x0004U)
 #define HEXDUMP_SOURCE_OPTION(option) ((option) & HEXDUMP_SOURCE_MASK)
 
-#define HEXDUMP_SOURCE_MULTI          (0x0000U) /* create hexdumps for all data sources assigned to a frame (legacy tshark behavor) */
+#define HEXDUMP_SOURCE_MULTI          (0x0000U) /* create hexdumps for all data sources assigned to a frame (legacy tshark behaviour) */
 #define HEXDUMP_SOURCE_PRIMARY        (0x0004U) /* create hexdumps for only the frame data */
 
 WS_DLL_PUBLIC bool print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options);
