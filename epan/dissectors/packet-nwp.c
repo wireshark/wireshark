@@ -88,7 +88,7 @@ static const value_string nwp_type_vals[] = {
 };
 
 static void
-add_hid_to_strbuf(tvbuff_t *tvb, wmem_strbuf_t *hid_buf, guint8 offset)
+add_hid_to_strbuf(tvbuff_t *tvb, wmem_strbuf_t *hid_buf, gint offset)
 {
 	int i;
 	for (i = 0; i < NWP_XID_LEN / NWP_XID_CHUNK_LEN; i++) {
@@ -107,7 +107,7 @@ dissect_nwp_ann(tvbuff_t *tvb, proto_tree *nwp_tree, guint8 hid_count,
 
 	wmem_strbuf_t *buf;
 	guint i;
-	guint8 offset;
+	gint offset;
 
 	/* Add hardware address. */
 	proto_tree_add_item(nwp_tree, hf_nwp_ann_haddr, tvb, NWPH_HWAD,
@@ -154,7 +154,7 @@ dissect_nwp_nl(tvbuff_t *tvb, proto_tree *nwp_tree, guint8 hid_count,
 	proto_item *pi = NULL;
 
 	guint i;
-	guint8 offset = NWPH_NLST;
+	gint  offset = NWPH_NLST;
 
 	wmem_strbuf_t *hid_buf = wmem_strbuf_new_sized(wmem_packet_scope(),
 		NWP_HID_STR_LEN);
@@ -194,7 +194,7 @@ dissect_nwp_nl(tvbuff_t *tvb, proto_tree *nwp_tree, guint8 hid_count,
 			proto_tree_add_item(neigh_tree, hf_nwp_neigh_haddr,
 				tvb, offset + (j * ha_len), ha_len, ENC_NA);
 
-		offset += ha_len * ha_count;
+		offset += (ha_len * ha_count);
 	}
 }
 

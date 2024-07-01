@@ -567,7 +567,7 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 	static uint8_t pldmT = -1;
 	guint8 instID = data->instance_id;
 	guint8 request = data->direction;
-	guint8 offset = 0;
+	gint   offset = 0;
 	guint32 pldm_cmd, completion_code;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_base_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
@@ -718,7 +718,7 @@ static
 int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, const pldm_packet_data *data)
 {
 	guint8 request = data->direction;
-	guint8 offset = 0;
+	gint   offset = 0;
 	guint32 pldm_cmd, completion_code;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_platform_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;

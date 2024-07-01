@@ -399,7 +399,7 @@ xia_ntop(const struct xia_addr *src, wmem_strbuf_t *buf)
 static void
 construct_dag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *xip_tree,
 	const gint ett, const gint hf, const gint hf_entry,
-	const guint8 num_nodes, guint8 offset)
+	const guint8 num_nodes, gint offset)
 {
 	proto_tree *dag_tree;
 	proto_item *ti;
@@ -407,7 +407,7 @@ construct_dag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *xip_tree,
 	wmem_strbuf_t *buf;
 	const gchar *dag_str;
 	guint i, j;
-	guint8 dag_offset = offset;
+	gint dag_offset = offset;
 
 	ti = proto_tree_add_item(xip_tree, hf, tvb, offset,
 		num_nodes * XIA_NODE_SIZE, ENC_BIG_ENDIAN);

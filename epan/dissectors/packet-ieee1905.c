@@ -4324,7 +4324,7 @@ static int
 dissect_measurement_report(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree)
 {
-    guint8 offset = 0;
+    gint  offset = 0;
     guint rep_len = tvb_reported_length_remaining(tvb, offset);
 
     proto_tree_add_item(tree, hf_ieee1905_measurement_report, tvb, offset,

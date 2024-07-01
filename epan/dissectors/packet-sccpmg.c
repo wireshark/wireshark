@@ -124,7 +124,7 @@ dissect_sccpmg_affected_ssn(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
-	guint8 offset = SCCPMG_AFFECTED_PC_OFFSET;
+	gint offset = SCCPMG_AFFECTED_PC_OFFSET;
 
 	if (mtp3_standard == ITU_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_itu_pc, tvb,
@@ -155,7 +155,7 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
-	guint8 offset = 0;
+	gint offset = 0;
 
 	if (mtp3_standard == ITU_STANDARD || mtp3_standard == JAPAN_STANDARD)
 		offset = ITU_SCCPMG_SMI_OFFSET;
@@ -169,7 +169,7 @@ dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_congestion_level(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
-	guint8 offset = 0;
+	gint offset = 0;
 
 	if (mtp3_standard == CHINESE_ITU_STANDARD)
 		offset = CHINESE_ITU_SCCPMG_CONGESTION_OFFSET;

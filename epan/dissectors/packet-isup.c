@@ -6101,7 +6101,7 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
   guint  length = tvb_reported_length(parameter_tvb);
   guint  len    = length;
   guint8 upgraded_parameter, upgraded_parameter_no;
-  guint8 offset;
+  gint   offset;
   guint8 instruction_indicators;
 
   static int * const indicator_flags[] = {
@@ -6121,34 +6121,32 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
 /* etxrab Decoded as per Q.763 section 3.41 */
 
   while (len > 0) {
-  upgraded_parameter_no = upgraded_parameter_no + 1;
-  upgraded_parameter = tvb_get_guint8(parameter_tvb, offset);
+    upgraded_parameter_no = upgraded_parameter_no + 1;
+    upgraded_parameter = tvb_get_guint8(parameter_tvb, offset);
 
-  proto_tree_add_uint_format(parameter_tree, hf_isup_upgraded_parameter, parameter_tvb, offset, 1, upgraded_parameter,
-                      "Upgraded parameter no: %u = %s", upgraded_parameter_no,
-                      val_to_str_ext(upgraded_parameter, &isup_parameter_type_value_ext, "unknown (%u)"));
-  offset += 1;
-  len -= 1;
-  instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
-  proto_tree_add_bitmask(parameter_tree, parameter_tvb, offset, hf_isup_instruction_indicators, ett_instruction_indicators, indicator_flags, ENC_NA);
-
-  offset += 1;
-  len -= 1;
-  if (!(instruction_indicators & H_8BIT_MASK)) {
-    if (len == 0)
-      return;
-    instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
-    proto_tree_add_uint(parameter_tree, hf_isup_Broadband_narrowband_interworking_ind,
-                        parameter_tvb, offset, 1, instruction_indicators);
+    proto_tree_add_uint_format(parameter_tree, hf_isup_upgraded_parameter, parameter_tvb, offset, 1, upgraded_parameter,
+                              "Upgraded parameter no: %u = %s", upgraded_parameter_no,
+                              val_to_str_ext(upgraded_parameter, &isup_parameter_type_value_ext, "unknown (%u)"));
     offset += 1;
     len -= 1;
-  }
-   if (len == 0)
-   return;
-  ;
- }
-/* etxrab */
+    instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
+    proto_tree_add_bitmask(parameter_tree, parameter_tvb, offset, hf_isup_instruction_indicators, ett_instruction_indicators, indicator_flags, ENC_NA);
 
+    offset += 1;
+    len -= 1;
+    if (!(instruction_indicators & H_8BIT_MASK)) {
+      if (len == 0)
+        return;
+      instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
+      proto_tree_add_uint(parameter_tree, hf_isup_Broadband_narrowband_interworking_ind,
+                          parameter_tvb, offset, 1, instruction_indicators);
+      offset += 1;
+      len -= 1;
+    }
+
+    if (len == 0)
+      return;
+  }
 }
 /* ------------------------------------------------------------------
   Dissector Parameter MLPP precedence

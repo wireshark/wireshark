@@ -430,7 +430,8 @@ static int
 dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
-    guint8 offset = 0, type, subtype;
+    gint offset = 0;
+    guint8 type, subtype;
     proto_tree *subtree;
     proto_tree *subtree_capabilities;
     proto_item *subitem_capabilities;
