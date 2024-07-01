@@ -261,7 +261,7 @@ blk_cmnt_stop  "*/"
 	}
 }
 
-<OUTSIDE>{comment}			;
+<OUTSIDE>{comment}			yyextra->current_frame->linenum++;
 
 <OUTSIDE>{blk_cmnt_start}		BEGIN COMMENT;
 <COMMENT>{cmnt_char}			;

@@ -190,11 +190,15 @@ DIAG_ON_LEMON()
 %extra_argument { mate_config* mc }
 
 %syntax_error {
-	configuration_error(mc,"Syntax Error before %s",yyminor);
+	if(yyminor == NULL) {
+		configuration_error(mc,"Syntax error detected before end of file.");
+	} else {
+		configuration_error(mc,"Syntax error at or before \"%s\"",yyminor);
+	}
 }
 
 %parse_failure {
-	configuration_error(mc,"Parse Error");
+	configuration_error(mc,"Parse error");
 }
 
 %type   transform_decl  { AVPL_Transf* }
