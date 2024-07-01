@@ -138,6 +138,7 @@ static const value_string y_axis_packet_vs[] = {
     { IOG_ITEM_UNIT_CALC_MAX, "MAX(Y Field)" },
     { IOG_ITEM_UNIT_CALC_MIN, "MIN(Y Field)" },
     { IOG_ITEM_UNIT_CALC_AVERAGE, "AVG(Y Field)" },
+    { IOG_ITEM_UNIT_CALC_THROUGHPUT, "THROUGHPUT(Y Field)" },
     { IOG_ITEM_UNIT_CALC_LOAD, "LOAD(Y Field)" },
     { 0, NULL }
 };

@@ -54,6 +54,7 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
             "MAX",
             "MIN",
             "AVG",
+            "THROUGHPUT",
             "LOAD",
             NULL
         };
@@ -110,6 +111,7 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
             case IOG_ITEM_UNIT_CALC_MAX:
             case IOG_ITEM_UNIT_CALC_MIN:
             case IOG_ITEM_UNIT_CALC_AVERAGE:
+            case IOG_ITEM_UNIT_CALC_THROUGHPUT:
             case IOG_ITEM_UNIT_CALC_LOAD:
                 break;
             default:
@@ -191,6 +193,9 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
         case IOG_ITEM_UNIT_CALC_MIN:
             value = item->int_min;
             break;
+        case IOG_ITEM_UNIT_CALC_THROUGHPUT:
+            value = item->double_tot*(8*1000000/interval_);
+            break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
                 value = item->double_tot / item->fields;
@@ -220,6 +225,9 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             break;
         case IOG_ITEM_UNIT_CALC_MIN:
             value = item->uint_min;
+            break;
+        case IOG_ITEM_UNIT_CALC_THROUGHPUT:
+            value = item->double_tot*(8*1000000/interval_);
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {

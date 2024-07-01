@@ -465,6 +465,9 @@ LOAD(Y Field):::
 If the “Y Field” is a relative time value, this is the sum of the “Y Field” values divided by the interval time.
 This can be useful for tracking response times.
 
+THROUGHPUT(Y Field):::
+If the “Y Field” is a payload counted in Bytes (as frame.len, ip.len, ipv6.plen..), this is the throughput expressed in bits per second.
+
 Y Field::
 The display filter field from which to extract values for the Y axis calculations listed above.
 

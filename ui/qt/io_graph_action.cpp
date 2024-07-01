@@ -52,6 +52,8 @@ const QString IOGraphAction::unitName(io_graph_item_unit_t unit) {
         return QObject::tr("MIN");
     case IOG_ITEM_UNIT_CALC_AVERAGE:
         return QObject::tr("AVERAGE");
+    case IOG_ITEM_UNIT_CALC_THROUGHPUT:
+        return QObject::tr("THROUGHPUT");
     case IOG_ITEM_UNIT_CALC_LOAD:
         return QObject::tr("LOAD");
     default:
@@ -71,6 +73,7 @@ QList<io_graph_item_unit_t> IOGraphAction::unitTypes(const FieldInformation::Hea
         << IOG_ITEM_UNIT_CALC_FIELDS
         << IOG_ITEM_UNIT_CALC_MAX
         << IOG_ITEM_UNIT_CALC_MIN
+        << IOG_ITEM_UNIT_CALC_THROUGHPUT
         << IOG_ITEM_UNIT_CALC_AVERAGE;
 
     static const QList<io_graph_item_unit_t> time_types_ = QList<io_graph_item_unit_t>(number_types_)
