@@ -391,42 +391,42 @@ main(int argc, char *argv[])
             break;
 
         case MERGE_ERR_CANT_OPEN_INFILE:
-            cfile_open_failure_message(argv[ws_optind + err_fileno], err, err_info);
+            report_cfile_open_failure(argv[ws_optind + err_fileno], err, err_info);
             break;
 
         case MERGE_ERR_CANT_OPEN_OUTFILE:
-            cfile_dump_open_failure_message(out_filename, err, err_info, file_type);
+            report_cfile_dump_open_failure(out_filename, err, err_info, file_type);
             break;
 
         case MERGE_ERR_CANT_READ_INFILE:
-            cfile_read_failure_message(argv[ws_optind + err_fileno], err, err_info);
+            report_cfile_read_failure(argv[ws_optind + err_fileno], err, err_info);
             break;
 
         case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
-            cmdarg_err("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
+            report_failure("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
                     err_framenum, argv[ws_optind + err_fileno]);
             break;
 
         case MERGE_ERR_CANT_WRITE_OUTFILE:
-            cfile_write_failure_message(argv[ws_optind + err_fileno], out_filename,
+            report_cfile_write_failure(argv[ws_optind + err_fileno], out_filename,
                     err, err_info, err_framenum, file_type);
             break;
 
         case MERGE_ERR_CANT_CLOSE_OUTFILE:
-            cfile_close_failure_message(out_filename, err, err_info);
+            report_cfile_close_failure(out_filename, err, err_info);
             break;
 
         case MERGE_ERR_INVALID_OPTION:
             if (err_info) {
-                cmdarg_err("%s", err_info);
+                report_failure("%s", err_info);
             }
             else {
-                cmdarg_err("Unspecified error with merge option");
+                report_failure("Unspecified error with merge option");
             }
             break;
 
         default:
-            cmdarg_err("Unknown merge_files error %d", status);
+            report_failure("Unknown merge_files error %d", status);
             break;
     }
 
