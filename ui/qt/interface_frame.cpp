@@ -226,7 +226,7 @@ void InterfaceFrame::scanLocalInterfaces(GList *filter_list)
         mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
         scan_mutex.unlock();
     } else {
-        qWarning() << "scan mutex locked, can't scan interfaces";
+        qDebug() << "scan mutex locked, can't scan interfaces";
     }
 }
 #endif // HAVE_LIBPCAP
