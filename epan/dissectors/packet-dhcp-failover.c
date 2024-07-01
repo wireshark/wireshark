@@ -664,12 +664,12 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				}
 				proto_tree_add_item(option_tree,
 					hf_dhcpfo_ms_client_scope, tvb,	offset, 4, ENC_LITTLE_ENDIAN);
-				guint32 scope = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+				uint32_t scope = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
 				htype = tvb_get_guint8(tvb, offset+4);
 				htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1+4, option_length-1-4,
 					htype);
-				proto_item_append_text(oi, ", %s, client DHCP scope: %u.%u.%u.%u",
-					htype_str, scope >> 24, scope >> 16 & 0xff, scope >> 8 & 0xff, scope & 0xff);
+				proto_item_append_text(oi, ", %s, client DHCP scope: %s",
+					htype_str, ip_num_to_str(pinfo->pool, scope));
 
 				proto_tree_add_item(option_tree, hf_dhcpfo_client_hw_type, tvb,
 					offset+4, 1, ENC_BIG_ENDIAN);
