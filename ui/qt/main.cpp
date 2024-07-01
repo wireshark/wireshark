@@ -208,6 +208,15 @@ gather_wireshark_qt_compiled_info(feature_list l)
 #endif
     gather_caplibs_compile_info(l);
     epan_gather_compile_info(l);
+#ifdef HAVE_MINIZIPNG
+    with_feature(l, "Minizip-ng %s", MINIZIPNG_VERSION);
+#else
+#ifdef HAVE_MINIZIP
+    with_feature(l, "Minizip %s", MINIZIP_VERSION);
+#else
+    without_feature(l, "Minizip");
+#endif
+#endif /* HAVE_MINIZIPNG */
 #ifdef QT_MULTIMEDIA_LIB
     with_feature(l, "QtMultimedia");
 #else
@@ -234,16 +243,6 @@ gather_wireshark_qt_compiled_info(feature_list l)
     without_feature(l, "AirPcap");
 #endif
 #endif /* _WIN32 */
-
-#ifdef HAVE_MINIZIPNG
-    with_feature(l, "Minizip-ng");
-#else
-#ifdef HAVE_MINIZIP
-    with_feature(l, "Minizip");
-#else
-    without_feature(l, "Minizip");
-#endif
-#endif /* HAVE_MINIZIPNG*/
 }
 
 void
