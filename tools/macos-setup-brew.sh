@@ -116,6 +116,7 @@ ADDITIONAL_LIST=(
     lua
     lz4
     minizip
+    minizip-ng
     opencore-amr
     opus
     snappy

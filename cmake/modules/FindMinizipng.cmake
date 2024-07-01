@@ -16,6 +16,7 @@ endif()
 
 find_path(MINIZIPNG_INCLUDE_DIR
   NAMES
+    mz_compat.h
     minizip-ng/mz_compat.h
   HINTS
     ${MINIZIPNG_INCLUDE_DIRS}
@@ -29,10 +30,13 @@ endif()
 
 find_library(MINIZIPNG_LIBRARY
   NAMES
-    libminizip-ng
+    libminizip-ng minizip-ng
   HINTS
     ${MINIZIPNG_LIBRARY_DIRS}
-    "${MINIZIPNG_HINTS}/lib"
+    ${MINIZIPNG_HINTS}/lib
+  PATH
+    /opt
+    /opt/homebrew/lib
 )
 
 include(FindPackageHandleStandardArgs)
@@ -42,7 +46,6 @@ find_package_handle_standard_args(Minizipng
 
 if(MINIZIPNG_FOUND)
   set(MINIZIPNG_LIBRARIES ${MINIZIPNG_LIBRARY}
-    CACHE PATH "Path to Minizip Library"
   )
 
 find_library(BZ2_LIBRARY
