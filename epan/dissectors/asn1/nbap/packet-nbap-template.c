@@ -617,17 +617,9 @@ static void delete_setup_conv(nbap_setup_conv_t *conv)
 
 static void nbap_init(void){
   guint8 i;
-  /*Initialize*/
-  com_context_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-
-  /*Initialize structure for muxed flow indication*/
-  edch_flow_port_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
   /*Initialize Setup Conversation hash table*/
   nbap_setup_conv_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-  /*Initializing Scrambling Code to C-RNC Context & C-RNC Context to U-RNTI maps*/
-  nbap_scrambling_code_crncc_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-  nbap_crncc_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
   for (i = 0; i < 15; i++) {
     lchId_type_table[i+1] = lch_contents[i];
@@ -803,6 +795,15 @@ void proto_register_nbap(void)
   nbap_proc_uout_dissector_table = register_dissector_table("nbap.proc.uout", "NBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_nbap, FT_STRING, STRING_CASE_SENSITIVE);
 
   register_init_routine(nbap_init);
+
+  com_context_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+  /*Initialize structure for muxed flow indication*/
+  edch_flow_port_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+  /*Initializing Scrambling Code to C-RNC Context & C-RNC Context to U-RNTI maps*/
+  nbap_scrambling_code_crncc_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+  nbap_crncc_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 /*
