@@ -864,7 +864,7 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
 
         if (*err != 0)
         {
-            if (*err != WTAP_ERR_SHORT_READ)
+            if (*err == WTAP_ERR_SHORT_READ)
             {
                 /* Incomplete header, so not ours. */
                 g_free(clLog);
