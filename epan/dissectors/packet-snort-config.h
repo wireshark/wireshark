@@ -37,39 +37,39 @@ typedef struct content_t {
     content_type_t content_type;
 
     char     *str;
-    gboolean negation;        /* i.e. pattern must not appear */
-    gboolean nocase;          /* when set, do case insensitive match */
+    bool     negation;        /* i.e. pattern must not appear */
+    bool     nocase;          /* when set, do case insensitive match */
 
-    gboolean offset_set;  /* Where to start looking within packet. -65535 -> 65535 */
+    bool     offset_set;  /* Where to start looking within packet. -65535 -> 65535 */
     gint     offset;
 
     guint    depth;       /* How far to look into packet.  Can't be 0 */
 
-    gboolean distance_set;
+    bool     distance_set;
     gint     distance;    /* Same as offset but relative to last match. -65535 -> 65535 */
 
     guint    within;      /* Most bytes from end of previous match. Max 65535 */
 
-    gboolean fastpattern; /* Is most distinctive content in rule */
+    bool     fastpattern; /* Is most distinctive content in rule */
 
-    gboolean rawbytes;    /* Match should be done against raw bytes (which we do anyway) */
+    bool     rawbytes;    /* Match should be done against raw bytes (which we do anyway) */
 
     /* http preprocessor modifiers */
-    gboolean http_method;
-    gboolean http_client_body;
-    gboolean http_cookie;
-    gboolean http_user_agent;
+    bool http_method;
+    bool http_client_body;
+    bool http_cookie;
+    bool http_user_agent;
 
     /* Pattern converted into bytes for matching against packet.
        Used for regular patterns and PCREs alike. */
     guchar   *translated_str;
-    gboolean translated;
+    bool translated;
     guint    translated_length;
 
-    gboolean pcre_case_insensitive;
-    gboolean pcre_dot_includes_newline;
-    gboolean pcre_raw;
-    gboolean pcre_multiline;
+    bool pcre_case_insensitive;
+    bool pcre_dot_includes_newline;
+    bool pcre_raw;
+    bool pcre_multiline;
 } content_t;
 
 /* This is to keep track of a variable referenced by a rule */
@@ -80,7 +80,7 @@ typedef struct used_variable_t {
 
 /* The collection of variables referenced by a rule */
 typedef struct relevant_vars_t {
-    gboolean relevant_vars_set;
+    bool  relevant_vars_set;
 
     #define MAX_RULE_PORT_VARS 6
     guint num_port_vars;
@@ -136,7 +136,7 @@ typedef struct SnortConfig_t
     GHashTable *portvars;
 
     char     *rule_path;
-    gboolean rule_path_is_absolute;
+    bool     rule_path_is_absolute;
 
     /* (sid -> Rule_t*) table */
     GHashTable *rules;
@@ -176,7 +176,7 @@ void reset_global_rule_stats(SnortConfig_t *snort_config);
 /* Expanding a content field string to the expected binary bytes */
 guint content_convert_to_binary(content_t *content);
 
-gboolean content_convert_pcre_for_regex(content_t *content);
+bool content_convert_pcre_for_regex(content_t *content);
 
 #endif
 

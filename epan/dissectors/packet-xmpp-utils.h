@@ -32,7 +32,7 @@ typedef struct _xmpp_attr_t{
     gint offset;
     gint length;
 
-    gboolean was_read;
+    bool was_read;
 } xmpp_attr_t;
 
 typedef struct _xmpp_data_t{
@@ -58,15 +58,15 @@ typedef struct _xmpp_element_t{
     gint offset;
     gint length;
 
-    gboolean was_read;
+    bool was_read;
 } xmpp_element_t;
 
 /*informations about attributes that are displayed in proto tree*/
 typedef struct _xmpp_attr_info{
     const gchar *name;
     const gint *phf;
-    gboolean is_required;
-    gboolean in_short_list;
+    bool is_required;
+    bool in_short_list;
 
     /*function validates this attribute
     it may impose other restrictions (e.g. validating atribut's name, ...)*/

@@ -166,11 +166,11 @@ zmtp_tcp_protocols_update_cb(void *r, char **err)
     if (ranges_are_equal(rec->tcp_port_range, empty)) {
         *err = g_strdup("Must specify TCP port(s) (like 8000 or 8000,8008-8088)");
         wmem_free(NULL, empty);
-        return FALSE;
+        return false;
     }
 
     wmem_free(NULL, empty);
-    return TRUE;
+    return true;
 }
 
 static void
@@ -677,7 +677,7 @@ static int
 dissect_zmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Frame starts off with no PDUs seen */
-    static gboolean false_value = FALSE;
+    static bool false_value = false;
     p_add_proto_data(wmem_file_scope(), pinfo, proto_zmtp, 0, &false_value);
 
     /* Find whole PDUs and send them to dissect_zmtp_message() */
@@ -821,7 +821,7 @@ proto_register_zmtp(void)
     zmtp_tcp_protocols_uat = uat_new("ZMTP TCP Protocols",
         sizeof(zmtp_tcp_protocol_t),
         "zmtp_tcp_protocols",
-        TRUE,
+        true,
         &zmtp_tcp_protocols,
         &num_zmtp_tcp_protocols,
         UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,

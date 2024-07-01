@@ -1211,16 +1211,16 @@ dissect_zvt_serial(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *t
 }
 
 
-static gboolean
+static bool
 valid_ctrl_field(tvbuff_t *tvb, gint offset)
 {
     if (tvb_get_guint8(tvb, offset) == 0x80 ||
         tvb_get_guint8(tvb, offset) == 0x84 ||
         try_val_to_str_ext(tvb_get_ntohs(tvb, offset), &ctrl_field_ext)) {
-            return TRUE;
+            return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -1230,21 +1230,21 @@ dissect_zvt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     gint        zvt_len = 0;
     proto_item *zvt_ti;
     proto_tree *zvt_tree;
-    gboolean    is_serial; /* serial or TCP/IP protocol? */
+    bool        is_serial; /* serial or TCP/IP protocol? */
 
     if (tvb_captured_length(tvb) == 1 &&
             (tvb_get_guint8(tvb, 0) == ACK ||
              tvb_get_guint8(tvb, 0) == NAK)) {
-        is_serial = TRUE;
+        is_serial = true;
     }
     else if (tvb_captured_length(tvb) >= 2 &&
             tvb_get_guint8(tvb, 0) == DLE &&
             tvb_get_guint8(tvb, 1) == STX) {
-        is_serial = TRUE;
+        is_serial = true;
     }
     else if (tvb_captured_length(tvb) >= ZVT_APDU_MIN_LEN &&
             valid_ctrl_field(tvb, 0)) {
-        is_serial = FALSE;
+        is_serial = false;
     }
     else
         return 0;

@@ -2318,19 +2318,19 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
  from version 0.
  */
 
-static gboolean
+static bool
 zebra_get_header(tvbuff_t *tvb, int offset, zebra_header_t *header)
 {
 	guint16 len, command;
 	guint8  version;
 
 	if (tvb_captured_length_remaining(tvb, offset) < 3) {
-		return FALSE;
+		return false;
 	}
 
 	len = tvb_get_ntohs(tvb, offset);
 	if (len < 3) {
-		return FALSE;
+		return false;
 	}
 
 	offset += 2;
@@ -2340,7 +2340,7 @@ zebra_get_header(tvbuff_t *tvb, int offset, zebra_header_t *header)
 	} else { // not version 0
 		offset++;
 		if (tvb_captured_length_remaining(tvb, offset) < 3) {
-			return FALSE;
+			return false;
 		}
 		version = tvb_get_guint8(tvb, offset);
 		if (version == 1 || version == 2) {
@@ -2352,10 +2352,10 @@ zebra_get_header(tvbuff_t *tvb, int offset, zebra_header_t *header)
 			 * to invent a few more. */
 			offset += 5;
 		} else {
-			return FALSE;
+			return false;
 		}
 		if (tvb_captured_length_remaining(tvb, offset) < 2) {
-			return FALSE;
+			return false;
 		}
 		command = tvb_get_ntohs(tvb, offset);
 	}
@@ -2364,44 +2364,44 @@ zebra_get_header(tvbuff_t *tvb, int offset, zebra_header_t *header)
 		header->command = command;
 		header->version = version;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 test_zebra(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	zebra_header_t header;
 
 	if (!zebra_get_header(tvb, offset, &header)) {
-		return FALSE;
+		return false;
 	}
 
 	if (header.len > 1024) {
 		/* There can be multiple PDUs in a segment, but PDUs themselves
 		 * are small. Even 1024 is a generous overestimate.
 		 */
-		return FALSE;
+		return false;
 	}
 
 	if (header.version < 4) {
 		if (!try_val_to_str(header.command, messages)) {
-			return FALSE;
+			return false;
 		}
 	} else if (header.version == 4) {
 		if (!try_val_to_str(header.command, frr_zapi4_messages)) {
-			return FALSE;
+			return false;
 		}
 	} else if (header.version == 5) {
 		if (!try_val_to_str(header.command, frr_zapi5_messages)) {
-			return FALSE;
+			return false;
 		}
 	} else {
 		if (!try_val_to_str(header.command, frr_zapi6_messages)) {
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 static int

@@ -140,8 +140,8 @@ static SnortConfig_t *g_snort_config;
 /******************************************************/
 /* This is to keep track of the running Snort process */
 typedef struct {
-    gboolean running;
-    gboolean working;
+    bool running;
+    bool working;
 
     GPid pid;
     int in, out, err;   /* fds for talking to snort process */
@@ -172,7 +172,7 @@ typedef struct Alert_t {
     int           prio;            /* Priority as reported in alert (not usually interesting) */
 
     char       *raw_alert;         /* The whole alert string as reported by snort */
-    gboolean   raw_alert_ts_fixed; /* Set when correct timestamp is restored before displaying */
+    bool       raw_alert_ts_fixed; /* Set when correct timestamp is restored before displaying */
 
     char       *msg;               /* Rule msg/description as it appears in the alert */
     char       *classification;    /* Classification type of rule */
@@ -250,43 +250,43 @@ static void fill_alert_config(SnortConfig_t *snort_config, Alert_t *alert)
 /* Helper functions for matching expected bytes against the packet buffer.
   Case-sensitive comparison - can just memcmp().
   Case-insensitive comparison - need to look at each byte and compare uppercase version */
-static gboolean content_compare_case_sensitive(const guint8* memory, const char* target, guint length)
+static bool content_compare_case_sensitive(const guint8* memory, const char* target, guint length)
 {
     return (memcmp(memory, target, length) == 0);
 }
 
-static gboolean content_compare_case_insensitive(const guint8* memory, const char* target, guint length)
+static bool content_compare_case_insensitive(const guint8* memory, const char* target, guint length)
 {
     for (guint n=0; n < length; n++) {
         if (g_ascii_isalpha(target[n])) {
             if (g_ascii_toupper(memory[n]) != g_ascii_toupper(target[n])) {
-                return FALSE;
+                return false;
             }
         }
         else {
            if ((guint8)memory[n] != (guint8)target[n]) {
-                return FALSE;
+                return false;
             }
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Move through the bytes of the tvbuff, looking for a match against the
  * regexp from the given content.
  */
-static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_offset, guint *match_offset, guint *match_length)
+static bool look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_offset, guint *match_offset, guint *match_length)
 {
     /* Create a regex object for the pcre in the content. */
     GRegex *regex;
     GMatchInfo *match_info;
-    gboolean match_found = FALSE;
+    gboolean match_found = false;
     GRegexCompileFlags regex_compile_flags = (GRegexCompileFlags)0;
 
     /* Make sure pcre string is ready for regex library. */
     if (!content_convert_pcre_for_regex(content)) {
-        return FALSE;
+        return false;
     }
 
     /* Copy remaining bytes into NULL-terminated string. Unfortunately, this interface does't allow
@@ -331,7 +331,7 @@ static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_off
 
         *match_offset = start_offset + start_pos;
         *match_length = end_pos - start_pos;
-        match_found = TRUE;
+        match_found = true;
     }
 
     g_match_info_free(match_info);
@@ -344,7 +344,7 @@ static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_off
 /* Move through the bytes of the tvbuff, looking for a match against the expanded
    binary contents of this content object.
  */
-static gboolean look_for_content(content_t *content, tvbuff_t *tvb, guint start_offset, guint *match_offset, guint *match_length)
+static bool look_for_content(content_t *content, tvbuff_t *tvb, guint start_offset, guint *match_offset, guint *match_length)
 {
     gint tvb_len = tvb_captured_length(tvb);
 
@@ -358,19 +358,19 @@ static gboolean look_for_content(content_t *content, tvbuff_t *tvb, guint start_
             if (content_compare_case_insensitive(ptr, content->translated_str, content->translated_length)) {
                 *match_offset = m;
                 *match_length = content->translated_length;
-                return TRUE;
+                return true;
             }
         }
         else {
             if (content_compare_case_sensitive(ptr, content->translated_str, content->translated_length)) {
                 *match_offset = m;
                 *match_length = content->translated_length;
-                return TRUE;
+                return true;
             }
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -378,16 +378,16 @@ static gboolean look_for_content(content_t *content, tvbuff_t *tvb, guint start_
 
 /* Look for where the content match happens within the tvb.
  * Set out parameters match_offset and match_length */
-static gboolean get_content_match(Alert_t *alert, guint content_idx,
-                                  tvbuff_t *tvb, guint content_start_match,
-                                  guint *match_offset, guint *match_length)
+static bool get_content_match(Alert_t *alert, guint content_idx,
+                              tvbuff_t *tvb, guint content_start_match,
+                              guint *match_offset, guint *match_length)
 {
     content_t *content;
     Rule_t *rule = alert->matched_rule;
 
     /* Can't match if don't know rule */
     if (rule == NULL) {
-        return FALSE;
+        return false;
     }
 
     /* Get content object. */
@@ -408,7 +408,7 @@ static void snort_reaper(GPid pid, gint status _U_, gpointer data)
 {
     snort_session_t *session = (snort_session_t *)data;
     if (session->running && session->pid == pid) {
-        session->working = session->running = FALSE;
+        session->working = session->running = false;
         /* XXX, cleanup */
     } else {
         g_print("Errrrmm snort_reaper() %"PRIdMAX" != %"PRIdMAX"\n", (intmax_t)session->pid, (intmax_t)pid);
@@ -442,7 +442,7 @@ static const char* snort_parse_ts(const char *ts, guint32 *frame_number)
 }
 
 /* Parse a fast output alert string */
-static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
+static bool snort_parse_fast_line(const char *line, Alert_t *alert)
 {
     static const char stars[] = " [**] ";
 
@@ -452,27 +452,27 @@ static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
 
     /* Look for timestamp/frame-number */
     if (!(line = snort_parse_ts(line, &(alert->original_frame)))) {
-        return FALSE;
+        return false;
     }
 
     /* [**] */
     if (!g_str_has_prefix(line+1, stars)) {
-        return FALSE;
+        return false;
     }
     line += sizeof(stars);
 
     /* [%u:%u:%u] */
     if (sscanf(line, "[%u:%u:%u] ", &(alert->gen), &(alert->sid), &(alert->rev)) != 3) {
-        return FALSE;
+        return false;
     }
     if (!(line = strchr(line, ' '))) {
-        return FALSE;
+        return false;
     }
 
     /* [**] again */
     tmp_msg = line+1;
     if (!(line = strstr(line, stars))) {
-        return FALSE;
+        return false;
     }
 
     /* msg */
@@ -487,7 +487,7 @@ static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
         line += (sizeof(classification)-1);
 
         if (!(tmp = (char*)strstr(line, "] [Priority: "))) {
-            return FALSE;
+            return false;
         }
 
         /* assume "] [Priority: " is not inside classification text :) */
@@ -503,17 +503,17 @@ static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
         line += (sizeof(priority)-1);
 
         if ((sscanf(line, "%d", &(alert->prio))) != 1) {
-            return FALSE;
+            return false;
         }
 
         if (!strstr(line, "] ")) {
-            return FALSE;
+            return false;
         }
     } else {
         alert->prio = -1; /* XXX */
     }
 
-    return TRUE;
+    return true;
 }
 
 /**
@@ -522,23 +522,23 @@ static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
  * Parse line as written by TraceWranger
  * e.g. "1:2011768:4 - ET WEB_SERVER PHP tags in HTTP POST"
  */
-static gboolean snort_parse_user_comment(const char *line, Alert_t *alert)
+static bool snort_parse_user_comment(const char *line, Alert_t *alert)
 {
     /* %u:%u:%u */
     if (sscanf(line, "%u:%u:%u", &(alert->gen), &(alert->sid), &(alert->rev)) != 3) {
-        return FALSE;
+        return false;
     }
 
     /* Skip separator between numbers and msg */
     if (!(line = strstr(line, " - "))) {
-        return FALSE;
+        return false;
     }
 
     /* Copy to be consistent with other use of Alert_t */
     alert->msg = g_strdup(line);
 
     /* No need to set other fields as assume zero'd out before this call.. */
-    return TRUE;
+    return true;
 }
 
 /* Output data has been received from snort.  Read from channel and look for whole alerts. */
@@ -794,7 +794,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             char digits[7];
             snprintf(digits, 7, "%06d", pinfo->abs_ts.nsecs / 1000);
             memcpy(alert->raw_alert+18, digits, 6);
-            alert->raw_alert_ts_fixed = TRUE;
+            alert->raw_alert_ts_fixed = true;
         }
         ti = proto_tree_add_string(snort_tree, hf_snort_raw_alert, tvb, 0, 0, alert->raw_alert);
         proto_item_set_generated(ti);
@@ -1167,7 +1167,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 if (!current_session.pdh) {
                     /* XXX - report the error somehow? */
                     g_free(open_err_info);
-                    current_session.working = FALSE;
+                    current_session.working = false;
                     return 0;
                 }
             }
@@ -1190,12 +1190,12 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             if (!wtap_dump(current_session.pdh, &rec, tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), &write_err, &err_info)) {
                 /* XXX - report the error somehow? */
                 g_free(err_info);
-                current_session.working = FALSE;
+                current_session.working = false;
                 return 0;
             }
             if (!wtap_dump_flush(current_session.pdh, &write_err)) {
                 /* XXX - report the error somehow? */
-                current_session.working = FALSE;
+                current_session.working = false;
                 return 0;
             }
 
@@ -1319,7 +1319,7 @@ static void snort_start(void)
 
 #ifdef _WIN32
     report_failure("Snort dissector: not yet able to launch Snort process under Windows");
-    current_session.working = FALSE;
+    current_session.working = false;
     return;
 #endif
 
@@ -1337,13 +1337,13 @@ static void snort_start(void)
                                   &current_session.err,   /* stderr */
                                   NULL))                  /* error */
     {
-        current_session.running = FALSE;
-        current_session.working = FALSE;
+        current_session.running = false;
+        current_session.working = false;
         return;
     }
     else {
-        current_session.running = TRUE;
-        current_session.working = TRUE;
+        current_session.running = true;
+        current_session.working = true;
     }
 
     /* Setup handler for when process goes away */
@@ -1376,7 +1376,7 @@ static void snort_start(void)
                         &current_session,   /* User data */
                         NULL);              /* Destroy notification callback */
 
-    current_session.working = TRUE;
+    current_session.working = true;
 }
 
 /* This is the cleanup routine registered with register_postseq_cleanup_routine() */
@@ -1545,16 +1545,16 @@ proto_register_snort(void)
     prefs_register_enum_preference(snort_module, "alerts_source",
         "Source of Snort alerts",
         "Set whether dissector should run Snort and pass frames into it, or read alerts from user packet comments",
-        &pref_snort_alerts_source, alerts_source_vals, FALSE);
+        &pref_snort_alerts_source, alerts_source_vals, false);
 
     prefs_register_filename_preference(snort_module, "binary",
                                        "Snort binary",
                                        "The name of the snort binary file to run",
-                                       &pref_snort_binary_filename, FALSE);
+                                       &pref_snort_binary_filename, false);
     prefs_register_filename_preference(snort_module, "config",
                                        "Configuration filename",
                                        "The name of the file containing the snort IDS configuration.  Typically snort.conf",
-                                       &pref_snort_config_filename, FALSE);
+                                       &pref_snort_config_filename, false);
 
     prefs_register_bool_preference(snort_module, "show_rule_set_stats",
                                    "Show rule stats in protocol tree",

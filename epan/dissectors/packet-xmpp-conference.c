@@ -58,9 +58,9 @@ xmpp_conference_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     xmpp_attr_info attrs_info [] = {
         {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
         {"entity", NULL, TRUE, TRUE, NULL, NULL},
-        {"state", NULL, FALSE, TRUE, xmpp_val_enum_list, state_array},
-        {"version", NULL, FALSE, TRUE, NULL, NULL},
-        {"sid", &hf_xmpp_conf_info_sid, FALSE, TRUE, NULL, NULL}
+        {"state", NULL, false, TRUE, xmpp_val_enum_list, state_array},
+        {"version", NULL, false, TRUE, NULL, NULL},
+        {"sid", &hf_xmpp_conf_info_sid, false, TRUE, NULL, NULL}
     };
 
     xmpp_elem_info elems_info [] = {
@@ -88,10 +88,10 @@ xmpp_conf_desc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
     proto_tree *desc_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"subject", NULL, FALSE, TRUE, NULL, NULL},
-        {"display-text", NULL, FALSE, FALSE, NULL, NULL},
-        {"free-text", NULL, FALSE, FALSE, NULL, NULL},
-        {"max-user-count", NULL, FALSE, FALSE, NULL, NULL},
+        {"subject", NULL, false, TRUE, NULL, NULL},
+        {"display-text", NULL, false, false, NULL, NULL},
+        {"free-text", NULL, false, false, NULL, NULL},
+        {"max-user-count", NULL, false, false, NULL, NULL},
     };
 
 /*
@@ -120,9 +120,9 @@ xmpp_conf_state(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
     proto_tree *state_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"user-count", NULL, FALSE, TRUE, NULL, NULL},
-        {"active", NULL, FALSE, TRUE, NULL, NULL},
-        {"locked", NULL, FALSE, TRUE, NULL, NULL}
+        {"user-count", NULL, false, TRUE, NULL, NULL},
+        {"active", NULL, false, TRUE, NULL, NULL},
+        {"locked", NULL, false, TRUE, NULL, NULL}
     };
 
     state_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length,
@@ -143,7 +143,7 @@ xmpp_conf_users(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
     proto_tree *users_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"state", NULL, FALSE, TRUE, NULL, NULL}
+        {"state", NULL, false, TRUE, NULL, NULL}
     };
 
     xmpp_elem_info elems_info [] = {
@@ -161,10 +161,10 @@ xmpp_conf_user(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
     proto_tree *user_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"entity", NULL, FALSE, TRUE, NULL, NULL},
-        {"state", NULL, FALSE, TRUE, NULL, NULL},
-        {"display-text", NULL, FALSE, TRUE, NULL, NULL},
-        {"cascaded-focus", NULL, FALSE, TRUE, NULL, NULL}
+        {"entity", NULL, false, TRUE, NULL, NULL},
+        {"state", NULL, false, TRUE, NULL, NULL},
+        {"display-text", NULL, false, TRUE, NULL, NULL},
+        {"cascaded-focus", NULL, false, TRUE, NULL, NULL}
     };
 
     xmpp_elem_info elems_info [] = {
@@ -189,12 +189,12 @@ xmpp_conf_endpoint(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
     proto_tree *endpoint_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"entity", NULL, FALSE, TRUE, NULL, NULL},
-        {"state", NULL, FALSE, TRUE, NULL, NULL},
-        {"display-text", NULL, FALSE, TRUE, NULL, NULL},
-        {"status", NULL, FALSE, TRUE, NULL, NULL},
-        {"joining-method", NULL, FALSE, TRUE, NULL, NULL},
-        {"disconnection-method", NULL, FALSE, TRUE, NULL, NULL},
+        {"entity", NULL, false, TRUE, NULL, NULL},
+        {"state", NULL, false, TRUE, NULL, NULL},
+        {"display-text", NULL, false, TRUE, NULL, NULL},
+        {"status", NULL, false, TRUE, NULL, NULL},
+        {"joining-method", NULL, false, TRUE, NULL, NULL},
+        {"disconnection-method", NULL, false, TRUE, NULL, NULL},
     };
 
     xmpp_elem_info elems_info [] = {
@@ -225,11 +225,11 @@ xmpp_conf_media(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
 
     xmpp_attr_info attrs_info[] = {
         {"id", NULL, TRUE, TRUE, NULL, NULL},
-        {"display-text", NULL, FALSE, TRUE, NULL, NULL},
-        {"type", NULL, FALSE, TRUE, NULL, NULL},
-        {"label", NULL, FALSE, TRUE, NULL, NULL},
-        {"src-id", NULL, FALSE, TRUE, NULL, NULL},
-        {"status", NULL, FALSE, TRUE, NULL, NULL},
+        {"display-text", NULL, false, TRUE, NULL, NULL},
+        {"type", NULL, false, TRUE, NULL, NULL},
+        {"label", NULL, false, TRUE, NULL, NULL},
+        {"src-id", NULL, false, TRUE, NULL, NULL},
+        {"status", NULL, false, TRUE, NULL, NULL},
     };
 
     media_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_media, NULL, "MEDIA");
