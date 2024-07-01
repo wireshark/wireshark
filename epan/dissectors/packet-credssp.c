@@ -489,7 +489,7 @@ static int dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_credssp_TSRequest(FALSE, tvb, offset, &asn1_ctx, tree, hf_credssp_TSRequest_PDU);
+  offset = dissect_credssp_TSRequest(false, tvb, offset, &asn1_ctx, tree, hf_credssp_TSRequest_PDU);
   return offset;
 }
 

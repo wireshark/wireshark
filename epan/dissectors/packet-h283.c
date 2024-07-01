@@ -95,7 +95,7 @@ static gboolean info_is_set;
 static int
 dissect_h283_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -105,7 +105,7 @@ dissect_h283_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_h283_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, false);
 
   return offset;
 }
@@ -162,7 +162,7 @@ dissect_h283_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_h283_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -202,7 +202,7 @@ dissect_h283_MTAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h283_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4294967295U, NULL, FALSE);
+                                                            0U, 4294967295U, NULL, false);
 
   return offset;
 }
@@ -261,7 +261,7 @@ dissect_h283_T_deviceListResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &next_tvb);
+                                       NO_BOUND, NO_BOUND, false, &next_tvb);
 
   if (next_tvb && tvb_reported_length(next_tvb)) {
     call_dissector((rdc_device_list_handle)?rdc_device_list_handle:data_handle, next_tvb, actx->pinfo, tree);
@@ -393,7 +393,7 @@ dissect_h283_T_rdcPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &next_tvb);
+                                       NO_BOUND, NO_BOUND, false, &next_tvb);
 
   if (next_tvb && tvb_reported_length(next_tvb)) {
     call_dissector((rdc_pdu_handle)?rdc_pdu_handle:data_handle, next_tvb, actx->pinfo, proto_tree_get_root(tree));
@@ -500,7 +500,7 @@ dissect_h283_LCTPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int dissect_LCTPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_h283_LCTPDU(tvb, offset, &asn1_ctx, tree, hf_h283_LCTPDU_PDU);
   offset += 7; offset >>= 3;
   return offset;

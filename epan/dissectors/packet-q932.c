@@ -605,7 +605,7 @@ dissect_q932_NetworkFacilityExtension_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_q932_NetworkFacilityExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 10, TRUE, dissect_q932_NetworkFacilityExtension_U);
+                                      hf_index, BER_CLASS_CON, 10, true, dissect_q932_NetworkFacilityExtension_U);
 
   return offset;
 }
@@ -631,7 +631,7 @@ dissect_q932_NetworkProtocolProfile_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_q932_NetworkProtocolProfile(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 18, TRUE, dissect_q932_NetworkProtocolProfile_U);
+                                      hf_index, BER_CLASS_CON, 18, true, dissect_q932_NetworkProtocolProfile_U);
 
   return offset;
 }
@@ -658,7 +658,7 @@ dissect_q932_InterpretationComponent_U(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_q932_InterpretationComponent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 11, TRUE, dissect_q932_InterpretationComponent_U);
+                                      hf_index, BER_CLASS_CON, 11, true, dissect_q932_InterpretationComponent_U);
 
   return offset;
 }
@@ -669,21 +669,21 @@ static int dissect_NetworkFacilityExtension_PDU(tvbuff_t *tvb _U_, packet_info *
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_q932_NetworkFacilityExtension(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_NetworkFacilityExtension_PDU);
+  offset = dissect_q932_NetworkFacilityExtension(false, tvb, offset, &asn1_ctx, tree, hf_q932_NetworkFacilityExtension_PDU);
   return offset;
 }
 static int dissect_NetworkProtocolProfile_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_q932_NetworkProtocolProfile(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_NetworkProtocolProfile_PDU);
+  offset = dissect_q932_NetworkProtocolProfile(false, tvb, offset, &asn1_ctx, tree, hf_q932_NetworkProtocolProfile_PDU);
   return offset;
 }
 static int dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_q932_InterpretationComponent(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_InterpretationComponent_PDU);
+  offset = dissect_q932_InterpretationComponent(false, tvb, offset, &asn1_ctx, tree, hf_q932_InterpretationComponent_PDU);
   return offset;
 }
 

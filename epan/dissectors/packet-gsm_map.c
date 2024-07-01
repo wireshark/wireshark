@@ -4933,7 +4933,7 @@ int dissect_gsm_map_ISDN_AddressString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_gsm_map_ISDN_AddressString_PDU);
+  offset = dissect_gsm_map_ISDN_AddressString(false, tvb, offset, &asn1_ctx, tree, hf_gsm_map_gsm_map_ISDN_AddressString_PDU);
   return offset;
 }
 
@@ -8679,7 +8679,7 @@ dissect_gsm_map_ms_CancelLocationArg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_gsm_map_ms_CancelLocationArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_CancelLocationArg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_CancelLocationArg_U);
 
   return offset;
 }
@@ -8899,7 +8899,7 @@ dissect_gsm_map_ms_PurgeMS_Arg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_gsm_map_ms_PurgeMS_Arg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_PurgeMS_Arg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_PurgeMS_Arg_U);
 
   return offset;
 }
@@ -9213,7 +9213,7 @@ dissect_gsm_map_ms_SendIdentificationRes_U(bool implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_gsm_map_ms_SendIdentificationRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_SendIdentificationRes_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_SendIdentificationRes_U);
 
   return offset;
 }
@@ -10042,7 +10042,7 @@ dissect_gsm_map_ms_ForwardAccessSignalling_Arg_U(bool implicit_tag _U_, tvbuff_t
 static int
 dissect_gsm_map_ms_ForwardAccessSignalling_Arg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_ForwardAccessSignalling_Arg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_ForwardAccessSignalling_Arg_U);
 
   return offset;
 }
@@ -10228,7 +10228,7 @@ dissect_gsm_map_ms_PrepareHO_Arg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_gsm_map_ms_PrepareHO_Arg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_PrepareHO_Arg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_PrepareHO_Arg_U);
 
   return offset;
 }
@@ -10372,7 +10372,7 @@ dissect_gsm_map_ms_PrepareHO_Res_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_gsm_map_ms_PrepareHO_Res(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_PrepareHO_Res_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_PrepareHO_Res_U);
 
   return offset;
 }
@@ -10403,7 +10403,7 @@ dissect_gsm_map_ms_PrepareSubsequentHO_Arg_U(bool implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_gsm_map_ms_PrepareSubsequentHO_Arg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_PrepareSubsequentHO_Arg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_PrepareSubsequentHO_Arg_U);
 
   return offset;
 }
@@ -10428,7 +10428,7 @@ dissect_gsm_map_ms_PrepareSubsequentHO_Res_U(bool implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_gsm_map_ms_PrepareSubsequentHO_Res(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_PrepareSubsequentHO_Res_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_PrepareSubsequentHO_Res_U);
 
   return offset;
 }
@@ -10471,7 +10471,7 @@ dissect_gsm_map_ms_ProcessAccessSignalling_Arg_U(bool implicit_tag _U_, tvbuff_t
 static int
 dissect_gsm_map_ms_ProcessAccessSignalling_Arg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_ProcessAccessSignalling_Arg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_ProcessAccessSignalling_Arg_U);
 
   return offset;
 }
@@ -10496,7 +10496,7 @@ dissect_gsm_map_ms_SendEndSignal_Arg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_gsm_map_ms_SendEndSignal_Arg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_SendEndSignal_Arg_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_SendEndSignal_Arg_U);
 
   return offset;
 }
@@ -10649,7 +10649,7 @@ dissect_gsm_map_ms_SendAuthenticationInfoRes_U(bool implicit_tag _U_, tvbuff_t *
 static int
 dissect_gsm_map_ms_SendAuthenticationInfoRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ms_SendAuthenticationInfoRes_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ms_SendAuthenticationInfoRes_U);
 
   return offset;
 }
@@ -15054,14 +15054,14 @@ static int dissect_gsm_map_ms_SendAuthenticationInfoArg_PDU(tvbuff_t *tvb _U_, p
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_gsm_map_ms_SendAuthenticationInfoArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU);
+  offset = dissect_gsm_map_ms_SendAuthenticationInfoArg(false, tvb, offset, &asn1_ctx, tree, hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU);
   return offset;
 }
 static int dissect_gsm_map_ms_SendAuthenticationInfoRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_gsm_map_ms_SendAuthenticationInfoRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU);
+  offset = dissect_gsm_map_ms_SendAuthenticationInfoRes(false, tvb, offset, &asn1_ctx, tree, hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU);
   return offset;
 }
 
@@ -15452,7 +15452,7 @@ dissect_gsm_map_ch_SendRoutingInfoRes_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_gsm_map_ch_SendRoutingInfoRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_gsm_map_ch_SendRoutingInfoRes_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_gsm_map_ch_SendRoutingInfoRes_U);
 
   return offset;
 }
@@ -16881,7 +16881,7 @@ int dissect_gsm_map_lcs_LCS_ClientID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_gsm_map_lcs_LCS_ClientID(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_lcs_gsm_map_lcs_LCS_ClientID_PDU);
+  offset = dissect_gsm_map_lcs_LCS_ClientID(false, tvb, offset, &asn1_ctx, tree, hf_gsm_map_lcs_gsm_map_lcs_LCS_ClientID_PDU);
   return offset;
 }
 
@@ -17402,7 +17402,7 @@ static int dissect_gsm_map_dialogue_MAP_DialoguePDU_PDU(tvbuff_t *tvb _U_, packe
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_gsm_map_dialogue_MAP_DialoguePDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_dialogue_gsm_map_dialogue_MAP_DialoguePDU_PDU);
+  offset = dissect_gsm_map_dialogue_MAP_DialoguePDU(false, tvb, offset, &asn1_ctx, tree, hf_gsm_map_dialogue_gsm_map_dialogue_MAP_DialoguePDU_PDU);
   return offset;
 }
 
@@ -18592,7 +18592,7 @@ dissect_gsm_old_PlmnContainer_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_gsm_old_PlmnContainer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 2, TRUE, dissect_gsm_old_PlmnContainer_U);
+                                      hf_index, BER_CLASS_PRI, 2, true, dissect_gsm_old_PlmnContainer_U);
 
   return offset;
 }
@@ -20312,7 +20312,7 @@ dissect_gsm_map_ericsson_ExtraSignalInfo_U(bool implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_gsm_map_ericsson_ExtraSignalInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 1, TRUE, dissect_gsm_map_ericsson_ExtraSignalInfo_U);
+                                      hf_index, BER_CLASS_PRI, 1, true, dissect_gsm_map_ericsson_ExtraSignalInfo_U);
 
   return offset;
 }
@@ -20894,7 +20894,7 @@ dissect_NokiaMAP_Extensions_IsdArgExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_NokiaMAP_Extensions_IsdArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_IsdArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_IsdArgExt_U);
 
   return offset;
 }
@@ -20919,7 +20919,7 @@ dissect_NokiaMAP_Extensions_DsdArgExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_NokiaMAP_Extensions_DsdArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_DsdArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_DsdArgExt_U);
 
   return offset;
 }
@@ -20943,7 +20943,7 @@ dissect_NokiaMAP_Extensions_UlResExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_NokiaMAP_Extensions_UlResExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_UlResExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_UlResExt_U);
 
   return offset;
 }
@@ -21037,7 +21037,7 @@ dissect_NokiaMAP_Extensions_SS_DataExtension_U(bool implicit_tag _U_, tvbuff_t *
 static int
 dissect_NokiaMAP_Extensions_SS_DataExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_SS_DataExtension_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_SS_DataExtension_U);
 
   return offset;
 }
@@ -21086,7 +21086,7 @@ dissect_NokiaMAP_Extensions_SriExtension_U(bool implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_NokiaMAP_Extensions_SriExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_SriExtension_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_SriExtension_U);
 
   return offset;
 }
@@ -21126,7 +21126,7 @@ dissect_NokiaMAP_Extensions_ExtraSignalInfo_U(bool implicit_tag _U_, tvbuff_t *t
 static int
 dissect_NokiaMAP_Extensions_ExtraSignalInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 1, TRUE, dissect_NokiaMAP_Extensions_ExtraSignalInfo_U);
+                                      hf_index, BER_CLASS_PRI, 1, true, dissect_NokiaMAP_Extensions_ExtraSignalInfo_U);
 
   return offset;
 }
@@ -21321,7 +21321,7 @@ dissect_NokiaMAP_Extensions_SriResExtension_U(bool implicit_tag _U_, tvbuff_t *t
 static int
 dissect_NokiaMAP_Extensions_SriResExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_SriResExtension_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_SriResExtension_U);
 
   return offset;
 }
@@ -21355,7 +21355,7 @@ dissect_NokiaMAP_Extensions_CanLocArgExt_U(bool implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_NokiaMAP_Extensions_CanLocArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_CanLocArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_CanLocArgExt_U);
 
   return offset;
 }
@@ -21383,7 +21383,7 @@ dissect_NokiaMAP_Extensions_ATMargExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_NokiaMAP_Extensions_ATMargExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_ATMargExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_ATMargExt_U);
 
   return offset;
 }
@@ -21407,7 +21407,7 @@ dissect_NokiaMAP_Extensions_ATMresExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_NokiaMAP_Extensions_ATMresExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_ATMresExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_ATMresExt_U);
 
   return offset;
 }
@@ -21433,7 +21433,7 @@ dissect_NokiaMAP_Extensions_DTMargExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_NokiaMAP_Extensions_DTMargExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_DTMargExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_DTMargExt_U);
 
   return offset;
 }
@@ -21453,7 +21453,7 @@ dissect_NokiaMAP_Extensions_NumberPorted_U(bool implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_NokiaMAP_Extensions_NumberPorted(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 20, TRUE, dissect_NokiaMAP_Extensions_NumberPorted_U);
+                                      hf_index, BER_CLASS_PRI, 20, true, dissect_NokiaMAP_Extensions_NumberPorted_U);
 
   return offset;
 }
@@ -21560,7 +21560,7 @@ dissect_NokiaMAP_Extensions_HO_Ext_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_NokiaMAP_Extensions_HO_Ext(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_HO_Ext_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_HO_Ext_U);
 
   return offset;
 }
@@ -21585,7 +21585,7 @@ dissect_NokiaMAP_Extensions_AbsentSubscriberExt_U(bool implicit_tag _U_, tvbuff_
 static int
 dissect_NokiaMAP_Extensions_AbsentSubscriberExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_AbsentSubscriberExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_AbsentSubscriberExt_U);
 
   return offset;
 }
@@ -21610,7 +21610,7 @@ dissect_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U(bool implicit_tag _U_, tvbuff_
 static int
 dissect_NokiaMAP_Extensions_ErrOlcmInfoTableExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U);
 
   return offset;
 }
@@ -21635,7 +21635,7 @@ dissect_NokiaMAP_Extensions_RoutingCategoryExt_U(bool implicit_tag _U_, tvbuff_t
 static int
 dissect_NokiaMAP_Extensions_RoutingCategoryExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_RoutingCategoryExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_RoutingCategoryExt_U);
 
   return offset;
 }
@@ -21671,7 +21671,7 @@ dissect_NokiaMAP_Extensions_SriForSMArgExt_U(bool implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_NokiaMAP_Extensions_SriForSMArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_SriForSMArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_SriForSMArgExt_U);
 
   return offset;
 }
@@ -21696,7 +21696,7 @@ dissect_NokiaMAP_Extensions_ReportSMDelStatArgExt_U(bool implicit_tag _U_, tvbuf
 static int
 dissect_NokiaMAP_Extensions_ReportSMDelStatArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_ReportSMDelStatArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_ReportSMDelStatArgExt_U);
 
   return offset;
 }
@@ -21731,7 +21731,7 @@ dissect_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U(bool implicit_tag _U_, tvbuff_
 static int
 dissect_NokiaMAP_Extensions_MO_ForwardSM_ArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U);
 
   return offset;
 }
@@ -21756,7 +21756,7 @@ dissect_NokiaMAP_Extensions_UdlArgExt_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_NokiaMAP_Extensions_UdlArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_UdlArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_UdlArgExt_U);
 
   return offset;
 }
@@ -21780,7 +21780,7 @@ dissect_NokiaMAP_Extensions_RoamNotAllowedExt_U(bool implicit_tag _U_, tvbuff_t 
 static int
 dissect_NokiaMAP_Extensions_RoamNotAllowedExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_RoamNotAllowedExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_RoamNotAllowedExt_U);
 
   return offset;
 }
@@ -21804,7 +21804,7 @@ dissect_NokiaMAP_Extensions_AnyTimeModArgExt_U(bool implicit_tag _U_, tvbuff_t *
 static int
 dissect_NokiaMAP_Extensions_AnyTimeModArgExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_AnyTimeModArgExt_U);
+                                      hf_index, BER_CLASS_PRI, 0, true, dissect_NokiaMAP_Extensions_AnyTimeModArgExt_U);
 
   return offset;
 }

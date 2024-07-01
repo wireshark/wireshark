@@ -1295,7 +1295,7 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_pres_UD_type(FALSE, tvb, offset, &asn1_ctx, tree, hf_pres_UD_type_PDU);
+  offset = dissect_pres_UD_type(false, tvb, offset, &asn1_ctx, tree, hf_pres_UD_type_PDU);
   return offset;
 }
 

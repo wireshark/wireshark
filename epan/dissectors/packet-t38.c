@@ -435,7 +435,7 @@ const value_string t38_T30_indicator_vals[] = {
 static int
 dissect_t38_T30_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, &T30ind_value, TRUE, 7, NULL);
+                                     16, &T30ind_value, true, 7, NULL);
 
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
@@ -472,7 +472,7 @@ const value_string t38_T30_data_vals[] = {
 static int
 dissect_t38_T30_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     9, &Data_value, TRUE, 6, NULL);
+                                     9, &Data_value, true, 6, NULL);
 
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
@@ -647,7 +647,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     guint32 value_len;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 65535, FALSE, &value_tvb);
+                                       1, 65535, false, &value_tvb);
 
     value_len = tvb_reported_length(value_tvb);
 
@@ -778,7 +778,7 @@ dissect_t38_IFPPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, &seq_number, FALSE);
+                                                            0U, 65535U, &seq_number, false);
 
     /* info for tap */
     if (primary_part)
@@ -841,7 +841,7 @@ dissect_t38_INTEGER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_t38_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -921,7 +921,7 @@ dissect_t38_UDPTLPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int dissect_IFPPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_t38_IFPPacket(tvb, offset, &asn1_ctx, tree, hf_t38_IFPPacket_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -929,7 +929,7 @@ static int dissect_IFPPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_t38_UDPTLPacket(tvb, offset, &asn1_ctx, tree, hf_t38_UDPTLPacket_PDU);
   offset += 7; offset >>= 3;
   return offset;

@@ -1809,7 +1809,7 @@ class EthCtx:
     def eth_output_types(self):
         def out_pdu(f):
             t = self.eth_hf[f]['ethtype']
-            impl = 'FALSE'
+            impl = 'false'
             out = ''
             if (not self.eth_hf[f]['pdu']['export']):
                 out += 'static '
@@ -1822,9 +1822,9 @@ class EthCtx:
             ret_par = 'offset'
             if (self.Per()):
                 if (self.Aligned()):
-                    aligned = 'TRUE'
+                    aligned = 'true'
                 else:
-                    aligned = 'FALSE'
+                    aligned = 'false'
                 out += "  asn1_ctx_t asn1_ctx;\n"
                 out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_PER', aligned, 'pinfo'),))
             if (self.Ber()):
@@ -3375,8 +3375,8 @@ class Type (Node):
                     (minv, maxv, ext) = self.constr.subtype[1].GetSize(ectx)
         if minv == 'MIN': minv = 'NO_BOUND'
         if maxv == 'MAX': maxv = 'NO_BOUND'
-        if (ext): ext = 'TRUE'
-        else: ext = 'FALSE'
+        if (ext): ext = 'true'
+        else: ext = 'false'
         return (minv, maxv, ext)
 
     def eth_get_value_constr(self, ectx):
@@ -3397,8 +3397,8 @@ class Type (Node):
                 maxv = "UINT64_C(%s)" % (str(maxv))
             else:
                 maxv += 'U'
-        if (ext): ext = 'TRUE'
-        else: ext = 'FALSE'
+        if (ext): ext = 'true'
+        else: ext = 'false'
         return (minv, maxv, ext)
 
     def eth_get_alphabet_constr(self, ectx):
@@ -3986,9 +3986,9 @@ class TaggedType (Type):
         pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
         (pars['TAG_CLS'], pars['TAG_TAG']) = self.GetTag(ectx)
         if self.HasImplicitTag(ectx):
-            pars['TAG_IMPL'] = 'TRUE'
+            pars['TAG_IMPL'] = 'true'
         else:
-            pars['TAG_IMPL'] = 'FALSE'
+            pars['TAG_IMPL'] = 'false'
         return pars
 
     def eth_type_default_body(self, ectx, tname):
@@ -4814,9 +4814,9 @@ class EnumeratedType (Type):
         pars = Type.eth_type_default_pars(self, ectx, tname)
         (root_num, ext_num, map_table) = self.get_vals_etc(ectx)[1:]
         if self.ext is not None:
-            ext = 'TRUE'
+            ext = 'true'
         else:
-            ext = 'FALSE'
+            ext = 'false'
         pars['ROOT_NUM'] = str(root_num)
         pars['EXT'] = ext
         pars['EXT_NUM'] = str(ext_num)

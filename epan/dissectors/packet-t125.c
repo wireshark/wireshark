@@ -193,7 +193,7 @@ dissect_t125_Connect_Initial_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_t125_Connect_Initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 101, TRUE, dissect_t125_Connect_Initial_U);
+                                      hf_index, BER_CLASS_APP, 101, true, dissect_t125_Connect_Initial_U);
 
   return offset;
 }
@@ -267,7 +267,7 @@ dissect_t125_Connect_Response_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_t125_Connect_Response(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 102, TRUE, dissect_t125_Connect_Response_U);
+                                      hf_index, BER_CLASS_APP, 102, true, dissect_t125_Connect_Response_U);
 
   return offset;
 }
@@ -292,7 +292,7 @@ dissect_t125_Connect_Additional_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_t125_Connect_Additional(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 103, TRUE, dissect_t125_Connect_Additional_U);
+                                      hf_index, BER_CLASS_APP, 103, true, dissect_t125_Connect_Additional_U);
 
   return offset;
 }
@@ -316,7 +316,7 @@ dissect_t125_Connect_Result_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_t125_Connect_Result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 104, TRUE, dissect_t125_Connect_Result_U);
+                                      hf_index, BER_CLASS_APP, 104, true, dissect_t125_Connect_Result_U);
 
   return offset;
 }
@@ -353,7 +353,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_t125_ConnectMCSPDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_t125_ConnectMCSPDU_PDU);
+  offset = dissect_t125_ConnectMCSPDU(false, tvb, offset, &asn1_ctx, tree, hf_t125_ConnectMCSPDU_PDU);
   return offset;
 }
 

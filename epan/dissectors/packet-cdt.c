@@ -290,7 +290,7 @@ static int dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_cdt_CompressedData(FALSE, tvb, offset, &asn1_ctx, tree, hf_cdt_CompressedData_PDU);
+  offset = dissect_cdt_CompressedData(false, tvb, offset, &asn1_ctx, tree, hf_cdt_CompressedData_PDU);
   return offset;
 }
 

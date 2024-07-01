@@ -2114,7 +2114,7 @@ dissect_z3950_ProtocolVersion_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_z3950_ProtocolVersion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_z3950_ProtocolVersion_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_z3950_ProtocolVersion_U);
 
   return offset;
 }
@@ -2153,7 +2153,7 @@ dissect_z3950_Options_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_z3950_Options(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 4, TRUE, dissect_z3950_Options_U);
+                                      hf_index, BER_CLASS_CON, 4, true, dissect_z3950_Options_U);
 
   return offset;
 }
@@ -2333,7 +2333,7 @@ dissect_z3950_OtherInformation_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_z3950_OtherInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 201, TRUE, dissect_z3950_OtherInformation_U);
+                                      hf_index, BER_CLASS_CON, 201, true, dissect_z3950_OtherInformation_U);
 
   return offset;
 }
@@ -2400,7 +2400,7 @@ dissect_z3950_InitializeResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_z3950_DatabaseName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 105, TRUE, dissect_z3950_InternationalString);
+                                      hf_index, BER_CLASS_CON, 105, true, dissect_z3950_InternationalString);
 
   return offset;
 }
@@ -2423,7 +2423,7 @@ dissect_z3950_SEQUENCE_OF_DatabaseName(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_z3950_ElementSetName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 103, TRUE, dissect_z3950_InternationalString);
+                                      hf_index, BER_CLASS_CON, 103, true, dissect_z3950_InternationalString);
 
   return offset;
 }
@@ -2703,7 +2703,7 @@ dissect_z3950_SEQUENCE_OF_AttributeElement(bool implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_z3950_AttributeList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 44, TRUE, dissect_z3950_SEQUENCE_OF_AttributeElement);
+                                      hf_index, BER_CLASS_CON, 44, true, dissect_z3950_SEQUENCE_OF_AttributeElement);
 
   return offset;
 }
@@ -2815,7 +2815,7 @@ dissect_z3950_AttributesPlusTerm_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_z3950_AttributesPlusTerm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 102, TRUE, dissect_z3950_AttributesPlusTerm_U);
+                                      hf_index, BER_CLASS_CON, 102, true, dissect_z3950_AttributesPlusTerm_U);
 
   return offset;
 }
@@ -2825,7 +2825,7 @@ dissect_z3950_AttributesPlusTerm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_z3950_ResultSetId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 31, TRUE, dissect_z3950_InternationalString);
+                                      hf_index, BER_CLASS_CON, 31, true, dissect_z3950_InternationalString);
 
   return offset;
 }
@@ -2850,7 +2850,7 @@ dissect_z3950_ResultSetPlusAttributes_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_z3950_ResultSetPlusAttributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 214, TRUE, dissect_z3950_ResultSetPlusAttributes_U);
+                                      hf_index, BER_CLASS_CON, 214, true, dissect_z3950_ResultSetPlusAttributes_U);
 
   return offset;
 }
@@ -2995,7 +2995,7 @@ dissect_z3950_Operator_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_z3950_Operator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 46, FALSE, dissect_z3950_Operator_U);
+                                      hf_index, BER_CLASS_CON, 46, false, dissect_z3950_Operator_U);
 
   return offset;
 }
@@ -3156,7 +3156,7 @@ dissect_z3950_PresentStatus_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_z3950_PresentStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 27, TRUE, dissect_z3950_PresentStatus_U);
+                                      hf_index, BER_CLASS_CON, 27, true, dissect_z3950_PresentStatus_U);
 
   return offset;
 }
@@ -3676,7 +3676,7 @@ dissect_z3950_DeleteSetStatus_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_z3950_DeleteSetStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 33, TRUE, dissect_z3950_DeleteSetStatus_U);
+                                      hf_index, BER_CLASS_CON, 33, true, dissect_z3950_DeleteSetStatus_U);
 
   return offset;
 }
@@ -4657,7 +4657,7 @@ dissect_z3950_CloseReason_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_z3950_CloseReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 211, TRUE, dissect_z3950_CloseReason_U);
+                                      hf_index, BER_CLASS_CON, 211, true, dissect_z3950_CloseReason_U);
 
   return offset;
 }
@@ -4759,7 +4759,7 @@ dissect_z3950_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_z3950_DBName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 2, TRUE, dissect_z3950_VisibleString);
+                                      hf_index, BER_CLASS_CON, 2, true, dissect_z3950_VisibleString);
 
   return offset;
 }
@@ -8534,84 +8534,84 @@ static int dissect_OCLC_UserInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_OCLC_UserInformation(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_OCLC_UserInformation_PDU);
+  offset = dissect_z3950_OCLC_UserInformation(false, tvb, offset, &asn1_ctx, tree, hf_z3950_OCLC_UserInformation_PDU);
   return offset;
 }
 static int dissect_SutrsRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_SutrsRecord(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_SutrsRecord_PDU);
+  offset = dissect_z3950_SutrsRecord(false, tvb, offset, &asn1_ctx, tree, hf_z3950_SutrsRecord_PDU);
   return offset;
 }
 static int dissect_OPACRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_OPACRecord(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_OPACRecord_PDU);
+  offset = dissect_z3950_OPACRecord(false, tvb, offset, &asn1_ctx, tree, hf_z3950_OPACRecord_PDU);
   return offset;
 }
 static int dissect_DiagnosticFormat_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_DiagnosticFormat(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_DiagnosticFormat_PDU);
+  offset = dissect_z3950_DiagnosticFormat(false, tvb, offset, &asn1_ctx, tree, hf_z3950_DiagnosticFormat_PDU);
   return offset;
 }
 static int dissect_Explain_Record_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_Explain_Record(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_Explain_Record_PDU);
+  offset = dissect_z3950_Explain_Record(false, tvb, offset, &asn1_ctx, tree, hf_z3950_Explain_Record_PDU);
   return offset;
 }
 static int dissect_BriefBib_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_BriefBib(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_BriefBib_PDU);
+  offset = dissect_z3950_BriefBib(false, tvb, offset, &asn1_ctx, tree, hf_z3950_BriefBib_PDU);
   return offset;
 }
 static int dissect_GenericRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_GenericRecord(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_GenericRecord_PDU);
+  offset = dissect_z3950_GenericRecord(false, tvb, offset, &asn1_ctx, tree, hf_z3950_GenericRecord_PDU);
   return offset;
 }
 static int dissect_TaskPackage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_TaskPackage(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_TaskPackage_PDU);
+  offset = dissect_z3950_TaskPackage(false, tvb, offset, &asn1_ctx, tree, hf_z3950_TaskPackage_PDU);
   return offset;
 }
 static int dissect_PromptObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_PromptObject(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_PromptObject_PDU);
+  offset = dissect_z3950_PromptObject(false, tvb, offset, &asn1_ctx, tree, hf_z3950_PromptObject_PDU);
   return offset;
 }
 static int dissect_DES_RN_Object_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_DES_RN_Object(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_DES_RN_Object_PDU);
+  offset = dissect_z3950_DES_RN_Object(false, tvb, offset, &asn1_ctx, tree, hf_z3950_DES_RN_Object_PDU);
   return offset;
 }
 static int dissect_KRBObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_KRBObject(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_KRBObject_PDU);
+  offset = dissect_z3950_KRBObject(false, tvb, offset, &asn1_ctx, tree, hf_z3950_KRBObject_PDU);
   return offset;
 }
 static int dissect_SearchInfoReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_z3950_SearchInfoReport(FALSE, tvb, offset, &asn1_ctx, tree, hf_z3950_SearchInfoReport_PDU);
+  offset = dissect_z3950_SearchInfoReport(false, tvb, offset, &asn1_ctx, tree, hf_z3950_SearchInfoReport_PDU);
   return offset;
 }
 

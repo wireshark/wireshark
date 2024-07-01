@@ -2058,7 +2058,7 @@ dissect_snmp_OCTET_STRING_SIZE_4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_snmp_NetworkAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_snmp_OCTET_STRING_SIZE_4);
+                                      hf_index, BER_CLASS_APP, 0, true, dissect_snmp_OCTET_STRING_SIZE_4);
 
   return offset;
 }
@@ -2078,7 +2078,7 @@ dissect_snmp_INTEGER_0_4294967295(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_snmp_TimeTicks(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 3, TRUE, dissect_snmp_INTEGER_0_4294967295);
+                                      hf_index, BER_CLASS_APP, 3, true, dissect_snmp_INTEGER_0_4294967295);
 
   return offset;
 }
@@ -2225,7 +2225,7 @@ dissect_snmp_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_snmp_GetRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 0, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 0, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2235,7 +2235,7 @@ dissect_snmp_GetRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_snmp_GetNextRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 1, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 1, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2245,7 +2245,7 @@ dissect_snmp_GetNextRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_snmp_GetResponse_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 2, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 2, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2255,7 +2255,7 @@ dissect_snmp_GetResponse_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_snmp_SetRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2334,7 +2334,7 @@ dissect_snmp_Trap_PDU_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_snmp_Trap_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 4, TRUE, dissect_snmp_Trap_PDU_U);
+                                      hf_index, BER_CLASS_CON, 4, true, dissect_snmp_Trap_PDU_U);
 
   return offset;
 }
@@ -2371,7 +2371,7 @@ dissect_snmp_BulkPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_snmp_GetBulkRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 5, TRUE, dissect_snmp_BulkPDU);
+                                      hf_index, BER_CLASS_CON, 5, true, dissect_snmp_BulkPDU);
 
   return offset;
 }
@@ -2381,7 +2381,7 @@ dissect_snmp_GetBulkRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_snmp_InformRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 6, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 6, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2391,7 +2391,7 @@ dissect_snmp_InformRequest_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_snmp_SNMPv2_Trap_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 7, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 7, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2401,7 +2401,7 @@ dissect_snmp_SNMPv2_Trap_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_snmp_Report_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 8, TRUE, dissect_snmp_PDU);
+                                      hf_index, BER_CLASS_CON, 8, true, dissect_snmp_PDU);
 
   return offset;
 }
@@ -2910,7 +2910,7 @@ dissect_snmp_SimpleOpen_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_snmp_SimpleOpen(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_snmp_SimpleOpen_U);
+                                      hf_index, BER_CLASS_APP, 0, true, dissect_snmp_SimpleOpen_U);
 
   return offset;
 }
@@ -2960,7 +2960,7 @@ dissect_snmp_ClosePDU_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_snmp_ClosePDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_snmp_ClosePDU_U);
+                                      hf_index, BER_CLASS_APP, 1, true, dissect_snmp_ClosePDU_U);
 
   return offset;
 }
@@ -3013,7 +3013,7 @@ dissect_snmp_RReqPDU_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_snmp_RReqPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 2, TRUE, dissect_snmp_RReqPDU_U);
+                                      hf_index, BER_CLASS_APP, 2, true, dissect_snmp_RReqPDU_U);
 
   return offset;
 }
@@ -3038,7 +3038,7 @@ dissect_snmp_RRspPDU_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_snmp_RRspPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 3, TRUE, dissect_snmp_RRspPDU_U);
+                                      hf_index, BER_CLASS_APP, 3, true, dissect_snmp_RRspPDU_U);
 
   return offset;
 }
@@ -3086,7 +3086,7 @@ dissect_snmp_SOutPDU_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_snmp_SOutPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_snmp_SOutPDU_U);
+                                      hf_index, BER_CLASS_APP, 4, true, dissect_snmp_SOutPDU_U);
 
   return offset;
 }
@@ -3130,7 +3130,7 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_snmp_SMUX_PDUs(FALSE, tvb, offset, &asn1_ctx, tree, hf_snmp_SMUX_PDUs_PDU);
+  offset = dissect_snmp_SMUX_PDUs(false, tvb, offset, &asn1_ctx, tree, hf_snmp_SMUX_PDUs_PDU);
   return offset;
 }
 

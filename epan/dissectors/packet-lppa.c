@@ -505,7 +505,7 @@ static const value_string lppa_Criticality_vals[] = {
 static int
 dissect_lppa_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
+                                     3, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -515,7 +515,7 @@ dissect_lppa_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_lppa_LPPATransactionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 32767U, NULL, FALSE);
+                                                            0U, 32767U, NULL, false);
 
   return offset;
 }
@@ -525,7 +525,7 @@ dissect_lppa_LPPATransactionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxPrivateIEs, NULL, FALSE);
+                                                            0U, maxPrivateIEs, NULL, false);
 
   return offset;
 }
@@ -583,7 +583,7 @@ dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, &lppa_data->procedure_code, FALSE);
+                                                            0U, 255U, &lppa_data->procedure_code, false);
 
 
   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
@@ -631,7 +631,7 @@ static int
 dissect_lppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxProtocolIEs, &lppa_data->protocol_ie_id, FALSE);
+                                                            0U, maxProtocolIEs, &lppa_data->protocol_ie_id, false);
 
 
 
@@ -654,7 +654,7 @@ static const value_string lppa_TriggeringMessage_vals[] = {
 static int
 dissect_lppa_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
+                                     3, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -693,7 +693,7 @@ static int
 dissect_lppa_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ProtocolIE_Container, ProtocolIE_Container_sequence_of,
-                                                  0, maxProtocolIEs, FALSE);
+                                                  0, maxProtocolIEs, false);
 
   return offset;
 }
@@ -741,7 +741,7 @@ static int
 dissect_lppa_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ProtocolExtensionContainer, ProtocolExtensionContainer_sequence_of,
-                                                  1, maxProtocolExtensions, FALSE);
+                                                  1, maxProtocolExtensions, false);
 
   return offset;
 }
@@ -780,7 +780,7 @@ static int
 dissect_lppa_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_PrivateIE_Container, PrivateIE_Container_sequence_of,
-                                                  1, maxPrivateIEs, FALSE);
+                                                  1, maxPrivateIEs, false);
 
   return offset;
 }
@@ -790,7 +790,7 @@ dissect_lppa_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_lppa_PCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 503U, NULL, TRUE);
+                                                            0U, 503U, NULL, true);
 
   return offset;
 }
@@ -800,7 +800,7 @@ dissect_lppa_PCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 static int
 dissect_lppa_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
+                                       3, 3, false, NULL);
 
   return offset;
 }
@@ -810,7 +810,7 @@ dissect_lppa_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_lppa_EUTRANCellIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     28, 28, FALSE, NULL, 0, NULL, NULL);
+                                     28, 28, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -836,7 +836,7 @@ dissect_lppa_ECGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 static int
 dissect_lppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+                                       2, 2, false, NULL);
 
   return offset;
 }
@@ -846,7 +846,7 @@ dissect_lppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 static int
 dissect_lppa_EARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, TRUE);
+                                                            0U, 65535U, NULL, true);
 
   return offset;
 }
@@ -866,7 +866,7 @@ static const value_string lppa_PRS_Bandwidth_vals[] = {
 static int
 dissect_lppa_PRS_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -876,7 +876,7 @@ dissect_lppa_PRS_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_lppa_PRS_Configuration_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
+                                                            0U, 4095U, NULL, true);
 
   return offset;
 }
@@ -892,7 +892,7 @@ static const value_string lppa_CPLength_vals[] = {
 static int
 dissect_lppa_CPLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -910,7 +910,7 @@ static const value_string lppa_NumberOfDlFrames_vals[] = {
 static int
 dissect_lppa_NumberOfDlFrames(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -926,7 +926,7 @@ static const value_string lppa_NumberOfAntennaPorts_vals[] = {
 static int
 dissect_lppa_NumberOfAntennaPorts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -936,7 +936,7 @@ dissect_lppa_NumberOfAntennaPorts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_lppa_SFNInitialisationTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, 0, NULL, NULL);
+                                     64, 64, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -952,7 +952,7 @@ static const value_string lppa_T_latitudeSign_vals[] = {
 static int
 dissect_lppa_T_latitudeSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -962,7 +962,7 @@ dissect_lppa_T_latitudeSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_lppa_INTEGER_0_8388607(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 8388607U, NULL, FALSE);
+                                                            0U, 8388607U, NULL, false);
 
   return offset;
 }
@@ -972,7 +972,7 @@ dissect_lppa_INTEGER_0_8388607(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_INTEGER_M8388608_8388607(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -8388608, 8388607U, NULL, FALSE);
+                                                            -8388608, 8388607U, NULL, false);
 
   return offset;
 }
@@ -988,7 +988,7 @@ static const value_string lppa_T_directionOfAltitude_vals[] = {
 static int
 dissect_lppa_T_directionOfAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -998,7 +998,7 @@ dissect_lppa_T_directionOfAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_lppa_INTEGER_0_32767(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 32767U, NULL, FALSE);
+                                                            0U, 32767U, NULL, false);
 
   return offset;
 }
@@ -1008,7 +1008,7 @@ dissect_lppa_INTEGER_0_32767(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_lppa_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, false);
 
   return offset;
 }
@@ -1018,7 +1018,7 @@ dissect_lppa_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_lppa_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 179U, NULL, FALSE);
+                                                            0U, 179U, NULL, false);
 
   return offset;
 }
@@ -1028,7 +1028,7 @@ dissect_lppa_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_lppa_INTEGER_0_100(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 100U, NULL, FALSE);
+                                                            0U, 100U, NULL, false);
 
   return offset;
 }
@@ -1061,7 +1061,7 @@ dissect_lppa_E_UTRANAccessPointPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lppa_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, 0, NULL, NULL);
+                                     2, 2, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1071,7 +1071,7 @@ dissect_lppa_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, 0, NULL, NULL);
+                                     4, 4, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1081,7 +1081,7 @@ dissect_lppa_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, 0, NULL, NULL);
+                                     8, 8, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1091,7 +1091,7 @@ dissect_lppa_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+                                     16, 16, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1101,7 +1101,7 @@ dissect_lppa_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppa_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, 0, NULL, NULL);
+                                     32, 32, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1111,7 +1111,7 @@ dissect_lppa_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppa_BIT_STRING_SIZE_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, 0, NULL, NULL);
+                                     64, 64, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1121,7 +1121,7 @@ dissect_lppa_BIT_STRING_SIZE_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppa_BIT_STRING_SIZE_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE, NULL, 0, NULL, NULL);
+                                     128, 128, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1131,7 +1131,7 @@ dissect_lppa_BIT_STRING_SIZE_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_lppa_BIT_STRING_SIZE_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     256, 256, FALSE, NULL, 0, NULL, NULL);
+                                     256, 256, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1141,7 +1141,7 @@ dissect_lppa_BIT_STRING_SIZE_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_lppa_BIT_STRING_SIZE_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     512, 512, FALSE, NULL, 0, NULL, NULL);
+                                     512, 512, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1151,7 +1151,7 @@ dissect_lppa_BIT_STRING_SIZE_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_lppa_BIT_STRING_SIZE_1024(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1024, 1024, FALSE, NULL, 0, NULL, NULL);
+                                     1024, 1024, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1199,7 +1199,7 @@ dissect_lppa_PRSMutingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_lppa_PRS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
+                                                            0U, 4095U, NULL, true);
 
   return offset;
 }
@@ -1209,7 +1209,7 @@ dissect_lppa_PRS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_lppa_TP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
+                                                            0U, 4095U, NULL, true);
 
   return offset;
 }
@@ -1224,7 +1224,7 @@ static const value_string lppa_TP_Type_vals[] = {
 static int
 dissect_lppa_TP_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1234,7 +1234,7 @@ dissect_lppa_TP_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_lppa_NumberOfDlFrames_Extended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 160U, NULL, TRUE);
+                                                            1U, 160U, NULL, true);
 
   return offset;
 }
@@ -1254,7 +1254,7 @@ static const value_string lppa_T_radioframeAllocationPeriod_vals[] = {
 static int
 dissect_lppa_T_radioframeAllocationPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, FALSE, 0, NULL);
+                                     6, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -1264,7 +1264,7 @@ dissect_lppa_T_radioframeAllocationPeriod(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_lppa_INTEGER_0_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 7U, NULL, FALSE);
+                                                            0U, 7U, NULL, false);
 
   return offset;
 }
@@ -1274,7 +1274,7 @@ dissect_lppa_INTEGER_0_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_lppa_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, 0, NULL, NULL);
+                                     6, 6, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1284,7 +1284,7 @@ dissect_lppa_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE, NULL, 0, NULL, NULL);
+                                     24, 24, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1336,7 +1336,7 @@ static int
 dissect_lppa_MBSFNsubframeConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_MBSFNsubframeConfiguration, MBSFNsubframeConfiguration_sequence_of,
-                                                  1, maxMBSFN_Allocations, FALSE);
+                                                  1, maxMBSFN_Allocations, false);
 
   return offset;
 }
@@ -1346,7 +1346,7 @@ dissect_lppa_MBSFNsubframeConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lppa_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1356,7 +1356,7 @@ dissect_lppa_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppa_BIT_STRING_SIZE_40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     40, 40, FALSE, NULL, 0, NULL, NULL);
+                                     40, 40, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1446,7 +1446,7 @@ static const value_string lppa_T_numberofNPRSOneOccasion_vals[] = {
 static int
 dissect_lppa_T_numberofNPRSOneOccasion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 1, NULL);
+                                     8, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -1465,7 +1465,7 @@ static const value_string lppa_T_periodicityofNPRS_vals[] = {
 static int
 dissect_lppa_T_periodicityofNPRS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 1, NULL);
+                                     4, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -1487,7 +1487,7 @@ static const value_string lppa_T_startingsubframeoffset_vals[] = {
 static int
 dissect_lppa_T_startingsubframeoffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1504,7 +1504,7 @@ static const value_string lppa_T_sIB1_NB_Subframe_TDD_vals[] = {
 static int
 dissect_lppa_T_sIB1_NB_Subframe_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1572,7 +1572,7 @@ static const value_string lppa_OffsetNBChanneltoEARFCN_vals[] = {
 static int
 dissect_lppa_OffsetNBChanneltoEARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     21, NULL, TRUE, 0, NULL);
+                                     21, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1589,7 +1589,7 @@ static const value_string lppa_OperationModeInfo_vals[] = {
 static int
 dissect_lppa_OperationModeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1599,7 +1599,7 @@ dissect_lppa_OperationModeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_INTEGER_0_4095_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
+                                                            0U, 4095U, NULL, true);
 
   return offset;
 }
@@ -1619,7 +1619,7 @@ static const value_string lppa_DL_Bandwidth_vals[] = {
 static int
 dissect_lppa_DL_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1640,7 +1640,7 @@ static const value_string lppa_PRSOccasionGroup_vals[] = {
 static int
 dissect_lppa_PRSOccasionGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     7, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1656,7 +1656,7 @@ static const value_string lppa_NumberOfFrequencyHoppingBands_vals[] = {
 static int
 dissect_lppa_NumberOfFrequencyHoppingBands(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1666,7 +1666,7 @@ dissect_lppa_NumberOfFrequencyHoppingBands(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_lppa_NarrowBandIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 15U, NULL, TRUE);
+                                                            0U, 15U, NULL, true);
 
   return offset;
 }
@@ -1680,7 +1680,7 @@ static int
 dissect_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex, SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex_sequence_of,
-                                                  1, maxnoFreqHoppingBandsMinusOne, FALSE);
+                                                  1, maxnoFreqHoppingBandsMinusOne, false);
 
   return offset;
 }
@@ -1713,7 +1713,7 @@ static const value_string lppa_RepetitionNumberofSIB1_NB_vals[] = {
 static int
 dissect_lppa_RepetitionNumberofSIB1_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1723,7 +1723,7 @@ dissect_lppa_RepetitionNumberofSIB1_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_lppa_NPRSSequenceInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 174U, NULL, TRUE);
+                                                            0U, 174U, NULL, true);
 
   return offset;
 }
@@ -1744,7 +1744,7 @@ static const value_string lppa_T_subframeAssignment_vals[] = {
 static int
 dissect_lppa_T_subframeAssignment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     7, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1849,7 +1849,7 @@ static int
 dissect_lppa_Add_OTDOACell_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_Add_OTDOACell_Information, Add_OTDOACell_Information_sequence_of,
-                                                  1, maxnoOTDOAtypes, FALSE);
+                                                  1, maxnoOTDOAtypes, false);
 
   return offset;
 }
@@ -1878,7 +1878,7 @@ static int
 dissect_lppa_Add_OTDOACells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_Add_OTDOACells, Add_OTDOACells_sequence_of,
-                                                  1, maxCellineNB_ext, FALSE);
+                                                  1, maxCellineNB_ext, false);
 
   return offset;
 }
@@ -1899,7 +1899,7 @@ static const value_string lppa_BroadcastPeriodicity_vals[] = {
 static int
 dissect_lppa_BroadcastPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     7, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1944,7 +1944,7 @@ static const value_string lppa_PosSIB_Type_vals[] = {
 static int
 dissect_lppa_PosSIB_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     27, NULL, TRUE, 4, NULL);
+                                     27, NULL, true, 4, NULL);
 
   return offset;
 }
@@ -1954,7 +1954,7 @@ dissect_lppa_PosSIB_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_lppa_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -1983,7 +1983,7 @@ static int
 dissect_lppa_PosSIB_Segments(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_PosSIB_Segments, PosSIB_Segments_sequence_of,
-                                                  1, maxNrOfSegments, FALSE);
+                                                  1, maxNrOfSegments, false);
 
   return offset;
 }
@@ -1998,7 +1998,7 @@ static const value_string lppa_T_encrypted_vals[] = {
 static int
 dissect_lppa_T_encrypted(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2019,7 +2019,7 @@ static const value_string lppa_T_gNSSID_vals[] = {
 static int
 dissect_lppa_T_gNSSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 1, NULL);
+                                     6, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -2037,7 +2037,7 @@ static const value_string lppa_T_sBASID_vals[] = {
 static int
 dissect_lppa_T_sBASID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2064,7 +2064,7 @@ dissect_lppa_AssistanceInformationMetaData(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_lppa_INTEGER_1_16_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 16U, NULL, TRUE);
+                                                            1U, 16U, NULL, true);
 
   return offset;
 }
@@ -2096,7 +2096,7 @@ static int
 dissect_lppa_PosSIBs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_PosSIBs, PosSIBs_sequence_of,
-                                                  1, maxNrOfPosSIBs, FALSE);
+                                                  1, maxNrOfPosSIBs, false);
 
   return offset;
 }
@@ -2126,7 +2126,7 @@ static int
 dissect_lppa_SystemInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_SystemInformation, SystemInformation_sequence_of,
-                                                  1, maxNrOfPosSImessage, FALSE);
+                                                  1, maxNrOfPosSImessage, false);
 
   return offset;
 }
@@ -2156,7 +2156,7 @@ static const value_string lppa_Outcome_vals[] = {
 static int
 dissect_lppa_Outcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2186,7 +2186,7 @@ static int
 dissect_lppa_AssistanceInformationFailureList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_AssistanceInformationFailureList, AssistanceInformationFailureList_sequence_of,
-                                                  1, maxnoAssistInfoFailureListItems, FALSE);
+                                                  1, maxnoAssistInfoFailureListItems, false);
 
   return offset;
 }
@@ -2196,7 +2196,7 @@ dissect_lppa_AssistanceInformationFailureList(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_lppa_BCCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1023U, NULL, TRUE);
+                                                            0U, 1023U, NULL, true);
 
   return offset;
 }
@@ -2212,7 +2212,7 @@ static const value_string lppa_Broadcast_vals[] = {
 static int
 dissect_lppa_Broadcast(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2222,7 +2222,7 @@ dissect_lppa_Broadcast(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_lppa_BSSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       6, 6, FALSE, NULL);
+                                       6, 6, false, NULL);
 
   return offset;
 }
@@ -2239,7 +2239,7 @@ static const value_string lppa_CauseRadioNetwork_vals[] = {
 static int
 dissect_lppa_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2260,7 +2260,7 @@ static const value_string lppa_CauseProtocol_vals[] = {
 static int
 dissect_lppa_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     7, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2275,7 +2275,7 @@ static const value_string lppa_CauseMisc_vals[] = {
 static int
 dissect_lppa_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2309,7 +2309,7 @@ dissect_lppa_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_lppa_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, TRUE);
+                                                            0U, 255U, NULL, true);
 
   return offset;
 }
@@ -2325,7 +2325,7 @@ static const value_string lppa_TypeOfError_vals[] = {
 static int
 dissect_lppa_TypeOfError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2356,7 +2356,7 @@ static int
 dissect_lppa_CriticalityDiagnostics_IE_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_CriticalityDiagnostics_IE_List, CriticalityDiagnostics_IE_List_sequence_of,
-                                                  1, maxNrOfErrors, FALSE);
+                                                  1, maxNrOfErrors, false);
 
   return offset;
 }
@@ -2385,7 +2385,7 @@ dissect_lppa_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_lppa_INTEGER_0_719(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 719U, NULL, FALSE);
+                                                            0U, 719U, NULL, false);
 
   return offset;
 }
@@ -2395,7 +2395,7 @@ dissect_lppa_INTEGER_0_719(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_lppa_INTEGER_0_7690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 7690U, NULL, FALSE);
+                                                            0U, 7690U, NULL, false);
 
   return offset;
 }
@@ -2405,7 +2405,7 @@ dissect_lppa_INTEGER_0_7690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_lppa_ValueRSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 97U, NULL, TRUE);
+                                                            0U, 97U, NULL, true);
 
   return offset;
 }
@@ -2437,7 +2437,7 @@ static int
 dissect_lppa_ResultRSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ResultRSRP, ResultRSRP_sequence_of,
-                                                  1, maxCellReport, FALSE);
+                                                  1, maxCellReport, false);
 
   return offset;
 }
@@ -2447,7 +2447,7 @@ dissect_lppa_ResultRSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_lppa_ValueRSRQ(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 34U, NULL, TRUE);
+                                                            0U, 34U, NULL, true);
 
   return offset;
 }
@@ -2479,7 +2479,7 @@ static int
 dissect_lppa_ResultRSRQ(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ResultRSRQ, ResultRSRQ_sequence_of,
-                                                  1, maxCellReport, FALSE);
+                                                  1, maxCellReport, false);
 
   return offset;
 }
@@ -2521,7 +2521,7 @@ static int
 dissect_lppa_MeasuredResults(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_MeasuredResults, MeasuredResults_sequence_of,
-                                                  1, maxNoMeas, FALSE);
+                                                  1, maxNoMeas, false);
 
   return offset;
 }
@@ -2548,7 +2548,7 @@ dissect_lppa_E_CID_MeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_lppa_HESSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       6, 6, FALSE, NULL);
+                                       6, 6, false, NULL);
 
   return offset;
 }
@@ -2562,7 +2562,7 @@ static int
 dissect_lppa_InterRATMeasurementQuantities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_InterRATMeasurementQuantities, InterRATMeasurementQuantities_sequence_of,
-                                                  0, maxNoMeas, FALSE);
+                                                  0, maxNoMeas, false);
 
   return offset;
 }
@@ -2579,7 +2579,7 @@ static const value_string lppa_InterRATMeasurementQuantitiesValue_vals[] = {
 static int
 dissect_lppa_InterRATMeasurementQuantitiesValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 1, NULL);
+                                     2, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -2604,7 +2604,7 @@ dissect_lppa_InterRATMeasurementQuantities_Item(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_lppa_PhysCellIDGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, TRUE);
+                                                            0U, 63U, NULL, true);
 
   return offset;
 }
@@ -2614,7 +2614,7 @@ dissect_lppa_PhysCellIDGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_lppa_RSSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, TRUE);
+                                                            0U, 63U, NULL, true);
 
   return offset;
 }
@@ -2645,7 +2645,7 @@ static int
 dissect_lppa_ResultGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ResultGERAN, ResultGERAN_sequence_of,
-                                                  1, maxGERANMeas, FALSE);
+                                                  1, maxGERANMeas, false);
 
   return offset;
 }
@@ -2655,7 +2655,7 @@ dissect_lppa_ResultGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_lppa_UARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 16383U, NULL, TRUE);
+                                                            0U, 16383U, NULL, true);
 
   return offset;
 }
@@ -2665,7 +2665,7 @@ dissect_lppa_UARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_lppa_PhysCellIDUTRA_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 511U, NULL, TRUE);
+                                                            0U, 511U, NULL, true);
 
   return offset;
 }
@@ -2675,7 +2675,7 @@ dissect_lppa_PhysCellIDUTRA_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppa_PhysCellIDUTRA_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, TRUE);
+                                                            0U, 127U, NULL, true);
 
   return offset;
 }
@@ -2707,7 +2707,7 @@ dissect_lppa_T_physCellIDUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_UTRA_RSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -5, 91U, NULL, TRUE);
+                                                            -5, 91U, NULL, true);
 
   return offset;
 }
@@ -2717,7 +2717,7 @@ dissect_lppa_UTRA_RSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_lppa_UTRA_EcN0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 49U, NULL, TRUE);
+                                                            0U, 49U, NULL, true);
 
   return offset;
 }
@@ -2749,7 +2749,7 @@ static int
 dissect_lppa_ResultUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ResultUTRAN, ResultUTRAN_sequence_of,
-                                                  1, maxUTRANMeas, FALSE);
+                                                  1, maxUTRANMeas, false);
 
   return offset;
 }
@@ -2759,7 +2759,7 @@ dissect_lppa_ResultUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_lppa_NRARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 3279165U, NULL, FALSE);
+                                                            0U, 3279165U, NULL, false);
 
   return offset;
 }
@@ -2769,7 +2769,7 @@ dissect_lppa_NRARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_lppa_NRPCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1007U, NULL, FALSE);
+                                                            0U, 1007U, NULL, false);
 
   return offset;
 }
@@ -2779,7 +2779,7 @@ dissect_lppa_NRPCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_lppa_SS_NRRSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, false);
 
   return offset;
 }
@@ -2789,7 +2789,7 @@ dissect_lppa_SS_NRRSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_lppa_SS_NRRSRQ(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, false);
 
   return offset;
 }
@@ -2821,7 +2821,7 @@ static int
 dissect_lppa_ResultNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ResultNR, ResultNR_sequence_of,
-                                                  1, maxNRmeas, FALSE);
+                                                  1, maxNRmeas, false);
 
   return offset;
 }
@@ -2859,7 +2859,7 @@ static int
 dissect_lppa_InterRATMeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_InterRATMeasurementResult, InterRATMeasurementResult_sequence_of,
-                                                  1, maxNoMeas, FALSE);
+                                                  1, maxNoMeas, false);
 
   return offset;
 }
@@ -2869,7 +2869,7 @@ dissect_lppa_InterRATMeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_lppa_Measurement_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 15U, NULL, TRUE);
+                                                            1U, 15U, NULL, true);
 
   return offset;
 }
@@ -2896,7 +2896,7 @@ static const value_string lppa_MeasurementPeriodicity_vals[] = {
 static int
 dissect_lppa_MeasurementPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     13, NULL, TRUE, 0, NULL);
+                                     13, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2910,7 +2910,7 @@ static int
 dissect_lppa_MeasurementQuantities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_MeasurementQuantities, MeasurementQuantities_sequence_of,
-                                                  1, maxNoMeas, FALSE);
+                                                  1, maxNoMeas, false);
 
   return offset;
 }
@@ -2930,7 +2930,7 @@ static const value_string lppa_MeasurementQuantitiesValue_vals[] = {
 static int
 dissect_lppa_MeasurementQuantitiesValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -2955,7 +2955,7 @@ dissect_lppa_MeasurementQuantities_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lppa_NRCellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     36, 36, FALSE, NULL, 0, NULL, NULL);
+                                     36, 36, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2985,7 +2985,7 @@ static int
 dissect_lppa_OTDOACell_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_OTDOACell_Information, OTDOACell_Information_sequence_of,
-                                                  1, maxnoOTDOAtypes, FALSE);
+                                                  1, maxnoOTDOAtypes, false);
 
   return offset;
 }
@@ -3014,7 +3014,7 @@ static int
 dissect_lppa_OTDOACells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_OTDOACells, OTDOACells_sequence_of,
-                                                  1, maxCellineNB, FALSE);
+                                                  1, maxCellineNB, false);
 
   return offset;
 }
@@ -3057,7 +3057,7 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
 static int
 dissect_lppa_OTDOA_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 19, NULL);
+                                     10, NULL, true, 19, NULL);
 
   return offset;
 }
@@ -3073,7 +3073,7 @@ static const value_string lppa_ReportCharacteristics_vals[] = {
 static int
 dissect_lppa_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -3083,7 +3083,7 @@ dissect_lppa_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_lppa_INTEGER_0_500_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 500U, NULL, TRUE);
+                                                            0U, 500U, NULL, true);
 
   return offset;
 }
@@ -3093,7 +3093,7 @@ dissect_lppa_INTEGER_0_500_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_lppa_INTEGER_1_100_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 100U, NULL, TRUE);
+                                                            1U, 100U, NULL, true);
 
   return offset;
 }
@@ -3118,7 +3118,7 @@ dissect_lppa_RequestedSRSTransmissionCharacteristics(tvbuff_t *tvb _U_, int offs
 static int
 dissect_lppa_SSB_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, FALSE);
+                                                            0U, 63U, NULL, false);
 
   return offset;
 }
@@ -3149,7 +3149,7 @@ static int
 dissect_lppa_ResultsPerSSB_Index_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_ResultsPerSSB_Index_List, ResultsPerSSB_Index_List_sequence_of,
-                                                  1, maxResultsPerSSBIndex, FALSE);
+                                                  1, maxResultsPerSSBIndex, false);
 
   return offset;
 }
@@ -3169,7 +3169,7 @@ static const value_string lppa_T_ul_bandwidth_vals[] = {
 static int
 dissect_lppa_T_ul_bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, FALSE, 0, NULL);
+                                     6, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3191,7 +3191,7 @@ static const value_string lppa_T_srs_BandwidthConfig_vals[] = {
 static int
 dissect_lppa_T_srs_BandwidthConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, FALSE, 0, NULL);
+                                     8, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3209,7 +3209,7 @@ static const value_string lppa_T_srs_Bandwidth_vals[] = {
 static int
 dissect_lppa_T_srs_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, FALSE, 0, NULL);
+                                     4, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3226,7 +3226,7 @@ static const value_string lppa_T_srs_AntennaPort_vals[] = {
 static int
 dissect_lppa_T_srs_AntennaPort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -3244,7 +3244,7 @@ static const value_string lppa_T_srs_HoppingBandwidth_vals[] = {
 static int
 dissect_lppa_T_srs_HoppingBandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, FALSE, 0, NULL);
+                                     4, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3266,7 +3266,7 @@ static const value_string lppa_T_srs_cyclicShift_vals[] = {
 static int
 dissect_lppa_T_srs_cyclicShift(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, FALSE, 0, NULL);
+                                     8, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3276,7 +3276,7 @@ dissect_lppa_T_srs_cyclicShift(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppa_INTEGER_0_1023(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1023U, NULL, FALSE);
+                                                            0U, 1023U, NULL, false);
 
   return offset;
 }
@@ -3291,7 +3291,7 @@ static const value_string lppa_T_maxUpPts_vals[] = {
 static int
 dissect_lppa_T_maxUpPts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
+                                     1, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3301,7 +3301,7 @@ dissect_lppa_T_maxUpPts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_lppa_INTEGER_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1U, NULL, FALSE);
+                                                            0U, 1U, NULL, false);
 
   return offset;
 }
@@ -3311,7 +3311,7 @@ dissect_lppa_INTEGER_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_lppa_INTEGER_0_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 23U, NULL, FALSE);
+                                                            0U, 23U, NULL, false);
 
   return offset;
 }
@@ -3330,7 +3330,7 @@ dissect_lppa_BOOLEAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_lppa_INTEGER_0_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 29U, NULL, FALSE);
+                                                            0U, 29U, NULL, false);
 
   return offset;
 }
@@ -3373,7 +3373,7 @@ static int
 dissect_lppa_SRSConfigurationForAllCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_SRSConfigurationForAllCells, SRSConfigurationForAllCells_sequence_of,
-                                                  1, maxServCell, FALSE);
+                                                  1, maxServCell, false);
 
   return offset;
 }
@@ -3383,7 +3383,7 @@ dissect_lppa_SRSConfigurationForAllCells(tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_lppa_SSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 32, FALSE, NULL);
+                                       1, 32, false, NULL);
 
   return offset;
 }
@@ -3416,7 +3416,7 @@ static int
 dissect_lppa_WLANMeasurementQuantities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_WLANMeasurementQuantities, WLANMeasurementQuantities_sequence_of,
-                                                  0, maxNoMeas, FALSE);
+                                                  0, maxNoMeas, false);
 
   return offset;
 }
@@ -3431,7 +3431,7 @@ static const value_string lppa_WLANMeasurementQuantitiesValue_vals[] = {
 static int
 dissect_lppa_WLANMeasurementQuantitiesValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -3456,7 +3456,7 @@ dissect_lppa_WLANMeasurementQuantities_Item(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_lppa_WLAN_RSSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 141U, NULL, TRUE);
+                                                            0U, 141U, NULL, true);
 
   return offset;
 }
@@ -3466,7 +3466,7 @@ dissect_lppa_WLAN_RSSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_lppa_WLANOperatingClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -3484,7 +3484,7 @@ static const value_string lppa_WLANCountryCode_vals[] = {
 static int
 dissect_lppa_WLANCountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -3494,7 +3494,7 @@ dissect_lppa_WLANCountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_lppa_WLANChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -3508,7 +3508,7 @@ static int
 dissect_lppa_WLANChannelList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_WLANChannelList, WLANChannelList_sequence_of,
-                                                  1, maxWLANchannels, FALSE);
+                                                  1, maxWLANchannels, false);
 
   return offset;
 }
@@ -3524,7 +3524,7 @@ static const value_string lppa_WLANBand_vals[] = {
 static int
 dissect_lppa_WLANBand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -3560,7 +3560,7 @@ static int
 dissect_lppa_WLANMeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_WLANMeasurementResult, WLANMeasurementResult_sequence_of,
-                                                  1, maxNoMeas, FALSE);
+                                                  1, maxNoMeas, false);
 
   return offset;
 }
@@ -3672,7 +3672,7 @@ static int
 dissect_lppa_OTDOA_Information_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lppa_OTDOA_Information_Type, OTDOA_Information_Type_sequence_of,
-                                                  1, maxnoOTDOAtypes, FALSE);
+                                                  1, maxnoOTDOAtypes, false);
 
   return offset;
 }
@@ -3950,7 +3950,7 @@ dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int dissect_Add_OTDOACells_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_Add_OTDOACells(tvb, offset, &asn1_ctx, tree, hf_lppa_Add_OTDOACells_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -3958,7 +3958,7 @@ static int dissect_Add_OTDOACells_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_Assistance_Information(tvb, offset, &asn1_ctx, tree, hf_lppa_Assistance_Information_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -3966,7 +3966,7 @@ static int dissect_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_AssistanceInformationFailureList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_AssistanceInformationFailureList(tvb, offset, &asn1_ctx, tree, hf_lppa_AssistanceInformationFailureList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -3974,7 +3974,7 @@ static int dissect_AssistanceInformationFailureList_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_Broadcast_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_Broadcast(tvb, offset, &asn1_ctx, tree, hf_lppa_Broadcast_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -3982,7 +3982,7 @@ static int dissect_Broadcast_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_Cause(tvb, offset, &asn1_ctx, tree, hf_lppa_Cause_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -3990,7 +3990,7 @@ static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static int dissect_Cell_Portion_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_Cell_Portion_ID(tvb, offset, &asn1_ctx, tree, hf_lppa_Cell_Portion_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -3998,7 +3998,7 @@ static int dissect_Cell_Portion_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_CriticalityDiagnostics(tvb, offset, &asn1_ctx, tree, hf_lppa_CriticalityDiagnostics_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4006,7 +4006,7 @@ static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_E_CID_MeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CID_MeasurementResult(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CID_MeasurementResult_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4014,7 +4014,7 @@ static int dissect_E_CID_MeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_InterRATMeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_InterRATMeasurementQuantities(tvb, offset, &asn1_ctx, tree, hf_lppa_InterRATMeasurementQuantities_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4022,7 +4022,7 @@ static int dissect_InterRATMeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_InterRATMeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_InterRATMeasurementQuantities_Item(tvb, offset, &asn1_ctx, tree, hf_lppa_InterRATMeasurementQuantities_Item_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4030,7 +4030,7 @@ static int dissect_InterRATMeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_InterRATMeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_InterRATMeasurementResult(tvb, offset, &asn1_ctx, tree, hf_lppa_InterRATMeasurementResult_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4038,7 +4038,7 @@ static int dissect_InterRATMeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_Measurement_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_Measurement_ID(tvb, offset, &asn1_ctx, tree, hf_lppa_Measurement_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4046,7 +4046,7 @@ static int dissect_Measurement_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_MeasurementPeriodicity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_MeasurementPeriodicity(tvb, offset, &asn1_ctx, tree, hf_lppa_MeasurementPeriodicity_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4054,7 +4054,7 @@ static int dissect_MeasurementPeriodicity_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_MeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_MeasurementQuantities(tvb, offset, &asn1_ctx, tree, hf_lppa_MeasurementQuantities_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4062,7 +4062,7 @@ static int dissect_MeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_MeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_MeasurementQuantities_Item(tvb, offset, &asn1_ctx, tree, hf_lppa_MeasurementQuantities_Item_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4070,7 +4070,7 @@ static int dissect_MeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_NR_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_NR_CGI(tvb, offset, &asn1_ctx, tree, hf_lppa_NR_CGI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4078,7 +4078,7 @@ static int dissect_NR_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static int dissect_OTDOACells_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_OTDOACells(tvb, offset, &asn1_ctx, tree, hf_lppa_OTDOACells_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4086,7 +4086,7 @@ static int dissect_OTDOACells_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static int dissect_ReportCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_ReportCharacteristics(tvb, offset, &asn1_ctx, tree, hf_lppa_ReportCharacteristics_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4094,7 +4094,7 @@ static int dissect_ReportCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_RequestedSRSTransmissionCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_RequestedSRSTransmissionCharacteristics(tvb, offset, &asn1_ctx, tree, hf_lppa_RequestedSRSTransmissionCharacteristics_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4102,7 +4102,7 @@ static int dissect_RequestedSRSTransmissionCharacteristics_PDU(tvbuff_t *tvb _U_
 static int dissect_ResultsPerSSB_Index_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_ResultsPerSSB_Index_List(tvb, offset, &asn1_ctx, tree, hf_lppa_ResultsPerSSB_Index_List_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4110,7 +4110,7 @@ static int dissect_ResultsPerSSB_Index_List_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_ULConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_ULConfiguration(tvb, offset, &asn1_ctx, tree, hf_lppa_ULConfiguration_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4118,7 +4118,7 @@ static int dissect_ULConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_WLANMeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_WLANMeasurementQuantities(tvb, offset, &asn1_ctx, tree, hf_lppa_WLANMeasurementQuantities_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4126,7 +4126,7 @@ static int dissect_WLANMeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_WLANMeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_WLANMeasurementQuantities_Item(tvb, offset, &asn1_ctx, tree, hf_lppa_WLANMeasurementQuantities_Item_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4134,7 +4134,7 @@ static int dissect_WLANMeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_WLANMeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_WLANMeasurementResult(tvb, offset, &asn1_ctx, tree, hf_lppa_WLANMeasurementResult_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4142,7 +4142,7 @@ static int dissect_WLANMeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E_CIDMeasurementInitiationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CIDMeasurementInitiationRequest(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CIDMeasurementInitiationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4150,7 +4150,7 @@ static int dissect_E_CIDMeasurementInitiationRequest_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_E_CIDMeasurementInitiationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CIDMeasurementInitiationResponse(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CIDMeasurementInitiationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4158,7 +4158,7 @@ static int dissect_E_CIDMeasurementInitiationResponse_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_E_CIDMeasurementInitiationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CIDMeasurementInitiationFailure(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CIDMeasurementInitiationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4166,7 +4166,7 @@ static int dissect_E_CIDMeasurementInitiationFailure_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_E_CIDMeasurementFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CIDMeasurementFailureIndication(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CIDMeasurementFailureIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4174,7 +4174,7 @@ static int dissect_E_CIDMeasurementFailureIndication_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_E_CIDMeasurementReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CIDMeasurementReport(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CIDMeasurementReport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4182,7 +4182,7 @@ static int dissect_E_CIDMeasurementReport_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_E_CIDMeasurementTerminationCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_E_CIDMeasurementTerminationCommand(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CIDMeasurementTerminationCommand_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4190,7 +4190,7 @@ static int dissect_E_CIDMeasurementTerminationCommand_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_OTDOAInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_OTDOAInformationRequest(tvb, offset, &asn1_ctx, tree, hf_lppa_OTDOAInformationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4198,7 +4198,7 @@ static int dissect_OTDOAInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_OTDOA_Information_Type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_OTDOA_Information_Type(tvb, offset, &asn1_ctx, tree, hf_lppa_OTDOA_Information_Type_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4206,7 +4206,7 @@ static int dissect_OTDOA_Information_Type_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_OTDOA_Information_Type_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_OTDOA_Information_Type_Item(tvb, offset, &asn1_ctx, tree, hf_lppa_OTDOA_Information_Type_Item_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4214,7 +4214,7 @@ static int dissect_OTDOA_Information_Type_Item_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_OTDOAInformationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_OTDOAInformationResponse(tvb, offset, &asn1_ctx, tree, hf_lppa_OTDOAInformationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4222,7 +4222,7 @@ static int dissect_OTDOAInformationResponse_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_OTDOAInformationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_OTDOAInformationFailure(tvb, offset, &asn1_ctx, tree, hf_lppa_OTDOAInformationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4230,7 +4230,7 @@ static int dissect_OTDOAInformationFailure_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UTDOAInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_UTDOAInformationRequest(tvb, offset, &asn1_ctx, tree, hf_lppa_UTDOAInformationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4238,7 +4238,7 @@ static int dissect_UTDOAInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UTDOAInformationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_UTDOAInformationResponse(tvb, offset, &asn1_ctx, tree, hf_lppa_UTDOAInformationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4246,7 +4246,7 @@ static int dissect_UTDOAInformationResponse_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_UTDOAInformationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_UTDOAInformationFailure(tvb, offset, &asn1_ctx, tree, hf_lppa_UTDOAInformationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4254,7 +4254,7 @@ static int dissect_UTDOAInformationFailure_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UTDOAInformationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_UTDOAInformationUpdate(tvb, offset, &asn1_ctx, tree, hf_lppa_UTDOAInformationUpdate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4262,7 +4262,7 @@ static int dissect_UTDOAInformationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_AssistanceInformationControl_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_AssistanceInformationControl(tvb, offset, &asn1_ctx, tree, hf_lppa_AssistanceInformationControl_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4270,7 +4270,7 @@ static int dissect_AssistanceInformationControl_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_AssistanceInformationFeedback_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_AssistanceInformationFeedback(tvb, offset, &asn1_ctx, tree, hf_lppa_AssistanceInformationFeedback_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4278,7 +4278,7 @@ static int dissect_AssistanceInformationFeedback_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_ErrorIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_ErrorIndication(tvb, offset, &asn1_ctx, tree, hf_lppa_ErrorIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4286,7 +4286,7 @@ static int dissect_ErrorIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_PrivateMessage(tvb, offset, &asn1_ctx, tree, hf_lppa_PrivateMessage_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -4294,7 +4294,7 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_LPPA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_lppa_LPPA_PDU(tvb, offset, &asn1_ctx, tree, hf_lppa_LPPA_PDU_PDU);
   offset += 7; offset >>= 3;
   return offset;

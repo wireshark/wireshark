@@ -466,14 +466,14 @@ static int dissect_SecurityAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_novell_pkis_SecurityAttributes(FALSE, tvb, offset, &asn1_ctx, tree, hf_novell_pkis_SecurityAttributes_PDU);
+  offset = dissect_novell_pkis_SecurityAttributes(false, tvb, offset, &asn1_ctx, tree, hf_novell_pkis_SecurityAttributes_PDU);
   return offset;
 }
 static int dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_novell_pkis_RelianceLimits(FALSE, tvb, offset, &asn1_ctx, tree, hf_novell_pkis_RelianceLimits_PDU);
+  offset = dissect_novell_pkis_RelianceLimits(false, tvb, offset, &asn1_ctx, tree, hf_novell_pkis_RelianceLimits_PDU);
   return offset;
 }
 

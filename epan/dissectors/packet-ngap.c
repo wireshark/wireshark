@@ -3546,7 +3546,7 @@ static const value_string ngap_Criticality_vals[] = {
 static int
 dissect_ngap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
+                                     3, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -3556,7 +3556,7 @@ dissect_ngap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_ngap_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, false);
 
   return offset;
 }
@@ -3680,7 +3680,7 @@ static int
 dissect_ngap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, &ngap_data->procedure_code, FALSE);
+                                                            0U, 255U, &ngap_data->procedure_code, false);
 
 
   return offset;
@@ -3692,7 +3692,7 @@ static int
 dissect_ngap_ProtocolExtensionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, &ngap_data->protocol_extension_id, FALSE);
+                                                            0U, 65535U, &ngap_data->protocol_extension_id, false);
 
 
 
@@ -4078,7 +4078,7 @@ static int
 dissect_ngap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, &ngap_data->protocol_ie_id, FALSE);
+                                                            0U, 65535U, &ngap_data->protocol_ie_id, false);
 
 
 
@@ -4101,7 +4101,7 @@ static const value_string ngap_TriggeringMessage_vals[] = {
 static int
 dissect_ngap_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
+                                     3, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -4140,7 +4140,7 @@ static int
 dissect_ngap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ProtocolIE_Container, ProtocolIE_Container_sequence_of,
-                                                  0, maxProtocolIEs, FALSE);
+                                                  0, maxProtocolIEs, false);
 
   return offset;
 }
@@ -4188,7 +4188,7 @@ static int
 dissect_ngap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ProtocolExtensionContainer, ProtocolExtensionContainer_sequence_of,
-                                                  1, maxProtocolExtensions, FALSE);
+                                                  1, maxProtocolExtensions, false);
 
   return offset;
 }
@@ -4227,7 +4227,7 @@ static int
 dissect_ngap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PrivateIE_Container, PrivateIE_Container_sequence_of,
-                                                  1, maxPrivateIEs, FALSE);
+                                                  1, maxPrivateIEs, false);
 
   return offset;
 }
@@ -4241,7 +4241,7 @@ dissect_ngap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   int len;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, NULL, 0, &parameter_tvb, &len);
+                                     1, 160, true, NULL, 0, &parameter_tvb, &len);
 
   if (!parameter_tvb)
     return offset;
@@ -4269,7 +4269,7 @@ dissect_ngap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_ngap_GTP_TEID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, NULL);
+                                       4, 4, false, NULL);
 
   return offset;
 }
@@ -4317,7 +4317,7 @@ dissect_ngap_UPTransportLayerInformation(tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_ngap_QosFlowIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, TRUE);
+                                                            0U, 63U, NULL, true);
 
   return offset;
 }
@@ -4332,7 +4332,7 @@ static const value_string ngap_DataForwardingAccepted_vals[] = {
 static int
 dissect_ngap_DataForwardingAccepted(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -4362,7 +4362,7 @@ static int
 dissect_ngap_QosFlowListWithDataForwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowListWithDataForwarding, QosFlowListWithDataForwarding_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -4393,7 +4393,7 @@ static int
 dissect_ngap_AdditionalDLUPTNLInformationForHOList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AdditionalDLUPTNLInformationForHOList, AdditionalDLUPTNLInformationForHOList_sequence_of,
-                                                  1, maxnoofMultiConnectivityMinusOne, FALSE);
+                                                  1, maxnoofMultiConnectivityMinusOne, false);
 
   return offset;
 }
@@ -4408,7 +4408,7 @@ static const value_string ngap_AdditionalQosFlowInformation_vals[] = {
 static int
 dissect_ngap_AdditionalQosFlowInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -4418,7 +4418,7 @@ dissect_ngap_AdditionalQosFlowInformation(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_PriorityLevelARP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 15U, NULL, FALSE);
+                                                            1U, 15U, NULL, false);
 
   return offset;
 }
@@ -4434,7 +4434,7 @@ static const value_string ngap_Pre_emptionCapability_vals[] = {
 static int
 dissect_ngap_Pre_emptionCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -4450,7 +4450,7 @@ static const value_string ngap_Pre_emptionVulnerability_vals[] = {
 static int
 dissect_ngap_Pre_emptionVulnerability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -4477,7 +4477,7 @@ dissect_ngap_AllocationAndRetentionPriority(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ngap_CAG_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, 0, NULL, NULL);
+                                     32, 32, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4491,7 +4491,7 @@ static int
 dissect_ngap_Allowed_CAG_List_per_PLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_Allowed_CAG_List_per_PLMN, Allowed_CAG_List_per_PLMN_sequence_of,
-                                                  1, maxnoofAllowedCAGsperPLMN, FALSE);
+                                                  1, maxnoofAllowedCAGsperPLMN, false);
 
   return offset;
 }
@@ -4501,7 +4501,7 @@ dissect_ngap_Allowed_CAG_List_per_PLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_SST(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 1, FALSE, NULL);
+                                       1, 1, false, NULL);
 
   return offset;
 }
@@ -4511,7 +4511,7 @@ dissect_ngap_SST(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 static int
 dissect_ngap_SD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
+                                       3, 3, false, NULL);
 
   return offset;
 }
@@ -4556,7 +4556,7 @@ static int
 dissect_ngap_AllowedNSSAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AllowedNSSAI, AllowedNSSAI_sequence_of,
-                                                  1, maxnoofAllowedS_NSSAIs, FALSE);
+                                                  1, maxnoofAllowedS_NSSAIs, false);
 
   return offset;
 }
@@ -4571,7 +4571,7 @@ dissect_ngap_PLMNIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   e212_number_type_t number_type = ngap_data->number_type;
   ngap_data->number_type = E212_NONE;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
@@ -4599,7 +4599,7 @@ static const value_string ngap_T_pNI_NPN_restricted_vals[] = {
 static int
 dissect_ngap_T_pNI_NPN_restricted(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -4630,7 +4630,7 @@ static int
 dissect_ngap_Allowed_PNI_NPN_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_Allowed_PNI_NPN_List, Allowed_PNI_NPN_List_sequence_of,
-                                                  1, maxnoofEPLMNsPlusOne, FALSE);
+                                                  1, maxnoofEPLMNsPlusOne, false);
 
   return offset;
 }
@@ -4642,7 +4642,7 @@ dissect_ngap_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
   tvbuff_t *parameter_tvb = NULL;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
@@ -4666,7 +4666,7 @@ static int
 dissect_ngap_AllowedTACs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AllowedTACs, AllowedTACs_sequence_of,
-                                                  1, maxnoofAllowedAreas, FALSE);
+                                                  1, maxnoofAllowedAreas, false);
 
   return offset;
 }
@@ -4681,7 +4681,7 @@ dissect_ngap_AlternativeQoSParaSetIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_
   }
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 8U, NULL, TRUE);
+                                                            1U, 8U, NULL, true);
 
   return offset;
 }
@@ -4691,7 +4691,7 @@ dissect_ngap_AlternativeQoSParaSetIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_ngap_AlternativeQoSParaSetNotifyIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 8U, NULL, TRUE);
+                                                            0U, 8U, NULL, true);
 
   return offset;
 }
@@ -4701,7 +4701,7 @@ dissect_ngap_AlternativeQoSParaSetNotifyIndex(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_ngap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, UINT64_C(4000000000000), NULL, TRUE);
+                                                            0U, UINT64_C(4000000000000), NULL, true);
 
   return offset;
 }
@@ -4711,7 +4711,7 @@ dissect_ngap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_ngap_PacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1023U, NULL, TRUE);
+                                                            0U, 1023U, NULL, true);
 
   return offset;
 }
@@ -4721,7 +4721,7 @@ dissect_ngap_PacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_INTEGER_0_9_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 9U, NULL, TRUE);
+                                                            0U, 9U, NULL, true);
 
   return offset;
 }
@@ -4770,7 +4770,7 @@ static int
 dissect_ngap_AlternativeQoSParaSetList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AlternativeQoSParaSetList, AlternativeQoSParaSetList_sequence_of,
-                                                  1, maxnoofQosParaSets, FALSE);
+                                                  1, maxnoofQosParaSets, false);
 
   return offset;
 }
@@ -4780,7 +4780,7 @@ dissect_ngap_AlternativeQoSParaSetList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_AMFName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE,
+                                          1, 150, true,
                                           NULL);
 
   return offset;
@@ -4791,7 +4791,7 @@ dissect_ngap_AMFName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_ngap_AMFNameVisibleString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE,
+                                          1, 150, true,
                                           NULL);
 
   return offset;
@@ -4802,7 +4802,7 @@ dissect_ngap_AMFNameVisibleString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_ngap_AMFNameUTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, true);
 
   return offset;
 }
@@ -4812,7 +4812,7 @@ dissect_ngap_AMFNameUTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_BIT_STRING_SIZE_22_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     22, 32, FALSE, NULL, 0, NULL, NULL);
+                                     22, 32, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4860,7 +4860,7 @@ dissect_ngap_GlobalGNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_ngap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     20, 20, FALSE, NULL, 0, NULL, NULL);
+                                     20, 20, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4870,7 +4870,7 @@ dissect_ngap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_BIT_STRING_SIZE_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     18, 18, FALSE, NULL, 0, NULL, NULL);
+                                     18, 18, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4880,7 +4880,7 @@ dissect_ngap_BIT_STRING_SIZE_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_BIT_STRING_SIZE_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     21, 21, FALSE, NULL, 0, NULL, NULL);
+                                     21, 21, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4932,7 +4932,7 @@ dissect_ngap_GlobalNgENB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_ngap_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+                                     16, 16, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5084,7 +5084,7 @@ dissect_ngap_AMFPagingTarget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_AMFPointer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, 0, NULL, NULL);
+                                     6, 6, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5094,7 +5094,7 @@ dissect_ngap_AMFPointer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_ngap_AMFRegionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, 0, NULL, NULL);
+                                     8, 8, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5104,7 +5104,7 @@ dissect_ngap_AMFRegionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_ngap_AMFSetID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5155,7 +5155,7 @@ static int
 dissect_ngap_AMF_TNLAssociationSetupList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AMF_TNLAssociationSetupList, AMF_TNLAssociationSetupList_sequence_of,
-                                                  1, maxnoofTNLAssociations, FALSE);
+                                                  1, maxnoofTNLAssociations, false);
 
   return offset;
 }
@@ -5172,7 +5172,7 @@ static const value_string ngap_TNLAssociationUsage_vals[] = {
 static int
 dissect_ngap_TNLAssociationUsage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -5182,7 +5182,7 @@ dissect_ngap_TNLAssociationUsage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_TNLAddressWeightFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -5213,7 +5213,7 @@ static int
 dissect_ngap_AMF_TNLAssociationToAddList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AMF_TNLAssociationToAddList, AMF_TNLAssociationToAddList_sequence_of,
-                                                  1, maxnoofTNLAssociations, FALSE);
+                                                  1, maxnoofTNLAssociations, false);
 
   return offset;
 }
@@ -5242,7 +5242,7 @@ static int
 dissect_ngap_AMF_TNLAssociationToRemoveList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AMF_TNLAssociationToRemoveList, AMF_TNLAssociationToRemoveList_sequence_of,
-                                                  1, maxnoofTNLAssociations, FALSE);
+                                                  1, maxnoofTNLAssociations, false);
 
   return offset;
 }
@@ -5273,7 +5273,7 @@ static int
 dissect_ngap_AMF_TNLAssociationToUpdateList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AMF_TNLAssociationToUpdateList, AMF_TNLAssociationToUpdateList_sequence_of,
-                                                  1, maxnoofTNLAssociations, FALSE);
+                                                  1, maxnoofTNLAssociations, false);
 
   return offset;
 }
@@ -5283,7 +5283,7 @@ dissect_ngap_AMF_TNLAssociationToUpdateList(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ngap_AMF_UE_NGAP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, UINT64_C(1099511627775), NULL, FALSE);
+                                                            0U, UINT64_C(1099511627775), NULL, false);
 
   return offset;
 }
@@ -5312,7 +5312,7 @@ static int
 dissect_ngap_AreaOfInterestTAIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AreaOfInterestTAIList, AreaOfInterestTAIList_sequence_of,
-                                                  1, maxnoofTAIinAoI, FALSE);
+                                                  1, maxnoofTAIinAoI, false);
 
   return offset;
 }
@@ -5323,7 +5323,7 @@ static int
 dissect_ngap_NRCellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *cell_id_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
-                                     36, 36, FALSE, NULL, 0, &cell_id_tvb, NULL);
+                                     36, 36, false, NULL, 0, &cell_id_tvb, NULL);
 
   if (cell_id_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 5, ENC_BIG_ENDIAN);
@@ -5359,7 +5359,7 @@ static int
 dissect_ngap_EUTRACellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *cell_id_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
-                                     28, 28, FALSE, NULL, 0, &cell_id_tvb, NULL);
+                                     28, 28, false, NULL, 0, &cell_id_tvb, NULL);
 
   if (cell_id_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -5437,7 +5437,7 @@ static int
 dissect_ngap_AreaOfInterestCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AreaOfInterestCellList, AreaOfInterestCellList_sequence_of,
-                                                  1, maxnoofCellinAoI, FALSE);
+                                                  1, maxnoofCellinAoI, false);
 
   return offset;
 }
@@ -5466,7 +5466,7 @@ static int
 dissect_ngap_AreaOfInterestRANNodeList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AreaOfInterestRANNodeList, AreaOfInterestRANNodeList_sequence_of,
-                                                  1, maxnoofRANNodeinAoI, FALSE);
+                                                  1, maxnoofRANNodeinAoI, false);
 
   return offset;
 }
@@ -5493,7 +5493,7 @@ dissect_ngap_AreaOfInterest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_ngap_LocationReportingReferenceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 64U, NULL, TRUE);
+                                                            1U, 64U, NULL, true);
 
   return offset;
 }
@@ -5523,7 +5523,7 @@ static int
 dissect_ngap_AreaOfInterestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AreaOfInterestList, AreaOfInterestList_sequence_of,
-                                                  1, maxnoofAoI, FALSE);
+                                                  1, maxnoofAoI, false);
 
   return offset;
 }
@@ -5533,7 +5533,7 @@ dissect_ngap_AreaOfInterestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_INTEGER_0_4095(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, FALSE);
+                                                            0U, 4095U, NULL, false);
 
   return offset;
 }
@@ -5563,7 +5563,7 @@ static int
 dissect_ngap_RecommendedCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_RecommendedCellList, RecommendedCellList_sequence_of,
-                                                  1, maxnoofRecommendedCells, FALSE);
+                                                  1, maxnoofRecommendedCells, false);
 
   return offset;
 }
@@ -5603,7 +5603,7 @@ dissect_ngap_AssistanceDataForRecommendedCells(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_PagingAttemptCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 16U, NULL, TRUE);
+                                                            1U, 16U, NULL, true);
 
   return offset;
 }
@@ -5613,7 +5613,7 @@ dissect_ngap_PagingAttemptCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_IntendedNumberOfPagingAttempts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 16U, NULL, TRUE);
+                                                            1U, 16U, NULL, true);
 
   return offset;
 }
@@ -5629,7 +5629,7 @@ static const value_string ngap_NextPagingAreaScope_vals[] = {
 static int
 dissect_ngap_NextPagingAreaScope(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -5692,7 +5692,7 @@ static int
 dissect_ngap_AssociatedMBSQosFlowSetupRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AssociatedMBSQosFlowSetupRequestList, AssociatedMBSQosFlowSetupRequestList_sequence_of,
-                                                  1, maxnoofMBSQoSFlows, FALSE);
+                                                  1, maxnoofMBSQoSFlows, false);
 
   return offset;
 }
@@ -5722,7 +5722,7 @@ static int
 dissect_ngap_AssociatedMBSQosFlowSetuporModifyRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestList, AssociatedMBSQosFlowSetuporModifyRequestList_sequence_of,
-                                                  1, maxnoofMBSQoSFlows, FALSE);
+                                                  1, maxnoofMBSQoSFlows, false);
 
   return offset;
 }
@@ -5738,7 +5738,7 @@ static const value_string ngap_T_qosFlowMappingIndication_vals[] = {
 static int
 dissect_ngap_T_qosFlowMappingIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -5768,7 +5768,7 @@ static int
 dissect_ngap_AssociatedQosFlowList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AssociatedQosFlowList, AssociatedQosFlowList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -5783,7 +5783,7 @@ static const value_string ngap_AuthenticatedIndication_vals[] = {
 static int
 dissect_ngap_AuthenticatedIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -5793,7 +5793,7 @@ dissect_ngap_AuthenticatedIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_ngap_AveragingWindow(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
+                                                            0U, 4095U, NULL, true);
 
   return offset;
 }
@@ -5807,7 +5807,7 @@ static int
 dissect_ngap_CellIdListforMDT_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIdListforMDT_NR, CellIdListforMDT_NR_sequence_of,
-                                                  1, maxnoofCellIDforMDT, FALSE);
+                                                  1, maxnoofCellIDforMDT, false);
 
   return offset;
 }
@@ -5836,7 +5836,7 @@ static int
 dissect_ngap_TAListforMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAListforMDT, TAListforMDT_sequence_of,
-                                                  1, maxnoofTAforMDT, FALSE);
+                                                  1, maxnoofTAforMDT, false);
 
   return offset;
 }
@@ -5874,7 +5874,7 @@ static int
 dissect_ngap_TAIListforMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIListforMDT, TAIListforMDT_sequence_of,
-                                                  1, maxnoofTAforMDT, FALSE);
+                                                  1, maxnoofTAforMDT, false);
 
   return offset;
 }
@@ -5931,7 +5931,7 @@ static int
 dissect_ngap_CellIdListforMDT_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIdListforMDT_EUTRA, CellIdListforMDT_EUTRA_sequence_of,
-                                                  1, maxnoofCellIDforMDT, FALSE);
+                                                  1, maxnoofCellIDforMDT, false);
 
   return offset;
 }
@@ -5984,7 +5984,7 @@ dissect_ngap_AreaScopeOfMDT_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_ngap_NRARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxNRARFCN, NULL, FALSE);
+                                                            0U, maxNRARFCN, NULL, false);
 
   return offset;
 }
@@ -5994,7 +5994,7 @@ dissect_ngap_NRARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_ngap_NRFrequencyBand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 1024U, NULL, TRUE);
+                                                            1U, 1024U, NULL, true);
 
   return offset;
 }
@@ -6023,7 +6023,7 @@ static int
 dissect_ngap_NRFrequencyBand_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NRFrequencyBand_List, NRFrequencyBand_List_sequence_of,
-                                                  1, maxnoofNRCellBands, FALSE);
+                                                  1, maxnoofNRCellBands, false);
 
   return offset;
 }
@@ -6049,7 +6049,7 @@ dissect_ngap_NRFrequencyInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_NR_PCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1007U, NULL, TRUE);
+                                                            0U, 1007U, NULL, true);
 
   return offset;
 }
@@ -6063,7 +6063,7 @@ static int
 dissect_ngap_PCIListForMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PCIListForMDT, PCIListForMDT_sequence_of,
-                                                  1, maxnoofNeighPCIforMDT, FALSE);
+                                                  1, maxnoofNeighPCIforMDT, false);
 
   return offset;
 }
@@ -6093,7 +6093,7 @@ static int
 dissect_ngap_AreaScopeOfNeighCellsList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_AreaScopeOfNeighCellsList, AreaScopeOfNeighCellsList_sequence_of,
-                                                  1, maxnoofFreqforMDT, FALSE);
+                                                  1, maxnoofFreqforMDT, false);
 
   return offset;
 }
@@ -6107,7 +6107,7 @@ static int
 dissect_ngap_CellIdListforQMC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIdListforQMC, CellIdListforQMC_sequence_of,
-                                                  1, maxnoofCellIDforQMC, FALSE);
+                                                  1, maxnoofCellIDforQMC, false);
 
   return offset;
 }
@@ -6136,7 +6136,7 @@ static int
 dissect_ngap_TAListforQMC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAListforQMC, TAListforQMC_sequence_of,
-                                                  1, maxnoofTAforQMC, FALSE);
+                                                  1, maxnoofTAforQMC, false);
 
   return offset;
 }
@@ -6165,7 +6165,7 @@ static int
 dissect_ngap_TAIListforQMC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIListforQMC, TAIListforQMC_sequence_of,
-                                                  1, maxnoofTAforQMC, FALSE);
+                                                  1, maxnoofTAforQMC, false);
 
   return offset;
 }
@@ -6194,7 +6194,7 @@ static int
 dissect_ngap_PLMNListforQMC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PLMNListforQMC, PLMNListforQMC_sequence_of,
-                                                  1, maxnoofPLMNforQMC, FALSE);
+                                                  1, maxnoofPLMNforQMC, false);
 
   return offset;
 }
@@ -6252,7 +6252,7 @@ static const value_string ngap_T_applicationLayerBufferLevelList_vals[] = {
 static int
 dissect_ngap_T_applicationLayerBufferLevelList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -6267,7 +6267,7 @@ static const value_string ngap_T_playoutDelayForMediaStartup_vals[] = {
 static int
 dissect_ngap_T_playoutDelayForMediaStartup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -6298,7 +6298,7 @@ static const value_string ngap_T_rSRP_vals[] = {
 static int
 dissect_ngap_T_rSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -6313,7 +6313,7 @@ static const value_string ngap_T_rSRQ_vals[] = {
 static int
 dissect_ngap_T_rSRQ(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -6328,7 +6328,7 @@ static const value_string ngap_T_sINR_vals[] = {
 static int
 dissect_ngap_T_sINR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -6355,7 +6355,7 @@ dissect_ngap_BeamMeasurementsReportQuantity(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ngap_MaxNrofRS_IndexesToReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 64U, NULL, TRUE);
+                                                            1U, 64U, NULL, true);
 
   return offset;
 }
@@ -6381,7 +6381,7 @@ dissect_ngap_BeamMeasurementsReportConfiguration(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_NumberOfBroadcasts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, false);
 
   return offset;
 }
@@ -6411,7 +6411,7 @@ static int
 dissect_ngap_CellIDCancelledEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIDCancelledEUTRA, CellIDCancelledEUTRA_sequence_of,
-                                                  1, maxnoofCellIDforWarning, FALSE);
+                                                  1, maxnoofCellIDforWarning, false);
 
   return offset;
 }
@@ -6441,7 +6441,7 @@ static int
 dissect_ngap_CancelledCellsInTAI_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CancelledCellsInTAI_EUTRA, CancelledCellsInTAI_EUTRA_sequence_of,
-                                                  1, maxnoofCellinTAI, FALSE);
+                                                  1, maxnoofCellinTAI, false);
 
   return offset;
 }
@@ -6471,7 +6471,7 @@ static int
 dissect_ngap_TAICancelledEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAICancelledEUTRA, TAICancelledEUTRA_sequence_of,
-                                                  1, maxnoofTAIforWarning, FALSE);
+                                                  1, maxnoofTAIforWarning, false);
 
   return offset;
 }
@@ -6481,7 +6481,7 @@ dissect_ngap_TAICancelledEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_EmergencyAreaID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
+                                       3, 3, false, NULL);
 
   return offset;
 }
@@ -6511,7 +6511,7 @@ static int
 dissect_ngap_CancelledCellsInEAI_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CancelledCellsInEAI_EUTRA, CancelledCellsInEAI_EUTRA_sequence_of,
-                                                  1, maxnoofCellinEAI, FALSE);
+                                                  1, maxnoofCellinEAI, false);
 
   return offset;
 }
@@ -6541,7 +6541,7 @@ static int
 dissect_ngap_EmergencyAreaIDCancelledEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EmergencyAreaIDCancelledEUTRA, EmergencyAreaIDCancelledEUTRA_sequence_of,
-                                                  1, maxnoofEmergencyAreaID, FALSE);
+                                                  1, maxnoofEmergencyAreaID, false);
 
   return offset;
 }
@@ -6571,7 +6571,7 @@ static int
 dissect_ngap_CellIDCancelledNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIDCancelledNR, CellIDCancelledNR_sequence_of,
-                                                  1, maxnoofCellIDforWarning, FALSE);
+                                                  1, maxnoofCellIDforWarning, false);
 
   return offset;
 }
@@ -6601,7 +6601,7 @@ static int
 dissect_ngap_CancelledCellsInTAI_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CancelledCellsInTAI_NR, CancelledCellsInTAI_NR_sequence_of,
-                                                  1, maxnoofCellinTAI, FALSE);
+                                                  1, maxnoofCellinTAI, false);
 
   return offset;
 }
@@ -6631,7 +6631,7 @@ static int
 dissect_ngap_TAICancelledNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAICancelledNR, TAICancelledNR_sequence_of,
-                                                  1, maxnoofTAIforWarning, FALSE);
+                                                  1, maxnoofTAIforWarning, false);
 
   return offset;
 }
@@ -6661,7 +6661,7 @@ static int
 dissect_ngap_CancelledCellsInEAI_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CancelledCellsInEAI_NR, CancelledCellsInEAI_NR_sequence_of,
-                                                  1, maxnoofCellinEAI, FALSE);
+                                                  1, maxnoofCellinEAI, false);
 
   return offset;
 }
@@ -6691,7 +6691,7 @@ static int
 dissect_ngap_EmergencyAreaIDCancelledNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EmergencyAreaIDCancelledNR, EmergencyAreaIDCancelledNR_sequence_of,
-                                                  1, maxnoofEmergencyAreaID, FALSE);
+                                                  1, maxnoofEmergencyAreaID, false);
 
   return offset;
 }
@@ -6752,7 +6752,7 @@ static int
 dissect_ngap_CellIDBroadcastEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIDBroadcastEUTRA, CellIDBroadcastEUTRA_sequence_of,
-                                                  1, maxnoofCellIDforWarning, FALSE);
+                                                  1, maxnoofCellIDforWarning, false);
 
   return offset;
 }
@@ -6781,7 +6781,7 @@ static int
 dissect_ngap_CompletedCellsInTAI_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CompletedCellsInTAI_EUTRA, CompletedCellsInTAI_EUTRA_sequence_of,
-                                                  1, maxnoofCellinTAI, FALSE);
+                                                  1, maxnoofCellinTAI, false);
 
   return offset;
 }
@@ -6811,7 +6811,7 @@ static int
 dissect_ngap_TAIBroadcastEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIBroadcastEUTRA, TAIBroadcastEUTRA_sequence_of,
-                                                  1, maxnoofTAIforWarning, FALSE);
+                                                  1, maxnoofTAIforWarning, false);
 
   return offset;
 }
@@ -6840,7 +6840,7 @@ static int
 dissect_ngap_CompletedCellsInEAI_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CompletedCellsInEAI_EUTRA, CompletedCellsInEAI_EUTRA_sequence_of,
-                                                  1, maxnoofCellinEAI, FALSE);
+                                                  1, maxnoofCellinEAI, false);
 
   return offset;
 }
@@ -6870,7 +6870,7 @@ static int
 dissect_ngap_EmergencyAreaIDBroadcastEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EmergencyAreaIDBroadcastEUTRA, EmergencyAreaIDBroadcastEUTRA_sequence_of,
-                                                  1, maxnoofEmergencyAreaID, FALSE);
+                                                  1, maxnoofEmergencyAreaID, false);
 
   return offset;
 }
@@ -6899,7 +6899,7 @@ static int
 dissect_ngap_CellIDBroadcastNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellIDBroadcastNR, CellIDBroadcastNR_sequence_of,
-                                                  1, maxnoofCellIDforWarning, FALSE);
+                                                  1, maxnoofCellIDforWarning, false);
 
   return offset;
 }
@@ -6928,7 +6928,7 @@ static int
 dissect_ngap_CompletedCellsInTAI_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CompletedCellsInTAI_NR, CompletedCellsInTAI_NR_sequence_of,
-                                                  1, maxnoofCellinTAI, FALSE);
+                                                  1, maxnoofCellinTAI, false);
 
   return offset;
 }
@@ -6958,7 +6958,7 @@ static int
 dissect_ngap_TAIBroadcastNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIBroadcastNR, TAIBroadcastNR_sequence_of,
-                                                  1, maxnoofTAIforWarning, FALSE);
+                                                  1, maxnoofTAIforWarning, false);
 
   return offset;
 }
@@ -6987,7 +6987,7 @@ static int
 dissect_ngap_CompletedCellsInEAI_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CompletedCellsInEAI_NR, CompletedCellsInEAI_NR_sequence_of,
-                                                  1, maxnoofCellinEAI, FALSE);
+                                                  1, maxnoofCellinEAI, false);
 
   return offset;
 }
@@ -7017,7 +7017,7 @@ static int
 dissect_ngap_EmergencyAreaIDBroadcastNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EmergencyAreaIDBroadcastNR, EmergencyAreaIDBroadcastNR_sequence_of,
-                                                  1, maxnoofEmergencyAreaID, FALSE);
+                                                  1, maxnoofEmergencyAreaID, false);
 
   return offset;
 }
@@ -7078,7 +7078,7 @@ static int
 dissect_ngap_SliceSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SliceSupportList, SliceSupportList_sequence_of,
-                                                  1, maxnoofSliceItems, FALSE);
+                                                  1, maxnoofSliceItems, false);
 
   return offset;
 }
@@ -7108,7 +7108,7 @@ static int
 dissect_ngap_BroadcastPLMNList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_BroadcastPLMNList, BroadcastPLMNList_sequence_of,
-                                                  1, maxnoofBPLMNs, FALSE);
+                                                  1, maxnoofBPLMNs, false);
 
   return offset;
 }
@@ -7123,7 +7123,7 @@ static const value_string ngap_BluetoothMeasConfig_vals[] = {
 static int
 dissect_ngap_BluetoothMeasConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7134,7 +7134,7 @@ static int
 dissect_ngap_BluetoothName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       1, 248, FALSE, &parameter_tvb);
+                                       1, 248, false, &parameter_tvb);
 
   actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
@@ -7165,7 +7165,7 @@ static int
 dissect_ngap_BluetoothMeasConfigNameList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_BluetoothMeasConfigNameList, BluetoothMeasConfigNameList_sequence_of,
-                                                  1, maxnoofBluetoothName, FALSE);
+                                                  1, maxnoofBluetoothName, false);
 
   return offset;
 }
@@ -7180,7 +7180,7 @@ static const value_string ngap_T_bt_rssi_vals[] = {
 static int
 dissect_ngap_T_bt_rssi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7208,7 +7208,7 @@ static int
 dissect_ngap_BurstArrivalTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *burst_arrival_time_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &burst_arrival_time_tvb);
+                                       NO_BOUND, NO_BOUND, false, &burst_arrival_time_tvb);
 
   if (burst_arrival_time_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_BurstArrivalTime);
@@ -7229,7 +7229,7 @@ static const value_string ngap_CancelAllWarningMessages_vals[] = {
 static int
 dissect_ngap_CancelAllWarningMessages(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7254,7 +7254,7 @@ dissect_ngap_CandidateCellID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_INTEGER_0_1007_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1007U, NULL, TRUE);
+                                                            0U, 1007U, NULL, true);
 
   return offset;
 }
@@ -7264,7 +7264,7 @@ dissect_ngap_INTEGER_0_1007_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_INTEGER_0_maxNRARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxNRARFCN, NULL, FALSE);
+                                                            0U, maxNRARFCN, NULL, false);
 
   return offset;
 }
@@ -7333,7 +7333,7 @@ static int
 dissect_ngap_CandidateCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CandidateCellList, CandidateCellList_sequence_of,
-                                                  1, maxnoofCandidateCells, FALSE);
+                                                  1, maxnoofCandidateCells, false);
 
   return offset;
 }
@@ -7407,7 +7407,7 @@ static int
 dissect_ngap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     45, &value, TRUE, 12, NULL);
+                                     45, &value, true, 12, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: RadioNetwork=%s]", val_to_str_const(value, ngap_CauseRadioNetwork_vals, "Unknown"));
 
@@ -7427,7 +7427,7 @@ static int
 dissect_ngap_CauseTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, &value, TRUE, 0, NULL);
+                                     2, &value, true, 0, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Transport=%s]", val_to_str_const(value, ngap_CauseTransport_vals, "Unknown"));
 
@@ -7450,7 +7450,7 @@ static int
 dissect_ngap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, &value, TRUE, 1, NULL);
+                                     4, &value, true, 1, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Nas=%s]", val_to_str_const(value, ngap_CauseNas_vals, "Unknown"));
 
@@ -7475,7 +7475,7 @@ static int
 dissect_ngap_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, &value, TRUE, 0, NULL);
+                                     7, &value, true, 0, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Protocol=%s]", val_to_str_const(value, ngap_CauseProtocol_vals, "Unknown"));
 
@@ -7499,7 +7499,7 @@ static int
 dissect_ngap_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, &value, TRUE, 0, NULL);
+                                     6, &value, true, 0, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Misc=%s]", val_to_str_const(value, ngap_CauseMisc_vals, "Unknown"));
 
@@ -7546,7 +7546,7 @@ static int
 dissect_ngap_CellCAGList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellCAGList, CellCAGList_sequence_of,
-                                                  1, maxnoofCAGSperCell, FALSE);
+                                                  1, maxnoofCAGSperCell, false);
 
   return offset;
 }
@@ -7576,7 +7576,7 @@ static int
 dissect_ngap_EUTRA_CGIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EUTRA_CGIList, EUTRA_CGIList_sequence_of,
-                                                  1, maxnoofCellsinngeNB, FALSE);
+                                                  1, maxnoofCellsinngeNB, false);
 
   return offset;
 }
@@ -7590,7 +7590,7 @@ static int
 dissect_ngap_NR_CGIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NR_CGIList, NR_CGIList_sequence_of,
-                                                  1, maxnoofCellsingNB, FALSE);
+                                                  1, maxnoofCellsingNB, false);
 
   return offset;
 }
@@ -7632,7 +7632,7 @@ static const value_string ngap_CellSize_vals[] = {
 static int
 dissect_ngap_CellSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7662,7 +7662,7 @@ static const value_string ngap_CEmodeBSupport_Indicator_vals[] = {
 static int
 dissect_ngap_CEmodeBSupport_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7678,7 +7678,7 @@ static const value_string ngap_CEmodeBrestricted_vals[] = {
 static int
 dissect_ngap_CEmodeBrestricted(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7688,7 +7688,7 @@ dissect_ngap_CEmodeBrestricted(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_ExpectedActivityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 181U, NULL, TRUE);
+                                                            1U, 181U, NULL, true);
 
   return offset;
 }
@@ -7698,7 +7698,7 @@ dissect_ngap_ExpectedActivityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_ngap_ExpectedIdlePeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 181U, NULL, TRUE);
+                                                            1U, 181U, NULL, true);
 
   return offset;
 }
@@ -7714,7 +7714,7 @@ static const value_string ngap_SourceOfUEActivityBehaviourInformation_vals[] = {
 static int
 dissect_ngap_SourceOfUEActivityBehaviourInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7752,7 +7752,7 @@ static const value_string ngap_ExpectedHOInterval_vals[] = {
 static int
 dissect_ngap_ExpectedHOInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     7, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7768,7 +7768,7 @@ static const value_string ngap_ExpectedUEMobility_vals[] = {
 static int
 dissect_ngap_ExpectedUEMobility(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7798,7 +7798,7 @@ static int
 dissect_ngap_ExpectedUEMovingTrajectory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ExpectedUEMovingTrajectory, ExpectedUEMovingTrajectory_sequence_of,
-                                                  1, maxnoofCellsUEMovingTrajectory, FALSE);
+                                                  1, maxnoofCellsUEMovingTrajectory, false);
 
   return offset;
 }
@@ -7841,7 +7841,7 @@ dissect_ngap_CNAssistedRANTuning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_CNsubgroupID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 7U, NULL, TRUE);
+                                                            0U, 7U, NULL, true);
 
   return offset;
 }
@@ -7857,7 +7857,7 @@ static const value_string ngap_T_cn_Type_vals[] = {
 static int
 dissect_ngap_T_cn_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7887,7 +7887,7 @@ static int
 dissect_ngap_CNTypeRestrictionsForEquivalent(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CNTypeRestrictionsForEquivalent, CNTypeRestrictionsForEquivalent_sequence_of,
-                                                  1, maxnoofEPLMNs, FALSE);
+                                                  1, maxnoofEPLMNs, false);
 
   return offset;
 }
@@ -7902,7 +7902,7 @@ static const value_string ngap_CNTypeRestrictionsForServing_vals[] = {
 static int
 dissect_ngap_CNTypeRestrictionsForServing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7912,7 +7912,7 @@ dissect_ngap_CNTypeRestrictionsForServing(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_CommonNetworkInstance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -7927,7 +7927,7 @@ static const value_string ngap_ConcurrentWarningMessageInd_vals[] = {
 static int
 dissect_ngap_ConcurrentWarningMessageInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7944,7 +7944,7 @@ static const value_string ngap_ConfidentialityProtectionIndication_vals[] = {
 static int
 dissect_ngap_ConfidentialityProtectionIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7960,7 +7960,7 @@ static const value_string ngap_ConfidentialityProtectionResult_vals[] = {
 static int
 dissect_ngap_ConfidentialityProtectionResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7975,7 +7975,7 @@ static const value_string ngap_ConfiguredTACIndication_vals[] = {
 static int
 dissect_ngap_ConfiguredTACIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -7985,7 +7985,7 @@ dissect_ngap_ConfiguredTACIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_ngap_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8025,7 +8025,7 @@ static const value_string ngap_PagingDRX_vals[] = {
 static int
 dissect_ngap_PagingDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8036,7 +8036,7 @@ static int
 dissect_ngap_PeriodicRegistrationUpdateTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *val_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
-                                     8, 8, FALSE, NULL, 0, &val_tvb, NULL);
+                                     8, 8, false, NULL, 0, &val_tvb, NULL);
 
   if (val_tvb) {
     guint32 val = tvb_get_guint8(val_tvb, 0);
@@ -8057,7 +8057,7 @@ static const value_string ngap_MICOModeIndication_vals[] = {
 static int
 dissect_ngap_MICOModeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8086,7 +8086,7 @@ static int
 dissect_ngap_TAIListForInactive(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIListForInactive, TAIListForInactive_sequence_of,
-                                                  1, maxnoofTAIforInactive, FALSE);
+                                                  1, maxnoofTAIforInactive, false);
 
   return offset;
 }
@@ -8116,7 +8116,7 @@ dissect_ngap_CoreNetworkAssistanceInformationForInactive(tvbuff_t *tvb _U_, int 
 static int
 dissect_ngap_INTEGER_0_1048575(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1048575U, NULL, FALSE);
+                                                            0U, 1048575U, NULL, false);
 
   return offset;
 }
@@ -8142,7 +8142,7 @@ dissect_ngap_COUNTValueForPDCP_SN12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_ngap_INTEGER_0_262143(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 262143U, NULL, FALSE);
+                                                            0U, 262143U, NULL, false);
 
   return offset;
 }
@@ -8152,7 +8152,7 @@ dissect_ngap_INTEGER_0_262143(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_ngap_INTEGER_0_16383(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 16383U, NULL, FALSE);
+                                                            0U, 16383U, NULL, false);
 
   return offset;
 }
@@ -8180,7 +8180,7 @@ dissect_ngap_CoverageEnhancementLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   tvbuff_t *cov_enh_level_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &cov_enh_level_tvb);
+                                       NO_BOUND, NO_BOUND, false, &cov_enh_level_tvb);
 
   if (cov_enh_level_tvb && ngap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_CoverageEnhancementLevel);
@@ -8221,7 +8221,7 @@ static const value_string ngap_TypeOfError_vals[] = {
 static int
 dissect_ngap_TypeOfError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8252,7 +8252,7 @@ static int
 dissect_ngap_CriticalityDiagnostics_IE_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CriticalityDiagnostics_IE_List, CriticalityDiagnostics_IE_List_sequence_of,
-                                                  1, maxnoofErrors, FALSE);
+                                                  1, maxnoofErrors, false);
 
   return offset;
 }
@@ -8281,7 +8281,7 @@ static int
 dissect_ngap_DataCodingScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, false, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
@@ -8305,7 +8305,7 @@ static const value_string ngap_DataForwardingNotPossible_vals[] = {
 static int
 dissect_ngap_DataForwardingNotPossible(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8315,7 +8315,7 @@ dissect_ngap_DataForwardingNotPossible(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_DRB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 32U, NULL, TRUE);
+                                                            1U, 32U, NULL, true);
 
   return offset;
 }
@@ -8346,7 +8346,7 @@ static int
 dissect_ngap_DataForwardingResponseDRBList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_DataForwardingResponseDRBList, DataForwardingResponseDRBList_sequence_of,
-                                                  1, maxnoofDRBs, FALSE);
+                                                  1, maxnoofDRBs, false);
 
   return offset;
 }
@@ -8361,7 +8361,7 @@ static const value_string ngap_T_dAPSIndicator_vals[] = {
 static int
 dissect_ngap_T_dAPSIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8392,7 +8392,7 @@ static const value_string ngap_T_dapsresponseindicator_vals[] = {
 static int
 dissect_ngap_T_dapsresponseindicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8437,7 +8437,7 @@ static int
 dissect_ngap_DAPSResponseInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_DAPSResponseInfoList, DAPSResponseInfoList_sequence_of,
-                                                  1, maxnoofDRBs, FALSE);
+                                                  1, maxnoofDRBs, false);
 
   return offset;
 }
@@ -8447,7 +8447,7 @@ dissect_ngap_DAPSResponseInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_ngap_E_RAB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 15U, NULL, TRUE);
+                                                            0U, 15U, NULL, true);
 
   return offset;
 }
@@ -8477,7 +8477,7 @@ static int
 dissect_ngap_DataForwardingResponseERABList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_DataForwardingResponseERABList, DataForwardingResponseERABList_sequence_of,
-                                                  1, maxnoofE_RABs, FALSE);
+                                                  1, maxnoofE_RABs, false);
 
   return offset;
 }
@@ -8493,7 +8493,7 @@ static const value_string ngap_DelayCritical_vals[] = {
 static int
 dissect_ngap_DelayCritical(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8503,7 +8503,7 @@ dissect_ngap_DelayCritical(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_ngap_DL_NAS_MAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+                                     16, 16, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8533,7 +8533,7 @@ static const value_string ngap_DLForwarding_vals[] = {
 static int
 dissect_ngap_DLForwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8548,7 +8548,7 @@ static const value_string ngap_DL_NGU_TNLInformationReused_vals[] = {
 static int
 dissect_ngap_DL_NGU_TNLInformationReused(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8563,7 +8563,7 @@ static const value_string ngap_DirectForwardingPathAvailability_vals[] = {
 static int
 dissect_ngap_DirectForwardingPathAvailability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8573,7 +8573,7 @@ dissect_ngap_DirectForwardingPathAvailability(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_ngap_BIT_STRING_SIZE_1_2048(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 2048, FALSE, NULL, 0, NULL, NULL);
+                                     1, 2048, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8599,7 +8599,7 @@ dissect_ngap_DRBStatusUL12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_ngap_BIT_STRING_SIZE_1_131072(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 131072, FALSE, NULL, 0, NULL, NULL);
+                                     1, 131072, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8724,7 +8724,7 @@ static int
 dissect_ngap_DRBsSubjectToStatusTransferList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_DRBsSubjectToStatusTransferList, DRBsSubjectToStatusTransferList_sequence_of,
-                                                  1, maxnoofDRBs, FALSE);
+                                                  1, maxnoofDRBs, false);
 
   return offset;
 }
@@ -8754,7 +8754,7 @@ static int
 dissect_ngap_DRBsToQosFlowsMappingList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_DRBsToQosFlowsMappingList, DRBsToQosFlowsMappingList_sequence_of,
-                                                  1, maxnoofDRBs, FALSE);
+                                                  1, maxnoofDRBs, false);
 
   return offset;
 }
@@ -8764,7 +8764,7 @@ dissect_ngap_DRBsToQosFlowsMappingList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_PriorityLevelQos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 127U, NULL, TRUE);
+                                                            1U, 127U, NULL, true);
 
   return offset;
 }
@@ -8774,7 +8774,7 @@ dissect_ngap_PriorityLevelQos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_ngap_FiveQI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, TRUE);
+                                                            0U, 255U, NULL, true);
 
   return offset;
 }
@@ -8784,7 +8784,7 @@ dissect_ngap_FiveQI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_ngap_MaximumDataBurstVolume(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
+                                                            0U, 4095U, NULL, true);
 
   return offset;
 }
@@ -8820,7 +8820,7 @@ static const value_string ngap_EarlyMeasurement_vals[] = {
 static int
 dissect_ngap_EarlyMeasurement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8850,7 +8850,7 @@ static int
 dissect_ngap_DRBsSubjectToEarlyStatusTransfer_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_DRBsSubjectToEarlyStatusTransfer_List, DRBsSubjectToEarlyStatusTransfer_List_sequence_of,
-                                                  1, maxnoofDRBs, FALSE);
+                                                  1, maxnoofDRBs, false);
 
   return offset;
 }
@@ -8917,7 +8917,7 @@ static const value_string ngap_EDT_Session_vals[] = {
 static int
 dissect_ngap_EDT_Session(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8931,7 +8931,7 @@ static int
 dissect_ngap_EmergencyAreaIDList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EmergencyAreaIDList, EmergencyAreaIDList_sequence_of,
-                                                  1, maxnoofEmergencyAreaID, FALSE);
+                                                  1, maxnoofEmergencyAreaID, false);
 
   return offset;
 }
@@ -8945,7 +8945,7 @@ static int
 dissect_ngap_EmergencyAreaIDListForRestart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EmergencyAreaIDListForRestart, EmergencyAreaIDListForRestart_sequence_of,
-                                                  1, maxnoofEAIforRestart, FALSE);
+                                                  1, maxnoofEAIforRestart, false);
 
   return offset;
 }
@@ -8960,7 +8960,7 @@ static const value_string ngap_EmergencyFallbackRequestIndicator_vals[] = {
 static int
 dissect_ngap_EmergencyFallbackRequestIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8976,7 +8976,7 @@ static const value_string ngap_EmergencyServiceTargetCN_vals[] = {
 static int
 dissect_ngap_EmergencyServiceTargetCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9002,7 +9002,7 @@ dissect_ngap_EmergencyFallbackIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_ngap_BIT_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     28, 28, FALSE, NULL, 0, NULL, NULL);
+                                     28, 28, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -9045,7 +9045,7 @@ static const value_string ngap_Enhanced_CoverageRestriction_vals[] = {
 static int
 dissect_ngap_Enhanced_CoverageRestriction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9055,7 +9055,7 @@ dissect_ngap_Enhanced_CoverageRestriction(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_Extended_ConnectedTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -9067,7 +9067,7 @@ dissect_ngap_EN_DCSONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _U_, as
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_EN_DCSONConfigurationTransfer);
@@ -9084,7 +9084,7 @@ static int
 dissect_ngap_PortNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       2, 2, FALSE, &parameter_tvb);
+                                       2, 2, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -9121,7 +9121,7 @@ static const value_string ngap_EndIndication_vals[] = {
 static int
 dissect_ngap_EndIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9135,7 +9135,7 @@ static int
 dissect_ngap_EquivalentPLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EquivalentPLMNs, EquivalentPLMNs_sequence_of,
-                                                  1, maxnoofEPLMNs, FALSE);
+                                                  1, maxnoofEPLMNs, false);
 
   return offset;
 }
@@ -9146,7 +9146,7 @@ static int
 dissect_ngap_EPS_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       2, 2, FALSE, &parameter_tvb);
+                                       2, 2, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -9201,7 +9201,7 @@ static int
 dissect_ngap_E_RABInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_E_RABInformationList, E_RABInformationList_sequence_of,
-                                                  1, maxnoofE_RABs, FALSE);
+                                                  1, maxnoofE_RABs, false);
 
   return offset;
 }
@@ -9215,7 +9215,7 @@ static int
 dissect_ngap_EUTRA_CGIListForWarning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EUTRA_CGIListForWarning, EUTRA_CGIListForWarning_sequence_of,
-                                                  1, maxnoofCellIDforWarning, FALSE);
+                                                  1, maxnoofCellIDforWarning, false);
 
   return offset;
 }
@@ -9243,7 +9243,7 @@ static const value_string ngap_EUTRA_Paging_eDRX_Cycle_vals[] = {
 static int
 dissect_ngap_EUTRA_Paging_eDRX_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     14, NULL, TRUE, 0, NULL);
+                                     14, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9273,7 +9273,7 @@ static const value_string ngap_EUTRA_Paging_Time_Window_vals[] = {
 static int
 dissect_ngap_EUTRA_Paging_Time_Window(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, TRUE, 0, NULL);
+                                     16, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9300,7 +9300,7 @@ static int
 dissect_ngap_EUTRAencryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     16, 16, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -9324,7 +9324,7 @@ static int
 dissect_ngap_EUTRAintegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     16, 16, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -9358,7 +9358,7 @@ static const value_string ngap_EventType_vals[] = {
 static int
 dissect_ngap_EventType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9391,7 +9391,7 @@ static const value_string ngap_ExcessPacketDelayThresholdValue_vals[] = {
 static int
 dissect_ngap_ExcessPacketDelayThresholdValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     19, NULL, TRUE, 0, NULL);
+                                     19, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9421,7 +9421,7 @@ static int
 dissect_ngap_ExcessPacketDelayThresholdConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ExcessPacketDelayThresholdConfiguration, ExcessPacketDelayThresholdConfiguration_sequence_of,
-                                                  1, maxnoofThresholdsForExcessPacketDelay, FALSE);
+                                                  1, maxnoofThresholdsForExcessPacketDelay, false);
 
   return offset;
 }
@@ -9447,7 +9447,7 @@ dissect_ngap_Extended_AMFName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_ngap_ExtendedPacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65535U, NULL, TRUE);
+                                                            1U, 65535U, NULL, true);
 
   return offset;
 }
@@ -9457,7 +9457,7 @@ dissect_ngap_ExtendedPacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_RANNodeNameVisibleString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE,
+                                          1, 150, true,
                                           NULL);
 
   return offset;
@@ -9468,7 +9468,7 @@ dissect_ngap_RANNodeNameVisibleString(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_RANNodeNameUTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, true);
 
   return offset;
 }
@@ -9495,7 +9495,7 @@ static int
 dissect_ngap_T_primaryRATRestriction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -9532,7 +9532,7 @@ static int
 dissect_ngap_T_secondaryRATRestriction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -9572,7 +9572,7 @@ dissect_ngap_ExtendedRATRestrictionInformation(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_ExtendedRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            4096U, 65535U, NULL, FALSE);
+                                                            4096U, 65535U, NULL, false);
 
   return offset;
 }
@@ -9586,7 +9586,7 @@ static int
 dissect_ngap_ExtendedSliceSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ExtendedSliceSupportList, ExtendedSliceSupportList_sequence_of,
-                                                  1, maxnoofExtSliceItems, FALSE);
+                                                  1, maxnoofExtSliceItems, false);
 
   return offset;
 }
@@ -9596,7 +9596,7 @@ dissect_ngap_ExtendedSliceSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_ExtendedUEIdentityIndexValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+                                     16, 16, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -9611,7 +9611,7 @@ static const value_string ngap_T_outOfCoverage_vals[] = {
 static int
 dissect_ngap_T_outOfCoverage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9621,7 +9621,7 @@ dissect_ngap_T_outOfCoverage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_Threshold_RSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, false);
 
   return offset;
 }
@@ -9631,7 +9631,7 @@ dissect_ngap_Threshold_RSRP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_ngap_Threshold_RSRQ(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, false);
 
   return offset;
 }
@@ -9665,7 +9665,7 @@ dissect_ngap_MeasurementThresholdL1LoggedMDT(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ngap_Hysteresis(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 30U, NULL, FALSE);
+                                                            0U, 30U, NULL, false);
 
   return offset;
 }
@@ -9695,7 +9695,7 @@ static const value_string ngap_TimeToTrigger_vals[] = {
 static int
 dissect_ngap_TimeToTrigger(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, FALSE, 0, NULL);
+                                     16, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -9747,7 +9747,7 @@ static int
 dissect_ngap_NRUERLFReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *nr_ue_rlc_report_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &nr_ue_rlc_report_tvb);
+                                       NO_BOUND, NO_BOUND, false, &nr_ue_rlc_report_tvb);
 
   if (nr_ue_rlc_report_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NRUERLFReportContainer);
@@ -9764,7 +9764,7 @@ static int
 dissect_ngap_LTEUERLFReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *lte_ue_rlf_report_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &lte_ue_rlf_report_tvb);
+                                       NO_BOUND, NO_BOUND, false, &lte_ue_rlf_report_tvb);
 
   if (lte_ue_rlf_report_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LTEUERLFReportContainer);
@@ -9825,7 +9825,7 @@ static const value_string ngap_FiveGProSeDirectDiscovery_vals[] = {
 static int
 dissect_ngap_FiveGProSeDirectDiscovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9841,7 +9841,7 @@ static const value_string ngap_FiveGProSeDirectCommunication_vals[] = {
 static int
 dissect_ngap_FiveGProSeDirectCommunication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9857,7 +9857,7 @@ static const value_string ngap_FiveGProSeLayer2UEtoNetworkRelay_vals[] = {
 static int
 dissect_ngap_FiveGProSeLayer2UEtoNetworkRelay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9873,7 +9873,7 @@ static const value_string ngap_FiveGProSeLayer3UEtoNetworkRelay_vals[] = {
 static int
 dissect_ngap_FiveGProSeLayer3UEtoNetworkRelay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9889,7 +9889,7 @@ static const value_string ngap_FiveGProSeLayer2RemoteUE_vals[] = {
 static int
 dissect_ngap_FiveGProSeLayer2RemoteUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9947,7 +9947,7 @@ static const value_string ngap_Range_vals[] = {
 static int
 dissect_ngap_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     9, NULL, TRUE, 0, NULL);
+                                     9, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -9978,7 +9978,7 @@ static int
 dissect_ngap_FiveGProSePC5QoSFlowList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_FiveGProSePC5QoSFlowList, FiveGProSePC5QoSFlowList_sequence_of,
-                                                  1, maxnoofPC5QoSFlows, FALSE);
+                                                  1, maxnoofPC5QoSFlows, false);
 
   return offset;
 }
@@ -10006,7 +10006,7 @@ dissect_ngap_FiveG_TMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   tvbuff_t *parameter_tvb = NULL;
   proto_item *ti;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       4, 4, FALSE, &parameter_tvb);
+                                       4, 4, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -10044,7 +10044,7 @@ static int
 dissect_ngap_ForbiddenTACs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ForbiddenTACs, ForbiddenTACs_sequence_of,
-                                                  1, maxnoofForbTACs, FALSE);
+                                                  1, maxnoofForbTACs, false);
 
   return offset;
 }
@@ -10074,7 +10074,7 @@ static int
 dissect_ngap_ForbiddenAreaInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ForbiddenAreaInformation, ForbiddenAreaInformation_sequence_of,
-                                                  1, maxnoofEPLMNsPlusOne, FALSE);
+                                                  1, maxnoofEPLMNsPlusOne, false);
 
   return offset;
 }
@@ -10169,7 +10169,7 @@ static const value_string ngap_NotificationControl_vals[] = {
 static int
 dissect_ngap_NotificationControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10179,7 +10179,7 @@ dissect_ngap_NotificationControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_PacketLossRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1000U, NULL, TRUE);
+                                                            0U, 1000U, NULL, true);
 
   return offset;
 }
@@ -10211,7 +10211,7 @@ static int
 dissect_ngap_GlobalCable_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_GlobalCable_ID);
@@ -10243,7 +10243,7 @@ dissect_ngap_GlobalCable_ID_new(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_GlobalLineIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -10259,7 +10259,7 @@ static const value_string ngap_LineType_vals[] = {
 static int
 dissect_ngap_LineType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10285,7 +10285,7 @@ dissect_ngap_GlobalLine_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_ngap_BIT_STRING_SIZE_32_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, TRUE, NULL, 0, NULL, NULL);
+                                     32, 32, true, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10371,7 +10371,7 @@ dissect_ngap_GlobalTWIF_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_ngap_BIT_STRING_SIZE_16_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, NULL, 0, NULL, NULL);
+                                     16, 16, true, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10447,7 +10447,7 @@ static const value_string ngap_GUAMIType_vals[] = {
 static int
 dissect_ngap_GUAMIType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10476,7 +10476,7 @@ static int
 dissect_ngap_QosFlowToBeForwardedList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowToBeForwardedList, QosFlowToBeForwardedList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -10512,7 +10512,7 @@ static const value_string ngap_HandoverFlag_vals[] = {
 static int
 dissect_ngap_HandoverFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10547,7 +10547,7 @@ static const value_string ngap_IntegrityProtectionResult_vals[] = {
 static int
 dissect_ngap_IntegrityProtectionResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10593,7 +10593,7 @@ static int
 dissect_ngap_QosFlowListWithCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowListWithCause, QosFlowListWithCause_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -10675,7 +10675,7 @@ static int
 dissect_ngap_HandoverType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, &ngap_data->handover_type_value, TRUE, 1, NULL);
+                                     3, &ngap_data->handover_type_value, true, 1, NULL);
 
 
 
@@ -10688,7 +10688,7 @@ dissect_ngap_HandoverType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_ngap_HashedUEIdentityIndexValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     13, 13, TRUE, NULL, 0, NULL, NULL);
+                                     13, 13, true, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10698,7 +10698,7 @@ dissect_ngap_HashedUEIdentityIndexValue(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_ngap_HFCNode_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -10731,7 +10731,7 @@ static const value_string ngap_T_handoverReportType_vals[] = {
 static int
 dissect_ngap_T_handoverReportType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10741,7 +10741,7 @@ dissect_ngap_T_handoverReportType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_ngap_MobilityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+                                     16, 16, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10780,7 +10780,7 @@ static const value_string ngap_IAB_Authorized_vals[] = {
 static int
 dissect_ngap_IAB_Authorized(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10795,7 +10795,7 @@ static const value_string ngap_IAB_Supported_vals[] = {
 static int
 dissect_ngap_IAB_Supported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10810,7 +10810,7 @@ static const value_string ngap_IABNodeIndication_vals[] = {
 static int
 dissect_ngap_IABNodeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10826,7 +10826,7 @@ static const value_string ngap_IMSVoiceSupportIndicator_vals[] = {
 static int
 dissect_ngap_IMSVoiceSupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10836,7 +10836,7 @@ dissect_ngap_IMSVoiceSupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_IndexToRFSP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 256U, NULL, TRUE);
+                                                            1U, 256U, NULL, true);
 
   return offset;
 }
@@ -10865,7 +10865,7 @@ static int
 dissect_ngap_RecommendedRANNodeList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_RecommendedRANNodeList, RecommendedRANNodeList_sequence_of,
-                                                  1, maxnoofRecommendedRANNodes, FALSE);
+                                                  1, maxnoofRecommendedRANNodes, false);
 
   return offset;
 }
@@ -10913,7 +10913,7 @@ static const value_string ngap_IntegrityProtectionIndication_vals[] = {
 static int
 dissect_ngap_IntegrityProtectionIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10924,7 +10924,7 @@ static int
 dissect_ngap_InterfacesToTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, false, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -10950,7 +10950,7 @@ static int
 dissect_ngap_MeasurementsToActivate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, false, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -10984,7 +10984,7 @@ static const value_string ngap_M1ReportingTrigger_vals[] = {
 static int
 dissect_ngap_M1ReportingTrigger(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -10994,7 +10994,7 @@ dissect_ngap_M1ReportingTrigger(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_Threshold_SINR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, false);
 
   return offset;
 }
@@ -11062,7 +11062,7 @@ static const value_string ngap_ReportIntervalMDT_vals[] = {
 static int
 dissect_ngap_ReportIntervalMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     13, NULL, FALSE, 0, NULL);
+                                     13, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -11084,7 +11084,7 @@ static const value_string ngap_ReportAmountMDT_vals[] = {
 static int
 dissect_ngap_ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, FALSE, 0, NULL);
+                                     8, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -11136,7 +11136,7 @@ static const value_string ngap_M4period_vals[] = {
 static int
 dissect_ngap_M4period(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11153,7 +11153,7 @@ static const value_string ngap_Links_to_log_vals[] = {
 static int
 dissect_ngap_Links_to_log(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11188,7 +11188,7 @@ static const value_string ngap_M5period_vals[] = {
 static int
 dissect_ngap_M5period(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11232,7 +11232,7 @@ static const value_string ngap_M6report_Interval_vals[] = {
 static int
 dissect_ngap_M6report_Interval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     14, NULL, TRUE, 0, NULL);
+                                     14, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11258,7 +11258,7 @@ dissect_ngap_M6Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_M7period(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 60U, NULL, TRUE);
+                                                            1U, 60U, NULL, true);
 
   return offset;
 }
@@ -11289,7 +11289,7 @@ static const value_string ngap_WLANMeasConfig_vals[] = {
 static int
 dissect_ngap_WLANMeasConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11300,7 +11300,7 @@ static int
 dissect_ngap_WLANName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       1, 32, FALSE, &parameter_tvb);
+                                       1, 32, false, &parameter_tvb);
 
   actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
@@ -11331,7 +11331,7 @@ static int
 dissect_ngap_WLANMeasConfigNameList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_WLANMeasConfigNameList, WLANMeasConfigNameList_sequence_of,
-                                                  1, maxnoofWLANName, FALSE);
+                                                  1, maxnoofWLANName, false);
 
   return offset;
 }
@@ -11346,7 +11346,7 @@ static const value_string ngap_T_wlan_rssi_vals[] = {
 static int
 dissect_ngap_T_wlan_rssi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11361,7 +11361,7 @@ static const value_string ngap_T_wlan_rtt_vals[] = {
 static int
 dissect_ngap_T_wlan_rtt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11390,7 +11390,7 @@ static int
 dissect_ngap_MDT_Location_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, false, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -11431,7 +11431,7 @@ static const value_string ngap_SensorMeasConfig_vals[] = {
 static int
 dissect_ngap_SensorMeasConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11446,7 +11446,7 @@ static const value_string ngap_T_uncompensatedBarometricConfig_vals[] = {
 static int
 dissect_ngap_T_uncompensatedBarometricConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11461,7 +11461,7 @@ static const value_string ngap_T_ueSpeedConfig_vals[] = {
 static int
 dissect_ngap_T_ueSpeedConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11476,7 +11476,7 @@ static const value_string ngap_T_ueOrientationConfig_vals[] = {
 static int
 dissect_ngap_T_ueOrientationConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11531,7 +11531,7 @@ static int
 dissect_ngap_SensorMeasConfigNameList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SensorMeasConfigNameList, SensorMeasConfigNameList_sequence_of,
-                                                  1, maxnoofSensorName, FALSE);
+                                                  1, maxnoofSensorName, false);
 
   return offset;
 }
@@ -11643,7 +11643,7 @@ static const value_string ngap_T_earlyIRATHO_vals[] = {
 static int
 dissect_ngap_T_earlyIRATHO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11772,7 +11772,7 @@ dissect_ngap_IntersystemSONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_INTEGER_0_16384_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 16384U, NULL, TRUE);
+                                                            0U, 16384U, NULL, true);
 
   return offset;
 }
@@ -11786,7 +11786,7 @@ static int
 dissect_ngap_CellsToActivateList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_CellsToActivateList, CellsToActivateList_sequence_of,
-                                                  1, maxnoofCellsinNGRANNode, FALSE);
+                                                  1, maxnoofCellsinNGRANNode, false);
 
   return offset;
 }
@@ -11831,7 +11831,7 @@ static int
 dissect_ngap_EUTRAN_CellToReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EUTRAN_CellToReportList, EUTRAN_CellToReportList_sequence_of,
-                                                  1, maxnoofReportedCells, FALSE);
+                                                  1, maxnoofReportedCells, false);
 
   return offset;
 }
@@ -11875,7 +11875,7 @@ static int
 dissect_ngap_NGRAN_CellToReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NGRAN_CellToReportList, NGRAN_CellToReportList_sequence_of,
-                                                  1, maxnoofReportedCells, FALSE);
+                                                  1, maxnoofReportedCells, false);
 
   return offset;
 }
@@ -11926,7 +11926,7 @@ dissect_ngap_ReportingSystem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, 0, NULL, NULL);
+                                     32, 32, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -11936,7 +11936,7 @@ dissect_ngap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_ngap_IntersystemResourceThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 100U, NULL, FALSE);
+                                                            0U, 100U, NULL, false);
 
   return offset;
 }
@@ -11956,7 +11956,7 @@ static const value_string ngap_NumberOfMeasurementReportingLevels_vals[] = {
 static int
 dissect_ngap_NumberOfMeasurementReportingLevels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 1, NULL);
+                                     5, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -11993,7 +11993,7 @@ static const value_string ngap_ReportingPeriodicity_vals[] = {
 static int
 dissect_ngap_ReportingPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12087,7 +12087,7 @@ static int
 dissect_ngap_ActivatedCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ActivatedCellList, ActivatedCellList_sequence_of,
-                                                  1, maxnoofCellsinNGRANNode, FALSE);
+                                                  1, maxnoofCellsinNGRANNode, false);
 
   return offset;
 }
@@ -12158,7 +12158,7 @@ static const value_string ngap_T_notifyFlag_vals[] = {
 static int
 dissect_ngap_T_notifyFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12188,7 +12188,7 @@ static int
 dissect_ngap_NotificationCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NotificationCellList, NotificationCellList_sequence_of,
-                                                  1, maxnoofCellsinNGRANNode, FALSE);
+                                                  1, maxnoofCellsinNGRANNode, false);
 
   return offset;
 }
@@ -12213,7 +12213,7 @@ dissect_ngap_IntersystemCellStateIndication(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ngap_INTEGER_1_100_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 100U, NULL, TRUE);
+                                                            1U, 100U, NULL, true);
 
   return offset;
 }
@@ -12223,7 +12223,7 @@ dissect_ngap_INTEGER_1_100_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_ngap_INTEGER_0_100(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 100U, NULL, FALSE);
+                                                            0U, 100U, NULL, false);
 
   return offset;
 }
@@ -12265,7 +12265,7 @@ dissect_ngap_EUTRAN_CompositeAvailableCapacityGroup(tvbuff_t *tvb _U_, int offse
 static int
 dissect_ngap_EUTRAN_NumberOfActiveUEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 16777215U, NULL, TRUE);
+                                                            0U, 16777215U, NULL, true);
 
   return offset;
 }
@@ -12275,7 +12275,7 @@ dissect_ngap_EUTRAN_NumberOfActiveUEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_NGRAN_NoofRRCConnections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65536U, NULL, TRUE);
+                                                            1U, 65536U, NULL, true);
 
   return offset;
 }
@@ -12330,7 +12330,7 @@ static int
 dissect_ngap_EUTRAN_CellReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_EUTRAN_CellReportList, EUTRAN_CellReportList_sequence_of,
-                                                  1, maxnoofReportedCells, FALSE);
+                                                  1, maxnoofReportedCells, false);
 
   return offset;
 }
@@ -12355,7 +12355,7 @@ dissect_ngap_EUTRAN_ReportingStatusIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_NGRAN_NumberOfActiveUEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 16777215U, NULL, TRUE);
+                                                            0U, 16777215U, NULL, true);
 
   return offset;
 }
@@ -12408,7 +12408,7 @@ static int
 dissect_ngap_NGRAN_CellReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NGRAN_CellReportList, NGRAN_CellReportList_sequence_of,
-                                                  1, maxnoofReportedCells, FALSE);
+                                                  1, maxnoofReportedCells, false);
 
   return offset;
 }
@@ -12473,7 +12473,7 @@ static int
 dissect_ngap_LAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
-                                       2, 2, FALSE, &parameter_tvb);
+                                       2, 2, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -12508,7 +12508,7 @@ dissect_ngap_LAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 static int
 dissect_ngap_TimeUEStayedInCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, FALSE);
+                                                            0U, 4095U, NULL, false);
 
   return offset;
 }
@@ -12518,7 +12518,7 @@ dissect_ngap_TimeUEStayedInCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_TimeUEStayedInCellEnhancedGranularity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 40950U, NULL, FALSE);
+                                                            0U, 40950U, NULL, false);
 
   return offset;
 }
@@ -12549,7 +12549,7 @@ dissect_ngap_LastVisitedEUTRANCellInformation(tvbuff_t *tvb _U_, int offset _U_,
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedEUTRANCellInformation);
@@ -12567,7 +12567,7 @@ dissect_ngap_LastVisitedUTRANCellInformation(tvbuff_t *tvb _U_, int offset _U_, 
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedUTRANCellInformation);
@@ -12585,7 +12585,7 @@ dissect_ngap_LastVisitedGERANCellInformation(tvbuff_t *tvb _U_, int offset _U_, 
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedGERANCellInformation);
@@ -12644,7 +12644,7 @@ dissect_ngap_LastVisitedCellItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_INTEGER_0_40950(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 40950U, NULL, FALSE);
+                                                            0U, 40950U, NULL, false);
 
   return offset;
 }
@@ -12674,7 +12674,7 @@ static int
 dissect_ngap_LastVisitedPSCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_LastVisitedPSCellList, LastVisitedPSCellList_sequence_of,
-                                                  1, maxnoofPSCellsPerPrimaryCellinUEHistoryInfo, FALSE);
+                                                  1, maxnoofPSCellsPerPrimaryCellinUEHistoryInfo, false);
 
   return offset;
 }
@@ -12689,7 +12689,7 @@ static const value_string ngap_LocationReportingAdditionalInfo_vals[] = {
 static int
 dissect_ngap_LocationReportingAdditionalInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12704,7 +12704,7 @@ static const value_string ngap_ReportArea_vals[] = {
 static int
 dissect_ngap_ReportArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12747,7 +12747,7 @@ static const value_string ngap_LoggingInterval_vals[] = {
 static int
 dissect_ngap_LoggingInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     11, NULL, TRUE, 0, NULL);
+                                     11, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12767,7 +12767,7 @@ static const value_string ngap_LoggingDuration_vals[] = {
 static int
 dissect_ngap_LoggingDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12827,7 +12827,7 @@ static const value_string ngap_LTEM_Indication_vals[] = {
 static int
 dissect_ngap_LTEM_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12843,7 +12843,7 @@ static const value_string ngap_VehicleUE_vals[] = {
 static int
 dissect_ngap_VehicleUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12859,7 +12859,7 @@ static const value_string ngap_PedestrianUE_vals[] = {
 static int
 dissect_ngap_PedestrianUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12900,7 +12900,7 @@ dissect_ngap_LTEUESidelinkAggregateMaximumBitrate(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ngap_MaskedIMEISV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, 0, NULL, NULL);
+                                     64, 64, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -12911,7 +12911,7 @@ static int
 dissect_ngap_MessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
-                                     16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     16, 16, false, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -12932,7 +12932,7 @@ static const value_string ngap_MaximumIntegrityProtectedDataRate_vals[] = {
 static int
 dissect_ngap_MaximumIntegrityProtectedDataRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12942,7 +12942,7 @@ dissect_ngap_MaximumIntegrityProtectedDataRate(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_MBS_AreaSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, TRUE);
+                                                            0U, 65535U, NULL, true);
 
   return offset;
 }
@@ -12952,7 +12952,7 @@ dissect_ngap_MBS_AreaSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_MRB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 512U, NULL, TRUE);
+                                                            1U, 512U, NULL, true);
 
   return offset;
 }
@@ -13007,7 +13007,7 @@ static int
 dissect_ngap_MBS_DataForwardingResponseMRBList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_DataForwardingResponseMRBList, MBS_DataForwardingResponseMRBList_sequence_of,
-                                                  1, maxnoofMRBs, FALSE);
+                                                  1, maxnoofMRBs, false);
 
   return offset;
 }
@@ -13021,7 +13021,7 @@ static int
 dissect_ngap_MBS_QoSFlowList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_QoSFlowList, MBS_QoSFlowList_sequence_of,
-                                                  1, maxnoofMBSQoSFlows, FALSE);
+                                                  1, maxnoofMBSQoSFlows, false);
 
   return offset;
 }
@@ -13052,7 +13052,7 @@ static int
 dissect_ngap_MBS_MappingandDataForwardingRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_MappingandDataForwardingRequestList, MBS_MappingandDataForwardingRequestList_sequence_of,
-                                                  1, maxnoofMRBs, FALSE);
+                                                  1, maxnoofMRBs, false);
 
   return offset;
 }
@@ -13109,7 +13109,7 @@ static const value_string ngap_ReflectiveQosAttribute_vals[] = {
 static int
 dissect_ngap_ReflectiveQosAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -13158,7 +13158,7 @@ static int
 dissect_ngap_MBS_QoSFlowsToBeSetupList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_QoSFlowsToBeSetupList, MBS_QoSFlowsToBeSetupList_sequence_of,
-                                                  1, maxnoofMBSQoSFlows, FALSE);
+                                                  1, maxnoofMBSQoSFlows, false);
 
   return offset;
 }
@@ -13172,7 +13172,7 @@ static int
 dissect_ngap_MBS_ServiceAreaCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_ServiceAreaCellList, MBS_ServiceAreaCellList_sequence_of,
-                                                  1, maxnoofCellsforMBS, FALSE);
+                                                  1, maxnoofCellsforMBS, false);
 
   return offset;
 }
@@ -13186,7 +13186,7 @@ static int
 dissect_ngap_MBS_ServiceAreaTAIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_ServiceAreaTAIList, MBS_ServiceAreaTAIList_sequence_of,
-                                                  1, maxnoofTAIforMBS, FALSE);
+                                                  1, maxnoofTAIforMBS, false);
 
   return offset;
 }
@@ -13232,7 +13232,7 @@ static int
 dissect_ngap_MBS_ServiceAreaInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_ServiceAreaInformationList, MBS_ServiceAreaInformationList_sequence_of,
-                                                  1, maxnoofMBSServiceAreaInformation, FALSE);
+                                                  1, maxnoofMBSServiceAreaInformation, false);
 
   return offset;
 }
@@ -13266,7 +13266,7 @@ dissect_ngap_MBS_ServiceArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_TMGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       6, 6, FALSE, NULL);
+                                       6, 6, false, NULL);
 
   return offset;
 }
@@ -13276,7 +13276,7 @@ dissect_ngap_TMGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 static int
 dissect_ngap_NID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     44, 44, FALSE, NULL, 0, NULL, NULL);
+                                     44, 44, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13323,7 +13323,7 @@ static int
 dissect_ngap_MBSSessionFailedtoSetupList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBSSessionFailedtoSetupList, MBSSessionFailedtoSetupList_sequence_of,
-                                                  1, maxnoofMBSSessions, FALSE);
+                                                  1, maxnoofMBSSessions, false);
 
   return offset;
 }
@@ -13356,7 +13356,7 @@ static int
 dissect_ngap_MBS_ActiveSessionInformation_SourcetoTargetList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_ActiveSessionInformation_SourcetoTargetList, MBS_ActiveSessionInformation_SourcetoTargetList_sequence_of,
-                                                  1, maxnoofMBSSessionsofUE, FALSE);
+                                                  1, maxnoofMBSSessionsofUE, false);
 
   return offset;
 }
@@ -13386,7 +13386,7 @@ static int
 dissect_ngap_MBS_ActiveSessionInformation_TargettoSourceList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_ActiveSessionInformation_TargettoSourceList, MBS_ActiveSessionInformation_TargettoSourceList_sequence_of,
-                                                  1, maxnoofMBSSessionsofUE, FALSE);
+                                                  1, maxnoofMBSSessionsofUE, false);
 
   return offset;
 }
@@ -13436,7 +13436,7 @@ static int
 dissect_ngap_MBSSessionSetupResponseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBSSessionSetupResponseList, MBSSessionSetupResponseList_sequence_of,
-                                                  1, maxnoofMBSSessions, FALSE);
+                                                  1, maxnoofMBSSessions, false);
 
   return offset;
 }
@@ -13464,7 +13464,7 @@ dissect_ngap_MBSSessionSetupOrModRequestTransfer(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_MBS_SessionFSAID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
+                                       3, 3, false, NULL);
 
   return offset;
 }
@@ -13478,7 +13478,7 @@ static int
 dissect_ngap_MBS_SessionFSAIDList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_SessionFSAIDList, MBS_SessionFSAIDList_sequence_of,
-                                                  1, maxnoofMBSFSAs, FALSE);
+                                                  1, maxnoofMBSFSAs, false);
 
   return offset;
 }
@@ -13508,7 +13508,7 @@ static int
 dissect_ngap_MBS_SessionTNLInfoNGRANList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_SessionTNLInfoNGRANList, MBS_SessionTNLInfoNGRANList_sequence_of,
-                                                  1, maxnoofMBSServiceAreaInformation, FALSE);
+                                                  1, maxnoofMBSServiceAreaInformation, false);
 
   return offset;
 }
@@ -13585,7 +13585,7 @@ static const value_string ngap_MBS_SupportIndicator_vals[] = {
 static int
 dissect_ngap_MBS_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -13632,7 +13632,7 @@ static int
 dissect_ngap_MBS_SessionTNLInfo5GCList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_SessionTNLInfo5GCList, MBS_SessionTNLInfo5GCList_sequence_of,
-                                                  1, maxnoofMBSServiceAreaInformation, FALSE);
+                                                  1, maxnoofMBSServiceAreaInformation, false);
 
   return offset;
 }
@@ -13707,7 +13707,7 @@ static const value_string ngap_MBSSessionStatus_vals[] = {
 static int
 dissect_ngap_MBSSessionStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -13776,7 +13776,7 @@ static int
 dissect_ngap_MBSSessionSetupRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBSSessionSetupRequestList, MBSSessionSetupRequestList_sequence_of,
-                                                  1, maxnoofMBSSessions, FALSE);
+                                                  1, maxnoofMBSSessions, false);
 
   return offset;
 }
@@ -13808,7 +13808,7 @@ static int
 dissect_ngap_MBSSessionSetuporModifyRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBSSessionSetuporModifyRequestList, MBSSessionSetuporModifyRequestList_sequence_of,
-                                                  1, maxnoofMBSSessions, FALSE);
+                                                  1, maxnoofMBSSessions, false);
 
   return offset;
 }
@@ -13838,7 +13838,7 @@ static int
 dissect_ngap_MBSSessionToReleaseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBSSessionToReleaseList, MBSSessionToReleaseList_sequence_of,
-                                                  1, maxnoofMBSSessions, FALSE);
+                                                  1, maxnoofMBSSessions, false);
 
   return offset;
 }
@@ -13853,7 +13853,7 @@ static const value_string ngap_MicoAllPLMN_vals[] = {
 static int
 dissect_ngap_MicoAllPLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -13863,7 +13863,7 @@ dissect_ngap_MicoAllPLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_ngap_ExtendedMobilityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, 0, NULL, NULL);
+                                     32, 32, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13874,7 +13874,7 @@ static int
 dissect_ngap_RATRestrictionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -13917,7 +13917,7 @@ static int
 dissect_ngap_RATRestrictions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_RATRestrictions, RATRestrictions_sequence_of,
-                                                  1, maxnoofEPLMNsPlusOne, FALSE);
+                                                  1, maxnoofEPLMNsPlusOne, false);
 
   return offset;
 }
@@ -13931,7 +13931,7 @@ static int
 dissect_ngap_NotAllowedTACs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NotAllowedTACs, NotAllowedTACs_sequence_of,
-                                                  1, maxnoofAllowedAreas, FALSE);
+                                                  1, maxnoofAllowedAreas, false);
 
   return offset;
 }
@@ -13962,7 +13962,7 @@ static int
 dissect_ngap_ServiceAreaInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ServiceAreaInformation, ServiceAreaInformation_sequence_of,
-                                                  1, maxnoofEPLMNsPlusOne, FALSE);
+                                                  1, maxnoofEPLMNsPlusOne, false);
 
   return offset;
 }
@@ -13993,7 +13993,7 @@ dissect_ngap_NGRANTraceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   tvbuff_t *parameter_tvb;
   proto_tree *subtree = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       8, 8, FALSE, &parameter_tvb);
+                                       8, 8, false, &parameter_tvb);
 
   if (!parameter_tvb)
     return offset;
@@ -14037,7 +14037,7 @@ static int
 dissect_ngap_MDTPLMNList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MDTPLMNList, MDTPLMNList_sequence_of,
-                                                  1, maxnoofMDTPLMNs, FALSE);
+                                                  1, maxnoofMDTPLMNs, false);
 
   return offset;
 }
@@ -14051,7 +14051,7 @@ static int
 dissect_ngap_MDTPLMNModificationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MDTPLMNModificationList, MDTPLMNModificationList_sequence_of,
-                                                  0, maxnoofMDTPLMNs, FALSE);
+                                                  0, maxnoofMDTPLMNs, false);
 
   return offset;
 }
@@ -14068,7 +14068,7 @@ static const value_string ngap_MDT_Activation_vals[] = {
 static int
 dissect_ngap_MDT_Activation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14121,7 +14121,7 @@ static int
 dissect_ngap_MDTModeEutra(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *mdt_mode_eutra_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &mdt_mode_eutra_tvb);
+                                       NO_BOUND, NO_BOUND, false, &mdt_mode_eutra_tvb);
 
   if (mdt_mode_eutra_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_MDTModeEutra);
@@ -14219,7 +14219,7 @@ static int
 dissect_ngap_MBS_AreaTAIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MBS_AreaTAIList, MBS_AreaTAIList_sequence_of,
-                                                  1, maxnoofTAIforPaging, FALSE);
+                                                  1, maxnoofTAIforPaging, false);
 
   return offset;
 }
@@ -14264,7 +14264,7 @@ static int
 dissect_ngap_UE_PagingList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UE_PagingList, UE_PagingList_sequence_of,
-                                                  1, maxnoofUEsforPaging, FALSE);
+                                                  1, maxnoofUEsforPaging, false);
 
   return offset;
 }
@@ -14294,7 +14294,7 @@ static int
 dissect_ngap_MulticastGroupPagingAreaList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_MulticastGroupPagingAreaList, MulticastGroupPagingAreaList_sequence_of,
-                                                  1, maxnoofPagingAreas, FALSE);
+                                                  1, maxnoofPagingAreas, false);
 
   return offset;
 }
@@ -14309,7 +14309,7 @@ static const value_string ngap_IncludeBeamMeasurementsIndication_vals[] = {
 static int
 dissect_ngap_IncludeBeamMeasurementsIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14331,7 +14331,7 @@ static const value_string ngap_M4ReportAmountMDT_vals[] = {
 static int
 dissect_ngap_M4ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14353,7 +14353,7 @@ static const value_string ngap_M5ReportAmountMDT_vals[] = {
 static int
 dissect_ngap_M5ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14375,7 +14375,7 @@ static const value_string ngap_M6ReportAmountMDT_vals[] = {
 static int
 dissect_ngap_M6ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14397,7 +14397,7 @@ static const value_string ngap_M7ReportAmountMDT_vals[] = {
 static int
 dissect_ngap_M7ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14411,7 +14411,7 @@ dissect_ngap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   guint tvb_len;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
 
   tvb_len = tvb_reported_length(parameter_tvb);
@@ -14452,7 +14452,7 @@ dissect_ngap_NASSecurityParametersFromNGRAN(tvbuff_t *tvb _U_, int offset _U_, a
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     proto_tree *subtree;
@@ -14478,7 +14478,7 @@ static const value_string ngap_NB_IoT_DefaultPagingDRX_vals[] = {
 static int
 dissect_ngap_NB_IoT_DefaultPagingDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14498,7 +14498,7 @@ static const value_string ngap_NB_IoT_PagingDRX_vals[] = {
 static int
 dissect_ngap_NB_IoT_PagingDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14526,7 +14526,7 @@ static const value_string ngap_NB_IoT_Paging_eDRXCycle_vals[] = {
 static int
 dissect_ngap_NB_IoT_Paging_eDRXCycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     14, NULL, TRUE, 0, NULL);
+                                     14, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14556,7 +14556,7 @@ static const value_string ngap_NB_IoT_Paging_TimeWindow_vals[] = {
 static int
 dissect_ngap_NB_IoT_Paging_TimeWindow(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, TRUE, 0, NULL);
+                                     16, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14582,7 +14582,7 @@ dissect_ngap_NB_IoT_Paging_eDRXInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_ngap_NB_IoT_UEPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, TRUE);
+                                                            0U, 255U, NULL, true);
 
   return offset;
 }
@@ -14592,7 +14592,7 @@ dissect_ngap_NB_IoT_UEPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_NetworkInstance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 256U, NULL, TRUE);
+                                                            1U, 256U, NULL, true);
 
   return offset;
 }
@@ -14607,7 +14607,7 @@ static const value_string ngap_NewSecurityContextInd_vals[] = {
 static int
 dissect_ngap_NewSecurityContextInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14617,7 +14617,7 @@ dissect_ngap_NewSecurityContextInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_ngap_NextHopChainingCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 7U, NULL, FALSE);
+                                                            0U, 7U, NULL, false);
 
   return offset;
 }
@@ -14646,7 +14646,7 @@ static int
 dissect_ngap_NGAPIESupportInformationRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NGAPIESupportInformationRequestList, NGAPIESupportInformationRequestList_sequence_of,
-                                                  1, maxnoofNGAPIESupportInfo, FALSE);
+                                                  1, maxnoofNGAPIESupportInfo, false);
 
   return offset;
 }
@@ -14662,7 +14662,7 @@ static const value_string ngap_T_ngap_ProtocolIESupportInfo_vals[] = {
 static int
 dissect_ngap_T_ngap_ProtocolIESupportInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14678,7 +14678,7 @@ static const value_string ngap_T_ngap_ProtocolIEPresenceInfo_vals[] = {
 static int
 dissect_ngap_T_ngap_ProtocolIEPresenceInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14709,7 +14709,7 @@ static int
 dissect_ngap_NGAPIESupportInformationResponseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NGAPIESupportInformationResponseList, NGAPIESupportInformationResponseList_sequence_of,
-                                                  1, maxnoofNGAPIESupportInfo, FALSE);
+                                                  1, maxnoofNGAPIESupportInfo, false);
 
   return offset;
 }
@@ -14724,7 +14724,7 @@ static const value_string ngap_NotifySourceNGRANNode_vals[] = {
 static int
 dissect_ngap_NotifySourceNGRANNode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14754,7 +14754,7 @@ static int
 dissect_ngap_NGRAN_TNLAssociationToRemoveList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NGRAN_TNLAssociationToRemoveList, NGRAN_TNLAssociationToRemoveList_sequence_of,
-                                                  1, maxnoofTNLAssociations, FALSE);
+                                                  1, maxnoofTNLAssociations, false);
 
   return offset;
 }
@@ -14770,7 +14770,7 @@ static const value_string ngap_NotificationCause_vals[] = {
 static int
 dissect_ngap_NotificationCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14904,7 +14904,7 @@ static int
 dissect_ngap_NR_CGIListForWarning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_NR_CGIListForWarning, NR_CGIListForWarning_sequence_of,
-                                                  1, maxnoofCellIDforWarning, FALSE);
+                                                  1, maxnoofCellIDforWarning, false);
 
   return offset;
 }
@@ -14931,7 +14931,7 @@ static const value_string ngap_NR_Paging_eDRX_Cycle_vals[] = {
 static int
 dissect_ngap_NR_Paging_eDRX_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     13, NULL, TRUE, 0, NULL);
+                                     13, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14977,7 +14977,7 @@ static const value_string ngap_NR_Paging_Time_Window_vals[] = {
 static int
 dissect_ngap_NR_Paging_Time_Window(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, TRUE, 16, NULL);
+                                     16, NULL, true, 16, NULL);
 
   return offset;
 }
@@ -15004,7 +15004,7 @@ static int
 dissect_ngap_NRencryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     16, 16, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -15028,7 +15028,7 @@ static int
 dissect_ngap_NRintegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     16, 16, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -15052,7 +15052,7 @@ static int
 dissect_ngap_NRMobilityHistoryReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *nr_mob_hist_report_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &nr_mob_hist_report_tvb);
+                                       NO_BOUND, NO_BOUND, false, &nr_mob_hist_report_tvb);
 
   if (nr_mob_hist_report_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NRMobilityHistoryReport);
@@ -15075,7 +15075,7 @@ dissect_ngap_NRPPa_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
 
   if ((tvb_reported_length(parameter_tvb)>0)&&(nrppa_handle))
@@ -15094,7 +15094,7 @@ static int
 dissect_ngap_TACListInNRNTN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TACListInNRNTN, TACListInNRNTN_sequence_of,
-                                                  1, maxnoofTACsinNTN, FALSE);
+                                                  1, maxnoofTACsinNTN, false);
 
   return offset;
 }
@@ -15121,7 +15121,7 @@ dissect_ngap_NRNTNTAIInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_NumberOfBroadcastsRequested(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, false);
 
   return offset;
 }
@@ -15162,7 +15162,7 @@ dissect_ngap_NRUESidelinkAggregateMaximumBitrate(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_NSAG_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, TRUE);
+                                                            0U, 255U, NULL, true);
 
   return offset;
 }
@@ -15177,7 +15177,7 @@ static const value_string ngap_OnboardingSupport_vals[] = {
 static int
 dissect_ngap_OnboardingSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -15195,7 +15195,7 @@ static const value_string ngap_OverloadAction_vals[] = {
 static int
 dissect_ngap_OverloadAction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -15246,7 +15246,7 @@ static int
 dissect_ngap_SliceOverloadList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SliceOverloadList, SliceOverloadList_sequence_of,
-                                                  1, maxnoofSliceItems, FALSE);
+                                                  1, maxnoofSliceItems, false);
 
   return offset;
 }
@@ -15256,7 +15256,7 @@ dissect_ngap_SliceOverloadList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_TrafficLoadReductionIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 99U, NULL, FALSE);
+                                                            1U, 99U, NULL, false);
 
   return offset;
 }
@@ -15287,7 +15287,7 @@ static int
 dissect_ngap_OverloadStartNSSAIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_OverloadStartNSSAIList, OverloadStartNSSAIList_sequence_of,
-                                                  1, maxnoofSliceItems, FALSE);
+                                                  1, maxnoofSliceItems, false);
 
   return offset;
 }
@@ -15319,7 +15319,7 @@ static int
 dissect_ngap_PagingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, &value, TRUE, 0, NULL);
+                                     1, &value, true, 0, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCause=%s]", val_to_str_const(value, ngap_PagingCause_vals, "Unknown"));
 
@@ -15338,7 +15338,7 @@ static int
 dissect_ngap_PagingCauseIndicationForVoiceService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, &value, TRUE, 0, NULL);
+                                     1, &value, true, 0, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCauseIndicationForVoiceService=%s]", val_to_str_const(value, ngap_PagingCauseIndicationForVoiceService_vals, "Unknown"));
 
@@ -15356,7 +15356,7 @@ static const value_string ngap_PagingOrigin_vals[] = {
 static int
 dissect_ngap_PagingOrigin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -15378,7 +15378,7 @@ static const value_string ngap_PagingPriority_vals[] = {
 static int
 dissect_ngap_PagingPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -15413,7 +15413,7 @@ static const value_string ngap_PagingProbabilityInformation_vals[] = {
 static int
 dissect_ngap_PagingProbabilityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     21, NULL, TRUE, 0, NULL);
+                                     21, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -15514,7 +15514,7 @@ static int
 dissect_ngap_QosFlowAcceptedList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowAcceptedList, QosFlowAcceptedList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -15602,7 +15602,7 @@ static int
 dissect_ngap_PC5QoSFlowList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PC5QoSFlowList, PC5QoSFlowList_sequence_of,
-                                                  1, maxnoofPC5QoSFlows, FALSE);
+                                                  1, maxnoofPC5QoSFlows, false);
 
   return offset;
 }
@@ -15634,7 +15634,7 @@ static const value_string ngap_PrivacyIndicator_vals[] = {
 static int
 dissect_ngap_PrivacyIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -15660,7 +15660,7 @@ dissect_ngap_PDUSessionAggregateMaximumBitRate(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_PDUSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -15670,7 +15670,7 @@ dissect_ngap_PDUSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_ngap_PDUSessionPairID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, TRUE);
+                                                            0U, 255U, NULL, true);
 
   return offset;
 }
@@ -15680,7 +15680,7 @@ dissect_ngap_PDUSessionPairID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_ngap_T_handoverRequestAcknowledgeTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_HandoverRequestAcknowledgeTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_HandoverRequestAcknowledgeTransfer_PDU);
 
   return offset;
 }
@@ -15710,7 +15710,7 @@ static int
 dissect_ngap_PDUSessionResourceAdmittedList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceAdmittedList, PDUSessionResourceAdmittedList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15720,7 +15720,7 @@ dissect_ngap_PDUSessionResourceAdmittedList(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ngap_T_pDUSessionResourceModifyIndicationUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -15750,7 +15750,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToModifyListModCfm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToModifyListModCfm, PDUSessionResourceFailedToModifyListModCfm_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15760,7 +15760,7 @@ dissect_ngap_PDUSessionResourceFailedToModifyListModCfm(tvbuff_t *tvb _U_, int o
 static int
 dissect_ngap_T_pDUSessionResourceModifyUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceModifyUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceModifyUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -15790,7 +15790,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToModifyListModRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToModifyListModRes, PDUSessionResourceFailedToModifyListModRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15820,7 +15820,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToResumeListRESReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToResumeListRESReq, PDUSessionResourceFailedToResumeListRESReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15850,7 +15850,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToResumeListRESRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToResumeListRESRes, PDUSessionResourceFailedToResumeListRESRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15860,7 +15860,7 @@ dissect_ngap_PDUSessionResourceFailedToResumeListRESRes(tvbuff_t *tvb _U_, int o
 static int
 dissect_ngap_T_pDUSessionResourceSetupUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -15890,7 +15890,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToSetupListCxtFail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToSetupListCxtFail, PDUSessionResourceFailedToSetupListCxtFail_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15900,7 +15900,7 @@ dissect_ngap_PDUSessionResourceFailedToSetupListCxtFail(tvbuff_t *tvb _U_, int o
 static int
 dissect_ngap_T_pDUSessionResourceSetupUnsuccessfulTransfer_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -15930,7 +15930,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToSetupListCxtRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToSetupListCxtRes, PDUSessionResourceFailedToSetupListCxtRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15940,7 +15940,7 @@ dissect_ngap_PDUSessionResourceFailedToSetupListCxtRes(tvbuff_t *tvb _U_, int of
 static int
 dissect_ngap_T_handoverResourceAllocationUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_HandoverResourceAllocationUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_HandoverResourceAllocationUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -15970,7 +15970,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToSetupListHOAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToSetupListHOAck, PDUSessionResourceFailedToSetupListHOAck_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -15980,7 +15980,7 @@ dissect_ngap_PDUSessionResourceFailedToSetupListHOAck(tvbuff_t *tvb _U_, int off
 static int
 dissect_ngap_T_pathSwitchRequestSetupFailedTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PathSwitchRequestSetupFailedTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PathSwitchRequestSetupFailedTransfer_PDU);
 
   return offset;
 }
@@ -16010,7 +16010,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToSetupListPSReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToSetupListPSReq, PDUSessionResourceFailedToSetupListPSReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16020,7 +16020,7 @@ dissect_ngap_PDUSessionResourceFailedToSetupListPSReq(tvbuff_t *tvb _U_, int off
 static int
 dissect_ngap_T_pDUSessionResourceSetupUnsuccessfulTransfer_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -16050,7 +16050,7 @@ static int
 dissect_ngap_PDUSessionResourceFailedToSetupListSURes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceFailedToSetupListSURes, PDUSessionResourceFailedToSetupListSURes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16060,7 +16060,7 @@ dissect_ngap_PDUSessionResourceFailedToSetupListSURes(tvbuff_t *tvb _U_, int off
 static int
 dissect_ngap_T_handoverCommandTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_HandoverCommandTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_HandoverCommandTransfer_PDU);
 
   return offset;
 }
@@ -16090,7 +16090,7 @@ static int
 dissect_ngap_PDUSessionResourceHandoverList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceHandoverList, PDUSessionResourceHandoverList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16120,7 +16120,7 @@ static int
 dissect_ngap_QosFlowInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowInformationList, QosFlowInformationList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -16151,7 +16151,7 @@ static int
 dissect_ngap_PDUSessionResourceInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceInformationList, PDUSessionResourceInformationList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16180,7 +16180,7 @@ static int
 dissect_ngap_PDUSessionResourceListCxtRelCpl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceListCxtRelCpl, PDUSessionResourceListCxtRelCpl_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16190,7 +16190,7 @@ dissect_ngap_PDUSessionResourceListCxtRelCpl(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ngap_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceReleaseResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceReleaseResponseTransfer_PDU);
 
   return offset;
 }
@@ -16219,7 +16219,7 @@ static int
 dissect_ngap_PDUSessionResourceListCxtRelReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceListCxtRelReq, PDUSessionResourceListCxtRelReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16229,7 +16229,7 @@ dissect_ngap_PDUSessionResourceListCxtRelReq(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ngap_T_handoverRequiredTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_HandoverRequiredTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_HandoverRequiredTransfer_PDU);
 
   return offset;
 }
@@ -16259,7 +16259,7 @@ static int
 dissect_ngap_PDUSessionResourceListHORqd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceListHORqd, PDUSessionResourceListHORqd_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16288,7 +16288,7 @@ static int
 dissect_ngap_QosFlowModifyConfirmList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowModifyConfirmList, QosFlowModifyConfirmList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -16318,7 +16318,7 @@ static int
 dissect_ngap_UPTransportLayerInformationPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UPTransportLayerInformationPairList, UPTransportLayerInformationPairList_sequence_of,
-                                                  1, maxnoofMultiConnectivityMinusOne, FALSE);
+                                                  1, maxnoofMultiConnectivityMinusOne, false);
 
   return offset;
 }
@@ -16406,7 +16406,7 @@ static int
 dissect_ngap_QosFlowAddOrModifyResponseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowAddOrModifyResponseList, QosFlowAddOrModifyResponseList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -16451,7 +16451,7 @@ static int
 dissect_ngap_QosFlowPerTNLInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowPerTNLInformationList, QosFlowPerTNLInformationList_sequence_of,
-                                                  1, maxnoofMultiConnectivityMinusOne, FALSE);
+                                                  1, maxnoofMultiConnectivityMinusOne, false);
 
   return offset;
 }
@@ -16504,7 +16504,7 @@ dissect_ngap_PDUSessionResourceModifyIndicationTransfer(tvbuff_t *tvb _U_, int o
 static int
 dissect_ngap_T_pDUSessionResourceModifyConfirmTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceModifyConfirmTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceModifyConfirmTransfer_PDU);
 
   return offset;
 }
@@ -16534,7 +16534,7 @@ static int
 dissect_ngap_PDUSessionResourceModifyListModCfm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceModifyListModCfm, PDUSessionResourceModifyListModCfm_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16544,7 +16544,7 @@ dissect_ngap_PDUSessionResourceModifyListModCfm(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ngap_T_pDUSessionResourceModifyIndicationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceModifyIndicationTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceModifyIndicationTransfer_PDU);
 
   return offset;
 }
@@ -16574,7 +16574,7 @@ static int
 dissect_ngap_PDUSessionResourceModifyListModInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceModifyListModInd, PDUSessionResourceModifyListModInd_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16584,7 +16584,7 @@ dissect_ngap_PDUSessionResourceModifyListModInd(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ngap_T_pDUSessionResourceModifyRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceModifyRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceModifyRequestTransfer_PDU);
 
   return offset;
 }
@@ -16615,7 +16615,7 @@ static int
 dissect_ngap_PDUSessionResourceModifyListModReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceModifyListModReq, PDUSessionResourceModifyListModReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16625,7 +16625,7 @@ dissect_ngap_PDUSessionResourceModifyListModReq(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ngap_T_pDUSessionResourceModifyResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceModifyResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceModifyResponseTransfer_PDU);
 
   return offset;
 }
@@ -16655,7 +16655,7 @@ static int
 dissect_ngap_PDUSessionResourceModifyListModRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceModifyListModRes, PDUSessionResourceModifyListModRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16685,7 +16685,7 @@ dissect_ngap_PDUSessionResourceModifyUnsuccessfulTransfer(tvbuff_t *tvb _U_, int
 static int
 dissect_ngap_T_pDUSessionResourceNotifyTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceNotifyTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceNotifyTransfer_PDU);
 
   return offset;
 }
@@ -16715,7 +16715,7 @@ static int
 dissect_ngap_PDUSessionResourceNotifyList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceNotifyList, PDUSessionResourceNotifyList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16768,7 +16768,7 @@ static int
 dissect_ngap_QosFlowNotifyList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowNotifyList, QosFlowNotifyList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -16817,7 +16817,7 @@ dissect_ngap_PDUSessionResourceReleaseCommandTransfer(tvbuff_t *tvb _U_, int off
 static int
 dissect_ngap_T_pDUSessionResourceNotifyReleasedTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceNotifyReleasedTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceNotifyReleasedTransfer_PDU);
 
   return offset;
 }
@@ -16847,7 +16847,7 @@ static int
 dissect_ngap_PDUSessionResourceReleasedListNot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceReleasedListNot, PDUSessionResourceReleasedListNot_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16857,7 +16857,7 @@ dissect_ngap_PDUSessionResourceReleasedListNot(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_T_pathSwitchRequestUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PathSwitchRequestUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PathSwitchRequestUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -16887,7 +16887,7 @@ static int
 dissect_ngap_PDUSessionResourceReleasedListPSAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceReleasedListPSAck, PDUSessionResourceReleasedListPSAck_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16897,7 +16897,7 @@ dissect_ngap_PDUSessionResourceReleasedListPSAck(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_T_pathSwitchRequestUnsuccessfulTransfer_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PathSwitchRequestUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PathSwitchRequestUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -16927,7 +16927,7 @@ static int
 dissect_ngap_PDUSessionResourceReleasedListPSFail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceReleasedListPSFail, PDUSessionResourceReleasedListPSFail_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16937,7 +16937,7 @@ dissect_ngap_PDUSessionResourceReleasedListPSFail(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ngap_T_pDUSessionResourceReleaseResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceReleaseResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceReleaseResponseTransfer_PDU);
 
   return offset;
 }
@@ -16967,7 +16967,7 @@ static int
 dissect_ngap_PDUSessionResourceReleasedListRelRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceReleasedListRelRes, PDUSessionResourceReleasedListRelRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -16995,7 +16995,7 @@ dissect_ngap_PDUSessionResourceReleaseResponseTransfer(tvbuff_t *tvb _U_, int of
 static int
 dissect_ngap_T_uEContextResumeRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UEContextResumeRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_UEContextResumeRequestTransfer_PDU);
 
   return offset;
 }
@@ -17025,7 +17025,7 @@ static int
 dissect_ngap_PDUSessionResourceResumeListRESReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceResumeListRESReq, PDUSessionResourceResumeListRESReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17035,7 +17035,7 @@ dissect_ngap_PDUSessionResourceResumeListRESReq(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ngap_T_uEContextResumeResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UEContextResumeResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_UEContextResumeResponseTransfer_PDU);
 
   return offset;
 }
@@ -17065,7 +17065,7 @@ static int
 dissect_ngap_PDUSessionResourceResumeListRESRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceResumeListRESRes, PDUSessionResourceResumeListRESRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17075,7 +17075,7 @@ dissect_ngap_PDUSessionResourceResumeListRESRes(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ngap_T_secondaryRATDataUsageReportTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_SecondaryRATDataUsageReportTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_SecondaryRATDataUsageReportTransfer_PDU);
 
   return offset;
 }
@@ -17105,7 +17105,7 @@ static int
 dissect_ngap_PDUSessionResourceSecondaryRATUsageList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSecondaryRATUsageList, PDUSessionResourceSecondaryRATUsageList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17115,7 +17115,7 @@ dissect_ngap_PDUSessionResourceSecondaryRATUsageList(tvbuff_t *tvb _U_, int offs
 static int
 dissect_ngap_T_pDUSessionResourceSetupRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupRequestTransfer_PDU);
 
   return offset;
 }
@@ -17147,7 +17147,7 @@ static int
 dissect_ngap_PDUSessionResourceSetupListCxtReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSetupListCxtReq, PDUSessionResourceSetupListCxtReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17157,7 +17157,7 @@ dissect_ngap_PDUSessionResourceSetupListCxtReq(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_T_pDUSessionResourceSetupResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupResponseTransfer_PDU);
 
   return offset;
 }
@@ -17187,7 +17187,7 @@ static int
 dissect_ngap_PDUSessionResourceSetupListCxtRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSetupListCxtRes, PDUSessionResourceSetupListCxtRes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17197,7 +17197,7 @@ dissect_ngap_PDUSessionResourceSetupListCxtRes(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_T_handoverRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupRequestTransfer_PDU);
 
   return offset;
 }
@@ -17228,7 +17228,7 @@ static int
 dissect_ngap_PDUSessionResourceSetupListHOReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSetupListHOReq, PDUSessionResourceSetupListHOReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17238,7 +17238,7 @@ dissect_ngap_PDUSessionResourceSetupListHOReq(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_ngap_T_pDUSessionResourceSetupRequestTransfer_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupRequestTransfer_PDU);
 
   return offset;
 }
@@ -17270,7 +17270,7 @@ static int
 dissect_ngap_PDUSessionResourceSetupListSUReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSetupListSUReq, PDUSessionResourceSetupListSUReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17280,7 +17280,7 @@ dissect_ngap_PDUSessionResourceSetupListSUReq(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_ngap_T_pDUSessionResourceSetupResponseTransfer_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceSetupResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceSetupResponseTransfer_PDU);
 
   return offset;
 }
@@ -17310,7 +17310,7 @@ static int
 dissect_ngap_PDUSessionResourceSetupListSURes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSetupListSURes, PDUSessionResourceSetupListSURes_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17392,7 +17392,7 @@ dissect_ngap_PDUSessionResourceSetupUnsuccessfulTransfer(tvbuff_t *tvb _U_, int 
 static int
 dissect_ngap_T_uEContextSuspendRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UEContextSuspendRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_UEContextSuspendRequestTransfer_PDU);
 
   return offset;
 }
@@ -17422,7 +17422,7 @@ static int
 dissect_ngap_PDUSessionResourceSuspendListSUSReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSuspendListSUSReq, PDUSessionResourceSuspendListSUSReq_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17432,7 +17432,7 @@ dissect_ngap_PDUSessionResourceSuspendListSUSReq(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_T_pathSwitchRequestAcknowledgeTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PathSwitchRequestAcknowledgeTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PathSwitchRequestAcknowledgeTransfer_PDU);
 
   return offset;
 }
@@ -17462,7 +17462,7 @@ static int
 dissect_ngap_PDUSessionResourceSwitchedList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceSwitchedList, PDUSessionResourceSwitchedList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17472,7 +17472,7 @@ dissect_ngap_PDUSessionResourceSwitchedList(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ngap_T_pathSwitchRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PathSwitchRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PathSwitchRequestTransfer_PDU);
 
   return offset;
 }
@@ -17502,7 +17502,7 @@ static int
 dissect_ngap_PDUSessionResourceToBeSwitchedDLList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceToBeSwitchedDLList, PDUSessionResourceToBeSwitchedDLList_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17512,7 +17512,7 @@ dissect_ngap_PDUSessionResourceToBeSwitchedDLList(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ngap_T_handoverPreparationUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_HandoverPreparationUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_HandoverPreparationUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -17542,7 +17542,7 @@ static int
 dissect_ngap_PDUSessionResourceToReleaseListHOCmd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceToReleaseListHOCmd, PDUSessionResourceToReleaseListHOCmd_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17552,7 +17552,7 @@ dissect_ngap_PDUSessionResourceToReleaseListHOCmd(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ngap_T_pDUSessionResourceReleaseCommandTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_PDUSessionResourceReleaseCommandTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_PDUSessionResourceReleaseCommandTransfer_PDU);
 
   return offset;
 }
@@ -17582,7 +17582,7 @@ static int
 dissect_ngap_PDUSessionResourceToReleaseListRelCmd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PDUSessionResourceToReleaseListRelCmd, PDUSessionResourceToReleaseListRelCmd_sequence_of,
-                                                  1, maxnoofPDUSessions, FALSE);
+                                                  1, maxnoofPDUSessions, false);
 
   return offset;
 }
@@ -17601,7 +17601,7 @@ static const value_string ngap_PDUSessionType_vals[] = {
 static int
 dissect_ngap_PDUSessionType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -17619,7 +17619,7 @@ static const value_string ngap_T_rATType_vals[] = {
 static int
 dissect_ngap_T_rATType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 2, NULL);
+                                     2, NULL, true, 2, NULL);
 
   return offset;
 }
@@ -17630,7 +17630,7 @@ static int
 dissect_ngap_T_startTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *timestamp_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, &timestamp_tvb);
+                                       4, 4, false, &timestamp_tvb);
 
 
 
@@ -17647,7 +17647,7 @@ static int
 dissect_ngap_T_endTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *timestamp_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, &timestamp_tvb);
+                                       4, 4, false, &timestamp_tvb);
 
 
 
@@ -17663,7 +17663,7 @@ dissect_ngap_T_endTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_ngap_INTEGER_0_18446744073709551615(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, UINT64_C(18446744073709551615), NULL, FALSE);
+                                                            0U, UINT64_C(18446744073709551615), NULL, false);
 
   return offset;
 }
@@ -17695,7 +17695,7 @@ static int
 dissect_ngap_VolumeTimedReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_VolumeTimedReportList, VolumeTimedReportList_sequence_of,
-                                                  1, maxnoofTimePeriods, FALSE);
+                                                  1, maxnoofTimePeriods, false);
 
   return offset;
 }
@@ -17736,7 +17736,7 @@ dissect_ngap_PEIPSassistanceInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_ngap_Periodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 640000U, NULL, TRUE);
+                                                            0U, 640000U, NULL, true);
 
   return offset;
 }
@@ -17766,7 +17766,7 @@ static int
 dissect_ngap_PLMNSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_PLMNSupportList, PLMNSupportList_sequence_of,
-                                                  1, maxnoofPLMNs, FALSE);
+                                                  1, maxnoofPLMNs, false);
 
   return offset;
 }
@@ -17800,7 +17800,7 @@ dissect_ngap_PWSFailedCellIDList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_QoEReference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       6, 6, FALSE, NULL);
+                                       6, 6, false, NULL);
 
   return offset;
 }
@@ -17817,7 +17817,7 @@ static const value_string ngap_ServiceType_vals[] = {
 static int
 dissect_ngap_ServiceType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -17832,7 +17832,7 @@ static const value_string ngap_T_qoEMeasurementStatus_vals[] = {
 static int
 dissect_ngap_T_qoEMeasurementStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -17842,7 +17842,7 @@ dissect_ngap_T_qoEMeasurementStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_ngap_OCTET_STRING_SIZE_1_8000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 8000, FALSE, NULL);
+                                       1, 8000, false, NULL);
 
   return offset;
 }
@@ -17852,7 +17852,7 @@ dissect_ngap_OCTET_STRING_SIZE_1_8000(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_INTEGER_0_15_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 15U, NULL, TRUE);
+                                                            0U, 15U, NULL, true);
 
   return offset;
 }
@@ -17881,7 +17881,7 @@ static int
 dissect_ngap_SliceSupportListQMC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SliceSupportListQMC, SliceSupportListQMC_sequence_of,
-                                                  1, maxnoofSNSSAIforQMC, FALSE);
+                                                  1, maxnoofSNSSAIforQMC, false);
 
   return offset;
 }
@@ -17934,7 +17934,7 @@ static int
 dissect_ngap_UEAppLayerMeasInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UEAppLayerMeasInfoList, UEAppLayerMeasInfoList_sequence_of,
-                                                  1, maxnoofUEAppLayerMeas, FALSE);
+                                                  1, maxnoofUEAppLayerMeas, false);
 
   return offset;
 }
@@ -17963,7 +17963,7 @@ static int
 dissect_ngap_QoEReferenceList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QoEReferenceList, QoEReferenceList_sequence_of,
-                                                  1, maxnoofUEAppLayerMeas, FALSE);
+                                                  1, maxnoofUEAppLayerMeas, false);
 
   return offset;
 }
@@ -18009,7 +18009,7 @@ static int
 dissect_ngap_QosFlowAddOrModifyRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowAddOrModifyRequestList, QosFlowAddOrModifyRequestList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -18020,7 +18020,7 @@ static int
 dissect_ngap_UpdateFeedback(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, TRUE, NULL, 0, &parameter_tvb, NULL);
+                                     8, 8, true, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     static int * const fields[] = {
@@ -18064,7 +18064,7 @@ static int
 dissect_ngap_QosFlowFeedbackList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowFeedbackList, QosFlowFeedbackList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -18082,7 +18082,7 @@ static const value_string ngap_QosMonitoringRequest_vals[] = {
 static int
 dissect_ngap_QosMonitoringRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 1, NULL);
+                                     3, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -18092,7 +18092,7 @@ dissect_ngap_QosMonitoringRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_ngap_QosMonitoringReportingFrequency(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 1800U, NULL, TRUE);
+                                                            1U, 1800U, NULL, true);
 
   return offset;
 }
@@ -18122,7 +18122,7 @@ static int
 dissect_ngap_QosFlowParametersList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowParametersList, QosFlowParametersList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -18153,7 +18153,7 @@ static int
 dissect_ngap_QosFlowSetupRequestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QosFlowSetupRequestList, QosFlowSetupRequestList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -18171,7 +18171,7 @@ static const value_string ngap_T_rATType_01_vals[] = {
 static int
 dissect_ngap_T_rATType_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 2, NULL);
+                                     2, NULL, true, 2, NULL);
 
   return offset;
 }
@@ -18202,7 +18202,7 @@ static int
 dissect_ngap_QoSFlowsUsageReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_QoSFlowsUsageReportList, QoSFlowsUsageReportList_sequence_of,
-                                                  1, maxnoofQosFlows, FALSE);
+                                                  1, maxnoofQosFlows, false);
 
   return offset;
 }
@@ -18212,7 +18212,7 @@ dissect_ngap_QoSFlowsUsageReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_ngap_RANNodeName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE,
+                                          1, 150, true,
                                           NULL);
 
   return offset;
@@ -18223,7 +18223,7 @@ dissect_ngap_RANNodeName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_ngap_RANPagingPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 256U, NULL, FALSE);
+                                                            1U, 256U, NULL, false);
 
   return offset;
 }
@@ -18254,7 +18254,7 @@ dissect_ngap_RAN_UE_NGAP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   guint32 ran_ue_ngap_id;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4294967295U, &ran_ue_ngap_id, FALSE);
+                                                            0U, 4294967295U, &ran_ue_ngap_id, false);
 
   ngap_data->ran_ue_ngap_id = ran_ue_ngap_id;
 
@@ -18279,7 +18279,7 @@ dissect_ngap_RAT_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   guint32 rat_info = 0xffffffff;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, &rat_info, TRUE, 4, NULL);
+                                     2, &rat_info, true, 4, NULL);
 
   if (ngap_data->ngap_conv && ngap_data->supported_ta && (rat_info == nb_IoT)) {
     guint64 *key;
@@ -18306,7 +18306,7 @@ static const value_string ngap_RedCapIndication_vals[] = {
 static int
 dissect_ngap_RedCapIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18322,7 +18322,7 @@ static const value_string ngap_RedirectionVoiceFallback_vals[] = {
 static int
 dissect_ngap_RedirectionVoiceFallback(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18338,7 +18338,7 @@ static const value_string ngap_RSN_vals[] = {
 static int
 dissect_ngap_RSN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18369,7 +18369,7 @@ static const value_string ngap_RedundantQosFlowIndicator_vals[] = {
 static int
 dissect_ngap_RedundantQosFlowIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, NULL, false, 0, NULL);
 
   return offset;
 }
@@ -18379,7 +18379,7 @@ dissect_ngap_RedundantQosFlowIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_RelativeAMFCapacity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, false);
 
   return offset;
 }
@@ -18389,7 +18389,7 @@ dissect_ngap_RelativeAMFCapacity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 131071U, NULL, FALSE);
+                                                            0U, 131071U, NULL, false);
 
   return offset;
 }
@@ -18404,7 +18404,7 @@ static const value_string ngap_ResetAll_vals[] = {
 static int
 dissect_ngap_ResetAll(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18420,7 +18420,7 @@ static const value_string ngap_ExtendedReportIntervalMDT_vals[] = {
 static int
 dissect_ngap_ExtendedReportIntervalMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18450,7 +18450,7 @@ static int
 dissect_ngap_UE_associatedLogicalNG_connectionList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UE_associatedLogicalNG_connectionList, UE_associatedLogicalNG_connectionList_sequence_of,
-                                                  1, maxnoofNGConnectionsToReset, FALSE);
+                                                  1, maxnoofNGConnectionsToReset, false);
 
   return offset;
 }
@@ -18484,7 +18484,7 @@ dissect_ngap_ResetType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_ngap_RGLevelWirelineAccessCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -18494,7 +18494,7 @@ dissect_ngap_RGLevelWirelineAccessCharacteristics(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ngap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, FALSE);
+                                                            0U, 4095U, NULL, false);
 
   return offset;
 }
@@ -18504,7 +18504,7 @@ dissect_ngap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_ngap_RoutingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -18516,7 +18516,7 @@ dissect_ngap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
@@ -18578,7 +18578,7 @@ static int
 dissect_ngap_RRCEstablishmentCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, &value, TRUE, 2, NULL);
+                                     10, &value, true, 2, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RRCEstablishmentCause=%s]", val_to_str_const(value, ngap_RRCEstablishmentCause_vals, "Unknown"));
 
@@ -18598,7 +18598,7 @@ static const value_string ngap_RRCInactiveTransitionReportRequest_vals[] = {
 static int
 dissect_ngap_RRCInactiveTransitionReportRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18614,7 +18614,7 @@ static const value_string ngap_RRCState_vals[] = {
 static int
 dissect_ngap_RRCState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18656,7 +18656,7 @@ dissect_ngap_SourceRANNodeID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_GNBSetID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     22, 22, FALSE, NULL, 0, NULL, NULL);
+                                     22, 22, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -18672,7 +18672,7 @@ static const value_string ngap_T_rIM_RSDetection_vals[] = {
 static int
 dissect_ngap_T_rIM_RSDetection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18715,7 +18715,7 @@ dissect_ngap_RIMInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_ngap_BIT_STRING_SIZE_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     7, 7, FALSE, NULL, 0, NULL, NULL);
+                                     7, 7, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -18725,7 +18725,7 @@ dissect_ngap_BIT_STRING_SIZE_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_ngap_INTEGER_0_86399_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 86399U, NULL, TRUE);
+                                                            0U, 86399U, NULL, true);
 
   return offset;
 }
@@ -18756,7 +18756,7 @@ static int
 dissect_ngap_SCTP_TLAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SCTP_TLAs, SCTP_TLAs_sequence_of,
-                                                  1, maxnoofXnTLAs, FALSE);
+                                                  1, maxnoofXnTLAs, false);
 
   return offset;
 }
@@ -18801,7 +18801,7 @@ dissect_ngap_SecondaryRATDataUsageReportTransfer(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_SecurityKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     256, 256, FALSE, NULL, 0, NULL, NULL);
+                                     256, 256, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -18828,7 +18828,7 @@ static int
 dissect_ngap_SerialNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     16, 16, false, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_SerialNumber);
@@ -18866,7 +18866,7 @@ static int
 dissect_ngap_ServedGUAMIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_ServedGUAMIList, ServedGUAMIList_sequence_of,
-                                                  1, maxnoofServedGUAMIs, FALSE);
+                                                  1, maxnoofServedGUAMIs, false);
 
   return offset;
 }
@@ -18876,7 +18876,7 @@ dissect_ngap_ServedGUAMIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_SgNB_UE_X2AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4294967295U, NULL, FALSE);
+                                                            0U, 4294967295U, NULL, false);
 
   return offset;
 }
@@ -18907,7 +18907,7 @@ static const value_string ngap_SONInformationRequest_vals[] = {
 static int
 dissect_ngap_SONInformationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -18921,7 +18921,7 @@ static int
 dissect_ngap_XnTLAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_XnTLAs, XnTLAs_sequence_of,
-                                                  1, maxnoofXnTLAs, FALSE);
+                                                  1, maxnoofXnTLAs, false);
 
   return offset;
 }
@@ -18935,7 +18935,7 @@ static int
 dissect_ngap_XnGTP_TLAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_XnGTP_TLAs, XnGTP_TLAs_sequence_of,
-                                                  1, maxnoofXnGTP_TLAs, FALSE);
+                                                  1, maxnoofXnGTP_TLAs, false);
 
   return offset;
 }
@@ -18965,7 +18965,7 @@ static int
 dissect_ngap_XnExtTLAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_XnExtTLAs, XnExtTLAs_sequence_of,
-                                                  1, maxnoofXnExtTLAs, FALSE);
+                                                  1, maxnoofXnExtTLAs, false);
 
   return offset;
 }
@@ -19077,7 +19077,7 @@ static int
 dissect_ngap_T_successfulHOReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_successfulHOReportContainer);
@@ -19112,7 +19112,7 @@ static int
 dissect_ngap_SuccessfulHandoverReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SuccessfulHandoverReportList, SuccessfulHandoverReportList_sequence_of,
-                                                  1, maxnoofSuccessfulHOReports, FALSE);
+                                                  1, maxnoofSuccessfulHOReports, false);
 
   return offset;
 }
@@ -19126,7 +19126,7 @@ static int
 dissect_ngap_UEHistoryInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UEHistoryInformation, UEHistoryInformation_sequence_of,
-                                                  1, maxnoofCellsinUEHistoryInfo, FALSE);
+                                                  1, maxnoofCellsinUEHistoryInfo, false);
 
   return offset;
 }
@@ -19189,7 +19189,7 @@ dissect_ngap_SourceToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
@@ -19231,7 +19231,7 @@ dissect_ngap_SourceToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_ConfiguredNSSAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       128, 128, FALSE, NULL);
+                                       128, 128, false, NULL);
 
   return offset;
 }
@@ -19241,7 +19241,7 @@ dissect_ngap_ConfiguredNSSAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_RejectedNSSAIinPLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       32, 32, FALSE, NULL);
+                                       32, 32, false, NULL);
 
   return offset;
 }
@@ -19251,7 +19251,7 @@ dissect_ngap_RejectedNSSAIinPLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_ngap_RejectedNSSAIinTA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       32, 32, FALSE, NULL);
+                                       32, 32, false, NULL);
 
   return offset;
 }
@@ -19284,7 +19284,7 @@ static const value_string ngap_SRVCCOperationPossible_vals[] = {
 static int
 dissect_ngap_SRVCCOperationPossible(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19326,7 +19326,7 @@ static int
 dissect_ngap_SupportedTAList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_SupportedTAList, SupportedTAList_sequence_of,
-                                                  1, maxnoofTACs, FALSE);
+                                                  1, maxnoofTACs, false);
 
   return offset;
 }
@@ -19341,7 +19341,7 @@ static const value_string ngap_SuspendIndicator_vals[] = {
 static int
 dissect_ngap_SuspendIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19356,7 +19356,7 @@ static const value_string ngap_Suspend_Request_Indication_vals[] = {
 static int
 dissect_ngap_Suspend_Request_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19371,7 +19371,7 @@ static const value_string ngap_Suspend_Response_Indication_vals[] = {
 static int
 dissect_ngap_Suspend_Response_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19381,7 +19381,7 @@ dissect_ngap_Suspend_Response_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_ngap_SurvivalTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1920000U, NULL, TRUE);
+                                                            0U, 1920000U, NULL, true);
 
   return offset;
 }
@@ -19410,7 +19410,7 @@ static int
 dissect_ngap_TAIListForPaging(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIListForPaging, TAIListForPaging_sequence_of,
-                                                  1, maxnoofTAIforPaging, FALSE);
+                                                  1, maxnoofTAIforPaging, false);
 
   return offset;
 }
@@ -19424,7 +19424,7 @@ static int
 dissect_ngap_TAIListForRestart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIListForRestart, TAIListForRestart_sequence_of,
-                                                  1, maxnoofTAIforRestart, FALSE);
+                                                  1, maxnoofTAIforRestart, false);
 
   return offset;
 }
@@ -19438,7 +19438,7 @@ static int
 dissect_ngap_TAIListForWarning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAIListForWarning, TAIListForWarning_sequence_of,
-                                                  1, maxnoofTAIforWarning, FALSE);
+                                                  1, maxnoofTAIforWarning, false);
 
   return offset;
 }
@@ -19468,7 +19468,7 @@ static int
 dissect_ngap_TAINSAGSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TAINSAGSupportList, TAINSAGSupportList_sequence_of,
-                                                  1, maxnoofNSAGs, FALSE);
+                                                  1, maxnoofNSAGs, false);
 
   return offset;
 }
@@ -19604,7 +19604,7 @@ static int
 dissect_ngap_TargetNSSAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TargetNSSAI, TargetNSSAI_sequence_of,
-                                                  1, maxnoofTargetS_NSSAIs, FALSE);
+                                                  1, maxnoofTargetS_NSSAIs, false);
 
   return offset;
 }
@@ -19653,7 +19653,7 @@ dissect_ngap_TargetToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
@@ -19694,7 +19694,7 @@ dissect_ngap_TargettoSource_Failure_TransparentContainer(tvbuff_t *tvb _U_, int 
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
@@ -19727,7 +19727,7 @@ static const value_string ngap_TimerApproachForGUAMIRemoval_vals[] = {
 static int
 dissect_ngap_TimerApproachForGUAMIRemoval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19738,7 +19738,7 @@ static int
 dissect_ngap_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *timestamp_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, &timestamp_tvb);
+                                       4, 4, false, &timestamp_tvb);
 
 
 
@@ -19760,7 +19760,7 @@ static const value_string ngap_T_timeDistributionIndication_vals[] = {
 static int
 dissect_ngap_T_timeDistributionIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19770,7 +19770,7 @@ dissect_ngap_T_timeDistributionIndication(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_INTEGER_1_1000000_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 1000000U, NULL, TRUE);
+                                                            1U, 1000000U, NULL, true);
 
   return offset;
 }
@@ -19806,7 +19806,7 @@ static const value_string ngap_TimeToWait_vals[] = {
 static int
 dissect_ngap_TimeToWait(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19816,7 +19816,7 @@ dissect_ngap_TimeToWait(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_ngap_TNAP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -19846,7 +19846,7 @@ static int
 dissect_ngap_TNLAssociationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_TNLAssociationList, TNLAssociationList_sequence_of,
-                                                  1, maxnoofTNLAssociations, FALSE);
+                                                  1, maxnoofTNLAssociations, false);
 
   return offset;
 }
@@ -19866,7 +19866,7 @@ static const value_string ngap_TraceDepth_vals[] = {
 static int
 dissect_ngap_TraceDepth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19894,7 +19894,7 @@ dissect_ngap_TraceActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_ngap_TWAP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -19957,7 +19957,7 @@ static const value_string ngap_UECapabilityInfoRequest_vals[] = {
 static int
 dissect_ngap_UECapabilityInfoRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -19972,7 +19972,7 @@ static const value_string ngap_UEContextRequest_vals[] = {
 static int
 dissect_ngap_UEContextRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20045,7 +20045,7 @@ static const value_string ngap_T_periodicCommunicationIndicator_vals[] = {
 static int
 dissect_ngap_T_periodicCommunicationIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20055,7 +20055,7 @@ dissect_ngap_T_periodicCommunicationIndicator(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_ngap_INTEGER_1_3600_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 3600U, NULL, TRUE);
+                                                            1U, 3600U, NULL, true);
 
   return offset;
 }
@@ -20071,7 +20071,7 @@ static const value_string ngap_T_stationaryIndication_vals[] = {
 static int
 dissect_ngap_T_stationaryIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20088,7 +20088,7 @@ static const value_string ngap_T_trafficProfile_vals[] = {
 static int
 dissect_ngap_T_trafficProfile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20105,7 +20105,7 @@ static const value_string ngap_T_batteryIndication_vals[] = {
 static int
 dissect_ngap_T_batteryIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20226,7 +20226,7 @@ static const value_string ngap_UEPresence_vals[] = {
 static int
 dissect_ngap_UEPresence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20256,7 +20256,7 @@ static int
 dissect_ngap_UEPresenceInAreaOfInterestList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UEPresenceInAreaOfInterestList, UEPresenceInAreaOfInterestList_sequence_of,
-                                                  1, maxnoofAoI, FALSE);
+                                                  1, maxnoofAoI, false);
 
   return offset;
 }
@@ -20273,7 +20273,7 @@ dissect_ngap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     proto_tree *subtree;
@@ -20309,7 +20309,7 @@ dissect_ngap_UERadioCapabilityForPagingOfNR(tvbuff_t *tvb _U_, int offset _U_, a
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb && nr_rrc_ue_radio_paging_info_handle) {
     proto_tree *subtree;
@@ -20329,7 +20329,7 @@ dissect_ngap_UERadioCapabilityForPagingOfEUTRA(tvbuff_t *tvb _U_, int offset _U_
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb && lte_rrc_ue_radio_paging_info_handle) {
     proto_tree *subtree;
@@ -20365,7 +20365,7 @@ dissect_ngap_UERadioCapabilityForPagingOfNB_IoT(tvbuff_t *tvb _U_, int offset _U
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb && lte_rrc_ue_radio_paging_info_nb_handle) {
     proto_tree *subtree;
@@ -20383,7 +20383,7 @@ dissect_ngap_UERadioCapabilityForPagingOfNB_IoT(tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ngap_UERadioCapabilityID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -20398,7 +20398,7 @@ static const value_string ngap_UERetentionInformation_vals[] = {
 static int
 dissect_ngap_UERetentionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20447,7 +20447,7 @@ static int
 dissect_ngap_UESliceMaximumBitRateList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UESliceMaximumBitRateList, UESliceMaximumBitRateList_sequence_of,
-                                                  1, maxnoofAllowedS_NSSAIs, FALSE);
+                                                  1, maxnoofAllowedS_NSSAIs, false);
 
   return offset;
 }
@@ -20462,7 +20462,7 @@ static const value_string ngap_UE_UP_CIoT_Support_vals[] = {
 static int
 dissect_ngap_UE_UP_CIoT_Support(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20472,7 +20472,7 @@ dissect_ngap_UE_UP_CIoT_Support(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_UL_NAS_MAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+                                     16, 16, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20482,7 +20482,7 @@ dissect_ngap_UL_NAS_MAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_ngap_UL_NAS_Count(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, 0, NULL, NULL);
+                                     5, 5, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20528,7 +20528,7 @@ static int
 dissect_ngap_UL_NGU_UP_TNLModifyList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UL_NGU_UP_TNLModifyList, UL_NGU_UP_TNLModifyList_sequence_of,
-                                                  1, maxnoofMultiConnectivity, FALSE);
+                                                  1, maxnoofMultiConnectivity, false);
 
   return offset;
 }
@@ -20559,7 +20559,7 @@ static int
 dissect_ngap_UnavailableGUAMIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UnavailableGUAMIList, UnavailableGUAMIList_sequence_of,
-                                                  1, maxnoofServedGUAMIs, FALSE);
+                                                  1, maxnoofServedGUAMIs, false);
 
   return offset;
 }
@@ -20574,7 +20574,7 @@ static const value_string ngap_ULForwarding_vals[] = {
 static int
 dissect_ngap_ULForwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -20603,7 +20603,7 @@ static int
 dissect_ngap_UPTransportLayerInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ngap_UPTransportLayerInformationList, UPTransportLayerInformationList_sequence_of,
-                                                  1, maxnoofMultiConnectivityMinusOne, FALSE);
+                                                  1, maxnoofMultiConnectivityMinusOne, false);
 
   return offset;
 }
@@ -20613,7 +20613,7 @@ dissect_ngap_UPTransportLayerInformationList(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ngap_URI_address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          NO_BOUND, NO_BOUND, FALSE,
+                                          NO_BOUND, NO_BOUND, false,
                                           NULL);
 
   return offset;
@@ -20758,7 +20758,7 @@ dissect_ngap_UserLocationInformationW_AGF(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_WarningAreaCoordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 1024, FALSE, NULL);
+                                       1, 1024, false, NULL);
 
   return offset;
 }
@@ -20797,7 +20797,7 @@ static int
 dissect_ngap_WarningMessageContents(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 9600, FALSE, &parameter_tvb);
+                                       1, 9600, false, &parameter_tvb);
 
   if (parameter_tvb) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
@@ -20815,7 +20815,7 @@ dissect_ngap_WarningMessageContents(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_ngap_WarningSecurityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       50, 50, FALSE, NULL);
+                                       50, 50, false, NULL);
 
   return offset;
 }
@@ -20826,7 +20826,7 @@ static int
 dissect_ngap_WarningType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, &parameter_tvb);
+                                       2, 2, false, &parameter_tvb);
 
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_WarningType);
@@ -21704,7 +21704,7 @@ dissect_ngap_UplinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ngap_W_AGFIdentityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -21714,7 +21714,7 @@ dissect_ngap_W_AGFIdentityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_TNGFIdentityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -21724,7 +21724,7 @@ dissect_ngap_TNGFIdentityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_ngap_TWIFIdentityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -21770,7 +21770,7 @@ dissect_ngap_NGAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (!parameter_tvb)
     return offset;
@@ -22586,7 +22586,7 @@ dissect_ngap_BroadcastSessionSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_MBSSessionSetupOrModRequestTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBSSessionSetupOrModRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBSSessionSetupOrModRequestTransfer_PDU);
 
   return offset;
 }
@@ -22613,7 +22613,7 @@ dissect_ngap_BroadcastSessionSetupResponse(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_ngap_MBSSessionSetupOrModResponseTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBSSessionSetupOrModResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBSSessionSetupOrModResponseTransfer_PDU);
 
   return offset;
 }
@@ -22640,7 +22640,7 @@ dissect_ngap_BroadcastSessionSetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_ngap_MBSSessionSetupOrModFailureTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBSSessionSetupOrModFailureTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBSSessionSetupOrModFailureTransfer_PDU);
 
   return offset;
 }
@@ -22752,7 +22752,7 @@ dissect_ngap_BroadcastSessionReleaseResponse(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ngap_MBSSessionReleaseResponseTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBSSessionReleaseResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBSSessionReleaseResponseTransfer_PDU);
 
   return offset;
 }
@@ -22779,7 +22779,7 @@ dissect_ngap_DistributionSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_MBS_DistributionSetupRequestTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBS_DistributionSetupRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBS_DistributionSetupRequestTransfer_PDU);
 
   return offset;
 }
@@ -22806,7 +22806,7 @@ dissect_ngap_DistributionSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_MBS_DistributionSetupResponseTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBS_DistributionSetupResponseTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBS_DistributionSetupResponseTransfer_PDU);
 
   return offset;
 }
@@ -22833,7 +22833,7 @@ dissect_ngap_DistributionSetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_ngap_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBS_DistributionSetupUnsuccessfulTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBS_DistributionSetupUnsuccessfulTransfer_PDU);
 
   return offset;
 }
@@ -22860,7 +22860,7 @@ dissect_ngap_DistributionReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_ngap_MBS_DistributionReleaseRequestTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MBS_DistributionReleaseRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MBS_DistributionReleaseRequestTransfer_PDU);
 
   return offset;
 }
@@ -22904,7 +22904,7 @@ dissect_ngap_MulticastSessionActivationRequest(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ngap_MulticastSessionActivationRequestTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MulticastSessionActivationRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MulticastSessionActivationRequestTransfer_PDU);
 
   return offset;
 }
@@ -22965,7 +22965,7 @@ dissect_ngap_MulticastSessionDeactivationRequest(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ngap_MulticastSessionDeactivationRequestTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MulticastSessionDeactivationRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MulticastSessionDeactivationRequestTransfer_PDU);
 
   return offset;
 }
@@ -23009,7 +23009,7 @@ dissect_ngap_MulticastSessionUpdateRequest(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_ngap_MulticastSessionUpdateRequestTransfer_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_MulticastSessionUpdateRequestTransfer_PDU);
+                                                                NO_BOUND, NO_BOUND, false, dissect_MulticastSessionUpdateRequestTransfer_PDU);
 
   return offset;
 }
@@ -23187,7 +23187,7 @@ dissect_ngap_NGAP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int dissect_AdditionalDLUPTNLInformationForHOList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AdditionalDLUPTNLInformationForHOList(tvb, offset, &asn1_ctx, tree, hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23195,7 +23195,7 @@ static int dissect_AdditionalDLUPTNLInformationForHOList_PDU(tvbuff_t *tvb _U_, 
 static int dissect_AllowedNSSAI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AllowedNSSAI(tvb, offset, &asn1_ctx, tree, hf_ngap_AllowedNSSAI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23203,7 +23203,7 @@ static int dissect_AllowedNSSAI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_AlternativeQoSParaSetIndex_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AlternativeQoSParaSetIndex(tvb, offset, &asn1_ctx, tree, hf_ngap_AlternativeQoSParaSetIndex_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23211,7 +23211,7 @@ static int dissect_AlternativeQoSParaSetIndex_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_AlternativeQoSParaSetList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AlternativeQoSParaSetList(tvb, offset, &asn1_ctx, tree, hf_ngap_AlternativeQoSParaSetList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23219,7 +23219,7 @@ static int dissect_AlternativeQoSParaSetList_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_AMFName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFName(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFName_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23227,7 +23227,7 @@ static int dissect_AMFName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static int dissect_AMFSetID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFSetID(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFSetID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23235,7 +23235,7 @@ static int dissect_AMFSetID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static int dissect_AMF_TNLAssociationSetupList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMF_TNLAssociationSetupList(tvb, offset, &asn1_ctx, tree, hf_ngap_AMF_TNLAssociationSetupList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23243,7 +23243,7 @@ static int dissect_AMF_TNLAssociationSetupList_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_AMF_TNLAssociationToAddList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMF_TNLAssociationToAddList(tvb, offset, &asn1_ctx, tree, hf_ngap_AMF_TNLAssociationToAddList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23251,7 +23251,7 @@ static int dissect_AMF_TNLAssociationToAddList_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_AMF_TNLAssociationToRemoveList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMF_TNLAssociationToRemoveList(tvb, offset, &asn1_ctx, tree, hf_ngap_AMF_TNLAssociationToRemoveList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23259,7 +23259,7 @@ static int dissect_AMF_TNLAssociationToRemoveList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_AMF_TNLAssociationToUpdateList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMF_TNLAssociationToUpdateList(tvb, offset, &asn1_ctx, tree, hf_ngap_AMF_TNLAssociationToUpdateList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23267,7 +23267,7 @@ static int dissect_AMF_TNLAssociationToUpdateList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_AMF_UE_NGAP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMF_UE_NGAP_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_AMF_UE_NGAP_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23275,7 +23275,7 @@ static int dissect_AMF_UE_NGAP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_AssistanceDataForPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AssistanceDataForPaging(tvb, offset, &asn1_ctx, tree, hf_ngap_AssistanceDataForPaging_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23283,7 +23283,7 @@ static int dissect_AssistanceDataForPaging_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_AssociatedQosFlowList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AssociatedQosFlowList(tvb, offset, &asn1_ctx, tree, hf_ngap_AssociatedQosFlowList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23291,7 +23291,7 @@ static int dissect_AssociatedQosFlowList_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_AuthenticatedIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AuthenticatedIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_AuthenticatedIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23299,7 +23299,7 @@ static int dissect_AuthenticatedIndication_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_BeamMeasurementsReportConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BeamMeasurementsReportConfiguration(tvb, offset, &asn1_ctx, tree, hf_ngap_BeamMeasurementsReportConfiguration_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23307,7 +23307,7 @@ static int dissect_BeamMeasurementsReportConfiguration_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_BroadcastCancelledAreaList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastCancelledAreaList(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastCancelledAreaList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23315,7 +23315,7 @@ static int dissect_BroadcastCancelledAreaList_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_BroadcastCompletedAreaList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastCompletedAreaList(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastCompletedAreaList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23323,7 +23323,7 @@ static int dissect_BroadcastCompletedAreaList_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_BurstArrivalTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BurstArrivalTime(tvb, offset, &asn1_ctx, tree, hf_ngap_BurstArrivalTime_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23331,7 +23331,7 @@ static int dissect_BurstArrivalTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_CancelAllWarningMessages_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CancelAllWarningMessages(tvb, offset, &asn1_ctx, tree, hf_ngap_CancelAllWarningMessages_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23339,7 +23339,7 @@ static int dissect_CancelAllWarningMessages_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Cause(tvb, offset, &asn1_ctx, tree, hf_ngap_Cause_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23347,7 +23347,7 @@ static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static int dissect_CellIDListForRestart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CellIDListForRestart(tvb, offset, &asn1_ctx, tree, hf_ngap_CellIDListForRestart_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23355,7 +23355,7 @@ static int dissect_CellIDListForRestart_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_CEmodeBSupport_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CEmodeBSupport_Indicator(tvb, offset, &asn1_ctx, tree, hf_ngap_CEmodeBSupport_Indicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23363,7 +23363,7 @@ static int dissect_CEmodeBSupport_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_CEmodeBrestricted_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CEmodeBrestricted(tvb, offset, &asn1_ctx, tree, hf_ngap_CEmodeBrestricted_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23371,7 +23371,7 @@ static int dissect_CEmodeBrestricted_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_CNAssistedRANTuning_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CNAssistedRANTuning(tvb, offset, &asn1_ctx, tree, hf_ngap_CNAssistedRANTuning_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23379,7 +23379,7 @@ static int dissect_CNAssistedRANTuning_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_CNTypeRestrictionsForEquivalent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CNTypeRestrictionsForEquivalent(tvb, offset, &asn1_ctx, tree, hf_ngap_CNTypeRestrictionsForEquivalent_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23387,7 +23387,7 @@ static int dissect_CNTypeRestrictionsForEquivalent_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_CNTypeRestrictionsForServing_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CNTypeRestrictionsForServing(tvb, offset, &asn1_ctx, tree, hf_ngap_CNTypeRestrictionsForServing_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23395,7 +23395,7 @@ static int dissect_CNTypeRestrictionsForServing_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_CommonNetworkInstance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CommonNetworkInstance(tvb, offset, &asn1_ctx, tree, hf_ngap_CommonNetworkInstance_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23403,7 +23403,7 @@ static int dissect_CommonNetworkInstance_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_ConcurrentWarningMessageInd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ConcurrentWarningMessageInd(tvb, offset, &asn1_ctx, tree, hf_ngap_ConcurrentWarningMessageInd_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23411,7 +23411,7 @@ static int dissect_ConcurrentWarningMessageInd_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_ConfiguredTACIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ConfiguredTACIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_ConfiguredTACIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23419,7 +23419,7 @@ static int dissect_ConfiguredTACIndication_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_CoreNetworkAssistanceInformationForInactive_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CoreNetworkAssistanceInformationForInactive(tvb, offset, &asn1_ctx, tree, hf_ngap_CoreNetworkAssistanceInformationForInactive_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23427,7 +23427,7 @@ static int dissect_CoreNetworkAssistanceInformationForInactive_PDU(tvbuff_t *tvb
 static int dissect_CPTransportLayerInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CPTransportLayerInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_CPTransportLayerInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23435,7 +23435,7 @@ static int dissect_CPTransportLayerInformation_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CriticalityDiagnostics(tvb, offset, &asn1_ctx, tree, hf_ngap_CriticalityDiagnostics_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23443,7 +23443,7 @@ static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_DataCodingScheme_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DataCodingScheme(tvb, offset, &asn1_ctx, tree, hf_ngap_DataCodingScheme_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23451,7 +23451,7 @@ static int dissect_DataCodingScheme_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_DataForwardingNotPossible_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DataForwardingNotPossible(tvb, offset, &asn1_ctx, tree, hf_ngap_DataForwardingNotPossible_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23459,7 +23459,7 @@ static int dissect_DataForwardingNotPossible_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_DAPSRequestInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DAPSRequestInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_DAPSRequestInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23467,7 +23467,7 @@ static int dissect_DAPSRequestInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_DAPSResponseInfoList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DAPSResponseInfoList(tvb, offset, &asn1_ctx, tree, hf_ngap_DAPSResponseInfoList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23475,7 +23475,7 @@ static int dissect_DAPSResponseInfoList_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_DataForwardingResponseERABList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DataForwardingResponseERABList(tvb, offset, &asn1_ctx, tree, hf_ngap_DataForwardingResponseERABList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23483,7 +23483,7 @@ static int dissect_DataForwardingResponseERABList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_DL_CP_SecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DL_CP_SecurityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_DL_CP_SecurityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23491,7 +23491,7 @@ static int dissect_DL_CP_SecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_DL_NGU_TNLInformationReused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DL_NGU_TNLInformationReused(tvb, offset, &asn1_ctx, tree, hf_ngap_DL_NGU_TNLInformationReused_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23499,7 +23499,7 @@ static int dissect_DL_NGU_TNLInformationReused_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_DirectForwardingPathAvailability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DirectForwardingPathAvailability(tvb, offset, &asn1_ctx, tree, hf_ngap_DirectForwardingPathAvailability_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23507,7 +23507,7 @@ static int dissect_DirectForwardingPathAvailability_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_EarlyMeasurement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EarlyMeasurement(tvb, offset, &asn1_ctx, tree, hf_ngap_EarlyMeasurement_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23515,7 +23515,7 @@ static int dissect_EarlyMeasurement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_EarlyStatusTransfer_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EarlyStatusTransfer_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_EarlyStatusTransfer_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23523,7 +23523,7 @@ static int dissect_EarlyStatusTransfer_TransparentContainer_PDU(tvbuff_t *tvb _U
 static int dissect_EDT_Session_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EDT_Session(tvb, offset, &asn1_ctx, tree, hf_ngap_EDT_Session_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23531,7 +23531,7 @@ static int dissect_EDT_Session_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_EmergencyAreaIDListForRestart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EmergencyAreaIDListForRestart(tvb, offset, &asn1_ctx, tree, hf_ngap_EmergencyAreaIDListForRestart_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23539,7 +23539,7 @@ static int dissect_EmergencyAreaIDListForRestart_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_EmergencyFallbackIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EmergencyFallbackIndicator(tvb, offset, &asn1_ctx, tree, hf_ngap_EmergencyFallbackIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23547,7 +23547,7 @@ static int dissect_EmergencyFallbackIndicator_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_Enhanced_CoverageRestriction_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Enhanced_CoverageRestriction(tvb, offset, &asn1_ctx, tree, hf_ngap_Enhanced_CoverageRestriction_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23555,7 +23555,7 @@ static int dissect_Enhanced_CoverageRestriction_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_Extended_ConnectedTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Extended_ConnectedTime(tvb, offset, &asn1_ctx, tree, hf_ngap_Extended_ConnectedTime_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23563,7 +23563,7 @@ static int dissect_Extended_ConnectedTime_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_EN_DCSONConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EN_DCSONConfigurationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_EN_DCSONConfigurationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23571,7 +23571,7 @@ static int dissect_EN_DCSONConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_EndpointIPAddressAndPort_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EndpointIPAddressAndPort(tvb, offset, &asn1_ctx, tree, hf_ngap_EndpointIPAddressAndPort_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23579,7 +23579,7 @@ static int dissect_EndpointIPAddressAndPort_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_EndIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EndIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_EndIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23587,7 +23587,7 @@ static int dissect_EndIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_EUTRA_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EUTRA_CGI(tvb, offset, &asn1_ctx, tree, hf_ngap_EUTRA_CGI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23595,7 +23595,7 @@ static int dissect_EUTRA_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_EUTRA_PagingeDRXInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_EUTRA_PagingeDRXInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_EUTRA_PagingeDRXInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23603,7 +23603,7 @@ static int dissect_EUTRA_PagingeDRXInformation_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_ExcessPacketDelayThresholdConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExcessPacketDelayThresholdConfiguration(tvb, offset, &asn1_ctx, tree, hf_ngap_ExcessPacketDelayThresholdConfiguration_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23611,7 +23611,7 @@ static int dissect_ExcessPacketDelayThresholdConfiguration_PDU(tvbuff_t *tvb _U_
 static int dissect_ExpectedUEActivityBehaviour_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExpectedUEActivityBehaviour(tvb, offset, &asn1_ctx, tree, hf_ngap_ExpectedUEActivityBehaviour_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23619,7 +23619,7 @@ static int dissect_ExpectedUEActivityBehaviour_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_Extended_AMFName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Extended_AMFName(tvb, offset, &asn1_ctx, tree, hf_ngap_Extended_AMFName_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23627,7 +23627,7 @@ static int dissect_Extended_AMFName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_ExtendedPacketDelayBudget_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExtendedPacketDelayBudget(tvb, offset, &asn1_ctx, tree, hf_ngap_ExtendedPacketDelayBudget_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23635,7 +23635,7 @@ static int dissect_ExtendedPacketDelayBudget_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_Extended_RANNodeName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Extended_RANNodeName(tvb, offset, &asn1_ctx, tree, hf_ngap_Extended_RANNodeName_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23643,7 +23643,7 @@ static int dissect_Extended_RANNodeName_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_ExtendedRATRestrictionInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExtendedRATRestrictionInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_ExtendedRATRestrictionInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23651,7 +23651,7 @@ static int dissect_ExtendedRATRestrictionInformation_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_ExtendedSliceSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExtendedSliceSupportList(tvb, offset, &asn1_ctx, tree, hf_ngap_ExtendedSliceSupportList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23659,7 +23659,7 @@ static int dissect_ExtendedSliceSupportList_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_ExtendedUEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExtendedUEIdentityIndexValue(tvb, offset, &asn1_ctx, tree, hf_ngap_ExtendedUEIdentityIndexValue_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23667,7 +23667,7 @@ static int dissect_ExtendedUEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_FiveG_ProSeAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_FiveG_ProSeAuthorized(tvb, offset, &asn1_ctx, tree, hf_ngap_FiveG_ProSeAuthorized_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23675,7 +23675,7 @@ static int dissect_FiveG_ProSeAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_FiveG_ProSePC5QoSParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_FiveG_ProSePC5QoSParameters(tvb, offset, &asn1_ctx, tree, hf_ngap_FiveG_ProSePC5QoSParameters_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23683,7 +23683,7 @@ static int dissect_FiveG_ProSePC5QoSParameters_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_FiveG_S_TMSI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_FiveG_S_TMSI(tvb, offset, &asn1_ctx, tree, hf_ngap_FiveG_S_TMSI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23691,7 +23691,7 @@ static int dissect_FiveG_S_TMSI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_GlobalCable_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GlobalCable_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_GlobalCable_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23699,7 +23699,7 @@ static int dissect_GlobalCable_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_GlobalCable_ID_new_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GlobalCable_ID_new(tvb, offset, &asn1_ctx, tree, hf_ngap_GlobalCable_ID_new_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23707,7 +23707,7 @@ static int dissect_GlobalCable_ID_new_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_GlobalRANNodeID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GlobalRANNodeID(tvb, offset, &asn1_ctx, tree, hf_ngap_GlobalRANNodeID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23715,7 +23715,7 @@ static int dissect_GlobalRANNodeID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_GlobalTNGF_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GlobalTNGF_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_GlobalTNGF_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23723,7 +23723,7 @@ static int dissect_GlobalTNGF_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_GlobalTWIF_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GlobalTWIF_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_GlobalTWIF_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23731,7 +23731,7 @@ static int dissect_GlobalTWIF_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_GlobalW_AGF_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GlobalW_AGF_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_GlobalW_AGF_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23739,7 +23739,7 @@ static int dissect_GlobalW_AGF_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_GUAMI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GUAMI(tvb, offset, &asn1_ctx, tree, hf_ngap_GUAMI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23747,7 +23747,7 @@ static int dissect_GUAMI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static int dissect_GUAMIType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_GUAMIType(tvb, offset, &asn1_ctx, tree, hf_ngap_GUAMIType_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23755,7 +23755,7 @@ static int dissect_GUAMIType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_HandoverCommandTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverCommandTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverCommandTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23763,7 +23763,7 @@ static int dissect_HandoverCommandTransfer_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_HandoverFlag_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverFlag(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverFlag_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23771,7 +23771,7 @@ static int dissect_HandoverFlag_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_HandoverPreparationUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverPreparationUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverPreparationUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23779,7 +23779,7 @@ static int dissect_HandoverPreparationUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_
 static int dissect_HandoverRequestAcknowledgeTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverRequestAcknowledgeTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverRequestAcknowledgeTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23787,7 +23787,7 @@ static int dissect_HandoverRequestAcknowledgeTransfer_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_HandoverRequiredTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverRequiredTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverRequiredTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23795,7 +23795,7 @@ static int dissect_HandoverRequiredTransfer_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_HandoverResourceAllocationUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverResourceAllocationUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverResourceAllocationUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23803,7 +23803,7 @@ static int dissect_HandoverResourceAllocationUnsuccessfulTransfer_PDU(tvbuff_t *
 static int dissect_HandoverType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverType(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverType_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23811,7 +23811,7 @@ static int dissect_HandoverType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_HashedUEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HashedUEIdentityIndexValue(tvb, offset, &asn1_ctx, tree, hf_ngap_HashedUEIdentityIndexValue_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23819,7 +23819,7 @@ static int dissect_HashedUEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_HFCNode_ID_new_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HFCNode_ID_new(tvb, offset, &asn1_ctx, tree, hf_ngap_HFCNode_ID_new_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23827,7 +23827,7 @@ static int dissect_HFCNode_ID_new_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_IAB_Authorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IAB_Authorized(tvb, offset, &asn1_ctx, tree, hf_ngap_IAB_Authorized_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23835,7 +23835,7 @@ static int dissect_IAB_Authorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_IAB_Supported_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IAB_Supported(tvb, offset, &asn1_ctx, tree, hf_ngap_IAB_Supported_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23843,7 +23843,7 @@ static int dissect_IAB_Supported_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_IABNodeIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IABNodeIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_IABNodeIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23851,7 +23851,7 @@ static int dissect_IABNodeIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_IMSVoiceSupportIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IMSVoiceSupportIndicator(tvb, offset, &asn1_ctx, tree, hf_ngap_IMSVoiceSupportIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23859,7 +23859,7 @@ static int dissect_IMSVoiceSupportIndicator_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_IndexToRFSP_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IndexToRFSP(tvb, offset, &asn1_ctx, tree, hf_ngap_IndexToRFSP_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23867,7 +23867,7 @@ static int dissect_IndexToRFSP_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_InfoOnRecommendedCellsAndRANNodesForPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_InfoOnRecommendedCellsAndRANNodesForPaging(tvb, offset, &asn1_ctx, tree, hf_ngap_InfoOnRecommendedCellsAndRANNodesForPaging_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23875,7 +23875,7 @@ static int dissect_InfoOnRecommendedCellsAndRANNodesForPaging_PDU(tvbuff_t *tvb 
 static int dissect_IntersystemSONConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IntersystemSONConfigurationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_IntersystemSONConfigurationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23883,7 +23883,7 @@ static int dissect_IntersystemSONConfigurationTransfer_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_IntersystemSONInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IntersystemSONInformationRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_IntersystemSONInformationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23891,7 +23891,7 @@ static int dissect_IntersystemSONInformationRequest_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_IntersystemSONInformationReply_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IntersystemSONInformationReply(tvb, offset, &asn1_ctx, tree, hf_ngap_IntersystemSONInformationReply_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23899,7 +23899,7 @@ static int dissect_IntersystemSONInformationReply_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_IntersystemCellStateIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IntersystemCellStateIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_IntersystemCellStateIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23907,7 +23907,7 @@ static int dissect_IntersystemCellStateIndication_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_IntersystemResourceStatusReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IntersystemResourceStatusReport(tvb, offset, &asn1_ctx, tree, hf_ngap_IntersystemResourceStatusReport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23915,7 +23915,7 @@ static int dissect_IntersystemResourceStatusReport_PDU(tvbuff_t *tvb _U_, packet
 int dissect_ngap_LastVisitedNGRANCellInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LastVisitedNGRANCellInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_LastVisitedNGRANCellInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23923,7 +23923,7 @@ int dissect_ngap_LastVisitedNGRANCellInformation_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_LastVisitedPSCellList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LastVisitedPSCellList(tvb, offset, &asn1_ctx, tree, hf_ngap_LastVisitedPSCellList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23931,7 +23931,7 @@ static int dissect_LastVisitedPSCellList_PDU(tvbuff_t *tvb _U_, packet_info *pin
 int dissect_ngap_LastVisitedPSCellInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LastVisitedPSCellInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_LastVisitedPSCellInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23939,7 +23939,7 @@ int dissect_ngap_LastVisitedPSCellInformation_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_LocationReportingAdditionalInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LocationReportingAdditionalInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_LocationReportingAdditionalInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23947,7 +23947,7 @@ static int dissect_LocationReportingAdditionalInfo_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_LocationReportingRequestType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LocationReportingRequestType(tvb, offset, &asn1_ctx, tree, hf_ngap_LocationReportingRequestType_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23955,7 +23955,7 @@ static int dissect_LocationReportingRequestType_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_LTEM_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LTEM_Indication(tvb, offset, &asn1_ctx, tree, hf_ngap_LTEM_Indication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23963,7 +23963,7 @@ static int dissect_LTEM_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_LTEV2XServicesAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LTEV2XServicesAuthorized(tvb, offset, &asn1_ctx, tree, hf_ngap_LTEV2XServicesAuthorized_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23971,7 +23971,7 @@ static int dissect_LTEV2XServicesAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_LTEUESidelinkAggregateMaximumBitrate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LTEUESidelinkAggregateMaximumBitrate(tvb, offset, &asn1_ctx, tree, hf_ngap_LTEUESidelinkAggregateMaximumBitrate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23979,7 +23979,7 @@ static int dissect_LTEUESidelinkAggregateMaximumBitrate_PDU(tvbuff_t *tvb _U_, p
 static int dissect_MaskedIMEISV_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MaskedIMEISV(tvb, offset, &asn1_ctx, tree, hf_ngap_MaskedIMEISV_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23987,7 +23987,7 @@ static int dissect_MaskedIMEISV_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_MessageIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MessageIdentifier(tvb, offset, &asn1_ctx, tree, hf_ngap_MessageIdentifier_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -23995,7 +23995,7 @@ static int dissect_MessageIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_MaximumIntegrityProtectedDataRate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MaximumIntegrityProtectedDataRate(tvb, offset, &asn1_ctx, tree, hf_ngap_MaximumIntegrityProtectedDataRate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24003,7 +24003,7 @@ static int dissect_MaximumIntegrityProtectedDataRate_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_MBS_AreaSessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_AreaSessionID(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_AreaSessionID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24011,7 +24011,7 @@ static int dissect_MBS_AreaSessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_MBS_QoSFlowsToBeSetupList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_QoSFlowsToBeSetupList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_QoSFlowsToBeSetupList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24019,7 +24019,7 @@ static int dissect_MBS_QoSFlowsToBeSetupList_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_MBS_ServiceArea_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_ServiceArea(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_ServiceArea_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24027,7 +24027,7 @@ static int dissect_MBS_ServiceArea_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_MBS_SessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_SessionID(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_SessionID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24035,7 +24035,7 @@ static int dissect_MBS_SessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_MBSSessionFailedtoSetupList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionFailedtoSetupList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionFailedtoSetupList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24043,7 +24043,7 @@ static int dissect_MBSSessionFailedtoSetupList_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_MBS_ActiveSessionInformation_SourcetoTargetList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_ActiveSessionInformation_SourcetoTargetList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_ActiveSessionInformation_SourcetoTargetList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24051,7 +24051,7 @@ static int dissect_MBS_ActiveSessionInformation_SourcetoTargetList_PDU(tvbuff_t 
 static int dissect_MBS_ActiveSessionInformation_TargettoSourceList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_ActiveSessionInformation_TargettoSourceList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_ActiveSessionInformation_TargettoSourceList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24059,7 +24059,7 @@ static int dissect_MBS_ActiveSessionInformation_TargettoSourceList_PDU(tvbuff_t 
 static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupOrModFailureTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24067,7 +24067,7 @@ static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_MBSSessionSetupResponseList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupResponseList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupResponseList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24075,7 +24075,7 @@ static int dissect_MBSSessionSetupResponseList_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_MBSSessionSetupOrModRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupOrModRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24083,7 +24083,7 @@ static int dissect_MBSSessionSetupOrModRequestTransfer_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_MBS_SessionFSAIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_SessionFSAIDList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_SessionFSAIDList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24091,7 +24091,7 @@ static int dissect_MBS_SessionFSAIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionReleaseResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionReleaseResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24099,7 +24099,7 @@ static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupOrModResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24107,7 +24107,7 @@ static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, p
 static int dissect_MBS_SupportIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_SupportIndicator(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_SupportIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24115,7 +24115,7 @@ static int dissect_MBS_SupportIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_MBS_SessionTNLInfo5GC_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_SessionTNLInfo5GC(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_SessionTNLInfo5GC_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24123,7 +24123,7 @@ static int dissect_MBS_SessionTNLInfo5GC_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_MBSSessionSetupRequestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupRequestList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupRequestList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24131,7 +24131,7 @@ static int dissect_MBSSessionSetupRequestList_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_MBSSessionSetuporModifyRequestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetuporModifyRequestList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetuporModifyRequestList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24139,7 +24139,7 @@ static int dissect_MBSSessionSetuporModifyRequestList_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_MBSSessionToReleaseList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionToReleaseList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionToReleaseList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24147,7 +24147,7 @@ static int dissect_MBSSessionToReleaseList_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_MicoAllPLMN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MicoAllPLMN(tvb, offset, &asn1_ctx, tree, hf_ngap_MicoAllPLMN_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24155,7 +24155,7 @@ static int dissect_MicoAllPLMN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_ExtendedMobilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExtendedMobilityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_ExtendedMobilityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24163,7 +24163,7 @@ static int dissect_ExtendedMobilityInformation_PDU(tvbuff_t *tvb _U_, packet_inf
 int dissect_ngap_MobilityRestrictionList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MobilityRestrictionList(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_MobilityRestrictionList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24171,7 +24171,7 @@ int dissect_ngap_MobilityRestrictionList_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_MDTPLMNList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MDTPLMNList(tvb, offset, &asn1_ctx, tree, hf_ngap_MDTPLMNList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24179,7 +24179,7 @@ static int dissect_MDTPLMNList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_MDTPLMNModificationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MDTPLMNModificationList(tvb, offset, &asn1_ctx, tree, hf_ngap_MDTPLMNModificationList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24187,7 +24187,7 @@ static int dissect_MDTPLMNModificationList_PDU(tvbuff_t *tvb _U_, packet_info *p
 int dissect_ngap_MDT_Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MDT_Configuration(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_MDT_Configuration_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24195,7 +24195,7 @@ int dissect_ngap_MDT_Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_MulticastGroupPagingAreaList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastGroupPagingAreaList(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastGroupPagingAreaList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24203,7 +24203,7 @@ static int dissect_MulticastGroupPagingAreaList_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_IncludeBeamMeasurementsIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_IncludeBeamMeasurementsIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_IncludeBeamMeasurementsIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24211,7 +24211,7 @@ static int dissect_IncludeBeamMeasurementsIndication_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_M4ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_M4ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_ngap_M4ReportAmountMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24219,7 +24219,7 @@ static int dissect_M4ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_M5ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_M5ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_ngap_M5ReportAmountMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24227,7 +24227,7 @@ static int dissect_M5ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_M6ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_M6ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_ngap_M6ReportAmountMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24235,7 +24235,7 @@ static int dissect_M6ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_M7ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_M7ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_ngap_M7ReportAmountMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24243,7 +24243,7 @@ static int dissect_M7ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_NAS_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NAS_PDU(tvb, offset, &asn1_ctx, tree, hf_ngap_NAS_PDU_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24251,7 +24251,7 @@ static int dissect_NAS_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static int dissect_NASSecurityParametersFromNGRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NASSecurityParametersFromNGRAN(tvb, offset, &asn1_ctx, tree, hf_ngap_NASSecurityParametersFromNGRAN_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24259,7 +24259,7 @@ static int dissect_NASSecurityParametersFromNGRAN_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_NB_IoT_DefaultPagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NB_IoT_DefaultPagingDRX(tvb, offset, &asn1_ctx, tree, hf_ngap_NB_IoT_DefaultPagingDRX_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24267,7 +24267,7 @@ static int dissect_NB_IoT_DefaultPagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_NB_IoT_PagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NB_IoT_PagingDRX(tvb, offset, &asn1_ctx, tree, hf_ngap_NB_IoT_PagingDRX_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24275,7 +24275,7 @@ static int dissect_NB_IoT_PagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_NB_IoT_Paging_eDRXInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NB_IoT_Paging_eDRXInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_NB_IoT_Paging_eDRXInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24283,7 +24283,7 @@ static int dissect_NB_IoT_Paging_eDRXInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_NB_IoT_UEPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NB_IoT_UEPriority(tvb, offset, &asn1_ctx, tree, hf_ngap_NB_IoT_UEPriority_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24291,7 +24291,7 @@ static int dissect_NB_IoT_UEPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_NetworkInstance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NetworkInstance(tvb, offset, &asn1_ctx, tree, hf_ngap_NetworkInstance_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24299,7 +24299,7 @@ static int dissect_NetworkInstance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_NewSecurityContextInd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NewSecurityContextInd(tvb, offset, &asn1_ctx, tree, hf_ngap_NewSecurityContextInd_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24307,7 +24307,7 @@ static int dissect_NewSecurityContextInd_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_NGAPIESupportInformationRequestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGAPIESupportInformationRequestList(tvb, offset, &asn1_ctx, tree, hf_ngap_NGAPIESupportInformationRequestList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24315,7 +24315,7 @@ static int dissect_NGAPIESupportInformationRequestList_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_NGAPIESupportInformationResponseList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGAPIESupportInformationResponseList(tvb, offset, &asn1_ctx, tree, hf_ngap_NGAPIESupportInformationResponseList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24323,7 +24323,7 @@ static int dissect_NGAPIESupportInformationResponseList_PDU(tvbuff_t *tvb _U_, p
 static int dissect_NotifySourceNGRANNode_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NotifySourceNGRANNode(tvb, offset, &asn1_ctx, tree, hf_ngap_NotifySourceNGRANNode_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24331,7 +24331,7 @@ static int dissect_NotifySourceNGRANNode_PDU(tvbuff_t *tvb _U_, packet_info *pin
 int dissect_ngap_NGRAN_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGRAN_CGI(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_NGRAN_CGI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24339,7 +24339,7 @@ int dissect_ngap_NGRAN_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static int dissect_NGRAN_TNLAssociationToRemoveList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGRAN_TNLAssociationToRemoveList(tvb, offset, &asn1_ctx, tree, hf_ngap_NGRAN_TNLAssociationToRemoveList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24347,7 +24347,7 @@ static int dissect_NGRAN_TNLAssociationToRemoveList_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_NGRANTraceID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGRANTraceID(tvb, offset, &asn1_ctx, tree, hf_ngap_NGRANTraceID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24355,7 +24355,7 @@ static int dissect_NGRANTraceID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_NID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NID(tvb, offset, &asn1_ctx, tree, hf_ngap_NID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24363,7 +24363,7 @@ static int dissect_NID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 static int dissect_NPN_AccessInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NPN_AccessInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_NPN_AccessInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24371,7 +24371,7 @@ static int dissect_NPN_AccessInformation_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_NPN_MobilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NPN_MobilityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_NPN_MobilityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24379,7 +24379,7 @@ static int dissect_NPN_MobilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_NPN_PagingAssistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NPN_PagingAssistanceInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_NPN_PagingAssistanceInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24387,7 +24387,7 @@ static int dissect_NPN_PagingAssistanceInformation_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_NPN_Support_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NPN_Support(tvb, offset, &asn1_ctx, tree, hf_ngap_NPN_Support_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24395,7 +24395,7 @@ static int dissect_NPN_Support_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_NR_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NR_CGI(tvb, offset, &asn1_ctx, tree, hf_ngap_NR_CGI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24403,7 +24403,7 @@ static int dissect_NR_CGI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static int dissect_NR_PagingeDRXInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NR_PagingeDRXInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_NR_PagingeDRXInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24411,7 +24411,7 @@ static int dissect_NR_PagingeDRXInformation_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_NRPPa_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NRPPa_PDU(tvb, offset, &asn1_ctx, tree, hf_ngap_NRPPa_PDU_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24419,7 +24419,7 @@ static int dissect_NRPPa_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_NRNTNTAIInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NRNTNTAIInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_NRNTNTAIInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24427,7 +24427,7 @@ static int dissect_NRNTNTAIInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_NumberOfBroadcastsRequested_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NumberOfBroadcastsRequested(tvb, offset, &asn1_ctx, tree, hf_ngap_NumberOfBroadcastsRequested_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24435,7 +24435,7 @@ static int dissect_NumberOfBroadcastsRequested_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_NRV2XServicesAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NRV2XServicesAuthorized(tvb, offset, &asn1_ctx, tree, hf_ngap_NRV2XServicesAuthorized_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24443,7 +24443,7 @@ static int dissect_NRV2XServicesAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_NRUESidelinkAggregateMaximumBitrate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NRUESidelinkAggregateMaximumBitrate(tvb, offset, &asn1_ctx, tree, hf_ngap_NRUESidelinkAggregateMaximumBitrate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24451,7 +24451,7 @@ static int dissect_NRUESidelinkAggregateMaximumBitrate_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_OnboardingSupport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_OnboardingSupport(tvb, offset, &asn1_ctx, tree, hf_ngap_OnboardingSupport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24459,7 +24459,7 @@ static int dissect_OnboardingSupport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_OverloadResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_OverloadResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_OverloadResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24467,7 +24467,7 @@ static int dissect_OverloadResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_OverloadStartNSSAIList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_OverloadStartNSSAIList(tvb, offset, &asn1_ctx, tree, hf_ngap_OverloadStartNSSAIList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24475,7 +24475,7 @@ static int dissect_OverloadStartNSSAIList_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_PagingAssisDataforCEcapabUE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PagingAssisDataforCEcapabUE(tvb, offset, &asn1_ctx, tree, hf_ngap_PagingAssisDataforCEcapabUE_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24483,7 +24483,7 @@ static int dissect_PagingAssisDataforCEcapabUE_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_PagingCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PagingCause(tvb, offset, &asn1_ctx, tree, hf_ngap_PagingCause_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24491,7 +24491,7 @@ static int dissect_PagingCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_PagingCauseIndicationForVoiceService_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PagingCauseIndicationForVoiceService(tvb, offset, &asn1_ctx, tree, hf_ngap_PagingCauseIndicationForVoiceService_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24499,7 +24499,7 @@ static int dissect_PagingCauseIndicationForVoiceService_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PagingDRX(tvb, offset, &asn1_ctx, tree, hf_ngap_PagingDRX_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24507,7 +24507,7 @@ static int dissect_PagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_PagingOrigin_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PagingOrigin(tvb, offset, &asn1_ctx, tree, hf_ngap_PagingOrigin_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24515,7 +24515,7 @@ static int dissect_PagingOrigin_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_PagingPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PagingPriority(tvb, offset, &asn1_ctx, tree, hf_ngap_PagingPriority_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24523,7 +24523,7 @@ static int dissect_PagingPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_PathSwitchRequestAcknowledgeTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequestAcknowledgeTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequestAcknowledgeTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24531,7 +24531,7 @@ static int dissect_PathSwitchRequestAcknowledgeTransfer_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PathSwitchRequestSetupFailedTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequestSetupFailedTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequestSetupFailedTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24539,7 +24539,7 @@ static int dissect_PathSwitchRequestSetupFailedTransfer_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PathSwitchRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24547,7 +24547,7 @@ static int dissect_PathSwitchRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_PathSwitchRequestUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequestUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequestUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24555,7 +24555,7 @@ static int dissect_PathSwitchRequestUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, 
 static int dissect_PC5QoSParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PC5QoSParameters(tvb, offset, &asn1_ctx, tree, hf_ngap_PC5QoSParameters_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24563,7 +24563,7 @@ static int dissect_PC5QoSParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_PrivacyIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PrivacyIndicator(tvb, offset, &asn1_ctx, tree, hf_ngap_PrivacyIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24571,7 +24571,7 @@ static int dissect_PrivacyIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_PDUSessionAggregateMaximumBitRate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionAggregateMaximumBitRate(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionAggregateMaximumBitRate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24579,7 +24579,7 @@ static int dissect_PDUSessionAggregateMaximumBitRate_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_PDUSessionPairID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionPairID(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionPairID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24587,7 +24587,7 @@ static int dissect_PDUSessionPairID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_PDUSessionResourceAdmittedList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceAdmittedList(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceAdmittedList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24595,7 +24595,7 @@ static int dissect_PDUSessionResourceAdmittedList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_PDUSessionResourceFailedToModifyListModCfm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToModifyListModCfm(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToModifyListModCfm_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24603,7 +24603,7 @@ static int dissect_PDUSessionResourceFailedToModifyListModCfm_PDU(tvbuff_t *tvb 
 static int dissect_PDUSessionResourceFailedToModifyListModRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToModifyListModRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToModifyListModRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24611,7 +24611,7 @@ static int dissect_PDUSessionResourceFailedToModifyListModRes_PDU(tvbuff_t *tvb 
 static int dissect_PDUSessionResourceFailedToResumeListRESReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToResumeListRESReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToResumeListRESReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24619,7 +24619,7 @@ static int dissect_PDUSessionResourceFailedToResumeListRESReq_PDU(tvbuff_t *tvb 
 static int dissect_PDUSessionResourceFailedToResumeListRESRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToResumeListRESRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToResumeListRESRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24627,7 +24627,7 @@ static int dissect_PDUSessionResourceFailedToResumeListRESRes_PDU(tvbuff_t *tvb 
 static int dissect_PDUSessionResourceFailedToSetupListCxtFail_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToSetupListCxtFail(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToSetupListCxtFail_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24635,7 +24635,7 @@ static int dissect_PDUSessionResourceFailedToSetupListCxtFail_PDU(tvbuff_t *tvb 
 static int dissect_PDUSessionResourceFailedToSetupListCxtRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToSetupListCxtRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToSetupListCxtRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24643,7 +24643,7 @@ static int dissect_PDUSessionResourceFailedToSetupListCxtRes_PDU(tvbuff_t *tvb _
 static int dissect_PDUSessionResourceFailedToSetupListHOAck_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToSetupListHOAck(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToSetupListHOAck_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24651,7 +24651,7 @@ static int dissect_PDUSessionResourceFailedToSetupListHOAck_PDU(tvbuff_t *tvb _U
 static int dissect_PDUSessionResourceFailedToSetupListPSReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToSetupListPSReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToSetupListPSReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24659,7 +24659,7 @@ static int dissect_PDUSessionResourceFailedToSetupListPSReq_PDU(tvbuff_t *tvb _U
 static int dissect_PDUSessionResourceFailedToSetupListSURes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceFailedToSetupListSURes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceFailedToSetupListSURes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24667,7 +24667,7 @@ static int dissect_PDUSessionResourceFailedToSetupListSURes_PDU(tvbuff_t *tvb _U
 static int dissect_PDUSessionResourceHandoverList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceHandoverList(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceHandoverList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24675,7 +24675,7 @@ static int dissect_PDUSessionResourceHandoverList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_PDUSessionResourceListCxtRelCpl_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceListCxtRelCpl(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceListCxtRelCpl_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24683,7 +24683,7 @@ static int dissect_PDUSessionResourceListCxtRelCpl_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24691,7 +24691,7 @@ static int dissect_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU(tv
 static int dissect_PDUSessionResourceListCxtRelReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceListCxtRelReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceListCxtRelReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24699,7 +24699,7 @@ static int dissect_PDUSessionResourceListCxtRelReq_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_PDUSessionResourceListHORqd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceListHORqd(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceListHORqd_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24707,7 +24707,7 @@ static int dissect_PDUSessionResourceListHORqd_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_PDUSessionResourceModifyConfirmTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyConfirmTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyConfirmTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24715,7 +24715,7 @@ static int dissect_PDUSessionResourceModifyConfirmTransfer_PDU(tvbuff_t *tvb _U_
 static int dissect_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24723,7 +24723,7 @@ static int dissect_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU(tv
 static int dissect_PDUSessionResourceModifyRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24731,7 +24731,7 @@ static int dissect_PDUSessionResourceModifyRequestTransfer_PDU(tvbuff_t *tvb _U_
 static int dissect_PDUSessionResourceModifyResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24739,7 +24739,7 @@ static int dissect_PDUSessionResourceModifyResponseTransfer_PDU(tvbuff_t *tvb _U
 static int dissect_PDUSessionResourceModifyIndicationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyIndicationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyIndicationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24747,7 +24747,7 @@ static int dissect_PDUSessionResourceModifyIndicationTransfer_PDU(tvbuff_t *tvb 
 static int dissect_PDUSessionResourceModifyListModCfm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyListModCfm(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyListModCfm_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24755,7 +24755,7 @@ static int dissect_PDUSessionResourceModifyListModCfm_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceModifyListModInd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyListModInd(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyListModInd_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24763,7 +24763,7 @@ static int dissect_PDUSessionResourceModifyListModInd_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceModifyListModReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyListModReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyListModReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24771,7 +24771,7 @@ static int dissect_PDUSessionResourceModifyListModReq_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceModifyListModRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyListModRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyListModRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24779,7 +24779,7 @@ static int dissect_PDUSessionResourceModifyListModRes_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceModifyUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24787,7 +24787,7 @@ static int dissect_PDUSessionResourceModifyUnsuccessfulTransfer_PDU(tvbuff_t *tv
 static int dissect_PDUSessionResourceNotifyList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceNotifyList(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceNotifyList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24795,7 +24795,7 @@ static int dissect_PDUSessionResourceNotifyList_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_PDUSessionResourceNotifyReleasedTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceNotifyReleasedTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceNotifyReleasedTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24803,7 +24803,7 @@ static int dissect_PDUSessionResourceNotifyReleasedTransfer_PDU(tvbuff_t *tvb _U
 static int dissect_PDUSessionResourceNotifyTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceNotifyTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceNotifyTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24811,7 +24811,7 @@ static int dissect_PDUSessionResourceNotifyTransfer_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_PDUSessionResourceReleaseCommandTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleaseCommandTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleaseCommandTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24819,7 +24819,7 @@ static int dissect_PDUSessionResourceReleaseCommandTransfer_PDU(tvbuff_t *tvb _U
 static int dissect_PDUSessionResourceReleasedListNot_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleasedListNot(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleasedListNot_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24827,7 +24827,7 @@ static int dissect_PDUSessionResourceReleasedListNot_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_PDUSessionResourceReleasedListPSAck_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleasedListPSAck(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleasedListPSAck_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24835,7 +24835,7 @@ static int dissect_PDUSessionResourceReleasedListPSAck_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_PDUSessionResourceReleasedListPSFail_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleasedListPSFail(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleasedListPSFail_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24843,7 +24843,7 @@ static int dissect_PDUSessionResourceReleasedListPSFail_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PDUSessionResourceReleasedListRelRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleasedListRelRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleasedListRelRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24851,7 +24851,7 @@ static int dissect_PDUSessionResourceReleasedListRelRes_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PDUSessionResourceReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleaseResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleaseResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24859,7 +24859,7 @@ static int dissect_PDUSessionResourceReleaseResponseTransfer_PDU(tvbuff_t *tvb _
 static int dissect_PDUSessionResourceResumeListRESReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceResumeListRESReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceResumeListRESReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24867,7 +24867,7 @@ static int dissect_PDUSessionResourceResumeListRESReq_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceResumeListRESRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceResumeListRESRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceResumeListRESRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24875,7 +24875,7 @@ static int dissect_PDUSessionResourceResumeListRESRes_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceSecondaryRATUsageList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSecondaryRATUsageList(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSecondaryRATUsageList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24883,7 +24883,7 @@ static int dissect_PDUSessionResourceSecondaryRATUsageList_PDU(tvbuff_t *tvb _U_
 static int dissect_PDUSessionResourceSetupListCxtReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupListCxtReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupListCxtReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24891,7 +24891,7 @@ static int dissect_PDUSessionResourceSetupListCxtReq_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_PDUSessionResourceSetupListCxtRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupListCxtRes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupListCxtRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24899,7 +24899,7 @@ static int dissect_PDUSessionResourceSetupListCxtRes_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_PDUSessionResourceSetupListHOReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupListHOReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupListHOReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24907,7 +24907,7 @@ static int dissect_PDUSessionResourceSetupListHOReq_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_PDUSessionResourceSetupListSUReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupListSUReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupListSUReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24915,7 +24915,7 @@ static int dissect_PDUSessionResourceSetupListSUReq_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_PDUSessionResourceSetupListSURes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupListSURes(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupListSURes_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24923,7 +24923,7 @@ static int dissect_PDUSessionResourceSetupListSURes_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_PDUSessionResourceSetupRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24931,7 +24931,7 @@ static int dissect_PDUSessionResourceSetupRequestTransfer_PDU(tvbuff_t *tvb _U_,
 static int dissect_PDUSessionResourceSetupResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24939,7 +24939,7 @@ static int dissect_PDUSessionResourceSetupResponseTransfer_PDU(tvbuff_t *tvb _U_
 static int dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24947,7 +24947,7 @@ static int dissect_PDUSessionResourceSetupUnsuccessfulTransfer_PDU(tvbuff_t *tvb
 static int dissect_PDUSessionResourceSuspendListSUSReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSuspendListSUSReq(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSuspendListSUSReq_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24955,7 +24955,7 @@ static int dissect_PDUSessionResourceSuspendListSUSReq_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_PDUSessionResourceSwitchedList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSwitchedList(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSwitchedList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24963,7 +24963,7 @@ static int dissect_PDUSessionResourceSwitchedList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_PDUSessionResourceToBeSwitchedDLList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceToBeSwitchedDLList(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceToBeSwitchedDLList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24971,7 +24971,7 @@ static int dissect_PDUSessionResourceToBeSwitchedDLList_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PDUSessionResourceToReleaseListHOCmd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceToReleaseListHOCmd(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceToReleaseListHOCmd_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24979,7 +24979,7 @@ static int dissect_PDUSessionResourceToReleaseListHOCmd_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PDUSessionResourceToReleaseListRelCmd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceToReleaseListRelCmd(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceToReleaseListRelCmd_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24987,7 +24987,7 @@ static int dissect_PDUSessionResourceToReleaseListRelCmd_PDU(tvbuff_t *tvb _U_, 
 static int dissect_PDUSessionType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionType(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionType_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -24995,7 +24995,7 @@ static int dissect_PDUSessionType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_PEIPSassistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PEIPSassistanceInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_PEIPSassistanceInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25003,7 +25003,7 @@ static int dissect_PEIPSassistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_PLMNIdentity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PLMNIdentity(tvb, offset, &asn1_ctx, tree, hf_ngap_PLMNIdentity_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25011,7 +25011,7 @@ static int dissect_PLMNIdentity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_PLMNSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PLMNSupportList(tvb, offset, &asn1_ctx, tree, hf_ngap_PLMNSupportList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25019,7 +25019,7 @@ static int dissect_PLMNSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_PWSFailedCellIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PWSFailedCellIDList(tvb, offset, &asn1_ctx, tree, hf_ngap_PWSFailedCellIDList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25027,7 +25027,7 @@ static int dissect_PWSFailedCellIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_QMCConfigInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QMCConfigInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_QMCConfigInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25035,7 +25035,7 @@ static int dissect_QMCConfigInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_QMCDeactivation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QMCDeactivation(tvb, offset, &asn1_ctx, tree, hf_ngap_QMCDeactivation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25043,7 +25043,7 @@ static int dissect_QMCDeactivation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_QosFlowAddOrModifyRequestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowAddOrModifyRequestList(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowAddOrModifyRequestList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25051,7 +25051,7 @@ static int dissect_QosFlowAddOrModifyRequestList_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_QosFlowFeedbackList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowFeedbackList(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowFeedbackList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25059,7 +25059,7 @@ static int dissect_QosFlowFeedbackList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_QosMonitoringRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosMonitoringRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_QosMonitoringRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25067,7 +25067,7 @@ static int dissect_QosMonitoringRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_QosMonitoringReportingFrequency_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosMonitoringReportingFrequency(tvb, offset, &asn1_ctx, tree, hf_ngap_QosMonitoringReportingFrequency_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25075,7 +25075,7 @@ static int dissect_QosMonitoringReportingFrequency_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_QosFlowListWithCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowListWithCause(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowListWithCause_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25083,7 +25083,7 @@ static int dissect_QosFlowListWithCause_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_QosFlowParametersList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowParametersList(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowParametersList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25091,7 +25091,7 @@ static int dissect_QosFlowParametersList_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_QosFlowPerTNLInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowPerTNLInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowPerTNLInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25099,7 +25099,7 @@ static int dissect_QosFlowPerTNLInformation_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_QosFlowPerTNLInformationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowPerTNLInformationList(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowPerTNLInformationList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25107,7 +25107,7 @@ static int dissect_QosFlowPerTNLInformationList_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_QosFlowSetupRequestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_QosFlowSetupRequestList(tvb, offset, &asn1_ctx, tree, hf_ngap_QosFlowSetupRequestList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25115,7 +25115,7 @@ static int dissect_QosFlowSetupRequestList_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_RANNodeName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANNodeName(tvb, offset, &asn1_ctx, tree, hf_ngap_RANNodeName_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25123,7 +25123,7 @@ static int dissect_RANNodeName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_RANPagingPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANPagingPriority(tvb, offset, &asn1_ctx, tree, hf_ngap_RANPagingPriority_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25131,7 +25131,7 @@ static int dissect_RANPagingPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_RANStatusTransfer_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANStatusTransfer_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_RANStatusTransfer_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25139,7 +25139,7 @@ static int dissect_RANStatusTransfer_TransparentContainer_PDU(tvbuff_t *tvb _U_,
 static int dissect_RAN_UE_NGAP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RAN_UE_NGAP_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_RAN_UE_NGAP_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25147,7 +25147,7 @@ static int dissect_RAN_UE_NGAP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_RAT_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RAT_Information(tvb, offset, &asn1_ctx, tree, hf_ngap_RAT_Information_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25155,7 +25155,7 @@ static int dissect_RAT_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_RedCapIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RedCapIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_RedCapIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25163,7 +25163,7 @@ static int dissect_RedCapIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_RedirectionVoiceFallback_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RedirectionVoiceFallback(tvb, offset, &asn1_ctx, tree, hf_ngap_RedirectionVoiceFallback_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25171,7 +25171,7 @@ static int dissect_RedirectionVoiceFallback_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_RedundantPDUSessionInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RedundantPDUSessionInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_RedundantPDUSessionInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25179,7 +25179,7 @@ static int dissect_RedundantPDUSessionInformation_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_RedundantQosFlowIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RedundantQosFlowIndicator(tvb, offset, &asn1_ctx, tree, hf_ngap_RedundantQosFlowIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25187,7 +25187,7 @@ static int dissect_RedundantQosFlowIndicator_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_RelativeAMFCapacity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RelativeAMFCapacity(tvb, offset, &asn1_ctx, tree, hf_ngap_RelativeAMFCapacity_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25195,7 +25195,7 @@ static int dissect_RelativeAMFCapacity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_RepetitionPeriod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RepetitionPeriod(tvb, offset, &asn1_ctx, tree, hf_ngap_RepetitionPeriod_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25203,7 +25203,7 @@ static int dissect_RepetitionPeriod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_ExtendedReportIntervalMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ExtendedReportIntervalMDT(tvb, offset, &asn1_ctx, tree, hf_ngap_ExtendedReportIntervalMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25211,7 +25211,7 @@ static int dissect_ExtendedReportIntervalMDT_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_ResetType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ResetType(tvb, offset, &asn1_ctx, tree, hf_ngap_ResetType_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25219,7 +25219,7 @@ static int dissect_ResetType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_RGLevelWirelineAccessCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RGLevelWirelineAccessCharacteristics(tvb, offset, &asn1_ctx, tree, hf_ngap_RGLevelWirelineAccessCharacteristics_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25227,7 +25227,7 @@ static int dissect_RGLevelWirelineAccessCharacteristics_PDU(tvbuff_t *tvb _U_, p
 static int dissect_RoutingID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RoutingID(tvb, offset, &asn1_ctx, tree, hf_ngap_RoutingID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25235,7 +25235,7 @@ static int dissect_RoutingID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_RRCEstablishmentCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RRCEstablishmentCause(tvb, offset, &asn1_ctx, tree, hf_ngap_RRCEstablishmentCause_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25243,7 +25243,7 @@ static int dissect_RRCEstablishmentCause_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_RRCInactiveTransitionReportRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RRCInactiveTransitionReportRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_RRCInactiveTransitionReportRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25251,7 +25251,7 @@ static int dissect_RRCInactiveTransitionReportRequest_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_RRCState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RRCState(tvb, offset, &asn1_ctx, tree, hf_ngap_RRCState_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25259,7 +25259,7 @@ static int dissect_RRCState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static int dissect_RIMInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RIMInformationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_RIMInformationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25267,7 +25267,7 @@ static int dissect_RIMInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_SCTP_TLAs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SCTP_TLAs(tvb, offset, &asn1_ctx, tree, hf_ngap_SCTP_TLAs_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25275,7 +25275,7 @@ static int dissect_SCTP_TLAs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static int dissect_SecondaryRATUsageInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecondaryRATUsageInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_SecondaryRATUsageInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25283,7 +25283,7 @@ static int dissect_SecondaryRATUsageInformation_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_SecondaryRATDataUsageReportTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecondaryRATDataUsageReportTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_SecondaryRATDataUsageReportTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25291,7 +25291,7 @@ static int dissect_SecondaryRATDataUsageReportTransfer_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_SecurityContext_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecurityContext(tvb, offset, &asn1_ctx, tree, hf_ngap_SecurityContext_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25299,7 +25299,7 @@ static int dissect_SecurityContext_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_SecurityIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecurityIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_SecurityIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25307,7 +25307,7 @@ static int dissect_SecurityIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_SecurityKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecurityKey(tvb, offset, &asn1_ctx, tree, hf_ngap_SecurityKey_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25315,7 +25315,7 @@ static int dissect_SecurityKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_SecurityResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecurityResult(tvb, offset, &asn1_ctx, tree, hf_ngap_SecurityResult_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25323,7 +25323,7 @@ static int dissect_SecurityResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_SerialNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SerialNumber(tvb, offset, &asn1_ctx, tree, hf_ngap_SerialNumber_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25331,7 +25331,7 @@ static int dissect_SerialNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_ServedGUAMIList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ServedGUAMIList(tvb, offset, &asn1_ctx, tree, hf_ngap_ServedGUAMIList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25339,7 +25339,7 @@ static int dissect_ServedGUAMIList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_SgNB_UE_X2AP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SgNB_UE_X2AP_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_SgNB_UE_X2AP_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25347,7 +25347,7 @@ static int dissect_SgNB_UE_X2AP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_SliceSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SliceSupportList(tvb, offset, &asn1_ctx, tree, hf_ngap_SliceSupportList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25355,7 +25355,7 @@ static int dissect_SliceSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_S_NSSAI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_S_NSSAI(tvb, offset, &asn1_ctx, tree, hf_ngap_S_NSSAI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25363,7 +25363,7 @@ static int dissect_S_NSSAI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 int dissect_ngap_SONConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SONConfigurationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_SONConfigurationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25371,7 +25371,7 @@ int dissect_ngap_SONConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_SONInformationReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SONInformationReport(tvb, offset, &asn1_ctx, tree, hf_ngap_SONInformationReport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25379,7 +25379,7 @@ static int dissect_SONInformationReport_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_SuccessfulHandoverReportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SuccessfulHandoverReportList(tvb, offset, &asn1_ctx, tree, hf_ngap_SuccessfulHandoverReportList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25387,7 +25387,7 @@ static int dissect_SuccessfulHandoverReportList_PDU(tvbuff_t *tvb _U_, packet_in
 int dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25395,7 +25395,7 @@ int dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(tvbu
 static int dissect_SourceNodeID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SourceNodeID(tvb, offset, &asn1_ctx, tree, hf_ngap_SourceNodeID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25403,7 +25403,7 @@ static int dissect_SourceNodeID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_SourceToTarget_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SourceToTarget_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_SourceToTarget_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25411,7 +25411,7 @@ static int dissect_SourceToTarget_TransparentContainer_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_SourceToTarget_AMFInformationReroute_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SourceToTarget_AMFInformationReroute(tvb, offset, &asn1_ctx, tree, hf_ngap_SourceToTarget_AMFInformationReroute_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25419,7 +25419,7 @@ static int dissect_SourceToTarget_AMFInformationReroute_PDU(tvbuff_t *tvb _U_, p
 static int dissect_SRVCCOperationPossible_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SRVCCOperationPossible(tvb, offset, &asn1_ctx, tree, hf_ngap_SRVCCOperationPossible_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25427,7 +25427,7 @@ static int dissect_SRVCCOperationPossible_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_SupportedTAList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SupportedTAList(tvb, offset, &asn1_ctx, tree, hf_ngap_SupportedTAList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25435,7 +25435,7 @@ static int dissect_SupportedTAList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_Suspend_Request_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Suspend_Request_Indication(tvb, offset, &asn1_ctx, tree, hf_ngap_Suspend_Request_Indication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25443,7 +25443,7 @@ static int dissect_Suspend_Request_Indication_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_Suspend_Response_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Suspend_Response_Indication(tvb, offset, &asn1_ctx, tree, hf_ngap_Suspend_Response_Indication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25451,7 +25451,7 @@ static int dissect_Suspend_Response_Indication_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_SurvivalTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SurvivalTime(tvb, offset, &asn1_ctx, tree, hf_ngap_SurvivalTime_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25459,7 +25459,7 @@ static int dissect_SurvivalTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_TAI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TAI(tvb, offset, &asn1_ctx, tree, hf_ngap_TAI_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25467,7 +25467,7 @@ static int dissect_TAI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 static int dissect_TAIListForPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TAIListForPaging(tvb, offset, &asn1_ctx, tree, hf_ngap_TAIListForPaging_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25475,7 +25475,7 @@ static int dissect_TAIListForPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_TAIListForRestart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TAIListForRestart(tvb, offset, &asn1_ctx, tree, hf_ngap_TAIListForRestart_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25483,7 +25483,7 @@ static int dissect_TAIListForRestart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_TAINSAGSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TAINSAGSupportList(tvb, offset, &asn1_ctx, tree, hf_ngap_TAINSAGSupportList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25491,7 +25491,7 @@ static int dissect_TAINSAGSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_TargetHomeENB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetHomeENB_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_TargetHomeENB_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25499,7 +25499,7 @@ static int dissect_TargetHomeENB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_TargetID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetID(tvb, offset, &asn1_ctx, tree, hf_ngap_TargetID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25507,7 +25507,7 @@ static int dissect_TargetID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 int dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25515,7 +25515,7 @@ int dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(tvbu
 static int dissect_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25523,7 +25523,7 @@ static int dissect_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer
 static int dissect_TargetNSSAIInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetNSSAIInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_TargetNSSAIInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25531,7 +25531,7 @@ static int dissect_TargetNSSAIInformation_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_TargetRNC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetRNC_ID(tvb, offset, &asn1_ctx, tree, hf_ngap_TargetRNC_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25539,7 +25539,7 @@ static int dissect_TargetRNC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_TargetToSource_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargetToSource_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_TargetToSource_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25547,7 +25547,7 @@ static int dissect_TargetToSource_TransparentContainer_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_TargettoSource_Failure_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TargettoSource_Failure_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_ngap_TargettoSource_Failure_TransparentContainer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25555,7 +25555,7 @@ static int dissect_TargettoSource_Failure_TransparentContainer_PDU(tvbuff_t *tvb
 static int dissect_TimeSyncAssistanceInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TimeSyncAssistanceInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_TimeSyncAssistanceInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25563,7 +25563,7 @@ static int dissect_TimeSyncAssistanceInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_TimeToWait_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TimeToWait(tvb, offset, &asn1_ctx, tree, hf_ngap_TimeToWait_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25571,7 +25571,7 @@ static int dissect_TimeToWait_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static int dissect_TNLAssociationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TNLAssociationList(tvb, offset, &asn1_ctx, tree, hf_ngap_TNLAssociationList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25579,7 +25579,7 @@ static int dissect_TNLAssociationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_TraceActivation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TraceActivation(tvb, offset, &asn1_ctx, tree, hf_ngap_TraceActivation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25587,7 +25587,7 @@ static int dissect_TraceActivation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_TrafficLoadReductionIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TrafficLoadReductionIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_TrafficLoadReductionIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25595,7 +25595,7 @@ static int dissect_TrafficLoadReductionIndication_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_TransportLayerAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TransportLayerAddress(tvb, offset, &asn1_ctx, tree, hf_ngap_TransportLayerAddress_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25603,7 +25603,7 @@ static int dissect_TransportLayerAddress_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_TSCTrafficCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TSCTrafficCharacteristics(tvb, offset, &asn1_ctx, tree, hf_ngap_TSCTrafficCharacteristics_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25611,7 +25611,7 @@ static int dissect_TSCTrafficCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_UEAggregateMaximumBitRate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEAggregateMaximumBitRate(tvb, offset, &asn1_ctx, tree, hf_ngap_UEAggregateMaximumBitRate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25619,7 +25619,7 @@ static int dissect_UEAggregateMaximumBitRate_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_UE_associatedLogicalNG_connectionList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UE_associatedLogicalNG_connectionList(tvb, offset, &asn1_ctx, tree, hf_ngap_UE_associatedLogicalNG_connectionList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25627,7 +25627,7 @@ static int dissect_UE_associatedLogicalNG_connectionList_PDU(tvbuff_t *tvb _U_, 
 static int dissect_UECapabilityInfoRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UECapabilityInfoRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UECapabilityInfoRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25635,7 +25635,7 @@ static int dissect_UECapabilityInfoRequest_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UEContextRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25643,7 +25643,7 @@ static int dissect_UEContextRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextResumeRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25651,7 +25651,7 @@ static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextResumeResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25659,7 +25659,7 @@ static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextSuspendRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextSuspendRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25667,7 +25667,7 @@ static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_UE_DifferentiationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UE_DifferentiationInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_UE_DifferentiationInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25675,7 +25675,7 @@ static int dissect_UE_DifferentiationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_UEHistoryInformationFromTheUE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEHistoryInformationFromTheUE(tvb, offset, &asn1_ctx, tree, hf_ngap_UEHistoryInformationFromTheUE_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25683,7 +25683,7 @@ static int dissect_UEHistoryInformationFromTheUE_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_UE_NGAP_IDs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UE_NGAP_IDs(tvb, offset, &asn1_ctx, tree, hf_ngap_UE_NGAP_IDs_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25691,7 +25691,7 @@ static int dissect_UE_NGAP_IDs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_UEPagingIdentity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEPagingIdentity(tvb, offset, &asn1_ctx, tree, hf_ngap_UEPagingIdentity_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25699,7 +25699,7 @@ static int dissect_UEPagingIdentity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_UEPresenceInAreaOfInterestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEPresenceInAreaOfInterestList(tvb, offset, &asn1_ctx, tree, hf_ngap_UEPresenceInAreaOfInterestList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25707,7 +25707,7 @@ static int dissect_UEPresenceInAreaOfInterestList_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_UERadioCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapability(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapability_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25715,7 +25715,7 @@ static int dissect_UERadioCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_UERadioCapabilityForPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityForPaging(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityForPaging_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25723,7 +25723,7 @@ static int dissect_UERadioCapabilityForPaging_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_UERadioCapabilityForPagingOfNB_IoT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityForPagingOfNB_IoT(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityForPagingOfNB_IoT_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25731,7 +25731,7 @@ static int dissect_UERadioCapabilityForPagingOfNB_IoT_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_UERadioCapabilityID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityID(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityID_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25739,7 +25739,7 @@ static int dissect_UERadioCapabilityID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_UERetentionInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERetentionInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_UERetentionInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25747,7 +25747,7 @@ static int dissect_UERetentionInformation_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_UESecurityCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UESecurityCapabilities(tvb, offset, &asn1_ctx, tree, hf_ngap_UESecurityCapabilities_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25755,7 +25755,7 @@ static int dissect_UESecurityCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_UESliceMaximumBitRateList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UESliceMaximumBitRateList(tvb, offset, &asn1_ctx, tree, hf_ngap_UESliceMaximumBitRateList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25763,7 +25763,7 @@ static int dissect_UESliceMaximumBitRateList_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_UE_UP_CIoT_Support_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UE_UP_CIoT_Support(tvb, offset, &asn1_ctx, tree, hf_ngap_UE_UP_CIoT_Support_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25771,7 +25771,7 @@ static int dissect_UE_UP_CIoT_Support_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_UL_CP_SecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UL_CP_SecurityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_UL_CP_SecurityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25779,7 +25779,7 @@ static int dissect_UL_CP_SecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_UL_NGU_UP_TNLModifyList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UL_NGU_UP_TNLModifyList(tvb, offset, &asn1_ctx, tree, hf_ngap_UL_NGU_UP_TNLModifyList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25787,7 +25787,7 @@ static int dissect_UL_NGU_UP_TNLModifyList_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UnavailableGUAMIList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UnavailableGUAMIList(tvb, offset, &asn1_ctx, tree, hf_ngap_UnavailableGUAMIList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25795,7 +25795,7 @@ static int dissect_UnavailableGUAMIList_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_ULForwarding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ULForwarding(tvb, offset, &asn1_ctx, tree, hf_ngap_ULForwarding_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25803,7 +25803,7 @@ static int dissect_ULForwarding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_UPTransportLayerInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UPTransportLayerInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_UPTransportLayerInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25811,7 +25811,7 @@ static int dissect_UPTransportLayerInformation_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_UPTransportLayerInformationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UPTransportLayerInformationList(tvb, offset, &asn1_ctx, tree, hf_ngap_UPTransportLayerInformationList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25819,7 +25819,7 @@ static int dissect_UPTransportLayerInformationList_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_UPTransportLayerInformationPairList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UPTransportLayerInformationPairList(tvb, offset, &asn1_ctx, tree, hf_ngap_UPTransportLayerInformationPairList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25827,7 +25827,7 @@ static int dissect_UPTransportLayerInformationPairList_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_URI_address_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_URI_address(tvb, offset, &asn1_ctx, tree, hf_ngap_URI_address_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25835,7 +25835,7 @@ static int dissect_URI_address_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_UserLocationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UserLocationInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_UserLocationInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25843,7 +25843,7 @@ static int dissect_UserLocationInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UserLocationInformationTNGF_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UserLocationInformationTNGF(tvb, offset, &asn1_ctx, tree, hf_ngap_UserLocationInformationTNGF_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25851,7 +25851,7 @@ static int dissect_UserLocationInformationTNGF_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_UserLocationInformationTWIF_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UserLocationInformationTWIF(tvb, offset, &asn1_ctx, tree, hf_ngap_UserLocationInformationTWIF_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25859,7 +25859,7 @@ static int dissect_UserLocationInformationTWIF_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_UserLocationInformationW_AGF_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UserLocationInformationW_AGF(tvb, offset, &asn1_ctx, tree, hf_ngap_UserLocationInformationW_AGF_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25867,7 +25867,7 @@ static int dissect_UserLocationInformationW_AGF_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_WarningAreaCoordinates_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WarningAreaCoordinates(tvb, offset, &asn1_ctx, tree, hf_ngap_WarningAreaCoordinates_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25875,7 +25875,7 @@ static int dissect_WarningAreaCoordinates_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_WarningAreaList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WarningAreaList(tvb, offset, &asn1_ctx, tree, hf_ngap_WarningAreaList_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25883,7 +25883,7 @@ static int dissect_WarningAreaList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_WarningMessageContents_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WarningMessageContents(tvb, offset, &asn1_ctx, tree, hf_ngap_WarningMessageContents_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25891,7 +25891,7 @@ static int dissect_WarningMessageContents_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_WarningSecurityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WarningSecurityInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_WarningSecurityInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25899,7 +25899,7 @@ static int dissect_WarningSecurityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_WarningType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WarningType(tvb, offset, &asn1_ctx, tree, hf_ngap_WarningType_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25907,7 +25907,7 @@ static int dissect_WarningType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 static int dissect_WUS_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WUS_Assistance_Information(tvb, offset, &asn1_ctx, tree, hf_ngap_WUS_Assistance_Information_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25915,7 +25915,7 @@ static int dissect_WUS_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_PDUSessionResourceSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25923,7 +25923,7 @@ static int dissect_PDUSessionResourceSetupRequest_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_PDUSessionResourceSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceSetupResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceSetupResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25931,7 +25931,7 @@ static int dissect_PDUSessionResourceSetupResponse_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_PDUSessionResourceReleaseCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleaseCommand(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleaseCommand_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25939,7 +25939,7 @@ static int dissect_PDUSessionResourceReleaseCommand_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_PDUSessionResourceReleaseResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceReleaseResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceReleaseResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25947,7 +25947,7 @@ static int dissect_PDUSessionResourceReleaseResponse_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_PDUSessionResourceModifyRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25955,7 +25955,7 @@ static int dissect_PDUSessionResourceModifyRequest_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_PDUSessionResourceModifyResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25963,7 +25963,7 @@ static int dissect_PDUSessionResourceModifyResponse_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_PDUSessionResourceNotify_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceNotify(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceNotify_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25971,7 +25971,7 @@ static int dissect_PDUSessionResourceNotify_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_PDUSessionResourceModifyIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25979,7 +25979,7 @@ static int dissect_PDUSessionResourceModifyIndication_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_PDUSessionResourceModifyConfirm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PDUSessionResourceModifyConfirm(tvb, offset, &asn1_ctx, tree, hf_ngap_PDUSessionResourceModifyConfirm_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25987,7 +25987,7 @@ static int dissect_PDUSessionResourceModifyConfirm_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_InitialContextSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_InitialContextSetupRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_InitialContextSetupRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -25995,7 +25995,7 @@ static int dissect_InitialContextSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_InitialContextSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_InitialContextSetupResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_InitialContextSetupResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26003,7 +26003,7 @@ static int dissect_InitialContextSetupResponse_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_InitialContextSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_InitialContextSetupFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_InitialContextSetupFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26011,7 +26011,7 @@ static int dissect_InitialContextSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_UEContextReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextReleaseRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextReleaseRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26019,7 +26019,7 @@ static int dissect_UEContextReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UEContextReleaseCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextReleaseCommand(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextReleaseCommand_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26027,7 +26027,7 @@ static int dissect_UEContextReleaseCommand_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UEContextReleaseComplete_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextReleaseComplete(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextReleaseComplete_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26035,7 +26035,7 @@ static int dissect_UEContextReleaseComplete_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_UEContextResumeRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextResumeRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26043,7 +26043,7 @@ static int dissect_UEContextResumeRequest_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_UEContextResumeResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextResumeResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26051,7 +26051,7 @@ static int dissect_UEContextResumeResponse_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UEContextResumeFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextResumeFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26059,7 +26059,7 @@ static int dissect_UEContextResumeFailure_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_UEContextSuspendRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextSuspendRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextSuspendRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26067,7 +26067,7 @@ static int dissect_UEContextSuspendRequest_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UEContextSuspendResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextSuspendResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextSuspendResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26075,7 +26075,7 @@ static int dissect_UEContextSuspendResponse_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_UEContextSuspendFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextSuspendFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextSuspendFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26083,7 +26083,7 @@ static int dissect_UEContextSuspendFailure_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UEContextModificationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextModificationRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextModificationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26091,7 +26091,7 @@ static int dissect_UEContextModificationRequest_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_UEContextModificationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextModificationResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextModificationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26099,7 +26099,7 @@ static int dissect_UEContextModificationResponse_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_UEContextModificationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEContextModificationFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextModificationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26107,7 +26107,7 @@ static int dissect_UEContextModificationFailure_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_RRCInactiveTransitionReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RRCInactiveTransitionReport(tvb, offset, &asn1_ctx, tree, hf_ngap_RRCInactiveTransitionReport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26115,7 +26115,7 @@ static int dissect_RRCInactiveTransitionReport_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_RetrieveUEInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RetrieveUEInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_RetrieveUEInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26123,7 +26123,7 @@ static int dissect_RetrieveUEInformation_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_UEInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UEInformationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEInformationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26131,7 +26131,7 @@ static int dissect_UEInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_RANCPRelocationIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANCPRelocationIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_RANCPRelocationIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26139,7 +26139,7 @@ static int dissect_RANCPRelocationIndication_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_HandoverRequired_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverRequired(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverRequired_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26147,7 +26147,7 @@ static int dissect_HandoverRequired_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverCommand(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverCommand_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26155,7 +26155,7 @@ static int dissect_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_HandoverPreparationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverPreparationFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverPreparationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26163,7 +26163,7 @@ static int dissect_HandoverPreparationFailure_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_HandoverRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26171,7 +26171,7 @@ static int dissect_HandoverRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_HandoverRequestAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverRequestAcknowledge(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverRequestAcknowledge_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26179,7 +26179,7 @@ static int dissect_HandoverRequestAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_HandoverFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26187,7 +26187,7 @@ static int dissect_HandoverFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_HandoverNotify_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverNotify(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverNotify_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26195,7 +26195,7 @@ static int dissect_HandoverNotify_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_PathSwitchRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26203,7 +26203,7 @@ static int dissect_PathSwitchRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_PathSwitchRequestAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequestAcknowledge(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequestAcknowledge_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26211,7 +26211,7 @@ static int dissect_PathSwitchRequestAcknowledge_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_PathSwitchRequestFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PathSwitchRequestFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_PathSwitchRequestFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26219,7 +26219,7 @@ static int dissect_PathSwitchRequestFailure_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_HandoverCancel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverCancel(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverCancel_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26227,7 +26227,7 @@ static int dissect_HandoverCancel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_HandoverCancelAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverCancelAcknowledge(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverCancelAcknowledge_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26235,7 +26235,7 @@ static int dissect_HandoverCancelAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_HandoverSuccess_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_HandoverSuccess(tvb, offset, &asn1_ctx, tree, hf_ngap_HandoverSuccess_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26243,7 +26243,7 @@ static int dissect_HandoverSuccess_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_UplinkRANEarlyStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkRANEarlyStatusTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkRANEarlyStatusTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26251,7 +26251,7 @@ static int dissect_UplinkRANEarlyStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_DownlinkRANEarlyStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkRANEarlyStatusTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkRANEarlyStatusTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26259,7 +26259,7 @@ static int dissect_DownlinkRANEarlyStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_UplinkRANStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkRANStatusTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkRANStatusTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26267,7 +26267,7 @@ static int dissect_UplinkRANStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_DownlinkRANStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkRANStatusTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkRANStatusTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26275,7 +26275,7 @@ static int dissect_DownlinkRANStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_Paging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_Paging(tvb, offset, &asn1_ctx, tree, hf_ngap_Paging_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26283,7 +26283,7 @@ static int dissect_Paging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static int dissect_InitialUEMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_InitialUEMessage(tvb, offset, &asn1_ctx, tree, hf_ngap_InitialUEMessage_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26291,7 +26291,7 @@ static int dissect_InitialUEMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_DownlinkNASTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkNASTransport(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkNASTransport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26299,7 +26299,7 @@ static int dissect_DownlinkNASTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_UplinkNASTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkNASTransport(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkNASTransport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26307,7 +26307,7 @@ static int dissect_UplinkNASTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_W_AGFIdentityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_W_AGFIdentityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_W_AGFIdentityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26315,7 +26315,7 @@ static int dissect_W_AGFIdentityInformation_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_TNGFIdentityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TNGFIdentityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_TNGFIdentityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26323,7 +26323,7 @@ static int dissect_TNGFIdentityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_TWIFIdentityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TWIFIdentityInformation(tvb, offset, &asn1_ctx, tree, hf_ngap_TWIFIdentityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26331,7 +26331,7 @@ static int dissect_TWIFIdentityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_NASNonDeliveryIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NASNonDeliveryIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_NASNonDeliveryIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26339,7 +26339,7 @@ static int dissect_NASNonDeliveryIndication_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_RerouteNASRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RerouteNASRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_RerouteNASRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26347,7 +26347,7 @@ static int dissect_RerouteNASRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_NGAP_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGAP_Message(tvb, offset, &asn1_ctx, tree, hf_ngap_NGAP_Message_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26355,7 +26355,7 @@ static int dissect_NGAP_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_NGSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGSetupRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_NGSetupRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26363,7 +26363,7 @@ static int dissect_NGSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_NGSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGSetupResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_NGSetupResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26371,7 +26371,7 @@ static int dissect_NGSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_NGSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGSetupFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_NGSetupFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26379,7 +26379,7 @@ static int dissect_NGSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_RANConfigurationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANConfigurationUpdate(tvb, offset, &asn1_ctx, tree, hf_ngap_RANConfigurationUpdate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26387,7 +26387,7 @@ static int dissect_RANConfigurationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_RANConfigurationUpdateAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANConfigurationUpdateAcknowledge(tvb, offset, &asn1_ctx, tree, hf_ngap_RANConfigurationUpdateAcknowledge_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26395,7 +26395,7 @@ static int dissect_RANConfigurationUpdateAcknowledge_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_RANConfigurationUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_RANConfigurationUpdateFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_RANConfigurationUpdateFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26403,7 +26403,7 @@ static int dissect_RANConfigurationUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_AMFConfigurationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFConfigurationUpdate(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFConfigurationUpdate_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26411,7 +26411,7 @@ static int dissect_AMFConfigurationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_AMFConfigurationUpdateAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFConfigurationUpdateAcknowledge(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFConfigurationUpdateAcknowledge_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26419,7 +26419,7 @@ static int dissect_AMFConfigurationUpdateAcknowledge_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_AMFConfigurationUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFConfigurationUpdateFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFConfigurationUpdateFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26427,7 +26427,7 @@ static int dissect_AMFConfigurationUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_AMFStatusIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFStatusIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFStatusIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26435,7 +26435,7 @@ static int dissect_AMFStatusIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 static int dissect_NGReset_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGReset(tvb, offset, &asn1_ctx, tree, hf_ngap_NGReset_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26443,7 +26443,7 @@ static int dissect_NGReset_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static int dissect_NGResetAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGResetAcknowledge(tvb, offset, &asn1_ctx, tree, hf_ngap_NGResetAcknowledge_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26451,7 +26451,7 @@ static int dissect_NGResetAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_ErrorIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ErrorIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_ErrorIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26459,7 +26459,7 @@ static int dissect_ErrorIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_OverloadStart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_OverloadStart(tvb, offset, &asn1_ctx, tree, hf_ngap_OverloadStart_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26467,7 +26467,7 @@ static int dissect_OverloadStart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static int dissect_OverloadStop_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_OverloadStop(tvb, offset, &asn1_ctx, tree, hf_ngap_OverloadStop_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26475,7 +26475,7 @@ static int dissect_OverloadStop_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int dissect_UplinkRANConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkRANConfigurationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkRANConfigurationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26483,7 +26483,7 @@ static int dissect_UplinkRANConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_DownlinkRANConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkRANConfigurationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkRANConfigurationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26491,7 +26491,7 @@ static int dissect_DownlinkRANConfigurationTransfer_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_WriteReplaceWarningRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WriteReplaceWarningRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_WriteReplaceWarningRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26499,7 +26499,7 @@ static int dissect_WriteReplaceWarningRequest_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_WriteReplaceWarningResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_WriteReplaceWarningResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_WriteReplaceWarningResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26507,7 +26507,7 @@ static int dissect_WriteReplaceWarningResponse_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_PWSCancelRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PWSCancelRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_PWSCancelRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26515,7 +26515,7 @@ static int dissect_PWSCancelRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_PWSCancelResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PWSCancelResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_PWSCancelResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26523,7 +26523,7 @@ static int dissect_PWSCancelResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static int dissect_PWSRestartIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PWSRestartIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_PWSRestartIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26531,7 +26531,7 @@ static int dissect_PWSRestartIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_PWSFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PWSFailureIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_PWSFailureIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26539,7 +26539,7 @@ static int dissect_PWSFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_DownlinkUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkUEAssociatedNRPPaTransport(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkUEAssociatedNRPPaTransport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26547,7 +26547,7 @@ static int dissect_DownlinkUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_UplinkUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkUEAssociatedNRPPaTransport(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkUEAssociatedNRPPaTransport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26555,7 +26555,7 @@ static int dissect_UplinkUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, packe
 static int dissect_DownlinkNonUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkNonUEAssociatedNRPPaTransport(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkNonUEAssociatedNRPPaTransport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26563,7 +26563,7 @@ static int dissect_DownlinkNonUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, 
 static int dissect_UplinkNonUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkNonUEAssociatedNRPPaTransport(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkNonUEAssociatedNRPPaTransport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26571,7 +26571,7 @@ static int dissect_UplinkNonUEAssociatedNRPPaTransport_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_TraceStart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TraceStart(tvb, offset, &asn1_ctx, tree, hf_ngap_TraceStart_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26579,7 +26579,7 @@ static int dissect_TraceStart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static int dissect_TraceFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_TraceFailureIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_TraceFailureIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26587,7 +26587,7 @@ static int dissect_TraceFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int dissect_DeactivateTrace_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DeactivateTrace(tvb, offset, &asn1_ctx, tree, hf_ngap_DeactivateTrace_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26595,7 +26595,7 @@ static int dissect_DeactivateTrace_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_CellTrafficTrace_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_CellTrafficTrace(tvb, offset, &asn1_ctx, tree, hf_ngap_CellTrafficTrace_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26603,7 +26603,7 @@ static int dissect_CellTrafficTrace_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static int dissect_LocationReportingControl_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LocationReportingControl(tvb, offset, &asn1_ctx, tree, hf_ngap_LocationReportingControl_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26611,7 +26611,7 @@ static int dissect_LocationReportingControl_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_LocationReportingFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LocationReportingFailureIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_LocationReportingFailureIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26619,7 +26619,7 @@ static int dissect_LocationReportingFailureIndication_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_LocationReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_LocationReport(tvb, offset, &asn1_ctx, tree, hf_ngap_LocationReport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26627,7 +26627,7 @@ static int dissect_LocationReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_UETNLABindingReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UETNLABindingReleaseRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UETNLABindingReleaseRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26635,7 +26635,7 @@ static int dissect_UETNLABindingReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_UERadioCapabilityInfoIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityInfoIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityInfoIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26643,7 +26643,7 @@ static int dissect_UERadioCapabilityInfoIndication_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_UERadioCapabilityCheckRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityCheckRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityCheckRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26651,7 +26651,7 @@ static int dissect_UERadioCapabilityCheckRequest_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_UERadioCapabilityCheckResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityCheckResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityCheckResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26659,7 +26659,7 @@ static int dissect_UERadioCapabilityCheckResponse_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_PrivateMessage(tvb, offset, &asn1_ctx, tree, hf_ngap_PrivateMessage_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26667,7 +26667,7 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static int dissect_SecondaryRATDataUsageReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_SecondaryRATDataUsageReport(tvb, offset, &asn1_ctx, tree, hf_ngap_SecondaryRATDataUsageReport_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26675,7 +26675,7 @@ static int dissect_SecondaryRATDataUsageReport_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_UplinkRIMInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UplinkRIMInformationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UplinkRIMInformationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26683,7 +26683,7 @@ static int dissect_UplinkRIMInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_DownlinkRIMInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DownlinkRIMInformationTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_DownlinkRIMInformationTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26691,7 +26691,7 @@ static int dissect_DownlinkRIMInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_ConnectionEstablishmentIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_ConnectionEstablishmentIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_ConnectionEstablishmentIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26699,7 +26699,7 @@ static int dissect_ConnectionEstablishmentIndication_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_UERadioCapabilityIDMappingRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityIDMappingRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityIDMappingRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26707,7 +26707,7 @@ static int dissect_UERadioCapabilityIDMappingRequest_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_UERadioCapabilityIDMappingResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_UERadioCapabilityIDMappingResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_UERadioCapabilityIDMappingResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26715,7 +26715,7 @@ static int dissect_UERadioCapabilityIDMappingResponse_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_AMFCPRelocationIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AMFCPRelocationIndication(tvb, offset, &asn1_ctx, tree, hf_ngap_AMFCPRelocationIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26723,7 +26723,7 @@ static int dissect_AMFCPRelocationIndication_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_BroadcastSessionSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionSetupRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionSetupRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26731,7 +26731,7 @@ static int dissect_BroadcastSessionSetupRequest_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_MBSSessionSetupOrModRequestTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupOrModRequestTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModRequestTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26739,7 +26739,7 @@ static int dissect_MBSSessionSetupOrModRequestTransfer_OCTET_STRING_PDU(tvbuff_t
 static int dissect_BroadcastSessionSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionSetupResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionSetupResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26747,7 +26747,7 @@ static int dissect_BroadcastSessionSetupResponse_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_MBSSessionSetupOrModResponseTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupOrModResponseTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModResponseTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26755,7 +26755,7 @@ static int dissect_MBSSessionSetupOrModResponseTransfer_OCTET_STRING_PDU(tvbuff_
 static int dissect_BroadcastSessionSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionSetupFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionSetupFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26763,7 +26763,7 @@ static int dissect_BroadcastSessionSetupFailure_PDU(tvbuff_t *tvb _U_, packet_in
 static int dissect_MBSSessionSetupOrModFailureTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionSetupOrModFailureTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModFailureTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26771,7 +26771,7 @@ static int dissect_MBSSessionSetupOrModFailureTransfer_OCTET_STRING_PDU(tvbuff_t
 static int dissect_BroadcastSessionModificationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionModificationRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionModificationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26779,7 +26779,7 @@ static int dissect_BroadcastSessionModificationRequest_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_BroadcastSessionModificationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionModificationResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionModificationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26787,7 +26787,7 @@ static int dissect_BroadcastSessionModificationResponse_PDU(tvbuff_t *tvb _U_, p
 static int dissect_BroadcastSessionModificationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionModificationFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionModificationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26795,7 +26795,7 @@ static int dissect_BroadcastSessionModificationFailure_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_BroadcastSessionReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionReleaseRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionReleaseRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26803,7 +26803,7 @@ static int dissect_BroadcastSessionReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_BroadcastSessionReleaseRequired_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionReleaseRequired(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionReleaseRequired_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26811,7 +26811,7 @@ static int dissect_BroadcastSessionReleaseRequired_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_BroadcastSessionReleaseResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_BroadcastSessionReleaseResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_BroadcastSessionReleaseResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26819,7 +26819,7 @@ static int dissect_BroadcastSessionReleaseResponse_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_MBSSessionReleaseResponseTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBSSessionReleaseResponseTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionReleaseResponseTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26827,7 +26827,7 @@ static int dissect_MBSSessionReleaseResponseTransfer_OCTET_STRING_PDU(tvbuff_t *
 static int dissect_DistributionSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DistributionSetupRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_DistributionSetupRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26835,7 +26835,7 @@ static int dissect_DistributionSetupRequest_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_MBS_DistributionSetupRequestTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionSetupRequestTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionSetupRequestTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26843,7 +26843,7 @@ static int dissect_MBS_DistributionSetupRequestTransfer_OCTET_STRING_PDU(tvbuff_
 static int dissect_DistributionSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DistributionSetupResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_DistributionSetupResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26851,7 +26851,7 @@ static int dissect_DistributionSetupResponse_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_MBS_DistributionSetupResponseTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionSetupResponseTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionSetupResponseTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26859,7 +26859,7 @@ static int dissect_MBS_DistributionSetupResponseTransfer_OCTET_STRING_PDU(tvbuff
 static int dissect_DistributionSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DistributionSetupFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_DistributionSetupFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26867,7 +26867,7 @@ static int dissect_DistributionSetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *
 static int dissect_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26875,7 +26875,7 @@ static int dissect_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING_PDU(tv
 static int dissect_DistributionReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DistributionReleaseRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_DistributionReleaseRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26883,7 +26883,7 @@ static int dissect_DistributionReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info
 static int dissect_MBS_DistributionReleaseRequestTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionReleaseRequestTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionReleaseRequestTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26891,7 +26891,7 @@ static int dissect_MBS_DistributionReleaseRequestTransfer_OCTET_STRING_PDU(tvbuf
 static int dissect_DistributionReleaseResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_DistributionReleaseResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_DistributionReleaseResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26899,7 +26899,7 @@ static int dissect_DistributionReleaseResponse_PDU(tvbuff_t *tvb _U_, packet_inf
 static int dissect_MulticastSessionActivationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionActivationRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionActivationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26907,7 +26907,7 @@ static int dissect_MulticastSessionActivationRequest_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_MulticastSessionActivationRequestTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionActivationRequestTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionActivationRequestTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26915,7 +26915,7 @@ static int dissect_MulticastSessionActivationRequestTransfer_OCTET_STRING_PDU(tv
 static int dissect_MulticastSessionActivationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionActivationResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionActivationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26923,7 +26923,7 @@ static int dissect_MulticastSessionActivationResponse_PDU(tvbuff_t *tvb _U_, pac
 static int dissect_MulticastSessionActivationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionActivationFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionActivationFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26931,7 +26931,7 @@ static int dissect_MulticastSessionActivationFailure_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_MulticastSessionDeactivationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionDeactivationRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionDeactivationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26939,7 +26939,7 @@ static int dissect_MulticastSessionDeactivationRequest_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_MulticastSessionDeactivationRequestTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionDeactivationRequestTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionDeactivationRequestTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26947,7 +26947,7 @@ static int dissect_MulticastSessionDeactivationRequestTransfer_OCTET_STRING_PDU(
 static int dissect_MulticastSessionDeactivationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionDeactivationResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionDeactivationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26955,7 +26955,7 @@ static int dissect_MulticastSessionDeactivationResponse_PDU(tvbuff_t *tvb _U_, p
 static int dissect_MulticastSessionUpdateRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionUpdateRequest(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionUpdateRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26963,7 +26963,7 @@ static int dissect_MulticastSessionUpdateRequest_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_MulticastSessionUpdateRequestTransfer_OCTET_STRING_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionUpdateRequestTransfer_OCTET_STRING(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionUpdateRequestTransfer_OCTET_STRING_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26971,7 +26971,7 @@ static int dissect_MulticastSessionUpdateRequestTransfer_OCTET_STRING_PDU(tvbuff
 static int dissect_MulticastSessionUpdateResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionUpdateResponse(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionUpdateResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26979,7 +26979,7 @@ static int dissect_MulticastSessionUpdateResponse_PDU(tvbuff_t *tvb _U_, packet_
 static int dissect_MulticastSessionUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionUpdateFailure(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionUpdateFailure_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26987,7 +26987,7 @@ static int dissect_MulticastSessionUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_MulticastGroupPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastGroupPaging(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastGroupPaging_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -26995,7 +26995,7 @@ static int dissect_MulticastGroupPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int dissect_NGAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_NGAP_PDU(tvb, offset, &asn1_ctx, tree, hf_ngap_NGAP_PDU_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27003,7 +27003,7 @@ static int dissect_NGAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static int dissect_MBS_DistributionSetupRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionSetupRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionSetupRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27011,7 +27011,7 @@ static int dissect_MBS_DistributionSetupRequestTransfer_PDU(tvbuff_t *tvb _U_, p
 static int dissect_MBS_DistributionSetupResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionSetupResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionSetupResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27019,7 +27019,7 @@ static int dissect_MBS_DistributionSetupResponseTransfer_PDU(tvbuff_t *tvb _U_, 
 static int dissect_MBS_DistributionSetupUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionSetupUnsuccessfulTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27027,7 +27027,7 @@ static int dissect_MBS_DistributionSetupUnsuccessfulTransfer_PDU(tvbuff_t *tvb _
 static int dissect_MBS_DistributionReleaseRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MBS_DistributionReleaseRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_DistributionReleaseRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27035,7 +27035,7 @@ static int dissect_MBS_DistributionReleaseRequestTransfer_PDU(tvbuff_t *tvb _U_,
 static int dissect_MulticastSessionActivationRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionActivationRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionActivationRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27043,7 +27043,7 @@ static int dissect_MulticastSessionActivationRequestTransfer_PDU(tvbuff_t *tvb _
 static int dissect_MulticastSessionDeactivationRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionDeactivationRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionDeactivationRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -27051,7 +27051,7 @@ static int dissect_MulticastSessionDeactivationRequestTransfer_PDU(tvbuff_t *tvb
 static int dissect_MulticastSessionUpdateRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_MulticastSessionUpdateRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MulticastSessionUpdateRequestTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;

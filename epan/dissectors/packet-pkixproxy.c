@@ -107,7 +107,7 @@ static int dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb _U_, packet_info *pi
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_pkixproxy_ProxyCertInfoExtension(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixproxy_ProxyCertInfoExtension_PDU);
+  offset = dissect_pkixproxy_ProxyCertInfoExtension(false, tvb, offset, &asn1_ctx, tree, hf_pkixproxy_ProxyCertInfoExtension_PDU);
   return offset;
 }
 

@@ -1319,7 +1319,7 @@ dissect_c1222_Calling_authentication_value_c1222_U(bool implicit_tag _U_, tvbuff
 static int
 dissect_c1222_Calling_authentication_value_c1222(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 1, TRUE, dissect_c1222_Calling_authentication_value_c1222_U);
+                                      hf_index, BER_CLASS_CON, 1, true, dissect_c1222_Calling_authentication_value_c1222_U);
 
   return offset;
 }
@@ -1383,7 +1383,7 @@ dissect_c1222_Calling_authentication_value_c1221_U(bool implicit_tag _U_, tvbuff
 static int
 dissect_c1222_Calling_authentication_value_c1221(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 0, TRUE, dissect_c1222_Calling_authentication_value_c1221_U);
+                                      hf_index, BER_CLASS_CON, 0, true, dissect_c1222_Calling_authentication_value_c1221_U);
 
   return offset;
 }
@@ -1463,7 +1463,7 @@ static int
 dissect_c1222_Calling_authentication_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   FILL_START;
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 2, TRUE, dissect_c1222_Calling_authentication_value_U);
+                                      hf_index, BER_CLASS_CON, 2, true, dissect_c1222_Calling_authentication_value_U);
 
   FILL_TABLE(calling_authentication_value);
 
@@ -1530,7 +1530,7 @@ static int
 dissect_c1222_MESSAGE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   clear_canon();
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_c1222_MESSAGE_U);
+                                      hf_index, BER_CLASS_APP, 0, true, dissect_c1222_MESSAGE_U);
 
 
   return offset;
@@ -1542,7 +1542,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_c1222_MESSAGE(FALSE, tvb, offset, &asn1_ctx, tree, hf_c1222_MESSAGE_PDU);
+  offset = dissect_c1222_MESSAGE(false, tvb, offset, &asn1_ctx, tree, hf_c1222_MESSAGE_PDU);
   return offset;
 }
 

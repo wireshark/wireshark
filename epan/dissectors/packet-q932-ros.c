@@ -607,7 +607,7 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_q932_ros_ROS(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_ros_ROS_PDU);
+  offset = dissect_q932_ros_ROS(false, tvb, offset, &asn1_ctx, tree, hf_q932_ros_ROS_PDU);
   return offset;
 }
 

@@ -295,7 +295,7 @@ dissect_lnpdqp_ConnectionControlArg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_lnpdqp_ConnectionControlArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 18, TRUE, dissect_lnpdqp_ConnectionControlArg_U);
+                                      hf_index, BER_CLASS_PRI, 18, true, dissect_lnpdqp_ConnectionControlArg_U);
 
   return offset;
 }
@@ -351,7 +351,7 @@ dissect_lnpdqp_ProvideInstructionArg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_lnpdqp_ProvideInstructionArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_PRI, 18, TRUE, dissect_lnpdqp_ProvideInstructionArg_U);
+                                      hf_index, BER_CLASS_PRI, 18, true, dissect_lnpdqp_ProvideInstructionArg_U);
 
   return offset;
 }
@@ -362,14 +362,14 @@ static int dissect_ConnectionControlArg_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_lnpdqp_ConnectionControlArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_lnpdqp_ConnectionControlArg_PDU);
+  offset = dissect_lnpdqp_ConnectionControlArg(false, tvb, offset, &asn1_ctx, tree, hf_lnpdqp_ConnectionControlArg_PDU);
   return offset;
 }
 static int dissect_ProvideInstructionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_lnpdqp_ProvideInstructionArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_lnpdqp_ProvideInstructionArg_PDU);
+  offset = dissect_lnpdqp_ProvideInstructionArg(false, tvb, offset, &asn1_ctx, tree, hf_lnpdqp_ProvideInstructionArg_PDU);
   return offset;
 }
 

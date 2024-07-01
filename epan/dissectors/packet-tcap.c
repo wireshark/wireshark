@@ -282,7 +282,7 @@ static int
 dissect_tcap_ExternalPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_UNI, 8, TRUE, dissect_tcap_ExternalPDU_U);
+                                      hf_index, BER_CLASS_UNI, 8, true, dissect_tcap_ExternalPDU_U);
 
 
 
@@ -305,7 +305,7 @@ dissect_tcap_DialogueOC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_tcap_DialoguePortion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 11, TRUE, dissect_tcap_DialogueOC);
+                                      hf_index, BER_CLASS_APP, 11, true, dissect_tcap_DialogueOC);
 
   return offset;
 }
@@ -681,7 +681,7 @@ dissect_tcap_SEQUENCE_SIZE_1_MAX_OF_Component(bool implicit_tag _U_, tvbuff_t *t
 static int
 dissect_tcap_ComponentPortion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 12, TRUE, dissect_tcap_SEQUENCE_SIZE_1_MAX_OF_Component);
+                                      hf_index, BER_CLASS_APP, 12, true, dissect_tcap_SEQUENCE_SIZE_1_MAX_OF_Component);
 
   return offset;
 }
@@ -724,7 +724,7 @@ dissect_tcap_OrigTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
   hf_index = hf_tcap_tid;
   saved_offset = offset;
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 8, TRUE, dissect_tcap_OCTET_STRING_SIZE_1_4);
+                                      hf_index, BER_CLASS_APP, 8, true, dissect_tcap_OCTET_STRING_SIZE_1_4);
 
   proto_item_set_generated(actx->created_item);
   offset = saved_offset;
@@ -807,7 +807,7 @@ dissect_tcap_DestTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
   hf_index = hf_tcap_tid;
   saved_offset = offset;
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 9, TRUE, dissect_tcap_OCTET_STRING_SIZE_1_4);
+                                      hf_index, BER_CLASS_APP, 9, true, dissect_tcap_OCTET_STRING_SIZE_1_4);
 
   proto_item_set_generated(actx->created_item);
   offset = saved_offset;
@@ -913,7 +913,7 @@ dissect_tcap_P_AbortCause_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_tcap_P_AbortCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 10, TRUE, dissect_tcap_P_AbortCause_U);
+                                      hf_index, BER_CLASS_APP, 10, true, dissect_tcap_P_AbortCause_U);
 
   return offset;
 }
@@ -1050,7 +1050,7 @@ dissect_tcap_AUDT_apdu_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_tcap_AUDT_apdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_tcap_AUDT_apdu_U);
+                                      hf_index, BER_CLASS_APP, 0, true, dissect_tcap_AUDT_apdu_U);
 
   return offset;
 }
@@ -1139,7 +1139,7 @@ dissect_tcap_AARQ_apdu_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_tcap_AARQ_apdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_tcap_AARQ_apdu_U);
+                                      hf_index, BER_CLASS_APP, 0, true, dissect_tcap_AARQ_apdu_U);
 
   return offset;
 }
@@ -1282,7 +1282,7 @@ dissect_tcap_AARE_apdu_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_tcap_AARE_apdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_tcap_AARE_apdu_U);
+                                      hf_index, BER_CLASS_APP, 1, true, dissect_tcap_AARE_apdu_U);
 
   return offset;
 }
@@ -1336,7 +1336,7 @@ dissect_tcap_ABRT_apdu_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_tcap_ABRT_apdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_tcap_ABRT_apdu_U);
+                                      hf_index, BER_CLASS_APP, 4, true, dissect_tcap_ABRT_apdu_U);
 
   return offset;
 }
@@ -1371,14 +1371,14 @@ static int dissect_UniDialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_tcap_UniDialoguePDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_tcap_UniDialoguePDU_PDU);
+  offset = dissect_tcap_UniDialoguePDU(false, tvb, offset, &asn1_ctx, tree, hf_tcap_UniDialoguePDU_PDU);
   return offset;
 }
 static int dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_tcap_DialoguePDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_tcap_DialoguePDU_PDU);
+  offset = dissect_tcap_DialoguePDU(false, tvb, offset, &asn1_ctx, tree, hf_tcap_DialoguePDU_PDU);
   return offset;
 }
 

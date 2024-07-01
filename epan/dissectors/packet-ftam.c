@@ -652,7 +652,7 @@ dissect_ftam_Protocol_Version_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_Protocol_Version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 0, TRUE, dissect_ftam_Protocol_Version_U);
+                                      hf_index, BER_CLASS_CON, 0, true, dissect_ftam_Protocol_Version_U);
 
   return offset;
 }
@@ -673,7 +673,7 @@ dissect_ftam_GraphicString(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ftam_Implementation_Information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 1, TRUE, dissect_ftam_GraphicString);
+                                      hf_index, BER_CLASS_CON, 1, true, dissect_ftam_GraphicString);
 
   return offset;
 }
@@ -711,7 +711,7 @@ dissect_ftam_Service_Class_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_ftam_Service_Class(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 3, TRUE, dissect_ftam_Service_Class_U);
+                                      hf_index, BER_CLASS_CON, 3, true, dissect_ftam_Service_Class_U);
 
   return offset;
 }
@@ -752,7 +752,7 @@ dissect_ftam_Functional_Units_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_Functional_Units(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 4, TRUE, dissect_ftam_Functional_Units_U);
+                                      hf_index, BER_CLASS_CON, 4, true, dissect_ftam_Functional_Units_U);
 
   return offset;
 }
@@ -780,7 +780,7 @@ dissect_ftam_Attribute_Groups_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_Attribute_Groups(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 5, TRUE, dissect_ftam_Attribute_Groups_U);
+                                      hf_index, BER_CLASS_CON, 5, true, dissect_ftam_Attribute_Groups_U);
 
   return offset;
 }
@@ -799,7 +799,7 @@ dissect_ftam_EXTERNAL(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ftam_Shared_ASE_Information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 20, TRUE, dissect_ftam_EXTERNAL);
+                                      hf_index, BER_CLASS_APP, 20, true, dissect_ftam_EXTERNAL);
 
   return offset;
 }
@@ -827,7 +827,7 @@ dissect_ftam_FTAM_Quality_of_Service_U(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_ftam_FTAM_Quality_of_Service(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 6, TRUE, dissect_ftam_FTAM_Quality_of_Service_U);
+                                      hf_index, BER_CLASS_CON, 6, true, dissect_ftam_FTAM_Quality_of_Service_U);
 
   return offset;
 }
@@ -846,7 +846,7 @@ dissect_ftam_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_ftam_Document_Type_Name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 14, TRUE, dissect_ftam_OBJECT_IDENTIFIER);
+                                      hf_index, BER_CLASS_APP, 14, true, dissect_ftam_OBJECT_IDENTIFIER);
 
   return offset;
 }
@@ -856,7 +856,7 @@ dissect_ftam_Document_Type_Name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_Abstract_Syntax_Name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_ftam_OBJECT_IDENTIFIER);
+                                      hf_index, BER_CLASS_APP, 0, true, dissect_ftam_OBJECT_IDENTIFIER);
 
   return offset;
 }
@@ -901,7 +901,7 @@ dissect_ftam_Contents_Type_List_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_ftam_Contents_Type_List(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 7, TRUE, dissect_ftam_Contents_Type_List_U);
+                                      hf_index, BER_CLASS_CON, 7, true, dissect_ftam_Contents_Type_List_U);
 
   return offset;
 }
@@ -911,7 +911,7 @@ dissect_ftam_Contents_Type_List(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_User_Identity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 22, TRUE, dissect_ftam_GraphicString);
+                                      hf_index, BER_CLASS_APP, 22, true, dissect_ftam_GraphicString);
 
   return offset;
 }
@@ -921,7 +921,7 @@ dissect_ftam_User_Identity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ftam_Account(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_ftam_GraphicString);
+                                      hf_index, BER_CLASS_APP, 4, true, dissect_ftam_GraphicString);
 
   return offset;
 }
@@ -963,7 +963,7 @@ dissect_ftam_Password_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ftam_Password(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 17, FALSE, dissect_ftam_Password_U);
+                                      hf_index, BER_CLASS_APP, 17, false, dissect_ftam_Password_U);
 
   return offset;
 }
@@ -1025,7 +1025,7 @@ dissect_ftam_State_Result_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_ftam_State_Result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 21, TRUE, dissect_ftam_State_Result_U);
+                                      hf_index, BER_CLASS_APP, 21, true, dissect_ftam_State_Result_U);
 
   return offset;
 }
@@ -1052,7 +1052,7 @@ dissect_ftam_Action_Result_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_ftam_Action_Result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 5, TRUE, dissect_ftam_Action_Result_U);
+                                      hf_index, BER_CLASS_APP, 5, true, dissect_ftam_Action_Result_U);
 
   return offset;
 }
@@ -1131,7 +1131,7 @@ dissect_ftam_Diagnostic_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ftam_Diagnostic(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 13, TRUE, dissect_ftam_Diagnostic_U);
+                                      hf_index, BER_CLASS_APP, 13, true, dissect_ftam_Diagnostic_U);
 
   return offset;
 }
@@ -1210,7 +1210,7 @@ dissect_ftam_Charging_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ftam_Charging(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 9, TRUE, dissect_ftam_Charging_U);
+                                      hf_index, BER_CLASS_APP, 9, true, dissect_ftam_Charging_U);
 
   return offset;
 }
@@ -1352,7 +1352,7 @@ dissect_ftam_Select_Attributes_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ftam_Select_Attributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 19, TRUE, dissect_ftam_Select_Attributes_U);
+                                      hf_index, BER_CLASS_APP, 19, true, dissect_ftam_Select_Attributes_U);
 
   return offset;
 }
@@ -1384,7 +1384,7 @@ dissect_ftam_Access_Request_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_ftam_Access_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 3, TRUE, dissect_ftam_Access_Request_U);
+                                      hf_index, BER_CLASS_APP, 3, true, dissect_ftam_Access_Request_U);
 
   return offset;
 }
@@ -1430,7 +1430,7 @@ dissect_ftam_Access_Passwords_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_Access_Passwords(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 2, TRUE, dissect_ftam_Access_Passwords_U);
+                                      hf_index, BER_CLASS_APP, 2, true, dissect_ftam_Access_Passwords_U);
 
   return offset;
 }
@@ -1476,7 +1476,7 @@ dissect_ftam_Path_Access_Passwords_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_ftam_Path_Access_Passwords(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 27, TRUE, dissect_ftam_Path_Access_Passwords_U);
+                                      hf_index, BER_CLASS_APP, 27, true, dissect_ftam_Path_Access_Passwords_U);
 
   return offset;
 }
@@ -1525,7 +1525,7 @@ dissect_ftam_Concurrency_Control_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_ftam_Concurrency_Control(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 10, TRUE, dissect_ftam_Concurrency_Control_U);
+                                      hf_index, BER_CLASS_APP, 10, true, dissect_ftam_Concurrency_Control_U);
 
   return offset;
 }
@@ -1555,7 +1555,7 @@ dissect_ftam_F_SELECT_request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_ftam_Referent_Indicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 29, TRUE, dissect_ftam_BOOLEAN);
+                                      hf_index, BER_CLASS_APP, 29, true, dissect_ftam_BOOLEAN);
 
   return offset;
 }
@@ -1704,7 +1704,7 @@ dissect_ftam_T_document_type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_ftam_Constraint_Set_Name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 11, TRUE, dissect_ftam_OBJECT_IDENTIFIER);
+                                      hf_index, BER_CLASS_APP, 11, true, dissect_ftam_OBJECT_IDENTIFIER);
 
   return offset;
 }
@@ -1915,7 +1915,7 @@ dissect_ftam_AE_title(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ftam_Application_Entity_Title(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 7, FALSE, dissect_ftam_AE_title);
+                                      hf_index, BER_CLASS_APP, 7, false, dissect_ftam_AE_title);
 
   return offset;
 }
@@ -2135,7 +2135,7 @@ dissect_ftam_Create_Attributes_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ftam_Create_Attributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 12, TRUE, dissect_ftam_Create_Attributes_U);
+                                      hf_index, BER_CLASS_APP, 12, true, dissect_ftam_Create_Attributes_U);
 
   return offset;
 }
@@ -2422,7 +2422,7 @@ dissect_ftam_Read_Attributes_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_ftam_Read_Attributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 18, TRUE, dissect_ftam_Read_Attributes_U);
+                                      hf_index, BER_CLASS_APP, 18, true, dissect_ftam_Read_Attributes_U);
 
   return offset;
 }
@@ -2507,7 +2507,7 @@ dissect_ftam_Change_Attributes_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ftam_Change_Attributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 8, TRUE, dissect_ftam_Change_Attributes_U);
+                                      hf_index, BER_CLASS_APP, 8, true, dissect_ftam_Change_Attributes_U);
 
   return offset;
 }
@@ -2588,7 +2588,7 @@ dissect_ftam_T_open_contents_type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_ftam_Activity_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 6, TRUE, dissect_ftam_INTEGER);
+                                      hf_index, BER_CLASS_APP, 6, true, dissect_ftam_INTEGER);
 
   return offset;
 }
@@ -2645,7 +2645,7 @@ dissect_ftam_Degree_Of_Overlap_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ftam_Degree_Of_Overlap(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 30, TRUE, dissect_ftam_Degree_Of_Overlap_U);
+                                      hf_index, BER_CLASS_APP, 30, true, dissect_ftam_Degree_Of_Overlap_U);
 
   return offset;
 }
@@ -2951,7 +2951,7 @@ dissect_ftam_FADU_Identity_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_ftam_FADU_Identity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 15, FALSE, dissect_ftam_FADU_Identity_U);
+                                      hf_index, BER_CLASS_APP, 15, false, dissect_ftam_FADU_Identity_U);
 
   return offset;
 }
@@ -2977,7 +2977,7 @@ dissect_ftam_FADU_Lock_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_ftam_FADU_Lock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 16, TRUE, dissect_ftam_FADU_Lock_U);
+                                      hf_index, BER_CLASS_APP, 16, true, dissect_ftam_FADU_Lock_U);
 
   return offset;
 }
@@ -3161,7 +3161,7 @@ dissect_ftam_Access_Context_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_ftam_Access_Context(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_ftam_Access_Context_U);
+                                      hf_index, BER_CLASS_APP, 1, true, dissect_ftam_Access_Context_U);
 
   return offset;
 }
@@ -3253,7 +3253,7 @@ dissect_ftam_Request_Type_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_ftam_Request_Type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 31, TRUE, dissect_ftam_Request_Type_U);
+                                      hf_index, BER_CLASS_APP, 31, true, dissect_ftam_Request_Type_U);
 
   return offset;
 }
@@ -3427,7 +3427,7 @@ dissect_ftam_Bulk_Data_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ftam_Destination_File_Directory(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 24, FALSE, dissect_ftam_Pathname_Attribute);
+                                      hf_index, BER_CLASS_APP, 24, false, dissect_ftam_Pathname_Attribute);
 
   return offset;
 }
@@ -3902,7 +3902,7 @@ dissect_ftam_OR_Set(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_ftam_Attribute_Value_Assertions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 26, TRUE, dissect_ftam_OR_Set);
+                                      hf_index, BER_CLASS_APP, 26, true, dissect_ftam_OR_Set);
 
   return offset;
 }
@@ -3956,7 +3956,7 @@ dissect_ftam_Scope_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ftam_Scope(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 28, TRUE, dissect_ftam_Scope_U);
+                                      hf_index, BER_CLASS_APP, 28, true, dissect_ftam_Scope_U);
 
   return offset;
 }
@@ -3998,7 +3998,7 @@ dissect_ftam_SEQUENCE_OF_Read_Attributes(bool implicit_tag _U_, tvbuff_t *tvb _U
 static int
 dissect_ftam_Objects_Attributes_List(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 25, TRUE, dissect_ftam_SEQUENCE_OF_Read_Attributes);
+                                      hf_index, BER_CLASS_APP, 25, true, dissect_ftam_SEQUENCE_OF_Read_Attributes);
 
   return offset;
 }
@@ -4078,7 +4078,7 @@ dissect_ftam_Request_Operation_Result_U(bool implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_ftam_Request_Operation_Result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 31, TRUE, dissect_ftam_Request_Operation_Result_U);
+                                      hf_index, BER_CLASS_APP, 31, true, dissect_ftam_Request_Operation_Result_U);
 
   return offset;
 }
@@ -4138,7 +4138,7 @@ dissect_ftam_Operation_Result_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ftam_Operation_Result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 30, FALSE, dissect_ftam_Operation_Result_U);
+                                      hf_index, BER_CLASS_APP, 30, false, dissect_ftam_Operation_Result_U);
 
   return offset;
 }

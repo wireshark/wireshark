@@ -329,7 +329,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_single_asn1_type(tvbuff_t *
 static int
 dissect_atn_ulcs_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -479,7 +479,7 @@ static int
 dissect_atn_ulcs_Fully_encoded_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_atn_ulcs_Fully_encoded_data, Fully_encoded_data_sequence_of,
-                                                  1, 1, TRUE);
+                                                  1, 1, true);
 
   return offset;
 }
@@ -541,7 +541,7 @@ static int
 dissect_atn_ulcs_T_externalt_encoding_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
 
 
@@ -697,7 +697,7 @@ static int * const T_aarq_apdu_protocol_version_bits[] = {
 static int
 dissect_atn_ulcs_T_aarq_apdu_protocol_version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, T_aarq_apdu_protocol_version_bits, 1, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, false, T_aarq_apdu_protocol_version_bits, 1, NULL, NULL);
 
   return offset;
 }
@@ -942,7 +942,7 @@ static int * const ACSE_requirements_bits[] = {
 static int
 dissect_atn_ulcs_ACSE_requirements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, ACSE_requirements_bits, 2, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, false, ACSE_requirements_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -978,7 +978,7 @@ dissect_atn_ulcs_Mechanism_name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_atn_ulcs_BIT_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, 0, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, false, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -1075,7 +1075,7 @@ dissect_atn_ulcs_Application_context_name_list(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_atn_ulcs_Implementation_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -1089,7 +1089,7 @@ static int
 dissect_atn_ulcs_Association_information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_atn_ulcs_Association_information, Association_information_sequence_of,
-                                                  1, 1, TRUE);
+                                                  1, 1, true);
 
   return offset;
 }
@@ -1218,7 +1218,7 @@ static int * const T_aare_apdu_protocol_version_bits[] = {
 static int
 dissect_atn_ulcs_T_aare_apdu_protocol_version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, T_aare_apdu_protocol_version_bits, 1, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, false, T_aare_apdu_protocol_version_bits, 1, NULL, NULL);
 
   return offset;
 }
@@ -1265,7 +1265,7 @@ static const value_string atn_ulcs_T_acse_service_user_vals[] = {
 static int
 dissect_atn_ulcs_T_acse_service_user(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 14U, NULL, TRUE);
+                                                            0U, 14U, NULL, true);
 
   return offset;
 }
@@ -1282,7 +1282,7 @@ static const value_string atn_ulcs_T_acse_service_provider_vals[] = {
 static int
 dissect_atn_ulcs_T_acse_service_provider(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 2U, NULL, TRUE);
+                                                            0U, 2U, NULL, true);
 
   return offset;
 }
@@ -1507,7 +1507,7 @@ static const value_string atn_ulcs_ABRT_source_vals[] = {
 static int
 dissect_atn_ulcs_ABRT_source(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1U, NULL, TRUE);
+                                                            0U, 1U, NULL, true);
 
   return offset;
 }
@@ -1528,7 +1528,7 @@ static uint32_t ABRT_diagnostic_value_map[6+0] = {1, 2, 3, 4, 5, 6};
 static int
 dissect_atn_ulcs_ABRT_diagnostic(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, ABRT_diagnostic_value_map);
+                                     6, NULL, true, 0, ABRT_diagnostic_value_map);
 
   return offset;
 }
@@ -1582,7 +1582,7 @@ dissect_atn_ulcs_ACSE_apdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int dissect_Fully_encoded_data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   offset = dissect_atn_ulcs_Fully_encoded_data(tvb, offset, &asn1_ctx, tree, hf_atn_ulcs_Fully_encoded_data_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -1590,7 +1590,7 @@ static int dissect_Fully_encoded_data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   offset = dissect_atn_ulcs_ACSE_apdu(tvb, offset, &asn1_ctx, tree, hf_atn_ulcs_ACSE_apdu_PDU);
   offset += 7; offset >>= 3;
   return offset;

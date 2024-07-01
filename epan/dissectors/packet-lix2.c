@@ -17941,7 +17941,7 @@ static int dissect_XIRIPayload_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_lix2_XIRIPayload(FALSE, tvb, offset, &asn1_ctx, tree, hf_lix2_XIRIPayload_PDU);
+  offset = dissect_lix2_XIRIPayload(false, tvb, offset, &asn1_ctx, tree, hf_lix2_XIRIPayload_PDU);
   return offset;
 }
 
