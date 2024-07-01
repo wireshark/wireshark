@@ -1006,6 +1006,19 @@ map_rec_interface_id(wtap_rec *rec, const merge_in_file_t *in_file)
     return true;
 }
 
+/** Return values from internal merge routines. */
+typedef enum {
+    MERGE_OK,
+    MERGE_USER_ABORTED,
+    /* below here are true errors */
+    MERGE_ERR_CANT_OPEN_INFILE,
+    MERGE_ERR_CANT_OPEN_OUTFILE,
+    MERGE_ERR_CANT_READ_INFILE,
+    MERGE_ERR_BAD_PHDR_INTERFACE_ID,
+    MERGE_ERR_CANT_WRITE_OUTFILE,
+    MERGE_ERR_CANT_CLOSE_OUTFILE
+} merge_result;
+
 static merge_result
 merge_process_packets(wtap_dumper *pdh, const int file_type,
                       merge_in_file_t *in_files, const unsigned in_file_count,
@@ -1233,7 +1246,7 @@ tempfile_free(void *data) {
 }
 
 #define MAX_MERGE_FILES 10000 // Arbitrary
-static merge_result
+static bool
 // NOLINTNEXTLINE(misc-no-recursion)
 merge_files_common(const char* out_filename, /* filename in normal output mode,
                    optional tempdir in tempfile mode (NULL for OS default) */
@@ -1241,13 +1254,15 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
                    const int file_type, const char *const *in_filenames,
                    const unsigned in_file_count, const bool do_append,
                    idb_merge_mode mode, unsigned snaplen,
-                   const char *app_name, merge_progress_callback_t* cb,
-                   int *err, char **err_info, unsigned *err_fileno,
-                   uint32_t *err_framenum)
+                   const char *app_name, merge_progress_callback_t* cb)
 {
     merge_in_file_t    *in_files = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;
     unsigned            open_file_count;
+    int                 err;
+    char               *err_info;
+    unsigned            err_fileno;
+    uint32_t            err_framenum;
     merge_result        status = MERGE_OK;
     wtap_dumper        *pdh;
     GArray             *shb_hdrs = NULL;
@@ -1260,10 +1275,6 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
     ws_assert(in_file_count > 0);
     ws_assert(in_file_count < MAX_MERGE_FILES);
     ws_assert(in_filenames != NULL);
-    ws_assert(err != NULL);
-    ws_assert(err_info != NULL);
-    ws_assert(err_fileno != NULL);
-    ws_assert(err_framenum != NULL);
 
     /* if a callback was given, it has to have a callback function ptr */
     ws_assert((cb != NULL) ? (cb->callback_func != NULL) : true);
@@ -1279,15 +1290,17 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
          */
         dup_fd = ws_dup(1);
         if (dup_fd == -1) {
-            return MERGE_ERR_CANT_OPEN_OUTFILE;
+            report_cfile_dump_open_failure(out_filename, errno, NULL, file_type);
+            return false;
         }
 
         /* open the input files */
-        open_file_count = merge_open_in_files(in_file_count - total_file_count, &in_filenames[total_file_count], &in_files, cb, err, err_info, err_fileno);
+        open_file_count = merge_open_in_files(in_file_count - total_file_count, &in_filenames[total_file_count], &in_files, cb, &err, &err_info, &err_fileno);
         if (open_file_count == 0) {
-            ws_debug("merge_open_in_files() failed with err=%d", *err);
-            *err_framenum = 0;
-            return MERGE_ERR_CANT_OPEN_INFILE;
+            ws_debug("merge_open_in_files() failed with err=%d", err);
+            err_framenum = 0;
+            report_cfile_open_failure(in_filenames[err_fileno], err, err_info);
+            return false;
         }
 
         if (snaplen == 0) {
@@ -1359,21 +1372,21 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
             pdh = wtap_dump_open_tempfile(out_filenamep ? out_filename : NULL,
                                           &temp_filename,
                                           pfx ? pfx : "mergecap", file_type,
-                                          WTAP_UNCOMPRESSED, &params, err,
-                                          err_info);
+                                          WTAP_UNCOMPRESSED, &params, &err,
+                                          &err_info);
             if (pdh) {
                 g_ptr_array_add(temp_files, temp_filename);
             }
         } else if (out_filenamep) {
             pdh = wtap_dump_open_tempfile(out_filename, out_filenamep, pfx, file_type,
-                                          WTAP_UNCOMPRESSED, &params, err,
-                                          err_info);
+                                          WTAP_UNCOMPRESSED, &params, &err,
+                                          &err_info);
         } else if (out_filename) {
             pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED,
-                                 &params, err, err_info);
+                                 &params, &err, &err_info);
         } else {
-            pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params, err,
-                                        err_info);
+            pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params,
+                                        &err, &err_info);
         }
         if (pdh == NULL) {
             merge_close_in_files(open_file_count, in_files);
@@ -1389,8 +1402,9 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
             if (temp_files) {
                 g_ptr_array_free(temp_files, true);
             }
-            *err_framenum = 0;
-            return MERGE_ERR_CANT_OPEN_OUTFILE;
+            err_framenum = 0;
+            report_cfile_dump_open_failure(out_filename, err, err_info, file_type);
+            return false;
         }
 
         if (cb)
@@ -1399,8 +1413,8 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
         status = merge_process_packets(pdh, file_type, in_files, open_file_count,
                                        do_append, mode, snaplen, cb,
                                        idb_inf, nrb_combined, dsb_combined,
-                                       err, err_info,
-                                       err_fileno, err_framenum);
+                                       &err, &err_info,
+                                       &err_fileno, &err_framenum);
 
         g_free(in_files);
         wtap_block_array_free(shb_hdrs);
@@ -1416,18 +1430,60 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
 
     }
 
-    if (temp_files != NULL) {
-        if (status == MERGE_OK) {
-            // We recurse here, but we're limited by MAX_MERGE_FILES
-            status = merge_files_common(out_filename, out_filenamep, pfx,
-                        file_type, (const char**)temp_files->pdata,
-                        temp_files->len, do_append, mode, snaplen, app_name,
-                        cb, err, err_info, err_fileno, err_framenum);
+    if (status != MERGE_OK) {
+        /*
+         * Failed.  Clean up and return false.
+         */
+        switch (status) {
+            case MERGE_USER_ABORTED:
+                /* This isn't an error, so no need to report anything */
+                break;
+
+            case MERGE_ERR_CANT_OPEN_INFILE:
+                report_cfile_open_failure(in_filenames[err_fileno], err, err_info);
+                break;
+
+            case MERGE_ERR_CANT_OPEN_OUTFILE:
+                report_cfile_dump_open_failure(out_filename, err, err_info, file_type);
+                break;
+
+            case MERGE_ERR_CANT_READ_INFILE:
+                report_cfile_read_failure(in_filenames[err_fileno], err, err_info);
+                break;
+
+            case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
+                report_failure("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
+                        err_framenum, in_filenames[err_fileno]);
+                break;
+
+            case MERGE_ERR_CANT_WRITE_OUTFILE:
+                report_cfile_write_failure(in_filenames[err_fileno], out_filename,
+                        err, err_info, err_framenum, file_type);
+                break;
+
+            case MERGE_ERR_CANT_CLOSE_OUTFILE:
+                report_cfile_close_failure(out_filename, err, err_info);
+                break;
+
+            default:
+                report_failure("Unknown merge_files error %d", status);
+                break;
         }
+        if (temp_files != NULL)
+            g_ptr_array_free(temp_files, true);
+        return false;
+    }
+
+    if (temp_files != NULL) {
+        // We recurse here, but we're limited by MAX_MERGE_FILES
+        status = merge_files_common(out_filename, out_filenamep, pfx,
+                    file_type, (const char**)temp_files->pdata,
+                    temp_files->len, do_append, mode, snaplen, app_name, cb);
+        /* If that failed, it has already reported an error */
         g_ptr_array_free(temp_files, true);
     }
 
-    return status;
+    return status == MERGE_OK;
 }
 
 /*
@@ -1435,36 +1491,32 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
  * based on given input, and invokes callback during execution. Returns
  * MERGE_OK on success, or a MERGE_ERR_XXX on failure.
  */
-merge_result
+bool
 merge_files(const char* out_filename, const int file_type,
             const char *const *in_filenames, const unsigned in_file_count,
             const bool do_append, const idb_merge_mode mode,
-            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb,
-            int *err, char **err_info, unsigned *err_fileno,
-            uint32_t *err_framenum)
+            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb)
 {
     ws_assert(out_filename != NULL);
     ws_assert(in_file_count > 0);
     ws_assert(in_filenames != NULL);
-    ws_assert(err_info != NULL);
 
     /* #19402: ensure we aren't appending to one of our inputs */
     if (do_append) {
         unsigned int i;
         for (i = 0; i < in_file_count; i++) {
             if (files_identical(out_filename, in_filenames[i])) {
-                *err_info = ws_strdup_printf("Output file %s is same as input file %s; "
-                                             "appending would create infinite loop",
-                                             out_filename, in_filenames[i]);
-                return MERGE_ERR_INVALID_OPTION;
+                report_failure("Output file %s is same as input file %s; "
+                               "appending would create infinite loop",
+                               out_filename, in_filenames[i]);
+                return false;
             }
         }
     }
 
     return merge_files_common(out_filename, NULL, NULL,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, err,
-                              err_info, err_fileno, err_framenum);
+                              do_append, mode, snaplen, app_name, cb);
 }
 
 /*
@@ -1472,14 +1524,12 @@ merge_files(const char* out_filename, const int file_type,
  * callback during execution. Returns MERGE_OK on success, or a MERGE_ERR_XXX
  * on failure.
  */
-merge_result
+bool
 merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pfx,
                         const int file_type, const char *const *in_filenames,
                         const unsigned in_file_count, const bool do_append,
                         const idb_merge_mode mode, unsigned snaplen,
-                        const char *app_name, merge_progress_callback_t* cb,
-                        int *err, char **err_info, unsigned *err_fileno,
-                        uint32_t *err_framenum)
+                        const char *app_name, merge_progress_callback_t* cb)
 {
     ws_assert(out_filenamep != NULL);
 
@@ -1488,8 +1538,7 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
 
     return merge_files_common(tmpdir, out_filenamep, pfx,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, err,
-                              err_info, err_fileno, err_framenum);
+                              do_append, mode, snaplen, app_name, cb);
 }
 
 /*
@@ -1497,18 +1546,15 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
  * callback during execution. Returns MERGE_OK on success, or a MERGE_ERR_XXX
  * on failure.
  */
-merge_result
+bool
 merge_files_to_stdout(const int file_type, const char *const *in_filenames,
                       const unsigned in_file_count, const bool do_append,
                       const idb_merge_mode mode, unsigned snaplen,
-                      const char *app_name, merge_progress_callback_t* cb,
-                      int *err, char **err_info, unsigned *err_fileno,
-                      uint32_t *err_framenum)
+                      const char *app_name, merge_progress_callback_t* cb)
 {
     return merge_files_common(NULL, NULL, NULL,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, err,
-                              err_info, err_fileno, err_framenum);
+                              do_append, mode, snaplen, app_name, cb);
 }
 
 /*

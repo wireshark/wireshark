@@ -208,12 +208,8 @@ main(int argc, char *argv[])
     int                 in_file_count      = 0;
     guint32             snaplen            = 0;
     int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
-    int                 err                = 0;
-    gchar              *err_info           = NULL;
-    int                 err_fileno;
-    guint32             err_framenum;
     char               *out_filename       = NULL;
-    merge_result        status             = MERGE_OK;
+    bool                status             = TRUE;
     idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
     merge_progress_callback_t cb;
 
@@ -245,8 +241,8 @@ main(int argc, char *argv[])
      */
     configuration_init_error = configuration_init(argv[0], NULL);
     if (configuration_init_error != NULL) {
-        fprintf(stderr,
-                "mergecap: Can't get pathname of directory containing the mergecap program: %s.\n",
+        cmdarg_err(
+                "Can't get pathname of directory containing the mergecap program: %s.",
                 configuration_init_error);
         g_free(configuration_init_error);
     }
@@ -266,10 +262,10 @@ main(int argc, char *argv[])
             case 'F':
                 file_type = wtap_name_to_file_type_subtype(ws_optarg);
                 if (file_type < 0) {
-                    fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
-                            ws_optarg);
+                    cmdarg_err("\"%s\" isn't a valid capture file type",
+                               ws_optarg);
                     list_capture_types();
-                    status = MERGE_ERR_INVALID_OPTION;
+                    status = false;
                     goto clean_exit;
                 }
                 break;
@@ -283,10 +279,10 @@ main(int argc, char *argv[])
             case 'I':
                 mode = merge_string_to_idb_merge_mode(ws_optarg);
                 if (mode == IDB_MERGE_MODE_MAX) {
-                    fprintf(stderr, "mergecap: \"%s\" isn't a valid IDB merge mode\n",
-                            ws_optarg);
+                    cmdarg_err("\"%s\" isn't a valid IDB merge mode",
+                               ws_optarg);
                     list_idb_merge_modes();
-                    status = MERGE_ERR_INVALID_OPTION;
+                    status = false;
                     goto clean_exit;
                 }
                 break;
@@ -319,7 +315,7 @@ main(int argc, char *argv[])
                     default:
                         print_usage(stderr);
                 }
-                status = MERGE_ERR_INVALID_OPTION;
+                status = false;
                 goto clean_exit;
                 break;
         }
@@ -337,13 +333,13 @@ main(int argc, char *argv[])
      */
     in_file_count = argc - ws_optind;
     if (!out_filename) {
-        fprintf(stderr, "mergecap: an output filename must be set with -w\n");
-        fprintf(stderr, "          run with -h for help\n");
-        status = MERGE_ERR_INVALID_OPTION;
+        cmdarg_err("an output filename must be set with -w");
+        cmdarg_err_cont("run with -h for help");
+        status = false;
         goto clean_exit;
     }
     if (in_file_count < 1) {
-        fprintf(stderr, "mergecap: No input files were specified\n");
+        cmdarg_err("No input files were specified");
         return 1;
     }
 
@@ -353,8 +349,8 @@ main(int argc, char *argv[])
      */
     if (mode != IDB_MERGE_MODE_MAX &&
             wtap_file_type_subtype_supports_block(file_type, WTAP_BLOCK_IF_ID_AND_INFO) == BLOCK_NOT_SUPPORTED) {
-        fprintf(stderr, "The IDB merge mode can only be used with an output format that identifies interfaces\n");
-        status = MERGE_ERR_INVALID_OPTION;
+        cmdarg_err("The IDB merge mode can only be used with an output format that identifies interfaces");
+        status = false;
         goto clean_exit;
     }
 
@@ -370,68 +366,17 @@ main(int argc, char *argv[])
                 (const char *const *) &argv[ws_optind],
                 in_file_count, do_append, mode, snaplen,
                 get_appname_and_version(),
-                verbose ? &cb : NULL,
-                &err, &err_info, &err_fileno, &err_framenum);
+                verbose ? &cb : NULL);
     } else {
         /* merge the files to the outfile */
         status = merge_files(out_filename, file_type,
                 (const char *const *) &argv[ws_optind], in_file_count,
                 do_append, mode, snaplen, get_appname_and_version(),
-                verbose ? &cb : NULL,
-                &err, &err_info, &err_fileno, &err_framenum);
-    }
-
-    switch (status) {
-        case MERGE_OK:
-            break;
-
-        case MERGE_USER_ABORTED:
-            /* we don't catch SIGINT/SIGTERM (yet?), so we couldn't have aborted */
-            ws_assert_not_reached();
-            break;
-
-        case MERGE_ERR_CANT_OPEN_INFILE:
-            report_cfile_open_failure(argv[ws_optind + err_fileno], err, err_info);
-            break;
-
-        case MERGE_ERR_CANT_OPEN_OUTFILE:
-            report_cfile_dump_open_failure(out_filename, err, err_info, file_type);
-            break;
-
-        case MERGE_ERR_CANT_READ_INFILE:
-            report_cfile_read_failure(argv[ws_optind + err_fileno], err, err_info);
-            break;
-
-        case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
-            report_failure("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
-                    err_framenum, argv[ws_optind + err_fileno]);
-            break;
-
-        case MERGE_ERR_CANT_WRITE_OUTFILE:
-            report_cfile_write_failure(argv[ws_optind + err_fileno], out_filename,
-                    err, err_info, err_framenum, file_type);
-            break;
-
-        case MERGE_ERR_CANT_CLOSE_OUTFILE:
-            report_cfile_close_failure(out_filename, err, err_info);
-            break;
-
-        case MERGE_ERR_INVALID_OPTION:
-            if (err_info) {
-                report_failure("%s", err_info);
-            }
-            else {
-                report_failure("Unspecified error with merge option");
-            }
-            break;
-
-        default:
-            report_failure("Unknown merge_files error %d", status);
-            break;
+                verbose ? &cb : NULL);
     }
 
 clean_exit:
     wtap_cleanup();
     free_progdirs();
-    return (status == MERGE_OK) ? 0 : 2;
+    return status ? 0 : 2;
 }
