@@ -349,7 +349,7 @@ cfile_read_failure_alert_box(const char *filename, int err, char *err_info)
  */
 void
 cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
-                              int err, char *err_info, uint32_t framenum,
+                              int err, char *err_info, uint64_t framenum,
                               int file_type_subtype)
 {
     char *in_file_string;
@@ -371,7 +371,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
              * the frame number and file type/subtype.
              */
             simple_error_message_box(
-                        "Frame %u%s has a network type that can't be saved in a \"%s\" file.",
+                        "Frame %" PRIu64 "%s has a network type that can't be saved in a \"%s\" file.",
                         framenum, in_file_string,
                         wtap_file_type_subtype_description(file_type_subtype));
             break;
@@ -383,7 +383,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
              * the frame number and file type/subtype.
              */
             simple_error_message_box(
-                        "Frame %u%s has a network type that differs from the network type of earlier packets, which isn't supported in a \"%s\" file.",
+                        "Frame %" PRIu64 "%s has a network type that differs from the network type of earlier packets, which isn't supported in a \"%s\" file.",
                         framenum, in_file_string,
                         wtap_file_type_subtype_description(file_type_subtype));
             break;
@@ -405,7 +405,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
              * the frame number and file type/subtype.
              */
             simple_error_message_box(
-                        "Frame %u%s is larger than Wireshark supports in a \"%s\" file.",
+                        "Frame %" PRIu64 "%s is larger than Wireshark supports in a \"%s\" file.",
                         framenum, in_file_string,
                         wtap_file_type_subtype_description(file_type_subtype));
             break;
@@ -417,7 +417,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
              * the record number and file type/subtype.
              */
             simple_error_message_box(
-                        "Record %u%s has a record type that can't be saved in a \"%s\" file.",
+                        "Record %" PRIu64 "%s has a record type that can't be saved in a \"%s\" file.",
                         framenum, in_file_string,
                         wtap_file_type_subtype_description(file_type_subtype));
             break;
@@ -429,7 +429,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
              * the record number and file type/subtype.
              */
             simple_error_message_box(
-                        "Record %u%s has data that can't be saved in a \"%s\" file.\n"
+                        "Record %" PRIu64 "%s has data that can't be saved in a \"%s\" file.\n"
                         "(%s)",
                         framenum, in_file_string,
                         wtap_file_type_subtype_description(file_type_subtype),

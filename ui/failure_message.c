@@ -360,7 +360,7 @@ cfile_read_failure_message(const char *filename, int err, char *err_info)
 void
 cfile_write_failure_message(const char *in_filename, const char *out_filename,
                             int err, char *err_info,
-                            uint32_t framenum, int file_type_subtype)
+                            uint64_t framenum, int file_type_subtype)
 {
     char *in_file_string;
     char *in_frame_string;
@@ -371,7 +371,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
         in_frame_string = g_strdup("");
     } else {
         in_file_string = input_file_description(in_filename);
-        in_frame_string = ws_strdup_printf(" %u of %s", framenum,
+        in_frame_string = ws_strdup_printf(" %" PRIu64 " of %s", framenum,
                                           in_file_string);
         g_free(in_file_string);
     }

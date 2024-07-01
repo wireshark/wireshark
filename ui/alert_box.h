@@ -72,7 +72,7 @@ extern void cfile_read_failure_alert_box(const char *filename, int err,
 extern void cfile_write_failure_alert_box(const char *in_filename,
                                           const char *out_filename,
                                           int err, char *err_info,
-                                          uint32_t framenum,
+                                          uint64_t framenum,
                                           int file_type_subtype);
 
 /*

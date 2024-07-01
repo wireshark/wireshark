@@ -90,6 +90,38 @@ get_nonzero_guint32(const char *string, const char *name)
     return number;
 }
 
+uint64_t
+get_uint64(const char *string, const char *name)
+{
+    uint64_t number;
+
+    if (!ws_strtou64(string, NULL, &number)) {
+        if (errno == EINVAL) {
+            cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
+            exit(1);
+        }
+        cmdarg_err("The specified %s \"%s\" is too large (greater than %" PRIu64 ")",
+                name, string, number);
+        exit(1);
+    }
+    return number;
+}
+
+uint64_t
+get_nonzero_uint64(const char *string, const char *name)
+{
+    uint64_t number;
+
+    number = get_uint64(string, name);
+
+    if (number == 0) {
+        cmdarg_err("The specified %s is zero", name);
+        exit(1);
+    }
+
+    return number;
+}
+
 double
 get_positive_double(const char *string, const char *name)
 {

@@ -52,6 +52,12 @@ get_guint32(const char *string, const char *name);
 WS_DLL_PUBLIC uint32_t
 get_nonzero_guint32(const char *string, const char *name);
 
+WS_DLL_PUBLIC uint64_t
+get_uint64(const char *string, const char *name);
+
+WS_DLL_PUBLIC uint64_t
+get_nonzero_uint64(const char *string, const char *name);
+
 WS_DLL_PUBLIC double
 get_positive_double(const char *string, const char *name);
 

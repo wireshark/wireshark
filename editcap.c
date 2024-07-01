@@ -81,7 +81,7 @@
 
 struct select_item {
     gboolean inclusive;
-    guint first, second;
+    uint64_t first, second;
 };
 
 /*
@@ -262,7 +262,7 @@ fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffi
 
 /* Add a selection item, a simple parser for now */
 static gboolean
-add_selection(char *sel, guint* max_selection)
+add_selection(char *sel, uint64_t* max_selection)
 {
     char *locn;
     char *next;
@@ -281,12 +281,12 @@ add_selection(char *sel, guint* max_selection)
             fprintf(stderr, "Not inclusive ...");
 
         selectfrm[max_selected].inclusive = FALSE;
-        selectfrm[max_selected].first = get_guint32(sel, "packet number");
+        selectfrm[max_selected].first = get_uint64(sel, "packet number");
         if (selectfrm[max_selected].first > *max_selection)
             *max_selection = selectfrm[max_selected].first;
 
         if (verbose)
-            fprintf(stderr, " %u\n", selectfrm[max_selected].first);
+            fprintf(stderr, " %" PRIu64 "\n", selectfrm[max_selected].first);
     } else {
         if (verbose)
             fprintf(stderr, "Inclusive ...");
@@ -294,19 +294,19 @@ add_selection(char *sel, guint* max_selection)
         *locn = '\0';    /* split the range */
         next = locn + 1;
         selectfrm[max_selected].inclusive = TRUE;
-        selectfrm[max_selected].first = get_guint32(sel, "beginning of packet range");
-        selectfrm[max_selected].second = get_guint32(next, "end of packet range");
+        selectfrm[max_selected].first = get_uint64(sel, "beginning of packet range");
+        selectfrm[max_selected].second = get_uint64(next, "end of packet range");
 
         if (selectfrm[max_selected].second == 0)
         {
             /* Not a valid number, presume all */
-            selectfrm[max_selected].second = *max_selection = G_MAXUINT;
+            selectfrm[max_selected].second = *max_selection = UINT64_MAX;
         }
         else if (selectfrm[max_selected].second > *max_selection)
             *max_selection = selectfrm[max_selected].second;
 
         if (verbose)
-            fprintf(stderr, " %u, %u\n", selectfrm[max_selected].first,
+            fprintf(stderr, " %" PRIu64 ", %" PRIu64 "\n", selectfrm[max_selected].first,
                    selectfrm[max_selected].second);
     }
 
@@ -317,7 +317,7 @@ add_selection(char *sel, guint* max_selection)
 /* Was the packet selected? */
 
 static gboolean
-selected(guint recno)
+selected(uint64_t recno)
 {
     guint i;
 
@@ -1013,10 +1013,12 @@ validate_secrets_file(const char *filename, guint32 secrets_type, const char *da
 static int
 framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {
-    if (GPOINTER_TO_UINT(a) < GPOINTER_TO_UINT(b))
+    uint64_t *frame_a = (uint64_t*)a;
+    uint64_t *frame_b = (uint64_t*)b;
+    if (*frame_a < *frame_b)
         return -1;
 
-    if (GPOINTER_TO_UINT(a) > GPOINTER_TO_UINT(b))
+    if (*frame_a > *frame_b)
         return 1;
 
     return 0;
@@ -1226,14 +1228,14 @@ main(int argc, char *argv[])
     gboolean      adjlen             = FALSE;
     wtap_dumper  *pdh                = NULL;
     GArray       *idbs_seen          = NULL;
-    unsigned int  count              = 1;
-    unsigned int  duplicate_count    = 0;
+    uint64_t      count              = 1;
+    uint64_t      duplicate_count    = 0;
     gint64        data_offset;
     int           err_type;
     guint8       *buf;
-    guint32       read_count         = 0;
-    guint32       split_packet_count = 0;
-    int           written_count      = 0;
+    uint64_t      read_count         = 0;
+    uint64_t      split_packet_count = 0;
+    uint64_t      written_count      = 0;
     char         *filename           = NULL;
     gboolean      ts_okay;
     nstime_t      secs_per_block     = NSTIME_INIT_UNSET;
@@ -1242,7 +1244,7 @@ main(int argc, char *argv[])
     gchar        *fprefix            = NULL;
     gchar        *fsuffix            = NULL;
     guint32       change_offset      = 0;
-    guint         max_packet_number  = 0;
+    uint64_t      max_packet_number  = 0;
     GArray       *dsb_types          = NULL;
     GPtrArray    *dsb_filenames      = NULL;
     wtap_rec                     read_rec;
@@ -1409,10 +1411,10 @@ main(int argc, char *argv[])
 
         case 'a':
         {
-            guint frame_number;
+            uint64_t frame_number;
             gint string_start_index = 0;
 
-            if ((sscanf(ws_optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
+            if ((sscanf(ws_optarg, "%" SCNu64 ":%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid <frame>:<comment>\n\n",
                         ws_optarg);
                 ret = WS_EXIT_INVALID_OPTION;
@@ -1428,7 +1430,7 @@ main(int argc, char *argv[])
              */
             if (strlen(ws_optarg+string_start_index) > 65535) {
                 /* It doesn't fit.  Tell the user and give up. */
-                cmdarg_err("A comment for frame %u is too large to save in a capture file.",
+                cmdarg_err("A comment for frame %" PRIu64 " is too large to save in a capture file.",
                            frame_number);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
@@ -1436,11 +1438,13 @@ main(int argc, char *argv[])
 
             /* Lazily create the table */
             if (!frames_user_comments) {
-                frames_user_comments = g_tree_new_full(framenum_compare, NULL, NULL, g_free);
+                frames_user_comments = g_tree_new_full(framenum_compare, NULL, g_free, g_free);
             }
 
             /* Insert this entry (framenum -> comment) */
-            g_tree_replace(frames_user_comments, GUINT_TO_POINTER(frame_number), g_strdup(ws_optarg+string_start_index));
+            uint64_t *frame_p = g_new(uint64_t, 1);
+            *frame_p = frame_number;
+            g_tree_replace(frames_user_comments, frame_p, g_strdup(ws_optarg+string_start_index));
             break;
         }
 
@@ -1469,7 +1473,7 @@ main(int argc, char *argv[])
         }
 
         case 'c':
-            split_packet_count = get_nonzero_guint32(ws_optarg, "packet count");
+            split_packet_count = get_nonzero_uint64(ws_optarg, "packet count");
             break;
 
         case 'C':
@@ -1850,7 +1854,7 @@ main(int argc, char *argv[])
     }
 
     if (!keep_em)
-        max_packet_number = G_MAXUINT;
+        max_packet_number = UINT64_MAX;
 
     if (dup_detect || dup_detect_by_time) {
         for (i = 0; i < dup_window; i++) {
@@ -2042,7 +2046,7 @@ main(int argc, char *argv[])
                         || (selected(count) && keep_em))) {
 
             if (verbose && !dup_detect && !dup_detect_by_time)
-                fprintf(stderr, "Packet: %u\n", count);
+                fprintf(stderr, "Packet: %" PRIu64 "\n", count);
 
             /* We simply write it, perhaps after truncating it; we could
              * do other things, like modify it. */
@@ -2199,7 +2203,7 @@ main(int argc, char *argv[])
                 if (dup_detect) {
                     if (is_duplicate(buf, rec->rec_header.packet_header.caplen)) {
                         if (verbose) {
-                            fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
+                            fprintf(stderr, "Skipped: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                     count,
                                     rec->rec_header.packet_header.caplen);
                             for (i = 0; i < 16; i++)
@@ -2212,7 +2216,7 @@ main(int argc, char *argv[])
                         continue;
                     } else {
                         if (verbose) {
-                            fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
+                            fprintf(stderr, "Packet: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                     count,
                                     rec->rec_header.packet_header.caplen);
                             for (i = 0; i < 16; i++)
@@ -2235,7 +2239,7 @@ main(int argc, char *argv[])
                                                   rec->rec_header.packet_header.caplen,
                                                   &current)) {
                             if (verbose) {
-                                fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
+                                fprintf(stderr, "Skipped: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                         count,
                                         rec->rec_header.packet_header.caplen);
                                 for (i = 0; i < 16; i++)
@@ -2248,7 +2252,7 @@ main(int argc, char *argv[])
                             continue;
                         } else {
                             if (verbose) {
-                                fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
+                                fprintf(stderr, "Packet: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                         count,
                                         rec->rec_header.packet_header.caplen);
                                 for (i = 0; i < 16; i++)
@@ -2290,7 +2294,7 @@ main(int argc, char *argv[])
                 }
 
                 if (change_offset > caplen) {
-                    fprintf(stderr, "change offset %u is longer than caplen %u in packet %u\n",
+                    fprintf(stderr, "change offset %u is longer than caplen %u in packet %" PRIu64 "\n",
                         change_offset, caplen, count);
                     do_mutation = FALSE;
                 }
@@ -2368,7 +2372,7 @@ main(int argc, char *argv[])
             /* Find a packet comment we may need to write */
             if (frames_user_comments) {
                 const char *comment =
-                    (const char*)g_tree_lookup(frames_user_comments, GUINT_TO_POINTER(read_count));
+                    (const char*)g_tree_lookup(frames_user_comments, &read_count);
                 if (comment != NULL) {
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
@@ -2427,7 +2431,7 @@ main(int argc, char *argv[])
     g_free(fsuffix);
 
     if (verbose)
-        fprintf(stderr, "Total selected: %d\n", written_count);
+        fprintf(stderr, "Total selected: %" PRIu64 "\n", written_count);
 
     if (read_err != 0) {
         /* Print a message noting that the read failed somewhere along the
@@ -2478,11 +2482,11 @@ main(int argc, char *argv[])
     }
 
     if (dup_detect) {
-        fprintf(stderr, "%u packet%s seen, %u packet%s skipped with duplicate window of %i packets.\n",
+        fprintf(stderr, "%" PRIu64 " packet%s seen, %" PRIu64 " packet%s skipped with duplicate window of %i packets.\n",
                 count - 1, plurality(count - 1, "", "s"), duplicate_count,
                 plurality(duplicate_count, "", "s"), dup_window);
     } else if (dup_detect_by_time) {
-        fprintf(stderr, "%u packet%s seen, %u packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
+        fprintf(stderr, "%" PRIu64 " packet%s seen, %" PRIu64 " packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
                 count - 1, plurality(count - 1, "", "s"), duplicate_count,
                 plurality(duplicate_count, "", "s"),
                 (long)relative_time_window.secs,

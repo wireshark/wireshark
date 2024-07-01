@@ -124,7 +124,7 @@ report_cfile_read_failure(const char *filename, int err, char *err_info)
  */
 void
 report_cfile_write_failure(const char *in_filename, const char *out_filename,
-    int err, char *err_info, uint32_t framenum, int file_type_subtype)
+    int err, char *err_info, uint64_t framenum, int file_type_subtype)
 {
 	(*routines->report_cfile_write_failure)(in_filename, out_filename,
 	    err, err_info, framenum, file_type_subtype);
