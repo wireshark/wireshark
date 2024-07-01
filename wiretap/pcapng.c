@@ -5301,6 +5301,67 @@ static bool write_wtap_epb_option(wtap_dumper *wdh, wtap_block_t block _U_, unsi
 }
 
 static bool
+pcapng_write_simple_packet_block(wtap_dumper* wdh, const wtap_rec* rec,
+                                 const uint8_t* pd, int* err, char** err_info _U_)
+{
+    const union wtap_pseudo_header* pseudo_header = &rec->rec_header.packet_header.pseudo_header;
+    pcapng_block_header_t bh;
+    pcapng_simple_packet_block_t spb;
+    const uint32_t zero_pad = 0;
+    uint32_t pad_len;
+    uint32_t phdr_len;
+
+    /* Don't write anything we're not willing to read. */
+    if (rec->rec_header.packet_header.caplen > wtap_max_snaplen_for_encap(wdh->file_encap)) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return false;
+    }
+
+    phdr_len = (uint32_t)pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
+    if ((phdr_len + rec->rec_header.packet_header.caplen) % 4) {
+        pad_len = 4 - ((phdr_len + rec->rec_header.packet_header.caplen) % 4);
+    }
+    else {
+        pad_len = 0;
+    }
+
+    /* write (simple) packet block header */
+    bh.block_type = BLOCK_TYPE_SPB;
+    bh.block_total_length = (uint32_t)sizeof(bh) + (uint32_t)sizeof(spb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + 4;
+
+    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
+        return false;
+
+    /* write block fixed content */
+    spb.packet_len = rec->rec_header.packet_header.len + phdr_len;
+
+    if (!wtap_dump_file_write(wdh, &spb, sizeof spb, err))
+        return false;
+
+    /* write pseudo header */
+    if (!pcap_write_phdr(wdh, rec->rec_header.packet_header.pkt_encap, pseudo_header, err)) {
+        return false;
+    }
+
+    /* write packet data */
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+        return false;
+
+    /* write padding (if any) */
+    if (pad_len != 0) {
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
+            return false;
+    }
+
+    /* write block footer */
+    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+        sizeof bh.block_total_length, err))
+        return false;
+
+    return true;
+}
+
+static bool
 pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
                                    const uint8_t *pd, int *err, char **err_info)
 {
@@ -6554,14 +6615,19 @@ static bool pcapng_dump(wtap_dumper *wdh,
     switch (rec->rec_type) {
 
         case REC_TYPE_PACKET:
-            /*
-             * XXX - write a Simple Packet Block if there's no time
-             * stamp or other information that doesn't appear in an
-             * SPB?
-             */
-            if (!pcapng_write_enhanced_packet_block(wdh, rec, pd, err,
-                                                    err_info)) {
-                return false;
+            /* Write Simple Packet Block if appropriate, Enhanced Packet Block otherwise. */
+            if (!(rec->presence_flags & WTAP_HAS_TS) &&
+                (!(rec->presence_flags & WTAP_HAS_INTERFACE_ID) || rec->rec_header.packet_header.interface_id == 0) &&
+                (!(rec->presence_flags & WTAP_HAS_CAP_LEN) || rec->rec_header.packet_header.len == rec->rec_header.packet_header.caplen) &&
+                (rec->block == NULL || compute_options_size(rec->block, compute_epb_option_size) == 0)) {
+                if (!pcapng_write_simple_packet_block(wdh, rec, pd, err, err_info)) {
+                    return false;
+                }
+            }
+            else {
+                if (!pcapng_write_enhanced_packet_block(wdh, rec, pd, err, err_info)) {
+                    return false;
+                }
             }
             break;
 
