@@ -1121,8 +1121,7 @@ get_doc_dir(void)
      * it; we don't need to call started_with_special_privs().)
      */
     else if (appbundle_dir != NULL) {
-        doc_dir = ws_strdup_printf("%s/Contents/Resources/%s",
-                                        appbundle_dir, DATA_DIR);
+        doc_dir = g_strdup(get_datafile_dir());
     }
 #endif
     else if (running_in_build_directory_flag && progfile_dir != NULL) {
