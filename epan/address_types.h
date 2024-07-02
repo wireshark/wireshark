@@ -35,6 +35,8 @@ WS_DLL_PUBLIC int address_type_dissector_register(const char* name, const char* 
 
 WS_DLL_PUBLIC int address_type_get_by_name(const char* name);
 
+int ipv4_to_str(const address* addr, char *buf, int buf_len);
+
 void address_types_initialize(void);
 
 /* Address type functions used by multiple (dissector) address types */

@@ -713,7 +713,10 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes) :
                 QVariant((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes);
         case CONV_COLUMN_CONV_ID:
-            return (int) conv_item->conv_id;
+            if(conv_item->conv_id!=CONV_ID_UNSET) {
+                return (int) conv_item->conv_id;
+            }
+            break;
         case CONV_COLUMN_PACKETS_TOTAL:
         {
             qlonglong packets = 0;

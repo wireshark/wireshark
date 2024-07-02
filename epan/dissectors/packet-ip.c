@@ -79,6 +79,11 @@ static bool try_heuristic_first;
 /* Interpret the reserved flag as security flag (RFC 3514) */
 static bool ip_security_flag;
 
+/* Aggregate subnets in Statistics Endpoints/Conversations Dialogs
+ * defaults to FALSE to not impact resources
+ */
+static bool ip_conv_agg_flag = false;
+
 static int proto_ip;
 
 static int proto_ip_option_eol;
@@ -494,13 +499,20 @@ static gpointer ip_value(packet_info *pinfo)
 
 static const char* ip_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_IPv4))
+    /* addr type is AT_STRINGZ for subnets, as it is a very flexible format
+     * XXX - create a new type when required, at this moment it's only used in
+     * conversation tables and is not justifed. See #19481.
+     */
+    if ((filter == CONV_FT_SRC_ADDRESS) && ((conv->src_address.type == AT_IPv4) ||
+        (conv->src_address.type == AT_STRINGZ)))
         return "ip.src";
 
-    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_IPv4))
+    if ((filter == CONV_FT_DST_ADDRESS) && ((conv->dst_address.type == AT_IPv4) ||
+        (conv->dst_address.type == AT_STRINGZ)))
         return "ip.dst";
 
-    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_IPv4))
+    if ((filter == CONV_FT_ANY_ADDRESS) && ((conv->src_address.type == AT_IPv4) ||
+        (conv->src_address.type == AT_STRINGZ)))
         return "ip.addr";
 
     return CONV_FILTER_INVALID;
@@ -515,16 +527,26 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     hash->flags = flags;
     const ws_ip4 *iph=(const ws_ip4 *)vip;
 
-    add_conversation_table_data_with_conv_id(hash, &iph->ip_src, &iph->ip_dst, 0, 0, (conv_id_t)iph->ip_stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
-
+    /* Try aggregating into subnets if asked so,
+     * if no subnets are found it will still end in calling xxx_with_conv_id()
+     */
+    if(ip_conv_agg_flag) {
+        add_conversation_table_data_ipv4_subnet(hash, &iph->ip_src, &iph->ip_dst, 0, 0, (conv_id_t)iph->ip_stream, 1, pinfo->fd->pkt_len,
+                                                &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
+    }
+    else {
+        add_conversation_table_data_with_conv_id(hash, &iph->ip_src, &iph->ip_dst, 0, 0, (conv_id_t)iph->ip_stream, 1, pinfo->fd->pkt_len,
+                                                 &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
+    }
 
     return TAP_PACKET_REDRAW;
 }
 
 static const char* ip_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_ANY_ADDRESS) && (endpoint->myaddress.type == AT_IPv4))
+    /* subnets: handled similarly to ip_conv_get_filter_type() */
+    if ((filter == CONV_FT_ANY_ADDRESS) && ((endpoint->myaddress.type == AT_IPv4) ||
+        (endpoint->myaddress.type == AT_STRINGZ)))
         return "ip.addr";
 
     return CONV_FILTER_INVALID;
@@ -542,8 +564,14 @@ ip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ip_endpoint_dissector_info, ENDPOINT_NONE);
-    add_endpoint_table_data(hash, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ip_endpoint_dissector_info, ENDPOINT_NONE);
+    if(ip_conv_agg_flag) {
+        add_endpoint_table_data_ipv4_subnet(hash, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ip_endpoint_dissector_info, ENDPOINT_NONE);
+        add_endpoint_table_data_ipv4_subnet(hash, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ip_endpoint_dissector_info, ENDPOINT_NONE);
+    }
+    else {
+        add_endpoint_table_data(hash, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ip_endpoint_dissector_info, ENDPOINT_NONE);
+        add_endpoint_table_data(hash, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ip_endpoint_dissector_info, ENDPOINT_NONE);
+    }
     return TAP_PACKET_REDRAW;
 }
 
@@ -3093,6 +3121,11 @@ proto_register_ip(void)
     "Try heuristic sub-dissectors first",
     "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
     &try_heuristic_first);
+
+  prefs_register_bool_preference(ip_module, "conv_agg_flag" ,
+    "Aggregate subnets in Statistics Dialogs",
+    "Whether to group conversations based on the subnets file",
+    &ip_conv_agg_flag);
 
   prefs_register_static_text_preference(ip_module, "text_use_geoip",
     "IP geolocation settings can be changed in the Name Resolution preferences",

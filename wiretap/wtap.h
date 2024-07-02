@@ -1490,6 +1490,7 @@ typedef struct hashipv4 {
     uint8_t           flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
     char              ip[WS_INET_ADDRSTRLEN];
     char              name[MAXNAMELEN];
+    char              cidr_addr[WS_INET_CIDRADDRSTRLEN];
 } hashipv4_t;
 
 typedef struct hashipv6 {

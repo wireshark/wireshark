@@ -473,7 +473,35 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
         int addressTypeA = model->data(source_left, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
         int addressTypeB = model->data(source_right, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
         if (addressTypeA != 0 && addressTypeB != 0 && addressTypeA != addressTypeB) {
-            result = addressTypeA < addressTypeB;
+
+            /* Handle subnets when they are compared to IP addresses */
+            if ( (addressTypeA == AT_STRINGZ) && (addressTypeB == AT_IPv4) ) {
+                QString subnet = datA.toString();
+                qint64 lpart = subnet.indexOf("/");
+                ws_in4_addr ip4addr;
+
+                if(ws_inet_pton4(subnet.left(lpart).toUtf8().data(), &ip4addr)) {
+                    quint32 valA = g_ntohl(ip4addr);
+                    quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                    result = valA < valB;
+                    identical = valA == valB;
+                }
+                // else: never supposed to happen
+            } else if ( (addressTypeA == AT_IPv4) && (addressTypeB == AT_STRINGZ) ) {
+                QString subnet = datB.toString();
+                qint64 lpart = subnet.indexOf("/");
+                ws_in4_addr ip4addr;
+                if(ws_inet_pton4(subnet.left(lpart).toUtf8().data(), &ip4addr)) {
+                    quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                    quint32 valB = g_ntohl(ip4addr);
+                    result = valA < valB;
+                    identical = valA == valB;
+                }
+                // else: never supposed to happen
+            } else {
+                result = addressTypeA < addressTypeB;
+            }
+
         } else if (addressTypeA != 0 && addressTypeA == addressTypeB) {
 
             if (addressTypeA == AT_IPv4) {
@@ -693,7 +721,9 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
     foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
         if (isConversation && conv_item) {
             QMenu *subsubmenu = subMenu->addMenu(FilterAction::actionTypeName(at));
-            if (hasConvId && (cur_action == FilterAction::ActionApply || cur_action == FilterAction::ActionPrepare)) {
+
+            /* For IP, ensure subnets-like conversations won't enable Stream ID filters (!CONV_ID_UNSET) */
+            if (hasConvId && (conv_item->conv_id!=CONV_ID_UNSET) && (cur_action == FilterAction::ActionApply || cur_action == FilterAction::ActionPrepare)) {
                 QString filter;
                 switch (conv_item->ctype) {
                 case CONVERSATION_TCP:

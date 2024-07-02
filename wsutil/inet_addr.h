@@ -120,6 +120,11 @@ in6_addr_is_multicast(const ws_in6_addr *a)
 #define WS_INET6_ADDRSTRLEN     46
 
 /*
+ * Utility for CIDR notation of subnets
+ */
+#define WS_INET_CIDRADDRSTRLEN  19
+
+/*
  * To check for errors set errno to zero before calling ws_inet_ntop{4,6}.
  * ENOSPC is set if the result exceeds the given buffer size.
  */

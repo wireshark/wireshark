@@ -525,7 +525,7 @@ Wireshark.
 subnets::
 +
 --
-Wireshark uses the __subnets__ files to translate an IPv4 address into a
+Wireshark uses the __subnets__ file to translate an IPv4 address into a
 subnet name.  If no exact match from a __hosts__ file or from DNS is
 found, Wireshark will attempt a partial match for the subnet of the
 address.
@@ -554,6 +554,12 @@ printed address would be “ws_test_network.0.1”.
 
 The settings from these files are read in at program start and never
 written by Wireshark.
+
+The __subnets__ file also changes the behavior of the Endpoints and
+Conversations Statistics dialogs for the IPv4 protocol when the IPv4 user
+preference _Aggregate subnets in Statistics Dialogs_ is enabled. In this
+case, when an IPv4 address matches a subnet, the statistics dialog will
+show this subnet instead of the IPv4 address.
 --
 
 vlans::

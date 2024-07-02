@@ -392,6 +392,16 @@ add_conversation_table_data_extended(conv_hash_t *ch, const address *src, const 
     nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info,
     conversation_type ctype, guint32 frameid, int (*proto_conv_cb)(conversation_t *));
 
+/** Encapsulates add_conversation_table_data_with_conv_id() for the IPv4 specific case
+ *  when the subnet aggregation user preference is true.
+ *
+ */
+WS_DLL_PUBLIC void
+add_conversation_table_data_ipv4_subnet(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port,
+    guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
+    nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info,
+    conversation_type ctype);
+
 /** Add some data to the endpoint table.
  *
  * @param ch the table hash to add the data to
@@ -404,6 +414,13 @@ add_conversation_table_data_extended(conv_hash_t *ch, const address *src, const 
  * @param etype the endpoint type (e.g. ENDPOINT_TCP)
  */
 WS_DLL_PUBLIC void add_endpoint_table_data(conv_hash_t *ch, const address *addr,
+    guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype);
+
+/** Encapsulates add_endpoint_table_data() for the IPv4 specific case
+ *  when the subnet aggregation user preference is true.
+ *
+ */
+WS_DLL_PUBLIC void add_endpoint_table_data_ipv4_subnet(conv_hash_t *ch, const address *addr,
     guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype);
 
 /* For backwards source and binary compatibility */

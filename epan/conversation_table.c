@@ -430,14 +430,14 @@ char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction
     src_addr = address_to_str(NULL, &conv_item->src_address);
     dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
-    if (conv_item->src_address.type == AT_STRINGZ || conv_item->src_address.type == usb_address_type) {
+    if (!(conv_item->ctype==CONVERSATION_IP) && (conv_item->src_address.type == AT_STRINGZ || conv_item->src_address.type == usb_address_type)) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);
         wmem_free(NULL, src_addr);
         src_addr = new_addr;
     }
-    if (conv_item->dst_address.type == AT_STRINGZ || conv_item->dst_address.type == usb_address_type) {
+    if (!(conv_item->ctype==CONVERSATION_IP) && (conv_item->dst_address.type == AT_STRINGZ || conv_item->dst_address.type == usb_address_type)) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", dst_addr);
@@ -833,6 +833,62 @@ add_conversation_table_data_extended(
     memcpy(&conv_item->ext_tcp, &ext_tcp, sizeof(conv_item->ext_tcp));
 }
 
+void
+add_conversation_table_data_ipv4_subnet(
+    conv_hash_t *ch,
+    const address *src,
+    const address *dst,
+    guint32 src_port,
+    guint32 dst_port,
+    conv_id_t conv_id,
+    int num_frames,
+    int num_bytes,
+    nstime_t *ts,
+    nstime_t *abs_ts,
+    ct_dissector_info_t *ct_info,
+    conversation_type ctype)
+{
+
+    guint addrSRC;
+    memcpy(&addrSRC, src->data, 4);
+    guint addrDST;
+    memcpy(&addrDST, dst->data, 4);
+
+    gboolean is_src_aggregated = FALSE;
+    gboolean is_dst_aggregated = FALSE;
+
+    hashipv4_t * volatile tpsrc;
+    tpsrc = new_ipv4(addrSRC);
+    is_src_aggregated = fill_dummy_ip4(addrSRC, tpsrc);
+
+    hashipv4_t * volatile tpdst;
+    tpdst = new_ipv4(addrDST);
+    is_dst_aggregated = fill_dummy_ip4(addrDST, tpdst);
+
+    address *aggsrc = NULL;
+    aggsrc = wmem_new(wmem_epan_scope(), address);
+
+    aggsrc->len = (int)strlen(tpsrc->cidr_addr);
+    aggsrc->data = wmem_memdup(wmem_file_scope(), tpsrc->cidr_addr, strlen(tpsrc->cidr_addr));
+    aggsrc->type = AT_STRINGZ;
+
+    address *aggdst = NULL;
+    aggdst = wmem_new(wmem_epan_scope(), address);
+    aggdst->len = (int)strlen(tpdst->cidr_addr);
+    aggdst->data = wmem_memdup(wmem_file_scope(), tpdst->cidr_addr, strlen(tpdst->cidr_addr));
+    aggdst->type = AT_STRINGZ;
+
+    /* add data with subnets if we have any, or actual src & dst
+     * unset the conv_id when dealing with subnets
+     */
+    add_conversation_table_data_with_conv_id(ch,
+        is_src_aggregated?aggsrc:src,
+        is_dst_aggregated?aggdst:dst,
+        src_port, dst_port,
+        (is_src_aggregated||is_dst_aggregated?CONV_ID_UNSET:conv_id),
+        num_frames, num_bytes, ts, abs_ts, ct_info, ctype);
+}
+
 /*
  * Compute the hash value for a given address/port pair if the match
  * is to be exact.
@@ -950,6 +1006,43 @@ add_endpoint_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
     } else {
         endpoint_item->rx_frames_total+=num_frames;
         endpoint_item->rx_bytes_total+=num_bytes;
+    }
+}
+
+void
+add_endpoint_table_data_ipv4_subnet(
+    conv_hash_t *ch,
+    const address *addr,
+    guint32 port,
+    gboolean sender,
+    int num_frames,
+    int num_bytes,
+    et_dissector_info_t *et_info,
+    endpoint_type etype)
+{
+    guint addrSubnetted;
+    memcpy(&addrSubnetted, addr->data, 4);
+
+    gboolean is_aggregated = FALSE;
+
+    hashipv4_t * volatile tpaddr;
+    tpaddr = new_ipv4(addrSubnetted);
+    is_aggregated = fill_dummy_ip4(addrSubnetted, tpaddr);
+
+    address *aggaddr = NULL;
+    aggaddr = wmem_new(wmem_epan_scope(), address);
+
+    aggaddr->len = (int)strlen(tpaddr->cidr_addr);
+    aggaddr->data = wmem_memdup(wmem_file_scope(), tpaddr->cidr_addr, strlen(tpaddr->cidr_addr));
+    aggaddr->type = AT_STRINGZ;
+
+    /* add data with subnets if we have any, or actual addr
+     */
+    if(is_aggregated) {
+        add_endpoint_table_data(ch, aggaddr, port, sender, num_frames, num_bytes, et_info, etype);
+    }
+    else {
+        add_endpoint_table_data(ch, addr, port, sender, num_frames, num_bytes, et_info, etype);
     }
 }
 

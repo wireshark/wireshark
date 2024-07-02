@@ -188,11 +188,10 @@ In the screenshot there are many more TLS and Git PDUs than there are packets.
 
 A network conversation is the traffic between two specific endpoints. For
 example, an IP conversation is all the traffic between two IP addresses. The
-description of the known endpoint types can be found in
+description of the known endpoint types can be found in <<ChStatEndpoints>>.
 
 The conversations are influenced by the _Deinterlacing conversations key_
 preference.
-<<ChStatEndpoints>>.
 
 [#ChStatConversationsWindow]
 

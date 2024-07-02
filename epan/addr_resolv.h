@@ -111,6 +111,16 @@ extern gchar *g_pipxnets_path;
 /* Functions in addr_resolv.c */
 
 /*
+ * returns an ipv4 object built from its address
+ */
+WS_DLL_PUBLIC hashipv4_t * new_ipv4(const guint addr);
+
+/*
+ * returns a 'dummy ip4' object built from an address
+ */
+WS_DLL_PUBLIC gboolean fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp);
+
+/*
  * udp_port_to_display() returns the port name corresponding to that UDP port,
  * or the port number as a string if not found.
  */

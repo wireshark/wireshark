@@ -1197,10 +1197,13 @@ enterprises_cleanup(void)
 /* Fill in an IP4 structure with info from subnets file or just with the
  * string form of the address.
  */
-static void
+gboolean
 fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
 {
     subnet_entry_t subnet_entry;
+
+    /* return value : TRUE if addr matches any subnet */
+    gboolean cidr_covered = FALSE;
 
     /* Overwrite if we get async DNS reply */
 
@@ -1233,10 +1236,29 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
          * trust snprintf and MAXNAMELEN
          */
         snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
+
+        /* Evaluate the subnet in CIDR notation
+         * Reuse buffers built above
+         */
+        guint32 subnet_addr;
+        subnet_addr = addr & subnet_entry.mask;
+
+        gchar buffer_subnet[WS_INET_ADDRSTRLEN];
+        ip_addr_to_str_buf(&subnet_addr, buffer_subnet, WS_INET_ADDRSTRLEN);
+
+        gchar buffer_cidr[WS_INET_CIDRADDRSTRLEN];
+        snprintf(buffer_cidr, WS_INET_CIDRADDRSTRLEN, "%s%s%u", buffer_subnet, "/", (guint)subnet_entry.mask_length);
+
+        snprintf(tp->cidr_addr, WS_INET_CIDRADDRSTRLEN, "%s%s%u", buffer_subnet, "/", (guint)subnet_entry.mask_length);
+        cidr_covered = TRUE;
     } else {
         /* XXX: This means we end up printing "1.2.3.4 (1.2.3.4)" in many cases */
         ip_addr_to_str_buf(&addr, tp->name, MAXNAMELEN);
+
+        /* IP does not belong to any known subnet, just indicate this IP without "/.32" */
+        ip_addr_to_str_buf(&addr, tp->cidr_addr, MAXNAMELEN);
     }
+    return cidr_covered;
 }
 
 
@@ -1277,7 +1299,7 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
 }
 
 /* --------------- */
-static hashipv4_t *
+hashipv4_t *
 new_ipv4(const guint addr)
 {
     hashipv4_t *tp = wmem_new(addr_resolv_scope, hashipv4_t);
