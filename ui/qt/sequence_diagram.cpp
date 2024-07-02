@@ -15,6 +15,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/widgets/qcp_axis_ticker_elided.h>
 #include "ui/recent.h"
 
 #include <QFont>
@@ -69,6 +70,9 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
         axis->setTickPen(no_pen);
         axis->setBasePen(no_pen);
     }
+
+    QSharedPointer<QCPAxisTicker> ticker(new QCPAxisTickerElided(comment_axis_));
+    comment_axis_->setTicker(ticker);
 
     value_axis_->grid()->setVisible(false);
 
@@ -172,7 +176,7 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
             key_ticks.append(cur_key);
             key_labels.append(sai->time_str);
 
-            com_labels.append(elidedComment(sai->comment));
+            com_labels.append(sai->comment);
 
             cur_key++;
         }
@@ -228,9 +232,8 @@ bool SequenceDiagram::inComment(QPoint pos) const
 
 QString SequenceDiagram::elidedComment(const QString &text) const
 {
-    QFontMetrics com_fm(comment_axis_->tickLabelFont());
-    int elide_w = com_fm.height() * max_comment_em_width_;
-    return com_fm.elidedText(text, Qt::ElideRight, elide_w);
+    QSharedPointer<QCPAxisTickerElided> comment_ticker = qSharedPointerCast<QCPAxisTickerElided>(comment_axis_->ticker());
+    return comment_ticker->elidedText(text);
 }
 
 double SequenceDiagram::selectTest(const QPointF &pos, bool, QVariant *) const

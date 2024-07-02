@@ -35,17 +35,7 @@
 #include <QPoint>
 
 // To do:
-// - Resize or show + hide the Time and Comment axes (#4972), possibly via
-//   one of the following:
-//   - Split the time, diagram, and comment sections into three separate
-//     widgets inside a QSplitter. This would resemble the GTK+ UI, but we'd
-//     have to coordinate between the three and we'd lose time and comment
-//     values in PDF and PNG exports.
-//   - Add separate controls for the width and/or visibility of the Time and
-//     Comment columns.
-//   - Fake a splitter widget by catching mouse events in the plot area.
-//     Drawing a QCPItemLine or QCPItemPixmap over each Y axis might make
-//     this easier.
+// - Resize the Time and Comment axis as well?
 // - For general flows, let the user show columns other than COL_INFO.
 //   (#12549)
 // - Add UTF8 to text dump
@@ -76,6 +66,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     num_items_(0),
     packet_num_(0),
     sequence_w_(1),
+    axis_pressed_(false),
     current_rtp_sai_hovered_(nullptr),
     voipFeaturesEnabled(voipFeatures)
 {
@@ -103,6 +94,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     // bounds of each axis. Disable it for now.
     //sp->axisRect()->setRangeDragAxes(sp->xAxis2, sp->yAxis);
     //sp->setInteractions(QCP::iRangeDrag);
+
+    sp->setInteraction(QCP::iSelectAxes, true);
+    sp->xAxis->setSelectableParts(QCPAxis::spNone);
+    sp->yAxis->setSelectableParts(QCPAxis::spNone);
+    sp->yAxis2->setSelectableParts(QCPAxis::spAxis);
 
     sp->xAxis->setVisible(false);
     sp->xAxis->setPadding(0);
@@ -223,9 +219,10 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vScrollBarChanged(int)));
     connect(sp->xAxis2, SIGNAL(rangeChanged(QCPRange)), this, SLOT(xAxisChanged(QCPRange)));
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(yAxisChanged(QCPRange)));
-    connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(diagramClicked(QMouseEvent*)));
-    connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
-    connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
+    connect(sp, &QCustomPlot::mousePress, this, &SequenceDialog::diagramClicked);
+    connect(sp, &QCustomPlot::mouseRelease, this, &SequenceDialog::mouseReleased);
+    connect(sp, &QCustomPlot::mouseMove, this, &SequenceDialog::mouseMoved);
+    connect(sp, &QCustomPlot::mouseWheel, this, &SequenceDialog::mouseWheeled);
     connect(sp, &QCustomPlot::afterLayout, this, &SequenceDialog::layoutAxisLabels);
 }
 
@@ -385,6 +382,12 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
     current_rtp_sai_selected_ = NULL;
     if (event) {
+        QCPAxis *yAxis2 = ui->sequencePlot->yAxis2;
+        if (yAxis2->selectedParts().testFlag(QCPAxis::spAxis)) {
+            if (std::abs(event->pos().x() - yAxis2->axisRect()->right()) < 5) {
+                axis_pressed_ = true;
+            }
+        }
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (voipFeaturesEnabled) {
             ui->actionSelectRtpStreams->setEnabled(false);
@@ -411,12 +414,25 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 
 }
 
+void SequenceDialog::mouseReleased(QMouseEvent*)
+{
+    axis_pressed_ = false;
+}
+
 void SequenceDialog::mouseMoved(QMouseEvent *event)
 {
     current_rtp_sai_hovered_ = NULL;
     packet_num_ = 0;
     QString hint;
     if (event) {
+        if (axis_pressed_) {
+            QCPAxis *yAxis2 = ui->sequencePlot->yAxis2;
+            int x = qMax(event->pos().x(), yAxis2->axisRect()->left());
+            QMargins margins = yAxis2->axisRect()->margins();
+            margins += QMargins(0, 0, yAxis2->axisRect()->right() - x, 0);
+            yAxis2->axisRect()->setMargins(margins);
+            ui->sequencePlot->replot(QCustomPlot::rpQueuedReplot);
+        }
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (sai) {
             if (GA_INFO_TYPE_RTP == sai->info_type) {

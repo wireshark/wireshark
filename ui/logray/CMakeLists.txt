@@ -44,6 +44,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/path_selection_edit.h
 	../qt/widgets/pref_module_view.h
 	../qt/widgets/profile_tree_view.h
+	../qt/widgets/qcp_axis_ticker_elided.h
 	../qt/widgets/qcp_axis_ticker_si.h
 	../qt/widgets/qcp_string_legend_item.h
 	../qt/widgets/range_syntax_lineedit.h
@@ -277,6 +278,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/path_selection_edit.cpp
 	../qt/widgets/pref_module_view.cpp
 	../qt/widgets/profile_tree_view.cpp
+	../qt/widgets/qcp_axis_ticker_elided.cpp
 	../qt/widgets/qcp_axis_ticker_si.cpp
 	../qt/widgets/qcp_string_legend_item.cpp
 	../qt/widgets/range_syntax_lineedit.cpp

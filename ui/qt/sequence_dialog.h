@@ -71,6 +71,7 @@ private slots:
     void yAxisChanged(QCPRange range);
     void showContextMenu(const QPoint &pos);
     void diagramClicked(QMouseEvent *event);
+    void mouseReleased(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
     void mouseWheeled(QWheelEvent *event);
 
@@ -113,6 +114,7 @@ private:
     uint32_t packet_num_;
     double one_em_;
     int sequence_w_;
+    bool axis_pressed_;
     QPushButton *reset_button_;
     QToolButton *player_button_;
     QPushButton *export_button_;

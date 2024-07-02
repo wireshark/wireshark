@@ -303,6 +303,9 @@ The following features are new (or have been significantly updated) since versio
   ** Endpoints that share a same address now have two distinct nodes
      with a line between them. wsbuglink:12038[]
 
+  ** The Comment column can be resized, by selecting the axis between the
+     Comment column and the graph, and dragging. wsbuglink:4972[]
+
   ** Tooltips are shown for elided comments
 
   ** The scroll direction via keyboard is no longer reversed. wsbuglink:12932[]
