@@ -1156,12 +1156,6 @@ string name with which to find it again.
 
 static int foo_tap;
 
-struct FooTap {
-    int packet_type;
-    int priority;
-       ...
-};
-
 void proto_register_foo(void)
 {
        ...
@@ -1170,7 +1164,7 @@ void proto_register_foo(void)
 
 Whilst you can program a tap without protocol specific data, it is generally not
 very useful. Therefore it’s a good idea to declare a structure that can be
-passed through the tap. This needs to be a static structure as it will be used
+passed through the tap. This needs to be allocated in packet scope as it will be used
 after the dissection routine has returned. It’s generally best to pick out some
 generic parts of the protocol you are dissecting into the tap data. A packet
 type, a priority or a status code maybe. The structure really needs to be
@@ -1184,11 +1178,17 @@ of the dissector.
 .Calling a protocol tap
 [source,c]
 ----
+struct FooTap {
+    int packet_type;
+    int priority;
+       ...
+};
+
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
        ...
-    fooinfo = wmem_alloc(pinfo->pool, sizeof(struct FooTap));
+    struct FooTap *fooinfo = wmem_new0(pinfo->pool, struct FooTap);
     fooinfo->packet_type = tvb_get_guint8(tvb, 0);
     fooinfo->priority = tvb_get_ntohs(tvb, 8);
        ...
@@ -1198,12 +1198,19 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 ----
 
+[TIP]
+====
+Allocate your structure using `wmem_new0()`, so it sets all values of your structure
+to zero. This way, if you add members later but forget to initialize them, they will
+have a consistent value, making troubleshooting easier.
+====
+
 This now enables those interested parties to listen in on the details
 of this protocol conversation.
 
 [#ChDissectStats]
 
-=== How to produce protocol stats
+=== How to produce protocol statistics (stats)
 
 Given that you have a tap interface for the protocol, you can use this
 to produce some interesting statistics (well presumably interesting!) from
@@ -1221,32 +1228,24 @@ Here is a mechanism to produce statistics from the above TAP interface.
 ----
 #include <epan/stats_tree.h>
 
-/* register all http trees */
-static void register_foo_stat_trees(void) {
-    stats_tree_register_plugin("foo", "foo", "Foo" STATS_TREE_MENU_SEPARATOR "Packet Types", 0,
+void proto_reg_handoff_foo(void) {
+       ...
+    stats_tree_register("foo", "foo", "Foo" STATS_TREE_MENU_SEPARATOR "Packet Types", 0,
         foo_stats_tree_packet, foo_stats_tree_init, NULL);
-}
-
-WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
-{
-    register_foo_stat_trees();
 }
 ----
 
-Working from the bottom up, first the plugin interface entry point is defined,
-`plugin_register_tap_listener()`. This simply calls the initialisation function
-`register_foo_stat_trees()`.
+The interface entry point, `proto_reg_handoff_foo()`,
+calls the `stats_tree_register()` function, which takes three
+strings, an integer, and three callback functions:
 
-This in turn calls the `stats_tree_register_plugin()` function, which takes three
-strings, an integer, and three callback functions.
-
-. This is the tap name that is registered.
+. This is the tap name that was registered using `register_tap()`.
 
 . An abbreviation of the stats name.
 
-. The name of the stats module. A “/” character can be used to make sub menus.
+. The name of the stats module. `STATS_TREE_MENU_SEPARATOR` can be used to make sub menus.
 
-. Flags for per-packet callback
+. Flags for per-packet callback, taken from `epan/stats_tree.h`.
 
 . The function that will called to generate the stats.
 
@@ -1255,6 +1254,13 @@ strings, an integer, and three callback functions.
 . A function that will be called to clean up the stats data.
 
 In this case we only need the first two functions, as there is nothing specific to clean up.
+
+[NOTE]
+====
+If you are registering statistics from a plugin, then your plugin should have
+a plugin interface entry point called `plugin_register_tap_listener()`,
+which should call `stats_tree_register_plugin()` instead of `stats_tree_register()`.
+====
 
 .Initialising a stats session
 [source,c]
@@ -1293,6 +1299,13 @@ In this case the processing of the stats is quite simple. First we call the
 `tick_stat_node` for the `st_str_packets` packet node, to count packets. Then a
 call to `stats_tree_tick_pivot()` on the `st_node_packet_types` subtree allows
 us to record statistics by packet type.
+
+[NOTE]
+====
+Notice that stats trees and pivots are identified by their name string,
+_not_ by the identifier returned by
+`stats_tree_create_node()`/`stats_tree_create_pivot()`.
+====
 
 [#ChDissectConversation]
 
