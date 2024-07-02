@@ -24,12 +24,14 @@
  * TPG (TRM, TCM, VDRM, VDPM, EOFM)   ETSI TS 101 556-2
  * Charging (EV-RSR, SRM, SCM)        ETSI TS 101 556-3
  * GPC (RTCMEM)                       ETSI TS 103 301
+ * VA (VAM)                           ETSI TS 103 300-3   V2.2.1 (2023-02)
  *
  * Not supported:
  * SA (SAEM)                          ETSI TS 102 890-1
  * CTL (CTLM)                         ETSI TS 102 941
  * CRL (CRLM)                         ETSI TS 102 941
  * Certificate request                ETSI TS 102 941
+ * MCD (MCDM)                         ETSI TS 103 152
  */
 #include "config.h"
 
@@ -81,6 +83,8 @@
  * 2014       CTL (CTLM)              ETSI TS 102 941
  * 2015       CRL (CRLM)              ETSI TS 102 941
  * 2016       Certificate request     ETSI TS 102 941
+ * 2017       MCD (MCDM)              ETSI TS 103 152
+ * 2018       VA (VAM)                ETSI TS 103 300-3   V2.2.1 (2023-02)
  */
 
 // Applications Well Known Ports
@@ -100,6 +104,8 @@
 #define ITS_WKP_CTL        2014
 #define ITS_WKP_CRL        2015
 #define ITS_WKP_CERTIF_REQ 2016
+#define ITS_WKP_MCD        2017
+#define ITS_WKP_VA         2018
 
 /*
  * Prototypes
@@ -973,7 +979,7 @@ void proto_register_its(void)
 }
 
 #define BTP_SUBDISS_SZ 2
-#define BTP_PORTS_SZ   12
+#define BTP_PORTS_SZ   13
 
 #define ITS_CAM_PROT_VER 2
 #define ITS_CAM_PROT_VERv1 1
@@ -997,7 +1003,7 @@ void proto_register_its(void)
 void proto_reg_handoff_its(void)
 {
     static const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
-    static const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS };
+    static const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS, ITS_WKP_VA };
     int sdIdx, pIdx;
 
     // Register well known ports to btp subdissector table (BTP A and B)
