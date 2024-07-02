@@ -68,7 +68,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
         axis->setTicker(ticker);
         axis->setSubTickPen(no_pen);
         axis->setTickPen(no_pen);
-        axis->setBasePen(no_pen);
+        axis->setSelectedTickPen(no_pen);
     }
 
     QSharedPointer<QCPAxisTicker> ticker(new QCPAxisTickerElided(comment_axis_));
