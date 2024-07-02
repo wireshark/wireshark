@@ -453,7 +453,6 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static void
 proxy_init_routine(void)
 {
-    reassembly_table_register(&proxy_reassembly_table, &addresses_reassembly_table_functions);
     for (int i=0; i< E_BTMESH_PROXY_SIDE_LAST; i++ ){
         sequence_counter[i] = 0;
         fragment_counter[i] = 0;
@@ -646,6 +645,7 @@ proto_register_btmesh_proxy(void)
 
     register_init_routine(proxy_init_routine);
     register_cleanup_routine(proxy_cleanup_dissector);
+    reassembly_table_register(&proxy_reassembly_table, &addresses_reassembly_table_functions);
 }
 
 void
