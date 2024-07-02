@@ -1288,8 +1288,7 @@ main(int argc, char *argv[])
      */
     configuration_init_error = configuration_init(argv[0], NULL);
     if (configuration_init_error != NULL) {
-        fprintf(stderr,
-                "editcap: Can't get pathname of directory containing the editcap program: %s.\n",
+        cmdarg_err("Can't get pathname of directory containing the editcap program: %s.",
                 configuration_init_error);
         g_free(configuration_init_error);
     }
@@ -1316,8 +1315,7 @@ main(int argc, char *argv[])
         case LONGOPT_SEED:
         {
             if (sscanf(ws_optarg, "%u", &seed) != 1) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid seed\n\n",
-                        ws_optarg);
+                cmdarg_err("\"%s\" isn't a valid seed", ws_optarg);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1337,14 +1335,14 @@ main(int argc, char *argv[])
             if (splitted[0] && splitted[0][0] != '\0') {
                 secrets_type_id = lookup_secrets_type(splitted[0]);
                 if (secrets_type_id == 0) {
-                    fprintf(stderr, "editcap: \"%s\" isn't a valid secrets type\n", splitted[0]);
+                    cmdarg_err("\"%s\" isn't a valid secrets type", splitted[0]);
                     g_strfreev(splitted);
                     ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 secrets_filename = splitted[1];
             } else {
-                fprintf(stderr, "editcap: no secrets type was specified for --inject-secrets\n");
+                cmdarg_err("no secrets type was specified for --inject-secrets");
                 g_strfreev(splitted);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
@@ -1415,8 +1413,7 @@ main(int argc, char *argv[])
             gint string_start_index = 0;
 
             if ((sscanf(ws_optarg, "%" SCNu64 ":%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid <frame>:<comment>\n\n",
-                        ws_optarg);
+                cmdarg_err("\"%s\" isn't a valid <frame>:<comment>", ws_optarg);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1465,8 +1462,7 @@ main(int argc, char *argv[])
                 break;
             }
             else {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
-                        ws_optarg);
+                cmdarg_err("\"%s\" isn't a valid date and time", ws_optarg);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1490,8 +1486,7 @@ main(int argc, char *argv[])
                 break;
 
             default:
-                fprintf(stderr, "editcap: \"%s\" isn't a valid chop length or offset:length\n",
-                        ws_optarg);
+                cmdarg_err("\"%s\" isn't a valid chop length or offset:length", ws_optarg);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
                 break;
@@ -1524,7 +1519,7 @@ main(int argc, char *argv[])
             dup_detect_by_time = FALSE;
             dup_window = get_guint32(ws_optarg, "duplicate window");
             if (dup_window > MAX_DUP_DEPTH) {
-                fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
+                cmdarg_err("\"%d\" duplicate window value must be between 0 and %d inclusive.",
                         dup_window, MAX_DUP_DEPTH);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
@@ -1534,8 +1529,7 @@ main(int argc, char *argv[])
         case 'E':
             err_prob = g_ascii_strtod(ws_optarg, &p);
             if (p == ws_optarg || err_prob < 0.0 || err_prob > 1.0) {
-                fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
-                        ws_optarg);
+                cmdarg_err("probability \"%s\" must be between 0.0 and 1.0", ws_optarg);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1544,8 +1538,7 @@ main(int argc, char *argv[])
         case 'F':
             out_file_type_subtype = wtap_name_to_file_type_subtype(ws_optarg);
             if (out_file_type_subtype < 0) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
-                        ws_optarg);
+                cmdarg_err("\"%s\" isn't a valid capture file type\n", ws_optarg);
                 list_capture_types(stderr);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
@@ -1617,8 +1610,7 @@ main(int argc, char *argv[])
         case 'T':
             out_frame_type = wtap_name_to_encap(ws_optarg);
             if (out_frame_type < 0) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
-                        ws_optarg);
+                cmdarg_err("\"%s\" isn't a valid encapsulation type\n", ws_optarg);
                 list_encap_types(stderr);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
@@ -1660,9 +1652,9 @@ main(int argc, char *argv[])
                 break;
             default:
                 if (opt == '?') {
-                    fprintf(stderr, "editcap: invalid option -- '%c'\n", ws_optopt);
+                    cmdarg_err("invalid option -- '%c'", ws_optopt);
                 } else {
-                    fprintf(stderr, "editcap: option requires an argument -- '%c'\n", ws_optopt);
+                    cmdarg_err("option requires an argument -- '%c'", ws_optopt);
                 }
                 print_usage(stderr);
                 ret = WS_EXIT_INVALID_OPTION;
@@ -1700,14 +1692,14 @@ main(int argc, char *argv[])
 
     if (have_starttime && have_stoptime &&
         nstime_cmp(&starttime, &stoptime) > 0) {
-        fprintf(stderr, "editcap: start time is after the stop time\n");
+        cmdarg_err("start time is after the stop time");
         ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
     if (split_packet_count != 0 && !nstime_is_unset(&secs_per_block)) {
-        fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
-        fprintf(stderr, "editcap: at the same time\n");
+        cmdarg_err("can't split on both packet count and time interval");
+        cmdarg_err_cont("at the same time");
         ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
@@ -1727,19 +1719,19 @@ main(int argc, char *argv[])
 
     if (skip_radiotap) {
         if (ignored_bytes != 0) {
-            fprintf(stderr, "editcap: can't skip radiotap headers and %d byte(s)\n", ignored_bytes);
-            fprintf(stderr, "editcap: at the start of packet at the same time\n");
+            cmdarg_err("can't skip radiotap headers and %d byte(s)", ignored_bytes);
+            cmdarg_err_cont("at the start of packet at the same time");
             ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
 
         if (wtap_file_encap(wth) != WTAP_ENCAP_IEEE_802_11_RADIOTAP) {
-            fprintf(stderr, "editcap: can't skip radiotap header because input file has non-radiotap packets\n");
+            cmdarg_err("can't skip radiotap header because input file has non-radiotap packets");
             if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
-                fprintf(stderr, "editcap: expected '%s', not all packets are necessarily that type\n",
+                cmdarg_err_cont("expected '%s', not all packets are necessarily that type",
                         wtap_encap_description(WTAP_ENCAP_IEEE_802_11_RADIOTAP));
             } else {
-                fprintf(stderr, "editcap: expected '%s', packets are '%s'\n",
+                cmdarg_err_cont("expected '%s', packets are '%s'",
                         wtap_encap_description(WTAP_ENCAP_IEEE_802_11_RADIOTAP),
                         wtap_encap_description(wtap_file_encap(wth)));
             }
@@ -1793,18 +1785,18 @@ main(int argc, char *argv[])
             GError *err = NULL;
 
             if (!g_file_get_contents(secrets_filename, &data, &data_len, &err)) {
-                fprintf(stderr, "editcap: \"%s\" could not be read: %s\n", secrets_filename, err->message);
+                cmdarg_err("\"%s\" could not be read: %s", secrets_filename, err->message);
                 g_clear_error(&err);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             if (data_len == 0) {
-                fprintf(stderr, "editcap: \"%s\" is an empty file, ignoring\n", secrets_filename);
+                cmdarg_err("\"%s\" is an empty file, ignoring", secrets_filename);
                 g_free(data);
                 continue;
             }
             if (data_len >= G_MAXINT) {
-                fprintf(stderr, "editcap: \"%s\" is too large, ignoring\n", secrets_filename);
+                cmdarg_err("\"%s\" is too large, ignoring", secrets_filename);
                 g_free(data);
                 continue;
             }
@@ -1848,7 +1840,7 @@ main(int argc, char *argv[])
             break;
 
     if (keep_em && max_selected == 0) {
-        fprintf(stderr, "editcap: must specify packets to keep when using -r\n");
+        cmdarg_err("must specify packets to keep when using -r");
         ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
