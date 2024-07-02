@@ -1259,10 +1259,10 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
     merge_in_file_t    *in_files = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;
     unsigned            open_file_count;
-    int                 err;
-    char               *err_info;
-    unsigned            err_fileno;
-    uint32_t            err_framenum;
+    int                 err = 0;
+    char               *err_info = NULL;
+    unsigned            err_fileno = 0;
+    uint32_t            err_framenum = 0;
     merge_result        status = MERGE_OK;
     wtap_dumper        *pdh;
     GArray             *shb_hdrs = NULL;
@@ -1298,7 +1298,6 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
         open_file_count = merge_open_in_files(in_file_count - total_file_count, &in_filenames[total_file_count], &in_files, cb, &err, &err_info, &err_fileno);
         if (open_file_count == 0) {
             ws_debug("merge_open_in_files() failed with err=%d", err);
-            err_framenum = 0;
             report_cfile_open_failure(in_filenames[err_fileno], err, err_info);
             return false;
         }
@@ -1402,7 +1401,6 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
             if (temp_files) {
                 g_ptr_array_free(temp_files, true);
             }
-            err_framenum = 0;
             report_cfile_dump_open_failure(out_filename, err, err_info, file_type);
             return false;
         }
