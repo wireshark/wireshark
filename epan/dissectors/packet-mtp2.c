@@ -529,12 +529,6 @@ dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
-static void
-mtp2_init_routine(void)
-{
-        reassembly_table_register(&mtp2_reassembly_table, &addresses_ports_reassembly_table_functions);
-}
-
 /*  get one bit of a guint8 byte
 *   based on the order set in the preferences
 *   reverse_bit_order_mtp2 = false: as the Q.703 states
@@ -1299,7 +1293,7 @@ proto_register_mtp2(void)
                                  &reverse_bit_order_mtp2);
   prefs_register_obsolete_preference(mtp2_module, "rtp_payload_type");
 
-  register_init_routine(&mtp2_init_routine);
+  reassembly_table_register(&mtp2_reassembly_table, &addresses_ports_reassembly_table_functions);
 }
 
 void
