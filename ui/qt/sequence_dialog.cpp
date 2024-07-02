@@ -66,7 +66,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     num_items_(0),
     packet_num_(0),
     sequence_w_(1),
-    axis_pressed_(false),
     current_rtp_sai_hovered_(nullptr),
     voipFeaturesEnabled(voipFeatures)
 {
@@ -97,6 +96,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     sp->setInteraction(QCP::iSelectAxes, true);
     sp->xAxis->setSelectableParts(QCPAxis::spNone);
+    sp->xAxis2->setSelectableParts(QCPAxis::spNone);
     sp->yAxis->setSelectableParts(QCPAxis::spNone);
     sp->yAxis2->setSelectableParts(QCPAxis::spAxis);
 
@@ -110,6 +110,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     sp->xAxis2->setBasePen(base_pen);
     sp->yAxis->setBasePen(base_pen);
     sp->yAxis2->setBasePen(base_pen);
+    /* QCP documentation for setTicks() says "setting show to false does not imply
+     * that tick labels are invisible, too." In practice it seems to make them
+     * invisible, though, so set the length to 0.
+     */
+    sp->yAxis2->setTickLength(0);
 
     sp->xAxis2->setVisible(true);
     sp->yAxis2->setVisible(true);
@@ -223,6 +228,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp, &QCustomPlot::mouseRelease, this, &SequenceDialog::mouseReleased);
     connect(sp, &QCustomPlot::mouseMove, this, &SequenceDialog::mouseMoved);
     connect(sp, &QCustomPlot::mouseWheel, this, &SequenceDialog::mouseWheeled);
+    connect(sp, &QCustomPlot::axisDoubleClick, this, &SequenceDialog::axisDoubleClicked);
     connect(sp, &QCustomPlot::afterLayout, this, &SequenceDialog::layoutAxisLabels);
 }
 
@@ -383,10 +389,8 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
     current_rtp_sai_selected_ = NULL;
     if (event) {
         QCPAxis *yAxis2 = ui->sequencePlot->yAxis2;
-        if (yAxis2->selectedParts().testFlag(QCPAxis::spAxis)) {
-            if (std::abs(event->pos().x() - yAxis2->axisRect()->right()) < 5) {
-                axis_pressed_ = true;
-            }
+        if (std::abs(event->pos().x() - yAxis2->axisRect()->right()) < 5) {
+            yAxis2->setSelectedParts(QCPAxis::spAxis);
         }
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (voipFeaturesEnabled) {
@@ -414,9 +418,22 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 
 }
 
+void SequenceDialog::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart, QMouseEvent*)
+{
+    if (axis == ui->sequencePlot->yAxis2) {
+        QCP::MarginSides autoMargins = axis->axisRect()->autoMargins();
+        axis->axisRect()->setAutoMargins(autoMargins | QCP::msRight);
+        ui->sequencePlot->replot();
+        axis->axisRect()->setAutoMargins(autoMargins);
+        ui->sequencePlot->replot();
+    }
+}
+
 void SequenceDialog::mouseReleased(QMouseEvent*)
 {
-    axis_pressed_ = false;
+    QCustomPlot *sp = ui->sequencePlot;
+    sp->yAxis2->setSelectedParts(QCPAxis::spNone);
+    sp->replot(QCustomPlot::rpQueuedReplot);
 }
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)
@@ -424,14 +441,20 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
     current_rtp_sai_hovered_ = NULL;
     packet_num_ = 0;
     QString hint;
+    Qt::CursorShape shape = Qt::ArrowCursor;
     if (event) {
-        if (axis_pressed_) {
-            QCPAxis *yAxis2 = ui->sequencePlot->yAxis2;
+        QCPAxis *yAxis2 = ui->sequencePlot->yAxis2;
+        if (yAxis2->selectedParts().testFlag(QCPAxis::spAxis)) {
             int x = qMax(event->pos().x(), yAxis2->axisRect()->left());
             QMargins margins = yAxis2->axisRect()->margins();
             margins += QMargins(0, 0, yAxis2->axisRect()->right() - x, 0);
             yAxis2->axisRect()->setMargins(margins);
+            shape = Qt::SplitHCursor;
             ui->sequencePlot->replot(QCustomPlot::rpQueuedReplot);
+        } else {
+            if (std::abs(event->pos().x() - yAxis2->axisRect()->right()) < 5) {
+                shape = Qt::SplitHCursor;
+            }
         }
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (sai) {
@@ -443,6 +466,10 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
             packet_num_ = sai->frame_number;
             hint = QString("Packet %1: %2").arg(packet_num_).arg(sai->comment);
         }
+    }
+
+    if (ui->sequencePlot->cursor().shape() != shape) {
+        ui->sequencePlot->setCursor(QCursor(shape));
     }
 
     if (hint.isEmpty()) {

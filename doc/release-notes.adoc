@@ -304,7 +304,8 @@ The following features are new (or have been significantly updated) since versio
      with a line between them. wsbuglink:12038[]
 
   ** The Comment column can be resized, by selecting the axis between the
-     Comment column and the graph, and dragging. wsbuglink:4972[]
+     Comment column and the graph and dragging, and auto-resized by
+     double-clicking the column. wsbuglink:4972[]
 
   ** Tooltips are shown for elided comments
 
