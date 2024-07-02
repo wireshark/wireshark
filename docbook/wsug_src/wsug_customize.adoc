@@ -273,6 +273,20 @@ _value_ is the value to which it should be set. Multiple instances of `-o
 <preference settings> ` can be given on a single command line.
 +
 --
+
+[NOTE]
+.Preferences and Profiles
+====
+The preferences you specify on the command line will override any settings
+you have changed in any of your profiles; this includes when switching from
+one profile to another.
+
+If you change a setting using the Preferences dialog
+(see <<ChCustPreferencesSection>>) that you have also set on the command line,
+the command line option will then be ignored, and the setting will change
+as normal when you switch profiles.
+====
+
 An example of setting a single preference would be:
 
 ----

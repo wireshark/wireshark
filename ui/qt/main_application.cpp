@@ -467,10 +467,8 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     /* Apply new preferences */
     readConfigurationFiles(true);
 
-    /* Should we reapply command line options now or drop them (so that
-     * they don't get reapplied later, e.g. when reloading Lua plugins)?
-     */
-    commandline_options_free();
+    /* Apply command-line preferences */
+    commandline_options_reapply();
     extcap_register_preferences();
 
     /* Switching profile requires reloading the macro list. */
