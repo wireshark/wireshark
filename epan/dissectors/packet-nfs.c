@@ -11748,6 +11748,11 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	ftree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_request_op, NULL, "Operations (count: %u)", ops);
 	offset += 4;
 
+	if (ops > MAX_NFSV4_OPS) {
+		expert_add_info(pinfo, ftree, &ei_nfs_too_many_ops);
+		ops = MAX_NFSV4_OPS;
+	}
+
 	op_summary = wmem_alloc0_array(pinfo->pool, nfs4_operation_summary, ops);
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
@@ -11878,6 +11883,11 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	ops   = tvb_get_ntohl(tvb, offset+0);
 	ftree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_resop, NULL, "Operations (count: %u)", ops);
 	offset += 4;
+
+	if (ops > MAX_NFSV4_OPS) {
+		expert_add_info(pinfo, ftree, &ei_nfs_too_many_ops);
+		ops = MAX_NFSV4_OPS;
+	}
 
 	op_summary = wmem_alloc0_array(pinfo->pool, nfs4_operation_summary, ops);
 
