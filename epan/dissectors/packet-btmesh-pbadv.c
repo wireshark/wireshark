@@ -372,12 +372,6 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_reported_length(tvb);
 }
 
-static void
-pbadv_init_routine(void)
-{
-    reassembly_table_register(&pbadv_reassembly_table, &pbadv_reassembly_table_functions);
-}
-
 void
 proto_register_btmesh_pbadv(void)
 {
@@ -528,7 +522,7 @@ proto_register_btmesh_pbadv(void)
     prefs_register_protocol_subtree("Bluetooth", proto_btmesh_pbadv, NULL);
     register_dissector("btmesh.pbadv", dissect_btmesh_pbadv_msg, proto_btmesh_pbadv);
 
-    register_init_routine(&pbadv_init_routine);
+    reassembly_table_register(&pbadv_reassembly_table, &pbadv_reassembly_table_functions);
 }
 
 void
