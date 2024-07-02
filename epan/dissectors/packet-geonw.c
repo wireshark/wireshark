@@ -2864,6 +2864,9 @@ proto_register_btpa(void)
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     register_decode_as(&btpa_da);
+
+    btpa_tap = register_tap("btpa");
+    btpa_follow_tap = register_tap("btpa_follow");
 }
 
 void
@@ -2872,9 +2875,6 @@ proto_reg_handoff_btpa(void)
     dissector_add_uint("geonw.ch.nh", 1, btpa_handle);
 
     find_dissector_add_dependency("gnw", proto_btpa);
-
-    btpa_tap = register_tap("btpa");
-    btpa_follow_tap = register_tap("btpa_follow");
 }
 
 void
@@ -2915,6 +2915,9 @@ proto_register_btpb(void)
                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     register_decode_as(&btpb_da);
+
+    btpb_tap = register_tap("btpb");
+    btpb_follow_tap = register_tap("btpb_follow");
 }
 
 void
@@ -2923,9 +2926,6 @@ proto_reg_handoff_btpb(void)
     dissector_add_uint("geonw.ch.nh", 2, btpb_handle);
 
     find_dissector_add_dependency("gnw", proto_btpb);
-
-    btpb_tap = register_tap("btpb");
-    btpb_follow_tap = register_tap("btpb_follow");
 }
 
 // Display functions
@@ -3663,6 +3663,8 @@ proto_register_geonw(void)
         &geonw_analyze_seq);
 
     geonw_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), geonw_addr_hash, geonw_addr_cmp);
+
+    geonw_tap = register_tap("geonw");
 }
 
 void
@@ -3679,8 +3681,6 @@ proto_reg_handoff_geonw(void)
     // IPv6 over GeoNetworking Protocols
     ipv6_handle = find_dissector("ipv6");
     dissector_add_uint("geonw.ch.nh", 3, ipv6_handle);
-
-    geonw_tap = register_tap("geonw");
 
     ieee1609dot2_handle = find_dissector_add_dependency("ieee1609dot2.data", proto_geonw);
 

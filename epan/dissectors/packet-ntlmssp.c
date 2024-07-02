@@ -3727,6 +3727,8 @@ proto_register_ntlmssp(void)
   ntlmssp_wrap_handle = register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
   register_dissector("ntlmssp_data_only", dissect_ntlmssp_payload_only, proto_ntlmssp);
   register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
+
+  ntlmssp_tap = register_tap("ntlmssp");
 }
 
 void
@@ -3763,8 +3765,6 @@ proto_reg_handoff_ntlmssp(void)
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
                                     DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
                                     &ntlmssp_seal_fns);
-  ntlmssp_tap = register_tap("ntlmssp");
-
 }
 
 /*

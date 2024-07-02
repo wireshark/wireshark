@@ -1951,6 +1951,9 @@ void proto_register_ieee80211_radio(void)
 
   register_init_routine( setup_ieee80211_radio );
   register_cleanup_routine( cleanup_ieee80211_radio );
+
+  wlan_radio_tap = register_tap("wlan_radio");
+  wlan_radio_timeline_tap = register_tap("wlan_radio_timeline");
 }
 
 void proto_reg_handoff_ieee80211_radio(void)
@@ -1960,9 +1963,6 @@ void proto_reg_handoff_ieee80211_radio(void)
                      wlan_radio_handle);
   ieee80211_handle = find_dissector_add_dependency("wlan", proto_wlan_radio);
   ieee80211_noqos_handle = find_dissector_add_dependency("wlan_noqos", proto_wlan_radio);
-
-  wlan_radio_tap = register_tap("wlan_radio");
-  wlan_radio_timeline_tap = register_tap("wlan_radio_timeline");
 }
 
 /*

@@ -550,14 +550,14 @@ void proto_register_osmux(void)
                                              osmux_hash, osmux_equal);
 
     osmux_handle = register_dissector("osmux", dissect_osmux, proto_osmux);
+
+    osmux_tap = register_tap("osmux");
 }
 
 
 void proto_reg_handoff_osmux(void)
 {
     dissector_add_for_decode_as_with_preference("udp.port", osmux_handle);
-
-    osmux_tap = register_tap("osmux");
 
     stats_tree_register("osmux", "osmux", "Osmux" STATS_TREE_MENU_SEPARATOR "osmux", 0,
             osmux_stats_tree_packet, osmux_stats_tree_init, NULL);

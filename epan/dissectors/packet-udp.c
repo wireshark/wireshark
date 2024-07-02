@@ -1526,6 +1526,9 @@ proto_register_udp(void)
                         udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count, NULL);
 
     register_init_routine(udp_init);
+
+    udp_tap = register_tap("udp");
+    udp_follow_tap = register_tap("udp_follow");
 }
 
 void
@@ -1538,8 +1541,6 @@ proto_reg_handoff_udp(void)
     capture_dissector_add_uint("ip.proto", IP_PROTO_UDP, udp_cap_handle);
     capture_dissector_add_uint("ip.proto", IP_PROTO_UDPLITE, udplite_cap_handle);
 
-    udp_tap = register_tap("udp");
-    udp_follow_tap = register_tap("udp_follow");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_4);
 }
 

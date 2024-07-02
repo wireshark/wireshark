@@ -1994,14 +1994,15 @@ proto_register_dccp(void)
                            dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count, NULL);
 
     register_init_routine(dccp_init);
+
+    dccp_tap    = register_tap("dccp");
+    dccp_follow_tap = register_tap("dccp_follow");
 }
 
 void
 proto_reg_handoff_dccp(void)
 {
     dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
-    dccp_tap    = register_tap("dccp");
-    dccp_follow_tap = register_tap("dccp_follow");
 }
 
 /*

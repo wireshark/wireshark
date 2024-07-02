@@ -1843,6 +1843,8 @@ void proto_register_lbtrm(void)
         "LBT-RM Tags",
         "A table to define LBT-RM tags",
         tag_uat);
+
+    lbtrm_tap_handle = register_tap("lbm_lbtrm");
 }
 
 /* The registration hand-off routine */
@@ -1857,7 +1859,6 @@ void proto_reg_handoff_lbtrm(void)
     {
         dissector_add_for_decode_as_with_preference("udp.port", lbtrm_dissector_handle);
         heur_dissector_add("udp", test_lbtrm_packet, "LBT Reliable Multicast over UDP", "lbtrm_udp", proto_lbtrm, HEURISTIC_ENABLE);
-        lbtrm_tap_handle = register_tap("lbm_lbtrm");
     }
 
     /* Make sure the low MC address is <= the high MC address. If not, don't change them. */

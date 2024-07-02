@@ -837,13 +837,13 @@ void proto_register_bat(void)
 
 	proto_register_field_array(proto_bat_plugin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	bat_tap = register_tap("batman");
+	bat_follow_tap = register_tap("batman_follow");
 }
 
 void proto_reg_handoff_bat(void)
 {
-	bat_tap = register_tap("batman");
-	bat_follow_tap = register_tap("batman_follow");
-
 	ip_handle = find_dissector_add_dependency("ip", proto_bat_gw);
 
 	dissector_add_uint_with_preference("udp.port", BAT_BATMAN_PORT, batman_handle);

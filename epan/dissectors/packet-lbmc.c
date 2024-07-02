@@ -14351,13 +14351,14 @@ void proto_register_lbmc(void)
     lbmc_message_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_seq_analysis("lbm_uim", "UIM Flows", proto_lbmc, "lbm_uim", TL_REQUIRES_COLUMNS, lbm_uim_seq_analysis_packet);
+
+    lbmc_uim_tap_handle = register_tap("lbm_uim");
+    lbmc_stream_tap_handle = register_tap("lbm_stream");
 }
 
 /* The registration hand-off routine */
 void proto_reg_handoff_lbmc(void)
 {
-    lbmc_uim_tap_handle = register_tap("lbm_uim");
-    lbmc_stream_tap_handle = register_tap("lbm_stream");
 }
 
 /*

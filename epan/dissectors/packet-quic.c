@@ -5676,6 +5676,8 @@ proto_register_quic(void)
      * bytes, but in practice these do not exist yet.
      */
     quic_proto_dissector_table = register_dissector_table("quic.proto", "QUIC Protocol", proto_quic, FT_STRING, STRING_CASE_SENSITIVE);
+
+    quic_follow_tap = register_tap("quic_follow");
 }
 
 void
@@ -5684,7 +5686,6 @@ proto_reg_handoff_quic(void)
     tls13_handshake_handle = find_dissector("tls13-handshake");
     dissector_add_uint_with_preference("udp.port", 0, quic_handle);
     heur_dissector_add("udp", dissect_quic_heur, "QUIC", "quic", proto_quic, HEURISTIC_ENABLE);
-    quic_follow_tap = register_tap("quic_follow");
 }
 
 gboolean

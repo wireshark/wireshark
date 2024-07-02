@@ -17487,6 +17487,8 @@ proto_register_btatt(void)
             "Version of protocol supported by this dissector.");
 
     register_decode_as(&btatt_handle_da);
+
+    btatt_tap_handles = register_tap("btatt.handles");
 }
 
 void
@@ -17504,8 +17506,6 @@ proto_reg_handoff_btatt(void)
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_ATT, btatt_handle);
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_EATT, btatt_handle);
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_ATT, btatt_handle);
-
-    btatt_tap_handles = register_tap("btatt.handles");
 
     for (i_array = 0; bluetooth_uuid_vals[i_array].strptr != NULL; i_array += 1) {
         gchar *name;

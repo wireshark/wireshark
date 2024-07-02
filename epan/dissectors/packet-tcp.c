@@ -10244,6 +10244,10 @@ proto_register_tcp(void)
     register_conversation_table(proto_mptcp, FALSE, mptcpip_conversation_packet, tcpip_endpoint_packet);
     register_follow_stream(proto_tcp, "tcp_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
                             tcp_port_to_display, follow_tcp_tap_listener, get_tcp_stream_count, NULL);
+
+    tcp_tap = register_tap("tcp");
+    tcp_follow_tap = register_tap("tcp_follow");
+    mptcp_tap = register_tap("mptcp");
 }
 
 void
@@ -10253,8 +10257,6 @@ proto_reg_handoff_tcp(void)
     dissector_add_for_decode_as_with_preference("udp.port", tcp_handle);
     data_handle = find_dissector("data");
     sport_handle = find_dissector("sport");
-    tcp_tap = register_tap("tcp");
-    tcp_follow_tap = register_tap("tcp_follow");
 
     capture_dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_cap_handle);
 
@@ -10288,7 +10290,6 @@ proto_reg_handoff_tcp(void)
     /* Common handle for all the unknown/unsupported TCP options */
     tcp_opt_unknown_handle = create_dissector_handle( dissect_tcpopt_unknown, proto_tcp_option_unknown );
 
-    mptcp_tap = register_tap("mptcp");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_4);
 
     proto_ip = proto_get_id_by_filter_name("ip");

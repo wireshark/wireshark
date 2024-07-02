@@ -10441,6 +10441,8 @@ proto_register_rsvp(void)
     rsvp_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rsvp_hash, rsvp_equal);
 
     register_conversation_table(proto_rsvp, TRUE, rsvp_conversation_packet, rsvp_endpoint_packet);
+
+    rsvp_tap = register_tap("rsvp");
 }
 
 void
@@ -10449,7 +10451,6 @@ proto_reg_handoff_rsvp(void)
     dissector_add_uint("ip.proto", IP_PROTO_RSVP, rsvp_handle);
     dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvpe2ei_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PRSVP, rsvp_handle);
-    rsvp_tap = register_tap("rsvp");
 }
 
 /*

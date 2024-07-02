@@ -29918,6 +29918,8 @@ void proto_register_its(void)
                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     register_decode_as(&its_da);
+
+    its_tap = register_tap("its");
 }
 
 #define BTP_SUBDISS_SZ 2
@@ -30003,8 +30005,6 @@ void proto_reg_handoff_its(void)
     dissector_add_uint("cpm.container", 3, create_dissector_handle(dissect_cpm_SensorInformationContainer_PDU, proto_its_cpm));
     dissector_add_uint("cpm.container", 4, create_dissector_handle(dissect_cpm_PerceptionRegionContainer_PDU, proto_its_cpm));
     dissector_add_uint("cpm.container", 5, create_dissector_handle(dissect_cpm_PerceivedObjectContainer_PDU, proto_its_cpm));
-
-    its_tap = register_tap("its");
 }
 
 /*

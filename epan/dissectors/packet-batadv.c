@@ -5521,6 +5521,9 @@ void proto_register_batadv(void)
 
 	reassembly_table_register(&msg_reassembly_table,
 			      &addresses_reassembly_table_functions);
+
+	batadv_tap = register_tap("batman");
+	batadv_follow_tap = register_tap("batman_follow");
 }
 
 void proto_reg_handoff_batadv(void)
@@ -5530,9 +5533,6 @@ void proto_reg_handoff_batadv(void)
 
 	if (!inited) {
 		eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_batadv_plugin);
-
-		batadv_tap = register_tap("batman");
-		batadv_follow_tap = register_tap("batman_follow");
 
 		inited = TRUE;
 	} else {
