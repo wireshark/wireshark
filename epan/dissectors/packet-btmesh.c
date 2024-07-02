@@ -3165,12 +3165,6 @@ static const reassembly_table_functions upper_transport_reassembly_table_functio
     upper_transport_fragment_free_persistent_key
 };
 
-static void
-upper_transport_init_routine(void)
-{
-    reassembly_table_register(&upper_transport_reassembly_table, &upper_transport_reassembly_table_functions);
-}
-
 /* A BT Mesh dissector is not really useful without decryption as all packets are encrypted. Just leave a stub dissector outside of */
 
 /* BT Mesh s1 function */
@@ -13694,7 +13688,7 @@ proto_register_btmesh(void)
 
     register_dissector("btmesh.msg", dissect_btmesh_msg, proto_btmesh);
 
-    register_init_routine(&upper_transport_init_routine);
+    reassembly_table_register(&upper_transport_reassembly_table, &upper_transport_reassembly_table_functions);
 }
 
 /*
