@@ -16,10 +16,10 @@
 #include <epan/crc10-tvb.h>
 
 /* update the data block's CRC-10 remainder one byte at a time */
-guint16
-update_crc10_by_bytes_tvb(guint16 crc10, tvbuff_t *tvb, int offset, int len)
+uint16_t
+update_crc10_by_bytes_tvb(uint16_t crc10, tvbuff_t *tvb, int offset, int len)
 {
-    const guint8 *buf;
+    const uint8_t *buf;
 
     tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
     buf = tvb_get_ptr(tvb, offset, len);

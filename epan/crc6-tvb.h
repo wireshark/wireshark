@@ -17,7 +17,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC guint16 crc6_compute_tvb(tvbuff_t *tvb, int len);
+WS_DLL_PUBLIC uint16_t crc6_compute_tvb(tvbuff_t *tvb, int len);
 
 #ifdef __cplusplus
 }
