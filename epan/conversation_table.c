@@ -869,13 +869,13 @@ add_conversation_table_data_ipv4_subnet(
     aggsrc = wmem_new(wmem_epan_scope(), address);
 
     aggsrc->len = (int)strlen(tpsrc->cidr_addr);
-    aggsrc->data = wmem_memdup(wmem_file_scope(), tpsrc->cidr_addr, strlen(tpsrc->cidr_addr));
+    aggsrc->data = wmem_strdup(wmem_file_scope(), tpsrc->cidr_addr);
     aggsrc->type = AT_STRINGZ;
 
     address *aggdst = NULL;
     aggdst = wmem_new(wmem_epan_scope(), address);
     aggdst->len = (int)strlen(tpdst->cidr_addr);
-    aggdst->data = wmem_memdup(wmem_file_scope(), tpdst->cidr_addr, strlen(tpdst->cidr_addr));
+    aggdst->data = wmem_strdup(wmem_file_scope(), tpdst->cidr_addr);
     aggdst->type = AT_STRINGZ;
 
     /* add data with subnets if we have any, or actual src & dst
@@ -1033,7 +1033,7 @@ add_endpoint_table_data_ipv4_subnet(
     aggaddr = wmem_new(wmem_epan_scope(), address);
 
     aggaddr->len = (int)strlen(tpaddr->cidr_addr);
-    aggaddr->data = wmem_memdup(wmem_file_scope(), tpaddr->cidr_addr, strlen(tpaddr->cidr_addr));
+    aggaddr->data = wmem_strdup(wmem_file_scope(), tpaddr->cidr_addr);
     aggaddr->type = AT_STRINGZ;
 
     /* add data with subnets if we have any, or actual addr
