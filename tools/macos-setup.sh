@@ -93,7 +93,7 @@ NINJA_SHA256=89a287444b5b3e98f88a945afa50ce937b8ffd1dcc59c555ad9b1baf855298c9
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.22.5
-GLIB_VERSION=2.76.6
+GLIB_VERSION=2.80.3
 if [ "$GLIB_VERSION" ]; then
     GLIB_MAJOR_VERSION="$( expr $GLIB_VERSION : '\([0-9][0-9]*\).*' )"
     GLIB_MINOR_VERSION="$( expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
@@ -171,18 +171,18 @@ fi
 # scripts to work with 5.1 through 5.4, as long as they only use Lua
 # features present in all versions)
 LUA_VERSION=5.4.6
-SNAPPY_VERSION=1.1.10
-ZSTD_VERSION=1.5.5
+SNAPPY_VERSION=1.2.1
+ZSTD_VERSION=1.5.6
 ZLIBNG_VERSION=2.1.6
 LIBXML2_VERSION=2.11.5
 LZ4_VERSION=1.9.4
 SBC_VERSION=2.0
-CARES_VERSION=1.19.1
+CARES_VERSION=1.31.0
 LIBSSH_VERSION=0.10.5
 # mmdbresolve
-MAXMINDDB_VERSION=1.4.3
-NGHTTP2_VERSION=1.56.0
-NGHTTP3_VERSION=0.15.0
+MAXMINDDB_VERSION=1.9.1
+NGHTTP2_VERSION=1.62.1
+NGHTTP3_VERSION=1.1.0
 SPANDSP_VERSION=0.0.6
 SPEEXDSP_VERSION=1.2.1
 if [ "$SPANDSP_VERSION" ]; then
@@ -225,6 +225,7 @@ else
 fi
 BROTLI_VERSION=1.0.9
 # minizip
+MINIZIPNG_VERSION=4.0.7
 ZLIB_VERSION=1.3
 # Uncomment to enable automatic updates using Sparkle
 #SPARKLE_VERSION=2.2.2
@@ -2013,7 +2014,8 @@ uninstall_maxminddb() {
 install_c_ares() {
     if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
         echo "Downloading, building, and installing C-Ares API:"
-        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://c-ares.org/download/c-ares-$CARES_VERSION.tar.gz
+        # https://github.com/c-ares/c-ares/releases/download/v1.31.0/c-ares-1.31.0.tar.gz
+        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/c-ares/c-ares/releases/download/v$CARES_VERSION/c-ares-$CARES_VERSION.tar.gz
         $no_build && echo "Skipping installation" && return
         gzcat c-ares-$CARES_VERSION.tar.gz | tar xf -
         cd c-ares-$CARES_VERSION
@@ -2778,6 +2780,44 @@ uninstall_minizip() {
     fi
 }
 
+install_minizip_ng() {
+    if [ "$MINIZIPNG_VERSION" ] && [ ! -f minizip-ng-$MINIZIPNG_VERSION-done ] ; then
+        echo "Downloading, building, and installing minizip-ng:"
+        [ -f $MINIZIPNG_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/zlib-ng/minizip-ng/archive/refs/tags/$MINIZIPNG_VERSION.tar.gz
+        $no_build && echo "Skipping installation" && return
+        gzcat $MINIZIPNG_VERSION.tar.gz | tar xf -
+        cd minizip-ng-$MINIZIPNG_VERSION
+        mkdir build
+        cd build
+        "${DO_CMAKE[@]}" .. 
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        cd ../..
+        touch minizip-ng-$MINIZIPNG_VERSION-done
+    fi
+}
+
+uninstall_minizip_ng() {
+    if [ -n "$installed_minizip_ng_version" ] ; then
+        echo "Uninstalling minizip:"
+        cd minizip-ng-$installed_minizip_ng_version/contrib/minizip
+        $DO_MAKE_UNINSTALL
+        make distclean
+        cd ../../..
+
+        rm minizip-ng-$installed_minizip_ng_version-done
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf minizip-ng-$installed_minizip_ng_version
+            rm -rf minizip-ng-$installed_minizip_ng_version.tar.gz
+        fi
+
+        installed_minizip_ng_version=""
+    fi
+}
 install_sparkle() {
     if [ "$SPARKLE_VERSION" ] && [ ! -f sparkle-$SPARKLE_VERSION-done ] ; then
         echo "Downloading and installing Sparkle:"
@@ -3312,6 +3352,16 @@ install_all() {
         uninstall_minizip -r
     fi
 
+    if [ -n "$installed_minizip_ng_version" ] && [ "$installed_minizip_ng_version" != "$MINIZIPNG_VERSION" ] ; then
+    echo "Installed minizip-ng version is $installed_minizip_ng_version"
+    if [ -z "$MINIZIPNG_VERSION" ] ; then
+        echo "minizip-ng is not requested"
+    else
+        echo "Requested minizip-ng version is $MINIZIPNG_VERSION"
+    fi
+    uninstall_minizip_ng -r
+    fi
+
     if [ -n "$installed_sparkle_version" -a \
               "$installed_sparkle_version" != "$SPARKLE_VERSION" ] ; then
         echo "Installed Sparkle version is $installed_sparkle_version"
@@ -3499,6 +3549,8 @@ install_all() {
 
     install_minizip
 
+    install_minizip_ng
+
     install_sparkle
 
     install_re2
@@ -3535,6 +3587,8 @@ uninstall_all() {
         uninstall_sparkle
 
         uninstall_minizip
+
+        uninstall_minizip_ng
 
         uninstall_brotli
 
@@ -3833,6 +3887,7 @@ then
     installed_python3_version=$( ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/' )
     installed_brotli_version=$( ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/' )
     installed_minizip_version=$( ls minizip-*-done 2>/dev/null | sed 's/minizip-\(.*\)-done/\1/' )
+    installed_minizip_ng_version=$( ls minizip-ng-*-done 2>/dev/null | sed 's/minizip-ng-\(.*\)-done/\1/' )
     installed_sparkle_version=$( ls sparkle-*-done 2>/dev/null | sed 's/sparkle-\(.*\)-done/\1/' )
 
     cd "$topdir"
