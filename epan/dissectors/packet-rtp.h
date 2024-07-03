@@ -28,28 +28,28 @@
 
 struct _rtp_info {
 	unsigned int  info_version;
-	gboolean      info_padding_set;
-	gboolean      info_marker_set;
-	guint32       info_media_types;
+	bool          info_padding_set;
+	bool          info_marker_set;
+	uint32_t      info_media_types;
 	unsigned int  info_payload_type;
-	guint16       info_seq_num;
-	guint32       info_extended_seq_num;
-	guint32       info_timestamp;
-	guint64       info_extended_timestamp;
-	guint32       info_sync_src;
-	guint         info_data_len;       /* length of raw rtp data as reported */
-	gboolean      info_all_data_present; /* FALSE if data is cut off */
-	guint         info_payload_offset; /* start of payload relative to info_data */
-	guint         info_payload_len;    /* length of payload (not incl padding) */
-	gboolean      info_is_srtp;
-	guint32       info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
-	const guint8* info_data;           /* pointer to raw rtp data */
-	const gchar   *info_payload_type_str;
-	gint          info_payload_rate;
+	uint16_t      info_seq_num;
+	uint32_t      info_extended_seq_num;
+	uint32_t      info_timestamp;
+	uint64_t      info_extended_timestamp;
+	uint32_t      info_sync_src;
+	unsigned      info_data_len;       /* length of raw rtp data as reported */
+	bool          info_all_data_present; /* false if data is cut off */
+	unsigned      info_payload_offset; /* start of payload relative to info_data */
+	unsigned      info_payload_len;    /* length of payload (not incl padding) */
+	bool          info_is_srtp;
+	uint32_t      info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
+	const uint8_t* info_data;           /* pointer to raw rtp data */
+	const char    *info_payload_type_str;
+	int           info_payload_rate;
 	unsigned      info_payload_channels;
 	wmem_map_t    *info_payload_fmtp_map;
-	gboolean      info_is_ed137;
-	const gchar   *info_ed137_info;    /* pointer to static string, no freeing is required */
+	bool          info_is_ed137;
+	const char    *info_ed137_info;    /* pointer to static string, no freeing is required */
 	/*
 	* info_data: pointer to raw rtp data = header + payload incl. padding.
 	* That should be safe because the "epan_dissect_t" constructed for the packet
@@ -79,24 +79,24 @@ struct _rtp_info {
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */
 struct srtp_key_info
 {
-    guint8		*master_key;			/* pointer to an wmem_file_scope'ed master key */
-    guint8		*master_salt;			/* pointer to an wmem_file_scope'ed salt for this master key - NULL if no salt */
-    guint8		key_generation_rate;	/* encoded as the power of 2, 0..24, or 255 (=zero rate) */
+    uint8_t		*master_key;			/* pointer to an wmem_file_scope'ed master key */
+    uint8_t		*master_salt;			/* pointer to an wmem_file_scope'ed salt for this master key - NULL if no salt */
+    uint8_t		key_generation_rate;	/* encoded as the power of 2, 0..24, or 255 (=zero rate) */
                                         /* Either the MKI value is used (in which case from=to=0), or the <from,to> values are used (and MKI=0) */
-    guint32		from_roc;				/* 32 MSBs of a 48 bit value - frame from which this key is valid (roll-over counter part) */
-    guint16		from_seq;				/* 16 LSBs of a 48 bit value - frame from which this key is valid (sequence number part) */
-    guint32		to_roc;					/* 32 MSBs of a 48 bit value - frame to which this key is valid (roll-over counter part) */
-    guint16		to_seq;					/* 16 LSBs of a 48 bit value - frame to which this key is valid (sequence number part) */
-    guint32		mki;					/* the MKI value associated with this key */
+    uint32_t		from_roc;				/* 32 MSBs of a 48 bit value - frame from which this key is valid (roll-over counter part) */
+    uint16_t		from_seq;				/* 16 LSBs of a 48 bit value - frame from which this key is valid (sequence number part) */
+    uint32_t		to_roc;					/* 32 MSBs of a 48 bit value - frame to which this key is valid (roll-over counter part) */
+    uint16_t		to_seq;					/* 16 LSBs of a 48 bit value - frame to which this key is valid (sequence number part) */
+    uint32_t		mki;					/* the MKI value associated with this key */
 };
 #endif
 
 struct srtp_info
 {
-    guint      encryption_algorithm;	/* at present only NULL vs non-NULL matter */
-    guint      auth_algorithm;			/* at present only NULL vs non-NULL matter */
-    guint      mki_len;					/* number of octets used for the MKI in the RTP payload */
-    guint      auth_tag_len;			/* number of octets used for the Auth Tag in the RTP payload */
+    unsigned   encryption_algorithm;	/* at present only NULL vs non-NULL matter */
+    unsigned   auth_algorithm;			/* at present only NULL vs non-NULL matter */
+    unsigned   mki_len;					/* number of octets used for the MKI in the RTP payload */
+    unsigned   auth_tag_len;			/* number of octets used for the Auth Tag in the RTP payload */
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */
     struct srtp_key_info **master_keys; /* an array of pointers to master keys and their info, the array and each key struct being wmem_file_scope'ed  */
     void       *enc_alg_info,			/* algorithm-dependent info struct - may be void for default alg with default params */
@@ -142,8 +142,8 @@ rtp_dyn_payload_t* rtp_dyn_payload_dup(rtp_dyn_payload_t *rtp_dyn_payload);
  */
 WS_DLL_PUBLIC
 void rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
-							const guint pt,
-							const gchar* encoding_name,
+							const unsigned pt,
+							const char* encoding_name,
 							const int sample_rate,
 							const unsigned channels,
 							wmem_map_t* fmtp_map);
@@ -161,8 +161,8 @@ void rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
  */
 WS_DLL_PUBLIC
 void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
-							const guint pt,
-							const gchar* encoding_name,
+							const unsigned pt,
+							const char* encoding_name,
 							const int sample_rate,
 							const unsigned channels);
 
@@ -179,7 +179,7 @@ void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
  */
 WS_DLL_PUBLIC
 void rtp_dyn_payload_add_fmtp(rtp_dyn_payload_t *rtp_dyn_payload,
-				const guint pt,
+				const unsigned pt,
 				const char* name,
 				const char* value);
 
@@ -189,22 +189,22 @@ void rtp_dyn_payload_add_fmtp(rtp_dyn_payload_t *rtp_dyn_payload,
 /* Not used anymore
 WS_DLL_PUBLIC
 void rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
-							const guint pt,
-							const gchar* encoding_name,
+							const unsigned pt,
+							const char* encoding_name,
 							const int sample_rate);
 */
 
 /* removes the given payload type */
 /* Not used anymore
 WS_DLL_PUBLIC
-gboolean rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt);
+bool rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const unsigned pt);
 */
 
 /* retrieves the encoding name for the given payload type; the string returned is only valid
    until the entry is replaced, removed, or the hash table is destroyed, so duplicate it if
    you need it long. */
 WS_DLL_PUBLIC
-const gchar* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt);
+const char* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const unsigned pt);
 
 /*
    Retrieves the encoding name, sample rate, and format parameters map for the
@@ -219,11 +219,11 @@ const gchar* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const 
    @param[out] sample_rate The sample rate assigned to that payload type
    @param[out] channels The number of audio channels for that payload type
    @param[out] fmtp_map The map of format parameters assigned to that type
-   @return TRUE if successful, FALSE if there is no entry for that payload type
+   @return true if successful, false if there is no entry for that payload type
 */
 WS_DLL_PUBLIC
-gboolean rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
-								  const gchar **encoding_name, int *sample_rate, unsigned *channels, wmem_map_t **fmtp_map);
+bool rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const unsigned pt,
+								  const char **encoding_name, int *sample_rate, unsigned *channels, wmem_map_t **fmtp_map);
 
 /* Free's and destroys the dyn_payload hash table; internally this decrements the ref_count
    and only free's it if the ref_count == 0. */
@@ -248,15 +248,15 @@ void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
  */
 struct _rtp_packet_info
 {
-    gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
-    guint32 frame_number;                           /**> the frame where this conversation is started */
-    guint32 media_types;
+    char    method[MAX_RTP_SETUP_METHOD_SIZE + 1];
+    uint32_t frame_number;                           /**> the frame where this conversation is started */
+    uint32_t media_types;
     rtp_dyn_payload_t *rtp_dyn_payload;             /**> the dynamic RTP payload info - see comments above */
 
-    guint32 extended_seqno;                         /**> the sequence number, extended to a 32-bit
+    uint32_t extended_seqno;                         /**> the sequence number, extended to a 32-bit
                                                      * int to guarantee it increasing monotonically
                                                      */
-    guint64 extended_timestamp;                     /**> timestamp extended to 64-bit */
+    uint64_t extended_timestamp;                     /**> timestamp extended to 64-bit */
     struct _rtp_private_conv_info *rtp_conv_info;   /**> conversation info private
                                                      * to the rtp dissector
                                                      */
@@ -272,9 +272,9 @@ void rtp_add_address(packet_info *pinfo,
                      const port_type ptype,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method,
-                     guint32 setup_frame_number,
-                     guint32 media_types,
+                     const char *setup_method,
+                     uint32_t setup_frame_number,
+                     uint32_t media_types,
                      rtp_dyn_payload_t *rtp_dyn_payload);
 
 /* Add an SRTP conversation with the given details */
@@ -283,28 +283,28 @@ void srtp_add_address(packet_info *pinfo,
                      const port_type ptype,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method,
-                     guint32 setup_frame_number,
-                     guint32 media_types,
+                     const char *setup_method,
+                     uint32_t setup_frame_number,
+                     uint32_t media_types,
                      rtp_dyn_payload_t *rtp_dyn_payload,
                      struct srtp_info *srtp_info,
                      sdp_setup_info_t *setup_info);
 
 /* Add an Bluetooth conversation with the given details */
 void
-bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
-         const gchar *setup_method, guint32 setup_frame_number,
-         guint32 media_types, void *data);
+bluetooth_add_address(packet_info *pinfo, address *addr, uint32_t stream_number,
+         const char *setup_method, uint32_t setup_frame_number,
+         uint32_t media_types, void *data);
 
 /* Dissect the header only, without side effects */
 WS_DLL_PUBLIC
-gint dissect_rtp_shim_header(tvbuff_t *tvb, gint start,
+int dissect_rtp_shim_header(tvbuff_t *tvb, int start,
                              packet_info *pinfo, proto_tree *tree,
                              struct _rtp_info *rtp_info);
 
 struct _rtp_pkt_info {
-    guint payload_len;
-    guint8 padding_len; /* without padding count byte */
+    unsigned payload_len;
+    uint8_t padding_len; /* without padding count byte */
 };
 
 #endif /*__PACKET_RTP_H__*/

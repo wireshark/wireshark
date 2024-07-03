@@ -14,16 +14,16 @@
 
 typedef struct _sip_info_value_t
 {
-    const guint8    *request_method;
-    guint     response_code;
-    gboolean  resend;
-    guint32   setup_time;
+    const uint8_t   *request_method;
+    unsigned  response_code;
+    bool      resend;
+    uint32_t  setup_time;
     /* added for VoIP calls analysis, see ui/voip_calls.c*/
-    gchar    *tap_call_id;
-    gchar    *tap_from_addr;
-    gchar    *tap_to_addr;
-    guint32   tap_cseq_number;
-    gchar    *reason_phrase;
+    char     *tap_call_id;
+    char     *tap_from_addr;
+    char     *tap_to_addr;
+    uint32_t  tap_cseq_number;
+    char     *reason_phrase;
 } sip_info_value_t;
 
 typedef enum {
@@ -35,14 +35,14 @@ typedef enum {
 typedef struct _sip_reason_code_info_t
 {
     sip_reason_code_proto_t    protocol_type_num;
-    guint                      cause_value;
+    unsigned                   cause_value;
 } sip_reason_code_info_t;
 
 WS_DLL_PUBLIC const value_string sip_response_code_vals[];
 
 extern void dfilter_store_sip_from_addr(tvbuff_t *tvb, proto_tree *tree,
-    guint parameter_offset, guint parameter_len);
+    unsigned parameter_offset, unsigned parameter_len);
 
-extern void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset);
+extern void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset, int line_end_offset);
 
 #endif
