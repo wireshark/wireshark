@@ -26,8 +26,8 @@ extern "C" {
 /** Global variable holding the content of the corresponding environment variable
  * to save fetching it repeatedly.
  */
-extern gboolean wireshark_abort_on_dissector_bug;
-extern gboolean wireshark_abort_on_too_many_items;
+extern bool wireshark_abort_on_dissector_bug;
+extern bool wireshark_abort_on_too_many_items;
 
 typedef struct epan_dissect epan_dissect_t;
 
@@ -47,9 +47,9 @@ struct packet_provider_data;
  * of libwireshark.
  */
 struct packet_provider_funcs {
-	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, guint32 frame_num);
-	const char *(*get_interface_name)(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number);
-	const char *(*get_interface_description)(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number);
+	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, uint32_t frame_num);
+	const char *(*get_interface_name)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
+	const char *(*get_interface_description)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);
 };
 
@@ -100,10 +100,10 @@ Ref2 for further edits - delete when done
  *
  * Must be called only once in a program.
  *
- * Returns TRUE on success, FALSE on failure.
+ * Returns true on success, false on failure.
  */
 WS_DLL_PUBLIC
-gboolean epan_init(register_cb cb, void *client_data, gboolean load_plugins);
+bool epan_init(register_cb cb, void *client_data, bool load_plugins);
 
 /**
  * Load all settings, from the current profile, that affect epan.
@@ -121,8 +121,8 @@ typedef struct {
 	void (*dissect_init)(epan_dissect_t *);
 	void (*dissect_cleanup)(epan_dissect_t *);
 	void (*cleanup)(void);
-	void (*register_all_protocols)(register_cb, gpointer);
-	void (*register_all_handoffs)(register_cb, gpointer);
+	void (*register_all_protocols)(register_cb, void *);
+	void (*register_all_handoffs)(register_cb, void *);
 	void (*register_all_tap_listeners)(void);
 } epan_plugin;
 
@@ -157,15 +157,15 @@ WS_DLL_PUBLIC epan_t *epan_new(struct packet_provider_data *prov,
 
 WS_DLL_PUBLIC wtap_block_t epan_get_modified_block(const epan_t *session, const frame_data *fd);
 
-WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, guint32 interface_id, unsigned section_number);
+WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, uint32_t interface_id, unsigned section_number);
 
-WS_DLL_PUBLIC const char *epan_get_interface_description(const epan_t *session, guint32 interface_id, unsigned section_number);
+WS_DLL_PUBLIC const char *epan_get_interface_description(const epan_t *session, uint32_t interface_id, unsigned section_number);
 
-const nstime_t *epan_get_frame_ts(const epan_t *session, guint32 frame_num);
+const nstime_t *epan_get_frame_ts(const epan_t *session, uint32_t frame_num);
 
 WS_DLL_PUBLIC void epan_free(epan_t *session);
 
-WS_DLL_PUBLIC const gchar*
+WS_DLL_PUBLIC const char*
 epan_get_version(void);
 
 WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
@@ -181,19 +181,19 @@ WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
  * Clearing this reverts the decision to epan_dissect_init() and proto_tree_visible.
  */
 WS_DLL_PUBLIC
-void epan_set_always_visible(gboolean force);
+void epan_set_always_visible(bool force);
 
 /** initialize an existing single packet dissection */
 WS_DLL_PUBLIC
 void
-epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible);
+epan_dissect_init(epan_dissect_t *edt, epan_t *session, const bool create_proto_tree, const bool proto_tree_visible);
 
 /** get a new single packet dissection
  * should be freed using epan_dissect_free() after packet dissection completed
  */
 WS_DLL_PUBLIC
 epan_dissect_t*
-epan_dissect_new(epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible);
+epan_dissect_new(epan_t *session, const bool create_proto_tree, const bool proto_tree_visible);
 
 WS_DLL_PUBLIC
 void
@@ -202,7 +202,7 @@ epan_dissect_reset(epan_dissect_t *edt);
 /** Indicate whether we should fake protocols or not */
 WS_DLL_PUBLIC
 void
-epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols);
+epan_dissect_fake_protocols(epan_dissect_t *edt, const bool fake_protocols);
 
 /** run a single packet dissection */
 WS_DLL_PUBLIC
@@ -246,11 +246,11 @@ epan_dissect_prime_with_hfid_array(epan_dissect_t *edt, GArray *hfids);
 /** fill the dissect run output into the packet list columns */
 WS_DLL_PUBLIC
 void
-epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
+epan_dissect_fill_in_columns(epan_dissect_t *edt, const bool fill_col_exprs, const bool fill_fd_colums);
 
 /** Check whether a dissected packet contains a given named field */
 WS_DLL_PUBLIC
-gboolean
+bool
 epan_dissect_packet_contains_field(epan_dissect_t* edt,
                                    const char *field_name);
 
@@ -265,9 +265,9 @@ void
 epan_dissect_free(epan_dissect_t* edt);
 
 /** Sets custom column */
-const gchar *
-epan_custom_set(epan_dissect_t *edt, GSList *ids, gint occurrence,
-				gchar *result, gchar *expr, const int size);
+const char *
+epan_custom_set(epan_dissect_t *edt, GSList *ids, int occurrence,
+				char *result, char *expr, const int size);
 
 /**
  * Get compile-time information for libraries used by libwireshark.

@@ -20,10 +20,10 @@
 /* Note: this might be larger than GUID_LEN, so don't overlay data in packets
    with this. */
 typedef struct _e_guid_t {
-    guint32 data1;
-    guint16 data2;
-    guint16 data3;
-    guint8  data4[8];
+    uint32_t data1;
+    uint16_t data2;
+    uint16_t data3;
+    uint8_t data4[8];
 } e_guid_t;
 
 #ifdef __cplusplus
@@ -33,17 +33,17 @@ extern "C" {
 WS_DLL_PUBLIC void guids_init(void);
 
 /* add a GUID */
-WS_DLL_PUBLIC void guids_add_guid(const e_guid_t *guid, const gchar *name);
+WS_DLL_PUBLIC void guids_add_guid(const e_guid_t *guid, const char *name);
 
 /* remove a guid to name mapping */
 WS_DLL_PUBLIC void guids_delete_guid(const e_guid_t *guid);
 
 /* try to get registered name for this GUID */
-WS_DLL_PUBLIC const gchar *guids_get_guid_name(const e_guid_t *guid, wmem_allocator_t *scope);
+WS_DLL_PUBLIC const char *guids_get_guid_name(const e_guid_t *guid, wmem_allocator_t *scope);
 
 /* resolve GUID to name (or if unknown to hex string) */
 /* (if you need hex string only, use guid_to_str instead) */
-WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid, wmem_allocator_t *scope);
+WS_DLL_PUBLIC const char* guids_resolve_guid_to_str(const e_guid_t *guid, wmem_allocator_t *scope);
 
 /* add a UUID (dcerpc_init_uuid() will call this too) */
 #define guids_add_uuid(uuid, name) guids_add_guid((const e_guid_t *) (uuid), (name))
@@ -57,7 +57,7 @@ WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid, wmem_
 
 WS_DLL_PUBLIC int guid_cmp(const e_guid_t *g1, const e_guid_t *g2);
 
-WS_DLL_PUBLIC guint guid_hash(const e_guid_t *guid);
+WS_DLL_PUBLIC unsigned guid_hash(const e_guid_t *guid);
 
 #ifdef __cplusplus
 }

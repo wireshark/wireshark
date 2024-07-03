@@ -84,7 +84,7 @@ end:
     if (ok)
     {
         tvbuff_t *uncompr_tvb;
-        uncompr_tvb = tvb_new_real_data (uncompr, (guint)uncompr_len, (guint)uncompr_len);
+        uncompr_tvb = tvb_new_real_data (uncompr, (unsigned)uncompr_len, (unsigned)uncompr_len);
         tvb_set_free_cb (uncompr_tvb, g_free);
         return uncompr_tvb;
     }

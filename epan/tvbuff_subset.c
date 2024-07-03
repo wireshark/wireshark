@@ -21,9 +21,9 @@ typedef struct {
 	struct tvbuff	*tvb;
 
 	/** The offset of 'tvb' to which I'm privy */
-	guint		offset;
+	unsigned		offset;
 	/** The length of 'tvb' to which I'm privy */
-	guint		length;
+	unsigned		length;
 
 } tvb_backing_t;
 
@@ -33,8 +33,8 @@ struct tvb_subset {
 	tvb_backing_t	subset;
 };
 
-static guint
-subset_offset(const tvbuff_t *tvb, const guint counter)
+static unsigned
+subset_offset(const tvbuff_t *tvb, const unsigned counter)
 {
 	const struct tvb_subset *subset_tvb = (const struct tvb_subset *) tvb;
 	const tvbuff_t *member = subset_tvb->subset.tvb;
@@ -43,26 +43,26 @@ subset_offset(const tvbuff_t *tvb, const guint counter)
 }
 
 static void *
-subset_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
+subset_memcpy(tvbuff_t *tvb, void *target, unsigned abs_offset, unsigned abs_length)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
 	return tvb_memcpy(subset_tvb->subset.tvb, target, subset_tvb->subset.offset + abs_offset, abs_length);
 }
 
-static const guint8 *
-subset_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
+static const uint8_t *
+subset_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
 	return tvb_get_ptr(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, abs_length);
 }
 
-static gint
-subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
+static int
+subset_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-	gint result;
+	int result;
 
 	result = tvb_find_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
 	if (result == -1)
@@ -76,11 +76,11 @@ subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
 	return result - subset_tvb->subset.offset;
 }
 
-static gint
-subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle)
+static int
+subset_pbrk_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-	gint result;
+	int result;
 
 	result = tvb_ws_mempbrk_pattern_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_needle);
 	if (result == -1)
@@ -95,7 +95,7 @@ subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbr
 }
 
 static tvbuff_t *
-subset_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
+subset_clone(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
@@ -115,8 +115,8 @@ static const struct tvb_ops tvb_subset_ops = {
 };
 
 static tvbuff_t *
-tvb_new_with_subset(tvbuff_t *backing, const guint reported_length,
-    const guint subset_tvb_offset, const guint subset_tvb_length)
+tvb_new_with_subset(tvbuff_t *backing, const unsigned reported_length,
+    const unsigned subset_tvb_offset, const unsigned subset_tvb_length)
 {
 	tvbuff_t *tvb = tvb_new(&tvb_subset_ops);
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
@@ -134,7 +134,7 @@ tvb_new_with_subset(tvbuff_t *backing, const guint reported_length,
 	tvb->flags		     = backing->flags;
 
 	tvb->reported_length	     = reported_length;
-	tvb->initialized	     = TRUE;
+	tvb->initialized	     = true;
 
 	/* Optimization. If the backing buffer has a pointer to contiguous, real data,
 	 * then we can point directly to our starting offset in that buffer */
@@ -152,12 +152,12 @@ tvb_new_with_subset(tvbuff_t *backing, const guint reported_length,
 }
 
 tvbuff_t *
-tvb_new_subset_length_caplen(tvbuff_t *backing, const gint backing_offset, const gint backing_length, const gint reported_length)
+tvb_new_subset_length_caplen(tvbuff_t *backing, const int backing_offset, const int backing_length, const int reported_length)
 {
 	tvbuff_t *tvb;
-	guint	  subset_tvb_offset;
-	guint	  subset_tvb_length;
-	guint	  actual_reported_length;
+	unsigned	  subset_tvb_offset;
+	unsigned	  subset_tvb_length;
+	unsigned	  actual_reported_length;
 
 	DISSECTOR_ASSERT(backing && backing->initialized);
 
@@ -170,7 +170,7 @@ tvb_new_subset_length_caplen(tvbuff_t *backing, const gint backing_offset, const
 	if (reported_length == -1)
 		actual_reported_length = backing->reported_length - subset_tvb_offset;
 	else
-		actual_reported_length = (guint)reported_length;
+		actual_reported_length = (unsigned)reported_length;
 
 	/*
 	 * Cut the captured length short, so it doesn't go past the subset's
@@ -188,13 +188,13 @@ tvb_new_subset_length_caplen(tvbuff_t *backing, const gint backing_offset, const
 }
 
 tvbuff_t *
-tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint reported_length)
+tvb_new_subset_length(tvbuff_t *backing, const int backing_offset, const int reported_length)
 {
-	gint	  captured_length;
-	gint	  actual_reported_length;
+	int	  captured_length;
+	int	  actual_reported_length;
 	tvbuff_t *tvb;
-	guint	  subset_tvb_offset;
-	guint	  subset_tvb_length;
+	unsigned	  subset_tvb_offset;
+	unsigned	  subset_tvb_length;
 
 	DISSECTOR_ASSERT(backing && backing->initialized);
 
@@ -228,7 +228,7 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint r
 		actual_reported_length -= subset_tvb_offset;
 	}
 
-	tvb = tvb_new_with_subset(backing, (guint)actual_reported_length,
+	tvb = tvb_new_with_subset(backing, (unsigned)actual_reported_length,
 	    subset_tvb_offset, subset_tvb_length);
 
 	tvb_add_to_chain(backing, tvb);
@@ -237,12 +237,12 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint r
 }
 
 tvbuff_t *
-tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
+tvb_new_subset_remaining(tvbuff_t *backing, const int backing_offset)
 {
 	tvbuff_t *tvb;
-	guint	  subset_tvb_offset;
-	guint	  subset_tvb_length;
-	guint	  reported_length;
+	unsigned	  subset_tvb_offset;
+	unsigned	  subset_tvb_length;
+	unsigned	  reported_length;
 
 	tvb_check_offset_length(backing, backing_offset, -1 /* backing_length */,
 			        &subset_tvb_offset,

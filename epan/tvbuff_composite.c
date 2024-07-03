@@ -21,8 +21,8 @@ typedef struct {
 	/* Used for quick testing to see if this
 	 * is the tvbuff that a COMPOSITE is
 	 * interested in. */
-	guint		*start_offsets;
-	guint		*end_offsets;
+	unsigned		*start_offsets;
+	unsigned		*end_offsets;
 
 } tvb_comp_t;
 
@@ -42,23 +42,23 @@ composite_free(tvbuff_t *tvb)
 
 	g_free(composite->start_offsets);
 	g_free(composite->end_offsets);
-	g_free((gpointer)tvb->real_data);
+	g_free((void *)tvb->real_data);
 }
 
-static guint
-composite_offset(const tvbuff_t *tvb _U_, const guint counter)
+static unsigned
+composite_offset(const tvbuff_t *tvb _U_, const unsigned counter)
 {
 	return counter;
 }
 
-static const guint8*
-composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
+static const uint8_t*
+composite_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 {
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
-	guint	    i, num_members;
+	unsigned	    i, num_members;
 	tvb_comp_t *composite;
 	tvbuff_t   *member_tvb = NULL;
-	guint	    member_offset;
+	unsigned	    member_offset;
 	GSList	   *slist;
 
 	/* DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops); */
@@ -95,7 +95,7 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 		/* Use a temporary variable as tvb_memcpy is also checking tvb->real_data pointer */
 		void *real_data = g_malloc(tvb->length);
 		tvb_memcpy(tvb, real_data, 0, tvb->length);
-		tvb->real_data = (const guint8 *)real_data;
+		tvb->real_data = (const uint8_t *)real_data;
 		return tvb->real_data + abs_offset;
 	}
 
@@ -103,15 +103,15 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 }
 
 static void *
-composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_length)
+composite_memcpy(tvbuff_t *tvb, void* _target, unsigned abs_offset, unsigned abs_length)
 {
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
-	guint8 *target = (guint8 *) _target;
+	uint8_t *target = (uint8_t *) _target;
 
-	guint	    i, num_members;
+	unsigned	    i, num_members;
 	tvb_comp_t *composite;
 	tvbuff_t   *member_tvb = NULL;
-	guint	    member_offset, member_length;
+	unsigned	    member_offset, member_length;
 	GSList	   *slist;
 
 	/* DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops); */
@@ -256,7 +256,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 {
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	GSList	   *slist;
-	guint	    num_members;
+	unsigned	    num_members;
 	tvbuff_t   *member_tvb;
 	tvb_comp_t *composite;
 	int	    i = 0;
@@ -276,11 +276,11 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	 */
 	DISSECTOR_ASSERT(num_members);
 
-	composite->start_offsets = g_new(guint, num_members);
-	composite->end_offsets = g_new(guint, num_members);
+	composite->start_offsets = g_new(unsigned, num_members);
+	composite->end_offsets = g_new(unsigned, num_members);
 
 	for (slist = composite->tvbs; slist != NULL; slist = slist->next) {
-		DISSECTOR_ASSERT((guint) i < num_members);
+		DISSECTOR_ASSERT((unsigned) i < num_members);
 		member_tvb = (tvbuff_t *)slist->data;
 		composite->start_offsets[i] = tvb->length;
 		tvb->length += member_tvb->length;
@@ -290,7 +290,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		i++;
 	}
 
-	tvb->initialized = TRUE;
+	tvb->initialized = true;
 	tvb->ds_tvb = tvb;
 }
 

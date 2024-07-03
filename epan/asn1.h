@@ -39,23 +39,23 @@ typedef enum {
 } asn1_par_type;
 
 typedef struct _asn1_par_def_t {
-  const gchar *name;
+  const char *name;
   asn1_par_type ptype;
 } asn1_par_def_t;
 
 typedef struct _asn1_par_t {
-  const gchar *name;
+  const char *name;
   asn1_par_type ptype;
   union {
     bool v_boolean;
-    gint32 v_integer;
+    int32_t v_integer;
     void *v_type;
   } value;
   struct _asn1_par_t *next;
 } asn1_par_t;
 
 typedef struct _asn1_stack_frame_t {
-  const gchar *name;
+  const char *name;
   struct _asn1_par_t *par;
   struct _asn1_stack_frame_t *next;
 } asn1_stack_frame_t;
@@ -63,7 +63,7 @@ typedef struct _asn1_stack_frame_t {
 #define ASN1_CTX_SIGNATURE 0x41435458  /* "ACTX" */
 
 typedef struct _asn1_ctx_t {
-  guint32 signature;
+  uint32_t signature;
   asn1_enc_e encoding;
   bool aligned;
   packet_info *pinfo;
@@ -78,8 +78,8 @@ typedef struct _asn1_ctx_t {
     bool indirect_ref_present;
     tvbuff_t *data_value_descriptor;
     const char *direct_reference;
-    gint32 indirect_reference;
-    gint encoding;
+    int32_t indirect_reference;
+    int encoding;
       /*
          0 : single-ASN1-type,
          1 : octet-aligned,
@@ -106,7 +106,7 @@ typedef struct _asn1_ctx_t {
     int hf_index;
     bool data_value_descr_present;
     tvbuff_t *data_value_descriptor;
-    gint identification;
+    int identification;
       /*
          0 : syntaxes,
          1 : syntax,
@@ -115,7 +115,7 @@ typedef struct _asn1_ctx_t {
          4 : transfer-syntax,
          5 : fixed
       */
-    gint32 presentation_context_id;
+    int32_t presentation_context_id;
     const char *abstract_syntax;
     const char *transfer_syntax;
     tvbuff_t *data_value;
@@ -134,7 +134,7 @@ typedef struct _asn1_ctx_t {
 #define ROSE_CTX_SIGNATURE 0x524F5345  /* "ROSE" */
 
 typedef struct _rose_ctx_t {
-  guint32 signature;
+  uint32_t signature;
   dissector_table_t arg_global_dissector_table;
   dissector_table_t arg_local_dissector_table;
   dissector_table_t res_global_dissector_table;
@@ -144,23 +144,23 @@ typedef struct _rose_ctx_t {
   /* filling in description into tree, info column, any buffer */
   int apdu_depth;
   bool fillin_info;
-  gchar *fillin_ptr;
-  gsize fillin_buf_size;
+  char *fillin_ptr;
+  size_t fillin_buf_size;
   struct {  /* "dynamic" data */
-    gint pdu;
+    int pdu;
       /*
          1 : invoke,
          2 : returnResult,
          3 : returnError,
          4 : reject
       */
-    gint code;
+    int code;
       /*
         -1 : none (optional in ReturnResult)
          0 : local,
          1 : global
       */
-    gint32 code_local;
+    int32_t code_local;
     const char *code_global;
     proto_item *code_item;
   } d;
@@ -172,14 +172,14 @@ extern bool asn1_ctx_check_signature(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
 
-extern void asn1_stack_frame_push(asn1_ctx_t *actx, const gchar *name);
-extern void asn1_stack_frame_pop(asn1_ctx_t *actx, const gchar *name);
-extern void asn1_stack_frame_check(asn1_ctx_t *actx, const gchar *name, const asn1_par_def_t *par_def);
+extern void asn1_stack_frame_push(asn1_ctx_t *actx, const char *name);
+extern void asn1_stack_frame_pop(asn1_ctx_t *actx, const char *name);
+extern void asn1_stack_frame_check(asn1_ctx_t *actx, const char *name, const asn1_par_def_t *par_def);
 
 extern void asn1_param_push_boolean(asn1_ctx_t *actx, bool value);
-extern void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value);
-extern bool asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name);
-extern gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name);
+extern void asn1_param_push_integer(asn1_ctx_t *actx, int32_t value);
+extern bool asn1_param_get_boolean(asn1_ctx_t *actx, const char *name);
+extern int32_t asn1_param_get_integer(asn1_ctx_t *actx, const char *name);
 
 WS_DLL_PUBLIC void rose_ctx_init(rose_ctx_t *rctx);
 extern bool rose_ctx_check_signature(rose_ctx_t *rctx);
@@ -188,7 +188,7 @@ WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);
 WS_DLL_PUBLIC rose_ctx_t *get_rose_ctx(void *ptr);
 
-extern double asn1_get_real(const guint8 *real_ptr, gint len);
+extern double asn1_get_real(const uint8_t *real_ptr, int len);
 
 /* flags */
 #define ASN1_EXT_ROOT 0x01

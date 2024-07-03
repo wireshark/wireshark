@@ -24,8 +24,8 @@ extern "C" {
 /** Table of counts of packets of various types. */
 typedef struct {
     GHashTable*       counts_hash; /* packet counters keyed by proto */
-    gint              other;       /* Packets not counted in the hash total */
-    gint              total;       /* Cache of total packets */
+    int               other;       /* Packets not counted in the hash total */
+    int               total;       /* Cache of total packets */
 } packet_counts;
 
 typedef struct _capture_packet_info {
@@ -35,7 +35,7 @@ typedef struct _capture_packet_info {
 typedef struct capture_dissector_handle* capture_dissector_handle_t;
 
 /** callback function definition for capture dissectors */
-typedef bool (*capture_dissector_t)(const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+typedef bool (*capture_dissector_t)(const uint8_t *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 /* a protocol uses the function to register a capture sub-dissector table
  * @param[in] name Name of capture sub-dissector table.
@@ -69,11 +69,11 @@ WS_DLL_PUBLIC capture_dissector_handle_t register_capture_dissector(const char *
  * @param[in] pattern Numerical value associated with capture dissector
  * @param[in] handle Handle to capture dissector
  */
-WS_DLL_PUBLIC void capture_dissector_add_uint(const char *name, const guint32 pattern, capture_dissector_handle_t handle);
+WS_DLL_PUBLIC void capture_dissector_add_uint(const char *name, const uint32_t pattern, capture_dissector_handle_t handle);
 
 /* Look for a given value in a given uint capture dissector table and, if found,
- * call the dissector with the arguments supplied, and return TRUE,
- * otherwise return FALSE
+ * call the dissector with the arguments supplied, and return true,
+ * otherwise return false
  * @param[in] name Name of capture dissector table
  * @param[in] pattern Numerical value associated with capture dissector
  * @param[in] pd Data buffer of captured bytes
@@ -82,10 +82,10 @@ WS_DLL_PUBLIC void capture_dissector_add_uint(const char *name, const guint32 pa
  * @param[in] cpinfo Capture statistics
  * @param[in] pseudo_header Wiretap pseudo header information
  */
-WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pattern, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+WS_DLL_PUBLIC bool try_capture_dissector(const char* name, const uint32_t pattern, const uint8_t *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
-/* Call a capture dissector through a handle. If handle is value return TRUE,
- * otherwise return FALSE
+/* Call a capture dissector through a handle. If handle is value return true,
+ * otherwise return false
  * @param[in] handle Capture dissector handle
  * @param[in] pd Data buffer of captured bytes
  * @param[in] offset Current offset into pd
@@ -93,14 +93,14 @@ WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pat
  * @param[in] cpinfo Capture statistics
  * @param[in] pseudo_header Wiretap pseudo header information
  */
-WS_DLL_PUBLIC gboolean call_capture_dissector(capture_dissector_handle_t handle, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+WS_DLL_PUBLIC bool call_capture_dissector(capture_dissector_handle_t handle, const uint8_t *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 /* Get current capture packet count for a particular protocol
  * @param[in] counts Packet count structure
  * @param[in] proto Protocol to retrieve packet count from
  * @return Number of packets captured for a particular protocol
  */
-WS_DLL_PUBLIC guint32 capture_dissector_get_count(packet_counts* counts, const int proto);
+WS_DLL_PUBLIC uint32_t capture_dissector_get_count(packet_counts* counts, const int proto);
 
 /* Increment packet capture count by 1 for a particular protocol.
  * @param[in] cpinfo Capture statistics

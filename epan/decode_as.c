@@ -44,12 +44,12 @@ void register_decode_as(decode_as_t* reg)
     decode_as_list = g_list_prepend(decode_as_list, reg);
 }
 
-static void next_proto_prompt(packet_info *pinfo _U_, gchar *result)
+static void next_proto_prompt(packet_info *pinfo _U_, char *result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
 }
 
-static gpointer next_proto_value(packet_info *pinfo _U_)
+static void *next_proto_value(packet_info *pinfo _U_)
 {
     return 0;
 }
@@ -58,7 +58,7 @@ static build_valid_func next_proto_values[] = { next_proto_value };
 static decode_as_value_t next_proto_da_values =
                         { next_proto_prompt, 1, next_proto_values };
 
-dissector_table_t register_decode_as_next_proto(int proto, const gchar *table_name, const gchar *ui_name, build_label_func label_func)
+dissector_table_t register_decode_as_next_proto(int proto, const char *table_name, const char *ui_name, build_label_func label_func)
 {
     decode_as_t *da;
 
@@ -90,15 +90,15 @@ dissector_table_t register_decode_as_next_proto(int proto, const gchar *table_na
 struct decode_as_default_populate
 {
     decode_as_add_to_list_func add_to_list;
-    gpointer ui_element;
+    void *ui_element;
 };
 
 static void
-decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user_data)
+decode_proto_add_to_list (const char *table_name, void *value, void *user_data)
 {
     struct decode_as_default_populate* populate = (struct decode_as_default_populate*)user_data;
-    const gchar     *dissector_description;
-    gint       i;
+    const char      *dissector_description;
+    int        i;
     dissector_handle_t handle;
 
 
@@ -112,7 +112,7 @@ decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user
     populate->add_to_list(table_name, dissector_description, value, populate->ui_element);
 }
 
-void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+void decode_as_default_populate_list(const char *table_name, decode_as_add_to_list_func add_to_list, void *ui_element)
 {
     struct decode_as_default_populate populate;
 
@@ -122,7 +122,7 @@ void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_l
     dissector_table_foreach_handle(table_name, decode_proto_add_to_list, &populate);
 }
 
-bool decode_as_default_reset(const gchar *name, gconstpointer pattern)
+bool decode_as_default_reset(const char *name, const void *pattern)
 {
     switch (get_dissector_table_selector_type(name)) {
     case FT_UINT8:
@@ -139,7 +139,7 @@ bool decode_as_default_reset(const gchar *name, gconstpointer pattern)
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
     case FT_STRINGZTRUNC:
-        dissector_reset_string(name, (!pattern)?"":(const gchar *) pattern);
+        dissector_reset_string(name, (!pattern)?"":(const char *) pattern);
         return true;
     default:
         return false;
@@ -148,7 +148,7 @@ bool decode_as_default_reset(const gchar *name, gconstpointer pattern)
     return true;
 }
 
-bool decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name _U_)
+bool decode_as_default_change(const char *name, const void *pattern, const void *handle, const char *list_name _U_)
 {
     const dissector_handle_t dissector = (const dissector_handle_t)handle;
     switch (get_dissector_table_selector_type(name)) {
@@ -166,7 +166,7 @@ bool decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpo
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
     case FT_STRINGZTRUNC:
-        dissector_change_string(name, (!pattern)?"":(const gchar *) pattern, dissector);
+        dissector_change_string(name, (!pattern)?"":(const char *) pattern, dissector);
         return true;
     default:
         return false;
@@ -186,18 +186,18 @@ static GSList *dissector_reset_list;
  * A callback function to parse each "decode as" entry in the file and apply the change
  */
 static prefs_set_pref_e
-read_set_decode_as_entries(gchar *key, const gchar *value,
+read_set_decode_as_entries(char *key, const char *value,
                            void *user_data,
                            bool return_range_errors _U_)
 {
-    gchar *values[4] = {NULL, NULL, NULL, NULL};
-    gchar delimiter[4] = {',', ',', ',','\0'};
-    gchar *pch;
-    guint i, j;
+    char *values[4] = {NULL, NULL, NULL, NULL};
+    char delimiter[4] = {',', ',', ',','\0'};
+    char *pch;
+    unsigned i, j;
     GHashTable* processed_entries = (GHashTable*)user_data;
     dissector_table_t sub_dissectors;
     prefs_set_pref_e retval = PREFS_SET_OK;
-    gboolean is_valid = FALSE;
+    bool is_valid = false;
 
     if (strcmp(key, DECODE_AS_ENTRY) == 0) {
         /* Parse csv into table, selector, initial, current */
@@ -224,7 +224,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
 
             handle = dissector_table_get_dissector_handle(sub_dissectors, values[3]);
             if (handle != NULL || g_ascii_strcasecmp(values[3], DECODE_AS_NONE) == 0) {
-                is_valid = TRUE;
+                is_valid = true;
             }
 
             if (is_valid) {
@@ -238,9 +238,9 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                     if (p == values[0] || *p != '\0' || long_value < 0 ||
                           (unsigned long)long_value > UINT_MAX) {
                         retval = PREFS_SET_SYNTAX_ERR;
-                        is_valid = FALSE;
+                        is_valid = false;
                     } else {
-                        dissector_change_uint(values[0], (guint)long_value, handle);
+                        dissector_change_uint(values[0], (unsigned)long_value, handle);
                     }
 
                     /* Now apply the value data back to dissector table preference */
@@ -252,16 +252,16 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                         pref_value = prefs_find_preference(module, pref_name);
                         g_free(pref_name);
                         if (pref_value != NULL) {
-                            gboolean replace = FALSE;
+                            bool replace = false;
                             if (g_hash_table_lookup(processed_entries, proto_name) == NULL) {
                                 /* First decode as entry for this protocol, ranges may be replaced */
-                                replace = TRUE;
+                                replace = true;
 
                                 /* Remember we've processed this protocol */
-                                g_hash_table_insert(processed_entries, (gpointer)proto_name, (gpointer)proto_name);
+                                g_hash_table_insert(processed_entries, (void *)proto_name, (void *)proto_name);
                             }
 
-                            prefs_add_decode_as_value(pref_value, (guint)long_value, replace);
+                            prefs_add_decode_as_value(pref_value, (unsigned)long_value, replace);
                             module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                         }
                     }
@@ -292,7 +292,7 @@ load_decode_as_entries(void)
 
     decode_clear_all();
 
-    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true);
     if ((daf = ws_fopen(daf_path, "r")) != NULL) {
         /* Store saved entries for better range processing */
         GHashTable* processed_entries = g_hash_table_new(g_str_hash, g_str_equal);
@@ -306,12 +306,12 @@ load_decode_as_entries(void)
 
 /* Make a sorted list of the entries as we are fetching them from a hash table. Then write it out from the sorted list */
 static void
-decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
-                       gpointer key, gpointer value, gpointer user_data)
+decode_as_write_entry (const char *table_name, ftenum_t selector_type,
+                       void *key, void *value, void *user_data)
 {
     GList **decode_as_rows_list = (GList **)user_data;
     dissector_handle_t current, initial;
-    const gchar *current_dissector_name, *initial_dissector_name, *decode_as_row;
+    const char *current_dissector_name, *initial_dissector_name, *decode_as_row;
 
     current = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current == NULL)
@@ -364,7 +364,7 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     case FT_STRINGZTRUNC:
         decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,%s,%s,%s\n",
-            table_name, (gchar *)key, initial_dissector_name,
+            table_name, (char *)key, initial_dissector_name,
             current_dissector_name);
         break;
 
@@ -374,23 +374,23 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     }
 
     /* Do we need a better sort function ???*/
-    *decode_as_rows_list = g_list_insert_sorted (*decode_as_rows_list, (gpointer)decode_as_row,
+    *decode_as_rows_list = g_list_insert_sorted (*decode_as_rows_list, (void *)decode_as_row,
         (GCompareFunc)g_ascii_strcasecmp);
 
 }
 
 /* Print the sorted rows to File */
 static void
-decode_as_print_rows(gpointer data, gpointer user_data)
+decode_as_print_rows(void *data, void *user_data)
 {
     FILE *da_file = (FILE *)user_data;
-    const gchar *decode_as_row = (const gchar *)data;
+    const char *decode_as_row = (const char *)data;
 
     fprintf(da_file, "%s",decode_as_row);
 
 }
 int
-save_decode_as_entries(gchar** err)
+save_decode_as_entries(char** err)
 {
     char *pf_dir_path;
     char *daf_path;
@@ -404,7 +404,7 @@ save_decode_as_entries(gchar** err)
         return -1;
     }
 
-    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true);
     if ((da_file = ws_fopen(daf_path, "w")) == NULL) {
         *err = ws_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.",
                                 daf_path, g_strerror(errno));
@@ -437,20 +437,20 @@ save_decode_as_entries(gchar** err)
  */
 typedef struct dissector_delete_item {
     /* The name of the dissector table */
-    gchar *ddi_table_name;
+    char *ddi_table_name;
     /* The type of the selector in that dissector table */
     ftenum_t ddi_selector_type;
     /* The selector in the dissector table */
     union {
-        guint   sel_uint;
+        unsigned   sel_uint;
         char    *sel_string;
     } ddi_selector;
 } dissector_delete_item_t;
 
 void
-decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
-                         gpointer user_data _U_)
+decode_build_reset_list (const char *table_name, ftenum_t selector_type,
+                         void *key, void *value _U_,
+                         void *user_data _U_)
 {
     dissector_delete_item_t *item;
 

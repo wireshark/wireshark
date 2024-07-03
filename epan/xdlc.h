@@ -83,7 +83,7 @@
 /**
  * This macro takes the control field of an xDLC frame, as returned by
  * "get_xdlc_control()" or "dissect_xdlc_control()", and evaluates to
- * TRUE if the frame is an "information" frame and FALSE if it isn't.
+ * true if the frame is an "information" frame and false if it isn't.
  * Note that frames other than information frames can have data in them,
  * e.g. TEST frames.
  */
@@ -120,13 +120,13 @@ extern const value_string stype_vals[];
 extern const value_string modifier_vals_cmd[];
 extern const value_string modifier_vals_resp[];
 
-extern int get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended);
+extern int get_xdlc_control(const uint8_t *pd, int offset, bool is_extended);
 
 WS_DLL_PUBLIC int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
-  proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
+  proto_tree *xdlc_tree, int hf_xdlc_control, int ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
   const value_string *u_modifier_short_vals_cmd,
-  const value_string *u_modifier_short_vals_resp, gboolean is_response,
-  gboolean is_extended, gboolean append_info);
+  const value_string *u_modifier_short_vals_resp, bool is_response,
+  bool is_extended, bool append_info);
 
 #endif

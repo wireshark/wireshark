@@ -44,14 +44,14 @@ static GSList *stats_requested;
  * Function called from stat to register the stat's command-line argument
  * and initialization routine
  * ********************************************************************** */
-static gint
-search_duplicate(gconstpointer a, gconstpointer b)
+static int
+search_duplicate(const void *a, const void *b)
 {
     return strcmp(((const stat_cmd_arg *)a)->cmd, (const char *)b);
 }
 
-static gint
-sort_by_name(gconstpointer a, gconstpointer b)
+static int
+sort_by_name(const void *a, const void *b)
 {
     return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
 }
@@ -79,7 +79,7 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 /* **********************************************************************
  * Function called for a stat command-line argument
  * ********************************************************************** */
-gboolean
+bool
 process_stat_cmd_arg(const char *optstr)
 {
     wmem_list_frame_t *entry;
@@ -102,18 +102,18 @@ process_stat_cmd_arg(const char *optstr)
             tr->sca = sca;
             tr->arg = stat_command;
             stats_requested = g_slist_append(stats_requested, tr);
-            return TRUE;
+            return true;
         }
     }
     g_free(stat_command);
-    return FALSE;
+    return false;
 }
 
 /* **********************************************************************
  * Function to list all possible tap command-line arguments
  * ********************************************************************** */
 static void
-list_stat_cmd_args_func(gpointer data, gpointer userdata _U_)
+list_stat_cmd_args_func(void *data, void *userdata _U_)
 {
     fprintf(stderr,"     %s\n", ((stat_cmd_arg*)data)->cmd);
 }
@@ -156,14 +156,14 @@ stat_tap_table_ui *stat_tap_by_name(const char *name)
     return (stat_tap_table_ui *) wmem_tree_lookup_string(registered_stat_tables, name, 0);
 }
 
-void stat_tap_iterate_tables(wmem_foreach_func func, gpointer user_data)
+void stat_tap_iterate_tables(wmem_foreach_func func, void *user_data)
 {
     wmem_tree_foreach(registered_stat_tables, func, user_data);
 }
 
 void stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const char **filter, char** err)
 {
-    guint len = (guint) strlen(new_stat->cli_string);
+    unsigned len = (unsigned) strlen(new_stat->cli_string);
     *filter=NULL;
     *err=NULL;
 
@@ -195,7 +195,7 @@ stat_tap_table* stat_tap_init_table(const char *name, int num_fields, int num_el
 
 stat_tap_table *stat_tap_find_table(stat_tap_table_ui *ui, const char *name)
 {
-    guint i = 0;
+    unsigned i = 0;
     stat_tap_table *stat_table;
 
     if (ui->tables == NULL)
@@ -214,17 +214,17 @@ stat_tap_table *stat_tap_find_table(stat_tap_table_ui *ui, const char *name)
 void stat_tap_add_table(stat_tap_table_ui* new_stat, stat_tap_table* table)
 {
     if (new_stat->tables == NULL)
-        new_stat->tables = g_array_new(FALSE, TRUE, sizeof(stat_tap_table*));
+        new_stat->tables = g_array_new(false, true, sizeof(stat_tap_table*));
 
     g_array_insert_val(new_stat->tables, new_stat->tables->len, table);
 }
 
-void stat_tap_init_table_row(stat_tap_table *stat_table, guint table_index, guint num_fields, const stat_tap_table_item_type* fields)
+void stat_tap_init_table_row(stat_tap_table *stat_table, unsigned table_index, unsigned num_fields, const stat_tap_table_item_type* fields)
 {
     /* we have discovered a new procedure. Extend the table accordingly */
     if(table_index>=stat_table->num_elements){
-        guint old_num_elements=stat_table->num_elements;
-        guint i;
+        unsigned old_num_elements=stat_table->num_elements;
+        unsigned i;
 
         stat_table->num_elements=table_index+1;
         stat_table->elements = (stat_tap_table_item_type**)g_realloc(stat_table->elements, sizeof(stat_tap_table_item_type*)*(stat_table->num_elements));
@@ -236,7 +236,7 @@ void stat_tap_init_table_row(stat_tap_table *stat_table, guint table_index, guin
 
 }
 
-stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_table, guint table_index, guint field_index)
+stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_table, unsigned table_index, unsigned field_index)
 {
     stat_tap_table_item_type* field_value;
     ws_assert(table_index < stat_table->num_elements);
@@ -248,7 +248,7 @@ stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_tab
     return &field_value[field_index];
 }
 
-void stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data)
+void stat_tap_set_field_data(stat_tap_table *stat_table, unsigned table_index, unsigned field_index, stat_tap_table_item_type* field_data)
 {
     stat_tap_table_item_type* field_value;
     ws_assert(table_index < stat_table->num_elements);
@@ -262,7 +262,7 @@ void stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guin
 
 void reset_stat_table(stat_tap_table_ui* new_stat)
 {
-    guint i = 0;
+    unsigned i = 0;
     stat_tap_table *stat_table;
 
     for (i = 0; i < new_stat->tables->len; i++)
@@ -276,7 +276,7 @@ void reset_stat_table(stat_tap_table_ui* new_stat)
 
 void free_stat_tables(stat_tap_table_ui* new_stat)
 {
-    guint i = 0, element, field_index;
+    unsigned i = 0, element, field_index;
     stat_tap_table *stat_table;
     stat_tap_table_item_type* field_data;
 

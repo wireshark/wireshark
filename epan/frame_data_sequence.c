@@ -30,7 +30,7 @@
 #define NODES_PER_LEVEL         (1<<LOG2_NODES_PER_LEVEL)
 
 struct _frame_data_sequence {
-  guint32      count;           /* Total number of frames */
+  uint32_t     count;           /* Total number of frames */
   void        *ptree_root;      /* Pointer to the root node */
 };
 
@@ -176,7 +176,7 @@ frame_data_sequence_add(frame_data_sequence *fds, frame_data *fdata)
  * Find the frame_data for the specified frame number.
  */
 frame_data *
-frame_data_sequence_find(frame_data_sequence *fds, guint32 num)
+frame_data_sequence_find(frame_data_sequence *fds, uint32_t num)
 {
   frame_data *leaf;
   frame_data **level1;
@@ -227,9 +227,9 @@ frame_data_sequence_find(frame_data_sequence *fds, guint32 num)
 /* recursively frees a frame_data radix level */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-free_frame_data_array(void *array, guint count, guint level, gboolean last)
+free_frame_data_array(void *array, unsigned count, unsigned level, bool last)
 {
-  guint i, level_count;
+  unsigned i, level_count;
 
   if (last) {
     /* if we are the last in our given parent's row, we may not have
@@ -257,7 +257,7 @@ free_frame_data_array(void *array, guint count, guint level, gboolean last)
 
     for (i=0; i < level_count-1; i++) {
       // We recurse here, but we're limited to four levels.
-      free_frame_data_array(real_array[i], count, level-1, FALSE);
+      free_frame_data_array(real_array[i], count, level-1, false);
     }
 
     // We recurse here, but we're limited to four levels.
@@ -282,7 +282,7 @@ free_frame_data_array(void *array, guint count, guint level, gboolean last)
 void
 free_frame_data_sequence(frame_data_sequence *fds)
 {
-  guint   levels;
+  unsigned   levels;
 
   /* calculate how many levels we have */
   if (fds->count == 0) {
@@ -307,7 +307,7 @@ free_frame_data_sequence(frame_data_sequence *fds)
 
   /* call the recursive free function */
   if (levels > 0) {
-    free_frame_data_array(fds->ptree_root, fds->count, levels, TRUE);
+    free_frame_data_array(fds->ptree_root, fds->count, levels, true);
   }
 
   /* free the header struct */
@@ -315,10 +315,10 @@ free_frame_data_sequence(frame_data_sequence *fds)
 }
 
 void
-find_and_mark_frame_depended_upon(gpointer key, gpointer value _U_, gpointer user_data)
+find_and_mark_frame_depended_upon(void *key, void *value _U_, void *user_data)
 {
   frame_data   *dependent_fd;
-  guint32       dependent_frame = GPOINTER_TO_UINT(key);
+  uint32_t      dependent_frame = GPOINTER_TO_UINT(key);
   frame_data_sequence *frames   = (frame_data_sequence *)user_data;
 
   if (dependent_frame && frames) {

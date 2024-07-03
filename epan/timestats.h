@@ -22,13 +22,13 @@ extern "C" {
 
  /* Summary of time statistics*/
 typedef struct _timestat_t {
-	guint32 num;	 /* number of samples */
-	guint32	min_num; /* frame number of minimum */
-	guint32	max_num; /* frame number of maximum */
+	uint32_t num;	 /* number of samples */
+	uint32_t	min_num; /* frame number of minimum */
+	uint32_t	max_num; /* frame number of maximum */
 	nstime_t min;
 	nstime_t max;
 	nstime_t tot;
-	gdouble variance;
+	double variance;
 } timestat_t;
 
 /* functions */
@@ -39,7 +39,7 @@ WS_DLL_PUBLIC void time_stat_init(timestat_t *stats);
 /* Update a timestat_t struct with a new sample */
 WS_DLL_PUBLIC void time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo);
 
-WS_DLL_PUBLIC gdouble get_average(const nstime_t *sum, guint32 num);
+WS_DLL_PUBLIC double get_average(const nstime_t *sum, uint32_t num);
 
 #ifdef __cplusplus
 }

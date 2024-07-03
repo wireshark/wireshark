@@ -16,15 +16,16 @@
 #define _DTD_H_
 
 #include <glib.h>
+#include <stdbool.h>
 #include <stdlib.h> /* exit() */
 #include "ws_attributes.h"
 
 typedef struct _dtd_build_data_t {
-	gchar* proto_name;
-	gchar* media_type;
-	gchar* description;
-	gchar* proto_root;
-	gboolean recursion;
+	char* proto_name;
+	char* media_type;
+	char* description;
+	char* proto_root;
+	bool recursion;
 
 	GPtrArray* elements;
 	GPtrArray* attributes;
@@ -33,19 +34,19 @@ typedef struct _dtd_build_data_t {
 } dtd_build_data_t;
 
 typedef struct _dtd_token_data_t {
-	gchar* text;
-	gchar* location;
+	char* text;
+	char* location;
 } dtd_token_data_t;
 
 typedef struct _dtd_named_list_t {
-	gchar* name;
+	char* name;
 	GPtrArray* list;
 } dtd_named_list_t;
 
 typedef struct _dtd_preparse_scanner_state Dtd_PreParse_scanner_state_t;
 
-extern GString* dtd_preparse(const gchar* dname, const gchar* fname, GString* err);
+extern GString* dtd_preparse(const char* dname, const char* fname, GString* err);
 extern dtd_build_data_t* dtd_parse(GString* s);
-extern const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state);
+extern const char* dtd_location(Dtd_PreParse_scanner_state_t* state);
 
 #endif

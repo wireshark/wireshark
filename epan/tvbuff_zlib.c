@@ -46,10 +46,10 @@ typedef z_stream zlib_stream;
 tvbuff_t *
 tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 {
-	gint       err;
-	guint      bytes_out      = 0;
-	guint8    *compr;
-	guint8    *uncompr        = NULL;
+	int        err;
+	unsigned   bytes_out      = 0;
+	uint8_t   *compr;
+	uint8_t   *uncompr        = NULL;
 	tvbuff_t  *uncompr_tvb    = NULL;
 #ifdef HAVE_ZLIBNG
 	zng_streamp  strm;
@@ -57,18 +57,18 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 	z_streamp  strm;
 #endif
 	Bytef     *strmbuf;
-	guint      inits_done     = 0;
-	gint       wbits          = MAX_WBITS;
-	guint8    *next;
-	guint      bufsiz;
-	guint      inflate_passes = 0;
-	guint      bytes_in       = tvb_captured_length_remaining(tvb, offset);
+	unsigned   inits_done     = 0;
+	int        wbits          = MAX_WBITS;
+	uint8_t   *next;
+	unsigned   bufsiz;
+	unsigned   inflate_passes = 0;
+	unsigned   bytes_in       = tvb_captured_length_remaining(tvb, offset);
 
 	if (tvb == NULL || comprlen <= 0) {
 		return NULL;
 	}
 
-	compr = (guint8 *)tvb_memdup(NULL, tvb, offset, comprlen);
+	compr = (uint8_t *)tvb_memdup(NULL, tvb, offset, comprlen);
 	if (compr == NULL) {
 		return NULL;
 	}
@@ -110,7 +110,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 		err = ZLIB_PREFIX(inflate)(strm, Z_SYNC_FLUSH);
 
 		if (err == Z_OK || err == Z_STREAM_END) {
-			guint bytes_pass = bufsiz - strm->avail_out;
+			unsigned bytes_pass = bufsiz - strm->avail_out;
 
 			++inflate_passes;
 
@@ -123,11 +123,11 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 				 * when uncompr is NULL logic below doesn't create tvb
 				 * which is later interpreted as decompression failed.
 				 */
-				uncompr = (guint8 *)((bytes_pass || err != Z_STREAM_END) ?
+				uncompr = (uint8_t *)((bytes_pass || err != Z_STREAM_END) ?
 						g_memdup2(strmbuf, bytes_pass) :
 						g_strdup(""));
 			} else {
-				uncompr = (guint8 *)g_realloc(uncompr, bytes_out + bytes_pass);
+				uncompr = (uint8_t *)g_realloc(uncompr, bytes_out + bytes_pass);
 				memcpy(uncompr + bytes_out, strmbuf, bytes_pass);
 			}
 
@@ -203,7 +203,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 				   byte first) to make sure we abort
 				   cleanly when the xsize is truncated
 				   after the first byte. */
-				guint16 xsize = 0;
+				uint16_t xsize = 0;
 
 				if (c-compr < comprlen) {
 					xsize += *c;

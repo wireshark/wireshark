@@ -61,18 +61,18 @@ typedef enum {
 struct _color_filter; /* Forward */
 DIAG_OFF_PEDANTIC
 typedef struct _frame_data {
-  guint32      num;          /**< Frame number */
-  guint32      pkt_len;      /**< Packet length */
-  guint32      cap_len;      /**< Amount actually captured */
-  guint32      cum_bytes;    /**< Cumulative bytes into the capture */
-  gint64       file_off;     /**< File offset */
+  uint32_t     num;          /**< Frame number */
+  uint32_t     pkt_len;      /**< Packet length */
+  uint32_t     cap_len;      /**< Amount actually captured */
+  uint32_t     cum_bytes;    /**< Cumulative bytes into the capture */
+  int64_t      file_off;     /**< File offset */
   /* These two are pointers, meaning 64-bit on LP64 (64-bit UN*X) and
      LLP64 (64-bit Windows) platforms.  Put them here, one after the
      other, so they don't require padding between them. */
   GSList      *pfd;          /**< Per frame proto data */
   GHashTable  *dependent_frames;     /**< A hash table of frames which this one depends on */
   const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
-  guint8       tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET  */
+  uint8_t      tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET  */
   /* Keep the bitfields below to 24 bits, so this plus the previous field
      are 32 bits. (XXX - The previous field could be a bitfield too.) */
   unsigned int passed_dfilter   : 1; /**< 1 = display, 0 = no display */
@@ -89,24 +89,24 @@ typedef struct _frame_data {
   unsigned int tsprec           : 4; /**< Time stamp precision -2^tsprec gives up to femtoseconds */
   nstime_t     abs_ts;       /**< Absolute timestamp */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
-  guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
-  guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
+  uint32_t     frame_ref_num; /**< Previous reference frame (0 if this is one) */
+  uint32_t     prev_dis_num; /**< Previous displayed frame (0 if first one) */
 } frame_data;
 DIAG_ON_PEDANTIC
 
 /** compare two frame_datas */
-WS_DLL_PUBLIC gint frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);
+WS_DLL_PUBLIC int frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);
 
 WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
 
 WS_DLL_PUBLIC void frame_data_destroy(frame_data *fdata);
 
-WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, guint32 num,
-                const wtap_rec *rec, gint64 offset,
-                guint32 cum_bytes);
+WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, uint32_t num,
+                const wtap_rec *rec, int64_t offset,
+                uint32_t cum_bytes);
 
 extern void frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata,
-                guint32 prev_num, nstime_t *delta);
+                uint32_t prev_num, nstime_t *delta);
 /**
  * Sets the frame data struct values before dissection.
  */
@@ -116,7 +116,7 @@ WS_DLL_PUBLIC void frame_data_set_before_dissect(frame_data *fdata,
                 const frame_data *prev_dis);
 
 WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
-                guint32 *cum_bytes);
+                uint32_t *cum_bytes);
 
 /** @} */
 

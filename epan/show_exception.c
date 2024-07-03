@@ -100,7 +100,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case BoundsError:
 		{
-		gboolean display_info = TRUE;
+		bool display_info = true;
 		module_t * frame_module = prefs_find_module("frame");
 		if (frame_module != NULL)
 		{
@@ -108,7 +108,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (display_pref)
 			{
 				if (prefs_get_bool_value(display_pref, pref_current))
-					display_info = FALSE;
+					display_info = false;
 			}
 		}
 

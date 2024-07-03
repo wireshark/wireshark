@@ -40,7 +40,7 @@ static int exp_pdu_data_src_ip_size(packet_info *pinfo, void* data _U_)
 	return exp_pdu_data_ip_size(&pinfo->net_src);
 }
 
-static int exp_pdu_data_src_ip_populate_data(packet_info *pinfo, void* data _U_, guint8 *tlv_buffer, guint32 buffer_size _U_)
+static int exp_pdu_data_src_ip_populate_data(packet_info *pinfo, void* data _U_, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
 	if(pinfo->net_src.type == AT_IPv4){
 		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV4_SRC);
@@ -62,7 +62,7 @@ static int exp_pdu_data_dst_ip_size(packet_info *pinfo, void* data _U_)
 	return exp_pdu_data_ip_size(&pinfo->net_dst);
 }
 
-static int exp_pdu_data_dst_ip_populate_data(packet_info *pinfo, void* data _U_, guint8 *tlv_buffer, guint32 buffer_size _U_)
+static int exp_pdu_data_dst_ip_populate_data(packet_info *pinfo, void* data _U_, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
 	if(pinfo->net_dst.type == AT_IPv4){
 		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV4_DST);
@@ -84,7 +84,7 @@ static int exp_pdu_data_port_type_size(packet_info *pinfo _U_, void* data _U_)
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
 
-static guint exp_pdu_ws_port_type_to_exp_pdu_port_type(port_type pt)
+static unsigned exp_pdu_ws_port_type_to_exp_pdu_port_type(port_type pt)
 {
 	switch (pt)
 	{
@@ -118,13 +118,13 @@ static guint exp_pdu_ws_port_type_to_exp_pdu_port_type(port_type pt)
 		return EXP_PDU_PT_MCTP;
 	}
 
-	DISSECTOR_ASSERT(FALSE);
+	DISSECTOR_ASSERT(false);
 	return EXP_PDU_PT_NONE;
 }
 
-static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
-	guint pt;
+	unsigned pt;
 
 	phton16(tlv_buffer+0, EXP_PDU_TAG_PORT_TYPE);
 	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_TYPE_LEN); /* tag length */
@@ -139,7 +139,7 @@ static int exp_pdu_data_port_size(packet_info *pinfo _U_, void* data _U_)
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
 
-static int exp_pdu_data_port_populate_data(guint32 port, guint8 porttype, guint8 *tlv_buffer, guint32 buffer_size _U_)
+static int exp_pdu_data_port_populate_data(uint32_t port, uint8_t porttype, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
 	phton16(tlv_buffer+0, porttype);
 	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_LEN); /* tag length */
@@ -148,12 +148,12 @@ static int exp_pdu_data_port_populate_data(guint32 port, guint8 porttype, guint8
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
 
-static int exp_pdu_data_src_port_populate_data(packet_info *pinfo, void* data _U_, guint8 *tlv_buffer, guint32 buffer_size)
+static int exp_pdu_data_src_port_populate_data(packet_info *pinfo, void* data _U_, uint8_t *tlv_buffer, uint32_t buffer_size)
 {
 	return exp_pdu_data_port_populate_data(pinfo->srcport, EXP_PDU_TAG_SRC_PORT, tlv_buffer, buffer_size);
 }
 
-static int exp_pdu_data_dst_port_populate_data(packet_info *pinfo, void* data _U_, guint8 *tlv_buffer, guint32 buffer_size)
+static int exp_pdu_data_dst_port_populate_data(packet_info *pinfo, void* data _U_, uint8_t *tlv_buffer, uint32_t buffer_size)
 {
 	return exp_pdu_data_port_populate_data(pinfo->destport, EXP_PDU_TAG_DST_PORT, tlv_buffer, buffer_size);
 }
@@ -163,7 +163,7 @@ static int exp_pdu_data_orig_frame_num_size(packet_info *pinfo _U_, void* data _
 	return EXP_PDU_TAG_ORIG_FNO_LEN + 4;
 }
 
-static int exp_pdu_data_orig_frame_num_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+static int exp_pdu_data_orig_frame_num_populate_data(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
 	phton16(tlv_buffer+0, EXP_PDU_TAG_ORIG_FNO);
 	phton16(tlv_buffer+2, EXP_PDU_TAG_ORIG_FNO_LEN); /* tag length */
@@ -177,9 +177,9 @@ WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_size(packet_info *pinfo
 	return EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN + 4;
 }
 
-WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo _U_, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo _U_, void* data, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
-	guint32 value = GPOINTER_TO_UINT(data);
+	uint32_t value = GPOINTER_TO_UINT(data);
 
 	phton16(tlv_buffer+0, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL);
 	phton16(tlv_buffer+2, EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN); /* tag length */
@@ -196,7 +196,7 @@ exp_pdu_data_item_t exp_pdu_data_src_port = {exp_pdu_data_port_size, exp_pdu_dat
 exp_pdu_data_item_t exp_pdu_data_dst_port = {exp_pdu_data_port_size, exp_pdu_data_dst_port_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_orig_frame_num = {exp_pdu_data_orig_frame_num_size, exp_pdu_data_orig_frame_num_populate_data, NULL};
 
-exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, guint16 tag_type)
+exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, uint16_t tag_type)
 {
 	const exp_pdu_data_item_t *common_exp_pdu_items[] = {
 		&exp_pdu_data_src_ip,
@@ -217,13 +217,13 @@ exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *pr
  * The tags in the tag buffer SHOULD be added in numerical order.
  */
 exp_pdu_data_t *
-export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_type, const exp_pdu_data_item_t **items_list)
+export_pdu_create_tags(packet_info *pinfo, const char* proto_name, uint16_t tag_type, const exp_pdu_data_item_t **items_list)
 {
 	exp_pdu_data_t *exp_pdu_data;
 	const exp_pdu_data_item_t **loop_items = items_list;
 	int tag_buf_size = 0;
 	int proto_str_len, proto_tag_len, buf_remaining, item_size;
-	guint8* buffer_data;
+	uint8_t* buffer_data;
 
 	DISSECTOR_ASSERT(proto_name != NULL);
 	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_DISSECTOR_NAME) || (tag_type == EXP_PDU_TAG_HEUR_DISSECTOR_NAME) || (tag_type == EXP_PDU_TAG_DISSECTOR_TABLE_NAME));
@@ -248,7 +248,7 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	/* Add end of options length */
 	tag_buf_size+=4;
 
-	exp_pdu_data->tlv_buffer = (guint8 *)wmem_alloc0(pinfo->pool, tag_buf_size);
+	exp_pdu_data->tlv_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, tag_buf_size);
 	exp_pdu_data->tlv_buffer_len = tag_buf_size;
 
 	buffer_data = exp_pdu_data->tlv_buffer;
@@ -273,16 +273,16 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	return exp_pdu_data;
 }
 
-gint
-register_export_pdu_tap_with_encap(const char *name, gint encap)
+int
+register_export_pdu_tap_with_encap(const char *name, int encap)
 {
-	gchar *tap_name = g_strdup(name);
+	char *tap_name = g_strdup(name);
 	export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
 	wmem_map_insert(export_pdu_encap_table, tap_name, GINT_TO_POINTER(encap));
 	return register_tap(tap_name);
 }
 
-gint
+int
 register_export_pdu_tap(const char *name)
 {
 #if 0
@@ -292,13 +292,13 @@ register_export_pdu_tap(const char *name)
 	 */
 	return register_export_pdu_tap_with_encap(name, WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 #endif
-	gchar *tap_name = g_strdup(name);
+	char *tap_name = g_strdup(name);
 	export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
 	return register_tap(tap_name);
 }
 
 static
-gint sort_pdu_tap_name_list(gconstpointer a, gconstpointer b)
+int sort_pdu_tap_name_list(const void *a, const void *b)
 {
 	return g_strcmp0((const char *)a, (const char*)b);
 }
@@ -310,10 +310,10 @@ get_export_pdu_tap_list(void)
 	return export_pdu_tap_name_list;
 }
 
-gint
+int
 export_pdu_tap_get_encap(const char* name)
 {
-	gpointer value;
+	void *value;
 	if (wmem_map_lookup_extended(export_pdu_encap_table, name, NULL, &value)) {
 		return GPOINTER_TO_INT(value);
 	}

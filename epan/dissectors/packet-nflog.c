@@ -128,7 +128,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset = start_tlv_offset;
     /* TLVs */
     while (tvb_reported_length_remaining(tvb, offset) >= 4) {
-        guint16 tlv_len = tvb_get_h_guint16(tvb, offset + 0);
+        guint16 tlv_len = tvb_get_h_uint16(tvb, offset + 0);
         guint16 tlv_type;
         guint16 value_len;
 
@@ -139,7 +139,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             return offset;
 
         value_len = tlv_len - 4;
-        tlv_type = (tvb_get_h_guint16(tvb, offset + 2) & 0x7fff);
+        tlv_type = (tvb_get_h_uint16(tvb, offset + 2) & 0x7fff);
 
         if (nflog_tree) {
             gboolean handled = FALSE;

@@ -71,7 +71,7 @@ typedef struct stream_key {
 
 
 /* hash func */
-static unsigned stream_hash_func(gconstpointer k)
+static unsigned stream_hash_func(const void *k)
 {
     const stream_key_t *key = (const stream_key_t *)k;
 
@@ -80,12 +80,12 @@ static unsigned stream_hash_func(gconstpointer k)
 
 /* compare func */
 static gboolean stream_compare_func(const void *a,
-                             gconstpointer b)
+                             const void *b)
 {
     const stream_key_t *key1 = (const stream_key_t *)a;
     const stream_key_t *key2 = (const stream_key_t *)b;
     if( key1 -> p2p_dir != key2 -> p2p_dir)
-        return false;
+        return FALSE;
 
     return (key1 -> conv == key2 -> conv );
 }
@@ -191,15 +191,15 @@ typedef struct fragment_key {
 
 
 /* hash func */
-static unsigned fragment_hash_func(gconstpointer k)
+static unsigned fragment_hash_func(const void *k)
 {
     const fragment_key_t *key = (const fragment_key_t *)k;
     return (GPOINTER_TO_UINT(key->stream)) + ((unsigned)key -> framenum) + ((unsigned)key->offset);
 }
 
 /* compare func */
-static gboolean fragment_compare_func(gconstpointer a,
-                               gconstpointer b)
+static gboolean fragment_compare_func(const void *a,
+                               const void *b)
 {
     const fragment_key_t *key1 = (const fragment_key_t *)a;
     const fragment_key_t *key2 = (const fragment_key_t *)b;

@@ -120,9 +120,9 @@ const value_string modifier_vals_resp[] = {
 };
 
 int
-get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended)
+get_xdlc_control(const uint8_t *pd, int offset, bool is_extended)
 {
-    guint16 control;
+    uint16_t control;
 
     switch (pd[offset] & 0x03) {
 
@@ -156,21 +156,21 @@ get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended)
 
 int
 dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
-  proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
+  proto_tree *xdlc_tree, int hf_xdlc_control, int ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
   const value_string *u_modifier_short_vals_cmd,
-  const value_string *u_modifier_short_vals_resp, gboolean is_response,
-  gboolean is_extended, gboolean append_info)
+  const value_string *u_modifier_short_vals_resp, bool is_response,
+  bool is_extended, bool append_info)
 {
-    guint16 control;
+    uint16_t control;
     int control_len;
     const xdlc_cf_items *cf_items;
     const char *control_format;
-    guint16 poll_final;
+    uint16_t poll_final;
     char *info;
     proto_tree *tc, *control_tree;
-    const gchar *frame_type = NULL;
-    const gchar *modifier;
+    const char *frame_type = NULL;
+    const char *modifier;
 
     info=(char *)wmem_alloc(pinfo->pool, 80);
     switch (tvb_get_guint8(tvb, offset) & 0x03) {

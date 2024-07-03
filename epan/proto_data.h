@@ -43,7 +43,7 @@ extern "C" {
  * @param key A unique key for the data.
  * @param proto_data The data to add.
  */
-WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
+WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data);
 
 /**
  * Set data associated with a protocol.
@@ -61,7 +61,7 @@ WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info
  * @param key A unique key for the data.
  * @param proto_data The data to add.
  */
-WS_DLL_PUBLIC void p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
+WS_DLL_PUBLIC void p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data);
 
 /**
  * Fetch data associated with a protocol.
@@ -74,7 +74,7 @@ WS_DLL_PUBLIC void p_set_proto_data(wmem_allocator_t *scope, struct _packet_info
  * using p_add_proto_data if the scope, protocol ID, and key match,
  * otherwise NULL.
  */
-WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
+WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key);
 
 /**
  * Remove data associated with a protocol.
@@ -84,9 +84,9 @@ WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_inf
  * @param proto The protocol ID.
  * @param key A unique key for the data.
  */
-WS_DLL_PUBLIC void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
+WS_DLL_PUBLIC void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key);
 
-gchar *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index);
+char *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, unsigned pfd_index);
 
 /**
  * Initialize or update a per-protocol and per-packet check for recursion, nesting, cycling, etc.

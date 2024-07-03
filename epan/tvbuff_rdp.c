@@ -28,14 +28,14 @@ enum {
 
 typedef struct {
 	tvbuff_t *input;
-	guint offset;
-	guint remainingBits;
-	guint32 currentValue;
-	guint currentBits;
+	unsigned offset;
+	unsigned remainingBits;
+	uint32_t currentValue;
+	unsigned currentBits;
 } bitstream_t;
 
 static void
-bitstream_init(bitstream_t *b, tvbuff_t *input, guint blen) {
+bitstream_init(bitstream_t *b, tvbuff_t *input, unsigned blen) {
 	b->input = input;
 	b->offset = 0;
 	b->remainingBits = blen;
@@ -43,18 +43,18 @@ bitstream_init(bitstream_t *b, tvbuff_t *input, guint blen) {
 	b->currentBits = 0;
 }
 
-static guint32
-bitstream_getbits(bitstream_t *b, guint8 nbits, gboolean *ok) {
-	guint32 ret = 0;
+static uint32_t
+bitstream_getbits(bitstream_t *b, uint8_t nbits, bool *ok) {
+	uint32_t ret = 0;
 
 	if (nbits > b->remainingBits) {
-		*ok = FALSE;
+		*ok = false;
 		return 0;
 	}
 
 	while (b->currentBits < nbits) {
 		if (!tvb_reported_length_remaining(b->input, b->offset)) {
-			*ok = FALSE;
+			*ok = false;
 			return 0;
 		}
 
@@ -64,7 +64,7 @@ bitstream_getbits(bitstream_t *b, guint8 nbits, gboolean *ok) {
 		b->currentBits += 8;
 	}
 
-	*ok = TRUE;
+	*ok = true;
 	ret = b->currentValue >> (b->currentBits-nbits);
 	b->currentBits -= nbits;
 	b->remainingBits -= nbits;
@@ -73,26 +73,26 @@ bitstream_getbits(bitstream_t *b, guint8 nbits, gboolean *ok) {
 	return ret;
 }
 
-static gboolean
-bitstream_copyraw(bitstream_t *b, guint8 *dest, gint nbytes)
+static bool
+bitstream_copyraw(bitstream_t *b, uint8_t *dest, int nbytes)
 {
 	if (tvb_captured_length_remaining(b->input, b->offset) < nbytes)
-		return FALSE;
+		return false;
 
 	tvb_memcpy(b->input, dest, b->offset, nbytes);
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
-bitstream_copyraw_advance(bitstream_t *b, guint8 *dest, guint nbytes)
+static bool
+bitstream_copyraw_advance(bitstream_t *b, uint8_t *dest, unsigned nbytes)
 {
 	if (!bitstream_copyraw(b, dest, nbytes))
-		return FALSE;
+		return false;
 
 	b->offset += nbytes;
 	b->remainingBits -= (nbytes * 8);
-	return TRUE;
+	return true;
 }
 
 
@@ -104,10 +104,10 @@ bitstream_realign(bitstream_t *b) {
 }
 
 typedef struct {
-	guint32 prefixLength;
-	guint32 prefixCode;
-	guint32 valueBits;
-	guint32 valueBase;
+	uint32_t prefixLength;
+	uint32_t prefixCode;
+	uint32_t valueBits;
+	uint32_t valueBase;
 } zgfx_token_t;
 
 static const zgfx_token_t ZGFX_LITERAL_TABLE[] = {
@@ -159,12 +159,12 @@ static const zgfx_token_t ZGFX_MATCH_TABLE[] = {
 
 
 struct _zgfx_context_t{
-	guint8 historyBuffer[2500000];
-	guint32 historyIndex;
-	guint32 historyBufferSize;
+	uint8_t historyBuffer[2500000];
+	uint32_t historyIndex;
+	uint32_t historyBufferSize;
 
-	guint32 outputCount;
-	guint8 outputSegment[65536];
+	uint32_t outputCount;
+	uint8_t outputSegment[65536];
 };
 
 zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator) {
@@ -174,20 +174,20 @@ zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator) {
 }
 
 static void
-zgfx_write_history_literal(zgfx_context_t *zgfx, guint8 c)
+zgfx_write_history_literal(zgfx_context_t *zgfx, uint8_t c)
 {
 	zgfx->historyBuffer[zgfx->historyIndex] = c;
 	zgfx->historyIndex = (zgfx->historyIndex + 1) % zgfx->historyBufferSize;
 }
 
 static void
-zgfx_write_history_buffer_tvb(zgfx_context_t *zgfx, tvbuff_t *src, guint32 count)
+zgfx_write_history_buffer_tvb(zgfx_context_t *zgfx, tvbuff_t *src, uint32_t count)
 {
-	gint src_offset = 0;
-	guint32 front;
+	int src_offset = 0;
+	uint32_t front;
 
 	if (count > zgfx->historyBufferSize) {
-		const guint32 residue = count - zgfx->historyBufferSize;
+		const uint32_t residue = count - zgfx->historyBufferSize;
 		count = zgfx->historyBufferSize;
 		src_offset += residue;
 		zgfx->historyIndex = (zgfx->historyIndex + residue) % zgfx->historyBufferSize;
@@ -209,12 +209,12 @@ zgfx_write_history_buffer_tvb(zgfx_context_t *zgfx, tvbuff_t *src, guint32 count
 
 
 static void
-zgfx_write_history_buffer(zgfx_context_t *zgfx, const guint8 *src, guint32 count)
+zgfx_write_history_buffer(zgfx_context_t *zgfx, const uint8_t *src, uint32_t count)
 {
-	guint32 front;
+	uint32_t front;
 
 	if (count > zgfx->historyBufferSize) {
-		const guint32 residue = count - zgfx->historyBufferSize;
+		const uint32_t residue = count - zgfx->historyBufferSize;
 		count = zgfx->historyBufferSize;
 		zgfx->historyIndex = (zgfx->historyIndex + residue) % zgfx->historyBufferSize;
 	}
@@ -234,29 +234,29 @@ zgfx_write_history_buffer(zgfx_context_t *zgfx, const guint8 *src, guint32 count
 }
 
 
-static gboolean
-zgfx_write_literal(zgfx_context_t *zgfx, guint8 c)
+static bool
+zgfx_write_literal(zgfx_context_t *zgfx, uint8_t c)
 {
 	if (zgfx->outputCount == 65535)
-		return FALSE;
+		return false;
 
 	zgfx->outputSegment[zgfx->outputCount++] = c;
 
 	zgfx_write_history_literal(zgfx, c);
-	return TRUE;
+	return true;
 }
 
-static gboolean
-zgfx_write_raw(zgfx_context_t *zgfx, bitstream_t *b, guint32 count)
+static bool
+zgfx_write_raw(zgfx_context_t *zgfx, bitstream_t *b, uint32_t count)
 {
-	guint32 rest, tocopy;
+	uint32_t rest, tocopy;
 
 	/* first copy in the output buffer */
 	if (zgfx->outputCount > 65535 - count)
-		return FALSE;
+		return false;
 
 	if (!bitstream_copyraw(b, &(zgfx->outputSegment[zgfx->outputCount]), count))
-		return FALSE;
+		return false;
 
 	zgfx->outputCount += count;
 
@@ -267,29 +267,29 @@ zgfx_write_raw(zgfx_context_t *zgfx, bitstream_t *b, guint32 count)
 		tocopy = rest;
 
 	if (!bitstream_copyraw_advance(b, &(zgfx->historyBuffer[zgfx->historyIndex]), tocopy))
-		return FALSE;
+		return false;
 
 	zgfx->historyIndex = (zgfx->historyIndex + tocopy) % zgfx->historyBufferSize;
 	count -= tocopy;
 	if (count) {
 		if (!bitstream_copyraw_advance(b, &(zgfx->historyBuffer[zgfx->historyIndex]), tocopy))
-			return FALSE;
+			return false;
 
 		zgfx->historyIndex = (zgfx->historyIndex + tocopy) % zgfx->historyBufferSize;
 	}
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
-zgfx_write_from_history(zgfx_context_t *zgfx, guint32 distance, guint32 count)
+static bool
+zgfx_write_from_history(zgfx_context_t *zgfx, uint32_t distance, uint32_t count)
 {
-	guint idx;
-	guint32 remainingCount, copyTemplateSize, toCopy;
-	guint8 *outputPtr;
+	unsigned idx;
+	uint32_t remainingCount, copyTemplateSize, toCopy;
+	uint8_t *outputPtr;
 
 	if (zgfx->outputCount > 65535 - count)
-		return FALSE;
+		return false;
 
 	remainingCount = count;
 	idx = (zgfx->historyIndex + zgfx->historyBufferSize - distance) % zgfx->historyBufferSize;
@@ -301,7 +301,7 @@ zgfx_write_from_history(zgfx_context_t *zgfx, guint32 distance, guint32 count)
 	if (idx + toCopy < zgfx->historyBufferSize) {
 		memcpy(outputPtr, &(zgfx->historyBuffer[idx]), toCopy);
 	} else {
-		guint32 partial = zgfx->historyBufferSize - idx;
+		uint32_t partial = zgfx->historyBufferSize - idx;
 		memcpy(outputPtr, &(zgfx->historyBuffer[idx]), partial);
 		memcpy(outputPtr + partial, zgfx->historyBuffer, toCopy - partial);
 	}
@@ -322,18 +322,18 @@ zgfx_write_from_history(zgfx_context_t *zgfx, guint32 distance, guint32 count)
 	/* let's update the history from output and update counters */
 	zgfx_write_history_buffer(zgfx, &(zgfx->outputSegment[zgfx->outputCount]), count);
 	zgfx->outputCount += count;
-	return TRUE;
+	return true;
 }
 
 
-static gboolean
+static bool
 rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 {
 	bitstream_t bitstream;
-	gint offset = 0;
-	gint len = tvb_reported_length(tvb);
-	guint8 flags = tvb_get_guint8(tvb, offset);
-	guint8 v;
+	int offset = 0;
+	int len = tvb_reported_length(tvb);
+	uint8_t flags = tvb_get_guint8(tvb, offset);
+	uint8_t v;
 	offset++;
 	len--;
 
@@ -343,32 +343,32 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 
 		tvb_memcpy(tvb, zgfx->outputSegment, 1, len);
 		zgfx->outputCount += len;
-		return TRUE;
+		return true;
 	}
 
 	v = tvb_get_guint8(tvb, offset + len - 1);
 	if (v > 7)
-		return FALSE;
+		return false;
 	len--;
 
 	bitstream_init(&bitstream, tvb_new_subset_length(tvb, offset, len), (len * 8) - v);
 	while (bitstream.remainingBits) {
-		gboolean ok, ismatch, found;
-		guint32 bits_val = bitstream_getbits(&bitstream, 1, &ok);
-		guint32 inPrefix;
+		bool ok, ismatch, found;
+		uint32_t bits_val = bitstream_getbits(&bitstream, 1, &ok);
+		uint32_t inPrefix;
 		const zgfx_token_t *tokens;
-		gint ntokens, i;
-		guint32 prefixBits;
+		int ntokens, i;
+		uint32_t prefixBits;
 
 		if (!ok)
-			return FALSE;
+			return false;
 
 		// 0 - literal
 		if (bits_val == 0) {
 
 			bits_val = bitstream_getbits(&bitstream, 8, &ok);
 			if (!zgfx_write_literal(zgfx, bits_val))
-				return FALSE;
+				return false;
 			continue;
 		}
 
@@ -389,19 +389,19 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 		}
 
 		prefixBits = 2;
-		found = FALSE;
+		found = false;
 		for (i = 0; i < ntokens; i++) {
 			if (prefixBits != tokens[i].prefixLength) {
-				guint32 missingBits = (tokens[i].prefixLength - prefixBits);
+				uint32_t missingBits = (tokens[i].prefixLength - prefixBits);
 				inPrefix <<= missingBits;
 				inPrefix |= bitstream_getbits(&bitstream, missingBits, &ok);
 				if (!ok)
-					return FALSE;
+					return false;
 				prefixBits = tokens[i].prefixLength;
 			}
 
 			if (inPrefix == tokens[i].prefixCode) {
-				found = TRUE;
+				found = true;
 				break;
 			}
 		}
@@ -411,16 +411,16 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 
 		if (ismatch) {
 			/* It's a match */
-			guint32 count, distance, extra = 0;
+			uint32_t count, distance, extra = 0;
 
 			distance = tokens[i].valueBase + bitstream_getbits(&bitstream, tokens[i].valueBits, &ok);
 			if (!ok)
-				return FALSE;
+				return false;
 
 			if (distance != 0) {
 				bits_val = bitstream_getbits(&bitstream, 1, &ok);
 				if (!ok)
-					return FALSE;
+					return false;
 
 				if (bits_val == 0) {
 					count = 3;
@@ -430,54 +430,54 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 
 					bits_val = bitstream_getbits(&bitstream, 1, &ok);
 					if (!ok)
-						return FALSE;
+						return false;
 
 					while (bits_val == 1) {
 						count *= 2;
 						extra ++;
 						bits_val = bitstream_getbits(&bitstream, 1, &ok);
 						if (!ok)
-							return FALSE;
+							return false;
 					}
 
 					count += bitstream_getbits(&bitstream, extra, &ok);
 					if (!ok)
-						return FALSE;
+						return false;
 				}
 
 				if (count > sizeof(zgfx->outputSegment) - zgfx->outputCount)
-					return FALSE;
+					return false;
 
 				if (!zgfx_write_from_history(zgfx, distance, count))
-					return FALSE;
+					return false;
 			} else {
 				/* Unencoded */
 				count = bitstream_getbits(&bitstream, 15, &ok);
 				if (!ok)
-					return FALSE;
+					return false;
 
 				bitstream_realign(&bitstream);
 				if (!zgfx_write_raw(zgfx, &bitstream, count))
-					return FALSE;
+					return false;
 			}
 		} else {
 			/* literal */
 			bits_val = tokens[i].valueBase;
 			if (!zgfx_write_literal(zgfx, bits_val))
-				return FALSE;
+				return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 
 
 tvbuff_t *
-rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb, guint offset)
+rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb, unsigned offset)
 {
 	void *output;
-	guint8 descriptor;
+	uint8_t descriptor;
 
 	descriptor = tvb_get_guint8(tvb, offset);
 	offset++;
@@ -493,9 +493,9 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 		return tvb_new_real_data(output, zgfx->outputCount, zgfx->outputCount);
 
 	case ZGFX_SEGMENTED_MULTIPART: {
-		guint16 segment_count, i;
-		guint32 output_consumed, uncompressed_size;
-		guint8 *output_ptr;
+		uint16_t segment_count, i;
+		uint32_t output_consumed, uncompressed_size;
+		uint8_t *output_ptr;
 
 		segment_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
 		offset += 2;
@@ -505,7 +505,7 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 		output = output_ptr = wmem_alloc(allocator, uncompressed_size);
 		output_consumed = 0;
 		for (i = 0; i < segment_count; i++) {
-			guint32 segment_size = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+			uint32_t segment_size = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			zgfx->outputCount = 0;

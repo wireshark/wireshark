@@ -11,7 +11,7 @@
 
 struct _ddict_namecode_t {
 	char* name;
-	guint code;
+	unsigned code;
 	struct _ddict_namecode_t* next;
 };
 
@@ -22,7 +22,7 @@ typedef struct _ddict_namecode_t ddict_application_t;
 typedef struct _ddict_vendor_t {
 	char* name;
 	char* desc;
-	guint code;
+	unsigned code;
 	struct _ddict_vendor_t* next;
 } ddict_vendor_t;
 
@@ -31,7 +31,7 @@ typedef struct _ddict_avp_t {
 	char* description;
 	char* vendor;
 	char* type;
-	guint code;
+	unsigned code;
 	ddict_gavp_t* gavps;
 	ddict_enum_t* enums;
 	struct _ddict_avp_t* next;
@@ -46,7 +46,7 @@ typedef struct _ddict_typedefn_t {
 typedef struct _ddict_cmd_t {
 	char* name;
 	char* vendor;
-	guint code;
+	unsigned code;
 	struct _ddict_cmd_t* next;
 } ddict_cmd_t;
 

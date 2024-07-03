@@ -1,6 +1,6 @@
 /** @file
  *
- * Testy, Virtual(-izable) Buffer of guint8*'s
+ * Testy, Virtual(-izable) Buffer of uint8_t*'s
  *
  * "Testy" -- the buffer gets mad when an attempt is made to access data
  *      beyond the bounds of the buffer. An exception is thrown.
@@ -78,7 +78,7 @@ typedef struct tvbuff tvbuff_t;
  * @{
  */
 
-/** A "real" tvbuff contains a guint8* that points to real data.
+/** A "real" tvbuff contains a uint8_t* that points to real data.
  * The data is allocated and contiguous.
  *
  * A "subset" tvbuff has a backing tvbuff. It is a "window" through
@@ -107,20 +107,20 @@ typedef void (*tvbuff_free_cb_t)(void*);
  * Bits are counted from MSB (0) to LSB (7) within octets.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_octet_aligned(tvbuff_t *tvb,
-    guint32 bit_offset, gint32 no_of_bits);
+    uint32_t bit_offset, int32_t no_of_bits);
 
 /** Extracts 'number of bits' starting at 'bit offset'.
  * Bits are counted from LSB (0) to MSB (7) within octets.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_octet_right_aligned(tvbuff_t *tvb,
-    guint32 bit_offset, gint32 no_of_bits);
+    uint32_t bit_offset, int32_t no_of_bits);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_clone(tvbuff_t *tvb);
 
-WS_DLL_PUBLIC tvbuff_t *tvb_clone_offset_len(tvbuff_t *tvb, guint offset,
-    guint len);
+WS_DLL_PUBLIC tvbuff_t *tvb_clone_offset_len(tvbuff_t *tvb, unsigned offset,
+    unsigned len);
 
 /** Free a tvbuff_t and all tvbuffs chained from it
  * The tvbuff must be 'the 'head' (initial) tvb of a chain or
@@ -155,14 +155,14 @@ WS_DLL_PUBLIC void tvb_set_child_real_data_tvbuff(tvbuff_t *parent,
     tvbuff_t *child);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new_child_real_data(tvbuff_t *parent,
-    const guint8 *data, const guint length, const gint reported_length);
+    const uint8_t *data, const unsigned length, const int reported_length);
 
 /** Create a tvbuff backed by existing data. Can throw ReportedBoundsError.
  * Normally, a callback to free the data should be registered using
  * tvb_set_free_cb(); when this tvbuff is freed, then your callback will be
  * called, and at that time you can free your original data. */
-WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const guint8 *data,
-    const guint length, const gint reported_length);
+WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const uint8_t *data,
+    const unsigned length, const int reported_length);
 
 /** Create a tvbuff that's a subset of another tvbuff, with the captured
  * length explicitly given. You probably want tvb_new_subset_length() or
@@ -198,8 +198,8 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const guint8 *data,
  * is beyond the bounds of the backing tvbuff.
  * Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
-    const gint backing_offset, const gint backing_length,
-    const gint reported_length);
+    const int backing_offset, const int backing_length,
+    const int reported_length);
 
 /**
  * Similar to tvb_new_subset_length_caplen() but with captured length calculated
@@ -207,12 +207,12 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
  * reported length.
  * Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length(tvbuff_t *backing,
-    const gint backing_offset, const gint reported_length);
+    const int backing_offset, const int reported_length);
 
 /** Similar to tvb_new_subset_length_caplen() but with backing_length and reported_length set
  * to -1.  Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_remaining(tvbuff_t *backing,
-    const gint backing_offset);
+    const int backing_offset);
 
 /*
 * Both tvb_composite_append and tvb_composite_prepend can throw
@@ -235,51 +235,51 @@ WS_DLL_PUBLIC void tvb_composite_finalize(tvbuff_t *tvb);
 
 /* Get amount of captured data in the buffer (which is *NOT* necessarily the
  * length of the packet). You probably want tvb_reported_length instead. */
-WS_DLL_PUBLIC guint tvb_captured_length(const tvbuff_t *tvb);
+WS_DLL_PUBLIC unsigned tvb_captured_length(const tvbuff_t *tvb);
 
 /** Computes bytes to end of buffer, from offset (which can be negative,
  * to indicate bytes from end of buffer). Function returns 0 if offset is
  * either at the end of the buffer or out of bounds. No exception is thrown.
  * You probably want tvb_reported_length_remaining instead. */
-WS_DLL_PUBLIC gint tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC int tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset);
 
 /** Same as above, but throws an exception if the offset is out of bounds. */
-WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
-    const gint offset);
+WS_DLL_PUBLIC unsigned tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
+    const int offset);
 
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
-WS_DLL_PUBLIC bool tvb_bytes_exist(const tvbuff_t *tvb, const gint offset,
-    const gint length);
+WS_DLL_PUBLIC bool tvb_bytes_exist(const tvbuff_t *tvb, const int offset,
+    const int length);
 
 /** Checks that the bytes referred to by 'offset'/'length', where 'length'
  * is a 64-bit unsigned integer, actually exist in the buffer, and throws
  * an exception if they aren't. */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
-    const gint offset, const guint64 length);
+    const int offset, const uint64_t length);
 
 /** Checks that the bytes referred to by 'offset'/'length' actually exist
  * in the buffer, and throws an exception if they aren't. */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb,
-    const gint offset, const gint length);
+    const int offset, const int length);
 
 /* Checks (w/o throwing exception) that offset exists in buffer */
 WS_DLL_PUBLIC bool tvb_offset_exists(const tvbuff_t *tvb,
-    const gint offset);
+    const int offset);
 
 /* Get reported length of buffer */
-WS_DLL_PUBLIC guint tvb_reported_length(const tvbuff_t *tvb);
+WS_DLL_PUBLIC unsigned tvb_reported_length(const tvbuff_t *tvb);
 
 /** Computes bytes of reported packet data to end of buffer, from offset
  * (which can be negative, to indicate bytes from end of buffer). Function
  * returns 0 if offset is either at the end of the buffer or out of bounds.
  * No exception is thrown. */
-WS_DLL_PUBLIC gint tvb_reported_length_remaining(const tvbuff_t *tvb,
-    const gint offset);
+WS_DLL_PUBLIC int tvb_reported_length_remaining(const tvbuff_t *tvb,
+    const int offset);
 
 /** Same as above, but throws an exception if the offset is out of bounds. */
-WS_DLL_PUBLIC guint tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
-    const gint offset);
+WS_DLL_PUBLIC unsigned tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
+    const int offset);
 
 /** Set the reported length of a tvbuff to a given value; used for protocols
    whose headers contain an explicit length and where the calling
@@ -287,7 +287,7 @@ WS_DLL_PUBLIC guint tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
    this protocol.
 
    Also adjusts the available and contained length. */
-WS_DLL_PUBLIC void tvb_set_reported_length(tvbuff_t *tvb, const guint);
+WS_DLL_PUBLIC void tvb_set_reported_length(tvbuff_t *tvb, const unsigned);
 
 /* Repair a tvbuff where the captured length is greater than the
  * reported length; such a tvbuff makes no sense, as it's impossible
@@ -295,10 +295,10 @@ WS_DLL_PUBLIC void tvb_set_reported_length(tvbuff_t *tvb, const guint);
  */
 WS_DLL_PUBLIC void tvb_fix_reported_length(tvbuff_t *tvb);
 
-WS_DLL_PUBLIC guint tvb_offset_from_real_beginning(const tvbuff_t *tvb);
+WS_DLL_PUBLIC unsigned tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 
 /* Returns the offset from the first byte of real data. */
-WS_DLL_PUBLIC gint tvb_raw_offset(tvbuff_t *tvb);
+WS_DLL_PUBLIC int tvb_raw_offset(tvbuff_t *tvb);
 
 /** Set the "this is a fragment" flag. This affects whether
  * FragmentBoundsError is thrown instead of ContainedBoundsError
@@ -311,61 +311,61 @@ WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 /************** START OF ACCESSORS ****************/
 /* All accessors will throw an exception if appropriate */
 
-WS_DLL_PUBLIC guint8 tvb_get_guint8(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint8 tvb_get_gint8(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC uint8_t tvb_get_guint8(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int8_t tvb_get_gint8(tvbuff_t *tvb, const int offset);
 
-WS_DLL_PUBLIC guint16 tvb_get_ntohs(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint16 tvb_get_ntohis(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint32 tvb_get_ntoh24(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint32 tvb_get_ntohi24(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint32 tvb_get_ntohl(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint32 tvb_get_ntohil(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_ntoh40(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_ntohi40(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_ntoh48(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_ntohi48(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_ntoh56(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_ntohi56(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_ntoh64(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_ntohi64(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gfloat tvb_get_ntohieee_float(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gdouble tvb_get_ntohieee_double(tvbuff_t *tvb,
-    const gint offset);
+WS_DLL_PUBLIC uint16_t tvb_get_ntohs(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int16_t tvb_get_ntohis(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_ntoh24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_ntohi24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_ntohl(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_ntohil(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC float tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC double tvb_get_ntohieee_double(tvbuff_t *tvb,
+    const int offset);
 
-WS_DLL_PUBLIC guint16 tvb_get_letohs(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint16 tvb_get_letohis(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint32 tvb_get_letoh24(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint32 tvb_get_letohi24(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint32 tvb_get_letohl(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint32 tvb_get_letohil(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_letoh40(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_letohi40(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_letoh48(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_letohi48(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_letoh56(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_letohi56(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC guint64 tvb_get_letoh64(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gint64 tvb_get_letohi64(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
-    const gint offset);
+WS_DLL_PUBLIC uint16_t tvb_get_letohs(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int16_t tvb_get_letohis(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_letoh24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_letohi24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_letohl(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_letohil(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC float tvb_get_letohieee_float(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC double tvb_get_letohieee_double(tvbuff_t *tvb,
+    const int offset);
 
-WS_DLL_PUBLIC guint16 tvb_get_guint16(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint16 tvb_get_gint16(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC guint32 tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint32 tvb_get_gint24(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC guint32 tvb_get_guint32(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint32 tvb_get_gint32(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC guint64 tvb_get_guint40(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint64 tvb_get_gint40(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC guint64 tvb_get_guint48(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint64 tvb_get_gint48(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC guint64 tvb_get_guint56(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint64 tvb_get_gint56(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC guint64 tvb_get_guint64(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gint64 tvb_get_gint64(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gfloat tvb_get_ieee_float(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC uint16_t tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int16_t tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint32_t tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int32_t tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint32_t tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int32_t tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC float tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC double tvb_get_ieee_double(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 /*
  * Fetch 16-bit and 32-bit values in host byte order.
@@ -375,11 +375,11 @@ WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, cons
  * when reading a capture file.
  */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define tvb_get_h_guint16   tvb_get_letohs
-#define tvb_get_h_guint32   tvb_get_letohl
+#define tvb_get_h_uint16  tvb_get_letohs
+#define tvb_get_h_uint32  tvb_get_letohl
 #elif G_BYTE_ORDER == G_BIG_ENDIAN
-#define tvb_get_h_guint16   tvb_get_ntohs
-#define tvb_get_h_guint32   tvb_get_ntohl
+#define tvb_get_h_uint16  tvb_get_ntohs
+#define tvb_get_h_uint32  tvb_get_ntohl
 #else
 #error "Unsupported byte order"
 #endif
@@ -391,7 +391,7 @@ WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, cons
  * @param[in] length The field's length in the tvb (or -1 for remaining)
  * @param[in] encoding The ENC_* that defines the format (e.g., ENC_ISO_8601_DATE_TIME)
  * @param[in,out] ns The pre-allocated nstime_t that will be set to the decoded value
- * @param[out] endoff if not NULL, should point to a gint that this
+ * @param[out] endoff if not NULL, should point to a int that this
  *     routine will then set to be the offset to the character after
  *     the last character used in the conversion. This is useful because
  *     they may not consume the whole section.
@@ -412,8 +412,8 @@ WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, cons
  * for purely multi-byte encodings such as ENC_UTF_16, ENC_UCS_*, etc.
  */
 WS_DLL_PUBLIC
-nstime_t* tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
-                              const guint encoding, nstime_t* ns, gint *endoff);
+nstime_t* tvb_get_string_time(tvbuff_t *tvb, const int offset, const int length,
+                              const unsigned encoding, nstime_t* ns, int *endoff);
 
 /* Similar to above, but returns a GByteArray based on the case-insensitive
  * hex-char strings with optional separators, and with optional leading spaces.
@@ -424,17 +424,17 @@ nstime_t* tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint lengt
  * g_byte_array_new().
  */
 WS_DLL_PUBLIC
-GByteArray* tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
-                                 const guint encoding, GByteArray* bytes, gint *endoff);
+GByteArray* tvb_get_string_bytes(tvbuff_t *tvb, const int offset, const int length,
+                                 const unsigned encoding, GByteArray* bytes, int *endoff);
 
 /**
  * Fetch an IPv4 address, in network byte order.
  * We do *not* convert it to host byte order; we leave it in
  * network byte order, as that's what its callers expect. */
-WS_DLL_PUBLIC guint32 tvb_get_ipv4(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC uint32_t tvb_get_ipv4(tvbuff_t *tvb, const int offset);
 
 /* Fetch an IPv6 address. */
-WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const int offset,
     ws_in6_addr *addr);
 
 /**
@@ -448,7 +448,7 @@ WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const gint offset,
 * @return the length (in bytes) of the address on success, or -1 on failure
 */
 extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
-    ws_in4_addr *addr, guint32 prefix_len);
+    ws_in4_addr *addr, uint32_t prefix_len);
 
 /**
 * Fetches an IPv6 address from a tvbuff and
@@ -461,48 +461,48 @@ extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
 * @return the length (in bytes) of the address on success, or -1 on failure
 */
 extern int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
-    ws_in6_addr *addr, guint32 prefix_len);
+    ws_in6_addr *addr, uint32_t prefix_len);
 
 /* Fetch a GUID. */
-WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const int offset,
     e_guid_t *guid);
 
-WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const int offset,
     e_guid_t *guid);
 
-WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const gint offset,
-    e_guid_t *guid, const guint encoding);
+WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const int offset,
+    e_guid_t *guid, const unsigned encoding);
 
 /* Fetches a byte array given a bit offset in a tvb */
-WS_DLL_PUBLIC guint8* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const gint offset, size_t length, size_t *data_length, const guint encoding);
+WS_DLL_PUBLIC uint8_t* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const int offset, size_t length, size_t *data_length, const unsigned encoding);
 
 /* Fetch a specified number of bits from bit offset in a tvb.  All of these
  * functions are equivalent, except for the type of the return value.  Note
  * that the parameter encoding (where supplied) is meaningless and ignored */
 
-/* get 1 - 8 bits returned in a guint8 */
-WS_DLL_PUBLIC guint8 tvb_get_bits8(tvbuff_t *tvb, guint bit_offset,
-    const gint no_of_bits);
+/* get 1 - 8 bits returned in a uint8_t */
+WS_DLL_PUBLIC uint8_t tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset,
+    const int no_of_bits);
 
-/* get 1 - 16 bits returned in a guint16 */
-WS_DLL_PUBLIC guint16 tvb_get_bits16(tvbuff_t *tvb, guint bit_offset,
-    const gint no_of_bits, const guint encoding);
+/* get 1 - 16 bits returned in a uint16_t */
+WS_DLL_PUBLIC uint16_t tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset,
+    const int no_of_bits, const unsigned encoding);
 
-/* get 1 - 32 bits returned in a guint32 */
-WS_DLL_PUBLIC guint32 tvb_get_bits32(tvbuff_t *tvb, guint bit_offset,
-    const gint no_of_bits, const guint encoding);
+/* get 1 - 32 bits returned in a uint32_t */
+WS_DLL_PUBLIC uint32_t tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset,
+    const int no_of_bits, const unsigned encoding);
 
-/* get 1 - 64 bits returned in a guint64 */
-WS_DLL_PUBLIC guint64 tvb_get_bits64(tvbuff_t *tvb, guint bit_offset,
-    const gint no_of_bits, const guint encoding);
+/* get 1 - 64 bits returned in a uint64_t */
+WS_DLL_PUBLIC uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset,
+    const int no_of_bits, const unsigned encoding);
 
 /**
  *  This function has EXACTLY the same behavior as
  *  tvb_get_bits32()
  */
-WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
-    const gint no_of_bits, const guint encoding);
+WS_DLL_PUBLIC uint32_t tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset,
+    const int no_of_bits, const unsigned encoding);
 
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
@@ -510,7 +510,7 @@ WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
  * different "real" tvbuffs. This function assumes that the target
  * memory is already allocated; it does not allocate or free the
  * target memory. */
-WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset,
+WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const int offset,
     size_t length);
 
 /** Given an allocator scope, a tvbuff, a byte offset, a byte length:
@@ -529,7 +529,7 @@ WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset,
  * scope lifetime is reached.
  */
 WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const gint offset, size_t length);
+    const int offset, size_t length);
 
 /** WARNING! This function is possibly expensive, temporarily allocating
  * another copy of the packet data. Furthermore, it's dangerous because once
@@ -548,7 +548,7 @@ WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
  * that might be using this tvbuff may have already copied that portion of
  * the data (sometimes tvbuff's need to make copies of data, but that's the
  * internal implementation that you need not worry about). Assume that the
- * guint8* points to read-only data that the tvbuff manages.
+ * uint8_t* points to read-only data that the tvbuff manages.
  *
  * Return a pointer into our buffer if the data asked for via 'offset'/'length'
  * is contiguous (which might not be the case for a "composite" tvbuff). If the
@@ -556,8 +556,8 @@ WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
  * and the pointer to the newly-contiguous data is returned. This dynamically-
  * allocated memory will be freed when the tvbuff is freed, after the
  * tvbuff_free_cb_t() is called, if any. */
-WS_DLL_PUBLIC const guint8 *tvb_get_ptr(tvbuff_t *tvb, const gint offset,
-    const gint length);
+WS_DLL_PUBLIC const uint8_t *tvb_get_ptr(tvbuff_t *tvb, const int offset,
+    const int length);
 
 /** Find first occurrence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to
@@ -566,12 +566,12 @@ WS_DLL_PUBLIC const guint8 *tvb_get_ptr(tvbuff_t *tvb, const gint offset,
  * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
-WS_DLL_PUBLIC gint tvb_find_guint8(tvbuff_t *tvb, const gint offset,
-    const gint maxlength, const guint8 needle);
+WS_DLL_PUBLIC int tvb_find_guint8(tvbuff_t *tvb, const int offset,
+    const int maxlength, const uint8_t needle);
 
 /** Same as tvb_find_guint8() with 16bit needle. */
-WS_DLL_PUBLIC gint tvb_find_guint16(tvbuff_t *tvb, const gint offset,
-    const gint maxlength, const guint16 needle);
+WS_DLL_PUBLIC int tvb_find_guint16(tvbuff_t *tvb, const int offset,
+    const int maxlength, const uint16_t needle);
 
 /** Find first occurrence of any of the needles of the pre-compiled pattern in
  * tvbuff, starting at offset. The passed in pattern must have been "compiled"
@@ -581,8 +581,8 @@ WS_DLL_PUBLIC gint tvb_find_guint16(tvbuff_t *tvb, const gint offset,
  * Will not throw an exception, even if
  * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
  * the boundary is reached before finding needle. */
-WS_DLL_PUBLIC gint tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const gint offset,
-    const gint maxlength, const ws_mempbrk_pattern* pattern, guchar *found_needle);
+WS_DLL_PUBLIC int tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const int offset,
+    const int maxlength, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
 
 
 /** Find size of stringz (NUL-terminated string) by looking for terminating
@@ -590,7 +590,7 @@ WS_DLL_PUBLIC gint tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const gint offse
  *
  * If the NUL isn't found, it throws the appropriate exception.
  */
-WS_DLL_PUBLIC guint tvb_strsize(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC unsigned tvb_strsize(tvbuff_t *tvb, const int offset);
 
 /** Find size of UCS-2 or UTF-16 stringz (NUL-terminated string) by
  * looking for terminating 16-bit NUL.  The size of the string includes
@@ -598,41 +598,41 @@ WS_DLL_PUBLIC guint tvb_strsize(tvbuff_t *tvb, const gint offset);
  *
  * If the NUL isn't found, it throws the appropriate exception.
  */
-WS_DLL_PUBLIC guint tvb_unicode_strsize(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC unsigned tvb_unicode_strsize(tvbuff_t *tvb, const int offset);
 
 /** Find length of string by looking for end of zero terminated string, up to
  * 'maxlength' characters'; if 'maxlength' is -1, searches to end
  * of tvbuff.
  * Returns -1 if 'maxlength' reached before finding EOS. */
-WS_DLL_PUBLIC gint tvb_strnlen(tvbuff_t *tvb, const gint offset,
-    const guint maxlength);
+WS_DLL_PUBLIC int tvb_strnlen(tvbuff_t *tvb, const int offset,
+    const unsigned maxlength);
 
 /**
  * Format the data in the tvb from offset for size.
  */
-WS_DLL_PUBLIC gchar *tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
-    const gint size);
+WS_DLL_PUBLIC char *tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
+    const int size);
 
 /**
  * Like "tvb_format_text()", but for 'wsp'; don't show
  * the characters as C-style escapes.
  */
-WS_DLL_PUBLIC gchar *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset,
-    const gint size);
+WS_DLL_PUBLIC char *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset,
+    const int size);
 
 /**
  * Like "tvb_format_text()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */
-extern gchar *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
-    const gint size);
+extern char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
+    const int size);
 
 /**
  * Like "tvb_format_text_wsp()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */
-extern gchar *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset,
-    const gint size);
+extern char *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset,
+    const int size);
 
 /**
  * Given an allocator scope, a tvbuff, a byte offset, a byte length, and
@@ -654,8 +654,8 @@ extern gchar *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *t
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
+WS_DLL_PUBLIC uint8_t *tvb_get_string_enc(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, const int length, const unsigned encoding);
 
 /**
  * Given an allocator scope, a tvbuff, a bit offset, and a length in
@@ -678,8 +678,8 @@ WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
+WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int bit_offset, int no_of_chars);
 
 /**
  * Given an allocator scope, a tvbuff, an offset, and a length in
@@ -702,8 +702,8 @@ WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *sco
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, gint length);
+WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, int length);
 
 /**
  * Given an allocator scope, a tvbuff, an offset, and a length in
@@ -725,8 +725,8 @@ WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *s
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC gchar *tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, gint length);
+WS_DLL_PUBLIC char *tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, int length);
 
 /**
  * Given an allocator scope, a tvbuff, an offset, and a length in
@@ -748,8 +748,8 @@ WS_DLL_PUBLIC gchar *tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *sc
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC gchar *tvb_get_ascii_7bits_string(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
+WS_DLL_PUBLIC char *tvb_get_ascii_7bits_string(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int bit_offset, int no_of_chars);
 
 /**
  * Given an allocator scope, a tvbuff, a byte offset, a byte length, and
@@ -771,12 +771,12 @@ WS_DLL_PUBLIC gchar *tvb_get_ascii_7bits_string(wmem_allocator_t *scope,
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_stringzpad(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
+WS_DLL_PUBLIC uint8_t *tvb_get_stringzpad(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, const int length, const unsigned encoding);
 
 /**
  * Given an allocator scope, a tvbuff, a byte offset, a pointer to a
- * gint, and a string encoding, with the specified offset referring to
+ * int, and a string encoding, with the specified offset referring to
  * a null-terminated string in the specified encoding:
  *
  *    find the length of that string (and throw an exception if the tvbuff
@@ -789,7 +789,7 @@ WS_DLL_PUBLIC guint8 *tvb_get_stringzpad(wmem_allocator_t *scope,
  *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
  *    trailing '\0', into that buffer;
  *
- *    if the pointer to the gint is non-null, set the gint to which it
+ *    if the pointer to the int is non-null, set the int to which it
  *    points to the length of the string;
  *
  *    and return a pointer to the buffer.
@@ -800,8 +800,8 @@ WS_DLL_PUBLIC guint8 *tvb_get_stringzpad(wmem_allocator_t *scope,
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+WS_DLL_PUBLIC uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding);
 
 /**
  * Given a tvbuff and an offset, with the offset assumed to refer to
@@ -829,8 +829,8 @@ WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope,
  */
 WS_DLL_PUBLIC
 WS_DEPRECATED_X("Use APIs that return a valid UTF-8 string instead")
-const guint8 *tvb_get_const_stringz(tvbuff_t *tvb,
-    const gint offset, gint *lengthp);
+const uint8_t *tvb_get_const_stringz(tvbuff_t *tvb,
+    const int offset, int *lengthp);
 
 /** Looks for a NUL byte in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
@@ -841,8 +841,8 @@ const guint8 *tvb_get_const_stringz(tvbuff_t *tvb,
  * is reached before the NUL is found. The byte buffer is guaranteed to
  * have a terminating NUL.
  */
-WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset,
-    const guint bufsize, guint8 *buffer);
+WS_DLL_PUBLIC int tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset,
+    const unsigned bufsize, uint8_t *buffer);
 
 /*
  * Given a tvbuff, an offset into the tvbuff, a buffer, and a buffer size,
@@ -850,33 +850,33 @@ WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset
  * as 1) are available in the tvbuff and 2) will fit in the buffer, leaving
  * room for a terminating NUL.
  */
-WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size_t bufsize);
+WS_DLL_PUBLIC int tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const int offset, char *buffer, size_t bufsize);
 
 /** Iterates over the provided portion of the tvb checking that each byte
 * is an ascii printable character.
-* Returns TRUE if all bytes are printable, FALSE otherwise
+* Returns true if all bytes are printable, false otherwise
 */
-WS_DLL_PUBLIC bool tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
-	const gint length);
+WS_DLL_PUBLIC bool tvb_ascii_isprint(tvbuff_t *tvb, const int offset,
+	const int length);
 
 /** Iterates over the provided portion of the tvb checking that it is
 * valid UTF-8 consisting entirely of printable characters. (The characters
 * must be complete; if the portion ends in a partial sequence that could
-* begin a valid character, this returns FALSE.) The length may be -1 for
+* begin a valid character, this returns false.) The length may be -1 for
 * "all the way to the end of the tvbuff".
-* Returns TRUE if printable, FALSE otherwise
+* Returns true if printable, false otherwise
 *
 * @see isprint_utf8_string()
 */
-WS_DLL_PUBLIC bool tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset,
-	const gint length);
+WS_DLL_PUBLIC bool tvb_utf_8_isprint(tvbuff_t *tvb, const int offset,
+	const int length);
 
 /** Iterates over the provided portion of the tvb checking that each byte
 * is an ascii digit.
-* Returns TRUE if all bytes are digits, FALSE otherwise
+* Returns true if all bytes are digits, false otherwise
 */
-WS_DLL_PUBLIC bool tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset,
-	const gint length);
+WS_DLL_PUBLIC bool tvb_ascii_isdigit(tvbuff_t *tvb, const int offset,
+	const int length);
 
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
@@ -897,8 +897,8 @@ WS_DLL_PUBLIC bool tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset,
  * character past the line terminator, or past the end of the buffer if
  * we don't find a line terminator.  (It's not set if we return -1.)
  */
-WS_DLL_PUBLIC gint tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len,
-    gint *next_offset, const gboolean desegment);
+WS_DLL_PUBLIC int tvb_find_line_end(tvbuff_t *tvb, const int offset, int len,
+    int *next_offset, const bool desegment);
 
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
@@ -918,8 +918,8 @@ WS_DLL_PUBLIC gint tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len,
  * character past the line terminator, or past the end of the buffer if
  * we don't find a line terminator.
  */
-WS_DLL_PUBLIC gint tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset,
-    int len, gint *next_offset);
+WS_DLL_PUBLIC int tvb_find_line_end_unquoted(tvbuff_t *tvb, const int offset,
+    int len, int *next_offset);
 
 /**
  * Copied from the mgcp dissector. (This function should be moved to /epan )
@@ -938,12 +938,12 @@ WS_DLL_PUBLIC gint tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset,
  *          is smaller.
  */
 
-WS_DLL_PUBLIC gint tvb_skip_wsp(tvbuff_t *tvb, const gint offset,
-    const gint maxlength);
+WS_DLL_PUBLIC int tvb_skip_wsp(tvbuff_t *tvb, const int offset,
+    const int maxlength);
 
-WS_DLL_PUBLIC gint tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC int tvb_skip_wsp_return(tvbuff_t *tvb, const int offset);
 
-int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch);
+int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch);
 
 /**
 * Given a tvbuff, an offset into the tvbuff, and a length that starts
@@ -963,43 +963,43 @@ int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8
 * terminator, or past the end of the buffer if we don't find a line
 * terminator.  (It's not set if we return -1.)
 */
-WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, const gboolean desegment);
+WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const int offset, int len, int *next_offset, const bool desegment);
 
 /**
  * Call strncmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
-WS_DLL_PUBLIC gint tvb_strneql(tvbuff_t *tvb, const gint offset,
-    const gchar *str, const size_t size);
+WS_DLL_PUBLIC int tvb_strneql(tvbuff_t *tvb, const int offset,
+    const char *str, const size_t size);
 
 /**
  * Call g_ascii_strncasecmp after checking if enough chars left, returning
  * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
-WS_DLL_PUBLIC gint tvb_strncaseeql(tvbuff_t *tvb, const gint offset,
-    const gchar *str, const size_t size);
+WS_DLL_PUBLIC int tvb_strncaseeql(tvbuff_t *tvb, const int offset,
+    const char *str, const size_t size);
 
 /**
  * Call memcmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
-WS_DLL_PUBLIC gint tvb_memeql(tvbuff_t *tvb, const gint offset,
-    const guint8 *str, size_t size);
+WS_DLL_PUBLIC int tvb_memeql(tvbuff_t *tvb, const int offset,
+    const uint8_t *str, size_t size);
 
 /**
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data, with "punct" as a byte
  * separator.
  */
-WS_DLL_PUBLIC gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
-    const gint len, const gchar punct);
+WS_DLL_PUBLIC char *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
+    const int len, const char punct);
 
 /**
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
-WS_DLL_PUBLIC gchar *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
-    const gint offset, const gint len);
+WS_DLL_PUBLIC char *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
+    const int offset, const int len);
 
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
@@ -1017,9 +1017,9 @@ typedef struct dgt_set_t
 }
 dgt_set_t;
 
-WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt,
-    gboolean skip_first);
+WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, const int len, const dgt_set_t *dgt,
+    bool skip_first);
 
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
@@ -1032,16 +1032,16 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
  * end the conversion. Function uses big endian convetion: first digit is based
  * on high order nibble, second digit is based on low order nibble.
  */
-WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt,
-    gboolean skip_first);
+WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, const int len, const dgt_set_t *dgt,
+    bool skip_first);
 
 /**
  * Given a wmem scope, a tvbuff, an offset, a length, an input digit
  * set, and a boolean indicator, fetch BCD-encoded digits from a
  * tvbuff starting from either the low or high half byte of the
- * first byte depending on the boolean indicator (TRUE means "start
- * with the high half byte, ignoring the low half byte", and FALSE
+ * first byte depending on the boolean indicator (true means "start
+ * with the high half byte, ignoring the low half byte", and false
  * means "start with the low half byte and proceed to the high half
  * byte), formating the digits into characters according to the
  * input digit set, and return a pointer to a UTF-8 string, allocated
@@ -1051,16 +1051,16 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
  * high order nibble is taken as first digit of a byte and low order
  * nibble as second digit.
  */
-WS_DLL_PUBLIC gchar *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const gint offset, gint len, const dgt_set_t *dgt,
-    gboolean skip_first, gboolean odd, gboolean bigendian);
+WS_DLL_PUBLIC char *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const int offset, int len, const dgt_set_t *dgt,
+    bool skip_first, bool odd, bool bigendian);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within
  * 'haystack', or -1 if 'needle' is not found. The index is relative
  * to the start of 'haystack', not 'haystack_offset'. */
-WS_DLL_PUBLIC gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
-    const gint haystack_offset);
+WS_DLL_PUBLIC int tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
+    const int haystack_offset);
 
 /* From tvbuff_zlib.c */
 
@@ -1274,7 +1274,7 @@ WS_DLL_PUBLIC tvbuff_t* tvb_child_uncompress_hpack_huff(tvbuff_t *parent,
  * @param encoding The ENC_* that defines the format (e.g., ENC_VARINT_PROTOBUF, ENC_VARINT_QUIC, ENC_VARINT_ZIGZAG, ENC_VARINT_SDNV)
  * @return   the length of this varint in tvb. 0 means parsing failed.
  */
-WS_DLL_PUBLIC guint tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const guint encoding);
+WS_DLL_PUBLIC unsigned tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value, const unsigned encoding);
 
 /************** END OF ACCESSORS ****************/
 

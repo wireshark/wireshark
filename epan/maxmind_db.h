@@ -22,15 +22,15 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct _mmdb_lookup_t {
-    gboolean found;
+    bool found;
     const char *country;
     const char *country_iso;
     const char *city;
-    guint32 as_number;
+    uint32_t as_number;
     const char *as_org;
     double latitude;
     double longitude;
-    guint16 accuracy;   /** Accuracy radius in kilometers. */
+    uint16_t accuracy;   /** Accuracy radius in kilometers. */
 } mmdb_lookup_t;
 
 /**
@@ -69,19 +69,19 @@ WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv6(const ws
  * @return String with all paths separated by a path separator. The string
  * must be freed.
  */
-WS_DLL_PUBLIC gchar *maxmind_db_get_paths(void);
+WS_DLL_PUBLIC char *maxmind_db_get_paths(void);
 
 /**
  * Process outstanding requests.
  *
  * @return True if any new addresses were resolved.
  */
-WS_DLL_LOCAL gboolean maxmind_db_lookup_process(void);
+WS_DLL_LOCAL bool maxmind_db_lookup_process(void);
 
 /**
  * Checks whether the lookup result was successful and has valid coordinates.
  */
-static inline gboolean maxmind_db_has_coords(const mmdb_lookup_t *result)
+static inline bool maxmind_db_has_coords(const mmdb_lookup_t *result)
 {
     return result && result->found &&
         result->longitude != DBL_MAX && result->latitude != DBL_MAX;
@@ -97,7 +97,7 @@ static inline gboolean maxmind_db_has_coords(const mmdb_lookup_t *result)
  * should probably have the "resolve synchronously or asynchronously"
  * flag be per-session, set with an epan API.
  */
-WS_DLL_PUBLIC void maxmind_db_set_synchrony(gboolean synchronous);
+WS_DLL_PUBLIC void maxmind_db_set_synchrony(bool synchronous);
 
 #ifdef __cplusplus
 }

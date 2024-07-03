@@ -34,19 +34,19 @@ extern "C" {
 
 
 /** callback function definition: return formatted label string */
-typedef void (*build_label_func)(packet_info *pinfo, gchar* result);
+typedef void (*build_label_func)(packet_info *pinfo, char* result);
 
 /** callback function definition: return value used to pass to dissector table */
-typedef gpointer (*build_valid_func)(packet_info *pinfo);
+typedef void * (*build_valid_func)(packet_info *pinfo);
 
-typedef void (*decode_as_add_to_list_func)(const gchar *table_name, const gchar *proto_name, gpointer value, gpointer user_data);
-typedef void (*decode_as_populate_list_func)(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);
-typedef void (*decode_as_free_func)(gpointer value);
+typedef void (*decode_as_add_to_list_func)(const char *table_name, const char *proto_name, void *value, void *user_data);
+typedef void (*decode_as_populate_list_func)(const char *table_name, decode_as_add_to_list_func add_to_list, void *ui_element);
+typedef void (*decode_as_free_func)(void *value);
 
 /** callback function definition: Clear value from dissector table */
-typedef bool (*decode_as_reset_func)(const gchar *name, gconstpointer pattern);
+typedef bool (*decode_as_reset_func)(const char *name, const void *pattern);
 /** callback function definition: Apply value to dissector table */
-typedef bool (*decode_as_change_func)(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
+typedef bool (*decode_as_change_func)(const char *name, const void *pattern, const void *handle, const char *list_name);
 
 /**
 Contains all of the function pointers (typically just 1) that
@@ -55,7 +55,7 @@ be passed to the dissector table to change the dissection output.
 */
 typedef struct decode_as_value_s {
     build_label_func label_func;            /**< function pointer to the function used to create the label*/
-    guint num_values;                       /**< Number of values */
+    unsigned num_values;                       /**< Number of values */
     build_valid_func* build_values;         /**< Function used to build the value to go into the table. Retrieve from current frame */
 } decode_as_value_t;
 
@@ -70,9 +70,9 @@ functions should suffice.
 */
 typedef struct decode_as_s {
     const char *name;                               /**< Protocol name */
-    const gchar *table_name;                        /**< Disector table name */
-    guint num_items;                                /**< Number of index in the decode_as_value_t struct */
-    guint default_index_value;                      /**< Which display function to use first, set to zero if only one function*/
+    const char *table_name;                        /**< Disector table name */
+    unsigned num_items;                                /**< Number of index in the decode_as_value_t struct */
+    unsigned default_index_value;                      /**< Which display function to use first, set to zero if only one function*/
     decode_as_value_t* values;                      /**< The array of function pointers, see decode_as_value_t */
     const char* pre_value_str;                      /**< String to prepend the value, NULL if none */
     const char* post_value_str;                     /**< String to append the value, NULL if none */
@@ -103,14 +103,14 @@ struct dissector_table;
  *
  * @return Created dissector table with Decode As support
 */
-WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, const gchar *table_name, const gchar *ui_name, build_label_func label_func);
+WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, const char *table_name, const char *ui_name, build_label_func label_func);
 
 /* Walk though the dissector table and provide dissector_handle_t for each item in the table */
-WS_DLL_PUBLIC void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);
+WS_DLL_PUBLIC void decode_as_default_populate_list(const char *table_name, decode_as_add_to_list_func add_to_list, void *ui_element);
 /* Clear a FT_UINT32 value from dissector table list */
-WS_DLL_PUBLIC bool decode_as_default_reset(const gchar *name, gconstpointer pattern);
+WS_DLL_PUBLIC bool decode_as_default_reset(const char *name, const void *pattern);
 /* Add a FT_UINT32 value to dissector table list */
-WS_DLL_PUBLIC bool decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
+WS_DLL_PUBLIC bool decode_as_default_change(const char *name, const void *pattern, const void *handle, const char *list_name);
 
 /** List of registered decode_as_t structs.
  * For UI code only. Should not be directly accessed by dissectors.
@@ -127,7 +127,7 @@ extern void load_decode_as_entries(void);
 
 /** Write out the "decode as" entries of the current profile.
  */
-WS_DLL_PUBLIC int save_decode_as_entries(gchar** err);
+WS_DLL_PUBLIC int save_decode_as_entries(char** err);
 
 /** Clear all "decode as" settings.
  */
@@ -159,9 +159,9 @@ WS_DLL_PUBLIC void decode_cleanup(void);
  *
  * @param user_data Unused.
  */
-WS_DLL_PUBLIC void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value,
-                         gpointer user_data);
+WS_DLL_PUBLIC void decode_build_reset_list (const char *table_name, ftenum_t selector_type,
+                         void *key, void *value,
+                         void *user_data);
 
 
 #ifdef __cplusplus

@@ -45,7 +45,7 @@
 #define COMPARE_TS(ts) COMPARE_TS_REAL(fdata1->ts, fdata2->ts)
 
 void
-frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata, guint32 prev_num, nstime_t *delta)
+frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata, uint32_t prev_num, nstime_t *delta)
 {
   const nstime_t *prev_abs_ts = (prev_num) ? epan_get_frame_ts(epan, prev_num) : NULL;
 
@@ -59,7 +59,7 @@ frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata, g
   }
 }
 
-static gint
+static int
 frame_data_time_delta_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2)
 {
   nstime_t del_cap_ts1, del_cap_ts2;
@@ -70,7 +70,7 @@ frame_data_time_delta_compare(const struct epan_session *epan, const frame_data 
   return COMPARE_TS_REAL(del_cap_ts1, del_cap_ts2);
 }
 
-static gint
+static int
 frame_data_time_delta_rel_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2)
 {
   nstime_t del_rel_ts1, del_rel_ts2;
@@ -81,7 +81,7 @@ frame_data_time_delta_rel_compare(const struct epan_session *epan, const frame_d
   return COMPARE_TS_REAL(del_rel_ts1, del_rel_ts2);
 }
 
-static gint
+static int
 frame_data_time_delta_dis_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2)
 {
   nstime_t del_dis_ts1, del_dis_ts2;
@@ -92,7 +92,7 @@ frame_data_time_delta_dis_compare(const struct epan_session *epan, const frame_d
   return COMPARE_TS_REAL(del_dis_ts1, del_dis_ts2);
 }
 
-gint
+int
 frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field)
 {
   switch (field) {
@@ -152,8 +152,8 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
 }
 
 void
-frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
-                gint64 offset, guint32 cum_bytes)
+frame_data_init(frame_data *fdata, uint32_t num, const wtap_rec *rec,
+                int64_t offset, uint32_t cum_bytes)
 {
   fdata->pfd = NULL;
   fdata->num = num;
@@ -276,8 +276,8 @@ frame_data_set_before_dissect(frame_data *fdata,
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if ((gint32)elapsed_time->secs < rel_ts.secs
-    || ((gint32)elapsed_time->secs == rel_ts.secs && (gint32)elapsed_time->nsecs < rel_ts.nsecs)) {
+  if ((int32_t)elapsed_time->secs < rel_ts.secs
+    || ((int32_t)elapsed_time->secs == rel_ts.secs && (int32_t)elapsed_time->nsecs < rel_ts.nsecs)) {
     *elapsed_time = rel_ts;
   }
 
@@ -287,7 +287,7 @@ frame_data_set_before_dissect(frame_data *fdata,
 
 void
 frame_data_set_after_dissect(frame_data *fdata,
-                guint32 *cum_bytes)
+                uint32_t *cum_bytes)
 {
   /* This frame either passed the display filter list or is marked as
      a time reference frame.  All time reference frames are displayed

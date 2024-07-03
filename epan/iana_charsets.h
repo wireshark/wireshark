@@ -19,7 +19,7 @@
 #define __IANA_CHARSETS_H__
 
 /* Map a MIBenum code for a charset to a Wireshark string encoding. */
-WS_DLL_PUBLIC guint mibenum_charset_to_encoding (guint charset);
+WS_DLL_PUBLIC unsigned mibenum_charset_to_encoding (unsigned charset);
 
 /* value_string_ext table of names for MIBenum codes */
 WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;

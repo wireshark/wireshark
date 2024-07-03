@@ -82,10 +82,10 @@ typedef enum {
 } proto_data_eap;
 
 typedef struct _eap_vendor_context {
-  guint32   vendor_type;
-  guint32   vendor_id;
-  guint8    eap_code;
-  guint8    eap_identifier;
+  uint32_t  vendor_type;
+  uint32_t  vendor_id;
+  uint8_t   eap_code;
+  uint8_t   eap_identifier;
 } eap_vendor_context;
 
 #endif

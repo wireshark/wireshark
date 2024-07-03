@@ -94,7 +94,7 @@ static struct conversation_filter_s* find_conversation_filter(GList *conv_filter
     return NULL;
 }
 
-static void conversation_filter_free(gpointer p, gpointer user_data _U_)
+static void conversation_filter_free(void *p, void *user_data _U_)
 {
     g_free(p);
 }
@@ -109,10 +109,10 @@ void conversation_filters_cleanup(void)
     g_slist_free(conversation_proto_names);
 }
 
-static gchar *conversation_filter_from_pinfo(GList *conv_filter_list, struct _packet_info *pinfo)
+static char *conversation_filter_from_pinfo(GList *conv_filter_list, struct _packet_info *pinfo)
 {
     conversation_filter_t *conv_filter;
-    gchar *filter;
+    char *filter;
 
     for (GSList *cur_entry = conversation_proto_names; cur_entry; cur_entry = g_slist_next(cur_entry)) {
         conv_filter = find_conversation_filter(conv_filter_list, (const char *) cur_entry->data);
@@ -125,12 +125,12 @@ static gchar *conversation_filter_from_pinfo(GList *conv_filter_list, struct _pa
     return NULL;
 }
 
-gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
+char *conversation_filter_from_packet(struct _packet_info *pinfo)
 {
     return conversation_filter_from_pinfo(packet_conv_filter_list, pinfo);
 }
 
-gchar *conversation_filter_from_log(struct _packet_info *pinfo)
+char *conversation_filter_from_log(struct _packet_info *pinfo)
 {
     return conversation_filter_from_pinfo(log_conv_filter_list, pinfo);
 }

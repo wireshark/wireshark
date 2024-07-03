@@ -143,11 +143,11 @@ static int init_counter;
 static void unhandled_catcher(except_t *);
 static void (*uh_catcher_ptr)(except_t *) = unhandled_catcher;
 /* We need this 'size_t' cast due to a glitch in GLib where g_malloc was prototyped
- * as 'gpointer g_malloc (gulong n_bytes)'. This was later fixed to the correct prototype
- * 'gpointer g_malloc (gsize n_bytes)'. In Wireshark we use the latter prototype
+ * as 'void *g_malloc (unsigned long n_bytes)'. This was later fixed to the correct prototype
+ * 'void *g_malloc (size_t n_bytes)'. In Wireshark we use the latter prototype
  * throughout the code. We can get away with this even with older versions of GLib by
  * adding a '(void *(*)(size_t))' cast whenever we refer to g_malloc. The only platform
- * supported by Wireshark where this isn't safe (sizeof size_t != sizeof gulong) is Win64.
+ * supported by Wireshark where this isn't safe (sizeof size_t != sizeof unsigned long) is Win64.
  * However, we _always_ bundle the newest version of GLib on this platform so
  * the size_t issue doesn't exists here. Pheew.. */
 static void *(*allocator)(size_t) = (void *(*)(size_t)) g_malloc;

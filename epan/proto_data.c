@@ -22,12 +22,12 @@
    and opaque pointer. */
 typedef struct _proto_data {
   int   proto;
-  guint32 key;
+  uint32_t key;
   void *proto_data;
 } proto_data_t;
 
-static gint
-p_compare(gconstpointer a, gconstpointer b)
+static int
+p_compare(const void *a, const void *b)
 {
   const proto_data_t *ap = (const proto_data_t *)a;
   const proto_data_t *bp = (const proto_data_t *)b;
@@ -47,7 +47,7 @@ p_compare(gconstpointer a, gconstpointer b)
 }
 
 void
-p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data)
+p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data)
 {
   proto_data_t     *p1;
   GSList          **proto_list;
@@ -74,7 +74,7 @@ p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int pr
 }
 
 void
-p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data)
+p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data)
 {
   proto_data_t  temp;
   GSList       *item;
@@ -101,7 +101,7 @@ p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto,
 }
 
 void *
-p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key)
+p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key)
 {
   proto_data_t  temp, *p1;
   GSList       *item;
@@ -127,7 +127,7 @@ p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto,
 }
 
 void
-p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key)
+p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key)
 {
   proto_data_t  temp;
   GSList       *item;
@@ -152,8 +152,8 @@ p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int pro
   }
 }
 
-gchar *
-p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index){
+char *
+p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, unsigned pfd_index){
   proto_data_t  *temp;
 
   if (scope == pinfo->pool) {

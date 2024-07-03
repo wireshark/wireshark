@@ -84,7 +84,7 @@ static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -
 static void prepopulate_oids(void) {
 	if (!oid_root.children) {
 		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
-		guint32 subid;
+		uint32_t subid;
 
 		debuglevel = debug_env ? (int)strtoul(debug_env,NULL,10) : 0;
 
@@ -102,8 +102,8 @@ static void prepopulate_oids(void) {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
-	guint i = 0;
+static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, unsigned oid_len, uint32_t *subids) {
+	unsigned i = 0;
 	oid_info_t* c = &oid_root;
 
 	prepopulate_oids();
@@ -160,10 +160,10 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void oid_add(const char* name, guint oid_len, guint32 *subids) {
+void oid_add(const char* name, unsigned oid_len, uint32_t *subids) {
 	ws_assert(subids && *subids <= 2);
 	if (oid_len) {
-		gchar* sub = oid_subid2string(NULL, subids,oid_len);
+		char* sub = oid_subid2string(NULL, subids,oid_len);
 		D(3,("\tOid (from subids): %s %s ",name?name:"NULL", sub));
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
 		wmem_free(NULL, sub);
@@ -172,12 +172,12 @@ void oid_add(const char* name, guint oid_len, guint32 *subids) {
 	}
 }
 
-void oid_add_from_string(const char* name, const gchar *oid_str) {
-	guint32* subids;
-	guint oid_len = oid_string2subid(NULL, oid_str, &subids);
+void oid_add_from_string(const char* name, const char *oid_str) {
+	uint32_t* subids;
+	unsigned oid_len = oid_string2subid(NULL, oid_str, &subids);
 
 	if (oid_len) {
-		gchar* sub = oid_subid2string(NULL, subids,oid_len);
+		char* sub = oid_subid2string(NULL, subids,oid_len);
 		D(3,("\tOid (from string): %s %s ",name?name:"NULL", sub));
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
 		wmem_free(NULL, sub);
@@ -187,17 +187,17 @@ void oid_add_from_string(const char* name, const gchar *oid_str) {
 	wmem_free(NULL, subids);
 }
 
-extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len) {
-	guint32* subids = NULL;
-	guint subids_len = oid_encoded2subid(NULL, oid, oid_len, &subids);
+extern void oid_add_from_encoded(const char* name, const uint8_t *oid, int oid_len) {
+	uint32_t* subids = NULL;
+	unsigned subids_len = oid_encoded2subid(NULL, oid, oid_len, &subids);
 
 	if (subids_len) {
-		gchar* sub = oid_subid2string(NULL, subids,subids_len);
+		char* sub = oid_subid2string(NULL, subids,subids_len);
 		D(3,("\tOid (from encoded): %s %s ",name, sub));
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,subids_len,subids);
 		wmem_free(NULL, sub);
 	} else {
-		gchar* bytestr = bytes_to_str_punct(NULL, oid, oid_len, ':');
+		char* bytestr = bytes_to_str_punct(NULL, oid, oid_len, ':');
 		D(1,("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len, bytestr));
 		wmem_free(NULL, bytestr);
 	}
@@ -232,11 +232,11 @@ typedef struct smi_module_t {
 } smi_module_t;
 
 static smi_module_t* smi_paths;
-static guint num_smi_paths;
+static unsigned num_smi_paths;
 static uat_t* smi_paths_uat;
 
 static smi_module_t* smi_modules;
-static guint num_smi_modules;
+static unsigned num_smi_modules;
 static uat_t* smi_modules_uat;
 
 static GString* smi_errors;
@@ -356,9 +356,9 @@ static const oid_value_type_t* get_typedata(SmiType* smiType) {
 	return &unknown_type;
 }
 
-static guint get_non_implicit_size(SmiType* sT) {
+static unsigned get_non_implicit_size(SmiType* sT) {
 	SmiRange *sR;
-	guint size = 0xffffffff;
+	unsigned size = 0xffffffff;
 
 	switch (sT->basetype) {
 		case SMI_BASETYPE_OCTETSTRING:
@@ -372,7 +372,7 @@ static guint get_non_implicit_size(SmiType* sT) {
 		for (sR = smiGetFirstRange(sT); sR ; sR = smiGetNextRange(sR)) {
 			if (size == 0xffffffff) {
 				if (sR->minValue.value.unsigned32 == sR->maxValue.value.unsigned32) {
-					size = (guint32)sR->minValue.value.unsigned32;
+					size = (uint32_t)sR->minValue.value.unsigned32;
 				} else {
 					return 0;
 				}
@@ -396,7 +396,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 			SmiElement* sE;
 			oid_key_t* kl = NULL;	/* points to last element in the list of oid_key_t's */
 			const oid_value_type_t* typedata = NULL;
-			gboolean implied;
+			bool implied;
 
 			switch (sN->indexkind) {
 				case SMI_INDEX_INDEX:
@@ -417,7 +417,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				SmiNode* elNode =  smiGetElementNode(sE) ;
 				SmiType* elType = smiGetNodeType(elNode);
 				oid_key_t* k;
-				guint non_implicit_size = 0;
+				unsigned non_implicit_size = 0;
 				char *oid1, *oid2;
 
 				if (elType) {
@@ -538,11 +538,11 @@ static void restart_needed_warning(void) {
 static void register_mibs(void) {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
-	guint i;
+	unsigned i;
 	int proto_mibs = -1;
 	wmem_array_t* hfa;
 	GArray* etta;
-	gchar* path_str;
+	char* path_str;
 
 	if (!load_smi_modules) {
 		D(1,("OID resolution not enabled"));
@@ -557,10 +557,10 @@ static void register_mibs(void) {
 	}
 
 	hfa = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
-	etta = g_array_new(FALSE,TRUE,sizeof(gint*));
+	etta = g_array_new(false,true,sizeof(int*));
 
 	smiInit("wireshark");
-	smi_init_done = TRUE;
+	smi_init_done = true;
 
 	smi_errors = g_string_new("");
 	smiSetErrorHandler(smi_error_handler);
@@ -596,7 +596,7 @@ static void register_mibs(void) {
 	}
 
 	g_free(path_str);
-	g_string_free(smi_errors,TRUE);
+	g_string_free(smi_errors,true);
 
 	for (smiModule = smiGetFirstModule();
 		 smiModule;
@@ -669,24 +669,24 @@ static void register_mibs(void) {
 				oid_data->value_hfid = -1;
 
 				if ( IS_ENUMABLE(hf.hfinfo.type) && (smiEnum = smiGetFirstNamedNumber(smiType))) {
-					GArray* vals = g_array_new(TRUE,TRUE,sizeof(value_string));
+					GArray* vals = g_array_new(true,true,sizeof(value_string));
 
 					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum)) {
 						if (smiEnum->name) {
 							value_string val;
-							val.value  = (guint32)smiEnum->value.value.integer32;
+							val.value  = (uint32_t)smiEnum->value.value.integer32;
 							val.strptr = g_strdup(smiEnum->name);
 							g_array_append_val(vals,val);
 						}
 					}
 
-					hf.hfinfo.strings = g_array_free(vals, FALSE);
+					hf.hfinfo.strings = g_array_free(vals, false);
 				}
 #if 0 /* packet-snmp does not handle bits yet */
 			} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
-				guint n = 0;
+				unsigned n = 0;
 				oid_bits_info_t* bits = g_new(oid_bits_info_t, 1);
-				gint* ettp = &(bits->ett);
+				int* ettp = &(bits->ett);
 
 				bits->num = 0;
 				bits->ett = -1;
@@ -700,7 +700,7 @@ static void register_mibs(void) {
 				for(smiEnum = smiGetFirstNamedNumber(smiType),n=0;
 					smiEnum;
 					smiEnum = smiGetNextNamedNumber(smiEnum),n++) {
-					guint mask = 1 << (smiEnum->value.value.integer32 % 8);
+					unsigned mask = 1 << (smiEnum->value.value.integer32 % 8);
 					char* base = alnumerize(oid_data->name);
 					char* ext = alnumerize(smiEnum->name);
 					hf_register_info hf2 = { &(bits->data[n].hfid), { NULL, NULL, FT_UINT8, BASE_HEX, NULL, mask, NULL, HFILL }};
@@ -750,11 +750,11 @@ static void register_mibs(void) {
 
 	proto_register_field_array(proto_mibs, (hf_register_info*)wmem_array_get_raw(hfa), wmem_array_get_count(hfa));
 
-	proto_register_subtree_array((gint**)(void*)etta->data, etta->len);
+	proto_register_subtree_array((int**)(void*)etta->data, etta->len);
 
-	g_array_free(etta,TRUE);
+	g_array_free(etta,true);
 
-	oids_init_done = TRUE;
+	oids_init_done = true;
 }
 #endif
 
@@ -787,7 +787,7 @@ void oid_pref_init(module_t *nameres)
     smi_paths_uat = uat_new("SMI Paths",
                             sizeof(smi_module_t),
                             "smi_paths",
-                            FALSE,
+                            false,
                             (void**)&smi_paths,
                             &num_smi_paths,
     /* affects dissection of packets (as the MIBs and PIBs affect the
@@ -816,7 +816,7 @@ void oid_pref_init(module_t *nameres)
     smi_modules_uat = uat_new("SMI Modules",
                               sizeof(smi_module_t),
                               "smi_modules",
-                              FALSE,
+                              false,
                               (void**)&smi_modules,
                               &num_smi_modules,
     /* affects dissection of packets (as the MIBs and PIBs affect the
@@ -874,13 +874,13 @@ void oids_cleanup(void) {
 #endif
 }
 
-char* oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len) {
-	return rel_oid_subid2string(scope, subids, len, TRUE);
+char* oid_subid2string(wmem_allocator_t *scope, uint32_t* subids, unsigned len) {
+	return rel_oid_subid2string(scope, subids, len, true);
 }
-char* rel_oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len, gboolean is_absolute) {
+char* rel_oid_subid2string(wmem_allocator_t *scope, uint32_t* subids, unsigned len, bool is_absolute) {
 
 	wmem_strbuf_t *oid_str;
-	gsize oid_str_len;
+	size_t oid_str_len;
 
 	if(!subids || len == 0)
 		return wmem_strdup(scope, "*** Empty OID ***");
@@ -902,10 +902,10 @@ char* rel_oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len, 
 }
 
 /* If a valid OID string, return number of numbers */
-static guint check_num_oid(const char* str) {
+static unsigned check_num_oid(const char* str) {
 	const char* r = str;
 	char c = '.';
-	guint n = 0;
+	unsigned n = 0;
 
 	D(8,("check_num_oid: '%s'",str));
 	if (!r) return 0;
@@ -929,16 +929,16 @@ static guint check_num_oid(const char* str) {
 }
 
 /* Set subids_p to an array of found numbers, return number of numbers */
-guint oid_string2subid(wmem_allocator_t *scope, const char* str, guint32** subids_p) {
+unsigned oid_string2subid(wmem_allocator_t *scope, const char* str, uint32_t** subids_p) {
 	const char* r = str;
-	guint32* subids;
-	guint32* subids_overflow;
-	guint n = check_num_oid(str);
+	uint32_t* subids;
+	uint32_t* subids_overflow;
+	unsigned n = check_num_oid(str);
 	/*
 	 * we cannot handle sub-ids greater than 32bytes
 	 * keep a pilot subid of 64 bytes to check the limit
 	 */
-	guint64 subid = 0;
+	uint64_t subid = 0;
 
 	D(6,("oid_string2subid: str='%s'",str));
 
@@ -947,7 +947,7 @@ guint oid_string2subid(wmem_allocator_t *scope, const char* str, guint32** subid
 		return 0;
 	}
 
-	*subids_p = subids = wmem_alloc0_array(scope, guint32, n);
+	*subids_p = subids = wmem_alloc0_array(scope, uint32_t, n);
 	subids_overflow = subids + n;
 	do switch(*r) {
 		case '.':
@@ -978,24 +978,24 @@ guint oid_string2subid(wmem_allocator_t *scope, const char* str, guint32** subid
 }
 
 
-guint oid_encoded2subid(wmem_allocator_t *scope, const guint8 *oid_bytes, gint oid_len, guint32** subids_p) {
-	return oid_encoded2subid_sub(scope, oid_bytes, oid_len, subids_p, TRUE);
+unsigned oid_encoded2subid(wmem_allocator_t *scope, const uint8_t *oid_bytes, int oid_len, uint32_t** subids_p) {
+	return oid_encoded2subid_sub(scope, oid_bytes, oid_len, subids_p, true);
 }
-guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gint oid_len, guint32** subids_p,
-		gboolean is_first) {
-	gint i;
-	guint n = is_first ? 1 : 0;
-	guint32* subids;
-	guint32* subid_overflow;
+unsigned oid_encoded2subid_sub(wmem_allocator_t *scope, const uint8_t *oid_bytes, int oid_len, uint32_t** subids_p,
+		bool is_first) {
+	int i;
+	unsigned n = is_first ? 1 : 0;
+	uint32_t* subids;
+	uint32_t* subid_overflow;
 	/*
 	 * we cannot handle sub-ids greater than 32bytes
 	 * have the subid in 64 bytes to be able to check the limit
 	 */
-	guint64 subid = 0;
+	uint64_t subid = 0;
 
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 
-	*subids_p = subids = (guint32 *)wmem_alloc(scope, sizeof(guint32)*n);
+	*subids_p = subids = (uint32_t *)wmem_alloc(scope, sizeof(uint32_t)*n);
 	subid_overflow = subids+n;
 
 	/* If n is 0 or 1 (depending on how it was initialized) then we found
@@ -1012,7 +1012,7 @@ guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gi
 	}
 
 	for (i=0; i<oid_len; i++){
-		guint8 byte = oid_bytes[i];
+		uint8_t byte = oid_bytes[i];
 
 		subid <<= 7;
 		subid |= byte & 0x7F;
@@ -1022,14 +1022,14 @@ guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gi
 		}
 
 		if (is_first) {
-			guint32 subid0 = 0;
+			uint32_t subid0 = 0;
 
 			if (subid >= 40) { subid0++; subid-=40; }
 			if (subid >= 40) { subid0++; subid-=40; }
 
 			*subids++ = subid0;
 
-			is_first = FALSE;
+			is_first = false;
 		}
 
 		if( subids >= subid_overflow || subid > 0xffffffff) {
@@ -1040,7 +1040,7 @@ guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gi
 			return 0;
 		}
 
-		*subids++ = (guint32)subid;
+		*subids++ = (uint32_t)subid;
 		subid = 0;
 	}
 
@@ -1049,9 +1049,9 @@ guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gi
 	return n;
 }
 
-oid_info_t* oid_get(guint len, guint32* subids, guint* matched, guint* left) {
+oid_info_t* oid_get(unsigned len, uint32_t* subids, unsigned* matched, unsigned* left) {
 	oid_info_t* curr_oid = &oid_root;
-	guint i;
+	unsigned i;
 
 	if(!(subids && *subids <= 2)) {
 		*matched = 0;
@@ -1074,42 +1074,42 @@ done:
 }
 
 
-oid_info_t* oid_get_from_encoded(wmem_allocator_t *scope, const guint8 *bytes, gint byteslen, guint32** subids_p, guint* matched_p, guint* left_p) {
-	guint subids_len = oid_encoded2subid(scope, bytes, byteslen, subids_p);
+oid_info_t* oid_get_from_encoded(wmem_allocator_t *scope, const uint8_t *bytes, int byteslen, uint32_t** subids_p, unsigned* matched_p, unsigned* left_p) {
+	unsigned subids_len = oid_encoded2subid(scope, bytes, byteslen, subids_p);
 	return oid_get(subids_len, *subids_p, matched_p, left_p);
 }
 
-oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const gchar *oid_str, guint32** subids_p, guint* matched, guint* left) {
-	guint subids_len = oid_string2subid(scope, oid_str, subids_p);
+oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const char *oid_str, uint32_t** subids_p, unsigned* matched, unsigned* left) {
+	unsigned subids_len = oid_string2subid(scope, oid_str, subids_p);
 	return oid_get(subids_len, *subids_p, matched, left);
 }
 
-gchar *oid_resolved_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint oid_len) {
-	guint32 *subid_oid = NULL;
-	gchar * ret;
-	guint subid_oid_length = oid_encoded2subid(NULL, oid, oid_len, &subid_oid);
+char *oid_resolved_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int oid_len) {
+	uint32_t *subid_oid = NULL;
+	char * ret;
+	unsigned subid_oid_length = oid_encoded2subid(NULL, oid, oid_len, &subid_oid);
 
 	ret = oid_resolved(scope, subid_oid_length, subid_oid);
 	wmem_free(NULL, subid_oid);
 	return ret;
 }
 
-gchar *rel_oid_resolved_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint oid_len) {
-	guint32 *subid_oid = NULL;
-	gchar* ret;
-	guint subid_oid_length = oid_encoded2subid_sub(NULL, oid, oid_len, &subid_oid, FALSE);
+char *rel_oid_resolved_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int oid_len) {
+	uint32_t *subid_oid = NULL;
+	char* ret;
+	unsigned subid_oid_length = oid_encoded2subid_sub(NULL, oid, oid_len, &subid_oid, false);
 
-	ret = rel_oid_subid2string(scope, subid_oid, subid_oid_length, FALSE);
+	ret = rel_oid_subid2string(scope, subid_oid, subid_oid_length, false);
 	wmem_free(NULL, subid_oid);
 	return ret;
 }
 
 
-guint oid_subid2encoded(wmem_allocator_t *scope, guint subids_len, guint32* subids, guint8** bytes_p) {
-	guint bytelen = 0;
-	guint i;
-	guint32 subid;
-	guint8* b;
+unsigned oid_subid2encoded(wmem_allocator_t *scope, unsigned subids_len, uint32_t* subids, uint8_t** bytes_p) {
+	unsigned bytelen = 0;
+	unsigned i;
+	uint32_t subid;
+	uint8_t* b;
 
 	if ( !subids || subids_len <= 1) {
 		*bytes_p = NULL;
@@ -1131,10 +1131,10 @@ guint oid_subid2encoded(wmem_allocator_t *scope, guint subids_len, guint32* subi
 		}
 	}
 
-	*bytes_p = b = (guint8 *)wmem_alloc(scope, bytelen);
+	*bytes_p = b = (uint8_t *)wmem_alloc(scope, bytelen);
 
 	for (subid=subids[0] * 40, i = 1; i<subids_len; i++, subid=0) {
-		guint len;
+		unsigned len;
 
 		subid += subids[i];
 		if ((subid <= 0x0000007F )) len = 1;
@@ -1160,10 +1160,10 @@ guint oid_subid2encoded(wmem_allocator_t *scope, guint subids_len, guint32* subi
 	return bytelen;
 }
 
-gchar* oid_encoded2string(wmem_allocator_t *scope, const guint8* encoded, guint len) {
-	guint32* subids = NULL;
-	gchar* ret;
-	guint subids_len = oid_encoded2subid(NULL, encoded, len, &subids);
+char* oid_encoded2string(wmem_allocator_t *scope, const uint8_t* encoded, unsigned len) {
+	uint32_t* subids = NULL;
+	char* ret;
+	unsigned subids_len = oid_encoded2subid(NULL, encoded, len, &subids);
 
 	if (subids_len) {
 		ret = oid_subid2string(scope, subids,subids_len);
@@ -1175,13 +1175,13 @@ gchar* oid_encoded2string(wmem_allocator_t *scope, const guint8* encoded, guint 
 	return ret;
 }
 
-gchar* rel_oid_encoded2string(wmem_allocator_t *scope, const guint8* encoded, guint len) {
-	guint32* subids = NULL;
-	gchar* ret;
-	guint subids_len = oid_encoded2subid_sub(NULL, encoded, len, &subids, FALSE);
+char* rel_oid_encoded2string(wmem_allocator_t *scope, const uint8_t* encoded, unsigned len) {
+	uint32_t* subids = NULL;
+	char* ret;
+	unsigned subids_len = oid_encoded2subid_sub(NULL, encoded, len, &subids, false);
 
 	if (subids_len) {
-		ret = rel_oid_subid2string(scope, subids,subids_len, FALSE);
+		ret = rel_oid_subid2string(scope, subids,subids_len, false);
 	} else {
 		ret = wmem_strdup(scope, "");
 	}
@@ -1190,10 +1190,10 @@ gchar* rel_oid_encoded2string(wmem_allocator_t *scope, const guint8* encoded, gu
 	return ret;
 }
 
-guint oid_string2encoded(wmem_allocator_t *scope, const char *oid_str, guint8 **bytes) {
-	guint32* subids;
-	guint32 subids_len;
-	guint byteslen;
+unsigned oid_string2encoded(wmem_allocator_t *scope, const char *oid_str, uint8_t **bytes) {
+	uint32_t* subids;
+	uint32_t subids_len;
+	unsigned byteslen;
 
 	if ( (subids_len = oid_string2subid(NULL, oid_str, &subids)) &&
 	     (byteslen   = oid_subid2encoded(scope, subids_len, subids, bytes)) ) {
@@ -1204,10 +1204,10 @@ guint oid_string2encoded(wmem_allocator_t *scope, const char *oid_str, guint8 **
 	return 0;
 }
 
-gchar *oid_resolved_from_string(wmem_allocator_t *scope, const gchar *oid_str) {
-	guint32     *subid_oid;
-	guint        subid_oid_length;
-	gchar *resolved;
+char *oid_resolved_from_string(wmem_allocator_t *scope, const char *oid_str) {
+	uint32_t    *subid_oid;
+	unsigned     subid_oid_length;
+	char *resolved;
 
 	subid_oid_length = oid_string2subid(NULL, oid_str, &subid_oid);
 	resolved         = oid_resolved(scope, subid_oid_length, subid_oid);
@@ -1217,9 +1217,9 @@ gchar *oid_resolved_from_string(wmem_allocator_t *scope, const gchar *oid_str) {
 	return resolved;
 }
 
-gchar *oid_resolved(wmem_allocator_t *scope, guint32 num_subids, guint32* subids) {
-	guint matched;
-	guint left;
+char *oid_resolved(wmem_allocator_t *scope, uint32_t num_subids, uint32_t* subids) {
+	unsigned matched;
+	unsigned left;
 	oid_info_t* oid;
 
 	if(! (subids && *subids <= 2 ))
@@ -1236,7 +1236,7 @@ gchar *oid_resolved(wmem_allocator_t *scope, guint32 num_subids, guint32* subids
 	}
 
 	if (left) {
-		gchar *ret,
+		char *ret,
 			  *str1 = oid_subid2string(NULL, subids,matched),
 			  *str2 = oid_subid2string(NULL, &(subids[matched]),left);
 
@@ -1249,22 +1249,22 @@ gchar *oid_resolved(wmem_allocator_t *scope, guint32 num_subids, guint32* subids
 	}
 }
 
-extern void oid_both(wmem_allocator_t *scope, guint oid_len, guint32 *subids, gchar** resolved_p, gchar** numeric_p) {
+extern void oid_both(wmem_allocator_t *scope, unsigned oid_len, uint32_t *subids, char** resolved_p, char** numeric_p) {
 	*resolved_p = oid_resolved(scope, oid_len,subids);
 	*numeric_p = oid_subid2string(scope, subids,oid_len);
 }
 
-extern void oid_both_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint oid_len, gchar** resolved_p, gchar** numeric_p) {
-	guint32* subids = NULL;
-	guint subids_len = oid_encoded2subid(NULL, oid, oid_len, &subids);
+extern void oid_both_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int oid_len, char** resolved_p, char** numeric_p) {
+	uint32_t* subids = NULL;
+	unsigned subids_len = oid_encoded2subid(NULL, oid, oid_len, &subids);
 	*resolved_p = oid_resolved(scope, subids_len,subids);
 	*numeric_p = oid_subid2string(scope, subids,subids_len);
 	wmem_free(NULL, subids);
 }
 
-void oid_both_from_string(wmem_allocator_t *scope, const gchar *oid_str, gchar** resolved_p, gchar** numeric_p) {
-	guint32 *subids;
-	guint    subids_len;
+void oid_both_from_string(wmem_allocator_t *scope, const char *oid_str, char** resolved_p, char** numeric_p) {
+	uint32_t *subids;
+	unsigned subids_len;
 
 	subids_len  = oid_string2subid(NULL, oid_str, &subids);
 	*resolved_p = oid_resolved(scope, subids_len,subids);
@@ -1275,25 +1275,25 @@ void oid_both_from_string(wmem_allocator_t *scope, const gchar *oid_str, gchar**
 /**
  * Fetch the default OID path.
  */
-extern gchar *
+extern char *
 oid_get_default_mib_path(void) {
 #ifdef HAVE_LIBSMI
 	GString* path_str;
 	char *path;
-	guint i;
+	unsigned i;
 
 	path_str = g_string_new("");
 
 	if (!load_smi_modules) {
 		D(1,("OID resolution not enabled"));
-		return g_string_free(path_str, FALSE);
+		return g_string_free(path_str, false);
 	}
 #ifdef _WIN32
 	path = get_datafile_path("snmp\\mibs");
 	g_string_append_printf(path_str, "%s;", path);
 	g_free (path);
 
-	path = get_persconffile_path("snmp\\mibs", FALSE);
+	path = get_persconffile_path("snmp\\mibs", false);
 	g_string_append_printf(path_str, "%s", path);
 	g_free (path);
 #else
@@ -1307,7 +1307,7 @@ oid_get_default_mib_path(void) {
 	}
 	smi_free(path);
 
-	if (oids_init_done == FALSE)
+	if (oids_init_done == false)
 	{
 #endif
 		for (i = 0; i < num_smi_paths; i++) {
@@ -1319,25 +1319,25 @@ oid_get_default_mib_path(void) {
 #ifndef _WIN32
 	}
 #endif
-	return g_string_free(path_str, FALSE);
+	return g_string_free(path_str, false);
 #else /* HAVE_LIBSMI */
         return g_strdup("");
 #endif
 }
 
 #ifdef DEBUG_OIDS
-char* oid_test_a2b(guint32 num_subids, guint32* subids) {
-	guint8* sub2enc = NULL;
-	guint8* str2enc = NULL;
-	guint32* enc2sub = NULL;
-	guint32* str2sub;
+char* oid_test_a2b(uint32_t num_subids, uint32_t* subids) {
+	uint8_t* sub2enc = NULL;
+	uint8_t* str2enc = NULL;
+	uint32_t* enc2sub = NULL;
+	uint32_t* str2sub;
 	char* ret;
 	char* sub2str = oid_subid2string(NULL, subids, num_subids);
-	guint sub2enc_len = oid_subid2encoded(NULL, num_subids, subids,&sub2enc);
-	guint enc2sub_len = oid_encoded2subid(NULL, sub2enc, sub2enc_len, &enc2sub);
+	unsigned sub2enc_len = oid_subid2encoded(NULL, num_subids, subids,&sub2enc);
+	unsigned enc2sub_len = oid_encoded2subid(NULL, sub2enc, sub2enc_len, &enc2sub);
 	char* enc2str = oid_encoded2string(NULL, sub2enc, sub2enc_len);
-	guint str2enc_len = oid_string2encoded(NULL, sub2str,&str2enc);
-	guint str2sub_len = oid_string2subid(sub2str,&str2sub);
+	unsigned str2enc_len = oid_string2encoded(NULL, sub2str,&str2enc);
+	unsigned str2sub_len = oid_string2subid(sub2str,&str2sub);
 
 	char* sub2enc_str = bytes_to_str_punct(NULL, sub2enc, sub2enc_len, ':');
 	char* enc2sub_str = enc2sub ? oid_subid2string(NULL, enc2sub,enc2sub_len) : wmem_strdup(NULL, "-");

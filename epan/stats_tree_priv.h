@@ -238,8 +238,8 @@ WS_DLL_PUBLIC int stats_tree_sort_compare (const stat_node *a,
 					bool sort_descending);
 
 /** wrapper for stats_tree_sort_compare() function that can be called from array sort. */
-WS_DLL_PUBLIC int stat_node_array_sortcmp (gconstpointer a,
-					gconstpointer b,
+WS_DLL_PUBLIC int stat_node_array_sortcmp (const void *a,
+					const void *b,
 					void *user_data);
 
 /** function to copy stats_tree into GString. format determines output format */

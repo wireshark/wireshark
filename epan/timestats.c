@@ -60,12 +60,12 @@ time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo)
  * get_average - function
  *
  * function to calculate the average
- * returns the average as a gdouble , time base is milli seconds
+ * returns the average as a double , time base is milli seconds
  */
 
-gdouble get_average(const nstime_t *sum, guint32 num)
+double get_average(const nstime_t *sum, uint32_t num)
 {
-	gdouble average;
+	double average;
 
 	if(num > 0) {
 		average = (double)sum->secs*1000 + (double)sum->nsecs/1000000;

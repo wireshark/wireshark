@@ -25,49 +25,49 @@ typedef struct ptvcursor ptvcursor_t;
  * proto_tree, tvbuff, and offset. */
 WS_DLL_PUBLIC
 ptvcursor_t*
-ptvcursor_new(wmem_allocator_t *scope, proto_tree* tree, tvbuff_t* tvb, gint offset);
+ptvcursor_new(wmem_allocator_t *scope, proto_tree* tree, tvbuff_t* tvb, int offset);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* */
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, const guint encoding);
+ptvcursor_add(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and uint value retrieved*/
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, guint32 *retval);
+ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, uint32_t *retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and int value retrieved */
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gint32 *retval);
+ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, int32_t *retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and string value retrieved */
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, wmem_allocator_t *scope, const guint8 **retval);
+ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, wmem_allocator_t *scope, const uint8_t **retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and boolean value retrieved */
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, bool *retval);
+ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, bool *retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, *DOES NOT* increment
  * offset, and returns proto_item* */
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, const guint encoding);
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding);
 
 /* Advance the ptvcursor's offset within its tvbuff without
  * adding anything to the proto_tree. */
 WS_DLL_PUBLIC
 void
-ptvcursor_advance(ptvcursor_t* ptvc, gint length);
+ptvcursor_advance(ptvcursor_t* ptvc, int length);
 
 /* Frees memory for ptvcursor_t, but nothing deeper than that. */
 WS_DLL_PUBLIC
@@ -81,7 +81,7 @@ ptvcursor_tvbuff(ptvcursor_t* ptvc);
 
 /* Returns current offset. */
 WS_DLL_PUBLIC
-gint
+int
 ptvcursor_current_offset(ptvcursor_t* ptvc);
 
 /* Returns the proto_tree* */
@@ -97,7 +97,7 @@ ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree* tree);
 /* push a subtree in the tree stack of the cursor */
 WS_DLL_PUBLIC
 proto_tree*
-ptvcursor_push_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
+ptvcursor_push_subtree(ptvcursor_t* ptvc, proto_item* it, int ett_subtree);
 
 /* pop a subtree in the tree stack of the cursor */
 WS_DLL_PUBLIC
@@ -111,8 +111,8 @@ ptvcursor_pop_subtree(ptvcursor_t* ptvc);
  */
 WS_DLL_PUBLIC
 proto_tree*
-ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
-    const guint encoding, gint ett_subtree);
+ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, int length,
+    const unsigned encoding, int ett_subtree);
 
 /* Add a text node to the tree and create a subtree
  * If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
@@ -121,14 +121,14 @@ ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
  */
 WS_DLL_PUBLIC
 proto_tree*
-ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, gint length,
-    gint ett_subtree, const char* format, ...)
+ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, int length,
+    int ett_subtree, const char* format, ...)
     G_GNUC_PRINTF(4, 5);
 
 /* Creates a subtree and adds it to the cursor as the working tree but does not
  * save the old working tree */
 WS_DLL_PUBLIC
 proto_tree*
-ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
+ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, int ett_subtree);
 
 #endif /* __PTVCURSOR_H__ */

@@ -170,44 +170,44 @@ const PbwEnumDescriptor*
 pbw_FieldDescriptor_enum_type(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::is_required() */
-gboolean
+bool
 pbw_FieldDescriptor_is_required(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::has_default_value().
  * Does this field have an explicitly-declared default value? */
-gboolean
+bool
 pbw_FieldDescriptor_has_default_value(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_int32() */
-gint32
+int32_t
 pbw_FieldDescriptor_default_value_int32(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_int64() */
-gint64
+int64_t
 pbw_FieldDescriptor_default_value_int64(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_uint32() */
-guint32
+uint32_t
 pbw_FieldDescriptor_default_value_uint32(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_uint64() */
-guint64
+uint64_t
 pbw_FieldDescriptor_default_value_uint64(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_float() */
-gfloat
+float
 pbw_FieldDescriptor_default_value_float(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_double() */
-gdouble
+double
 pbw_FieldDescriptor_default_value_double(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_bool() */
-gboolean
+bool
 pbw_FieldDescriptor_default_value_bool(const PbwFieldDescriptor* field);
 
 /* like FieldDescriptor::default_value_string() */
-const gchar*
+const char*
 pbw_FieldDescriptor_default_value_string(const PbwFieldDescriptor* field, int* size);
 
 /* like FieldDescriptor::default_value_enum() */
@@ -236,7 +236,7 @@ pbw_EnumDescriptor_FindValueByNumber(const PbwEnumDescriptor* anEnum, int number
 
 /* like EnumDescriptor::FindValueByName() */
 const PbwEnumValueDescriptor*
-pbw_EnumDescriptor_FindValueByName(const PbwEnumDescriptor* anEnum, const gchar* name);
+pbw_EnumDescriptor_FindValueByName(const PbwEnumDescriptor* anEnum, const char* name);
 
 /* like EnumValueDescriptor::name() */
 const char*

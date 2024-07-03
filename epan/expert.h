@@ -25,12 +25,12 @@ extern "C" {
 
 /** only for internal and display use. */
 typedef struct expert_info_s {
-	guint32      packet_num;
+	uint32_t     packet_num;
 	int          group;
 	int          severity;
 	int          hf_index; /* hf_index of the expert item. Might be -1. */
-	const gchar *protocol;
-	gchar       *summary;
+	const char *protocol;
+	char        *summary;
 	proto_item  *pitem;
 } expert_info_t;
 
@@ -50,11 +50,11 @@ typedef struct expert_field_info {
 	const char       *name;
 	int               group;
 	int               severity;
-	const gchar      *summary;
+	const char       *summary;
 
 	/* ------- set by register routines (prefilled by EXPFILL macro, see below) ------ */
 	int               id;
-	const gchar      *protocol;
+	const char       *protocol;
 	int               orig_severity; /* Matches severity when registered, used to restore original severity
 					  * if UAT severity entry is removed */
 	hf_register_info  hf_info;
@@ -94,7 +94,7 @@ WS_DLL_PUBLIC int
 expert_get_highest_severity(void);
 
 WS_DLL_PUBLIC void
-expert_update_comment_count(guint64 count);
+expert_update_comment_count(uint64_t count);
 
 /** Add an expert info.
  Add an expert info tree to a protocol item using registered expert info item
@@ -135,7 +135,7 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *eiindex
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
-        tvbuff_t *tvb, gint start, gint length);
+        tvbuff_t *tvb, int start, int length);
 
 /** Add an expert info associated with some byte data
  Add an expert info tree to a protocol item, using registered expert info item,
@@ -155,7 +155,7 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *eiinde
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
-        tvbuff_t *tvb, gint start, gint length, const char *format, ...) G_GNUC_PRINTF(7, 8);
+        tvbuff_t *tvb, int start, int length, const char *format, ...) G_GNUC_PRINTF(7, 8);
 
 /*
  * Register that a protocol has expert info.
@@ -182,7 +182,7 @@ void expert_free_deregistered_expertinfos (void);
  * This is intended for use in expert_add_info_format or proto_tree_add_expert_format
  * to get the "base" string to then append additional information
  */
-WS_DLL_PUBLIC const gchar* expert_get_summary(expert_field *eiindex);
+WS_DLL_PUBLIC const char* expert_get_summary(expert_field *eiindex);
 
 /** Register a expert field array.
  @param module the protocol handle from expert_register_protocol()

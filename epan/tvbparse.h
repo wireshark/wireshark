@@ -92,13 +92,13 @@ struct _tvbparse_wanted_t {
     tvbparse_condition_t condition;
 
     union {
-        const gchar* str;
+        const char* str;
         struct _tvbparse_wanted_t** handle;
         struct {
             union {
-                gint64 i;
-                guint64 u;
-                gdouble f;
+                int64_t i;
+                uint64_t u;
+                double f;
             } value;
         } number;
         enum ftenum ftenum;
@@ -118,8 +118,8 @@ struct _tvbparse_wanted_t {
 
     int len;
 
-    guint min;
-    guint max;
+    unsigned min;
+    unsigned max;
 
     const void* data;
 
@@ -180,7 +180,7 @@ struct _tvbparse_elem_t {
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_char(const int id,
-                                 const gchar* needles,
+                                 const char* needles,
                                  const void* private_data,
                                  tvbparse_action_t before_cb,
                                  tvbparse_action_t after_cb);
@@ -193,7 +193,7 @@ tvbparse_wanted_t* tvbparse_char(const int id,
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_not_char(const int id,
-                                     const gchar* needle,
+                                     const char* needle,
                                      const void* private_data,
                                      tvbparse_action_t before_cb,
                                      tvbparse_action_t after_cb);
@@ -208,9 +208,9 @@ tvbparse_wanted_t* tvbparse_not_char(const int id,
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_chars(const int id,
-                                  const guint min_len,
-                                  const guint max_len,
-                                  const gchar* needles,
+                                  const unsigned min_len,
+                                  const unsigned max_len,
+                                  const char* needles,
                                   const void* private_data,
                                   tvbparse_action_t before_cb,
                                   tvbparse_action_t after_cb);
@@ -226,9 +226,9 @@ tvbparse_wanted_t* tvbparse_chars(const int id,
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_not_chars(const int id,
-                                      const guint min_len,
-                                      const guint max_len,
-                                      const gchar* needles,
+                                      const unsigned min_len,
+                                      const unsigned max_len,
+                                      const char* needles,
                                       const void* private_data,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb);
@@ -241,7 +241,7 @@ tvbparse_wanted_t* tvbparse_not_chars(const int id,
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_string(const int id,
-                                   const gchar* string,
+                                   const char* string,
                                    const void* private_data,
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb);
@@ -254,7 +254,7 @@ tvbparse_wanted_t* tvbparse_string(const int id,
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_casestring(const int id,
-                                       const gchar* str,
+                                       const char* str,
                                        const void* data,
                                        tvbparse_action_t before_cb,
                                        tvbparse_action_t after_cb);
@@ -341,15 +341,15 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_some(const int id,
-                                 const guint min,
-                                 const guint max,
+                                 const unsigned min,
+                                 const unsigned max,
                                  const void* private_data,
                                  tvbparse_action_t before_cb,
                                  tvbparse_action_t after_cb,
                                  const tvbparse_wanted_t* wanted);
 
 #define tvbparse_one_or_more(id, private_data, before_cb, after_cb, wanted)\
-    tvbparse_some(id, 1, G_MAXINT, private_data, before_cb, after_cb, wanted)
+    tvbparse_some(id, 1, INT_MAX, private_data, before_cb, after_cb, wanted)
 
 
 /*
@@ -405,22 +405,22 @@ tvbparse_t* tvbparse_init(wmem_allocator_t *scope,
 
 /* reset the parser */
 WS_DLL_PUBLIC
-gboolean tvbparse_reset(tvbparse_t* tt, const int offset, int len);
+bool tvbparse_reset(tvbparse_t* tt, const int offset, int len);
 
 WS_DLL_PUBLIC
-guint tvbparse_curr_offset(tvbparse_t* tt);
-guint tvbparse_len_left(tvbparse_t* tt);
+unsigned tvbparse_curr_offset(tvbparse_t* tt);
+unsigned tvbparse_len_left(tvbparse_t* tt);
 
 
 
 /*
  * This will look for the wanted token at the current offset or after any given
- * number of ignored tokens returning FALSE if there's no match or TRUE if there
+ * number of ignored tokens returning false if there's no match or true if there
  * is a match.
  * The parser will be left in its original state and no callbacks will be called.
  */
 WS_DLL_PUBLIC
-gboolean tvbparse_peek(tvbparse_t* tt,
+bool tvbparse_peek(tvbparse_t* tt,
                        const tvbparse_wanted_t* wanted);
 
 /*

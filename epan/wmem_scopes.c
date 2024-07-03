@@ -127,7 +127,7 @@ wmem_init_scopes(void)
     file_scope   = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
     epan_scope   = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
 
-    /* Scopes are initialized to TRUE by default on creation */
+    /* Scopes are initialized to true by default on creation */
     wmem_leave_scope(packet_scope);
     wmem_leave_scope(file_scope);
 }

@@ -42,7 +42,7 @@ struct register_srt;
 struct _srt_data_t;
 typedef void (*srt_proc_table_cb)(srt_stat_table* rst, int indx, struct _srt_data_t* gui_data);
 typedef void (*srt_init_cb)(struct register_srt* srt, GArray* srt_array);
-typedef guint (*srt_param_handler_cb)(struct register_srt* srt, const char* opt_arg, char** err);
+typedef unsigned (*srt_param_handler_cb)(struct register_srt* srt, const char* opt_arg, char** err);
 
 /** tap data
  */
@@ -141,7 +141,7 @@ WS_DLL_PUBLIC void reset_srt_table(GArray* srt_array);
  * @param func action to be performed on all conversation tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void srt_table_iterate_tables(wmem_foreach_func func, gpointer user_data);
+WS_DLL_PUBLIC void srt_table_iterate_tables(wmem_foreach_func func, void *user_data);
 
 /** Return filter used for register_tap_listener
  *
@@ -165,7 +165,7 @@ WS_DLL_PUBLIC void srt_table_dissector_init(register_srt_t* srt, GArray* srt_arr
  * @param srt Registered SRT
  * @return SRT tap string
  */
-WS_DLL_PUBLIC gchar* srt_table_get_tap_string(register_srt_t* srt);
+WS_DLL_PUBLIC char* srt_table_get_tap_string(register_srt_t* srt);
 
 /** Init an srt table data structure.
  *

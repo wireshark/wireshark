@@ -37,26 +37,26 @@
  *  a chunk stream. (There is 'Transfer-Encoding: chunked' header and a
  *  streaming reassembly mode supported subdissector is found according to
  *  Content-Type header)
- *  @return TRUE if desegmentation is complete otherwise FALSE
+ *  @return true if desegmentation is complete otherwise false
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const  int offset, packet_info *pinfo,
-    const gboolean desegment_headers, const gboolean desegment_body,
-    gboolean desegment_until_fin, int *last_chunk_offset,
+    const bool desegment_headers, const bool desegment_body,
+    bool desegment_until_fin, int *last_chunk_offset,
 	dissector_table_t streaming_subdissector_table, dissector_handle_t *streaming_chunk_handle);
 
 /** Check whether the first line is the beginning of a chunk. */
-static inline gboolean
+static inline bool
 starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
 {
-	guint chunk_size = 0;
-	gint linelen = tvb_find_line_end(tvb, offset, tvb_reported_length_remaining(tvb, offset), NULL, TRUE);
+	unsigned chunk_size = 0;
+	int linelen = tvb_find_line_end(tvb, offset, tvb_reported_length_remaining(tvb, offset), NULL, true);
 
 	if (linelen < 0)
-		return FALSE;
+		return false;
 
-	gchar* chunk_string = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
-	gchar* c = chunk_string;
+	char* chunk_string = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
+	char* c = chunk_string;
 
 	/* ignore extensions, including optional BWS ("bad whitespace")
          * in the grammar for historical reasons, see RFC 9112 7.1.1.
@@ -66,11 +66,11 @@ starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
 	}
 
         if (!ws_hexstrtou32(chunk_string, NULL, &chunk_size)) {
-		return FALSE; /* can not get chunk size*/
+		return false; /* can not get chunk size*/
 	} else if (chunk_size > (1U << 31)) {
-		return FALSE; /* chunk size is unreasonable */
+		return false; /* chunk size is unreasonable */
 	}
-	return TRUE;
+	return true;
 }
 
 #endif

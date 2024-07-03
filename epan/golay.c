@@ -47,7 +47,7 @@
    technique doesn't seem to work with these numbers though.
 */
 
-static const guint golay_encode_matrix[12] = {
+static const unsigned golay_encode_matrix[12] = {
     0xC75,
     0x49F,
     0xD4B,
@@ -62,7 +62,7 @@ static const guint golay_encode_matrix[12] = {
     0xE3A,
 };
 
-static const guint golay_decode_matrix[12] = {
+static const unsigned golay_decode_matrix[12] = {
     0x49F,
     0x93E,
     0x6E3,
@@ -80,10 +80,10 @@ static const guint golay_decode_matrix[12] = {
 
 
 /* Function to compute the Hamming weight of a 12-bit integer */
-static guint weight12(guint vector)
+static unsigned weight12(unsigned vector)
 {
-    guint w=0;
-    guint i;
+    unsigned w=0;
+    unsigned i;
     for( i=0; i<12; i++ )
         if( vector & 1<<i )
             w++;
@@ -91,10 +91,10 @@ static guint weight12(guint vector)
 }
 
 /* returns the golay coding of the given 12-bit word */
-static guint golay_coding(guint w)
+static unsigned golay_coding(unsigned w)
 {
-    guint out=0;
-    guint i;
+    unsigned out=0;
+    unsigned i;
 
     for( i = 0; i<12; i++ ) {
         if( w & 1<<i )
@@ -104,18 +104,18 @@ static guint golay_coding(guint w)
 }
 
 /* encodes a 12-bit word to a 24-bit codeword */
-guint32 golay_encode(guint w)
+uint32_t golay_encode(unsigned w)
 {
-    return ((guint32)w) | ((guint32)golay_coding(w))<<12;
+    return ((uint32_t)w) | ((uint32_t)golay_coding(w))<<12;
 }
 
 
 
 /* returns the golay coding of the given 12-bit word */
-static guint golay_decoding(guint w)
+static unsigned golay_decoding(unsigned w)
 {
-    guint out=0;
-    guint i;
+    unsigned out=0;
+    unsigned i;
 
     for( i = 0; i<12; i++ ) {
         if( w & 1<<(i) )
@@ -128,15 +128,15 @@ static guint golay_decoding(guint w)
 /* return a mask showing the bits which are in error in a received
  * 24-bit codeword, or -1 if 4 errors were detected.
  */
-gint32 golay_errors(guint32 codeword)
+int32_t golay_errors(uint32_t codeword)
 {
-    guint received_data, received_parity;
-    guint syndrome;
-    guint w,i;
-    guint inv_syndrome = 0;
+    unsigned received_data, received_parity;
+    unsigned syndrome;
+    unsigned w,i;
+    unsigned inv_syndrome = 0;
 
-    received_parity = (guint)(codeword>>12);
-    received_data   = (guint)codeword & 0xfff;
+    received_parity = (unsigned)(codeword>>12);
+    received_data   = (unsigned)codeword & 0xfff;
 
     /* We use the C notation ^ for XOR to represent addition modulo 2.
      *
@@ -169,7 +169,7 @@ gint32 golay_errors(guint32 codeword)
      * latter).
      */
     if( w <= 3 ) {
-        return ((gint32) syndrome)<<12;
+        return ((int32_t) syndrome)<<12;
     }
 
     /* the next thing to try is one error in the data bits.
@@ -180,10 +180,10 @@ gint32 golay_errors(guint32 codeword)
      * closer to another codeword. */
 
     for( i = 0; i<12; i++ ) {
-        guint error = 1<<i;
-        guint coding_error = golay_encode_matrix[i];
+        unsigned error = 1<<i;
+        unsigned coding_error = golay_encode_matrix[i];
         if( weight12(syndrome^coding_error) <= 2 ) {
-            return (gint32)((((guint32)(syndrome^coding_error))<<12) | (guint32)error) ;
+            return (int32_t)((((uint32_t)(syndrome^coding_error))<<12) | (uint32_t)error) ;
         }
     }
 
@@ -207,17 +207,17 @@ gint32 golay_errors(guint32 codeword)
     inv_syndrome = golay_decoding(syndrome);
     w = weight12(inv_syndrome);
     if( w <=3 ) {
-        return (gint32)inv_syndrome;
+        return (int32_t)inv_syndrome;
     }
 
     /* Final shot: try with 2 errors in the data bits, and 1 in the parity
      * bits; as before we try each of the bits in the parity in turn */
     for( i = 0; i<12; i++ ) {
-        guint error = 1<<i;
-        guint coding_error = golay_decode_matrix[i];
+        unsigned error = 1<<i;
+        unsigned coding_error = golay_decode_matrix[i];
         if( weight12(inv_syndrome^coding_error) <= 2 ) {
-            guint32 error_word = ((guint32)(inv_syndrome^coding_error)) | ((guint32)error)<<12;
-            return (gint32)error_word;
+            uint32_t error_word = ((uint32_t)(inv_syndrome^coding_error)) | ((uint32_t)error)<<12;
+            return (int32_t)error_word;
         }
     }
 
@@ -231,16 +231,16 @@ gint32 golay_errors(guint32 codeword)
    errors are detected as uncorrectable (return -1); 5 or more errors
    cause an incorrect correction.
 */
-gint golay_decode(guint32 w)
+int golay_decode(uint32_t w)
 {
-    guint data = (guint)w & 0xfff;
-    gint32 errors = golay_errors(w);
-    guint data_errors;
+    unsigned data = (unsigned)w & 0xfff;
+    int32_t errors = golay_errors(w);
+    unsigned data_errors;
 
     if( errors == -1 )
         return -1;
-    data_errors = (guint)errors & 0xfff;
-    return (gint)(data ^ data_errors);
+    data_errors = (unsigned)errors & 0xfff;
+    return (int)(data ^ data_errors);
 }
 
 /*

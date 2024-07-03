@@ -869,7 +869,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_max_bitpool_out_of_range);
                     }
 
-                    value = tvb_get_h_guint32(tvb, offset);
+                    value = tvb_get_h_uint32(tvb, offset);
                     if (value) {
                         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%s%s%s%s| %s%s%s%s%s| block: %s%s%s%s%s| subbands: %s%s%s| allocation: %s%s%s| bitpool: %u..%u)",
                             (value8[0] & 0x80) ? "16000 " : "",

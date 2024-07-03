@@ -12,7 +12,7 @@
 #include <glib.h>
 #include "exceptions.h"
 
-gboolean failed;
+bool failed;
 
 static void
 finally_called_uncaught_exception(volatile unsigned int* called)
@@ -51,7 +51,7 @@ finally_called_exception_from_catch(volatile unsigned int* thrown, volatile unsi
     CATCH_ALL {
         if((*thrown) > 0) {
             printf("05: Looping exception\n");
-            failed = TRUE;
+            failed = true;
         } else {
             (*thrown) += 10;
             THROW(BoundsError);
@@ -78,15 +78,15 @@ run_tests(void)
     }
     CATCH(FragmentBoundsError) {
         printf("01: Caught wrong exception: FragmentBoundsError\n");
-        failed = TRUE;
+        failed = true;
     }
     CATCH(ReportedBoundsError) {
         printf("01: Caught wrong exception: ReportedBoundsError\n");
-        failed = TRUE;
+        failed = true;
     }
     CATCH_ALL {
         printf("01: Caught wrong exception: %lu\n", exc->except_id.except_code);
-        failed = TRUE;
+        failed = true;
     }
     FINALLY {
         finally_called ++;
@@ -95,12 +95,12 @@ run_tests(void)
 
     if (ex_thrown != 1) {
         printf("01: %u BoundsErrors (not 1) on caught exception\n", ex_thrown);
-        failed = TRUE;
+        failed = true;
     }
 
     if (finally_called != 1) {
         printf("01: FINALLY called %u times (not 1) on caught exception\n", finally_called);
-        failed = TRUE;
+        failed = true;
     }
 
 
@@ -110,19 +110,19 @@ run_tests(void)
     }
     CATCH(BoundsError) {
         printf("02: Caught wrong exception: BoundsError\n");
-        failed = TRUE;
+        failed = true;
     }
     CATCH(FragmentBoundsError) {
         printf("02: Caught wrong exception: FragmentBoundsError\n");
-        failed = TRUE;
+        failed = true;
     }
     CATCH(ReportedBoundsError) {
         printf("02: Caught wrong exception: ReportedBoundsError\n");
-        failed = TRUE;
+        failed = true;
     }
     CATCH_ALL {
         printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
-        failed = TRUE;
+        failed = true;
     }
     FINALLY {
         finally_called ++;
@@ -131,7 +131,7 @@ run_tests(void)
 
     if (finally_called != 1) {
         printf("02: FINALLY called %u times (not 1) on no exception\n", finally_called);
-        failed = TRUE;
+        failed = true;
     }
 
     /* check that finally is called on an uncaught exception */
@@ -146,12 +146,12 @@ run_tests(void)
 
     if (finally_called != 1) {
         printf("03: FINALLY called %u times (not 1) on uncaught exception\n", finally_called);
-        failed = TRUE;
+        failed = true;
     }
 
     if (ex_thrown != 1) {
         printf("03: %u BoundsErrors (not 1) on uncaught exception\n", ex_thrown);
-        failed = TRUE;
+        failed = true;
     }
 
 
@@ -170,12 +170,12 @@ run_tests(void)
 
     if (finally_called != 11) {
         printf("04: finally_called = %u (not 11) on rethrown exception\n", finally_called);
-        failed = TRUE;
+        failed = true;
     }
 
     if (ex_thrown != 11) {
         printf("04: %u BoundsErrors (not 11) on rethrown exception\n", ex_thrown);
-        failed = TRUE;
+        failed = true;
     }
 
 
@@ -194,15 +194,15 @@ run_tests(void)
 
     if (finally_called != 11) {
         printf("05: finally_called = %u (not 11) on exception thrown from CATCH\n", finally_called);
-        failed = TRUE;
+        failed = true;
     }
 
     if (ex_thrown != 11) {
         printf("05: %u BoundsErrors (not 11) on exception thrown from CATCH\n", ex_thrown);
-        failed = TRUE;
+        failed = true;
     }
 
-    if(failed == FALSE )
+    if(failed == false )
         printf("success\n");
 }
 

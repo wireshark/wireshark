@@ -32,12 +32,12 @@ real_free(tvbuff_t *tvb)
 		/*
 		 * XXX - do this with a union?
 		 */
-		real_tvb->free_cb((gpointer)tvb->real_data);
+		real_tvb->free_cb((void *)tvb->real_data);
 	}
 }
 
-static guint
-real_offset(const tvbuff_t *tvb _U_, const guint counter)
+static unsigned
+real_offset(const tvbuff_t *tvb _U_, const unsigned counter)
 {
 	return counter;
 }
@@ -55,7 +55,7 @@ static const struct tvb_ops tvb_real_ops = {
 };
 
 tvbuff_t *
-tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
+tvb_new_real_data(const uint8_t* data, const unsigned length, const int reported_length)
 {
 	tvbuff_t *tvb;
 	struct tvb_real *real_tvb;
@@ -68,7 +68,7 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 	tvb->length              = length;
 	tvb->reported_length     = reported_length;
 	tvb->contained_length    = reported_length;
-	tvb->initialized         = TRUE;
+	tvb->initialized         = true;
 
 	/*
 	 * This is the top-level real tvbuff for this data source,
@@ -103,7 +103,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
 }
 
 tvbuff_t *
-tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length, const gint reported_length)
+tvb_new_child_real_data(tvbuff_t *parent, const uint8_t* data, const unsigned length, const int reported_length)
 {
 	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
 

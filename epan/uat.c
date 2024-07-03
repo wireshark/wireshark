@@ -86,9 +86,9 @@ uat_t* uat_new(const char* name,
     uat->reset_cb = reset_cb;
     uat->fields = flds_array;
     uat->default_values = NULL;
-    uat->user_data = g_array_new(false,FALSE,(unsigned)uat->record_size);
-    uat->raw_data = g_array_new(false,FALSE,(unsigned)uat->record_size);
-    uat->valid_data = g_array_new(false,FALSE,sizeof(bool));
+    uat->user_data = g_array_new(false,false,(unsigned)uat->record_size);
+    uat->raw_data = g_array_new(false,false,(unsigned)uat->record_size);
+    uat->valid_data = g_array_new(false,false,sizeof(bool));
     uat->changed = false;
     uat->loaded = false;
     uat->rep = NULL;

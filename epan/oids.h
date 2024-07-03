@@ -28,13 +28,13 @@ extern "C" {
 #define BER_TAG_ANY -1
 
 struct _oid_bit_t {
-    guint offset;
+    unsigned offset;
     int hfid;
 };
 
 typedef struct _oid_bits_info_t {
-    guint num;
-    gint ett;
+    unsigned num;
+    int ett;
     struct _oid_bit_t* data;
 } oid_bits_info_t;
 
@@ -56,8 +56,8 @@ typedef enum _oid_key_type_t {
 typedef struct _oid_value_type_t {
     enum ftenum ft_type;
     int display;
-    gint8 ber_class;
-    gint32 ber_tag;
+    int8_t ber_class;
+    int32_t ber_tag;
     int min_len;
     int max_len;
     oid_key_type_t keytype;
@@ -79,7 +79,7 @@ typedef enum _oid_kind_t {
 
 typedef struct _oid_key_t {
     char* name;
-    guint32 num_subids;
+    uint32_t num_subids;
     oid_key_type_t key_type;
     int hfid;
     enum ftenum ft_type;
@@ -88,7 +88,7 @@ typedef struct _oid_key_t {
 } oid_key_t;
 
 typedef struct _oid_info_t {
-    guint32 subid;
+    uint32_t subid;
     char* name;
     oid_kind_t kind;
     wmem_tree_t* children;
@@ -124,48 +124,48 @@ WS_DLL_PUBLIC void oids_cleanup(void);
 
 /* return length of encoded buffer */
 WS_DLL_PUBLIC
-guint oid_subid2encoded(wmem_allocator_t *scope, guint len, guint32* subids, guint8** encoded_p);
+unsigned oid_subid2encoded(wmem_allocator_t *scope, unsigned len, uint32_t* subids, uint8_t** encoded_p);
 WS_DLL_PUBLIC
-guint oid_string2encoded(wmem_allocator_t *scope, const gchar *oid_str, guint8** encoded_p);
+unsigned oid_string2encoded(wmem_allocator_t *scope, const char *oid_str, uint8_t** encoded_p);
 
 /* return length of subid array */
 WS_DLL_PUBLIC
-guint oid_encoded2subid(wmem_allocator_t *scope, const guint8 *oid, gint len, guint32** subids_p);
+unsigned oid_encoded2subid(wmem_allocator_t *scope, const uint8_t *oid, int len, uint32_t** subids_p);
 WS_DLL_PUBLIC
-guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gint oid_len, guint32** subids_pi,
-                gboolean is_first);
+unsigned oid_encoded2subid_sub(wmem_allocator_t *scope, const uint8_t *oid_bytes, int oid_len, uint32_t** subids_pi,
+                bool is_first);
 WS_DLL_PUBLIC
-guint oid_string2subid(wmem_allocator_t *scope, const gchar *oid_str, guint32** subids_p);
+unsigned oid_string2subid(wmem_allocator_t *scope, const char *oid_str, uint32_t** subids_p);
 
-WS_DLL_PUBLIC gchar* oid_encoded2string(wmem_allocator_t *scope, const guint8* encoded, guint len);
-WS_DLL_PUBLIC gchar* rel_oid_encoded2string(wmem_allocator_t *scope, const guint8* encoded, guint len);
-WS_DLL_PUBLIC gchar* oid_subid2string(wmem_allocator_t *scope, guint32 *subids, guint len);
-WS_DLL_PUBLIC gchar* rel_oid_subid2string(wmem_allocator_t *scope, guint32 *subids, guint len, gboolean is_absolute);
+WS_DLL_PUBLIC char* oid_encoded2string(wmem_allocator_t *scope, const uint8_t* encoded, unsigned len);
+WS_DLL_PUBLIC char* rel_oid_encoded2string(wmem_allocator_t *scope, const uint8_t* encoded, unsigned len);
+WS_DLL_PUBLIC char* oid_subid2string(wmem_allocator_t *scope, uint32_t *subids, unsigned len);
+WS_DLL_PUBLIC char* rel_oid_subid2string(wmem_allocator_t *scope, uint32_t *subids, unsigned len, bool is_absolute);
 
 /* these return a formated string as human readable as possible */
-WS_DLL_PUBLIC gchar *oid_resolved(wmem_allocator_t *scope, guint len, guint32 *subids);
-WS_DLL_PUBLIC gchar *oid_resolved_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint len);
-WS_DLL_PUBLIC gchar *rel_oid_resolved_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint len);
-WS_DLL_PUBLIC gchar *oid_resolved_from_string(wmem_allocator_t *scope, const gchar *oid_str);
+WS_DLL_PUBLIC char *oid_resolved(wmem_allocator_t *scope, unsigned len, uint32_t *subids);
+WS_DLL_PUBLIC char *oid_resolved_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int len);
+WS_DLL_PUBLIC char *rel_oid_resolved_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int len);
+WS_DLL_PUBLIC char *oid_resolved_from_string(wmem_allocator_t *scope, const char *oid_str);
 
 /* these yield two formated strings one resolved and one numeric */
-WS_DLL_PUBLIC void oid_both(wmem_allocator_t *scope, guint oid_len, guint32 *subids, gchar** resolved_p, gchar** numeric_p);
-WS_DLL_PUBLIC void oid_both_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint oid_len, gchar** resolved_p, gchar** numeric_p);
-WS_DLL_PUBLIC void oid_both_from_string(wmem_allocator_t *scope, const gchar *oid_str, gchar** resolved_p, gchar** numeric_p);
+WS_DLL_PUBLIC void oid_both(wmem_allocator_t *scope, unsigned oid_len, uint32_t *subids, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int oid_len, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both_from_string(wmem_allocator_t *scope, const char *oid_str, char** resolved_p, char** numeric_p);
 
 /*
  * These return the info for the best match.
  *  *matched_p will be set to the number of nodes used by the returned oid
  *  *left_p will be set to the number of remaining unresolved subids
  */
-WS_DLL_PUBLIC oid_info_t* oid_get(guint oid_len, guint32 *subids, guint* matched_p, guint* left_p);
-WS_DLL_PUBLIC oid_info_t* oid_get_from_encoded(wmem_allocator_t *scope, const guint8 *oid, gint oid_len, guint32 **subids, guint* matched, guint* left);
-WS_DLL_PUBLIC oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
+WS_DLL_PUBLIC oid_info_t* oid_get(unsigned oid_len, uint32_t *subids, unsigned* matched_p, unsigned* left_p);
+WS_DLL_PUBLIC oid_info_t* oid_get_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int oid_len, uint32_t **subids, unsigned* matched, unsigned* left);
+WS_DLL_PUBLIC oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const char *oid_str, uint32_t **subids, unsigned* matched, unsigned* left);
 
 /* these are used to add oids to the collection */
-WS_DLL_PUBLIC void oid_add(const char* name, guint oid_len, guint32 *subids);
-WS_DLL_PUBLIC void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len);
-WS_DLL_PUBLIC void oid_add_from_string(const char* name, const gchar *oid_str);
+WS_DLL_PUBLIC void oid_add(const char* name, unsigned oid_len, uint32_t *subids);
+WS_DLL_PUBLIC void oid_add_from_encoded(const char* name, const uint8_t *oid, int oid_len);
+WS_DLL_PUBLIC void oid_add_from_string(const char* name, const char *oid_str);
 
 /**
  * Fetch the default MIB/PIB path
@@ -173,15 +173,15 @@ WS_DLL_PUBLIC void oid_add_from_string(const char* name, const gchar *oid_str);
  * @return A string containing the default MIB/PIB path.  It must be
  * g_free()d by the caller.
  */
-WS_DLL_PUBLIC gchar *oid_get_default_mib_path(void);
+WS_DLL_PUBLIC char *oid_get_default_mib_path(void);
 
 /* macros for legacy oid functions */
-#define subid_t guint32
+#define subid_t uint32_t
 
 
 
 #ifdef DEBUG_OIDS
-extern char* oid_test_a2b(guint32 num_subids, guint32* subids);
+extern char* oid_test_a2b(uint32_t num_subids, uint32_t* subids);
 extern void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree);
 #else
 #define add_oid_debug_subtree(a,b) ((void)0)

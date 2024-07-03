@@ -46,18 +46,18 @@
 int
 in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 {
-	register const guint16 *w;
+	register const uint16_t *w;
 	register int sum = 0;
 	register int mlen = 0;
 	int byte_swapped = 0;
 
 	union {
-		guint8	c[2];
-		guint16	s;
+		uint8_t	c[2];
+		uint16_t	s;
 	} s_util;
 	union {
-		guint16 s[2];
-		guint32	l;
+		uint16_t s[2];
+		uint32_t	l;
 	} l_util;
 
 	for (; veclen != 0; vec++, veclen--) {
@@ -67,7 +67,7 @@ in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 		}
 		if (vec->len == 0)
 			continue;
-		w = (const guint16 *)(const void *)vec->ptr;
+		w = (const uint16_t *)(const void *)vec->ptr;
 		if (mlen == -1) {
 			/*
 			 * The first byte of this chunk is the continuation
@@ -77,9 +77,9 @@ in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 			 * s_util.c[0] is already saved when scanning previous
 			 * chunk.
 			 */
-			s_util.c[1] = *(const guint8 *)w;
+			s_util.c[1] = *(const uint8_t *)w;
 			sum += s_util.s;
-			w = (const guint16 *)(const void *)((const guint8 *)w + 1);
+			w = (const uint16_t *)(const void *)((const uint8_t *)w + 1);
 			mlen = vec->len - 1;
 		} else
 			mlen = vec->len;
@@ -89,8 +89,8 @@ in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 		if ((1 & (gintptr)w) && (mlen > 0)) {
 			REDUCE;
 			sum <<= 8;
-			s_util.c[0] = *(const guint8 *)w;
-			w = (const guint16 *)(const void *)((const guint8 *)w + 1);
+			s_util.c[0] = *(const uint8_t *)w;
+			w = (const uint16_t *)(const void *)((const uint8_t *)w + 1);
 			mlen--;
 			byte_swapped = 1;
 		}
@@ -122,13 +122,13 @@ in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 			sum <<= 8;
 			byte_swapped = 0;
 			if (mlen == -1) {
-				s_util.c[1] = *(const guint8 *)w;
+				s_util.c[1] = *(const uint8_t *)w;
 				sum += s_util.s;
 				mlen = 0;
 			} else
 				mlen = -1;
 		} else if (mlen == -1)
-			s_util.c[0] = *(const guint8 *)w;
+			s_util.c[0] = *(const uint8_t *)w;
 	}
 	if (mlen == -1) {
 		/* The last mbuf has odd # of bytes. Follow the
@@ -147,8 +147,8 @@ in_cksum(const vec_t *vec, int veclen)
 	return in_cksum_ret_partial(vec, veclen, NULL);
 }
 
-guint16
-ip_checksum(const guint8 *ptr, int len)
+uint16_t
+ip_checksum(const uint8_t *ptr, int len)
 {
 	vec_t cksum_vec[1];
 
@@ -156,7 +156,7 @@ ip_checksum(const guint8 *ptr, int len)
 	return in_cksum_ret_partial(&cksum_vec[0], 1, NULL);
 }
 
-guint16
+uint16_t
 ip_checksum_tvb(tvbuff_t *tvb, int offset, int len)
 {
 	vec_t cksum_vec[1];
@@ -171,10 +171,10 @@ ip_checksum_tvb(tvbuff_t *tvb, int offset, int len)
  * that the checksum covers (including the checksum itself), compute
  * what the checksum field *should* have been.
  */
-guint16
-in_cksum_shouldbe(guint16 sum, guint16 computed_sum)
+uint16_t
+in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum)
 {
-	guint32 shouldbe;
+	uint32_t shouldbe;
 
 	/*
 	 * The value that should have gone into the checksum field

@@ -48,25 +48,25 @@ brotli_g_free_wrapper(void *opaque _U_, void *address)
 tvbuff_t *
 tvb_uncompress_brotli(tvbuff_t *tvb, const int offset, int comprlen)
 {
-    guint8              *compr;
-    guint8              *uncompr        = NULL;
+    uint8_t             *compr;
+    uint8_t             *uncompr        = NULL;
     tvbuff_t            *uncompr_tvb;
     BrotliDecoderState  *decoder;
-    guint8              *strmbuf;
+    uint8_t             *strmbuf;
     const size_t         bufsiz         = TVB_BROTLI_BUFSIZ;
     size_t               available_in;
-    const guint8        *next_in;
+    const uint8_t       *next_in;
     size_t               available_out;
-    guint8              *next_out;
+    uint8_t             *next_out;
     size_t               total_out;
-    guint                needs_more_output;
-    guint                finished;
+    unsigned             needs_more_output;
+    unsigned             finished;
 
     if (tvb == NULL || comprlen <= 0) {
         return NULL;
     }
 
-    compr = (guint8 *)tvb_memdup(NULL, tvb, offset, comprlen);
+    compr = (uint8_t *)tvb_memdup(NULL, tvb, offset, comprlen);
     if (compr == NULL) {
         return NULL;
     }
@@ -79,7 +79,7 @@ tvb_uncompress_brotli(tvbuff_t *tvb, const int offset, int comprlen)
         wmem_free(NULL, compr);
         return NULL;
     }
-    strmbuf = (guint8 *)g_malloc(bufsiz);
+    strmbuf = (uint8_t *)g_malloc(bufsiz);
 
     available_in = comprlen;
     next_in = compr;
@@ -118,7 +118,7 @@ tvb_uncompress_brotli(tvbuff_t *tvb, const int offset, int comprlen)
         /*
          * Check if decompressed size is too large.
          */
-        if (total_out > G_MAXINT) {
+        if (total_out > INT_MAX) {
             goto cleanup;
         }
 
@@ -129,7 +129,7 @@ tvb_uncompress_brotli(tvbuff_t *tvb, const int offset, int comprlen)
          */
         size_t pass_out = bufsiz - available_out;
         if (pass_out > 0) {
-            uncompr = (guint8 *)g_realloc(uncompr, total_out);
+            uncompr = (uint8_t *)g_realloc(uncompr, total_out);
             memcpy(uncompr + (total_out - pass_out), strmbuf, pass_out);
         }
     }
@@ -140,13 +140,13 @@ tvb_uncompress_brotli(tvbuff_t *tvb, const int offset, int comprlen)
          * length is 0.
          */
         if (finished) {
-            uncompr = (guint8 *)g_strdup("");
+            uncompr = (uint8_t *)g_strdup("");
         } else {
             goto cleanup;
         }
     }
 
-    uncompr_tvb = tvb_new_real_data((guint8 *)uncompr, (guint)total_out, (gint)total_out);
+    uncompr_tvb = tvb_new_real_data((uint8_t *)uncompr, (unsigned)total_out, (int)total_out);
     tvb_set_free_cb(uncompr_tvb, g_free);
 
     g_free(strmbuf);

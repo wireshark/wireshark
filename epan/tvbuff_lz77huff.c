@@ -32,7 +32,7 @@
 struct input {
 	tvbuff_t *tvb;
 	int offset;
-	gsize size;
+	size_t size;
 };
 
 /**
@@ -40,17 +40,17 @@ struct input {
  */
 struct prefix_code_node {
 	/* Stores the symbol encoded by this node in the prefix code tree */
-	guint16 symbol;
+	uint16_t symbol;
 
 	/* Indicates whether this node is a leaf in the tree */
-	guint8 leaf;
+	uint8_t leaf;
 
 	/*
 	 * Points to the node's two children. Values are indexes in
 	 * the tree node array. The value -1 is used to indicate that
 	 * a particular child does not exist
 	 */
-	gint16 child[2];
+	int16_t child[2];
 };
 
 /**
@@ -58,10 +58,10 @@ struct prefix_code_node {
  */
 struct prefix_code_symbol {
 	/* Stores the symbol */
-	guint16 symbol;
+	uint16_t symbol;
 
 	/* Stores the symbol’s Huffman prefix code length */
-	guint16 length;
+	uint16_t length;
 };
 
 /**
@@ -74,13 +74,13 @@ struct bitstring {
 
 	/* The index in source from which the next set of bits will be pulled
          * when the bits in mask have been consumed */
-	guint32 bitstring_index;
+	uint32_t bitstring_index;
 
 	/* Stores the next bits to be consumed in the bit string */
-	guint32 mask;
+	uint32_t mask;
 
 	/* Stores the number of bits in mask that remain to be consumed */
-	gint32 bits;
+	int32_t bits;
 };
 
 struct hf_tree {
@@ -88,7 +88,7 @@ struct hf_tree {
 	struct prefix_code_node nodes[TREE_SIZE];
 };
 
-static gboolean is_node_valid(struct hf_tree *tree, struct prefix_code_node *node)
+static bool is_node_valid(struct hf_tree *tree, struct prefix_code_node *node)
 {
         return (node && node >= tree->nodes && node < tree->nodes + TREE_SIZE);
 }
@@ -98,14 +98,14 @@ static gboolean is_node_valid(struct hf_tree *tree, struct prefix_code_node *nod
  * prefix code tree
  */
 static int prefix_code_tree_add_leaf(struct hf_tree *tree,
-				     guint32 leaf_index,
-				     guint32 mask,
-				     guint32 bits,
-				     guint32 *out_index)
+				     uint32_t leaf_index,
+				     uint32_t mask,
+				     uint32_t bits,
+				     uint32_t *out_index)
 {
 	struct prefix_code_node *node = &tree->nodes[0];
-	guint32 i = leaf_index + 1;
-	guint32 child_index;
+	uint32_t i = leaf_index + 1;
+	uint32_t child_index;
 
 	if (leaf_index >= TREE_SIZE)
 		return -1;
@@ -117,7 +117,7 @@ static int prefix_code_tree_add_leaf(struct hf_tree *tree,
 			if (i >= TREE_SIZE)
 				return -1;
 			node->child[child_index] = i;
-			tree->nodes[i].leaf = FALSE;
+			tree->nodes[i].leaf = false;
 			i = i + 1;
 		}
 		node = tree->nodes + node->child[child_index];
@@ -159,12 +159,12 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 				 const struct input *input)
 {
 	struct prefix_code_symbol symbolInfo[SYMBOL_INFO_SIZE];
-	guint32 i, j, mask, bits;
+	uint32_t i, j, mask, bits;
 	int rc;
 
 	for (i = 0; i < TREE_SIZE; i++) {
 		tree->nodes[i].symbol = 0;
-		tree->nodes[i].leaf = FALSE;
+		tree->nodes[i].leaf = false;
 		tree->nodes[i].child[0] = -1;
 		tree->nodes[i].child[1] = -1;
 	}
@@ -190,7 +190,7 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 	bits = 1;
 
 	tree->root = &tree->nodes[0];
-	tree->root->leaf = FALSE;
+	tree->root->leaf = false;
 
 	j = 1;
 	for (; i < 512; i++) {
@@ -199,7 +199,7 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 			return -1;
 		}
 		tree->nodes[j].symbol = symbolInfo[i].symbol;
-		tree->nodes[j].leaf = TRUE;
+		tree->nodes[j].leaf = true;
 		mask <<= symbolInfo[i].length - bits;
 		bits = symbolInfo[i].length;
 		rc = prefix_code_tree_add_leaf(tree, j, mask, bits, &j);
@@ -216,7 +216,7 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
  */
 static void bitstring_init(struct bitstring *bstr,
 			   const struct input *input,
-			   guint32 bitstring_index)
+			   uint32_t bitstring_index)
 {
 	bstr->mask = tvb_get_letohs(input->tvb, input->offset+bitstring_index);
 	bstr->mask <<= sizeof(bstr->mask) * 8 - 16;
@@ -233,9 +233,9 @@ static void bitstring_init(struct bitstring *bstr,
 /**
  * Returns the next n bits from the front of a bit string.
  */
-static guint32 bitstring_lookup(struct bitstring *bstr, guint32 n)
+static uint32_t bitstring_lookup(struct bitstring *bstr, uint32_t n)
 {
-	if (n == 0 || bstr->bits < 0 || n > (guint32)bstr->bits) {
+	if (n == 0 || bstr->bits < 0 || n > (uint32_t)bstr->bits) {
 		return 0;
 	}
 	return bstr->mask >> (sizeof(bstr->mask) * 8 - n);
@@ -244,7 +244,7 @@ static guint32 bitstring_lookup(struct bitstring *bstr, guint32 n)
 /**
  * Advances the bit string's cursor by n bits.
  */
-static void bitstring_skip(struct bitstring *bstr, guint32 n)
+static void bitstring_skip(struct bitstring *bstr, uint32_t n)
 {
 	bstr->mask = bstr->mask << n;
 	bstr->bits = bstr->bits - n;
@@ -263,9 +263,9 @@ static void bitstring_skip(struct bitstring *bstr, guint32 n)
  */
 static int prefix_code_tree_decode_symbol(struct hf_tree *tree,
 					  struct bitstring *bstr,
-					  guint32 *out_symbol)
+					  uint32_t *out_symbol)
 {
-	guint32 bit;
+	uint32_t bit;
 	struct prefix_code_node *node = tree->root;
 
 	do {
@@ -274,41 +274,41 @@ static int prefix_code_tree_decode_symbol(struct hf_tree *tree,
 		node = tree->nodes + node->child[bit];
 		if (!is_node_valid(tree, node))
 			return -1;
-	} while (node->leaf == FALSE);
+	} while (node->leaf == false);
 
 	*out_symbol = node->symbol;
 	return 0;
 }
 
-static gboolean do_uncompress(struct input *input,
+static bool do_uncompress(struct input *input,
 			      wmem_array_t *obuf)
 {
-	guint32 symbol;
-	guint32 length;
-	gint32 match_offset;
+	uint32_t symbol;
+	uint32_t length;
+	int32_t match_offset;
 	int rc;
 	struct hf_tree tree = {0};
 	struct bitstring bstr = {0};
 
 	if (!input->tvb)
-		return FALSE;
+		return false;
 
 	if (!input->size || input->size > MAX_INPUT_SIZE)
-		return FALSE;
+		return false;
 
 	rc = PrefixCodeTreeRebuild(&tree, input);
 	if (rc)
-		return FALSE;
+		return false;
 
 	bitstring_init(&bstr, input, ENCODED_TREE_SIZE);
 
 	while (1) {
 		rc = prefix_code_tree_decode_symbol(&tree, &bstr, &symbol);
 		if (rc < 0)
-			return FALSE;
+			return false;
 
 		if (symbol < 256) {
-			guint8 v = symbol & 0xFF;
+			uint8_t v = symbol & 0xFF;
 			wmem_array_append_one(obuf, v);
 		} else {
 			if (symbol == 256) {
@@ -324,14 +324,14 @@ static gboolean do_uncompress(struct input *input,
 
 			if (length == 15) {
 				if (bstr.bitstring_index >= bstr.input->size)
-					return FALSE;
+					return false;
 				length = tvb_get_guint8(bstr.input->tvb,
 							bstr.input->offset+bstr.bitstring_index) + 15;
 				bstr.bitstring_index += 1;
 
 				if (length == 270) {
 					if (bstr.bitstring_index+1 >= bstr.input->size)
-						return FALSE;
+						return false;
 					length = tvb_get_letohs(bstr.input->tvb, bstr.input->offset+bstr.bitstring_index);
 					bstr.bitstring_index += 2;
 				}
@@ -341,17 +341,17 @@ static gboolean do_uncompress(struct input *input,
 
 			length += 3;
 			do {
-				guint8 byte;
-				guint elem_count = wmem_array_get_count(obuf)+match_offset;
+				uint8_t byte;
+				unsigned elem_count = wmem_array_get_count(obuf)+match_offset;
 
 				if (wmem_array_try_index(obuf, elem_count, &byte))
-					return FALSE;
+					return false;
 				wmem_array_append_one(obuf, byte);
 				length--;
 			} while (length != 0);
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 tvbuff_t *
@@ -359,7 +359,7 @@ tvb_uncompress_lz77huff(tvbuff_t *tvb,
 			const int offset,
 			int input_size)
 {
-	volatile gboolean ok;
+	volatile bool ok;
 	wmem_allocator_t *pool;
 	wmem_array_t *obuf;
 	tvbuff_t *out;
@@ -375,7 +375,7 @@ tvb_uncompress_lz77huff(tvbuff_t *tvb,
 	TRY {
 		ok = do_uncompress(&input, obuf);
 	} CATCH_ALL {
-		ok = FALSE;
+		ok = false;
 	}
 	ENDTRY;
 
@@ -386,8 +386,8 @@ tvb_uncompress_lz77huff(tvbuff_t *tvb,
 		 * pointers. This could be optimized if tvb API had a
 		 * free pool callback of some sort.
 		 */
-		guint size = wmem_array_get_count(obuf);
-		guint8 *p = (guint8 *)g_malloc(size);
+		unsigned size = wmem_array_get_count(obuf);
+		uint8_t *p = (uint8_t *)g_malloc(size);
 		memcpy(p, wmem_array_get_raw(obuf), size);
 		out = tvb_new_real_data(p, size, size);
 		tvb_set_free_cb(out, g_free);

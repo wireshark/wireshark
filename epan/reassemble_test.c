@@ -45,7 +45,7 @@
 #include "exceptions.h"
 
 static int failure;
-static const gboolean debug; /* Set to TRUE to dump tables. */
+static const bool debug; /* Set to true to dump tables. */
 
 #define ASSERT(b)           \
     if (!(b)) {             \
@@ -57,7 +57,7 @@ static const gboolean debug; /* Set to TRUE to dump tables. */
 #define ASSERT_EQ(exp,act)  \
     if ((exp)!=(act)) {     \
         failure = 1;        \
-        printf("Assertion failed at line %i: %s==%s (%u==%u)\n", __LINE__, #exp, #act, (guint)exp, (guint)act);  \
+        printf("Assertion failed at line %i: %s==%s (%u==%u)\n", __LINE__, #exp, #act, (unsigned)exp, (unsigned)act);  \
         exit(1);            \
     }
 
@@ -77,7 +77,7 @@ static const gboolean debug; /* Set to TRUE to dump tables. */
 
 #define DATA_LEN 256
 
-static guint8 *data;
+static uint8_t *data;
 static tvbuff_t *tvb;
 static packet_info pinfo;
 
@@ -92,8 +92,8 @@ static reassembly_table test_reassembly_table;
  ************************************************/
 
 static struct _fd_flags {
-    guint32 flag;
-    gchar  *flag_name;
+    uint32_t flag;
+    char   *flag_name;
 } fd_flags[] = {
     {FD_DEFRAGMENTED         ,"DF"},
     {FD_DATALEN_SET          ,"DS"},
@@ -157,13 +157,13 @@ print_fd_chain(fragment_head *fd_head) {
 }
 
 static void
-print_fragment_table_chain(gpointer k _U_, gpointer v, gpointer ud _U_) {
+print_fragment_table_chain(void *k _U_, void *v, void *ud _U_) {
 #ifdef DUMP_KEYS
     fragment_key  *key     = (fragment_key*)k;
 #endif
     fragment_head *fd_head = (fragment_head *)v;
 #ifdef DUMP_KEYS
-    printf("  --> FT: %3d 0x%08x 0x%08x\n", key->id, *(guint32 *)(key->src.data), *(guint32 *)(key->dst.data));
+    printf("  --> FT: %3d 0x%08x 0x%08x\n", key->id, *(uint32_t *)(key->src.data), *(uint32_t *)(key->dst.data));
 #endif
     print_fd_chain(fd_head);
 }
@@ -175,7 +175,7 @@ print_fragment_table(void) {
 }
 
 static void
-print_reassembled_table_chain(gpointer k _U_, gpointer v, gpointer ud _U_) {
+print_reassembled_table_chain(void *k _U_, void *v, void *ud _U_) {
 #ifdef DUMP_KEYS
     reassembled_key  *key  = (reassembled_key*)k;
 #endif
@@ -224,7 +224,7 @@ test_simple_fragment_add_seq(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -233,7 +233,7 @@ test_simple_fragment_add_seq(void)
      * offset etc */
     pinfo.fd->visited = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             0, 60, TRUE, 0);
+                             0, 60, true, 0);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
 
@@ -241,14 +241,14 @@ test_simple_fragment_add_seq(void)
     pinfo.fd->visited = 0;
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
-                             0, 60, TRUE, 0);
+                             0, 60, true, 0);
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
 
     /* now we add the terminal fragment of the first datagram */
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 60, FALSE, 0);
+                             2, 60, false, 0);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -257,7 +257,7 @@ test_simple_fragment_add_seq(void)
     /* finally, add the missing fragment */
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -306,7 +306,7 @@ test_simple_fragment_add_seq(void)
     pinfo.fd->visited = 1;
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
     /*
      * this api relies on the caller to check fd_head -> reassembled_in
      *
@@ -316,12 +316,12 @@ test_simple_fragment_add_seq(void)
 
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 60, FALSE, 0);
+                             2, 60, false, 0);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
     if (debug) {
@@ -352,11 +352,11 @@ test_fragment_add_seq_partial_reassembly(void)
     printf("Starting test test_fragment_add_seq_partial_reassembly\n");
 
     /* generally it's probably fair to assume that we will be called with
-     * more_frags=FALSE.
+     * more_frags=false.
      */
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, FALSE, 0);
+                             0, 50, false, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -389,7 +389,7 @@ test_fragment_add_seq_partial_reassembly(void)
      */
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                             1, 40, TRUE, 0);
+                             1, 40, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -426,7 +426,7 @@ test_fragment_add_seq_partial_reassembly(void)
      */
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                             1, 40, TRUE, 0);
+                             1, 40, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -469,7 +469,7 @@ test_fragment_add_seq_partial_reassembly(void)
     /* have another go at wrapping things up */
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 20, &pinfo, 12, NULL,
-                             2, 100, FALSE, 0);
+                             2, 100, false, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -528,7 +528,7 @@ test_fragment_add_seq_partial_reassembly(void)
 
     pinfo.num = 5;
     fragment_add_seq(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                             3, 40, FALSE, 0);
+                             3, 40, false, 0);
 
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -606,7 +606,7 @@ test_fragment_add_seq_duplicate_first(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -614,7 +614,7 @@ test_fragment_add_seq_duplicate_first(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -623,7 +623,7 @@ test_fragment_add_seq_duplicate_first(void)
     /* Add the last fragment */
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 40, FALSE, 0);
+                             2, 40, false, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -631,7 +631,7 @@ test_fragment_add_seq_duplicate_first(void)
     /* Add the first fragment again */
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
 
     /* Reassembly should have still succeeded */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -704,7 +704,7 @@ test_fragment_add_seq_duplicate_middle(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -712,7 +712,7 @@ test_fragment_add_seq_duplicate_middle(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -721,7 +721,7 @@ test_fragment_add_seq_duplicate_middle(void)
     /* Now, add the 2nd segment again (but in a different frame) */
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     /* This duplicate fragment should have been ignored */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -730,7 +730,7 @@ test_fragment_add_seq_duplicate_middle(void)
     /* finally, add the last fragment */
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 40, FALSE, 0);
+                             2, 40, false, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -801,7 +801,7 @@ test_fragment_add_seq_duplicate_last(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -809,7 +809,7 @@ test_fragment_add_seq_duplicate_last(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -818,7 +818,7 @@ test_fragment_add_seq_duplicate_last(void)
     /* Add the last fragment */
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 40, FALSE, 0);
+                             2, 40, false, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -826,7 +826,7 @@ test_fragment_add_seq_duplicate_last(void)
     /* Add the last fragment again */
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 40, FALSE, 0);
+                             2, 40, false, 0);
 
     /* Reassembly should have still succeeded */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -900,7 +900,7 @@ test_fragment_add_seq_duplicate_conflict(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, TRUE, 0);
+                             0, 50, true, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -908,7 +908,7 @@ test_fragment_add_seq_duplicate_conflict(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -919,7 +919,7 @@ test_fragment_add_seq_duplicate_conflict(void)
      */
     pinfo.num = 3;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-                             1, 60, TRUE, 0);
+                             1, 60, true, 0);
 
     /* This duplicate fragment should have been ignored */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -928,7 +928,7 @@ test_fragment_add_seq_duplicate_conflict(void)
     /* finally, add the last fragment */
     pinfo.num = 4;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                             2, 40, FALSE, 0);
+                             2, 40, false, 0);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -1004,14 +1004,14 @@ test_fragment_add_seq_duplicate_conflict(void)
 static void
 test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
                                  tvbuff_t *, const int, const packet_info *,
-                                 const guint32, const void *, const guint32,
-                                 const guint32, const gboolean))
+                                 const uint32_t, const void *, const uint32_t,
+                                 const uint32_t, const bool))
 {
     fragment_head *fd_head;
 
     pinfo.num = 1;
     fd_head=fn(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-               0, 50, TRUE);
+               0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1020,7 +1020,7 @@ test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
     /* start another pdu (just to confuse things) */
     pinfo.num = 2;
     fd_head=fn(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
-               0, 60, TRUE);
+               0, 60, true);
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1028,7 +1028,7 @@ test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
     /* add the terminal fragment of the first datagram */
     pinfo.num = 3;
     fd_head=fn(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-               2, 60, FALSE);
+               2, 60, false);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -1038,7 +1038,7 @@ test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
     /* finally, add the missing fragment */
     pinfo.num = 4;
     fd_head=fn(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-               1, 60, TRUE);
+               1, 60, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1107,7 +1107,7 @@ test_fragment_add_seq_check_1(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                                   1, 50, FALSE);
+                                   1, 50, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1116,7 +1116,7 @@ test_fragment_add_seq_check_1(void)
     /* Now add the missing segment */
     pinfo.num = 2;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                                   0, 60, TRUE);
+                                   0, 60, true);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1170,7 +1170,7 @@ test_fragment_add_seq_802_11_0(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_seq_802_11(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                                    10, 50, FALSE);
+                                    10, 50, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1237,24 +1237,24 @@ test_fragment_add_seq_check_multiple(void) {
 
     pinfo.num = 1;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                                   0, 50, TRUE);
+                                   0, 50, true);
 
     /* add the terminal fragment of the first datagram */
     pinfo.num = 2;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                                   1, 20, FALSE);
+                                   1, 20, false);
 
     print_tables();
 
     /* Now: start a second datagram with the first fragment in frame #2 */
     pinfo.num = 2;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 25, &pinfo, 12, NULL,
-               0, 25, TRUE);
+               0, 25, true);
 
     /* add the terminal fragment of the second datagram */
     pinfo.num = 3;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                                   1, 60, FALSE);
+                                   1, 60, false);
 
     print_tables();
 }
@@ -1279,7 +1279,7 @@ test_simple_fragment_add_seq_next(void)
 
     pinfo.num = 1;
     fd_head= fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                                  50, TRUE);
+                                  50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1289,7 +1289,7 @@ test_simple_fragment_add_seq_next(void)
      * offset etc */
     pinfo.fd->visited = 1;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                                  60, TRUE);
+                                  60, true);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1298,7 +1298,7 @@ test_simple_fragment_add_seq_next(void)
     pinfo.fd->visited = 0;
     pinfo.num = 2;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
-                                  60, TRUE);
+                                  60, true);
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1307,7 +1307,7 @@ test_simple_fragment_add_seq_next(void)
     /* now we add the terminal fragment of the first datagram */
     pinfo.num = 3;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                                  60, FALSE);
+                                  60, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1358,7 +1358,7 @@ test_missing_data_fragment_add_seq_next(void)
     /* attempt to add a fragment which is longer than the data available */
     pinfo.num = 1;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                                  DATA_LEN-9, TRUE);
+                                  DATA_LEN-9, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1377,7 +1377,7 @@ test_missing_data_fragment_add_seq_next(void)
     /* add another fragment (with all data present) */
     pinfo.num = 4;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                                  60, FALSE);
+                                  60, false);
 
     /* XXX: it's not clear that this is the right result; however it's what the
      * code does...
@@ -1388,11 +1388,11 @@ test_missing_data_fragment_add_seq_next(void)
 
 
     /* check what happens when we revisit the packets */
-    pinfo.fd->visited = TRUE;
+    pinfo.fd->visited = true;
     pinfo.num = 1;
 
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                                  DATA_LEN-9, TRUE);
+                                  DATA_LEN-9, true);
 
     /* We just look in the reassembled_table for this packet. It never got put
      * there, so this always returns null.
@@ -1408,7 +1408,7 @@ test_missing_data_fragment_add_seq_next(void)
 
     pinfo.num = 4;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                                  60, FALSE);
+                                  60, false);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1428,7 +1428,7 @@ test_missing_data_fragment_add_seq_next_2(void)
 
     pinfo.num = 11;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 24, NULL,
-                                  50, TRUE);
+                                  50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1436,7 +1436,7 @@ test_missing_data_fragment_add_seq_next_2(void)
 
     pinfo.num = 12;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 24, NULL,
-                                  DATA_LEN-4, FALSE);
+                                  DATA_LEN-4, false);
 
     /* XXX: again, i'm really dubious about this. Surely this should return all
      * the data we had, for a best-effort attempt at dissecting it?
@@ -1447,11 +1447,11 @@ test_missing_data_fragment_add_seq_next_2(void)
     ASSERT_EQ_POINTER(NULL,fd_head);
 
     /* check what happens when we revisit the packets */
-    pinfo.fd->visited = TRUE;
+    pinfo.fd->visited = true;
     pinfo.num = 11;
 
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 24, NULL,
-                                  50, TRUE);
+                                  50, true);
 
     /* As before, this returns NULL because the fragment isn't in the
      * reassembled_table. At least this is a bit more consistent than before.
@@ -1462,7 +1462,7 @@ test_missing_data_fragment_add_seq_next_2(void)
 
     pinfo.num = 12;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 24, NULL,
-                                  DATA_LEN-4, FALSE);
+                                  DATA_LEN-4, false);
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1481,7 +1481,7 @@ test_missing_data_fragment_add_seq_next_3(void)
 
     pinfo.num = 20;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 30, NULL,
-                                  DATA_LEN-4, FALSE);
+                                  DATA_LEN-4, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1497,11 +1497,11 @@ test_missing_data_fragment_add_seq_next_3(void)
     ASSERT_EQ_POINTER(NULL,fd_head->next);
 
     /* revisiting the packet ought to produce the same result. */
-    pinfo.fd->visited = TRUE;
+    pinfo.fd->visited = true;
 
     pinfo.num = 20;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 30, NULL,
-                                  DATA_LEN-4, FALSE);
+                                  DATA_LEN-4, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -1543,7 +1543,7 @@ test_simple_fragment_add(void)
 
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1552,7 +1552,7 @@ test_simple_fragment_add(void)
      * offset etc */
     pinfo.fd->visited = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         0, 60, TRUE);
+                         0, 60, true);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
 
@@ -1560,14 +1560,14 @@ test_simple_fragment_add(void)
     pinfo.fd->visited = 0;
     pinfo.num = 2;
     fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
-                         0, 60, TRUE);
+                         0, 60, true);
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
 
     /* now we add the terminal fragment of the first datagram */
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 60, FALSE);
+                         110, 60, false);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -1576,7 +1576,7 @@ test_simple_fragment_add(void)
     /* finally, add the missing fragment */
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -1628,7 +1628,7 @@ test_simple_fragment_add(void)
     pinfo.fd->visited = 1;
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
     /*
      * this api relies on the caller to check fd_head -> reassembled_in
      *
@@ -1638,12 +1638,12 @@ test_simple_fragment_add(void)
 
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 60, FALSE);
+                         110, 60, false);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
     if (debug) {
@@ -1672,11 +1672,11 @@ test_fragment_add_partial_reassembly(void)
     printf("Starting test test_fragment_add_partial_reassembly\n");
 
     /* generally it's probably fair to assume that we will be called with
-     * more_frags=FALSE.
+     * more_frags=false.
      */
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                             0, 50, FALSE);
+                             0, 50, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -1709,7 +1709,7 @@ test_fragment_add_partial_reassembly(void)
      */
     pinfo.num = 2;
     fd_head=fragment_add(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                         50, 40, TRUE);
+                         50, 40, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1748,7 +1748,7 @@ test_fragment_add_partial_reassembly(void)
      */
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                         50, 40, TRUE);
+                         50, 40, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1793,7 +1793,7 @@ test_fragment_add_partial_reassembly(void)
     /* have another go at wrapping things up */
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 20, &pinfo, 12, NULL,
-                         90, 100, FALSE);
+                         90, 100, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -1852,7 +1852,7 @@ test_fragment_add_partial_reassembly(void)
 
     pinfo.num = 5;
     fragment_add(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                 190, 40, FALSE);
+                 190, 40, false);
 
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -1934,7 +1934,7 @@ test_fragment_add_duplicate_first(void)
 
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -1942,7 +1942,7 @@ test_fragment_add_duplicate_first(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -1951,7 +1951,7 @@ test_fragment_add_duplicate_first(void)
     /* Add the last fragment */
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 40, FALSE);
+                         110, 40, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -1959,7 +1959,7 @@ test_fragment_add_duplicate_first(void)
     /* Add the first fragment again */
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
 
     /* Reassembly should have still succeeded */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2038,7 +2038,7 @@ test_fragment_add_duplicate_middle(void)
 
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -2046,7 +2046,7 @@ test_fragment_add_duplicate_middle(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2055,7 +2055,7 @@ test_fragment_add_duplicate_middle(void)
     /* Now, add the 2nd segment again (but in a different frame) */
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     /* This duplicate fragment should have been ignored */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2064,7 +2064,7 @@ test_fragment_add_duplicate_middle(void)
     /* finally, add the last fragment */
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 40, FALSE);
+                         110, 40, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -2143,7 +2143,7 @@ test_fragment_add_duplicate_last(void)
 
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -2151,7 +2151,7 @@ test_fragment_add_duplicate_last(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2160,7 +2160,7 @@ test_fragment_add_duplicate_last(void)
     /* Add the last fragment */
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 40, FALSE);
+                         110, 40, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -2168,7 +2168,7 @@ test_fragment_add_duplicate_last(void)
     /* Add the last fragment again */
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 40, FALSE);
+                         110, 40, false);
 
     /* Reassembly should have still succeeded */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2248,7 +2248,7 @@ test_fragment_add_duplicate_conflict(void)
 
     pinfo.num = 1;
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
-                         0, 50, TRUE);
+                         0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -2256,7 +2256,7 @@ test_fragment_add_duplicate_conflict(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2267,7 +2267,7 @@ test_fragment_add_duplicate_conflict(void)
      */
     pinfo.num = 3;
     fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
-                         50, 60, TRUE);
+                         50, 60, true);
 
     /* This duplicate fragment should have been ignored */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2276,7 +2276,7 @@ test_fragment_add_duplicate_conflict(void)
     /* finally, add the last fragment */
     pinfo.num = 4;
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
-                         110, 40, FALSE);
+                         110, 40, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -2359,7 +2359,7 @@ test_simple_fragment_add_check(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2369,7 +2369,7 @@ test_simple_fragment_add_check(void)
      * offset etc */
     pinfo.fd->visited = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 0, 60, TRUE);
+                               NULL, 0, 60, true);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -2378,7 +2378,7 @@ test_simple_fragment_add_check(void)
     pinfo.fd->visited = 0;
     pinfo.num = 2;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 13,
-                               NULL, 0, 60, TRUE);
+                               NULL, 0, 60, true);
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -2386,7 +2386,7 @@ test_simple_fragment_add_check(void)
     /* now we add the terminal fragment of the first datagram */
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 60, FALSE);
+                               NULL, 110, 60, false);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2396,7 +2396,7 @@ test_simple_fragment_add_check(void)
     /* finally, add the missing fragment */
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2449,7 +2449,7 @@ test_simple_fragment_add_check(void)
     pinfo.fd->visited = 1;
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
     /*
      * this api relies on the caller to check fd_head -> reassembled_in
      *
@@ -2459,12 +2459,12 @@ test_simple_fragment_add_check(void)
 
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 60, FALSE);
+                               NULL, 110, 60, false);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
     if (debug) {
@@ -2498,11 +2498,11 @@ test_fragment_add_check_partial_reassembly(void)
     printf("Starting test test_fragment_add_check_partial_reassembly\n");
 
     /* generally it's probably fair to assume that we will be called with
-     * more_frags=FALSE.
+     * more_frags=false.
      */
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, FALSE);
+                               NULL, 0, 50, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2536,7 +2536,7 @@ test_fragment_add_check_partial_reassembly(void)
      */
     pinfo.num = 2;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 0, &pinfo, 12,
-                               NULL, 50, 40, TRUE);
+                               NULL, 50, 40, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2576,7 +2576,7 @@ test_fragment_add_check_partial_reassembly(void)
      */
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 0, &pinfo, 12,
-                               NULL, 50, 40, TRUE);
+                               NULL, 50, 40, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
@@ -2621,7 +2621,7 @@ test_fragment_add_check_partial_reassembly(void)
     /* have another go at wrapping things up */
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 20, &pinfo, 12,
-                               NULL, 90, 100, FALSE);
+                               NULL, 90, 100, false);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -2680,7 +2680,7 @@ test_fragment_add_check_partial_reassembly(void)
 
     pinfo.num = 5;
     fragment_add_check(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
-                       190, 40, FALSE);
+                       190, 40, false);
 
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
@@ -2769,13 +2769,13 @@ test_fragment_add_check_duplicate_first(void)
 {
     fragment_head *fd_head;
     fragment_item *fd;
-    volatile gboolean ex_thrown;
+    volatile bool ex_thrown;
 
     printf("Starting test test_fragment_add_check_duplicate_first\n");
 
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2784,7 +2784,7 @@ test_fragment_add_check_duplicate_first(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2794,7 +2794,7 @@ test_fragment_add_check_duplicate_first(void)
     /* Add the last fragment */
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 40, FALSE);
+                               NULL, 110, 40, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2803,7 +2803,7 @@ test_fragment_add_check_duplicate_first(void)
     /* Add the first fragment again */
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
 
     /* Reassembly should have still succeeded */
     /* XXX: Current behavior is to start a new reassembly - which is
@@ -2892,7 +2892,7 @@ test_fragment_add_check_duplicate_middle(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -2901,7 +2901,7 @@ test_fragment_add_check_duplicate_middle(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2911,7 +2911,7 @@ test_fragment_add_check_duplicate_middle(void)
     /* Now, add the 2nd segment again (but in a different frame) */
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     /* This duplicate fragment should have been ignored */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -2921,7 +2921,7 @@ test_fragment_add_check_duplicate_middle(void)
     /* finally, add the last fragment */
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 40, FALSE);
+                               NULL, 110, 40, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(4,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -3001,7 +3001,7 @@ test_fragment_add_check_duplicate_last(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -3010,7 +3010,7 @@ test_fragment_add_check_duplicate_last(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -3020,7 +3020,7 @@ test_fragment_add_check_duplicate_last(void)
     /* Add the last fragment */
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 40, FALSE);
+                               NULL, 110, 40, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -3029,7 +3029,7 @@ test_fragment_add_check_duplicate_last(void)
     /* Add the last fragment again */
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 40, FALSE);
+                               NULL, 110, 40, false);
 
     /* Reassembly should have still succeeded */
     /* XXX: Current behavior is to start a new reassembly */
@@ -3117,7 +3117,7 @@ test_fragment_add_check_duplicate_conflict(void)
 
     pinfo.num = 1;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
-                               NULL, 0, 50, TRUE);
+                               NULL, 0, 50, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -3126,7 +3126,7 @@ test_fragment_add_check_duplicate_conflict(void)
     /* Add the 2nd segment */
     pinfo.num = 2;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     /* we haven't got all the fragments yet ... */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -3138,7 +3138,7 @@ test_fragment_add_check_duplicate_conflict(void)
      */
     pinfo.num = 3;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 12,
-                               NULL, 50, 60, TRUE);
+                               NULL, 50, 60, true);
 
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -3147,7 +3147,7 @@ test_fragment_add_check_duplicate_conflict(void)
     /* finally, add the last fragment */
     pinfo.num = 4;
     fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
-                               NULL, 110, 40, FALSE);
+                               NULL, 110, 40, false);
 
     ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ(4,g_hash_table_size(test_reassembly_table.reassembled_table));
@@ -3213,7 +3213,7 @@ int
 main(int argc _U_, char **argv _U_)
 {
     frame_data fd;
-    static const guint8 src[] = {1,2,3,4}, dst[] = {5,6,7,8};
+    static const uint8_t src[] = {1,2,3,4}, dst[] = {5,6,7,8};
     unsigned int i;
     static void (*tests[])(void) = {
         test_simple_fragment_add_seq,              /* frag table only   */
@@ -3254,7 +3254,7 @@ main(int argc _U_, char **argv _U_)
     };
 
     /* a tvbuff for testing with */
-    data = (guint8 *)g_malloc(DATA_LEN);
+    data = (uint8_t *)g_malloc(DATA_LEN);
     /* make sure it's full of stuff */
     for(i=0; i<DATA_LEN; i++) {
         data[i]=i & 0xFF;
@@ -3275,7 +3275,7 @@ main(int argc _U_, char **argv _U_)
         ASSERT(test_reassembly_table.fragment_table != NULL);
         ASSERT(test_reassembly_table.reassembled_table != NULL);
 
-        pinfo.fd->visited = FALSE;
+        pinfo.fd->visited = false;
 
         tests[i]();
 

@@ -79,11 +79,11 @@ wscbor_error_t * wscbor_error_new(wmem_allocator_t *alloc, expert_field *ei, con
 /// Tag metadata and value
 typedef struct {
     /// The start offset of this tag head
-    gint start;
+    int start;
     /// The length of just this tag head
-    gint length;
+    int length;
     /// The tag value
-    guint64 value;
+    uint64_t value;
 } wscbor_tag_t;
 
 struct _wscbor_chunk_priv_t;
@@ -94,11 +94,11 @@ typedef struct {
     wscbor_chunk_priv_t *_priv;
 
     /// The start offset of this chunk
-    gint start;
+    int start;
     /// The length of just this header and any preceding tags
-    gint head_length;
+    int head_length;
     /// The length of this chunk and its immediate definite data (i.e. strings)
-    gint data_length;
+    int data_length;
     /// Errors processing this chunk (type wscbor_error_t*)
     wmem_list_t *errors;
     /// Tags on this chunk, in encoded order (type wscbor_tag_t*)
@@ -108,9 +108,9 @@ typedef struct {
     /// This will be one of the cbor_type values.
     cbor_type type_major;
     /// Minor type of this item
-    guint8 type_minor;
+    uint8_t type_minor;
     /// The header-encoded value
-    guint64 head_value;
+    uint64_t head_value;
 } wscbor_chunk_t;
 
 /** Scan for a tagged chunk of headers.
@@ -127,7 +127,7 @@ typedef struct {
  * if the read itself ran out of data.
  */
 WS_DLL_PUBLIC
-wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset);
+wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *offset);
 
 /** Free a chunk and its lists.
  */
@@ -141,14 +141,14 @@ void wscbor_chunk_free(wscbor_chunk_t *chunk);
  * @return The error count.
  */
 WS_DLL_PUBLIC
-guint64 wscbor_chunk_mark_errors(packet_info *pinfo, proto_item *item, const wscbor_chunk_t *chunk);
+uint64_t wscbor_chunk_mark_errors(packet_info *pinfo, proto_item *item, const wscbor_chunk_t *chunk);
 
 /** Determine if a chunk has errors.
  * @param chunk The chunk with possible errors.
  * @return The error count.
  */
 WS_DLL_PUBLIC
-guint wscbor_has_errors(const wscbor_chunk_t *chunk);
+unsigned wscbor_has_errors(const wscbor_chunk_t *chunk);
 
 /** Determine if an indefinite break is present.
  *
@@ -156,7 +156,7 @@ guint wscbor_has_errors(const wscbor_chunk_t *chunk);
  * @return True if it's an indefinite break.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_is_indefinite_break(const wscbor_chunk_t *chunk);
+bool wscbor_is_indefinite_break(const wscbor_chunk_t *chunk);
 
 /** Recursively skip items from a stream.
  *
@@ -169,7 +169,7 @@ gboolean wscbor_is_indefinite_break(const wscbor_chunk_t *chunk);
  * if the read itself ran out of data.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset);
+bool wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, int *offset);
 
 /** Skip over an item if a chunk has errors.
  * This allows skipping an entire array or map if the major type or size is
@@ -182,7 +182,7 @@ gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *off
  * @return True if there were errors and the item skipped.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_skip_if_errors(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, const wscbor_chunk_t *chunk);
+bool wscbor_skip_if_errors(wmem_allocator_t *alloc, tvbuff_t *tvb, int *offset, const wscbor_chunk_t *chunk);
 
 
 /** Require a specific item major type.
@@ -192,7 +192,7 @@ gboolean wscbor_skip_if_errors(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *off
  * @return True if the item is that type.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_require_major_type(wscbor_chunk_t *chunk, cbor_type major);
+bool wscbor_require_major_type(wscbor_chunk_t *chunk, cbor_type major);
 
 /** Require an array item.
  *
@@ -200,7 +200,7 @@ gboolean wscbor_require_major_type(wscbor_chunk_t *chunk, cbor_type major);
  * @return True if the item is an array.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_require_array(wscbor_chunk_t *chunk);
+bool wscbor_require_array(wscbor_chunk_t *chunk);
 
 /** Require an array have a specific ranged size.
  *
@@ -210,7 +210,7 @@ gboolean wscbor_require_array(wscbor_chunk_t *chunk);
  * @return True if the size is acceptable.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_require_array_size(wscbor_chunk_t *chunk, guint64 count_min, guint64 count_max);
+bool wscbor_require_array_size(wscbor_chunk_t *chunk, uint64_t count_min, uint64_t count_max);
 
 /** Require a map item.
  *
@@ -218,7 +218,7 @@ gboolean wscbor_require_array_size(wscbor_chunk_t *chunk, guint64 count_min, gui
  * @return True if the item is a map.
  */
 WS_DLL_PUBLIC
-gboolean wscbor_require_map(wscbor_chunk_t *chunk);
+bool wscbor_require_map(wscbor_chunk_t *chunk);
 
 /** Require a CBOR item to have a boolean value.
  *
@@ -239,7 +239,7 @@ bool * wscbor_require_boolean(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
  * The value can be deleted with wscbor_require_delete().
  */
 WS_DLL_PUBLIC
-guint64 * wscbor_require_uint64(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
+uint64_t * wscbor_require_uint64(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Require a CBOR item to have an signed- or unsigned-integer value.
  * @note This reader will clip the most significant bit of the value.
@@ -250,7 +250,7 @@ guint64 * wscbor_require_uint64(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
  * The value can be deleted with wscbor_require_delete().
  */
 WS_DLL_PUBLIC
-gint64 * wscbor_require_int64(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
+int64_t * wscbor_require_int64(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Require a CBOR item to have a text-string value.
  * If the actual text string is not needed, use the following to avoid an
@@ -294,13 +294,13 @@ WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_boolean(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const bool *value);
 
 WS_DLL_PUBLIC
-proto_item * proto_tree_add_cbor_uint64(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const guint64 *value);
+proto_item * proto_tree_add_cbor_uint64(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const uint64_t *value);
 
 WS_DLL_PUBLIC
-proto_item * proto_tree_add_cbor_int64(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const gint64 *value);
+proto_item * proto_tree_add_cbor_int64(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const int64_t *value);
 
 WS_DLL_PUBLIC
-proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const gint ett, int *const *fields, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const guint64 *value);
+proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const int ett, int *const *fields, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const uint64_t *value);
 
 WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_tstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);

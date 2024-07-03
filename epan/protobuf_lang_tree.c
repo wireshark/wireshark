@@ -47,29 +47,29 @@ pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...);
  * @param [out] size  the length of the output byte array.
  * @return the unescaped byte array, should be released by g_free()
  */
-static gchar*
-protobuf_string_unescape(const gchar* src, gint* size)
+static char*
+protobuf_string_unescape(const char* src, int* size)
 {
-    gint src_len;
-    guint8* dst, * q;
-    const gchar* p = src;
+    int src_len;
+    uint8_t* dst, * q;
+    const char* p = src;
 
-    if (!(src && size && (src_len = (gint)strlen(src))))
+    if (!(src && size && (src_len = (int)strlen(src))))
         return NULL;
 
-    dst = q = (guint8 *) g_malloc0(src_len + 1);
+    dst = q = (uint8_t *) g_malloc0(src_len + 1);
 
     while (p < src + src_len && *p) {
         if (*p == '\\') {
             p++;
 
             if (*p == 'x' || *p == 'X') { /* unescape hex byte */
-                *q++ = (guint8)strtol(p + 1, (char**)&p, 16);
+                *q++ = (uint8_t)strtol(p + 1, (char**)&p, 16);
                 continue;
             }
 
             if (*p >= '0' && *p <= '7') { /* unescape octal byte */
-                *q++ = (guint8)strtol(p, (char**)&p, 8);
+                *q++ = (uint8_t)strtol(p, (char**)&p, 8);
                 continue;
             }
 
@@ -92,9 +92,9 @@ protobuf_string_unescape(const gchar* src, gint* size)
         p++;
     }
     *q = 0;
-    *size = (gint)(q - dst);
+    *size = (int)(q - dst);
 
-    return (gchar*) dst;
+    return (char*) dst;
 }
 
 /**
@@ -106,7 +106,7 @@ protobuf_string_unescape(const gchar* src, gint* size)
 void
 pbl_reinit_descriptor_pool(pbl_descriptor_pool_t** ppool, const char** directories, pbl_report_error_cb_t error_cb)
 {
-    guint i;
+    unsigned i;
 
     pbl_free_pool(*ppool);
     pbl_descriptor_pool_t* p = g_new0(pbl_descriptor_pool_t, 1);
@@ -181,7 +181,7 @@ pbl_canonicalize_absolute_filepath(const char* path)
 }
 
 /* Add a file into to do list */
-gboolean
+bool
 pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepath)
 {
     char* path = NULL;
@@ -211,7 +211,7 @@ pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepat
             /* normally happened during initializing a pool by adding files that need be loaded */
             pool->error_cb("Protobuf: file [%s] does not exist!\n", filepath);
         }
-        return FALSE;
+        return false;
     }
 
     if (!g_hash_table_lookup(pool->proto_files, path)) {
@@ -230,7 +230,7 @@ pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepat
         /* The file is already in the proto_files */
         g_free(path);
     }
-    return TRUE;
+    return true;
 }
 
 /* find node according to full_name */
@@ -535,13 +535,13 @@ pbl_field_descriptor_is_repeated(const pbl_field_descriptor_t* field)
 int
 pbl_field_descriptor_is_packed(const pbl_field_descriptor_t* field)
 {
-    gboolean has_packed_option;
-    gboolean packed_option_value;
+    bool has_packed_option;
+    bool packed_option_value;
     int syntax_version = ((pbl_node_t*)field)->file->syntax_version;
 
     /* determine packed flag */
-    if (field->is_repeated == FALSE) {
-        return FALSE;
+    if (field->is_repeated == false) {
+        return false;
     }
     /* note: field->type may be undetermined until calling pbl_field_descriptor_type() */
     switch (pbl_field_descriptor_type(field)) {
@@ -549,7 +549,7 @@ pbl_field_descriptor_is_packed(const pbl_field_descriptor_t* field)
     case PROTOBUF_TYPE_GROUP:
     case PROTOBUF_TYPE_MESSAGE:
     case PROTOBUF_TYPE_BYTES:
-        return FALSE;
+        return false;
     default: /* only repeated fields of primitive numeric types can be declared "packed". */
         has_packed_option = field->options_node
             && field->options_node->children_by_name
@@ -559,12 +559,12 @@ pbl_field_descriptor_is_packed(const pbl_field_descriptor_t* field)
             g_strcmp0(
               ((pbl_option_descriptor_t*)g_hash_table_lookup(
                 field->options_node->children_by_name, "packed"))->value, "true") == 0
-            : FALSE);
+            : false);
 
         if (syntax_version == 2) {
             return packed_option_value;
         } else { /* packed default in syntax_version = 3 */
-            return has_packed_option ? packed_option_value : TRUE;
+            return has_packed_option ? packed_option_value : true;
         }
     }
 }
@@ -601,70 +601,70 @@ pbl_field_descriptor_enum_type(const pbl_field_descriptor_t* field)
 }
 
 /* like FieldDescriptor::is_required() */
-gboolean
+bool
 pbl_field_descriptor_is_required(const pbl_field_descriptor_t* field)
 {
     return field->is_required;
 }
 
 /* like FieldDescriptor::has_default_value() */
-gboolean
+bool
 pbl_field_descriptor_has_default_value(const pbl_field_descriptor_t* field)
 {
     return field->has_default_value;
 }
 
 /* like FieldDescriptor::default_value_int32() */
-gint32
+int32_t
 pbl_field_descriptor_default_value_int32(const pbl_field_descriptor_t* field)
 {
     return field->default_value.i32;
 }
 
 /* like FieldDescriptor::default_value_int64() */
-gint64
+int64_t
 pbl_field_descriptor_default_value_int64(const pbl_field_descriptor_t* field)
 {
     return field->default_value.i64;
 }
 
 /* like FieldDescriptor::default_value_uint32() */
-guint32
+uint32_t
 pbl_field_descriptor_default_value_uint32(const pbl_field_descriptor_t* field)
 {
     return field->default_value.u32;
 }
 
 /* like FieldDescriptor::default_value_uint64() */
-guint64
+uint64_t
 pbl_field_descriptor_default_value_uint64(const pbl_field_descriptor_t* field)
 {
     return field->default_value.u64;
 }
 
 /* like FieldDescriptor::default_value_float() */
-gfloat
+float
 pbl_field_descriptor_default_value_float(const pbl_field_descriptor_t* field)
 {
     return field->default_value.f;
 }
 
 /* like FieldDescriptor::default_value_double() */
-gdouble
+double
 pbl_field_descriptor_default_value_double(const pbl_field_descriptor_t* field)
 {
     return field->default_value.d;
 }
 
 /* like FieldDescriptor::default_value_bool() */
-gboolean
+bool
 pbl_field_descriptor_default_value_bool(const pbl_field_descriptor_t* field)
 {
     return field->default_value.b;
 }
 
 /* like FieldDescriptor::default_value_string() */
-const gchar*
+const char*
 pbl_field_descriptor_default_value_string(const pbl_field_descriptor_t* field, int* size)
 {
     *size = field->string_or_bytes_default_value_length;
@@ -733,7 +733,7 @@ pbl_enum_descriptor_FindValueByNumber(const pbl_enum_descriptor_t* anEnum, int n
 
 /* like EnumDescriptor::FindValueByName() */
 const pbl_enum_value_descriptor_t*
-pbl_enum_descriptor_FindValueByName(const pbl_enum_descriptor_t* anEnum, const gchar* name)
+pbl_enum_descriptor_FindValueByName(const pbl_enum_descriptor_t* anEnum, const char* name)
 {
     if (anEnum && ((pbl_node_t*)anEnum)->children_by_name) {
         return (pbl_enum_value_descriptor_t*)g_hash_table_lookup(((pbl_node_t*)anEnum)->children_by_name, name);
@@ -862,7 +862,7 @@ pbl_get_option_by_name(pbl_node_t* options, const char* name)
 /* create a method (rpc or stream of service) node */
 pbl_node_t* pbl_create_method_node(pbl_file_descriptor_t* file, int lineno,
     const char* name, const char* in_msg_type,
-    gboolean in_is_stream, const char* out_msg_type, gboolean out_is_stream)
+    bool in_is_stream, const char* out_msg_type, bool out_is_stream)
 {
     pbl_method_descriptor_t* node = g_new0(pbl_method_descriptor_t, 1);
     pbl_init_node(&node->basic_info, file, lineno, PBL_METHOD, name);
@@ -911,7 +911,7 @@ pbl_node_t* pbl_create_field_node(pbl_file_descriptor_t* file, int lineno, const
      */
     default_option = pbl_get_option_by_name(options, "default");
     if (default_option && default_option->value) {
-        node->has_default_value = TRUE;
+        node->has_default_value = true;
         node->orig_default_value = g_strdup(default_option->value);
         /* get default value for simple type */
         switch (node->type)
@@ -977,7 +977,7 @@ pbl_node_t* pbl_create_map_field_node(pbl_file_descriptor_t* file, int lineno,
     node->number = number;
     node->type_name = g_strconcat(name, "MapEntry", NULL);
     node->type = PROTOBUF_TYPE_MESSAGE;
-    node->is_repeated = TRUE;
+    node->is_repeated = true;
     node->options_node = options;
 
     return (pbl_node_t*)node;
@@ -1047,8 +1047,8 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
              string fieldWithComplexOption5 = 5 [(rules).repeated_int = 1, (rules).repeated_int = 2];
            we just merge the old value and new value in format /old_value "," new_value/.
         */
-        gchar* oval = ((pbl_option_descriptor_t*)node)->value;
-        gchar* nval = ((pbl_option_descriptor_t*)child)->value;
+        char* oval = ((pbl_option_descriptor_t*)node)->value;
+        char* nval = ((pbl_option_descriptor_t*)child)->value;
         ((pbl_option_descriptor_t*)child)->value = g_strconcat(oval, ",", nval, NULL);
         g_free(nval);
     } else if (node && child->file && parent->file
@@ -1152,7 +1152,7 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
 /* free a pbl_node_t and its children. */
 void
 // NOLINTNEXTLINE(misc-no-recursion)
-pbl_free_node(gpointer anode)
+pbl_free_node(void *anode)
 {
     pbl_method_descriptor_t* method_node;
     pbl_message_descriptor_t* message_node;

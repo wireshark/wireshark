@@ -116,7 +116,7 @@ color_filters_add_tmp(GSList **cfl)
 }
 
 static int
-color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
+color_filters_find_by_name_cb(const void *arg1, const void *arg2)
 {
     const color_filter_t *colorf = (const color_filter_t *)arg1;
     const char           *name   = (const char *)arg2;
@@ -520,7 +520,7 @@ color_filters_prime_edt(epan_dissect_t *edt)
 }
 
 static int
-find_hfid(gconstpointer data, gconstpointer user_data)
+find_hfid(const void *data, const void *user_data)
 {
     color_filter_t *colorf = (color_filter_t *)data;
     int hfid = GPOINTER_TO_INT(user_data);
@@ -543,7 +543,7 @@ color_filters_use_hfid(int hfid)
 }
 
 static int
-find_proto(gconstpointer data, gconstpointer user_data)
+find_proto(const void *data, const void *user_data)
 {
     color_filter_t *colorf = (color_filter_t *)data;
     int proto_id = GPOINTER_TO_INT(user_data);

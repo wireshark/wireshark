@@ -37,7 +37,7 @@
 
 #if defined(_WIN32)
 
-static gsize
+static size_t
 win32_get_total_mem_used_by_app(void)
 {
 	HANDLE pHandle;
@@ -65,12 +65,12 @@ static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
 	&total_usage,
 };
 
-static guint memory_register_num = 1;
+static unsigned memory_register_num = 1;
 
 #elif defined(__linux__)
 
-static gboolean
-linux_get_memory(gsize *ptotal, gsize *prss)
+static bool
+linux_get_memory(size_t *ptotal, size_t *prss)
 {
 	static int fd = -1;
 	static intptr_t pagesize = 0;
@@ -83,7 +83,7 @@ linux_get_memory(gsize *ptotal, gsize *prss)
 		pagesize = sysconf(_SC_PAGESIZE);
 
 	if (pagesize == -1)
-		return FALSE;
+		return false;
 
 	if (fd < 0) {
 		char path[64];
@@ -96,29 +96,29 @@ linux_get_memory(gsize *ptotal, gsize *prss)
 	}
 
 	if (fd < 0)
-		return FALSE;
+		return false;
 
 	ret = pread(fd, buf, sizeof(buf)-1, 0);
 	if (ret <= 0)
-		return FALSE;
+		return false;
 
 	buf[ret] = '\0';
 
 	if (sscanf(buf, "%lu %lu", &total, &rss) != 2)
-		return FALSE;
+		return false;
 
 	if (ptotal)
-		*ptotal = pagesize * (gsize) total;
+		*ptotal = pagesize * (size_t) total;
 	if (prss)
-		*prss = pagesize * (gsize) rss;
+		*prss = pagesize * (size_t) rss;
 
-	return TRUE;
+	return true;
 }
 
-static gsize
+static size_t
 linux_get_total_mem_used_by_app(void)
 {
-	gsize total;
+	size_t total;
 
 	if (!linux_get_memory(&total, NULL))
 		total = 0;
@@ -126,10 +126,10 @@ linux_get_total_mem_used_by_app(void)
 	return total;
 }
 
-static gsize
+static size_t
 linux_get_rss_mem_used_by_app(void)
 {
-	gsize rss;
+	size_t rss;
 
 	if (!linux_get_memory(NULL, &rss))
 		rss = 0;
@@ -145,7 +145,7 @@ static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
 	&rss_usage,
 };
 
-static guint memory_register_num = 2;
+static unsigned memory_register_num = 2;
 
 #else
 
@@ -160,7 +160,7 @@ static guint memory_register_num = 2;
 
 static const ws_mem_usage_t *memory_components[MAX_COMPONENTS];
 
-static guint memory_register_num;
+static unsigned memory_register_num;
 
 #endif
 
@@ -176,7 +176,7 @@ memory_usage_component_register(const ws_mem_usage_t *component)
 }
 
 const char *
-memory_usage_get(guint idx, gsize *value)
+memory_usage_get(unsigned idx, size_t *value)
 {
 	if (idx >= memory_register_num)
 		return NULL;
@@ -190,7 +190,7 @@ memory_usage_get(guint idx, gsize *value)
 void
 memory_usage_gc(void)
 {
-	guint i;
+	unsigned i;
 
 	for (i = 0; i < memory_register_num; i++) {
 		if (memory_components[i]->gc)

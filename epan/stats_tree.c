@@ -134,7 +134,7 @@ stats_tree_free(stats_tree *st)
 
     g_free(st->filter);
     g_hash_table_destroy(st->names);
-    g_ptr_array_free(st->parents,TRUE);
+    g_ptr_array_free(st->parents,true);
     g_free(st->display_name);
 
     for (child = st->root.children; child; child = next ) {
@@ -417,7 +417,7 @@ stats_tree_get_cfg_by_abbr(const char *abbr)
 }
 
 static int
-compare_stat_menu_item(gconstpointer stat_a, gconstpointer stat_b)
+compare_stat_menu_item(const void *stat_a, const void *stat_b)
 {
     const stats_tree_cfg* stat_cfg_a = (const stats_tree_cfg*)stat_a;
     const stats_tree_cfg* stat_cfg_b = (const stats_tree_cfg*)stat_b;
@@ -1389,7 +1389,7 @@ typedef struct {
 /* Function to compare elements for child array sort. a and b are children, user_data
 points to a st_flags value */
 extern int
-stat_node_array_sortcmp (gconstpointer a, gconstpointer b, void *user_data)
+stat_node_array_sortcmp (const void *a, const void *b, void *user_data)
 {
     /* user_data is *unsigned value to st_flags */
     return stats_tree_sort_compare (*(const stat_node*const*)a,*(const stat_node*const*)b,
@@ -1486,7 +1486,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     g_free(values);
 
     if (node->children) {
-        GArray *Children = g_array_new(FALSE,FALSE,sizeof(child));
+        GArray *Children = g_array_new(false,false,sizeof(child));
         for (child = node->children; child; child = child->next ) {
             g_array_append_val(Children,child);
         }
@@ -1497,7 +1497,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
             stats_tree_format_node_as_str(g_array_index(Children,stat_node*,count), s, format_type,
                     indent, full_path, maxnamelen, sort_column, sort_descending);
         }
-        g_array_free(Children, TRUE);
+        g_array_free(Children, true);
     }
     g_free(full_path);
 

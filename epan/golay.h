@@ -18,25 +18,27 @@
 #ifndef __GOLAY_H__
 #define __GOLAY_H__
 
+#include <stdint.h>
+
 #include "ws_symbol_export.h"
 
 /* encodes a 12-bit word to a 24-bit codeword
  */
 WS_DLL_PUBLIC
-guint32 golay_encode(guint w);
+uint32_t golay_encode(unsigned w);
 
 /* return a mask showing the bits which are in error in a received
  * 24-bit codeword, or -1 if 4 errors were detected.
  */
 WS_DLL_PUBLIC
-gint32 golay_errors(guint32 codeword);
+int32_t golay_errors(uint32_t codeword);
 
 /* decode a received codeword. Up to 3 errors are corrected for; 4
    errors are detected as uncorrectable (return -1); 5 or more errors
    cause an incorrect correction.
 */
 WS_DLL_PUBLIC
-gint golay_decode(guint32 w);
+int golay_decode(uint32_t w);
 
 #endif
 

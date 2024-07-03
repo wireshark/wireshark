@@ -13,6 +13,6 @@
  */
 
 extern void DtdParse(void*,int,dtd_token_data_t*,dtd_build_data_t*);
-extern void *DtdParseAlloc(void *(*)(gsize));
+extern void *DtdParseAlloc(void *(*)(size_t));
 extern void DtdParseFree( void*, void(*)(void*) );
 extern void DtdParseTrace(FILE *TraceFILE, char *zTracePrompt);

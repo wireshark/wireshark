@@ -258,7 +258,7 @@ const char *ipprotostr(const int proto) {
 
 /* https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#extension-header */
 
-static gboolean ipv6_exthdr_check(int proto)
+static bool ipv6_exthdr_check(int proto)
 {
     switch (proto) {
     /* fall through all cases */
@@ -271,12 +271,12 @@ static gboolean ipv6_exthdr_check(int proto)
     case IP_PROTO_MIPV6:        /* Mobility Header */
     case IP_PROTO_HIP:          /* Host Identity Protocol */
     case IP_PROTO_SHIM6:        /* Shim6 Protocol */
-        return TRUE;
+        return true;
         break;
     default:
         break;
     }
-    return FALSE;
+    return false;
 }
 
 const char *ipv6extprotostr(int proto)

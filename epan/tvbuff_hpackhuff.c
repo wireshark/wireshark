@@ -59,7 +59,7 @@ tvb_child_uncompress_hpack_huff(tvbuff_t* parent, int offset, int length)
     tvbuff_t* tvb = NULL;
     wmem_strbuf_t *strbuf;
     char* data;
-    gsize len;
+    size_t len;
 
     strbuf = tvb_get_hpack_huffman_strbuf(NULL, parent, offset, length);
 
@@ -67,7 +67,7 @@ tvb_child_uncompress_hpack_huff(tvbuff_t* parent, int offset, int length)
         len = wmem_strbuf_get_len(strbuf);
         data = wmem_strbuf_finalize(strbuf);
 
-        tvb = tvb_new_child_real_data(parent, (const guint8*)data, (guint)len, (gint)len);
+        tvb = tvb_new_child_real_data(parent, (const uint8_t*)data, (unsigned)len, (int)len);
 
         tvb_set_free_cb(tvb, g_free);
     }

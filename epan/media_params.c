@@ -21,8 +21,8 @@
 #include <epan/media_params.h>
 
 static const char *
-ws_get_next_media_type_parameter(const char *pos, gsize *retnamelen,
-                                 const char **retvalue, gsize *retvaluelen,
+ws_get_next_media_type_parameter(const char *pos, size_t *retnamelen,
+                                 const char **retvalue, size_t *retvaluelen,
                                  const char **nextp)
 {
     const char *p, *namep, *valuep;
@@ -43,7 +43,7 @@ ws_get_next_media_type_parameter(const char *pos, gsize *retnamelen,
        beginning of parameter value), or ';' (end of parameter). */
     while ((c = *p) != '\0' && c != '=' && c != ';')
         p++;
-    *retnamelen = (gsize) (p - namep);
+    *retnamelen = (size_t) (p - namep);
     if (c == '\0') {
         /* End of string, so end of parameter, no parameter value */
         if (retvalue != NULL)
@@ -78,7 +78,7 @@ ws_get_next_media_type_parameter(const char *pos, gsize *retnamelen,
                 /* End-of-string.  We're done.
                    (XXX - this is an error.) */
                 if (retvaluelen != NULL) {
-                    *retvaluelen = (gsize) (p - valuep);
+                    *retvaluelen = (size_t) (p - valuep);
                 }
                 *nextp = p;
                 return namep;
@@ -117,14 +117,14 @@ ws_get_next_media_type_parameter(const char *pos, gsize *retnamelen,
     if (c == '\0') {
         /* End of string, so end of parameter */
         if (retvaluelen != NULL) {
-            *retvaluelen = (gsize) (p - valuep);
+            *retvaluelen = (size_t) (p - valuep);
         }
         *nextp = p;
         return namep;
     }
     /* End of parameter; point past the terminating ';' */
     if (retvaluelen != NULL) {
-        *retvaluelen = (gsize) (p - valuep);
+        *retvaluelen = (size_t) (p - valuep);
     }
     *nextp = p + 1;
     return namep;
@@ -135,14 +135,14 @@ ws_find_media_type_parameter(wmem_allocator_t *scope, const char *parameters, co
 {
     const char *p, *name, *value;
     char c;
-    gsize keylen, namelen, valuelen;
+    size_t keylen, namelen, valuelen;
     char *valuestr, *vp;
 
     if (parameters == NULL || key == NULL)
         /* we won't be able to find anything */
         return NULL;
 
-    keylen = (gsize) strlen(key);
+    keylen = (size_t) strlen(key);
     if (keylen == 0) {
         /* There's no parameter name to searh for */
         return NULL;

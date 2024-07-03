@@ -28,7 +28,7 @@ extern "C" {
  * Messages have the format "proto_register_XXX".
  * @param client_data Data pointer for the callback.
  */
-void register_all_protocols(register_cb cb, gpointer client_data);
+void register_all_protocols(register_cb cb, void *client_data);
 
 /** Call each dissector's protocol handoff routine.
  *
@@ -40,9 +40,9 @@ void register_all_protocols(register_cb cb, gpointer client_data);
  * Messages have the format "proto_reg_handoff_XXX".
  * @param client_data Data pointer for the callback.
  */
-void register_all_protocol_handoffs(register_cb cb, gpointer client_data);
+void register_all_protocol_handoffs(register_cb cb, void *client_data);
 
-gulong register_count(void);
+unsigned long register_count(void);
 
 #ifdef __cplusplus
 }

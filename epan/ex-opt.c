@@ -19,8 +19,8 @@
 
 static GHashTable* ex_opts;
 
-gboolean ex_opt_add(const gchar* ws_optarg) {
-    gchar** splitted;
+bool ex_opt_add(const char* ws_optarg) {
+    char** splitted;
 
     if (!ex_opts)
         ex_opts = g_hash_table_new(g_str_hash,g_str_equal);
@@ -41,14 +41,14 @@ gboolean ex_opt_add(const gchar* ws_optarg) {
 
         g_free(splitted);
 
-        return TRUE;
+        return true;
     } else {
         g_strfreev(splitted);
-        return FALSE;
+        return false;
     }
 }
 
-gint ex_opt_count(const gchar* key) {
+int ex_opt_count(const char* key) {
     GPtrArray* this_opts;
 
     if (! ex_opts)
@@ -63,7 +63,7 @@ gint ex_opt_count(const gchar* key) {
     }
 }
 
-const gchar* ex_opt_get_nth(const gchar* key, guint key_index) {
+const char* ex_opt_get_nth(const char* key, unsigned key_index) {
     GPtrArray* this_opts;
 
     if (! ex_opts)
@@ -73,7 +73,7 @@ const gchar* ex_opt_get_nth(const gchar* key, guint key_index) {
 
     if (this_opts) {
         if (this_opts->len > key_index) {
-            return (const gchar *)g_ptr_array_index(this_opts,key_index);
+            return (const char *)g_ptr_array_index(this_opts,key_index);
         } else {
             /* XXX: assert? */
             return NULL;
@@ -84,7 +84,7 @@ const gchar* ex_opt_get_nth(const gchar* key, guint key_index) {
 
 }
 
-extern const gchar* ex_opt_get_next(const gchar* key) {
+extern const char* ex_opt_get_next(const char* key) {
     GPtrArray* this_opts;
 
     if (! ex_opts)
@@ -94,7 +94,7 @@ extern const gchar* ex_opt_get_next(const gchar* key) {
 
     if (this_opts) {
         if (this_opts->len)
-            return (const gchar *)g_ptr_array_remove_index(this_opts,0);
+            return (const char *)g_ptr_array_remove_index(this_opts,0);
         else
             return NULL;
     } else {

@@ -64,20 +64,20 @@ typedef GSList* (*proto_node_children_grouper_func)(proto_node *node);
 
 WS_DLL_PUBLIC output_fields_t* output_fields_new(void);
 WS_DLL_PUBLIC void output_fields_free(output_fields_t* info);
-WS_DLL_PUBLIC void output_fields_add(output_fields_t* info, const gchar* field);
+WS_DLL_PUBLIC void output_fields_add(output_fields_t* info, const char* field);
 WS_DLL_PUBLIC GSList * output_fields_valid(output_fields_t* info);
-WS_DLL_PUBLIC gsize output_fields_num_fields(output_fields_t* info);
-WS_DLL_PUBLIC gboolean output_fields_set_option(output_fields_t* info, gchar* option);
+WS_DLL_PUBLIC size_t output_fields_num_fields(output_fields_t* info);
+WS_DLL_PUBLIC bool output_fields_set_option(output_fields_t* info, char* option);
 WS_DLL_PUBLIC void output_fields_list_options(FILE *fh);
 WS_DLL_PUBLIC bool output_fields_add_protocolfilter(output_fields_t* info, const char* field, pf_flags filter_flags);
-WS_DLL_PUBLIC gboolean output_fields_has_cols(output_fields_t* info);
+WS_DLL_PUBLIC bool output_fields_has_cols(output_fields_t* info);
 WS_DLL_PUBLIC void output_fields_prime_edt(struct epan_dissect *edt, output_fields_t* info);
 
 /*
  * Higher-level packet-printing code.
  */
 
-WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
+WS_DLL_PUBLIC bool proto_tree_print(print_dissections_e print_dissections,
                                         bool print_hex_data,
                                         epan_dissect_t *edt,
                                         GHashTable *output_only_tables,
@@ -93,10 +93,10 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
 #define HEXDUMP_SOURCE_MULTI          (0x0000U) /* create hexdumps for all data sources assigned to a frame (legacy tshark behaviour) */
 #define HEXDUMP_SOURCE_PRIMARY        (0x0004U) /* create hexdumps for only the frame data */
 
-WS_DLL_PUBLIC bool print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options);
+WS_DLL_PUBLIC bool print_hex_data(print_stream_t *stream, epan_dissect_t *edt, unsigned hexdump_options);
 
-WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
-WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color);
+WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const char* filename);
+WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, bool use_color);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
 // Implementations of proto_node_children_grouper_func
@@ -122,19 +122,19 @@ WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
                                        column_info *cinfo, FILE *fh);
 
 WS_DLL_PUBLIC void write_psml_preamble(column_info *cinfo, FILE *fh);
-WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh, gboolean use_color);
+WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh, bool use_color);
 WS_DLL_PUBLIC void write_psml_finale(FILE *fh);
 
 WS_DLL_PUBLIC void write_csv_column_titles(column_info *cinfo, FILE *fh);
 WS_DLL_PUBLIC void write_csv_columns(epan_dissect_t *edt, FILE *fh);
 
-WS_DLL_PUBLIC void write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt);
+WS_DLL_PUBLIC void write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_fields_preamble(output_fields_t* fields, FILE *fh);
 WS_DLL_PUBLIC void write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh);
 WS_DLL_PUBLIC void write_fields_finale(output_fields_t* fields, FILE *fh);
 
-WS_DLL_PUBLIC gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
+WS_DLL_PUBLIC char* get_node_field_value(field_info* fi, epan_dissect_t* edt);
 
 extern void print_cache_field_handles(void);
 

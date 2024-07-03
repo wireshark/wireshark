@@ -37,13 +37,13 @@ extern "C" {
 
 /* To add dynamically an export name, call the following function
    It returns the registered tap */
-WS_DLL_PUBLIC gint register_export_pdu_tap(const char *name);
+WS_DLL_PUBLIC int register_export_pdu_tap(const char *name);
 /* Same as above, but for export taps that use an encapsulation other
  * than WTAP_ENCAP_WIRESHARK_UPPER_PDU */
-WS_DLL_PUBLIC gint register_export_pdu_tap_with_encap(const char *name, gint encap);
+WS_DLL_PUBLIC int register_export_pdu_tap_with_encap(const char *name, int encap);
 WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 
-WS_DLL_PUBLIC gint export_pdu_tap_get_encap(const char* name);
+WS_DLL_PUBLIC int export_pdu_tap_get_encap(const char* name);
 
 /** Compute the size (in bytes) of a pdu item
 *
@@ -61,7 +61,7 @@ typedef int (*exp_pdu_get_size)(packet_info *pinfo, void* data);
 @param tlv_buffer_size size of buffer to be populated
 @return the number of bytes populated to the buffer (typically PDU item size)
 */
-typedef int (*exp_pdu_populate_data)(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 tlv_buffer_size);
+typedef int (*exp_pdu_populate_data)(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t tlv_buffer_size);
 
 typedef struct exp_pdu_data_item
 {
@@ -78,10 +78,10 @@ typedef struct exp_pdu_data_item
  * LINKTYPE_WIRESHARK_UPPER_PDU packets in pcap pcapng files.
  */
 typedef struct _exp_pdu_data_t {
-    guint        tlv_buffer_len;
-    guint8      *tlv_buffer;
-    guint        tvb_captured_length;
-    guint        tvb_reported_length;
+    unsigned     tlv_buffer_len;
+    uint8_t     *tlv_buffer;
+    unsigned     tvb_captured_length;
+    unsigned     tvb_reported_length;
     tvbuff_t    *pdu_tvb;
 } exp_pdu_data_t;
 
@@ -96,7 +96,7 @@ typedef struct _exp_pdu_data_t {
  @param items PDU items to be exported
  @return filled exp_pdu_data_t struct
 */
-WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_type, const exp_pdu_data_item_t **items);
+WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const char* proto_name, uint16_t tag_type, const exp_pdu_data_item_t **items);
 
 /**
  Allocates and fills the exp_pdu_data_t struct with a common list of items
@@ -113,10 +113,10 @@ WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const c
  @param proto_name Name of protocol that is exporting PDU
  @return filled exp_pdu_data_t struct
 */
-WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, guint16 tag_type);
+WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, uint16_t tag_type);
 
 WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_size(packet_info *pinfo, void* data);
-WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size);
+WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t buffer_size);
 
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_src_ip;
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_dst_ip;

@@ -1098,7 +1098,7 @@ typedef struct {
 } find_pref_arg_t;
 
 static int
-preference_match(gconstpointer a, gconstpointer b)
+preference_match(const void *a, const void *b)
 {
     const pref_t *pref = (const pref_t *)a;
     const char *name = (const char *)b;

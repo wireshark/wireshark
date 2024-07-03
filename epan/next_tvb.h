@@ -35,8 +35,8 @@ typedef struct next_tvb_item {
   next_tvb_call_e type;
   dissector_handle_t handle;
   dissector_table_t table;
-  guint32 uint_val;
-  const gchar *string;
+  uint32_t uint_val;
+  const char *string;
   tvbuff_t *tvb;
   proto_tree *tree;
 } next_tvb_item_t;
@@ -50,8 +50,8 @@ typedef struct {
 
 WS_DLL_PUBLIC next_tvb_list_t* next_tvb_list_new(wmem_allocator_t *pool);
 WS_DLL_PUBLIC void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
-WS_DLL_PUBLIC void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val);
-WS_DLL_PUBLIC void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const gchar *string);
+WS_DLL_PUBLIC void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, uint32_t uint_val);
+WS_DLL_PUBLIC void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const char *string);
 WS_DLL_PUBLIC void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
 
 #endif /* __NEXT_TVB_H__ */

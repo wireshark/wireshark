@@ -20,12 +20,12 @@
 
 #define MAX_INPUT_SIZE (16*1024*1024) /* 16MB */
 
-static gboolean
+static bool
 uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 {
 	int in_off = 0, out_off = 0, out_start = 0;
-	guint8 flags;
-	guint i, j, val, pos;
+	uint8_t flags;
+	unsigned i, j, val, pos;
 
 	out_start = wmem_array_get_count(obuf);
 
@@ -39,8 +39,8 @@ uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 				wmem_array_append_one(obuf, val);
 				out_off++;
 			} else {
-				guint f, l_mask = 0x0FFF, o_shift = 12;
-				guint match_len, match_off;
+				unsigned f, l_mask = 0x0FFF, o_shift = 12;
+				unsigned match_len, match_off;
 
 				f = tvb_get_letohs(tvb, offset+in_off);
 				in_off += 2;
@@ -54,11 +54,11 @@ uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 				match_len = (f & l_mask) + 3;
 				match_off = (f >> o_shift) + 1;
 				for (j = 0; j < match_len; j++) {
-					guint8 byte;
-					if (match_off > (guint)out_off)
-						return FALSE;
+					uint8_t byte;
+					if (match_off > (unsigned)out_off)
+						return false;
 					if (wmem_array_try_index(obuf, out_start+out_off-match_off, &byte))
-						return FALSE;
+						return false;
 					wmem_array_append_one(obuf, byte);
 					out_off++;
 				}
@@ -69,21 +69,21 @@ uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 		}
 	}
 out:
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 do_uncompress(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 {
 	int in_off = 0;
-	guint32 header, length, i;
-	gboolean ok;
+	uint32_t header, length, i;
+	bool ok;
 
 	if (!tvb)
-		return FALSE;
+		return false;
 
 	if (!in_size || in_size > MAX_INPUT_SIZE)
-		return FALSE;
+		return false;
 
 	while (in_off < in_size) {
 		header = tvb_get_letohs(tvb, offset+in_off);
@@ -91,24 +91,24 @@ do_uncompress(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 		length = (header & 0x0FFF) + 1;
 		if (!(header & 0x8000)) {
 			for (i = 0; i < length; i++) {
-				guint8 v = tvb_get_guint8(tvb, offset+in_off);
+				uint8_t v = tvb_get_guint8(tvb, offset+in_off);
 				wmem_array_append_one(obuf, v);
 				in_off++;
 			}
 		} else {
 			ok = uncompress_chunk(tvb, offset + in_off, length, obuf);
 			if (!ok)
-				return FALSE;
+				return false;
 			in_off += length;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 tvbuff_t *
 tvb_uncompress_lznt1(tvbuff_t *tvb, const int offset, int in_size)
 {
-	volatile gboolean ok = FALSE;
+	volatile bool ok = false;
 	wmem_allocator_t *pool;
 	wmem_array_t *obuf;
 	tvbuff_t *out;
@@ -119,7 +119,7 @@ tvb_uncompress_lznt1(tvbuff_t *tvb, const int offset, int in_size)
 	TRY {
                 ok = do_uncompress(tvb, offset, in_size, obuf);
 	} CATCH_ALL {
-		ok = FALSE;
+		ok = false;
 	}
 	ENDTRY;
 
@@ -130,8 +130,8 @@ tvb_uncompress_lznt1(tvbuff_t *tvb, const int offset, int in_size)
 		 * pointers. This could be optimized if tvb API had a
 		 * free pool callback of some sort.
 		 */
-		guint size = wmem_array_get_count(obuf);
-		guint8 *p = (guint8 *)g_malloc(size);
+		unsigned size = wmem_array_get_count(obuf);
+		uint8_t *p = (uint8_t *)g_malloc(size);
 		memcpy(p, wmem_array_get_raw(obuf), size);
 		out = tvb_new_real_data(p, size, size);
 		tvb_set_free_cb(out, g_free);

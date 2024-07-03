@@ -38,7 +38,7 @@ register_all_protocols_worker(void *arg _U_)
     void *volatile error_message = NULL;
 
     TRY {
-        for (gulong i = 0; i < dissector_reg_proto_count; i++) {
+        for (unsigned long i = 0; i < dissector_reg_proto_count; i++) {
             set_cb_name(dissector_reg_proto[i].cb_name);
             dissector_reg_proto[i].cb_func();
         }
@@ -57,16 +57,16 @@ register_all_protocols_worker(void *arg _U_)
     }
     ENDTRY;
 
-    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(TRUE));
+    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(true));
     return (void *) error_message;
 }
 
 void
-register_all_protocols(register_cb cb, gpointer cb_data)
+register_all_protocols(register_cb cb, void *cb_data)
 {
     const char *cb_name;
     register_cb_done_q = g_async_queue_new();
-    gboolean called_back = FALSE;
+    bool called_back = false;
     GThread *rapw_thread;
     const char *error_message;
 
@@ -77,7 +77,7 @@ register_all_protocols(register_cb cb, gpointer cb_data)
         g_mutex_unlock(&cur_cb_name_mtx);
         if (cb && cb_name) {
             cb(RA_REGISTER, cb_name, cb_data);
-            called_back = TRUE;
+            called_back = true;
         }
     }
     error_message = (const char *) g_thread_join(rapw_thread);
@@ -94,7 +94,7 @@ register_all_protocol_handoffs_worker(void *arg _U_)
     void *volatile error_message = NULL;
 
     TRY {
-        for (gulong i = 0; i < dissector_reg_handoff_count; i++) {
+        for (unsigned long i = 0; i < dissector_reg_handoff_count; i++) {
             set_cb_name(dissector_reg_handoff[i].cb_name);
             dissector_reg_handoff[i].cb_func();
         }
@@ -113,15 +113,15 @@ register_all_protocol_handoffs_worker(void *arg _U_)
     }
     ENDTRY;
 
-    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(TRUE));
+    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(true));
     return (void *) error_message;
 }
 
 void
-register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
+register_all_protocol_handoffs(register_cb cb, void *cb_data)
 {
     const char *cb_name;
-    gboolean called_back = FALSE;
+    bool called_back = false;
     GThread *raphw_thread;
     const char *error_message;
 
@@ -133,7 +133,7 @@ register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
         g_mutex_unlock(&cur_cb_name_mtx);
         if (cb && cb_name) {
             cb(RA_HANDOFF, cb_name, cb_data);
-            called_back = TRUE;
+            called_back = true;
         }
     }
     error_message = (const char *) g_thread_join(raphw_thread);
@@ -145,7 +145,7 @@ register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
     g_async_queue_unref(register_cb_done_q);
 }
 
-gulong register_count(void)
+unsigned long register_count(void)
 {
     return dissector_reg_proto_count + dissector_reg_handoff_count;
 }

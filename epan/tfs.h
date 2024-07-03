@@ -12,7 +12,7 @@
 #ifndef __TFS_H__
 #define __TFS_H__
 
-#include <glib.h>
+#include <stdbool.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -36,7 +36,7 @@ typedef struct true_false_string {
  * @param[in] tfs   The true_false_string containing the relevant strings
  * @return          Pointer to the appropriate string
  */
-WS_DLL_PUBLIC const char *tfs_get_string(gboolean value, const true_false_string *tfs);
+WS_DLL_PUBLIC const char *tfs_get_string(bool value, const true_false_string *tfs);
 
 #define tfs_get_true_false(value)   tfs_get_string(value, NULL)
 

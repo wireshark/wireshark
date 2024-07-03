@@ -13,7 +13,7 @@
 #include "ws_symbol_export.h"
 
 typedef struct {
-	const guint8 *ptr;
+	const uint8_t *ptr;
 	int	len;
 } vec_t;
 
@@ -29,14 +29,14 @@ typedef struct {
 		vecelem.ptr = tvb_get_ptr((tvb), (offset), vecelem.len); \
 	} G_STMT_END
 
-WS_DLL_PUBLIC guint16 ip_checksum(const guint8 *ptr, int len);
+WS_DLL_PUBLIC uint16_t ip_checksum(const uint8_t *ptr, int len);
 
-WS_DLL_PUBLIC guint16 ip_checksum_tvb(tvbuff_t *tvb, int offset, int len);
+WS_DLL_PUBLIC uint16_t ip_checksum_tvb(tvbuff_t *tvb, int offset, int len);
 
 WS_DLL_PUBLIC int in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial);
 
 WS_DLL_PUBLIC int in_cksum(const vec_t *vec, int veclen);
 
-guint16 in_cksum_shouldbe(guint16 sum, guint16 computed_sum);
+uint16_t in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum);
 
 #endif /* __IN_CKSUM_H__ */

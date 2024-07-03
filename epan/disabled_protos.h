@@ -23,37 +23,37 @@ extern "C" {
  * Tell if protocols have been enabled/disabled since
  * we've last loaded (or saved) the lists.
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 enabled_protos_unsaved_changes(void);
 
 /*
  * Disable a particular protocol by name
- * On success (found the protocol), return TRUE.
- * On failure (didn't find the protocol), return FALSE.
+ * On success (found the protocol), return true.
+ * On failure (didn't find the protocol), return false.
  */
 WS_DLL_PUBLIC bool
 proto_disable_proto_by_name(const char *name);
 
 /*
  * Enable a particular protocol by name
- * On success (found the protocol), return TRUE.
- * On failure (didn't find the protocol), return FALSE.
+ * On success (found the protocol), return true.
+ * On failure (didn't find the protocol), return false.
  */
 WS_DLL_PUBLIC bool
 proto_enable_proto_by_name(const char *name);
 
 /*
  * Enable a particular heuristic dissector by name
- * On success (found the protocol), return TRUE.
- * On failure (didn't find the protocol), return FALSE.
+ * On success (found the protocol), return true.
+ * On failure (didn't find the protocol), return false.
  */
 WS_DLL_PUBLIC bool
 proto_enable_heuristic_by_name(const char *name);
 
 /*
  * Disable a particular heuristic dissector by name
- * On success (found the protocol), return TRUE.
- * On failure (didn't find the protocol), return FALSE.
+ * On success (found the protocol), return true.
+ * On failure (didn't find the protocol), return false.
  */
 WS_DLL_PUBLIC bool
 proto_disable_heuristic_by_name(const char *name);

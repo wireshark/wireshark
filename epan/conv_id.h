@@ -32,6 +32,6 @@
  *  value CONV_ID_UNSET.
  */
 typedef uint32_t conv_id_t;
-#define CONV_ID_UNSET G_MAXUINT32
+#define CONV_ID_UNSET UINT32_MAX
 
 #endif /* __CONV_ID_H__ */

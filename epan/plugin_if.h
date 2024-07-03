@@ -38,7 +38,7 @@ typedef enum
 } ext_menubar_gui_type;
 
 /* menubar callback */
-typedef void (*ext_menubar_action_cb)(ext_menubar_gui_type gui_type, gpointer gui_object, gpointer user_data);
+typedef void (*ext_menubar_action_cb)(ext_menubar_gui_type gui_type, void *gui_object, void *user_data);
 
 typedef enum
 {
@@ -57,22 +57,22 @@ struct _ext_menubar_t
     ext_menu_t * parent;
     int proto;
     GList * children;
-    guint submenu_cnt;
-    guint item_cnt;
+    unsigned submenu_cnt;
+    unsigned item_cnt;
 
-    gchar * name;
-    gchar * label;
+    char * name;
+    char * label;
 
-    gchar * tooltip;
-    gboolean is_plugin;
-    gpointer user_data;
+    char * tooltip;
+    bool is_plugin;
+    void *user_data;
 
     ext_menubar_action_cb callback;
 
-    gchar * parent_menu;
+    char * parent_menu;
 };
 
-typedef void (*ext_toolbar_action_cb)(gpointer toolbar_item, gpointer item_data, gpointer user_data);
+typedef void (*ext_toolbar_action_cb)(void *toolbar_item, void *item_data, void *user_data);
 
 typedef enum
 {
@@ -90,10 +90,10 @@ typedef enum
 
 typedef struct _ext_toolbar_value_t
 {
-    gchar * value;
-    gchar * display;
+    char * value;
+    char * display;
 
-    gboolean is_default;
+    bool is_default;
 
 } ext_toolbar_value_t;
 
@@ -102,20 +102,20 @@ typedef struct _ext_toolbar_t
     ext_toolbar_entry_t type;
 
     GList * children;
-    guint submenu_cnt;
-    guint item_cnt;
+    unsigned submenu_cnt;
+    unsigned item_cnt;
 
-    gchar * name;
-    gchar * defvalue;
-    gchar * tooltip;
-    gpointer user_data;
+    char * name;
+    char * defvalue;
+    char * tooltip;
+    void *user_data;
 
-    gboolean is_required;
-    gboolean capture_only;
+    bool is_required;
+    bool capture_only;
     ext_toolbar_item_t item_type;
 
     GList * values;
-    gchar * regex;
+    char * regex;
 
     ext_toolbar_action_cb callback;
 
@@ -134,9 +134,9 @@ typedef enum
 typedef struct _ext_toolbar_update_t
 {
     ext_toolbar_update_type_t type;
-    gboolean silent;
-    gpointer user_data;
-    gpointer data_index;
+    bool silent;
+    void *user_data;
+    void *data_index;
 } ext_toolbar_update_t;
 
 /* Registers a new main menu.
@@ -147,10 +147,10 @@ typedef struct _ext_toolbar_update_t
  * @param proto_id the proto item for the protocol this menu entry belongs too
  * @param name the entry name (the internal used one) for the menu item
  * @param menulabel the entry label (the displayed name) for the menu item
- * @param is_plugin must be set to TRUE for plugin registration
+ * @param is_plugin must be set to true for plugin registration
  */
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_register_menu(
-        int proto_id, const gchar * menulabel, gboolean is_plugin);
+        int proto_id, const char * menulabel, bool is_plugin);
 
 /* Sets a parent menu for the user menu.
  *
@@ -162,7 +162,7 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_register_menu(
  * @param parentmenu a valid menu name for the parent menu
  */
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_set_parentmenu(
-        ext_menu_t * menu, const gchar * parentmenu);
+        ext_menu_t * menu, const char * parentmenu);
 
 /* Registers a new main menu.
  *
@@ -173,7 +173,7 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_set_parentmenu(
  * @param menulabel the entry label (the displayed name) for the menu item
  */
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_add_submenu(
-        ext_menu_t * parent, const gchar *menulabel);
+        ext_menu_t * parent, const char *menulabel);
 
 /* Registers a new menubar entry.
  *
@@ -188,10 +188,10 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_add_submenu(
  */
 WS_DLL_PUBLIC void ext_menubar_add_entry(
         ext_menu_t * parent_menu,
-        const gchar *label,
-        const gchar *tooltip,
+        const char *label,
+        const char *tooltip,
         ext_menubar_action_cb callback,
-        gpointer user_data);
+        void *user_data);
 
 /* Registers a new separator entry.
  *
@@ -213,8 +213,8 @@ WS_DLL_PUBLIC void ext_menubar_add_separator(ext_menu_t *parent_menu);
  * @param tooltip a tooltip to be displayed on mouse-over
  * @param url the url for the website
  */
-WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const gchar *label,
-        const gchar *tooltip, const gchar *url);
+WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const char *label,
+        const char *tooltip, const char *url);
 
 /* Registers a toolbar.
  *
@@ -222,7 +222,7 @@ WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const gchar *lab
  *
  * @param toolbar_label the entry label (the displayed name) for the toolbar item
  */
-WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_register_toolbar(const gchar * toolbar_label);
+WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_register_toolbar(const char * toolbar_label);
 
 /* Removes a toolbar from the system.
  *
@@ -238,7 +238,7 @@ WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar(ext_toolbar_t * toolbar);
  *
  * @param toolbar_name the name of the toolbar to be removed
  */
-WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const gchar * toolbar_name);
+WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const char * toolbar_name);
 
 /* Registers a new toolbar entry.
  *
@@ -269,19 +269,19 @@ WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const gchar * toolbar_
 WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_add_entry(
         ext_toolbar_t * parent_bar,
         ext_toolbar_item_t type,
-        const gchar *label,
-        const gchar *defvalue,
-        const gchar *tooltip,
-        gboolean capture_only,
+        const char *label,
+        const char *defvalue,
+        const char *tooltip,
+        bool capture_only,
         GList * value_list,
-        gboolean is_required,
-        const gchar * valid_regex,
+        bool is_required,
+        const char * valid_regex,
         ext_toolbar_action_cb callback,
-        gpointer user_data);
+        void *user_data);
 
-WS_DLL_PUBLIC GList * ext_toolbar_add_val(GList * entries, gchar * value, gchar * display, gboolean is_default);
+WS_DLL_PUBLIC GList * ext_toolbar_add_val(GList * entries, char * value, char * display, bool is_default);
 
-WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, gpointer item_data);
+WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, void *item_data);
 
 /* Updates the entry values
  *
@@ -292,7 +292,7 @@ WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_too
  * @param data the data for the entry
  * @param silent the update for the entry should not trigger additional actions
  */
-WS_DLL_PUBLIC void ext_toolbar_update_value(ext_toolbar_t * entry, gpointer data, gboolean silent);
+WS_DLL_PUBLIC void ext_toolbar_update_value(ext_toolbar_t * entry, void *data, bool silent);
 
 /* Updates the entry data
  *
@@ -302,7 +302,7 @@ WS_DLL_PUBLIC void ext_toolbar_update_value(ext_toolbar_t * entry, gpointer data
  * @param data the data for the entry
  * @param silent the update for the entry should not trigger additional actions
  */
-WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data, gboolean silent);
+WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, void *data, bool silent);
 
 /* Updates the entry data by index
  *
@@ -314,7 +314,7 @@ WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data,
  * @param idx the value for the entry to be updated
  * @param silent the update for the entry should not trigger additional actions
  */
-WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent);
+WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, void *data, void *idx, bool silent);
 
 /* Adds the entry data by index
  *
@@ -326,7 +326,7 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpoin
  * @param idx the value for the entry to be added
  * @param silent the adding of the entry should not trigger additional actions
  */
-WS_DLL_PUBLIC void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent);
+WS_DLL_PUBLIC void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, void *data, void *idx, bool silent);
 
 /* Removes an entry data by index
  *
@@ -339,13 +339,13 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, gpoi
  * @param idx the value for the entry to be removed
  * @param silent the removal of the entry should not trigger additional actions
  */
-WS_DLL_PUBLIC void ext_toolbar_update_data_remove_entry(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent);
+WS_DLL_PUBLIC void ext_toolbar_update_data_remove_entry(ext_toolbar_t * entry, void *data, void *idx, bool silent);
 
 /* Search for and return if found an entry from the toolbar with the given label */
-WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const gchar * label);
+WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const char * label);
 
 /* Set the ui element for the given enry to the status */
-WS_DLL_PUBLIC void ext_toolbar_update_data_set_active(ext_toolbar_t * entry, gboolean status);
+WS_DLL_PUBLIC void ext_toolbar_update_data_set_active(ext_toolbar_t * entry, bool status);
 
 /*
  * Structure definition for the plugin_if_get_ws_info function
@@ -353,12 +353,12 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_set_active(ext_toolbar_t * entry, gbo
 
 typedef struct _ws_info_t
 {
-    gboolean ws_info_supported;                 /* false if no libpcap */
+    bool ws_info_supported;                 /* false if no libpcap */
     file_state cf_state;                        /* Current state of capture file */
-    gchar *cf_filename;                         /* Name of capture file */
-    guint32 cf_count;                           /* Total number of frames */
-    guint32 cf_framenr;                         /**< Currently displayed frame number */
-    gboolean frame_passed_dfilter;              /**< true = display, false = no display */
+    char *cf_filename;                         /* Name of capture file */
+    uint32_t cf_count;                           /* Total number of frames */
+    uint32_t cf_framenr;                         /**< Currently displayed frame number */
+    bool frame_passed_dfilter;              /**< true = display, false = no display */
 } ws_info_t;
 
 
@@ -399,13 +399,13 @@ typedef void (*plugin_if_gui_cb)(GHashTable * data_set);
 WS_DLL_PUBLIC void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback);
 
 /* Applies the given filter string as display filter */
-WS_DLL_PUBLIC void plugin_if_apply_filter(const char * filter_string, gboolean force);
+WS_DLL_PUBLIC void plugin_if_apply_filter(const char * filter_string, bool force);
 
 /* Saves the given preference to the main preference storage */
 WS_DLL_PUBLIC void plugin_if_save_preference(const char * pref_module, const char * pref_key, const char * pref_value);
 
 /* Jumps to the given frame number */
-WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
+WS_DLL_PUBLIC void plugin_if_goto_frame(uint32_t framenr);
 
 /* Takes a snapshot of status information from Wireshark */
 WS_DLL_PUBLIC void plugin_if_get_ws_info(ws_info_t ** ws_info);

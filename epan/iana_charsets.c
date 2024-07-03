@@ -30,8 +30,8 @@
 /*
  * Map a MIBenum code for a charset to a Wireshark string encoding.
  */
-guint
-mibenum_charset_to_encoding (guint charset)
+unsigned
+mibenum_charset_to_encoding (unsigned charset)
 {
     switch (charset) {
         /* Expand macro result in:

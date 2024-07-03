@@ -31,7 +31,7 @@ extern void conversation_filters_init(void);
  *
  * @param pinfo packet_info pointer for the current packet.
  * @param user_data User data provided to register_conversation_filter or register_log_conversation_filter.
- * @return TRUE if the packet has a valid conversation filter, FALSE otherwise.
+ * @return true if the packet has a valid conversation filter, false otherwise.
  */
 typedef bool (*is_filter_valid_func)(struct _packet_info *pinfo, void *user_data);
 
@@ -44,7 +44,7 @@ typedef bool (*is_filter_valid_func)(struct _packet_info *pinfo, void *user_data
  * @param user_data User data provided to register_conversation_filter or register_log_conversation_filter.
  * @return A filter for the conversation on success, NULL on failure. The filter must be gfreed.
  */
-typedef gchar* (*build_filter_string_func)(struct _packet_info *pinfo, void *user_data);
+typedef char* (*build_filter_string_func)(struct _packet_info *pinfo, void *user_data);
 
 /**
  * Register a new packet conversation filter.
@@ -86,7 +86,7 @@ extern void conversation_filters_cleanup(void);
  * @param pinfo Packet info
  * @return A display filter for the conversation. Should be freed with g_free.
  */
-WS_DLL_PUBLIC gchar *conversation_filter_from_packet(struct _packet_info *pinfo);
+WS_DLL_PUBLIC char *conversation_filter_from_packet(struct _packet_info *pinfo);
 
 /**
  * Tries to build a suitable display filter for the conversation in the current
@@ -96,7 +96,7 @@ WS_DLL_PUBLIC gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
  * @param pinfo Packet info
  * @return A display filter for the conversation. Should be freed with g_free.
  */
-WS_DLL_PUBLIC gchar *conversation_filter_from_log(struct _packet_info *pinfo);
+WS_DLL_PUBLIC char *conversation_filter_from_log(struct _packet_info *pinfo);
 
 /*** THE FOLLOWING SHOULD NOT BE USED BY ANY DISSECTORS!!! ***/
 

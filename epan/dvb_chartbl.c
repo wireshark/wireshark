@@ -52,7 +52,7 @@ static const value_string dvb_string_encoding_vals[] = {
 
 
 static dvb_encoding_e
-dvb_analyze_string_charset0(guint8 byte0)
+dvb_analyze_string_charset0(uint8_t byte0)
 {
     switch (byte0) {
         case 0x01:
@@ -95,7 +95,7 @@ dvb_analyze_string_charset0(guint8 byte0)
 
 
 static dvb_encoding_e
-dvb_analyze_string_charset0_10(guint16 byte12)
+dvb_analyze_string_charset0_10(uint16_t byte12)
 {
     switch (byte12) {
         case 0x0000:
@@ -138,7 +138,7 @@ dvb_analyze_string_charset0_10(guint16 byte12)
 
 
 static dvb_encoding_e
-dvb_analyze_string_charset0_1F(guint8 byte1)
+dvb_analyze_string_charset0_1F(uint8_t byte1)
 {
    /* http://www.dvbservices.com/identifiers/encoding_type_id */
 
@@ -162,11 +162,11 @@ dvb_analyze_string_charset0_1F(guint8 byte1)
 }
 
 
-guint
+unsigned
 dvb_analyze_string_charset(tvbuff_t *tvb, int offset, int length, dvb_encoding_e *encoding)
 {
    if (length >= 1) {
-      guint8 byte0 = tvb_get_guint8(tvb, offset + 0);
+      uint8_t byte0 = tvb_get_guint8(tvb, offset + 0);
 
       if (byte0 >= 0x20) {
          /* the first byte is a normal character, not the number of a character table */
@@ -207,7 +207,7 @@ dvb_analyze_string_charset(tvbuff_t *tvb, int offset, int length, dvb_encoding_e
 }
 
 
-guint
+unsigned
 dvb_enc_to_item_enc(dvb_encoding_e encoding)
 {
    /* XXX: take ISO control codes into account,
@@ -267,7 +267,7 @@ dvb_enc_to_item_enc(dvb_encoding_e encoding)
 
 void
 dvb_add_chartbl(proto_tree *tree, int hf,
-        tvbuff_t *tvb, gint offset, gint length, dvb_encoding_e encoding)
+        tvbuff_t *tvb, int offset, int length, dvb_encoding_e encoding)
 {
     if (tree == NULL)
         return;

@@ -104,7 +104,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    * Initially assume the file was written by a host with our byte order.
    */
   writer_encoding = ENC_HOST_ENDIAN;
-  ench.af = tvb_get_h_guint32(tvb, 0);
+  ench.af = tvb_get_h_uint32(tvb, 0);
   if ((ench.af & 0xFFFF0000) != 0) {
     /*
      * BSD AF_ types will always have the upper 16 bits as 0, so if any

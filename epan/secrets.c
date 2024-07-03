@@ -109,7 +109,7 @@ secrets_wtap_callback(uint32_t secrets_type, const void *secrets, unsigned size)
 
 #ifdef HAVE_LIBGNUTLS
 static unsigned
-key_id_hash(gconstpointer key)
+key_id_hash(const void *key)
 {
     const cert_key_id_t *key_id = (const cert_key_id_t *)key;
     const uint32_t *dw = (const uint32_t *)key_id->key_id;
@@ -120,7 +120,7 @@ key_id_hash(gconstpointer key)
 }
 
 static gboolean
-key_id_equal(gconstpointer a, gconstpointer b)
+key_id_equal(const void *a, const void *b)
 {
     const cert_key_id_t *key_id_a = (const cert_key_id_t *)a;
     const cert_key_id_t *key_id_b = (const cert_key_id_t *)b;

@@ -38,9 +38,9 @@ static const unsigned char mime_base64uri_rank[256] = {
  /**
   * Copy of glib function modified for base64uri
   * g_base64uri_decode_step: (skip)
-  * @in: (array length=len) (element-type guint8): binary input data
+  * @in: (array length=len) (element-type uint8_t): binary input data
   * @len: max length of @in data to decode
-  * @out: (out caller-allocates) (array) (element-type guint8): output buffer
+  * @out: (out caller-allocates) (array) (element-type uint8_t): output buffer
   * @state: (inout): Saved state between steps, initialize to 0
   * @save: (inout): Saved state between steps, initialize to 0
   *
@@ -57,18 +57,18 @@ static const unsigned char mime_base64uri_rank[256] = {
   *
   * Since: 2.12
   **/
-static gsize
-g_base64uri_decode_step(const gchar* in,
-    gsize         len,
-    guchar* out,
-    gint* state,
-    guint* save)
+static size_t
+g_base64uri_decode_step(const char* in,
+    size_t        len,
+    unsigned char* out,
+    int* state,
+    unsigned* save)
 {
-    const guchar* inptr;
-    guchar* outptr;
-    const guchar* inend;
-    guchar c, rank;
-    guchar last[2];
+    const unsigned char* inptr;
+    unsigned char* outptr;
+    const unsigned char* inend;
+    unsigned char c, rank;
+    unsigned char last[2];
     unsigned int v;
     int i;
 
@@ -80,7 +80,7 @@ g_base64uri_decode_step(const gchar* in,
     if (len == 0)
         return 0;
 
-    inend = (const guchar*)in + len;
+    inend = (const unsigned char*)in + len;
     outptr = out;
 
     /* convert 4 base64 bytes to 3 normal bytes */
@@ -97,7 +97,7 @@ g_base64uri_decode_step(const gchar* in,
         last[0] = '=';
     }
 
-    inptr = (const guchar*)in;
+    inptr = (const unsigned char*)in;
     while (inptr < inend)
     {
         c = *inptr++;
@@ -135,21 +135,21 @@ g_base64uri_decode_step(const gchar* in,
   * that the returned binary data is not necessarily zero-terminated,
   * so it should not be used as a character string.
   *
-  * Returns: (transfer full) (array length=out_len) (element-type guint8):
+  * Returns: (transfer full) (array length=out_len) (element-type uint8_t):
   *               newly allocated buffer containing the binary data
   *               that @text represents. The returned buffer must
   *               be freed with g_free().
   *
   * Since: 2.12
   */
-static guchar*
-g_base64uri_decode(const gchar* text,
-    gsize* out_len)
+static unsigned char*
+g_base64uri_decode(const char* text,
+    size_t* out_len)
 {
-    guchar* ret;
-    gsize input_length;
-    gint state = 0;
-    guint save = 0;
+    unsigned char* ret;
+    size_t input_length;
+    int state = 0;
+    unsigned save = 0;
 
     g_return_val_if_fail(text != NULL, NULL);
     g_return_val_if_fail(out_len != NULL, NULL);
@@ -158,7 +158,7 @@ g_base64uri_decode(const gchar* text,
 
     /* We can use a smaller limit here, since we know the saved state is 0,
        +1 used to avoid calling g_malloc0(0), and hence returning NULL */
-    ret = (guchar * )g_malloc0((input_length / 4) * 3 + 1);
+    ret = (unsigned char * )g_malloc0((input_length / 4) * 3 + 1);
 
     *out_len = g_base64uri_decode_step(text, input_length, ret, &state, &save);
 
@@ -170,10 +170,10 @@ base64_to_tvb(tvbuff_t *parent, const char *base64)
 {
   tvbuff_t *tvb;
   char *data;
-  gsize len;
+  size_t len;
 
   data = g_base64_decode(base64, &len);
-  tvb = tvb_new_child_real_data(parent, (const guint8 *)data, (gint)len, (gint)len);
+  tvb = tvb_new_child_real_data(parent, (const uint8_t *)data, (int)len, (int)len);
 
   tvb_set_free_cb(tvb, g_free);
 
@@ -185,13 +185,13 @@ base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
 {
     tvbuff_t* tvb;
     char* data, *tmp;
-    gsize len;
+    size_t len;
 
     tmp = tvb_get_string_enc(NULL, parent, offset, length, ENC_ASCII);
     data = g_base64_decode(tmp, &len);
     wmem_free(NULL, tmp);
 
-    tvb = tvb_new_child_real_data(parent, (const guint8*)data, (gint)len, (gint)len);
+    tvb = tvb_new_child_real_data(parent, (const uint8_t*)data, (int)len, (int)len);
 
     tvb_set_free_cb(tvb, g_free);
 
@@ -203,13 +203,13 @@ base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
 {
     tvbuff_t* tvb;
     char* data, *tmp;
-    gsize len = 0;
+    size_t len = 0;
 
     tmp = tvb_get_string_enc(NULL, parent, offset, length, ENC_ASCII);
     data = g_base64uri_decode(tmp, &len);
     wmem_free(NULL, tmp);
 
-    tvb = tvb_new_child_real_data(parent, (const guint8*)data, (gint)len, (gint)len);
+    tvb = tvb_new_child_real_data(parent, (const uint8_t*)data, (int)len, (int)len);
 
     tvb_set_free_cb(tvb, g_free);
 
