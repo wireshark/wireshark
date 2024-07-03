@@ -595,6 +595,26 @@ typedef struct blf_lincrcerror2 {
 */
 } blf_lincrcerror2_t;
 
+typedef struct blf_linrcverror2 {
+    blf_lindatabytetimestampevent_t linDataByteTimestampEvent;
+    uint8_t                         data[8];
+    uint8_t                         fsmId;      /* Obsolete */
+    uint8_t                         fsmState;   /* Obsolete */
+    uint8_t                         stateReason;
+    uint8_t                         offendingByte;
+    uint8_t                         shortError;
+    uint8_t                         timeoutDuringDlcDetection;
+    uint8_t                         isEtf;
+    uint8_t                         hasDataBytes;
+/*  These fields are optional and skipping does not hurt us.
+    uint32_t                        respBaudrate;
+    uint8_t                         res[4];
+    double                          exactHeaderBaudrate;
+    uint32_t                        earlyStopBitOffset;
+    uint32_t                        earlyStopBitOffsetResponse;
+*/
+} blf_linrcverror2_t;
+
 typedef struct blf_linsenderror2 {
     blf_linmessagedescriptor_t  linMessageDescriptor;
     uint64_t                    eoh;
