@@ -643,6 +643,21 @@ typedef struct blf_linwakeupevent2 {
     uint8_t             res;
 } blf_linwakeupevent2_t;
 
+typedef struct blf_linsleepmodeevent {
+    uint16_t    channel;
+    uint8_t     reason;
+    uint8_t     flags;
+} blf_linsleepmodeevent_t;
+
+#define BLF_LIN_WU_SLEEP_REASON_START_STATE         0   /* Initial state of the interface */
+#define BLF_LIN_SLEEP_REASON_GO_TO_SLEEP_FRAME      1
+#define BLF_LIN_SLEEP_REASON_BUS_IDLE_TIMEOUT       2
+#define BLF_LIN_SLEEP_REASON_SILENT_SLEEPMODE_CMD   3   /* Command to shorten bus idle timeout */
+#define BLF_LIN_WU_REASON_EXTERNAL_WAKEUP_SIG       9
+#define BLF_LIN_WU_REASON_INTERNAL_WAKEUP_SIG       10
+#define BLF_LIN_WU_REASON_BUS_TRAFFIC               11
+#define BLF_LIN_NO_SLEEP_REASON_BUS_TRAFFIC         18  /* LIN hardware does not go into Sleep mode in spite of request to do so */
+
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/AppText.h */
 

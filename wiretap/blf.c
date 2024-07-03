@@ -2740,6 +2740,94 @@ blf_read_linwakeupevent2(blf_params_t* params, int* err, char** err_info, int64_
     return true;
 }
 
+static bool
+blf_read_linsleepmodeevent(blf_params_t* params, int* err, char** err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
+    blf_linsleepmodeevent_t   linevent;
+
+    if (object_length < (data_start - block_start) + (int)sizeof(linevent)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: LIN_SLEEP: not enough bytes for linsleep in object");
+        ws_debug("not enough bytes for linsleep in object");
+        return false;
+    }
+
+    if (!blf_read_bytes(params, data_start, &linevent, sizeof(linevent), err, err_info)) {
+        ws_debug("not enough bytes for linsleep in file");
+        return false;
+    }
+    linevent.channel = GUINT16_FROM_LE(linevent.channel);
+
+    uint8_t tmpbuf[12]; /* LIN events have a fixed length of 12 bytes */
+    tmpbuf[0] = 1; /* message format rev = 1 */
+    tmpbuf[1] = 0; /* reserved */
+    tmpbuf[2] = 0; /* reserved */
+    tmpbuf[3] = 0; /* reserved */
+    tmpbuf[4] = 3 << 2; /* dlc (4bit) | type (2bit) | checksum type (2bit) */
+    tmpbuf[5] = 0; /* parity (2bit) | id (6bit) */
+    tmpbuf[6] = 0; /* checksum */
+    tmpbuf[7] = 0; /* errors */
+
+    switch (linevent.reason) {
+    case BLF_LIN_SLEEP_REASON_GO_TO_SLEEP_FRAME:
+        /* Go-to-Sleep event by Go-to-Sleep frame */
+        tmpbuf[8] = 0xB0;
+        tmpbuf[9] = 0xB0;
+        tmpbuf[10] = 0x00;
+        tmpbuf[11] = 0x01;
+        break;
+    case BLF_LIN_SLEEP_REASON_BUS_IDLE_TIMEOUT:
+    case BLF_LIN_SLEEP_REASON_SILENT_SLEEPMODE_CMD:
+        /* Go-to-Sleep event by Inactivity for more than 4s */
+        tmpbuf[8] = 0xB0;
+        tmpbuf[9] = 0xB0;
+        tmpbuf[10] = 0x00;
+        tmpbuf[11] = 0x02;
+        break;
+    case BLF_LIN_WU_REASON_EXTERNAL_WAKEUP_SIG:
+    case BLF_LIN_WU_REASON_INTERNAL_WAKEUP_SIG:
+    case BLF_LIN_WU_REASON_BUS_TRAFFIC: /* There's no "wake-up by bus traffic" event in the LIN packet. */
+        /* Wake-up event by Wake-up signal */
+        tmpbuf[8] = 0xB0;
+        tmpbuf[9] = 0xB0;
+        tmpbuf[10] = 0x00;
+        tmpbuf[11] = 0x04;
+        break;
+    case BLF_LIN_WU_SLEEP_REASON_START_STATE:
+    case BLF_LIN_NO_SLEEP_REASON_BUS_TRAFFIC:
+        /* If we're just reporting on the initial state,
+         * or the interface doesn't want to go to sleep,
+         * report the current state as "event". */
+        if (linevent.flags & 0x2) {
+            /* Wake-up event by Wake-up signal */
+            tmpbuf[8] = 0xB0;
+            tmpbuf[9] = 0xB0;
+            tmpbuf[10] = 0x00;
+            tmpbuf[11] = 0x04;
+        }
+        else {
+            /* Go-to-Sleep event by Inactivity for more than 4s */
+            tmpbuf[8] = 0xB0;
+            tmpbuf[9] = 0xB0;
+            tmpbuf[10] = 0x00;
+            tmpbuf[11] = 0x02;
+        }
+        break;
+    default:
+        tmpbuf[8] = 0x00;
+        tmpbuf[9] = 0x00;
+        tmpbuf[10] = 0x00;
+        tmpbuf[11] = 0x00;
+        break;
+    }
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linevent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
+
+    return true;
+}
+
 uint16_t blf_get_xml_channel_number(const char* start, const char* end) {
     char* text;
     size_t len;
@@ -3639,6 +3727,10 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_LIN_WAKEUP2:
             return blf_read_linwakeupevent2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            break;
+
+        case BLF_OBJTYPE_LIN_SLEEP:
+            return blf_read_linsleepmodeevent(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
             break;
 
         case BLF_OBJTYPE_APP_TEXT:
