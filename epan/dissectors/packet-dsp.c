@@ -1637,21 +1637,21 @@ dissect_dsp_DitBridgeKnowledge(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int dissect_AccessPoint_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_dsp_AccessPoint(false, tvb, offset, &asn1_ctx, tree, hf_dsp_AccessPoint_PDU);
   return offset;
 }
 static int dissect_MasterAndShadowAccessPoints_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_dsp_MasterAndShadowAccessPoints(false, tvb, offset, &asn1_ctx, tree, hf_dsp_MasterAndShadowAccessPoints_PDU);
   return offset;
 }
 static int dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_dsp_DitBridgeKnowledge(false, tvb, offset, &asn1_ctx, tree, hf_dsp_DitBridgeKnowledge_PDU);
   return offset;
 }

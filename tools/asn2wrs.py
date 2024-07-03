@@ -1829,13 +1829,13 @@ class EthCtx:
                 out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_PER', aligned, 'pinfo'),))
             if (self.Ber()):
                 out += "  asn1_ctx_t asn1_ctx;\n"
-                out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_BER', 'TRUE', 'pinfo'),))
+                out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_BER', 'true', 'pinfo'),))
                 par=((impl, 'tvb', off_par,'&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
             elif (self.Per()):
                 par=(('tvb', off_par, '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
             elif (self.Oer()):
                 out += "  asn1_ctx_t asn1_ctx;\n"
-                out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_OER', 'TRUE', 'pinfo'),))
+                out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_OER', 'true', 'pinfo'),))
                 par=(('tvb', off_par,'&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
             else:
                 par=((),)

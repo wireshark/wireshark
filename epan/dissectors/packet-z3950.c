@@ -8533,84 +8533,84 @@ dissect_z3950_SearchInfoReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int dissect_OCLC_UserInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_OCLC_UserInformation(false, tvb, offset, &asn1_ctx, tree, hf_z3950_OCLC_UserInformation_PDU);
   return offset;
 }
 static int dissect_SutrsRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_SutrsRecord(false, tvb, offset, &asn1_ctx, tree, hf_z3950_SutrsRecord_PDU);
   return offset;
 }
 static int dissect_OPACRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_OPACRecord(false, tvb, offset, &asn1_ctx, tree, hf_z3950_OPACRecord_PDU);
   return offset;
 }
 static int dissect_DiagnosticFormat_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_DiagnosticFormat(false, tvb, offset, &asn1_ctx, tree, hf_z3950_DiagnosticFormat_PDU);
   return offset;
 }
 static int dissect_Explain_Record_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_Explain_Record(false, tvb, offset, &asn1_ctx, tree, hf_z3950_Explain_Record_PDU);
   return offset;
 }
 static int dissect_BriefBib_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_BriefBib(false, tvb, offset, &asn1_ctx, tree, hf_z3950_BriefBib_PDU);
   return offset;
 }
 static int dissect_GenericRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_GenericRecord(false, tvb, offset, &asn1_ctx, tree, hf_z3950_GenericRecord_PDU);
   return offset;
 }
 static int dissect_TaskPackage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_TaskPackage(false, tvb, offset, &asn1_ctx, tree, hf_z3950_TaskPackage_PDU);
   return offset;
 }
 static int dissect_PromptObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_PromptObject(false, tvb, offset, &asn1_ctx, tree, hf_z3950_PromptObject_PDU);
   return offset;
 }
 static int dissect_DES_RN_Object_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_DES_RN_Object(false, tvb, offset, &asn1_ctx, tree, hf_z3950_DES_RN_Object_PDU);
   return offset;
 }
 static int dissect_KRBObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_KRBObject(false, tvb, offset, &asn1_ctx, tree, hf_z3950_KRBObject_PDU);
   return offset;
 }
 static int dissect_SearchInfoReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_z3950_SearchInfoReport(false, tvb, offset, &asn1_ctx, tree, hf_z3950_SearchInfoReport_PDU);
   return offset;
 }

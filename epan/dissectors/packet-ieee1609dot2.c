@@ -3040,14 +3040,14 @@ dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int dissect_SecuredCrl_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_OER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_OER, true, pinfo);
   offset = dissect_ieee1609dot2_SecuredCrl(tvb, offset, &asn1_ctx, tree, hf_ieee1609dot2_SecuredCrl_PDU);
   return offset;
 }
 static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_OER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_OER, true, pinfo);
   offset = dissect_ieee1609dot2_Ieee1609Dot2Data(tvb, offset, &asn1_ctx, tree, hf_ieee1609dot2_Ieee1609Dot2Data_PDU);
   return offset;
 }

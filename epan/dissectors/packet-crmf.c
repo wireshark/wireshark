@@ -811,70 +811,70 @@ dissect_crmf_EncKeyWithID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int dissect_PBMParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_PBMParameter(false, tvb, offset, &asn1_ctx, tree, hf_crmf_PBMParameter_PDU);
   return offset;
 }
 static int dissect_RegToken_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_RegToken(false, tvb, offset, &asn1_ctx, tree, hf_crmf_RegToken_PDU);
   return offset;
 }
 static int dissect_Authenticator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_Authenticator(false, tvb, offset, &asn1_ctx, tree, hf_crmf_Authenticator_PDU);
   return offset;
 }
 static int dissect_PKIPublicationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_PKIPublicationInfo(false, tvb, offset, &asn1_ctx, tree, hf_crmf_PKIPublicationInfo_PDU);
   return offset;
 }
 static int dissect_PKIArchiveOptions_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_PKIArchiveOptions(false, tvb, offset, &asn1_ctx, tree, hf_crmf_PKIArchiveOptions_PDU);
   return offset;
 }
 static int dissect_OldCertId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_OldCertId(false, tvb, offset, &asn1_ctx, tree, hf_crmf_OldCertId_PDU);
   return offset;
 }
 static int dissect_ProtocolEncrKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_ProtocolEncrKey(false, tvb, offset, &asn1_ctx, tree, hf_crmf_ProtocolEncrKey_PDU);
   return offset;
 }
 static int dissect_UTF8Pairs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_UTF8Pairs(false, tvb, offset, &asn1_ctx, tree, hf_crmf_UTF8Pairs_PDU);
   return offset;
 }
 static int dissect_CertReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_CertReq(false, tvb, offset, &asn1_ctx, tree, hf_crmf_CertReq_PDU);
   return offset;
 }
 static int dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_crmf_EncKeyWithID(false, tvb, offset, &asn1_ctx, tree, hf_crmf_EncKeyWithID_PDU);
   return offset;
 }

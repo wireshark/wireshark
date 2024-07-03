@@ -780,42 +780,42 @@ dissect_pkix1explicit_ASIdentifiers(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int dissect_Extensions_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkix1explicit_Extensions(false, tvb, offset, &asn1_ctx, tree, hf_pkix1explicit_Extensions_PDU);
   return offset;
 }
 static int dissect_DomainParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkix1explicit_DomainParameters(false, tvb, offset, &asn1_ctx, tree, hf_pkix1explicit_DomainParameters_PDU);
   return offset;
 }
 static int dissect_DirectoryString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkix1explicit_DirectoryString(false, tvb, offset, &asn1_ctx, tree, hf_pkix1explicit_DirectoryString_PDU);
   return offset;
 }
 static int dissect_Features_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkix1explicit_Features(false, tvb, offset, &asn1_ctx, tree, hf_pkix1explicit_Features_PDU);
   return offset;
 }
 static int dissect_IPAddrBlocks_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkix1explicit_IPAddrBlocks(false, tvb, offset, &asn1_ctx, tree, hf_pkix1explicit_IPAddrBlocks_PDU);
   return offset;
 }
 static int dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkix1explicit_ASIdentifiers(false, tvb, offset, &asn1_ctx, tree, hf_pkix1explicit_ASIdentifiers_PDU);
   return offset;
 }

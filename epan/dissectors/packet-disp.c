@@ -1425,21 +1425,21 @@ dissect_disp_ShadowError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int dissect_EstablishParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_disp_EstablishParameter(false, tvb, offset, &asn1_ctx, tree, hf_disp_EstablishParameter_PDU);
   return offset;
 }
 static int dissect_ModificationParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_disp_ModificationParameter(false, tvb, offset, &asn1_ctx, tree, hf_disp_ModificationParameter_PDU);
   return offset;
 }
 static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_disp_ShadowingAgreementInfo(false, tvb, offset, &asn1_ctx, tree, hf_disp_ShadowingAgreementInfo_PDU);
   return offset;
 }

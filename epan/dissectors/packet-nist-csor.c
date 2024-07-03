@@ -90,21 +90,21 @@ dissect_nist_csor_ShakeOutputLen(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int dissect_CFBParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_nist_csor_CFBParameters(false, tvb, offset, &asn1_ctx, tree, hf_nist_csor_CFBParameters_PDU);
   return offset;
 }
 static int dissect_AES_IV_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_nist_csor_AES_IV(false, tvb, offset, &asn1_ctx, tree, hf_nist_csor_AES_IV_PDU);
   return offset;
 }
 static int dissect_ShakeOutputLen_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_nist_csor_ShakeOutputLen(false, tvb, offset, &asn1_ctx, tree, hf_nist_csor_ShakeOutputLen_PDU);
   return offset;
 }

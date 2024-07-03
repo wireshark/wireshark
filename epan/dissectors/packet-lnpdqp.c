@@ -361,14 +361,14 @@ dissect_lnpdqp_ProvideInstructionArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int dissect_ConnectionControlArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_lnpdqp_ConnectionControlArg(false, tvb, offset, &asn1_ctx, tree, hf_lnpdqp_ConnectionControlArg_PDU);
   return offset;
 }
 static int dissect_ProvideInstructionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_lnpdqp_ProvideInstructionArg(false, tvb, offset, &asn1_ctx, tree, hf_lnpdqp_ProvideInstructionArg_PDU);
   return offset;
 }
