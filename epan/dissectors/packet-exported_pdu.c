@@ -195,7 +195,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
-    guint16 tag;
+    guint32 tag;
     int tag_len;
     int next_proto_type = -1;
     const guint8 *proto_name = NULL;
@@ -204,7 +204,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     const guint8* col_info_str = NULL;
     dissector_handle_t proto_handle;
     mtp3_addr_pc_t *mtp3_addr;
-    guint8 dvb_ci_dir;
+    guint32 pdu_port_type;
+    guint32 dvb_ci_dir;
     guint32 dissector_table_val=0;
     dissector_table_t dis_tbl;
     void* dissector_data = NULL;
@@ -216,8 +217,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     exported_pdu_tree = proto_item_add_subtree(exported_pdu_ti, ett_exported_pdu);
 
     do {
-        tag = tvb_get_ntohs(tvb, offset);
-        ti = proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item_ret_uint(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN, &tag);
         offset+=2;
         tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
         proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -280,16 +280,14 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
             case EXP_PDU_TAG_PORT_TYPE:
-                pinfo->ptype = exp_pdu_port_type_to_ws_port_type(tvb_get_ntohl(tvb, offset));
-                proto_tree_add_item(tag_tree, hf_exported_pdu_port_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_port_type, tvb, offset, 4, ENC_BIG_ENDIAN, &pdu_port_type);
+                pinfo->ptype = exp_pdu_port_type_to_ws_port_type(pdu_port_type);
                 break;
             case EXP_PDU_TAG_SRC_PORT:
-                proto_tree_add_item(tag_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-                pinfo->srcport = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN, &pinfo->srcport);
                 break;
             case EXP_PDU_TAG_DST_PORT:
-                proto_tree_add_item(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-                pinfo->destport = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN, &pinfo->destport);
                 break;
             case EXP_PDU_TAG_SS7_OPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_opc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -311,14 +309,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             case EXP_PDU_TAG_DVBCI_EVT:
-                dvb_ci_dir = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_dvbci_evt,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-                dvbci_set_addrs(dvb_ci_dir, pinfo);
+                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dvbci_evt,
+                        tvb, offset, 1, ENC_BIG_ENDIAN, &dvb_ci_dir);
+                dvbci_set_addrs((guint8)dvb_ci_dir, pinfo);
                 break;
             case EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL:
-                dissector_table_val = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_dis_table_val, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dis_table_val, tvb, offset, 4, ENC_BIG_ENDIAN, &dissector_table_val);
                 break;
             case EXP_PDU_TAG_COL_PROT_TEXT:
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_col_proto_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, pinfo->pool, &col_proto_str);
