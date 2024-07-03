@@ -1350,7 +1350,7 @@ process_cap_file(const char *filename, bool need_separator)
     cf_info.latest_packet_time = latest_packet_time;
     cf_info.latest_packet_time_tsprec = latest_packet_time_tsprec;
     nstime_delta(&cf_info.duration, &latest_packet_time, &earliest_packet_time);
-    /* Duration precision is the higher of the start and stop time precisions. */
+    /* Duration precision is the higher of the earliest and latest packet timestamp precisions. */
     if (cf_info.latest_packet_time_tsprec > cf_info.earliest_packet_time_tsprec)
         cf_info.duration_tsprec = cf_info.latest_packet_time_tsprec;
     else
@@ -1413,10 +1413,10 @@ print_usage(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "Time infos:\n");
     fprintf(output, "  -u display the capture duration (in seconds)\n");
-    fprintf(output, "  -a display the capture start time\n");
-    fprintf(output, "  -e display the capture end time\n");
+    fprintf(output, "  -a display the timestamp of the earliest packet\n");
+    fprintf(output, "  -e display the timestamp of the latest packet\n");
     fprintf(output, "  -o display the capture file chronological status (True/False)\n");
-    fprintf(output, "  -S display start and end times as seconds\n");
+    fprintf(output, "  -S display earliest and latest packet timestamps as seconds\n");
     fprintf(output, "\n");
     fprintf(output, "Statistic infos:\n");
     fprintf(output, "  -y display average data rate (in bytes/sec)\n");
