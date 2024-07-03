@@ -65,8 +65,8 @@ static int hf_exported_pdu_col_proto_str;
 static int hf_exported_pdu_col_info_str;
 
 /* Initialize the subtree pointers */
-static gint ett_exported_pdu;
-static gint ett_exported_pdu_tag;
+static int ett_exported_pdu;
+static int ett_exported_pdu_tag;
 
 static int ss7pc_address_type = -1;
 
@@ -146,7 +146,7 @@ static const value_string exported_pdu_p2p_dir_vals[] = {
     { 0, NULL }
 };
 
-static port_type exp_pdu_port_type_to_ws_port_type(guint type)
+static port_type exp_pdu_port_type_to_ws_port_type(uint32_t type)
 {
     switch (type)
     {
@@ -195,18 +195,18 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
-    guint32 tag;
+    uint32_t tag;
     int tag_len;
     int next_proto_type = -1;
-    const guint8 *proto_name = NULL;
-    const guint8 *dissector_table = NULL;
-    const guint8 *col_proto_str = NULL;
-    const guint8* col_info_str = NULL;
+    const uint8_t *proto_name = NULL;
+    const uint8_t *dissector_table = NULL;
+    const uint8_t *col_proto_str = NULL;
+    const uint8_t* col_info_str = NULL;
     dissector_handle_t proto_handle;
     mtp3_addr_pc_t *mtp3_addr;
-    guint32 pdu_port_type;
-    guint32 dvb_ci_dir;
-    guint32 dissector_table_val=0;
+    uint32_t pdu_port_type;
+    uint32_t dvb_ci_dir;
+    uint32_t dissector_table_val=0;
     dissector_table_t dis_tbl;
     void* dissector_data = NULL;
 
@@ -295,7 +295,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
                 mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
-                set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
+                set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_SS7_DPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -303,7 +303,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
                 mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
-                set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
+                set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_ORIG_FNO:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -322,7 +322,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_TCP_INFO_DATA:
                 {
                 struct tcpinfo* tcpdata = wmem_new0(pinfo->pool, struct tcpinfo);
-                guint32 u32;
+                uint32_t u32;
 
                 item = proto_tree_add_item(tag_tree, hf_exported_pdu_dissector_data, tvb, offset, tag_len, ENC_NA);
 
@@ -601,7 +601,7 @@ proto_register_exported_pdu(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_exported_pdu,
         &ett_exported_pdu_tag
     };
