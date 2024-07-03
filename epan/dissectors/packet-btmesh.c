@@ -7955,7 +7955,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
             (*enc_data_len) = tvb_reported_length(tvb) - offset - net_mic_size;
             enc_offset = offset;
 
-            /* Start setting network nounce.*/
+            /* Start setting network nonce.*/
             networknonce[0] = dec_ctx->net_nonce_type; /* Nonce Type */
 
             tvb_memcpy(de_obf_tvb, (guint8 *)&networknonce + 1, 0, 6);

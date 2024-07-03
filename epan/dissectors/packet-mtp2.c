@@ -641,7 +641,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
   guint8        mtp2_flag_search = 0x00,                        /* this helps to detect the flags in the bitstream */
                 data_buff = 0x00,                               /* buffer to store the found bits without the stuffed zeros */
                 data_buff_offset = 0,                           /* index of the data_buff_offset, where to store the next bit */
-                available_bytes_in_rtp_payload = 0,             /* stores the tvb's length which need to be analized */
+                available_bytes_in_rtp_payload = 0,             /* stores the tvb's length which need to be analyzed */
                 *found_data_buff_byte = NULL,                   /* buffer to store the found data_buff bytes till they are assembled to a tvb */
                 offset = 0,                                     /* offset of the tvb, needed to get the appropriate byte */
                 data_len = 0,                                   /* the length of the array where the data_buff's are stored */
@@ -649,7 +649,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
 #ifdef MTP2_BITSTREAM_DEBUG
   gboolean      zero_skip0 = 0,                                 /* needed for debug output */
                 zero_skip1 = 0,                                 /* needed for debug output */
-                flag = FALSE,                                   /* needed for debug to print flag found message. reseted at every new octet read from tvb */
+                flag = FALSE,                                   /* needed for debug to print flag found message. reset at every new octet read from tvb */
                 frame_reset = FALSE;                            /* needed for debug, informs about a frame reset */
 #endif
   enum mtp2_bitstream_states    state = OUT_OF_SYNC;            /* actual state of the dissection */
@@ -738,7 +738,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
       {
         /* set the state */
         state = FLAGS;
-        /* if before this flag, we found some real packet related btyes */
+        /* if before this flag, we found some real packet related bytes */
         if (data_len != 0) {
           guint8 unaligned_packet_offset = 0; /* !=0 signals if the packet just found was not a multiple of 8 bits in the bitstream */
           /* here we check if the just found MTP2 packet is unaligned or not

@@ -144,7 +144,7 @@ ws_find_media_type_parameter(wmem_allocator_t *scope, const char *parameters, co
 
     keylen = (size_t) strlen(key);
     if (keylen == 0) {
-        /* There's no parameter name to searh for */
+        /* There's no parameter name to search for */
         return NULL;
     }
     p = parameters;

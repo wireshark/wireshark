@@ -1100,7 +1100,7 @@ typedef struct
 #define L_LBMC_CNTL_UME_ACK_ID_HDR_T_ID SIZEOF(lbmc_cntl_ume_ack_id_hdr_t, id)
 #define L_LBMC_CNTL_UME_ACK_ID_HDR_T (gint) sizeof(lbmc_cntl_ume_ack_id_hdr_t)
 
-/* LBMC control UME retranmission request header */
+/* LBMC control UME retransmission request header */
 typedef struct
 {
     lbm_uint8_t next_hdr;

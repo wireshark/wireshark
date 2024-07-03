@@ -224,6 +224,7 @@ bratislava
 britain
 british
 broadcom
+brotli
 browsers
 bsmap
 bssap
@@ -472,6 +473,7 @@ customizable
 customization
 customizing
 cyber
+cymru
 cyphering
 cyrillic
 daintree
@@ -529,6 +531,7 @@ dedup
 deduplicate
 deenabled
 deenablement
+deencapsulate
 defence
 deferral
 defragment
@@ -607,6 +610,7 @@ dhaka
 dhcpv
 diagdata
 dialed
+dialling
 dialup
 dicom
 differentiator
@@ -876,6 +880,7 @@ gboolean
 gchar
 gcrypt
 gendc
+geninfo
 gentoo
 geoip
 geolocation
@@ -1197,6 +1202,7 @@ libpcap
 libscap
 libsmi
 libssh
+libxml
 licmgr
 lidaddr
 linearity
@@ -1399,6 +1405,7 @@ multirate
 multislot
 multistate
 mumbai
+mutex
 muting
 myanmar
 mycapture
@@ -1442,6 +1449,7 @@ nextseq
 nfs2err
 nfs3err
 nfs4err
+nfula
 nghttp
 ngran
 ngsniffer
@@ -1702,6 +1710,7 @@ predef
 preempting
 preemption
 prefetch
+prefill
 prefname
 prefs
 preloaded
@@ -1864,6 +1873,7 @@ redist
 redistributable
 redistributables
 redistributes
+reenabled
 reencyption
 reentry
 reestablishing
@@ -1946,6 +1956,7 @@ resynchronize
 resynchronized
 retap
 retarder
+rethrown
 retrans
 retranslated
 retransmission
@@ -2532,6 +2543,7 @@ unmarshal
 unmeasured
 unmerged
 unmodulated
+unmount
 unmute
 unmuted
 unnumb
