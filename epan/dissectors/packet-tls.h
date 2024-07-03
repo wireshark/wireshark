@@ -15,42 +15,42 @@
 #include <epan/packet.h>
 
 struct tlsinfo {
-        guint32 seq; /* The sequence number within the TLS stream. */
-        gboolean is_reassembled;
-        gboolean end_of_stream; /* TCP FIN, close_notify, etc. */
+        uint32_t seq; /* The sequence number within the TLS stream. */
+        bool is_reassembled;
+        bool end_of_stream; /* TCP FIN, close_notify, etc. */
         /* The app handle for the session, set by heuristic dissectors
          * to be called in the future. */
         dissector_handle_t *app_handle;
 };
 
-WS_DLL_PUBLIC void ssl_dissector_add(guint port, dissector_handle_t handle);
-WS_DLL_PUBLIC void ssl_dissector_delete(guint port, dissector_handle_t handle);
+WS_DLL_PUBLIC void ssl_dissector_add(unsigned port, dissector_handle_t handle);
+WS_DLL_PUBLIC void ssl_dissector_delete(unsigned port, dissector_handle_t handle);
 
-WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_cli,
-                                  port_type ptype, guint32 port_srv, guint32 port_cli,
-                                  guint32 version, gint cipher, const guchar *_master_secret,
-                                  const guchar *_client_random, const guchar *_server_random,
-                                  guint32 client_seq, guint32 server_seq);
+WS_DLL_PUBLIC void ssl_set_master_secret(uint32_t frame_num, address *addr_srv, address *addr_cli,
+                                  port_type ptype, uint32_t port_srv, uint32_t port_cli,
+                                  uint32_t version, int cipher, const unsigned char *_master_secret,
+                                  const unsigned char *_client_random, const unsigned char *_server_random,
+                                  uint32_t client_seq, uint32_t server_seq);
 /**
  * Retrieves Libgcrypt identifiers for the current TLS cipher. Only valid after
  * the Server Hello has been processed and if the current conversation has TLS.
  * Alternatively, this conversation lookup can be skipped if the current cipher
  * ('cipher_suite') is provided (non-zero).
  */
-extern gboolean
-tls_get_cipher_info(packet_info *pinfo, guint16 cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo);
+extern bool
+tls_get_cipher_info(packet_info *pinfo, uint16_t cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo);
 
 /**
  * Computes the TLS 1.3 "TLS-Exporter(label, context_value, key_length)" value.
  * On success, the secret is in "out" (free with "wmem_free(NULL, out)").
  */
-gboolean
-tls13_exporter(packet_info *pinfo, gboolean is_early,
-               const char *label, guint8 *context,
-               guint context_length, guint key_length, guchar **out);
+bool
+tls13_exporter(packet_info *pinfo, bool is_early,
+               const char *label, uint8_t *context,
+               unsigned context_length, unsigned key_length, unsigned char **out);
 
-gint
-tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_min_len, guint secret_max_len, guint8 *secret_out);
+int
+tls13_get_quic_secret(packet_info *pinfo, bool is_from_server, int type, unsigned secret_min_len, unsigned secret_max_len, uint8_t *secret_out);
 
 /**
  * Returns the application-layer protocol name (ALPN) for the current TLS

@@ -474,8 +474,8 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     unsigned offset = 0, datalen, command;
     unsigned checksum, calculated_checksum, one_byte, version, temp_uint;
     unsigned address_bytes, addr, speed_steps = 0, cv_addr;
-    guint64 status, direction_and_speed, temp_guint64;
-    gint32 main_current, temp_gint32;
+    uint64_t status, direction_and_speed, temp_guint64;
+    int32_t main_current, temp_gint32;
     char *buffer;
     float temp_float;
     static int * const broadcast_flags_bits[] = {
@@ -765,7 +765,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             offset += 1;
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                val_to_str_const((guint32)temp_guint64 & 0x07,
+                val_to_str_const((uint32_t)temp_guint64 & 0x07,
                     z21_loco_info_speed_steps_vals, "unknown"));
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
@@ -773,7 +773,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             offset += 1;
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                tfs_get_string((gboolean)temp_guint64 >> 7, &tfs_forward_reverse));
+                tfs_get_string((bool)temp_guint64 >> 7, &tfs_forward_reverse));
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02" PRIx64,
                 temp_guint64 & 0x7f);
 
@@ -854,10 +854,10 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Function=%" PRIu64 ", State=%s",
                 temp_guint64 & 0x3f,
-                val_to_str_const((guint32)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
+                val_to_str_const((uint32_t)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
             proto_item_append_text(z21_tree, ", Function: %" PRIu64 ", State: %s",
                 temp_guint64 & 0x3f,
-                val_to_str_const((guint32)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
+                val_to_str_const((uint32_t)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
             break;
         case Z21_LAN_X_GET_TURNOUT_INFO:
             addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -882,10 +882,10 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Address=%d, State=%s",
                 addr,
-                val_to_str_const((guint32)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
+                val_to_str_const((uint32_t)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
             proto_item_append_text(z21_tree, ", Address: %d, State: %s",
                 addr,
-                val_to_str_const((guint32)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
+                val_to_str_const((uint32_t)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
             break;
         case Z21_LAN_X_SET_TURNOUT:
             addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -902,12 +902,12 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Address=%d, %s, Output=%s",
                 addr,
-                tfs_get_string((gboolean)temp_guint64 & 0x08, &tfs_turnout_command),
-                tfs_get_string((gboolean)temp_guint64 & 0x01, &tfs_turnout_output));
+                tfs_get_string((bool)temp_guint64 & 0x08, &tfs_turnout_command),
+                tfs_get_string((bool)temp_guint64 & 0x01, &tfs_turnout_output));
             proto_item_append_text(z21_tree, ", Address: %d, %s, Output: %s",
                 addr,
-                tfs_get_string((gboolean)temp_guint64 & 0x08, &tfs_turnout_command),
-                tfs_get_string((gboolean)temp_guint64 & 0x01, &tfs_turnout_output));
+                tfs_get_string((bool)temp_guint64 & 0x08, &tfs_turnout_command),
+                tfs_get_string((bool)temp_guint64 & 0x01, &tfs_turnout_output));
             break;
         case Z21_LAN_X_GET_EXT_ACCESSORY_INFO:
             addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -1421,7 +1421,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_BOOSTER_SET_DESCRIPTION:
             if (datalen > 4) {
                 /* SET_DESCRIPTION or reply to GET_DESCRIPTION */
-                guint8 *buf = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ISO_8859_1);
+                uint8_t *buf = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ISO_8859_1);
                 if (buf[0] == 0xff) {
                     /* Interpreted as an empty name */
                     proto_tree_add_string(z21_tree, hf_z21_booster_name, tvb, offset, 32, "");
@@ -1439,7 +1439,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_DECODER_SET_DESCRIPTION:
             if (datalen > 4) {
                 /* SET_DESCRIPTION or reply to GET_DESCRIPTION */
-                guint8 *buf = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ISO_8859_1);
+                uint8_t *buf = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ISO_8859_1);
                 if (buf[0] == 0xff) {
                     /* Interpreted as an empty name */
                     proto_tree_add_string(z21_tree, hf_z21_decoder_name, tvb, offset, 32, "");
@@ -1526,22 +1526,22 @@ get_z21_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
     return tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
 }
 
-static gboolean
+static bool
 check_z21_header(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int remaining_length = tvb_reported_length_remaining(tvb, offset);
     if (remaining_length < Z21_MIN_LENGTH) {
-        return FALSE;
+        return false;
     }
     int pdu_len = get_z21_pdu_len(pinfo, tvb, offset, data);
     if (pdu_len < Z21_MIN_LENGTH || pdu_len > remaining_length) {
-        return FALSE;
+        return false;
     }
-    guint16 command = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+    uint16_t command = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
     if (!try_val_to_str(command, z21_command_vals)) {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 static int

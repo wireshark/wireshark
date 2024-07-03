@@ -15,8 +15,8 @@
 typedef struct _eth_hdr {
 	address dst;
 	address src;
-	guint16 type;
-	guint32 stream;  /* track conversations */
+	uint16_t type;
+	uint32_t stream;  /* track conversations */
 } eth_hdr;
 
 /* conversations related struct */
@@ -24,9 +24,9 @@ struct eth_analysis {
 
     /* Initial frame starting this conversation
      */
-    guint32 initial_frame;
+    uint32_t initial_frame;
 
-    guint32 stream;
+    uint32_t stream;
 };
 
 

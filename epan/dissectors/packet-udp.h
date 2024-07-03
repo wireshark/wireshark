@@ -21,12 +21,12 @@ extern "C" {
 
 /* UDP structs and definitions */
 typedef struct _e_udphdr {
-    guint16 uh_sport;
-    guint16 uh_dport;
-    guint32 uh_ulen;
-    guint32 uh_sum_cov;
-    guint16 uh_sum;
-    guint32 uh_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
+    uint16_t uh_sport;
+    uint16_t uh_dport;
+    uint32_t uh_ulen;
+    uint32_t uh_sum_cov;
+    uint16_t uh_sum;
+    uint32_t uh_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
     address ip_src;
     address ip_dst;
 } e_udphdr;
@@ -34,10 +34,10 @@ typedef struct _e_udphdr {
 /* Conversation and process structures originally copied from packet-tcp.c */
 typedef struct _udp_flow_t {
     /* Process info, currently discovered via IPFIX */
-    guint32 process_uid;    /* UID of local process */
-    guint32 process_pid;    /* PID of local process */
-    gchar *username;        /* Username of the local process */
-    gchar *command;         /* Local process name + path + args */
+    uint32_t process_uid;    /* UID of local process */
+    uint32_t process_pid;    /* PID of local process */
+    char *username;        /* Username of the local process */
+    char *command;         /* Local process name + path + args */
 } udp_flow_t;
 
 struct udp_analysis {
@@ -68,7 +68,7 @@ struct udp_analysis {
      * index (as how it was done before). This prevents gaps in the
      * stream index numbering
      */
-    guint32     stream;
+    uint32_t    stream;
 
     /* Keep track of packet number within the UDP stream */
     uint32_t    pnum;
@@ -99,16 +99,16 @@ struct udp_analysis {
  * @param command Ephemeral string containing the full or partial process name
  */
 extern void
-add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_addr,
-                     guint16 local_port, guint16 remote_port,
-                     guint32 uid, guint32 pid,
-                     gchar *username, gchar *command);
+add_udp_process_info(uint32_t frame_num, address *local_addr, address *remote_addr,
+                     uint16_t local_port, uint16_t remote_port,
+                     uint32_t uid, uint32_t pid,
+                     char *username, char *command);
 
 /** Get the current number of UDP streams
  *
  * @return The number of UDP streams
  */
-WS_DLL_PUBLIC guint32
+WS_DLL_PUBLIC uint32_t
 get_udp_stream_count(void);
 
 WS_DLL_PUBLIC void
@@ -137,9 +137,9 @@ get_udp_conversation_data(conversation_t *, packet_info *);
  */
 WS_DLL_PUBLIC int
 udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 guint fixed_len,
-                 gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
-                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+                 unsigned fixed_len,
+                 bool (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
+                 unsigned (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
                  dissector_t dissect_pdu, void* dissector_data);
 
 #ifdef __cplusplus

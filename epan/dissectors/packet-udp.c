@@ -73,10 +73,10 @@ static int hf_udp_ts_delta;
 static int hf_udp_ts_relative;
 static int hf_udplite_checksum_coverage;
 
-static gint ett_udp;
-static gint ett_udp_checksum;
-static gint ett_udp_process_info;
-static gint ett_udp_timestamps;
+static int ett_udp;
+static int ett_udp_checksum;
+static int ett_udp_process_info;
+static int ett_udp_timestamps;
 
 static expert_field ei_udp_possible_traceroute;
 static expert_field ei_udp_length_bad;
@@ -108,7 +108,7 @@ static bool udplite_check_checksum;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
-static guint32 udp_stream_count;
+static uint32_t udp_stream_count;
 
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine so other protocol dissectors */
@@ -123,46 +123,46 @@ static bool udplite_calculate_ts = true;
 typedef struct {
     heur_dtbl_entry_t *heur_dtbl_entry;
     nstime_t ts_delta;
-    gboolean ts_delta_valid;
+    bool ts_delta_valid;
     uint32_t pnum;
 } udp_p_info_t;
 
 static void
-udp_src_prompt(packet_info *pinfo, gchar *result)
+udp_src_prompt(packet_info *pinfo, char *result)
 {
-    guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
+    uint32_t port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_srcport, pinfo->curr_layer_num));
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", port, UTF8_RIGHTWARDS_ARROW);
 }
 
-static gpointer
+static void *
 udp_src_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_udp_srcport, pinfo->curr_layer_num);
 }
 
 static void
-udp_dst_prompt(packet_info *pinfo, gchar *result)
+udp_dst_prompt(packet_info *pinfo, char *result)
 {
-    guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
+    uint32_t port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_dstport, pinfo->curr_layer_num));
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
-static gpointer
+static void *
 udp_dst_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_udp_dstport, pinfo->curr_layer_num);
 }
 
 static void
-udp_both_prompt(packet_info *pinfo, gchar *result)
+udp_both_prompt(packet_info *pinfo, char *result)
 {
-    guint32 srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
+    uint32_t srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_srcport, pinfo->curr_layer_num));
-    guint32 dstport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
+    uint32_t dstport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_dstport, pinfo->curr_layer_num));
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, dstport);
 }
@@ -345,8 +345,8 @@ udpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, &udp_endpoint_dissector_info, ENDPOINT_UDP);
-    add_endpoint_table_data(hash, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, &udp_endpoint_dissector_info, ENDPOINT_UDP);
+    add_endpoint_table_data(hash, &udphdr->ip_src, udphdr->uh_sport, true, 1, pinfo->fd->pkt_len, &udp_endpoint_dissector_info, ENDPOINT_UDP);
+    add_endpoint_table_data(hash, &udphdr->ip_dst, udphdr->uh_dport, false, 1, pinfo->fd->pkt_len, &udp_endpoint_dissector_info, ENDPOINT_UDP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -357,14 +357,14 @@ udp_filter_valid(packet_info *pinfo, void *user_data _U_)
     return proto_is_frame_protocol(pinfo->layers, "udp");
 }
 
-static gchar*
+static char*
 udp_build_filter_by_id(packet_info *pinfo, void *user_data _U_)
 {
         return ws_strdup_printf("udp.stream eq %d", pinfo->stream_id);
 }
 
 
-static gchar *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+static char *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
     conversation_t *conv;
     struct udp_analysis *udpd;
@@ -393,16 +393,16 @@ static gchar *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo
     return NULL;
 }
 
-static gchar *udp_follow_index_filter(guint stream, guint sub_stream _U_)
+static char *udp_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
 {
     return ws_strdup_printf("udp.stream eq %u", stream);
 }
 
-static gchar *udp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
+static char *udp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
 {
-    const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
-    gchar         src_addr_str[WS_INET6_ADDRSTRLEN];
-    gchar         dst_addr_str[WS_INET6_ADDRSTRLEN];
+    const char   *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
+    char          src_addr_str[WS_INET6_ADDRSTRLEN];
+    char          dst_addr_str[WS_INET6_ADDRSTRLEN];
 
     address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
     address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
@@ -422,9 +422,9 @@ static gchar *udp_follow_address_filter(address *src_addr, address *dst_addr, in
 /* Attach process info to a flow */
 /* XXX - We depend on the UDP dissector finding the conversation first */
 void
-add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_addr,
-                        guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid,
-                        gchar *username, gchar *command)
+add_udp_process_info(uint32_t frame_num, address *local_addr, address *remote_addr,
+                        uint16_t local_port, uint16_t remote_port, uint32_t uid, uint32_t pid,
+                        char *username, char *command)
 {
     conversation_t *conv;
     struct udp_analysis *udpd;
@@ -462,13 +462,13 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
 
 
 /* Return the current stream count */
-guint32 get_udp_stream_count(void)
+uint32_t get_udp_stream_count(void)
 {
     return udp_stream_count;
 }
 
 static void
-handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, guint32 port)
+handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, uint32_t port)
 {
     if (have_tap_listener(exported_pdu_tap)) {
         exp_pdu_data_item_t exp_pdu_data_table_value = {exp_pdu_data_dissector_table_num_value_size, exp_pdu_data_dissector_table_num_value_populate_data, NULL};
@@ -546,11 +546,11 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     tvbuff_t *next_tvb;
     int low_port, high_port;
-    gboolean try_low_port, try_high_port;
-    gint len, reported_len;
+    bool try_low_port, try_high_port;
+    int len, reported_len;
     udp_p_info_t *udp_p_info;
     /* Save curr_layer_num as it might be changed by subdissector */
-    guint8 curr_layer_num = pinfo->curr_layer_num;
+    uint8_t curr_layer_num = pinfo->curr_layer_num;
     heur_dtbl_entry_t *hdtbl_entry;
     exp_pdu_data_t *exp_pdu_data;
     proto_tree* tree = proto_tree_get_parent_tree(udp_tree);
@@ -612,7 +612,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         high_port = uh_dport;
     }
 
-    try_low_port = FALSE;
+    try_low_port = false;
     if (low_port != 0) {
         if (dissector_is_uint_changed(udp_dissector_table, low_port)) {
             if (dissector_try_uint(udp_dissector_table, low_port, next_tvb, pinfo, tree)) {
@@ -622,11 +622,11 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         else {
             /* The default; try it later */
-            try_low_port = TRUE;
+            try_low_port = true;
         }
     }
 
-    try_high_port = FALSE;
+    try_high_port = false;
     if (high_port != 0) {
         if (dissector_is_uint_changed(udp_dissector_table, high_port)) {
             if (dissector_try_uint(udp_dissector_table, high_port, next_tvb, pinfo, tree)) {
@@ -636,7 +636,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         else {
             /* The default; try it later */
-            try_high_port = TRUE;
+            try_high_port = true;
         }
     }
 
@@ -707,19 +707,19 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 int
 udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-         guint fixed_len,  gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
-         guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+         unsigned fixed_len,  bool (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
+         unsigned (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
          dissector_t dissect_pdu, void* dissector_data)
 {
     volatile int offset = 0;
     int offset_before;
-    guint captured_length_remaining;
-    volatile guint plen;
-    guint length;
+    unsigned captured_length_remaining;
+    volatile unsigned plen;
+    unsigned length;
     tvbuff_t *next_tvb;
     proto_item *item=NULL;
     const char *saved_proto;
-    guint8 curr_layer_num;
+    uint8_t curr_layer_num;
     wmem_list_frame_t *frame;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -740,7 +740,7 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         * If there is a heuristic function, check it
         */
         if ((heuristic_check != NULL) &&
-                ((*heuristic_check)(pinfo, tvb, offset, dissector_data) == FALSE)) {
+                ((*heuristic_check)(pinfo, tvb, offset, dissector_data) == false)) {
             return offset;
          }
 
@@ -778,7 +778,7 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         curr_layer_num = pinfo->curr_layer_num-1;
         frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-        while (frame && (proto_udp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
+        while (frame && (proto_udp != (int) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
             frame = wmem_list_frame_prev(frame);
             curr_layer_num--;
         }
@@ -845,12 +845,12 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static bool
-capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_udp(const unsigned char *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-    guint16 src_port, dst_port, low_port, high_port;
+    uint16_t src_port, dst_port, low_port, high_port;
 
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
-        return FALSE;
+        return false;
 
     capture_dissector_increment_count(cpinfo, proto_udp);
 
@@ -867,13 +867,13 @@ capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_in
     }
 
     if (low_port != 0 && try_capture_dissector("udp.port", low_port, pd, offset+20, len, cpinfo, pseudo_header))
-        return TRUE;
+        return true;
 
     if (high_port != 0 && try_capture_dissector("udp.port", high_port, pd, offset+20, len, cpinfo, pseudo_header))
-        return TRUE;
+        return true;
 
     /* We've at least identified one type of packet, so this shouldn't be "other" */
-    return TRUE;
+    return true;
 }
 
 /* Calculate the timestamps relative to this conversation */
@@ -895,7 +895,7 @@ udp_compute_timestamps(packet_info *pinfo, struct udp_analysis *udp_data, int pr
     udp_per_packet_data->pnum = ++udp_data->pnum;
 
     nstime_delta(&udp_per_packet_data->ts_delta, &pinfo->abs_ts, &udp_data->ts_prev);
-    udp_per_packet_data->ts_delta_valid = TRUE;
+    udp_per_packet_data->ts_delta_valid = true;
 
     udp_data->ts_prev = pinfo->abs_ts;
 }
@@ -935,7 +935,7 @@ udp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
 }
 
 static void
-udp_handle_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, struct udp_analysis *udp_data, guint32 ip_proto)
+udp_handle_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, struct udp_analysis *udp_data, uint32_t ip_proto)
 {
     int proto_id = (ip_proto == IP_PROTO_UDP ? proto_udp : proto_udplite);
 
@@ -951,23 +951,23 @@ udp_handle_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, struc
 }
 
 static void
-dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
+dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
 {
     proto_tree *udp_tree = NULL;
     proto_item *ti, *item, *hidden_item, *calc_item;
     proto_item *src_port_item, *dst_port_item, *len_cov_item;
-    guint       len;
-    guint       reported_len;
+    unsigned    len;
+    unsigned    reported_len;
     vec_t       cksum_vec[4];
-    guint32     phdr[2];
-    guint16     computed_cksum;
+    uint32_t    phdr[2];
+    uint16_t    computed_cksum;
     int         offset = 0;
     e_udphdr   *udph;
     proto_tree *checksum_tree;
     conversation_t *conv = NULL;
     struct udp_analysis *udpd = NULL;
     proto_tree *process_tree;
-    gboolean    udp_jumbogram = FALSE;
+    bool        udp_jumbogram = false;
 
     udph = wmem_new0(pinfo->pool, e_udphdr);
     udph->uh_sport = tvb_get_ntohs(tvb, offset);
@@ -1021,7 +1021,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         if (udph->uh_ulen == 0 && pinfo->src.type == AT_IPv6) {
             /* RFC 2675 (section 4) - UDP Jumbograms */
             udph->uh_ulen = udph->uh_sum_cov = reported_len;
-            udp_jumbogram = TRUE;
+            udp_jumbogram = true;
         }
         if (udph->uh_ulen < 8) {
             /* Bogus length - it includes the header, so it must be >= 8. */
@@ -1070,7 +1070,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (udph->uh_sum == 0) {
         /* No checksum supplied in the packet. */
 
-        gboolean ignore_zero_checksum = (ip_proto == IP_PROTO_UDP) &&
+        bool ignore_zero_checksum = (ip_proto == IP_PROTO_UDP) &&
             ((pinfo->src.type == AT_IPv4) ||
              (pinfo->src.type == AT_NONE) ||
              ((pinfo->src.type == AT_IPv6) && udp_ignore_ipv6_zero_checksum));
@@ -1102,8 +1102,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         if (((ip_proto == IP_PROTO_UDP) && udp_check_checksum) ||
                 ((ip_proto == IP_PROTO_UDPLITE) && udplite_check_checksum)) {
             /* Set up the fields of the pseudo-header. */
-            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
-            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
             switch (pinfo->src.type) {
 
             case AT_IPv4:
@@ -1111,7 +1111,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                     phdr[0] = g_htonl((ip_proto<<16) | udph->uh_ulen);
                 else
                     phdr[0] = g_htonl((ip_proto<<16) | reported_len);
-                SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 4);
+                SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 4);
                 break;
 
             case AT_IPv6:
@@ -1120,7 +1120,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                 else
                     phdr[0] = g_htonl(reported_len);
                 phdr[1] = g_htonl(ip_proto);
-                SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+                SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
                 break;
 
             default:
@@ -1429,7 +1429,7 @@ proto_register_udp(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_udp,
         &ett_udp_checksum,
         &ett_udp_process_info,
@@ -1520,7 +1520,7 @@ proto_register_udp(void)
                          &udplite_calculate_ts);
 
     register_decode_as(&udp_da);
-    register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_endpoint_packet);
+    register_conversation_table(proto_udp, false, udpip_conversation_packet, udpip_endpoint_packet);
     register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter_by_id, NULL);
     register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
                         udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count, NULL);

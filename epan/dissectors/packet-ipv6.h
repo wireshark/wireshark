@@ -77,9 +77,9 @@ struct ipv6_analysis {
 
     /* Initial frame starting this conversation
      */
-    guint32 initial_frame;
+    uint32_t initial_frame;
 
-    guint32 stream;
+    uint32_t stream;
 };
 
 WS_DLL_PUBLIC struct ipv6_analysis *get_ipv6_conversation_data(conversation_t *conv,

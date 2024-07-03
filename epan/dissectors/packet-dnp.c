@@ -1475,25 +1475,25 @@ static const value_string dnp3_al_sa_secstat_vals[] = {
 static value_string_ext dnp3_al_sa_secstat_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_sa_secstat_vals);
 
 /* Initialize the subtree pointers */
-static gint ett_dnp3;
-static gint ett_dnp3_dl;
-static gint ett_dnp3_dl_ctl;
-static gint ett_dnp3_tr_ctl;
-static gint ett_dnp3_dl_data;
-static gint ett_dnp3_dl_chunk;
-static gint ett_dnp3_al;
-static gint ett_dnp3_al_ctl;
-static gint ett_dnp3_al_obj_point_tcc;
+static int ett_dnp3;
+static int ett_dnp3_dl;
+static int ett_dnp3_dl_ctl;
+static int ett_dnp3_tr_ctl;
+static int ett_dnp3_dl_data;
+static int ett_dnp3_dl_chunk;
+static int ett_dnp3_al;
+static int ett_dnp3_al_ctl;
+static int ett_dnp3_al_obj_point_tcc;
 
 /* Added for Application Layer Decoding */
-static gint ett_dnp3_al_iin;
-static gint ett_dnp3_al_obj;
-static gint ett_dnp3_al_obj_qualifier;
-static gint ett_dnp3_al_obj_range;
-static gint ett_dnp3_al_objdet;
-static gint ett_dnp3_al_obj_quality;
-static gint ett_dnp3_al_obj_point;
-static gint ett_dnp3_al_obj_point_perms;
+static int ett_dnp3_al_iin;
+static int ett_dnp3_al_obj;
+static int ett_dnp3_al_obj_qualifier;
+static int ett_dnp3_al_obj_range;
+static int ett_dnp3_al_objdet;
+static int ett_dnp3_al_obj_quality;
+static int ett_dnp3_al_obj_point;
+static int ett_dnp3_al_obj_point_perms;
 
 static expert_field ei_dnp_num_items_neg;
 static expert_field ei_dnp_invalid_length;
@@ -1525,8 +1525,8 @@ static int   hf_dnp3_fragment_error;
 static int   hf_dnp3_fragment_count;
 static int   hf_dnp3_fragment_reassembled_in;
 static int   hf_dnp3_fragment_reassembled_length;
-static gint ett_dnp3_fragment;
-static gint ett_dnp3_fragments;
+static int ett_dnp3_fragment;
+static int ett_dnp3_fragments;
 
 static dissector_handle_t dnp3_tcp_handle;
 static dissector_handle_t dnp3_udp_handle;
@@ -1562,16 +1562,16 @@ enum QUALITY_TYPE {
 };
 
 /* calculates crc given a buffer of characters and a length of buffer */
-static guint16
-calculateCRC(const void *buf, guint len) {
-  guint16 crc = crc16_0x3D65_seed((const guint8 *)buf, len, 0);
+static uint16_t
+calculateCRC(const void *buf, unsigned len) {
+  uint16_t crc = crc16_0x3D65_seed((const uint8_t *)buf, len, 0);
   return ~crc;
 }
 
 /* calculates crc given a tvbuff, offset, and length */
-static guint16
-calculateCRCtvb(tvbuff_t *tvb, guint offset, guint len) {
-  guint16 crc = crc16_0x3D65_tvb_offset_seed(tvb, offset, len, 0);
+static uint16_t
+calculateCRCtvb(tvbuff_t *tvb, unsigned offset, unsigned len) {
+  uint16_t crc = crc16_0x3D65_tvb_offset_seed(tvb, offset, len, 0);
   return ~crc;
 }
 
@@ -1581,7 +1581,7 @@ calculateCRCtvb(tvbuff_t *tvb, guint offset, guint len) {
 static void
 dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *al_tree)
 {
-  guint16     al_iin;
+  uint16_t    al_iin;
   proto_item *tiin;
   static int* const indications[] = {
       &hf_dnp3_al_iin_rst,
@@ -1616,7 +1616,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *a
 /* and Point address.                                         */
 /**************************************************************/
 static int
-dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, guint8 al_objq_prefix, guint32 *al_ptaddr, proto_tree *item_tree)
+dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, uint8_t al_objq_prefix, uint32_t *al_ptaddr, proto_tree *item_tree)
 {
   int         prefixbytes = 0;
   proto_item *prefix_item;
@@ -1666,7 +1666,7 @@ dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, guint8 al_objq_prefix, guint32
 /* Function to add the same string to two separate tree items    */
 /*****************************************************************/
 static void
-dnp3_append_2item_text(proto_item *item1, proto_item *item2, const gchar *text)
+dnp3_append_2item_text(proto_item *item1, proto_item *item2, const char *text)
 {
   proto_item_append_text(item1, "%s", text);
   proto_item_append_text(item2, "%s", text);
@@ -1677,7 +1677,7 @@ dnp3_append_2item_text(proto_item *item1, proto_item *item2, const gchar *text)
 /* add Point Quality Flag Sub-Tree                               */
 /*****************************************************************/
 static void
-dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *point_tree, proto_item *point_item, enum QUALITY_TYPE type)
+dnp3_al_obj_quality(tvbuff_t *tvb, int offset, uint8_t al_ptflags, proto_tree *point_tree, proto_item *point_item, enum QUALITY_TYPE type)
 {
 
   proto_tree *quality_tree;
@@ -1791,23 +1791,23 @@ static void
 dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int data_pos)
 {
 
-  guint32 hi, lo;
-  guint64 time_ms;
+  uint32_t hi, lo;
+  uint64_t time_ms;
 
   lo = tvb_get_letohs(tvb, data_pos);
   hi = tvb_get_letohl(tvb, data_pos + 2);
 
-  time_ms = (guint64)hi * 0x10000 + lo;
+  time_ms = (uint64_t)hi * 0x10000 + lo;
 
   timestamp->secs  = (long)(time_ms / 1000);
   timestamp->nsecs = (int)(time_ms % 1000) * 1000000;
 }
 
-static gboolean
-dnp3_al_empty_obj(guint16 al_obj)
+static bool
+dnp3_al_empty_obj(uint16_t al_obj)
 {
 
-  /* return a TRUE if we expect an empty object (default var, class object, etc) */
+  /* return a true if we expect an empty object (default var, class object, etc) */
   switch (al_obj)
   {
     case AL_OBJ_BI_ALL:      /* Binary Input Default Variation (Obj:01, Var:Default) */
@@ -1825,10 +1825,10 @@ dnp3_al_empty_obj(guint16 al_obj)
     case AL_OBJ_CLASS1:
     case AL_OBJ_CLASS2:
     case AL_OBJ_CLASS3:
-      return TRUE;
+      return true;
       break;
     default:
-      return FALSE;
+      return false;
       break;
   }
 }
@@ -1839,18 +1839,18 @@ dnp3_al_empty_obj(guint16 al_obj)
 /*****************************************************************/
 static int
 dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
-                       proto_tree *robj_tree, gboolean header_only,
-                       guint16 *al_objtype, nstime_t *al_cto)
+                       proto_tree *robj_tree, bool header_only,
+                       uint16_t *al_objtype, nstime_t *al_cto)
 {
 
-  guint8      al_objq, al_objq_prefix, al_objq_range, al_oct_len = 0, bitindex;
-  guint16     al_obj, temp;
-  guint32     al_ptaddr = 0;
+  uint8_t     al_objq, al_objq_prefix, al_objq_range, al_oct_len = 0, bitindex;
+  uint16_t    al_obj, temp;
+  uint32_t    al_ptaddr = 0;
   int         num_items = 0;
   int         orig_offset, rangebytes = 0;
   proto_item *object_item, *range_item;
   proto_tree *object_tree, *qualifier_tree, *range_tree;
-  const gchar  *sec_stat_str;
+  const char   *sec_stat_str;
   orig_offset = offset;
 
   /* Application Layer Objects in this Message */
@@ -1867,7 +1867,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* Special handling for Aggressive Mode Requests (Obj:120, Var3) and Message Authentication Codes (Obj:120, Var:9)
      objects that occur in read messages and require full dissection */
   if ((al_obj == AL_OBJ_SA_AUTH_AGMRQ) || (al_obj == AL_OBJ_SA_AUTH_MAC)) {
-    header_only = FALSE;
+    header_only = false;
   }
 
   /* Create Data Objects Detail Tree */
@@ -2017,7 +2017,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
     {
       proto_item *point_item;
       proto_tree *point_tree;
-      guint       data_pos;
+      unsigned    data_pos;
       int         prefixbytes;
 
       /* Create Point item and process prefix */
@@ -2045,23 +2045,23 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
       if (!header_only || (AL_OBJQL_PREFIX_1OS <= al_objq_prefix && al_objq_prefix <= AL_OBJQL_PREFIX_4OS)) {
         /* Process the object values */
-        guint8       al_2bit, al_ptflags, al_bi_val, al_tcc_code, al_sa_mac_len;
-        gint16       al_val_int16;
-        guint16      al_val_uint16, al_ctlobj_stat;
-        guint16      al_relms, al_filename_len, al_file_ctrl_mode;
-        guint16      sa_username_len, sa_challengedata_len, sa_updatekey_len;
-        gint32       al_val_int32;
-        guint32      al_val_uint32, file_data_size;
+        uint8_t      al_2bit, al_ptflags, al_bi_val, al_tcc_code, al_sa_mac_len;
+        int16_t      al_val_int16;
+        uint16_t     al_val_uint16, al_ctlobj_stat;
+        uint16_t     al_relms, al_filename_len, al_file_ctrl_mode;
+        uint16_t     sa_username_len, sa_challengedata_len, sa_updatekey_len;
+        int32_t      al_val_int32;
+        uint32_t     al_val_uint32, file_data_size;
         nstime_t     al_reltime, al_abstime;
-        gboolean     al_bit;
-        gfloat       al_valflt;
-        gdouble      al_valdbl;
-        const gchar *ctl_status_str;
+        bool         al_bit;
+        float        al_valflt;
+        double       al_valdbl;
+        const char *ctl_status_str;
 
         /* Device Attributes (g0) all have a type code, use that rather than the individual variation */
         if (AL_OBJ_GROUP(al_obj) == 0x0) {
-          guint32 data_type;
-          guint8 da_len;
+          uint32_t data_type;
+          uint8_t da_len;
 
           /* Add and retrieve the data type */
           proto_tree_add_item_ret_uint(point_tree, hf_dnp3_al_datatype, tvb, data_pos, 1, ENC_LITTLE_ENDIAN, &data_type);
@@ -2076,7 +2076,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 da_len = tvb_get_guint8(tvb, data_pos);
                 proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
                 data_pos++;
-                const guint8* da_value;
+                const uint8_t* da_value;
                 proto_tree_add_item_ret_string(point_tree, hf_dnp3_al_da_value, tvb, data_pos, da_len, ENC_ASCII|ENC_NA, pinfo->pool, &da_value);
                 proto_item_append_text(object_item, ", Value: %s", da_value);
                 data_pos += da_len;
@@ -2189,7 +2189,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               al_bit = (al_bi_val & 1) > 0;
               if (al_obj == AL_OBJ_IIN) {
                 /* For an IIN bit, work out the IIN constant value for the bit position to get the name of the bit */
-                guint16 iin_bit = 0;
+                uint16_t iin_bit = 0;
                 if (al_ptaddr < 8) {
                   iin_bit = 0x100 << al_ptaddr;
                 }
@@ -2318,7 +2318,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
               proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                     al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                     al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
               proto_item_set_len(point_item, data_pos - offset);
 
               offset = data_pos;
@@ -2338,7 +2338,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
               proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                     al_2bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                     al_2bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
               proto_item_set_len(point_item, data_pos - offset);
 
               offset = data_pos;
@@ -2365,13 +2365,13 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_BIC_RTIME:
                   al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
                   proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                        al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                        al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                   proto_item_set_len(point_item, data_pos - offset);
                   break;
                 case AL_OBJ_2BIC_RTIME:
                   al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
                   proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                        al_2bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                        al_2bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                   proto_item_set_len(point_item, data_pos - offset);
                   break;
               }
@@ -2500,7 +2500,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AOC_FLTEVTT:   /* 32-bit Floating Point Analog Command Event with time (Obj:43, Var:07) */
                 case AL_OBJ_AOC_DBLEVTT:   /* 64-bit Floating Point Analog Command Event with time (Obj:43, Var:08) */
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                 break;
@@ -2683,7 +2683,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_FDCTRC_32T:
                 case AL_OBJ_FDCTRC_16T:
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
@@ -2798,7 +2798,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AIFC_FLTT:
                 case AL_OBJ_AIFC_DBLT:
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
@@ -2878,7 +2878,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AOC_FLTT:
                 case AL_OBJ_AOC_DBLT:
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
@@ -3362,7 +3362,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               if (al_obj == AL_OBJ_SA_SECSTATEVTT) {
                 dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
                 proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                 data_pos += 6;
               }
@@ -3402,12 +3402,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 static int
 dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8        al_ctl, al_seq, al_func, al_class = 0, i;
-  guint16       bytes, obj_type = 0;
-  guint         data_len = 0, offset = 0;
+  uint8_t       al_ctl, al_seq, al_func, al_class = 0, i;
+  uint16_t      bytes, obj_type = 0;
+  unsigned      data_len = 0, offset = 0;
   proto_item   *ti, *tc;
   proto_tree   *al_tree, *robj_tree;
-  const gchar  *func_code_str, *obj_type_str;
+  const char   *func_code_str, *obj_type_str;
   nstime_t      al_cto;
   static int * const control_flags[] = {
     &hf_dnp3_al_fir,
@@ -3477,7 +3477,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, TRUE, &obj_type, &al_cto);
+          offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, true, &obj_type, &al_cto);
         }
       }
       break;
@@ -3489,7 +3489,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, TRUE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, true, &obj_type, &al_cto);
 
         /* Update class type for each object that was a class read */
         switch(obj_type) {
@@ -3527,7 +3527,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
 
         /* For writes for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
         obj_type_str = val_to_str_ext_const((obj_type & 0xFF00), &dnp3_al_write_obj_vals_ext, "Unknown Object Type");
@@ -3544,7 +3544,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3557,7 +3557,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3571,7 +3571,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3586,7 +3586,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, TRUE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, true, &obj_type, &al_cto);
       }
 
       break;
@@ -3598,7 +3598,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3610,7 +3610,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3628,7 +3628,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3642,7 +3642,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
       }
 
       break;
@@ -3666,7 +3666,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Process Data Object Details */
         while (offset <= (data_len-2)) {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+          offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, false, &obj_type, &al_cto);
         }
 
         break;
@@ -3689,10 +3689,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   proto_item  *ti, *tdl, *tc, *hidden_item;
   proto_tree  *dnp3_tree, *dl_tree, *field_tree;
   int          offset = 0, temp_offset = 0;
-  gboolean     dl_prm;
-  guint8       dl_len, dl_ctl, dl_func;
-  const gchar *func_code_str;
-  guint16      dl_dst, dl_src, calc_dl_crc;
+  bool         dl_prm;
+  uint8_t      dl_len, dl_ctl, dl_func;
+  const char *func_code_str;
+  uint16_t     dl_dst, dl_src, calc_dl_crc;
 
   /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNP 3.0");
@@ -3810,15 +3810,15 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   {
     proto_tree *data_tree;
     proto_item *data_ti;
-    guint8      tr_ctl, tr_seq;
-    gboolean    tr_fir, tr_fin;
-    guint8     *al_buffer, *al_buffer_ptr;
-    guint8      data_len;
+    uint8_t     tr_ctl, tr_seq;
+    bool        tr_fir, tr_fin;
+    uint8_t    *al_buffer, *al_buffer_ptr;
+    uint8_t     data_len;
     int         data_start = offset;
     int         tl_offset;
-    gboolean    crc_OK = FALSE;
+    bool        crc_OK = false;
     tvbuff_t   *next_tvb;
-    guint       i;
+    unsigned    i;
     static int * const transport_flags[] = {
       &hf_dnp3_tr_fin,
       &hf_dnp3_tr_fir,
@@ -3846,17 +3846,17 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     /* XXX - check for dl_len <= 5 */
     data_len = dl_len - 5;
-    al_buffer = (guint8 *)wmem_alloc(pinfo->pool, data_len);
+    al_buffer = (uint8_t *)wmem_alloc(pinfo->pool, data_len);
     al_buffer_ptr = al_buffer;
     i = 0;
     tl_offset = 1;  /* skip the initial transport layer byte when assembling chunks for the application layer tvb */
     while (data_len > 0)
     {
-      guint8        chk_size;
-      const guint8 *chk_ptr;
+      uint8_t       chk_size;
+      const uint8_t *chk_ptr;
       proto_tree   *chk_tree;
       proto_item   *chk_len_ti;
-      guint16       calc_crc, act_crc;
+      uint16_t      calc_crc, act_crc;
 
       chk_size = MIN(data_len, AL_MAX_CHUNK_SIZE);
       chk_ptr  = tvb_get_ptr(tvb, offset, chk_size);
@@ -3892,18 +3892,18 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (crc_OK)
     {
       tvbuff_t *al_tvb;
-      gboolean  save_fragmented;
+      bool      save_fragmented;
 
-      al_tvb = tvb_new_child_real_data(tvb, al_buffer, (guint) (al_buffer_ptr-al_buffer), (gint) (al_buffer_ptr-al_buffer));
+      al_tvb = tvb_new_child_real_data(tvb, al_buffer, (unsigned) (al_buffer_ptr-al_buffer), (int) (al_buffer_ptr-al_buffer));
 
       /* Check for fragmented packet */
       save_fragmented = pinfo->fragmented;
 
       /* Reassemble AL fragments */
-      static guint al_max_fragments = 60;
-      static guint al_fragment_aging = 64; /* sequence numbers only 6 bit */
+      static unsigned al_max_fragments = 60;
+      static unsigned al_fragment_aging = 64; /* sequence numbers only 6 bit */
       fragment_head *frag_al = NULL;
-      pinfo->fragmented = TRUE;
+      pinfo->fragmented = true;
       if (!pinfo->fd->visited)
       {
         frag_al = fragment_add_seq_single_aging(&al_reassembly_table,
@@ -3963,18 +3963,18 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   return offset;
 }
 
-static gboolean
-check_dnp3_header(tvbuff_t *tvb, gboolean dnp3_heuristics)
+static bool
+check_dnp3_header(tvbuff_t *tvb, bool dnp3_heuristics)
 {
   /* Assume the CRC will be bad */
-  gboolean goodCRC = FALSE;
+  bool goodCRC = false;
 
   /* How big is the actual buffer */
-  gint length = tvb_captured_length(tvb);
+  int length = tvb_captured_length(tvb);
 
   /* Calculate the header CRC if the bytes are available */
   if (length >= DNP_HDR_LEN) {
-    guint16 calc_crc = calculateCRCtvb(tvb, 0, DNP_HDR_LEN - 2);
+    uint16_t calc_crc = calculateCRCtvb(tvb, 0, DNP_HDR_LEN - 2);
     goodCRC = (calc_crc == tvb_get_letohs(tvb, 8));
   }
 
@@ -3982,31 +3982,31 @@ check_dnp3_header(tvbuff_t *tvb, gboolean dnp3_heuristics)
      and a valid header CRC */
   if (dnp3_heuristics) {
     if ( !goodCRC || (tvb_get_ntohs(tvb, 0) != 0x0564)) {
-      return FALSE;
+      return false;
     }
   }
   else {
     /* For a non-heuristic match, at least the first byte is 0x05 and if available
        the second byte is 64 and if available the CRC is valid */
     if (tvb_get_guint8(tvb, 0) != 0x05) {
-      return FALSE;
+      return false;
     }
     if ((length > 1) && (tvb_get_guint8(tvb, 1) != 0x64)) {
-      return FALSE;
+      return false;
     }
     if ((length >= DNP_HDR_LEN) && !goodCRC) {
-      return FALSE;
+      return false;
     }
   }
-  return TRUE;
+  return true;
 }
 
-static guint
+static unsigned
 get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
-  guint16 message_len;  /* need 16 bits as total can exceed 255 */
-  guint16 data_crc;     /* No. of user data CRC bytes */
+  uint16_t message_len;  /* need 16 bits as total can exceed 255 */
+  uint16_t data_crc;     /* No. of user data CRC bytes */
 
   message_len = tvb_get_guint8(tvb, offset + 2);
 
@@ -4016,7 +4016,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
             data CRC bytes (2 bytes per 16 bytes of data
   */
 
-  data_crc = (guint16)(ceil((message_len - 5) / 16.0)) * 2;
+  data_crc = (uint16_t)(ceil((message_len - 5) / 16.0)) * 2;
   message_len += 2 + 1 + 2 + data_crc;
   return message_len;
 }
@@ -4024,11 +4024,11 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb, FALSE)) {
+  if (!check_dnp3_header(tvb, false)) {
     return 0;
   }
 
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DNP_HDR_LEN,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, DNP_HDR_LEN,
                    get_dnp3_message_len, dissect_dnp3_message, data);
 
   return tvb_captured_length(tvb);
@@ -4037,26 +4037,26 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static bool
 dissect_dnp3_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb, TRUE)) {
+  if (!check_dnp3_header(tvb, true)) {
     return false;
   }
 
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DNP_HDR_LEN,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, DNP_HDR_LEN,
                    get_dnp3_message_len, dissect_dnp3_message, data);
 
   return true;
 }
 
-static gboolean
+static bool
 dnp3_udp_check_header(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
-    return check_dnp3_header(tvb, FALSE);
+    return check_dnp3_header(tvb, false);
 }
 
-static gboolean
+static bool
 dnp3_udp_check_header_heur(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
-    return check_dnp3_header(tvb, TRUE);
+    return check_dnp3_header(tvb, true);
 }
 
 static int
@@ -5209,7 +5209,7 @@ proto_register_dnp3(void)
   };
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_dnp3,
     &ett_dnp3_dl,
     &ett_dnp3_dl_ctl,

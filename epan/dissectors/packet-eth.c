@@ -46,10 +46,10 @@ void proto_reg_handoff_eth(void);
 #define PADDING_ZEROS       1
 #define PADDING_ANY         2
 
-static gint eth_padding = PADDING_ZEROS;
-static guint eth_trailer_length;
+static int eth_padding = PADDING_ZEROS;
+static unsigned eth_trailer_length;
 /* By default, try to autodetect FCS */
-static gint eth_fcs = -1;
+static int eth_fcs = -1;
 static bool eth_check_fcs;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
 static bool eth_interpret_as_fw1_monitor;
@@ -90,10 +90,10 @@ static int hf_eth_fcs;
 static int hf_eth_fcs_status;
 static int hf_eth_stream;
 
-static gint ett_ieee8023;
-static gint ett_ether2;
-static gint ett_ether;
-static gint ett_addr;
+static int ett_ieee8023;
+static int ett_ether2;
+static int ett_ether;
+static int ett_addr;
 
 static expert_field ei_eth_invalid_lentype;
 static expert_field ei_eth_src_not_group;
@@ -113,9 +113,9 @@ static dissector_handle_t eth_maybefcs_handle;
 
 
 static int eth_tap;
-static guint32 eth_stream_count;
+static uint32_t eth_stream_count;
 
-static gint exported_pdu_tap = -1;
+static int exported_pdu_tap = -1;
 
 #define ETH_HEADER_SIZE    14
 
@@ -191,8 +191,8 @@ eth_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
   /* Take two "add" passes per packet, adding for each direction, ensures that all
      packets are counted properly (even if address is sending to itself)
      XXX - this could probably be done more efficiently inside endpoint_table */
-  add_endpoint_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_endpoint_dissector_info, ENDPOINT_NONE);
-  add_endpoint_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_endpoint_dissector_info, ENDPOINT_NONE);
+  add_endpoint_table_data(hash, &ehdr->src, 0, true, 1, pinfo->fd->pkt_len, &eth_endpoint_dissector_info, ENDPOINT_NONE);
+  add_endpoint_table_data(hash, &ehdr->dst, 0, false, 1, pinfo->fd->pkt_len, &eth_endpoint_dissector_info, ENDPOINT_NONE);
 
   return TAP_PACKET_REDRAW;
 }
@@ -203,7 +203,7 @@ eth_filter_valid(packet_info *pinfo, void *user_data _U_)
     return (pinfo->dl_src.type == AT_ETHER);
 }
 
-static gchar*
+static char*
 eth_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     return ws_strdup_printf("eth.addr eq %s and eth.addr eq %s",
@@ -227,13 +227,13 @@ eth_build_filter(packet_info *pinfo, void *user_data _U_)
 #define ETHERNET_SNAP   3
 
 static bool
-capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_eth(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-  guint16 etype, length;
+  uint16_t etype, length;
   int ethhdr_type;          /* the type of ethernet frame */
 
   if (!BYTES_ARE_IN_FRAME(offset, len, ETH_HEADER_SIZE))
-    return FALSE;
+    return false;
 
   etype = pntoh16(&pd[offset+12]);
 
@@ -269,7 +269,7 @@ capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
    * an ethernet type of ETHERTYPE_UNK.
    */
   if (etype > IEEE_802_3_MAX_LEN && etype < ETHERNET_II_MIN_LEN)
-    return FALSE;
+    return false;
 
   if (etype <= IEEE_802_3_MAX_LEN && etype != ETHERTYPE_UNK) {
     length = etype;
@@ -309,13 +309,13 @@ capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
       return try_capture_dissector("ethertype", etype, pd, offset, len, cpinfo, pseudo_header);
   }
 
-  return FALSE;
+  return false;
 }
 
-static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len);
+static bool check_is_802_2(tvbuff_t *tvb, int fcs_len);
 
 static void
-dissect_address_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_group)
+dissect_address_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool check_group)
 {
   static const mac_hf_list_t eth_dst = {
     &hf_eth_dst,
@@ -412,7 +412,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 {
   proto_item        *ti = NULL;
   eth_hdr           *ehdr;
-  gboolean          is_802_2;
+  bool              is_802_2;
   proto_tree        *fh_tree = NULL;
   static eth_hdr    ehdrs[4];
   static int        ehdr_num=0;
@@ -421,7 +421,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   heur_dtbl_entry_t *hdtbl_entry = NULL;
   struct eth_analysis *ethd=NULL;
   /* a facility for not duplicating long code */
-  gboolean          needs_dissector_with_data = FALSE;
+  bool              needs_dissector_with_data = false;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -502,7 +502,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         address_with_resolution_to_str(pinfo->pool, &pinfo->dst));
     fh_tree = proto_item_add_subtree(ti, ett_ether);
 
-    dissect_address_data(tvb, pinfo, fh_tree, FALSE);
+    dissect_address_data(tvb, pinfo, fh_tree, false);
 
     ti = proto_tree_add_item(fh_tree, hf_eth_invalid_lentype, tvb, 12, 2, ENC_BIG_ENDIAN);
     expert_add_info_format(pinfo, ti, &ei_eth_invalid_lentype,
@@ -534,13 +534,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       fh_tree=NULL;
     }
 
-    dissect_address_data(tvb, pinfo, fh_tree, FALSE);
+    dissect_address_data(tvb, pinfo, fh_tree, false);
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo,
         parent_tree, fh_tree, hf_eth_len, hf_eth_trailer, &ei_eth_len, fcs_len);
   } else {
     if (eth_interpret_as_fw1_monitor) {
-        const guint8 *dst_addr = (const guint8*)pinfo->dst.data;
+        const uint8_t *dst_addr = (const uint8_t*)pinfo->dst.data;
 
         if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
             (dst_addr[0] == 'o') || (dst_addr[0] == 'O') ||
@@ -564,7 +564,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       fh_tree = proto_item_add_subtree(ti, ett_ether2);
     }
 
-    dissect_address_data(tvb, pinfo, fh_tree, TRUE);
+    dissect_address_data(tvb, pinfo, fh_tree, true);
 
     proto_tree_add_uint(fh_tree, hf_eth_type, tvb, 12, 2, ehdr->type);
 
@@ -574,7 +574,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     ethertype_data.trailer_id = hf_eth_trailer;
     ethertype_data.fcs_len = fcs_len;
 
-    needs_dissector_with_data = TRUE;
+    needs_dissector_with_data = true;
   }
 
   /* if we still did not leave the dissection, try identifying any ETH conversation
@@ -583,10 +583,10 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    *
    */
 
-  guint conv_type = CONVERSATION_ETH_NN;
+  unsigned conv_type = CONVERSATION_ETH_NN;
   /* deinterlacing is requested */
   if(prefs.conversation_deinterlacing_key>0) {
-    guint32 dtlc_iface = 0;
+    uint32_t dtlc_iface = 0;
 
     if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
        pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
@@ -648,13 +648,13 @@ eth_init(void)
 }
 
 /* -------------- */
-static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
+static bool check_is_802_2(tvbuff_t *tvb, int fcs_len)
 {
-  volatile gboolean is_802_2;
+  volatile bool is_802_2;
   volatile int length;
-  gint captured_length, reported_length;
+  int captured_length, reported_length;
 
-  is_802_2 = TRUE;
+  is_802_2 = true;
 
     /* Is there an 802.2 layer? I can tell by looking at the first 2
        bytes after the 802.3 header. If they are 0xffff, then what
@@ -664,16 +664,16 @@ static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
 
   TRY {
     if (tvb_get_ntohs(tvb, 14) == 0xffff) {
-        is_802_2 = FALSE;
+        is_802_2 = false;
     }
     /* Is this a CCSDS payload instead of an 802.2 (LLC)?
        Check the conditions enabled by the user for CCSDS presence */
     else if (ccsds_heuristic_length || ccsds_heuristic_version ||
              ccsds_heuristic_header || ccsds_heuristic_bit) {
-      gboolean CCSDS_len = TRUE;
-      gboolean CCSDS_ver = TRUE;
-      gboolean CCSDS_head = TRUE;
-      gboolean CCSDS_bit = TRUE;
+      bool CCSDS_len = true;
+      bool CCSDS_ver = true;
+      bool CCSDS_head = true;
+      bool CCSDS_bit = true;
       /* See if the reported payload size matches the
          size contained in the CCSDS header. */
       if (ccsds_heuristic_length) {
@@ -699,23 +699,23 @@ static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
         if (captured_length >= 6) {
           /* Compare length to packet length contained in CCSDS header. */
           if (length != 7 + tvb_get_ntohs(tvb, ETH_HEADER_SIZE + 4))
-            CCSDS_len = FALSE;
+            CCSDS_len = false;
         }
       }
       /* Check if CCSDS Version number (first 3 bits of payload) is zero */
       if ((ccsds_heuristic_version) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE, 3)!=0))
-        CCSDS_ver = FALSE;
+        CCSDS_ver = false;
       /* Check if Secondary Header Flag (4th bit of payload) is set to one. */
       if ((ccsds_heuristic_header) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE + 4, 1)!=1))
-        CCSDS_head = FALSE;
+        CCSDS_head = false;
       /* Check if spare bit (1st bit of 7th word of payload) is zero. */
       if ((ccsds_heuristic_bit) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE + 16*6, 1)!=0))
-        CCSDS_bit = FALSE;
+        CCSDS_bit = false;
       /* If all the conditions are true, don't interpret payload as an 802.2 (LLC).
        * Additional check in packet-802.3.c will distinguish between
        * IPX and CCSDS packets*/
       if (CCSDS_len && CCSDS_ver && CCSDS_head && CCSDS_bit)
-        is_802_2 = FALSE;
+        is_802_2 = false;
     }
   }
   CATCH_BOUNDS_ERRORS {
@@ -754,10 +754,10 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
   heur_dtbl_entry_t *hdtbl_entry;
 
   if (trailer_tvb) {
-    guint trailer_length, trailer_reported_length;
-    guint padding_length = 0;
-    gboolean has_fcs = FALSE;
-    gboolean maybe_padded = FALSE;
+    unsigned trailer_length, trailer_reported_length;
+    unsigned padding_length = 0;
+    bool has_fcs = false;
+    bool maybe_padded = false;
     tvbuff_t *real_trailer_tvb;
 
     trailer_length = tvb_captured_length(trailer_tvb);
@@ -816,7 +816,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       padding_length = 60 - (frame_len - trailer_reported_length);
       /* Require padding to be zeros */
       if (eth_padding == PADDING_ZEROS) {
-        for (guint i = 0; i < padding_length; i++) {
+        for (unsigned i = 0; i < padding_length; i++) {
           if (tvb_get_gint8(trailer_tvb, i) != 0) {
             padding_length = i;
             break;
@@ -883,14 +883,14 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
             payload_length -= (trailer_length - trailer_reported_length);
             trailer_length = trailer_reported_length;
           }
-          has_fcs = TRUE;
+          has_fcs = true;
         } else {
           /* We captured all of the packet, including what appears to
              be a 4-byte FCS.  Slice it off. */
           trailer_length -= 4;
           trailer_reported_length -= 4;
           payload_length -= 4;
-          has_fcs = TRUE;
+          has_fcs = true;
         }
 
         real_trailer_tvb = tvb_new_subset_length_caplen(trailer_tvb, padding_length,
@@ -927,13 +927,13 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
 
     if (has_fcs) {
-      guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, padding_length+trailer_length);
+      uint32_t sent_fcs = tvb_get_ntohl(trailer_tvb, padding_length+trailer_length);
       /* If we don't have the entire header, we can't actually check the FCS.
        * Dissectors that don't have the entire header (say, a tag) probably
        * should have set fcs_len to zero in the ethertype_data struct.
        * XXX: Maybe add an expert info saying why we aren't checking the FCS? */
       if (eth_check_fcs && payload_offset == ETH_HEADER_SIZE) {
-        guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
+        uint32_t fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
         proto_tree_add_checksum(fh_tree, trailer_tvb, padding_length+trailer_length, hf_eth_fcs, hf_eth_fcs_status, &ei_eth_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
         if (fcs != sent_fcs) {
@@ -956,7 +956,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   struct eth_phdr   *eth = (struct eth_phdr *)data;
   proto_tree        *fh_tree;
   tvbuff_t          *real_tvb;
-  gint               fcs_len;
+  int                fcs_len;
 
   if (eth && eth->fcs_len != -1) {
     /* Use the value reported from Wiretap, if known. */
@@ -981,14 +981,14 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      properly dissect. */
   if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_captured_length(real_tvb)) ) {
     tvbuff_t *next_tvb;
-    guint total_trailer_length = eth_trailer_length;
+    unsigned total_trailer_length = eth_trailer_length;
 
     /* If we have to guess if the trailer includes the FCS, assume not; the
      * user probably set the "eth_trailer_length" preference to the total
      * trailer length. The user has already set the preference, so should
      * have little difficulty changing it or the "fcs" preference if need be.
      */
-    total_trailer_length += (fcs_len < 0 ? 0 : (guint)fcs_len);
+    total_trailer_length += (fcs_len < 0 ? 0 : (unsigned)fcs_len);
 
     /* Dissect the tvb up to, but not including the trailer */
     next_tvb = tvb_new_subset_length_caplen(real_tvb, 0,
@@ -1151,7 +1151,7 @@ proto_register_eth(void)
       { "Stream index", "eth.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }}
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ieee8023,
     &ett_ether2,
     &ett_ether,
@@ -1197,7 +1197,7 @@ proto_register_eth(void)
                                  "Any - Any bytes after the payload up to the minimum ethernet frame "
                                  "size will be treated as padding.  Additional bytes will be considered "
                                  "trailer.",
-                                 &eth_padding, eth_padding_vals, FALSE);
+                                 &eth_padding, eth_padding_vals, false);
 
   prefs_register_uint_preference(eth_module, "trailer_length",
                                  "Fixed ethernet trailer length",
@@ -1214,7 +1214,7 @@ proto_register_eth(void)
                                  "The Ethernet dissector then attempts to guess whether a captured packet has an FCS, "
                                  "but it cannot always guess correctly.  This option can override that heuristic "
                                  "and assume that the FCS is either never or always present in such cases.",
-                                 &eth_fcs, eth_fcs_vals, FALSE);
+                                 &eth_fcs, eth_fcs_vals, false);
 
   prefs_register_bool_preference(eth_module, "check_fcs",
                                  "Validate the Ethernet checksum if possible",
@@ -1263,7 +1263,7 @@ proto_register_eth(void)
   eth_maybefcs_handle = register_dissector("eth_maybefcs", dissect_eth_maybefcs, proto_eth);
   eth_tap = register_tap("eth");
 
-  register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_endpoint_packet);
+  register_conversation_table(proto_eth, true, eth_conversation_packet, eth_endpoint_packet);
   register_conversation_filter("eth", "Ethernet", eth_filter_valid, eth_build_filter, NULL);
 
   register_capture_dissector("eth", capture_eth, proto_eth);

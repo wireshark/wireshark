@@ -254,8 +254,8 @@ extern const value_string token_binding_key_parameter_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
-    guchar  *data;      /* Backing storage which may be larger than data_len */
-    guint    data_len;  /* Length of the meaningful part of data */
+    unsigned char  *data;      /* Backing storage which may be larger than data_len */
+    unsigned data_len;  /* Length of the meaningful part of data */
 } StringInfo;
 
 #define SSL_WRITE_KEY           1
@@ -275,9 +275,9 @@ typedef struct _StringInfo {
 #define DTLSV1DOT3_VERSION     0xfefc
 
 /* Returns the TLS 1.3 draft version or 0 if not applicable. */
-static inline guint8 extract_tls13_draft_version(guint32 version) {
+static inline uint8_t extract_tls13_draft_version(uint32_t version) {
     if ((version & 0xff00) == 0x7f00) {
-        return (guint8) version;
+        return (uint8_t) version;
     }
     return 0;
 }
@@ -330,16 +330,16 @@ typedef enum {
 #define TLS_MAX_RECORD_LENGTH 0x4000
 
 typedef struct _SslCipherSuite {
-    gint number;
-    gint kex;
-    gint enc;
-    gint dig;
+    int number;
+    int kex;
+    int enc;
+    int dig;
     ssl_cipher_mode_t mode;
 } SslCipherSuite;
 
 typedef struct _SslFlow {
-    guint32 byte_seq;
-    guint16 flags;
+    uint32_t byte_seq;
+    uint16_t flags;
     wmem_tree_t *multisegment_pdus;
 } SslFlow;
 
@@ -347,17 +347,17 @@ typedef struct _SslDecompress SslDecompress;
 
 typedef struct _SslDecoder {
     const SslCipherSuite *cipher_suite;
-    gint compression;
-    guchar _mac_key_or_write_iv[48];
+    int compression;
+    unsigned char _mac_key_or_write_iv[48];
     StringInfo mac_key; /* for block and stream ciphers */
     StringInfo write_iv; /* for AEAD ciphers (at least GCM, CCM) */
     SSL_CIPHER_CTX sn_evp; /* used to decrypt serial number in DTLSv1.3 */
     SSL_CIPHER_CTX evp;
     SslDecompress *decomp;
-    guint64 dtls13_epoch;
-    guint64 seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
+    uint64_t dtls13_epoch;
+    uint64_t seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
     StringInfo dtls13_aad;  /**< Additional Authenticated Data for DTLS 1.3. */
-    guint16 epoch;
+    uint16_t epoch;
     SslFlow *flow;
     StringInfo app_traffic_secret;  /**< TLS 1.3 application traffic secret (if applicable), wmem file scope. */
 } SslDecoder;
@@ -417,20 +417,20 @@ typedef struct _SslDecoder {
 #define DIG_NA          0x45 /* Not Applicable */
 
 typedef struct {
-    const gchar *name;
-    guint len;
+    const char *name;
+    unsigned len;
 } SslDigestAlgo;
 
 typedef struct _SslRecordInfo {
-    guchar *plain_data;     /**< Decrypted data. */
-    guint   data_len;       /**< Length of decrypted data. */
-    gint    id;             /**< Identifies the exact record within a frame
+    unsigned char *plain_data;     /**< Decrypted data. */
+    unsigned   data_len;       /**< Length of decrypted data. */
+    int     id;             /**< Identifies the exact record within a frame
                                  (there can be multiple records in a frame). */
     ContentType type;       /**< Content type of the decrypted record data. */
     SslFlow *flow;          /**< Flow where this record fragment is a part of.
                                  Can be NULL if this record type may not be fragmented. */
-    guint32 seq;            /**< Data offset within the flow. */
-    guint16 dtls13_seq_suffix;   /* < decrypted dtlsv1.3 record number suffix */
+    uint32_t seq;            /**< Data offset within the flow. */
+    uint16_t dtls13_seq_suffix;   /* < decrypted dtlsv1.3 record number suffix */
     struct _SslRecordInfo* next;
 } SslRecordInfo;
 
@@ -439,11 +439,11 @@ typedef struct _SslRecordInfo {
  * handshake record is uniquely identified by (record_id, reassembly_id).
  */
 typedef struct _TlsHsFragment {
-    guint   record_id;      /**< Identifies the exact record within a frame
+    unsigned   record_id;      /**< Identifies the exact record within a frame
                                  (there can be multiple records in a frame). */
-    guint   reassembly_id;  /**< Identifies the reassembly that this fragment is part of. */
-    guint32 offset;         /**< Offset within a reassembly. */
-    guint8  type;           /**< Handshake type (first byte of the buffer). */
+    unsigned   reassembly_id;  /**< Identifies the reassembly that this fragment is part of. */
+    uint32_t offset;         /**< Offset within a reassembly. */
+    uint8_t type;           /**< Handshake type (first byte of the buffer). */
     int     is_last : 1;    /**< Whether this fragment completes the message. */
     struct _TlsHsFragment *next;
 } TlsHsFragment;
@@ -451,39 +451,39 @@ typedef struct _TlsHsFragment {
 typedef struct {
     SslRecordInfo *records; /**< Decrypted records within this frame. */
     TlsHsFragment *hs_fragments;    /**< Handshake records that are part of a reassembly. */
-    guint32 srcport;        /**< Used for Decode As */
-    guint32 destport;
-    gint cipher;            /**< Cipher at time of Key Exchange handshake message.
+    uint32_t srcport;        /**< Used for Decode As */
+    uint32_t destport;
+    int cipher;            /**< Cipher at time of Key Exchange handshake message.
                                  Session cipher can change in renegotiation. */
 } SslPacketInfo;
 
 typedef struct _SslSession {
-    gint cipher;
-    gint compression;
-    guint16 version;
-    guchar tls13_draft_version;
-    gint8 client_cert_type;
-    gint8 server_cert_type;
-    guint32 client_ccs_frame;
-    guint32 server_ccs_frame;
+    int cipher;
+    int compression;
+    uint16_t version;
+    unsigned char tls13_draft_version;
+    int8_t client_cert_type;
+    int8_t server_cert_type;
+    uint32_t client_ccs_frame;
+    uint32_t server_ccs_frame;
 
     /* The address/proto/port of the server as determined from heuristics
      * (e.g. ClientHello) or set externally (via ssl_set_master_secret()). */
     address srv_addr;
     port_type srv_ptype;
-    guint srv_port;
+    unsigned srv_port;
 
     /* The Application layer protocol if known (for STARTTLS support) */
     dissector_handle_t   app_handle;
     const char          *alpn_name;
     /* The ALPN the client requested, not necessarily the one chosen */
     const char          *client_alpn_name;
-    guint32              last_nontls_frame;
-    gboolean             is_session_resumed;
+    uint32_t             last_nontls_frame;
+    bool                 is_session_resumed;
 
     /* First pass only: track an in-progress handshake reassembly (>0) */
-    guint32     client_hs_reassembly_id;
-    guint32     server_hs_reassembly_id;
+    uint32_t    client_hs_reassembly_id;
+    uint32_t    server_hs_reassembly_id;
 
     /* Connection ID extension
 
@@ -492,15 +492,15 @@ typedef struct _SslSession {
     } ConnectionId;
     */
 
-    guint8 *client_cid;
-    guint8 *server_cid;
-    guint8  client_cid_len;
-    gboolean client_cid_len_present;
-    guint8  server_cid_len;
-    gboolean server_cid_len_present;
-    gboolean deprecated_cid; /* Set when handshake is using the deprecated CID extension type */
-    guint64 dtls13_current_epoch[2]; /* max epoch (for server and client respectively) */
-    guint64 dtls13_next_seq_num[2]; /* DTLSv1.3 next expected seq number (for server and client respectively) */
+    uint8_t *client_cid;
+    uint8_t *server_cid;
+    uint8_t client_cid_len;
+    bool client_cid_len_present;
+    uint8_t server_cid_len;
+    bool server_cid_len_present;
+    bool deprecated_cid; /* Set when handshake is using the deprecated CID extension type */
+    uint64_t dtls13_current_epoch[2]; /* max epoch (for server and client respectively) */
+    uint64_t dtls13_next_seq_num[2]; /* DTLSv1.3 next expected seq number (for server and client respectively) */
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
@@ -510,10 +510,10 @@ struct cert_key_id; /* defined in epan/secrets.h */
 
 /* This holds state information for a SSL conversation */
 typedef struct _SslDecryptSession {
-    guchar _master_secret[SSL_MASTER_SECRET_LENGTH];
-    guchar _session_id[256];
-    guchar _client_random[32];
-    guchar _server_random[32];
+    unsigned char _master_secret[SSL_MASTER_SECRET_LENGTH];
+    unsigned char _session_id[256];
+    unsigned char _client_random[32];
+    unsigned char _server_random[32];
     StringInfo session_id;
     StringInfo session_ticket;
     StringInfo server_random;
@@ -522,12 +522,12 @@ typedef struct _SslDecryptSession {
     StringInfo handshake_data;
     /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
-    guchar _server_data_for_iv[24];
+    unsigned char _server_data_for_iv[24];
     StringInfo server_data_for_iv;
-    guchar _client_data_for_iv[24];
+    unsigned char _client_data_for_iv[24];
     StringInfo client_data_for_iv;
 
-    gint state;
+    int state;
     const SslCipherSuite *cipher_suite;
     SslDecoder *server;
     SslDecoder *client;
@@ -539,14 +539,14 @@ typedef struct _SslDecryptSession {
     StringInfo psk;
     StringInfo app_data_segment;
     SslSession session;
-    gboolean   has_early_data;
+    bool       has_early_data;
 
 } SslDecryptSession;
 
 /* RecordNumber - RFC 9147 section 4 */
 typedef struct {
-    guint64 epoch;
-    guint64 sequence_number;
+    uint64_t epoch;
+    uint64_t sequence_number;
 } SslRecordNumber;
 
 /* User Access Table */
@@ -559,8 +559,8 @@ typedef struct _ssldecrypt_assoc_t {
 } ssldecrypt_assoc_t;
 
 typedef struct ssl_common_options {
-    const gchar        *psk;
-    const gchar        *keylog_filename;
+    const char         *psk;
+    const char         *keylog_filename;
 } ssl_common_options_t;
 
 /** Map from something to a (pre-)master secret */
@@ -590,15 +590,15 @@ typedef struct {
     GHashTable *used_crandom;
 } ssl_master_key_map_t;
 
-gint ssl_get_keyex_alg(gint cipher);
+int ssl_get_keyex_alg(int cipher);
 
-void quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id);
+void quic_transport_parameter_id_base_custom(char *result, uint64_t parameter_id);
 
 bool ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 bool ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 bool ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 bool ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
-gchar* ssl_association_info(const char* dissector_table_name, const char* table_protocol);
+char* ssl_association_info(const char* dissector_table_name, const char* table_protocol);
 
 /** Initialize the list of sessions with connection ID */
 void ssl_init_cid_list(void);
@@ -614,7 +614,7 @@ void ssl_add_session_by_cid(SslDecryptSession *ssl);
  * @param tvb a buffer containing a connection ID
  * @param offset offset of the connection ID in tvb
  */
-SslDecryptSession *ssl_get_session_by_cid(tvbuff_t *tvb, guint32 offset);
+SslDecryptSession *ssl_get_session_by_cid(tvbuff_t *tvb, uint32_t offset);
 
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
@@ -625,11 +625,11 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle);
 
 /** Resets the decryption parameters for the next decoder. */
 extern void
-ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gboolean is_client);
+ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_client);
 
 /** Set server address and port */
 extern void
-ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port);
+ssl_set_server(SslSession *session, address *addr, port_type ptype, uint32_t port);
 
 /** Sets the application data protocol dissector. Intended to be called by
  * protocols that encapsulate TLS instead of switching to it using STARTTLS.
@@ -651,7 +651,7 @@ tls_set_appdata_dissector(dissector_handle_t tls_handle, packet_info *pinfo,
  * @return 0 for the first STARTTLS acknowledgement (success) or if tls_handle
  * is NULL. >0 if STARTTLS was started before.
  */
-WS_DLL_PUBLIC guint32
+WS_DLL_PUBLIC uint32_t
 ssl_starttls_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
@@ -663,7 +663,7 @@ ssl_starttls_ack(dissector_handle_t tls_handle, packet_info *pinfo,
  * @return 0 for the first STARTTLS acknowledgement (success) or if tls_handle
  * is NULL. >0 if STARTTLS was started before.
  */
-WS_DLL_PUBLIC guint32
+WS_DLL_PUBLIC uint32_t
 ssl_starttls_post_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
@@ -676,16 +676,16 @@ ssl_find_appdata_dissector(const char *name);
  @param src the data source
  @param len the source data len */
 extern void
-ssl_data_set(StringInfo* buf, const guchar* src, guint len);
+ssl_data_set(StringInfo* buf, const unsigned char* src, unsigned len);
 
 /** alloc the data with the specified len for the stringInfo buffer.
  @param str the data source
  @param len the source data len */
-extern gint
+extern int
 ssl_data_alloc(StringInfo* str, size_t len);
 
-extern gint
-ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
+extern int
+ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, unsigned char* iv, int iv_len);
 
 /** Search for the specified cipher suite id
  @param num the id of the cipher suite to be searched
@@ -702,13 +702,13 @@ ssl_get_cipher_algo(const SslCipherSuite *cipher_suite);
  * @param cipher_suite a cipher suite as returned by ssl_find_cipher().
  * @return the block size of a cipher or 0 if unavailable.
  */
-guint
+unsigned
 ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite);
 
-gboolean
+bool
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
-                               guint32 length, tvbuff_t *tvb, guint32 offset,
-                               const gchar *ssl_psk, packet_info *pinfo,
+                               uint32_t length, tvbuff_t *tvb, uint32_t offset,
+                               const char *ssl_psk, packet_info *pinfo,
 #ifdef HAVE_LIBGNUTLS
                                GHashTable *key_hash,
 #endif
@@ -718,11 +718,11 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
  * (master secret, session keys, ivs)
  @param ssl_session the store for all the session data
  @return 0 on success */
-extern gint
+extern int
 ssl_generate_keyring_material(SslDecryptSession*ssl_session);
 
 extern void
-ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
+ssl_change_cipher(SslDecryptSession *ssl_session, bool server);
 
 /** Try to decrypt an ssl record
  @param ssl ssl_session the store all the session data
@@ -738,36 +738,36 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param out_str a pointer to the store for the decrypted data
  @param outl the decrypted data len
  @return 0 on success */
-extern gint
-ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
-        gboolean ignore_mac_failed,
-        const guchar *in, guint16 inl, const guchar *cid, guint8 cidl,
-        StringInfo *comp_str, StringInfo *out_str, guint *outl);
+extern int
+ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint16_t record_version,
+        bool ignore_mac_failed,
+        const unsigned char *in, uint16_t inl, const unsigned char *cid, uint8_t cidl,
+        StringInfo *comp_str, StringInfo *out_str, unsigned *outl);
 
 
 /* Common part between TLS and DTLS dissectors */
 
 /* handling of association between tls/dtls ports and clear text protocol */
 extern void
-ssl_association_add(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp);
+ssl_association_add(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, unsigned port, bool tcp);
 
 extern void
-ssl_association_remove(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp);
+ssl_association_remove(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, unsigned port, bool tcp);
 
-extern gint
+extern int
 ssl_packet_from_server(SslSession *session, dissector_table_t table, const packet_info *pinfo);
 
 /* Obtain information about the current TLS layer. */
 SslPacketInfo *
-tls_add_packet_info(gint proto, packet_info *pinfo, guint8 curr_layer_num_ssl);
+tls_add_packet_info(int proto, packet_info *pinfo, uint8_t curr_layer_num_ssl);
 
 /* add to packet data a copy of the specified real data */
 extern void
-ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type, guint8 curr_layer_num_ssl);
+ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, int data_len, int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl);
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*
-ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id, guint8 curr_layer_num_ssl, SslRecordInfo **matched_record);
+ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, int record_id, uint8_t curr_layer_num_ssl, SslRecordInfo **matched_record);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void
@@ -783,21 +783,21 @@ ssl_common_cleanup(ssl_master_key_map_t *master_key_map, FILE **ssl_keylog_file,
  * contents was separated from keys derived at runtime.)
  */
 WS_DLL_PUBLIC ssl_master_key_map_t *
-tls_get_master_key_map(gboolean load_secrets);
+tls_get_master_key_map(bool load_secrets);
 
 /* Process lines from the TLS key log and populate the secrets map. */
 extern void
-tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const guint8 *data, guint len);
+tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const uint8_t *data, unsigned len);
 
 /* tries to update the secrets cache from the given filename */
 extern void
-ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
+ssl_load_keyfile(const char *ssl_keylog_filename, FILE **keylog_file,
                  const ssl_master_key_map_t *mk_map);
 
 #ifdef HAVE_LIBGNUTLS
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void
-ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp);
+ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, bool tcp);
 #endif
 
 extern void
@@ -810,365 +810,365 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 extern void
 tls_save_crandom(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 
-extern gboolean
-tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gboolean is_from_server);
+extern bool
+tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, bool is_from_server);
 
 extern StringInfo *
 tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
-                  gboolean is_from_server, TLSRecordType type);
+                  bool is_from_server, TLSRecordType type);
 
 extern void
 tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
-                 gboolean is_from_server, TLSRecordType type);
+                 bool is_from_server, TLSRecordType type);
 
 extern void
-tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server);
-
-extern gboolean
-ssl_is_valid_content_type(guint8 type);
-
-extern gboolean
-ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls);
+tls13_key_update(SslDecryptSession *ssl, bool is_from_server);
 
 extern bool
-tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
-                      guint16 *server_version, bool *is_hrr);
+ssl_is_valid_content_type(uint8_t type);
+
+extern bool
+ssl_is_valid_handshake_type(uint8_t hs_type, bool is_dtls);
+
+extern bool
+tls_scan_server_hello(tvbuff_t *tvb, uint32_t offset, uint32_t offset_end,
+                      uint16_t *server_version, bool *is_hrr);
 
 extern void
 ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
-                    guint8 content_type, guint8 handshake_type,
-                    gboolean is_dtls, guint16 version);
+                    uint8_t content_type, uint8_t handshake_type,
+                    bool is_dtls, uint16_t version);
 
 extern void
-ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guint32 offset, guint32 length);
+ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length);
 
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct ssl_common_dissect {
     struct {
-        gint change_cipher_spec;
-        gint hs_exts_len;
-        gint hs_ext_alpn_len;
-        gint hs_ext_alpn_list;
-        gint hs_ext_alpn_str;
-        gint hs_ext_alpn_str_len;
-        gint hs_ext_cert_url_item;
-        gint hs_ext_cert_url_padding;
-        gint hs_ext_cert_url_sha1;
-        gint hs_ext_cert_url_type;
-        gint hs_ext_cert_url_url;
-        gint hs_ext_cert_url_url_hash_list_len;
-        gint hs_ext_cert_url_url_len;
-        gint hs_ext_cert_status_type;
-        gint hs_ext_cert_status_request_len;
-        gint hs_ext_cert_status_responder_id_list_len;
-        gint hs_ext_cert_status_request_extensions_len;
-        gint hs_ext_cert_status_request_list_len;
-        gint hs_ocsp_response_list_len;
-        gint hs_ocsp_response_len;
-        gint hs_ext_cert_type;
-        gint hs_ext_cert_types;
-        gint hs_ext_cert_types_len;
-        gint hs_ext_data;
-        gint hs_ext_ec_point_format;
-        gint hs_ext_ec_point_formats;
-        gint hs_ext_ec_point_formats_len;
-        gint hs_ext_srp_len;
-        gint hs_ext_srp_username;
-        gint hs_ext_supported_group;
-        gint hs_ext_supported_groups;
-        gint hs_ext_supported_groups_len;
-        gint hs_ext_heartbeat_mode;
-        gint hs_ext_len;
-        gint hs_ext_npn_str;
-        gint hs_ext_npn_str_len;
-        gint hs_ext_reneg_info_len;
-        gint hs_ext_reneg_info;
-        gint hs_ext_key_share_client_length;
-        gint hs_ext_key_share_group;
-        gint hs_ext_key_share_key_exchange_length;
-        gint hs_ext_key_share_key_exchange;
-        gint hs_ext_key_share_selected_group;
-        gint hs_ext_psk_identities_length;
-        gint hs_ext_psk_identity_identity_length;
-        gint hs_ext_psk_identity_identity;
-        gint hs_ext_psk_identity_obfuscated_ticket_age;
-        gint hs_ext_psk_binders_length;
-        gint hs_ext_psk_binders;
-        gint hs_ext_psk_identity_selected;
-        gint hs_ext_session_ticket;
-        gint hs_ext_supported_versions_len;
-        gint hs_ext_supported_version;
-        gint hs_ext_cookie_len;
-        gint hs_ext_cookie;
-        gint hs_ext_server_name;
-        gint hs_ext_server_name_len;
-        gint hs_ext_server_name_list_len;
-        gint hs_ext_server_name_type;
-        gint hs_ext_max_fragment_length;
-        gint hs_ext_padding_data;
-        gint hs_ext_type;
-        gint hs_ext_connection_id_length;
-        gint hs_ext_connection_id;
-        gint hs_sig_hash_alg;
-        gint hs_sig_hash_alg_len;
-        gint hs_sig_hash_algs;
-        gint hs_sig_hash_hash;
-        gint hs_sig_hash_sig;
-        gint hs_client_keyex_epms_len;
-        gint hs_client_keyex_epms;
-        gint hs_server_keyex_modulus_len;
-        gint hs_server_keyex_exponent_len;
-        gint hs_server_keyex_sig_len;
-        gint hs_server_keyex_p_len;
-        gint hs_server_keyex_g_len;
-        gint hs_server_keyex_ys_len;
-        gint hs_client_keyex_yc_len;
-        gint hs_client_keyex_point_len;
-        gint hs_server_keyex_point_len;
-        gint hs_server_keyex_p;
-        gint hs_server_keyex_g;
-        gint hs_server_keyex_curve_type;
-        gint hs_server_keyex_named_curve;
-        gint hs_server_keyex_ys;
-        gint hs_client_keyex_yc;
-        gint hs_server_keyex_point;
-        gint hs_client_keyex_point;
-        gint hs_server_keyex_xs_len;
-        gint hs_client_keyex_xc_len;
-        gint hs_server_keyex_xs;
-        gint hs_client_keyex_xc;
-        gint hs_server_keyex_vs_len;
-        gint hs_client_keyex_vc_len;
-        gint hs_server_keyex_vs;
-        gint hs_client_keyex_vc;
-        gint hs_server_keyex_rs_len;
-        gint hs_client_keyex_rc_len;
-        gint hs_server_keyex_rs;
-        gint hs_client_keyex_rc;
-        gint hs_server_keyex_modulus;
-        gint hs_server_keyex_exponent;
-        gint hs_server_keyex_sig;
-        gint hs_server_keyex_hint_len;
-        gint hs_server_keyex_hint;
-        gint hs_client_keyex_identity_len;
-        gint hs_client_keyex_identity;
-        gint hs_certificates_len;
-        gint hs_certificates;
-        gint hs_certificate_len;
-        gint hs_certificate;
-        gint hs_cert_types_count;
-        gint hs_cert_types;
-        gint hs_cert_type;
-        gint hs_dnames_len;
-        gint hs_dnames;
-        gint hs_dnames_truncated;
-        gint hs_dname_len;
-        gint hs_dname;
-        gint hs_random;
-        gint hs_random_time;
-        gint hs_random_bytes;
-        gint hs_session_id;
-        gint hs_session_id_len;
-        gint hs_client_version;
-        gint hs_server_version;
-        gint hs_cipher_suites_len;
-        gint hs_cipher_suites;
-        gint hs_cipher_suite;
-        gint hs_comp_methods_len;
-        gint hs_comp_methods;
-        gint hs_comp_method;
-        gint hs_session_ticket_lifetime_hint;
-        gint hs_session_ticket_age_add;
-        gint hs_session_ticket_nonce_len;
-        gint hs_session_ticket_nonce;
-        gint hs_session_ticket_len;
-        gint hs_session_ticket;
-        gint hs_finished;
-        gint hs_client_cert_vrfy_sig_len;
-        gint hs_client_cert_vrfy_sig;
-        gint hs_ja3_full;
-        gint hs_ja3_hash;
-        gint hs_ja3s_full;
-        gint hs_ja3s_hash;
-        gint hs_ja4;
-        gint hs_ja4_r;
+        int change_cipher_spec;
+        int hs_exts_len;
+        int hs_ext_alpn_len;
+        int hs_ext_alpn_list;
+        int hs_ext_alpn_str;
+        int hs_ext_alpn_str_len;
+        int hs_ext_cert_url_item;
+        int hs_ext_cert_url_padding;
+        int hs_ext_cert_url_sha1;
+        int hs_ext_cert_url_type;
+        int hs_ext_cert_url_url;
+        int hs_ext_cert_url_url_hash_list_len;
+        int hs_ext_cert_url_url_len;
+        int hs_ext_cert_status_type;
+        int hs_ext_cert_status_request_len;
+        int hs_ext_cert_status_responder_id_list_len;
+        int hs_ext_cert_status_request_extensions_len;
+        int hs_ext_cert_status_request_list_len;
+        int hs_ocsp_response_list_len;
+        int hs_ocsp_response_len;
+        int hs_ext_cert_type;
+        int hs_ext_cert_types;
+        int hs_ext_cert_types_len;
+        int hs_ext_data;
+        int hs_ext_ec_point_format;
+        int hs_ext_ec_point_formats;
+        int hs_ext_ec_point_formats_len;
+        int hs_ext_srp_len;
+        int hs_ext_srp_username;
+        int hs_ext_supported_group;
+        int hs_ext_supported_groups;
+        int hs_ext_supported_groups_len;
+        int hs_ext_heartbeat_mode;
+        int hs_ext_len;
+        int hs_ext_npn_str;
+        int hs_ext_npn_str_len;
+        int hs_ext_reneg_info_len;
+        int hs_ext_reneg_info;
+        int hs_ext_key_share_client_length;
+        int hs_ext_key_share_group;
+        int hs_ext_key_share_key_exchange_length;
+        int hs_ext_key_share_key_exchange;
+        int hs_ext_key_share_selected_group;
+        int hs_ext_psk_identities_length;
+        int hs_ext_psk_identity_identity_length;
+        int hs_ext_psk_identity_identity;
+        int hs_ext_psk_identity_obfuscated_ticket_age;
+        int hs_ext_psk_binders_length;
+        int hs_ext_psk_binders;
+        int hs_ext_psk_identity_selected;
+        int hs_ext_session_ticket;
+        int hs_ext_supported_versions_len;
+        int hs_ext_supported_version;
+        int hs_ext_cookie_len;
+        int hs_ext_cookie;
+        int hs_ext_server_name;
+        int hs_ext_server_name_len;
+        int hs_ext_server_name_list_len;
+        int hs_ext_server_name_type;
+        int hs_ext_max_fragment_length;
+        int hs_ext_padding_data;
+        int hs_ext_type;
+        int hs_ext_connection_id_length;
+        int hs_ext_connection_id;
+        int hs_sig_hash_alg;
+        int hs_sig_hash_alg_len;
+        int hs_sig_hash_algs;
+        int hs_sig_hash_hash;
+        int hs_sig_hash_sig;
+        int hs_client_keyex_epms_len;
+        int hs_client_keyex_epms;
+        int hs_server_keyex_modulus_len;
+        int hs_server_keyex_exponent_len;
+        int hs_server_keyex_sig_len;
+        int hs_server_keyex_p_len;
+        int hs_server_keyex_g_len;
+        int hs_server_keyex_ys_len;
+        int hs_client_keyex_yc_len;
+        int hs_client_keyex_point_len;
+        int hs_server_keyex_point_len;
+        int hs_server_keyex_p;
+        int hs_server_keyex_g;
+        int hs_server_keyex_curve_type;
+        int hs_server_keyex_named_curve;
+        int hs_server_keyex_ys;
+        int hs_client_keyex_yc;
+        int hs_server_keyex_point;
+        int hs_client_keyex_point;
+        int hs_server_keyex_xs_len;
+        int hs_client_keyex_xc_len;
+        int hs_server_keyex_xs;
+        int hs_client_keyex_xc;
+        int hs_server_keyex_vs_len;
+        int hs_client_keyex_vc_len;
+        int hs_server_keyex_vs;
+        int hs_client_keyex_vc;
+        int hs_server_keyex_rs_len;
+        int hs_client_keyex_rc_len;
+        int hs_server_keyex_rs;
+        int hs_client_keyex_rc;
+        int hs_server_keyex_modulus;
+        int hs_server_keyex_exponent;
+        int hs_server_keyex_sig;
+        int hs_server_keyex_hint_len;
+        int hs_server_keyex_hint;
+        int hs_client_keyex_identity_len;
+        int hs_client_keyex_identity;
+        int hs_certificates_len;
+        int hs_certificates;
+        int hs_certificate_len;
+        int hs_certificate;
+        int hs_cert_types_count;
+        int hs_cert_types;
+        int hs_cert_type;
+        int hs_dnames_len;
+        int hs_dnames;
+        int hs_dnames_truncated;
+        int hs_dname_len;
+        int hs_dname;
+        int hs_random;
+        int hs_random_time;
+        int hs_random_bytes;
+        int hs_session_id;
+        int hs_session_id_len;
+        int hs_client_version;
+        int hs_server_version;
+        int hs_cipher_suites_len;
+        int hs_cipher_suites;
+        int hs_cipher_suite;
+        int hs_comp_methods_len;
+        int hs_comp_methods;
+        int hs_comp_method;
+        int hs_session_ticket_lifetime_hint;
+        int hs_session_ticket_age_add;
+        int hs_session_ticket_nonce_len;
+        int hs_session_ticket_nonce;
+        int hs_session_ticket_len;
+        int hs_session_ticket;
+        int hs_finished;
+        int hs_client_cert_vrfy_sig_len;
+        int hs_client_cert_vrfy_sig;
+        int hs_ja3_full;
+        int hs_ja3_hash;
+        int hs_ja3s_full;
+        int hs_ja3s_hash;
+        int hs_ja4;
+        int hs_ja4_r;
 
         /* TLS 1.3 */
-        gint hs_ext_psk_ke_modes_length;
-        gint hs_ext_psk_ke_mode;
-        gint hs_certificate_request_context_length;
-        gint hs_certificate_request_context;
-        gint hs_key_update_request_update;
-        gint sct_scts_length;
-        gint sct_sct_length;
-        gint sct_sct_version;
-        gint sct_sct_logid;
-        gint sct_sct_timestamp;
-        gint sct_sct_extensions_length;
-        gint sct_sct_extensions;
-        gint sct_sct_signature;
-        gint sct_sct_signature_length;
-        gint hs_ext_max_early_data_size;
-        gint hs_ext_oid_filters_length;
-        gint hs_ext_oid_filters_oid_length;
-        gint hs_ext_oid_filters_oid;
-        gint hs_ext_oid_filters_values_length;
-        gint hs_cred_valid_time;
-        gint hs_cred_pubkey;
-        gint hs_cred_pubkey_len;
-        gint hs_cred_signature;
-        gint hs_cred_signature_len;
+        int hs_ext_psk_ke_modes_length;
+        int hs_ext_psk_ke_mode;
+        int hs_certificate_request_context_length;
+        int hs_certificate_request_context;
+        int hs_key_update_request_update;
+        int sct_scts_length;
+        int sct_sct_length;
+        int sct_sct_version;
+        int sct_sct_logid;
+        int sct_sct_timestamp;
+        int sct_sct_extensions_length;
+        int sct_sct_extensions;
+        int sct_sct_signature;
+        int sct_sct_signature_length;
+        int hs_ext_max_early_data_size;
+        int hs_ext_oid_filters_length;
+        int hs_ext_oid_filters_oid_length;
+        int hs_ext_oid_filters_oid;
+        int hs_ext_oid_filters_values_length;
+        int hs_cred_valid_time;
+        int hs_cred_pubkey;
+        int hs_cred_pubkey_len;
+        int hs_cred_signature;
+        int hs_cred_signature_len;
 
         /* compress_certificate */
-        gint hs_ext_compress_certificate_algorithms_length;
-        gint hs_ext_compress_certificate_algorithm;
-        gint hs_ext_compress_certificate_uncompressed_length;
-        gint hs_ext_compress_certificate_compressed_certificate_message_length;
-        gint hs_ext_compress_certificate_compressed_certificate_message;
+        int hs_ext_compress_certificate_algorithms_length;
+        int hs_ext_compress_certificate_algorithm;
+        int hs_ext_compress_certificate_uncompressed_length;
+        int hs_ext_compress_certificate_compressed_certificate_message_length;
+        int hs_ext_compress_certificate_compressed_certificate_message;
 
         /* Token Binding Negotiation */
-        gint hs_ext_token_binding_version_major;
-        gint hs_ext_token_binding_version_minor;
-        gint hs_ext_token_binding_key_parameters;
-        gint hs_ext_token_binding_key_parameters_length;
-        gint hs_ext_token_binding_key_parameter;
+        int hs_ext_token_binding_version_major;
+        int hs_ext_token_binding_version_minor;
+        int hs_ext_token_binding_key_parameters;
+        int hs_ext_token_binding_key_parameters_length;
+        int hs_ext_token_binding_key_parameter;
 
-        gint hs_ext_record_size_limit;
+        int hs_ext_record_size_limit;
 
         /* QUIC Transport Parameters */
-        gint hs_ext_quictp_len;
-        gint hs_ext_quictp_parameter;
-        gint hs_ext_quictp_parameter_type;
-        gint hs_ext_quictp_parameter_len;
-        gint hs_ext_quictp_parameter_len_old;
-        gint hs_ext_quictp_parameter_value;
-        gint hs_ext_quictp_parameter_original_destination_connection_id;
-        gint hs_ext_quictp_parameter_max_idle_timeout;
-        gint hs_ext_quictp_parameter_stateless_reset_token;
-        gint hs_ext_quictp_parameter_initial_max_data;
-        gint hs_ext_quictp_parameter_initial_max_stream_data_bidi_local;
-        gint hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote;
-        gint hs_ext_quictp_parameter_initial_max_stream_data_uni;
-        gint hs_ext_quictp_parameter_initial_max_streams_bidi;
-        gint hs_ext_quictp_parameter_initial_max_streams_uni;
-        gint hs_ext_quictp_parameter_ack_delay_exponent;
-        gint hs_ext_quictp_parameter_max_ack_delay;
-        gint hs_ext_quictp_parameter_max_udp_payload_size;
-        gint hs_ext_quictp_parameter_pa_ipv4address;
-        gint hs_ext_quictp_parameter_pa_ipv6address;
-        gint hs_ext_quictp_parameter_pa_ipv4port;
-        gint hs_ext_quictp_parameter_pa_ipv6port;
-        gint hs_ext_quictp_parameter_pa_connectionid_length;
-        gint hs_ext_quictp_parameter_pa_connectionid;
-        gint hs_ext_quictp_parameter_pa_statelessresettoken;
-        gint hs_ext_quictp_parameter_active_connection_id_limit;
-        gint hs_ext_quictp_parameter_initial_source_connection_id;
-        gint hs_ext_quictp_parameter_retry_source_connection_id;
-        gint hs_ext_quictp_parameter_max_datagram_frame_size;
-        gint hs_ext_quictp_parameter_cibir_encoding_length;
-        gint hs_ext_quictp_parameter_cibir_encoding_offset;
-        gint hs_ext_quictp_parameter_loss_bits;
-        gint hs_ext_quictp_parameter_enable_time_stamp_v2;
-        gint hs_ext_quictp_parameter_min_ack_delay;
-        gint hs_ext_quictp_parameter_google_user_agent_id;
-        gint hs_ext_quictp_parameter_google_key_update_not_yet_supported;
-        gint hs_ext_quictp_parameter_google_quic_version;
-        gint hs_ext_quictp_parameter_google_initial_rtt;
-        gint hs_ext_quictp_parameter_google_support_handshake_done;
-        gint hs_ext_quictp_parameter_google_quic_params;
-        gint hs_ext_quictp_parameter_google_quic_params_unknown_field;
-        gint hs_ext_quictp_parameter_google_connection_options;
-        gint hs_ext_quictp_parameter_google_supported_versions_length;
-        gint hs_ext_quictp_parameter_google_supported_version;
-        gint hs_ext_quictp_parameter_facebook_partial_reliability;
-        gint hs_ext_quictp_parameter_chosen_version;
-        gint hs_ext_quictp_parameter_other_version;
-        gint hs_ext_quictp_parameter_enable_multipath;
-        gint hs_ext_quictp_parameter_initial_max_paths;
+        int hs_ext_quictp_len;
+        int hs_ext_quictp_parameter;
+        int hs_ext_quictp_parameter_type;
+        int hs_ext_quictp_parameter_len;
+        int hs_ext_quictp_parameter_len_old;
+        int hs_ext_quictp_parameter_value;
+        int hs_ext_quictp_parameter_original_destination_connection_id;
+        int hs_ext_quictp_parameter_max_idle_timeout;
+        int hs_ext_quictp_parameter_stateless_reset_token;
+        int hs_ext_quictp_parameter_initial_max_data;
+        int hs_ext_quictp_parameter_initial_max_stream_data_bidi_local;
+        int hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote;
+        int hs_ext_quictp_parameter_initial_max_stream_data_uni;
+        int hs_ext_quictp_parameter_initial_max_streams_bidi;
+        int hs_ext_quictp_parameter_initial_max_streams_uni;
+        int hs_ext_quictp_parameter_ack_delay_exponent;
+        int hs_ext_quictp_parameter_max_ack_delay;
+        int hs_ext_quictp_parameter_max_udp_payload_size;
+        int hs_ext_quictp_parameter_pa_ipv4address;
+        int hs_ext_quictp_parameter_pa_ipv6address;
+        int hs_ext_quictp_parameter_pa_ipv4port;
+        int hs_ext_quictp_parameter_pa_ipv6port;
+        int hs_ext_quictp_parameter_pa_connectionid_length;
+        int hs_ext_quictp_parameter_pa_connectionid;
+        int hs_ext_quictp_parameter_pa_statelessresettoken;
+        int hs_ext_quictp_parameter_active_connection_id_limit;
+        int hs_ext_quictp_parameter_initial_source_connection_id;
+        int hs_ext_quictp_parameter_retry_source_connection_id;
+        int hs_ext_quictp_parameter_max_datagram_frame_size;
+        int hs_ext_quictp_parameter_cibir_encoding_length;
+        int hs_ext_quictp_parameter_cibir_encoding_offset;
+        int hs_ext_quictp_parameter_loss_bits;
+        int hs_ext_quictp_parameter_enable_time_stamp_v2;
+        int hs_ext_quictp_parameter_min_ack_delay;
+        int hs_ext_quictp_parameter_google_user_agent_id;
+        int hs_ext_quictp_parameter_google_key_update_not_yet_supported;
+        int hs_ext_quictp_parameter_google_quic_version;
+        int hs_ext_quictp_parameter_google_initial_rtt;
+        int hs_ext_quictp_parameter_google_support_handshake_done;
+        int hs_ext_quictp_parameter_google_quic_params;
+        int hs_ext_quictp_parameter_google_quic_params_unknown_field;
+        int hs_ext_quictp_parameter_google_connection_options;
+        int hs_ext_quictp_parameter_google_supported_versions_length;
+        int hs_ext_quictp_parameter_google_supported_version;
+        int hs_ext_quictp_parameter_facebook_partial_reliability;
+        int hs_ext_quictp_parameter_chosen_version;
+        int hs_ext_quictp_parameter_other_version;
+        int hs_ext_quictp_parameter_enable_multipath;
+        int hs_ext_quictp_parameter_initial_max_paths;
 
-        gint esni_suite;
-        gint esni_record_digest_length;
-        gint esni_record_digest;
-        gint esni_encrypted_sni_length;
-        gint esni_encrypted_sni;
-        gint esni_nonce;
+        int esni_suite;
+        int esni_record_digest_length;
+        int esni_record_digest;
+        int esni_encrypted_sni_length;
+        int esni_encrypted_sni;
+        int esni_nonce;
 
-        gint ech_echconfiglist_length;
-        gint ech_echconfiglist;
-        gint ech_echconfig;
-        gint ech_echconfig_version;
-        gint ech_echconfig_length;
-        gint ech_echconfigcontents_maximum_name_length;
-        gint ech_echconfigcontents_public_name_length;
-        gint ech_echconfigcontents_public_name;
-        gint ech_echconfigcontents_extensions_length;
-        gint ech_echconfigcontents_extensions;
-        gint ech_hpke_keyconfig;
-        gint ech_hpke_keyconfig_config_id;
-        gint ech_hpke_keyconfig_kem_id;
-        gint ech_hpke_keyconfig_public_key_length;
-        gint ech_hpke_keyconfig_public_key;
-        gint ech_hpke_keyconfig_cipher_suites;
-        gint ech_hpke_keyconfig_cipher_suites_length;
-        gint ech_hpke_keyconfig_cipher_suite;
-        gint ech_hpke_keyconfig_cipher_suite_kdf_id;
-        gint ech_hpke_keyconfig_cipher_suite_aead_id;
-        gint ech_clienthello_type;
-        gint ech_cipher_suite;
-        gint ech_config_id;
-        gint ech_enc_length;
-        gint ech_enc;
-        gint ech_payload_length;
-        gint ech_payload;
-        gint ech_confirmation;
-        gint ech_retry_configs;
+        int ech_echconfiglist_length;
+        int ech_echconfiglist;
+        int ech_echconfig;
+        int ech_echconfig_version;
+        int ech_echconfig_length;
+        int ech_echconfigcontents_maximum_name_length;
+        int ech_echconfigcontents_public_name_length;
+        int ech_echconfigcontents_public_name;
+        int ech_echconfigcontents_extensions_length;
+        int ech_echconfigcontents_extensions;
+        int ech_hpke_keyconfig;
+        int ech_hpke_keyconfig_config_id;
+        int ech_hpke_keyconfig_kem_id;
+        int ech_hpke_keyconfig_public_key_length;
+        int ech_hpke_keyconfig_public_key;
+        int ech_hpke_keyconfig_cipher_suites;
+        int ech_hpke_keyconfig_cipher_suites_length;
+        int ech_hpke_keyconfig_cipher_suite;
+        int ech_hpke_keyconfig_cipher_suite_kdf_id;
+        int ech_hpke_keyconfig_cipher_suite_aead_id;
+        int ech_clienthello_type;
+        int ech_cipher_suite;
+        int ech_config_id;
+        int ech_enc_length;
+        int ech_enc;
+        int ech_payload_length;
+        int ech_payload;
+        int ech_confirmation;
+        int ech_retry_configs;
 
-        gint hs_ext_alps_len;
-        gint hs_ext_alps_alpn_list;
-        gint hs_ext_alps_alpn_str;
-        gint hs_ext_alps_alpn_str_len;
-        gint hs_ext_alps_settings;
+        int hs_ext_alps_len;
+        int hs_ext_alps_alpn_list;
+        int hs_ext_alps_alpn_str;
+        int hs_ext_alps_alpn_str_len;
+        int hs_ext_alps_settings;
 
         /* do not forget to update SSL_COMMON_HF_LIST! */
     } hf;
     struct {
-        gint hs_ext;
-        gint hs_ext_alpn;
-        gint hs_ext_cert_types;
-        gint hs_ext_groups;
-        gint hs_ext_curves_point_formats;
-        gint hs_ext_npn;
-        gint hs_ext_reneg_info;
-        gint hs_ext_key_share;
-        gint hs_ext_key_share_ks;
-        gint hs_ext_pre_shared_key;
-        gint hs_ext_psk_identity;
-        gint hs_ext_server_name;
-        gint hs_ext_oid_filter;
-        gint hs_ext_quictp_parameter;
-        gint hs_sig_hash_alg;
-        gint hs_sig_hash_algs;
-        gint urlhash;
-        gint keyex_params;
-        gint certificates;
-        gint cert_types;
-        gint dnames;
-        gint hs_random;
-        gint cipher_suites;
-        gint comp_methods;
-        gint session_ticket;
-        gint sct;
-        gint cert_status;
-        gint ocsp_response;
-        gint uncompressed_certificates;
-        gint hs_ext_alps;
-        gint ech_echconfiglist;
-        gint ech_echconfig;
-        gint ech_retry_configs;
-        gint ech_hpke_keyconfig;
-        gint ech_hpke_cipher_suites;
-        gint ech_hpke_cipher_suite;
-        gint hs_ext_token_binding_key_parameters;
+        int hs_ext;
+        int hs_ext_alpn;
+        int hs_ext_cert_types;
+        int hs_ext_groups;
+        int hs_ext_curves_point_formats;
+        int hs_ext_npn;
+        int hs_ext_reneg_info;
+        int hs_ext_key_share;
+        int hs_ext_key_share_ks;
+        int hs_ext_pre_shared_key;
+        int hs_ext_psk_identity;
+        int hs_ext_server_name;
+        int hs_ext_oid_filter;
+        int hs_ext_quictp_parameter;
+        int hs_sig_hash_alg;
+        int hs_sig_hash_algs;
+        int urlhash;
+        int keyex_params;
+        int certificates;
+        int cert_types;
+        int dnames;
+        int hs_random;
+        int cipher_suites;
+        int comp_methods;
+        int session_ticket;
+        int sct;
+        int cert_status;
+        int ocsp_response;
+        int uncompressed_certificates;
+        int hs_ext_alps;
+        int ech_echconfiglist;
+        int ech_echconfig;
+        int ech_retry_configs;
+        int ech_hpke_keyconfig;
+        int ech_hpke_cipher_suites;
+        int ech_hpke_cipher_suite;
+        int hs_ext_token_binding_key_parameters;
 
         /* do not forget to update SSL_COMMON_ETT_LIST! */
     } ett;
@@ -1196,25 +1196,25 @@ typedef struct ssl_common_dissect {
 
 /* Header fields specific to DTLS. See packet-dtls.c */
 typedef struct {
-    gint hf_dtls_handshake_cookie_len;
-    gint hf_dtls_handshake_cookie;
+    int hf_dtls_handshake_cookie_len;
+    int hf_dtls_handshake_cookie;
 
     /* Do not forget to initialize dtls_hfs to -1 in packet-dtls.c! */
 } dtls_hfs_t;
 
 /* Header fields specific to SSL. See packet-tls.c */
 typedef struct {
-    gint hs_md5_hash;
-    gint hs_sha_hash;
+    int hs_md5_hash;
+    int hs_sha_hash;
 
     /* Do not forget to initialize ssl_hfs to -1 in packet-tls.c! */
 } ssl_hfs_t;
 
 typedef struct {
-    guint32        max_version;
-    gboolean       server_name_present;
-    gint           num_cipher_suites;
-    gint           num_extensions;
+    uint32_t       max_version;
+    bool           server_name_present;
+    int            num_cipher_suites;
+    int            num_extensions;
     wmem_strbuf_t *alpn;
     wmem_list_t   *cipher_list;
     wmem_list_t   *extension_list;
@@ -1235,13 +1235,13 @@ typedef struct {
  * require one byte while 400 needs two bytes). Expert info is added if the
  * length field from the tvb is outside the (min_value, max_value) range.
  *
- * Returns TRUE if there is enough space for the length field and data elements
- * and FALSE otherwise.
+ * Returns true if there is enough space for the length field and data elements
+ * and false otherwise.
  */
-extern gboolean
+extern bool
 ssl_add_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               guint offset, guint offset_end, guint32 *ret_length,
-               int hf_length, guint32 min_value, guint32 max_value);
+               unsigned offset, unsigned offset_end, uint32_t *ret_length,
+               int hf_length, uint32_t min_value, uint32_t max_value);
 
 /**
  * Helper to check whether the data in a vector with multiple elements is
@@ -1249,119 +1249,119 @@ ssl_add_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, prot
  * adding all kinds of fields) does not match "offset_end" (the end of the
  * vector), expert info is added.
  *
- * Returns TRUE if the offset matches the end of the vector and FALSE otherwise.
+ * Returns true if the offset matches the end of the vector and false otherwise.
  */
-extern gboolean
+extern bool
 ssl_end_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               guint offset, guint offset_end);
+               unsigned offset, unsigned offset_end);
 /* }}} */
 
 
 extern void
 ssl_check_record_length(ssl_common_dissect_t *hf, packet_info *pinfo,
                         ContentType content_type,
-                        guint record_length, proto_item *length_pi,
-                        guint16 version, tvbuff_t *decrypted_tvb);
+                        unsigned record_length, proto_item *length_pi,
+                        uint16_t version, tvbuff_t *decrypted_tvb);
 
 void
 ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
-                               guint32 offset, SslSession *session,
-                               gboolean is_from_server,
+                               uint32_t offset, SslSession *session,
+                               bool is_from_server,
                                const SslDecryptSession *ssl);
 
 extern void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          packet_info *pinfo, proto_tree *tree, guint32 offset,
-                          guint32 offset_end, SslSession *session,
+                          packet_info *pinfo, proto_tree *tree, uint32_t offset,
+                          uint32_t offset_end, SslSession *session,
                           SslDecryptSession *ssl,
                           dtls_hfs_t *dtls_hfs);
 
 extern void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
-                          proto_tree *tree, guint32 offset, guint32 offset_end,
+                          proto_tree *tree, uint32_t offset, uint32_t offset_end,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls, gboolean is_hrr);
+                          bool is_dtls, bool is_hrr);
 
 extern void
 ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
-                                    proto_tree *tree, guint32 offset, guint32 offset_end,
+                                    proto_tree *tree, uint32_t offset, uint32_t offset_end,
                                     SslSession *session, SslDecryptSession *ssl,
-                                    gboolean is_dtls);
+                                    bool is_dtls);
 
 extern void
 ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
-                                     proto_tree *tree, guint32 offset, guint32 offset_end,
+                                     proto_tree *tree, uint32_t offset, uint32_t offset_end,
                                      SslSession *session, SslDecryptSession *ssl,
-                                     gboolean is_dtls);
+                                     bool is_dtls);
 
 extern void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               proto_tree *tree, uint32_t offset, uint32_t offset_end,
                                SslSession *session, SslDecryptSession *ssl,
-                               gboolean is_dtls, GHashTable *session_hash);
+                               bool is_dtls, GHashTable *session_hash);
 
 extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                     guint32 offset, guint32 offset_end, packet_info *pinfo,
+                     uint32_t offset, uint32_t offset_end, packet_info *pinfo,
                      SslSession *session, SslDecryptSession *ssl,
-                     gboolean is_from_server, gboolean is_dtls);
+                     bool is_from_server, bool is_dtls);
 
 extern void
 ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                         proto_tree *tree, guint32 offset, guint32 offset_end,
-                         SslSession *session, gboolean is_dtls);
+                         proto_tree *tree, uint32_t offset, uint32_t offset_end,
+                         SslSession *session, bool is_dtls);
 
 extern void
 ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                                proto_tree *tree, guint32 offset, guint32 offset_end, guint16 version);
+                                proto_tree *tree, uint32_t offset, uint32_t offset_end, uint16_t version);
 
 extern void
 ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                         proto_tree *tree, guint32 offset, guint32 offset_end,
+                         proto_tree *tree, uint32_t offset, uint32_t offset_end,
                          const SslSession *session, ssl_hfs_t *ssl_hfs);
 
 extern void
-ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
+ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
 
-extern guint32
+extern uint32_t
 tls_dissect_hnd_certificate_status(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                                   proto_tree *tree, guint32 offset, guint32 offset_end);
+                                   proto_tree *tree, uint32_t offset, uint32_t offset_end);
 
 extern void
 ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, guint32 length,
+                          proto_tree *tree, uint32_t offset, uint32_t length,
                           const SslSession *session);
 
 extern void
 ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                          proto_tree *tree, guint32 offset, guint32 offset_end,
+                          proto_tree *tree, uint32_t offset, uint32_t offset_end,
                           const SslSession *session);
 
 extern void
 tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                             proto_tree *tree, guint32 offset);
+                             proto_tree *tree, uint32_t offset);
 
-extern guint32
+extern uint32_t
 tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint32 offset, guint32 offset_end, guint16 version);
+                     uint32_t offset, uint32_t offset_end, uint16_t version);
 
-extern gboolean
+extern bool
 tls13_hkdf_expand_label_context(int md, const StringInfo *secret,
                         const char *label_prefix, const char *label,
-                        const guint8 *context, guint8 context_length,
-                        guint16 out_len, guchar **out);
+                        const uint8_t *context, uint8_t context_length,
+                        uint16_t out_len, unsigned char **out);
 
-extern gboolean
+extern bool
 tls13_hkdf_expand_label(int md, const StringInfo *secret,
                         const char *label_prefix, const char *label,
-                        guint16 out_len, guchar **out);
+                        uint16_t out_len, unsigned char **out);
 
 extern void
 ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                                     guint32 offset, guint32 offset_end, packet_info *pinfo,
+                                     uint32_t offset, uint32_t offset_end, packet_info *pinfo,
                                      SslSession *session _U_, SslDecryptSession *ssl _U_,
-                                     gboolean is_from_server _U_, gboolean is_dtls _U_);
+                                     bool is_from_server _U_, bool is_dtls _U_);
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name;
@@ -2835,24 +2835,24 @@ ssl_common_register_dtls_alpn_dissector_table(const char *name,
     const char *ui_name, const int proto);
 
 extern void
-ssl_common_register_options(module_t *module, ssl_common_options_t *options, gboolean is_dtls);
+ssl_common_register_options(module_t *module, ssl_common_options_t *options, bool is_dtls);
 
 #ifdef SSL_DECRYPT_DEBUG
 extern void
-ssl_debug_printf(const gchar* fmt,...) G_GNUC_PRINTF(1,2);
+ssl_debug_printf(const char* fmt,...) G_GNUC_PRINTF(1,2);
 extern void
-ssl_print_data(const gchar* name, const guchar* data, size_t len);
+ssl_print_data(const char* name, const unsigned char* data, size_t len);
 extern void
-ssl_print_string(const gchar* name, const StringInfo* data);
+ssl_print_string(const char* name, const StringInfo* data);
 extern void
-ssl_set_debug(const gchar* name);
+ssl_set_debug(const char* name);
 extern void
 ssl_debug_flush(void);
 #else
 
 /* No debug: nullify debug operation*/
 static inline void G_GNUC_PRINTF(1,2)
-ssl_debug_printf(const gchar* fmt _U_,...)
+ssl_debug_printf(const char* fmt _U_,...)
 {
 }
 #define ssl_print_data(a, b, c)
@@ -2863,9 +2863,9 @@ ssl_debug_printf(const gchar* fmt _U_,...)
 #endif /* SSL_DECRYPT_DEBUG */
 
 
-guint32
+uint32_t
 ssl_dissect_ext_ech_echconfiglist(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                                  proto_tree *tree, guint32 offset, guint32 offset_end);
+                                  proto_tree *tree, uint32_t offset, uint32_t offset_end);
 
 #endif /* __PACKET_TLS_UTILS_H__ */
 

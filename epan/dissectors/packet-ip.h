@@ -33,20 +33,20 @@ extern const value_string ip_version_vals[];
 
 typedef struct _ws_ip4
 {
-    guint8  ip_ver;     /* 4 */
-    guint8  ip_tos;     /* type of service */
-    guint32 ip_len;     /* total length */
-    guint16 ip_id;      /* identification */
-    guint16 ip_off;     /* fragment offset */
-    guint8  ip_ttl;     /* time-to-live */
-    guint8  ip_proto;   /* protocol */
-    guint16 ip_sum;     /* checksum */
+    uint8_t ip_ver;     /* 4 */
+    uint8_t ip_tos;     /* type of service */
+    uint32_t ip_len;     /* total length */
+    uint16_t ip_id;      /* identification */
+    uint16_t ip_off;     /* fragment offset */
+    uint8_t ip_ttl;     /* time-to-live */
+    uint8_t ip_proto;   /* protocol */
+    uint16_t ip_sum;     /* checksum */
     address ip_src;     /* source address */
     address ip_dst;     /* destination address */
-    guint32 ip_stream;  /* track conversations */
+    uint32_t ip_stream;  /* track conversations */
 } ws_ip4;
 
-#define WS_IP4_PTR(p)         ((ws_ip4 *)(((p) && *(guint8 *)(p) == 4) ? (p) : NULL))
+#define WS_IP4_PTR(p)         ((ws_ip4 *)(((p) && *(uint8_t *)(p) == 4) ? (p) : NULL))
 
 /* Differentiated Services Codepoint  */
 #define IPDSFIELD_DSCP_MASK     0xFC
@@ -56,7 +56,7 @@ typedef struct _ws_ip4
 #define IPDSFIELD_ECN_MASK      0x03
 #define IPDSFIELD_ECN(dsfield)  ((dsfield) & IPDSFIELD_ECN_MASK)
 
-gboolean ip_try_dissect(gboolean heur_first, guint nxt, tvbuff_t *tvb,
+bool ip_try_dissect(bool heur_first, unsigned nxt, tvbuff_t *tvb,
                         packet_info *pinfo, proto_tree *tree, void *iph);
 
 /* Export the DSCP/ECN extended value-string table for other protocols */
@@ -67,18 +67,18 @@ WS_DLL_PUBLIC value_string_ext ecn_short_vals_ext;
 
 typedef struct _ws_ip6
 {
-    guint8  ip6_ver;     /* 6 */
-    guint8  ip6_tc;      /* traffic class */
-    guint32 ip6_flw;     /* flow label */
-    guint32 ip6_len;     /* payload length */
-    guint8  ip6_nxt;     /* next header */
-    guint8  ip6_hop;     /* hop limit */
+    uint8_t ip6_ver;     /* 6 */
+    uint8_t ip6_tc;      /* traffic class */
+    uint32_t ip6_flw;     /* flow label */
+    uint32_t ip6_len;     /* payload length */
+    uint8_t ip6_nxt;     /* next header */
+    uint8_t ip6_hop;     /* hop limit */
     address ip6_src;     /* source address */
     address ip6_dst;     /* destination address */
-    guint32 ip6_stream;  /* track conversations */
+    uint32_t ip6_stream;  /* track conversations */
 } ws_ip6;
 
-#define WS_IP6_PTR(p)         ((ws_ip6 *)(((p) && *(guint8 *)(p) == 6) ? (p) : NULL))
+#define WS_IP6_PTR(p)         ((ws_ip6 *)(((p) && *(uint8_t *)(p) == 6) ? (p) : NULL))
 
 struct ws_rthdr {
     struct ws_ip6_rthdr hdr;
@@ -103,11 +103,11 @@ typedef ws_ip6 ipv6_tap_info_t;
  *   else no extension headers.
  */
 typedef struct {
-    guint32     jumbo_plen;
-    guint16     ip6_plen;       /* header payload length (can be zero) */
-    gint        frag_plen;
+    uint32_t    jumbo_plen;
+    uint16_t    ip6_plen;       /* header payload length (can be zero) */
+    int         frag_plen;
     proto_tree *ipv6_tree;
-    gint        ipv6_item_len;
+    int         ipv6_item_len;
 } ipv6_pinfo_t;
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo);
@@ -116,7 +116,7 @@ proto_tree *p_ipv6_pinfo_select_root(packet_info *pinfo, proto_tree *tree);
 
 ipv6_pinfo_t *p_ipv6_pinfo_add_len(packet_info *pinfo, int exthdr_len);
 
-void ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip6 *iph);
+void ipv6_dissect_next(unsigned nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip6 *iph);
 
 static inline int
 ws_ip_protocol(void *iph)
@@ -137,9 +137,9 @@ struct ip_analysis {
 
     /* Initial frame starting this conversation
      */
-    guint32 initial_frame;
+    uint32_t initial_frame;
 
-    guint32 stream;
+    uint32_t stream;
 };
 
 WS_DLL_PUBLIC struct ip_analysis *get_ip_conversation_data(conversation_t *conv,

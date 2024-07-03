@@ -104,12 +104,12 @@ static int hf_wtls_alert_level;
 static int hf_wtls_alert_description;
 
 /* Initialize the subtree pointers */
-static gint ett_wtls;
-static gint ett_wtls_rec;
-static gint ett_wtls_msg_type;
-static gint ett_wtls_msg_type_item;
-static gint ett_wtls_msg_type_item_sub;
-static gint ett_wtls_msg_type_item_sub_sub;
+static int ett_wtls;
+static int ett_wtls_rec;
+static int ett_wtls_msg_type;
+static int ett_wtls_msg_type_item;
+static int ett_wtls_msg_type_item_sub;
+static int ett_wtls_msg_type_item_sub_sub;
 
 static const value_string wtls_vals_record_type[] = {
 	{ 1, "change_cipher_data" },
@@ -303,7 +303,7 @@ static value_string_ext wtls_vals_alert_description_ext = VALUE_STRING_EXT_INIT(
 #define PUBLIC_KEY_ECDH			 3
 #define PUBLIC_KEY_ECDSA		 4
 
-static void dissect_wtls_handshake (proto_tree *, tvbuff_t *, guint, guint);
+static void dissect_wtls_handshake (proto_tree *, tvbuff_t *, unsigned, unsigned);
 
 /* Code to actually dissect the packets */
 static int
@@ -312,8 +312,8 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	int offset = 0;
 
 	char pdut;
-	guint count = 0;
-	guint offset_wtls = 0;
+	unsigned count = 0;
+	unsigned offset_wtls = 0;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -420,7 +420,7 @@ static int
 add_text_identifier(tvbuff_t *tvb, int offset, int hf_charset,
 		    int hf_size, int hf_str, proto_tree *tree)
 {
-	guint8 size;
+	uint8_t size;
 	int client_size = 0;
 
 	proto_tree_add_item(tree, hf_charset, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -441,9 +441,9 @@ add_text_identifier(tvbuff_t *tvb, int offset, int hf_charset,
 static int
 add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 {
-	guint count;
-	guint i;
-	guint64 session_id;
+	unsigned count;
+	unsigned i;
+	uint64_t session_id;
 
 	count = tvb_get_guint8(tvb, offset);
 	if (count == 0)
@@ -460,13 +460,13 @@ add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 }
 
 static void
-dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint count)
+dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigned count)
 {
 	char pdu_msg_type;
 	int client_size = 0;
-	guint value = 0;
+	unsigned value = 0;
 	int size = 0;
-	guint public_key = 0;
+	unsigned public_key = 0;
 	char valStr[1024];
 	const char *valBulk = NULL;
 	const char *valMac = NULL;
@@ -1540,7 +1540,7 @@ proto_register_wtls(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_wtls,
 		&ett_wtls_rec,
 		&ett_wtls_msg_type,

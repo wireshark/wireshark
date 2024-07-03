@@ -37,14 +37,14 @@ static bool uncompress_data;
 static bool show_as_text;
 static bool generate_md5_hash;
 
-static gint ett_data;
+static int ett_data;
 
 static dissector_handle_t data_handle;
 
 static int
 dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint bytes;
+	int bytes;
 	char *display_str;
 
 	if (tree) {
@@ -52,11 +52,11 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if (bytes > 0) {
 			tvbuff_t   *data_tvb;
 			tvbuff_t   *uncompr_tvb = NULL;
-			gint	    uncompr_len = 0;
+			int	    uncompr_len = 0;
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
-				guint8 *real_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, 0, bytes);
+				uint8_t *real_data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 0, bytes);
 				data_tvb = tvb_new_child_real_data(tvb,real_data,bytes,bytes);
 				add_new_data_source(pinfo, data_tvb, "Not dissected data bytes");
 			} else {
@@ -97,9 +97,9 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			}
 
 			if(generate_md5_hash) {
-				const guint8 *cp;
-				guint8	      digest[HASH_MD5_LENGTH];
-				const gchar  *digest_string;
+				const uint8_t *cp;
+				uint8_t	      digest[HASH_MD5_LENGTH];
+				const char   *digest_string;
 
 				cp = tvb_get_ptr(tvb, 0, bytes);
 
@@ -152,7 +152,7 @@ proto_register_data(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_data
 	};
 
@@ -201,7 +201,7 @@ proto_register_data(void)
 }
 
 static void
-add_foreach_decode_as(const gchar *table_name, const gchar *ui_name _U_, gpointer user_data)
+add_foreach_decode_as(const char *table_name, const char *ui_name _U_, void *user_data)
 {
         dissector_handle_t handle = (dissector_handle_t) user_data;
         dissector_table_t dissector_table = find_dissector_table(table_name);
@@ -218,7 +218,7 @@ proto_reg_handoff_data(void)
 	ssl_dissector_add(0, data_handle);
 	dtls_dissector_add(0, data_handle);
 
-	dissector_all_tables_foreach_table(add_foreach_decode_as, (gpointer)data_handle, NULL);
+	dissector_all_tables_foreach_table(add_foreach_decode_as, (void *)data_handle, NULL);
 }
 
 /*

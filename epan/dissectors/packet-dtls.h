@@ -14,15 +14,15 @@
 #include "ws_symbol_export.h"
 #include <epan/packet.h>
 
-WS_DLL_PUBLIC void dtls_dissector_add(guint port, dissector_handle_t handle);
-WS_DLL_PUBLIC void dtls_dissector_delete(guint port, dissector_handle_t handle);
+WS_DLL_PUBLIC void dtls_dissector_add(unsigned port, dissector_handle_t handle);
+WS_DLL_PUBLIC void dtls_dissector_delete(unsigned port, dissector_handle_t handle);
 
 
 /* Shared with packet-tls-utils.c */
 
-gint
+int
 dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
-                                    proto_tree *tree, guint32 offset,
-                                    guint32 ext_len, gboolean is_server);
+                                    proto_tree *tree, uint32_t offset,
+                                    uint32_t ext_len, bool is_server);
 
 #endif  /* __PACKET_DTLS_H__ */

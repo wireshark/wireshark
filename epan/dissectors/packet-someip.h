@@ -14,28 +14,28 @@
 #define __PACKET_SOMEIP_H__
 
 /* used for SD to add ports dynamically */
-void register_someip_port_udp(guint32 portnumber);
-void register_someip_port_tcp(guint32 portnumber);
+void register_someip_port_udp(uint32_t portnumber);
+void register_someip_port_tcp(uint32_t portnumber);
 
 /* look up names for SD */
-char *someip_lookup_service_name(guint16 serviceid);
-char *someip_lookup_eventgroup_name(guint16 serviceid, guint16 eventgroupid);
+char *someip_lookup_service_name(uint16_t serviceid);
+char *someip_lookup_eventgroup_name(uint16_t serviceid, uint16_t eventgroupid);
 
 typedef struct _someip_info {
-    guint16 service_id;
-    guint16 method_id;
-    guint16 client_id;
-    guint16 session_id;
-    guint8  message_type;
-    guint8  major_version;
+    uint16_t service_id;
+    uint16_t method_id;
+    uint16_t client_id;
+    uint16_t session_id;
+    uint8_t message_type;
+    uint8_t major_version;
 } someip_info_t;
 #define SOMEIP_INFO_T_INIT { 0, 0, 0, 0, 0, 0 }
 
 typedef struct _someip_messages_tap {
-    guint16 service_id;
-    guint16 method_id;
-    guint8  interface_version;
-    guint8  message_type;
+    uint16_t service_id;
+    uint16_t method_id;
+    uint8_t interface_version;
+    uint8_t message_type;
 } someip_messages_tap_t;
 
 #endif /* __PACKET_SOMEIP_H__ */
