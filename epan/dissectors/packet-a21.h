@@ -17,7 +17,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 WS_DLL_PUBLIC
-void dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, gint offset, guint8 message_type);
+void dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, int offset, uint8_t message_type);
 
 #ifdef __cplusplus
 }

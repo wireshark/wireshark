@@ -111,16 +111,16 @@ static int hf_atm_aal_oamcell_func_spec;
 static int hf_atm_aal_oamcell_crc;
 static int hf_atm_padding;
 
-static gint ett_atm;
-static gint ett_atm_lane;
-static gint ett_atm_lane_lc_lan_dest;
-static gint ett_atm_lane_lc_lan_dest_rd;
-static gint ett_atm_lane_lc_flags;
-static gint ett_atm_lane_lc_tlv;
-static gint ett_ilmi;
-static gint ett_aal1;
-static gint ett_aal3_4;
-static gint ett_oamaal;
+static int ett_atm;
+static int ett_atm_lane;
+static int ett_atm_lane_lc_lan_dest;
+static int ett_atm_lane_lc_lan_dest_rd;
+static int ett_atm_lane_lc_flags;
+static int ett_atm_lane_lc_tlv;
+static int ett_ilmi;
+static int ett_aal1;
+static int ett_aal3_4;
+static int ett_oamaal;
 
 static expert_field ei_atm_reassembly_failed;
 
@@ -275,7 +275,7 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 {
   proto_item *td;
   proto_tree *dest_tree;
-  guint16     tag;
+  uint16_t    tag;
   proto_tree *rd_tree;
 
   dest_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
@@ -355,11 +355,11 @@ static const value_string le_tlv_type_vals[] = {
 };
 
 static void
-dissect_le_control_tlvs(tvbuff_t *tvb, int offset, guint num_tlvs,
+dissect_le_control_tlvs(tvbuff_t *tvb, int offset, unsigned num_tlvs,
                         proto_tree *tree)
 {
-  guint32     tlv_type;
-  guint8      tlv_length;
+  uint32_t    tlv_type;
+  uint8_t     tlv_length;
   proto_tree *tlv_tree;
 
   while (num_tlvs != 0) {
@@ -377,8 +377,8 @@ dissect_le_control_tlvs(tvbuff_t *tvb, int offset, guint num_tlvs,
 static void
 dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  guint8 num_tlvs;
-  guint8 name_size;
+  uint8_t num_tlvs;
+  uint8_t name_size;
 
   dissect_lan_destination(tvb, offset, "Source", tree);
   offset += 8;
@@ -419,7 +419,7 @@ dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  guint8 num_tlvs;
+  uint8_t num_tlvs;
 
   dissect_lan_destination(tvb, offset, "Source", tree);
   offset += 8;
@@ -446,7 +446,7 @@ dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  guint8 num_tlvs;
+  uint8_t num_tlvs;
 
   dissect_lan_destination(tvb, offset, "Source", tree);
   offset += 8;
@@ -479,7 +479,7 @@ dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  guint8 num_tlvs;
+  uint8_t num_tlvs;
 
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 38, ENC_NA);
   offset += 38;
@@ -532,7 +532,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         offset    = 0;
   proto_item *tf;
   proto_tree *flags_tree;
-  guint16     opcode;
+  uint16_t    opcode;
 
   col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
 
@@ -651,7 +651,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static bool
-capture_lane(const guchar *pd, int offset _U_,
+capture_lane(const unsigned char *pd, int offset _U_,
     int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
@@ -707,7 +707,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, FALSE);
+  return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, false);
 }
 
 /* AAL types */
@@ -777,27 +777,27 @@ static const value_string ipsilon_type_vals[] = {
 };
 
 static bool
-capture_atm(const guchar *pd, int offset,
+capture_atm(const unsigned char *pd, int offset,
     int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   if (pseudo_header->atm.aal == AAL_5) {
     return try_capture_dissector("atm.aal5.type", pseudo_header->atm.type, pd, offset, len, cpinfo, pseudo_header);
   }
-  return FALSE;
+  return false;
 }
 
 static void
 dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_item *atm_ti, proto_tree *atm_tree, gboolean truncated,
-    struct atm_phdr *atm_info, gboolean pseudowire_mode)
+    proto_item *atm_ti, proto_tree *atm_tree, bool truncated,
+    struct atm_phdr *atm_info, bool pseudowire_mode)
 {
-  guint     length, reported_length;
-  guint16   aal5_length;
+  unsigned  length, reported_length;
+  uint16_t  aal5_length;
   int       pad_length;
   tvbuff_t *next_tvb;
-  guint32   crc;
-  guint32   calc_crc;
-  gboolean  decoded;
+  uint32_t  crc;
+  uint32_t  calc_crc;
+  bool      decoded;
 
   /*
    * This is reassembled traffic, so the cell headers are missing;
@@ -935,12 +935,12 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    */
   if (dissector_try_uint_new(atm_reassembled_vpi_vci_table,
                              ((atm_info->vpi) << 16) | atm_info->vci,
-                             next_tvb, pinfo, tree, TRUE, atm_info))
+                             next_tvb, pinfo, tree, true, atm_info))
   {
     return;
   }
 
-  decoded = FALSE;
+  decoded = false;
   /*
    * Don't try to dissect the payload of PDUs with a reassembly
    * error.
@@ -950,21 +950,21 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_SIGNALLING:
     if (!(atm_info->flags & ATM_REASSEMBLY_ERROR)) {
       call_dissector(sscop_handle, next_tvb, pinfo, tree);
-      decoded = TRUE;
+      decoded = true;
     }
     break;
 
   case AAL_5:
     if (!(atm_info->flags & ATM_REASSEMBLY_ERROR)) {
-      if (dissector_try_uint_new(atm_type_aal5_table, atm_info->type, next_tvb, pinfo, tree, TRUE, atm_info))
+      if (dissector_try_uint_new(atm_type_aal5_table, atm_info->type, next_tvb, pinfo, tree, true, atm_info))
       {
-        decoded = TRUE;
+        decoded = true;
       }
       else
       {
         if (tvb_reported_length(next_tvb) > 7) /* sizeof(octet) */
         {
-          guint8 octet[8];
+          uint8_t octet[8];
           tvb_memcpy(next_tvb, octet, 0, sizeof(octet));
 
           if (octet[0] == 0xaa
@@ -972,12 +972,12 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            && octet[2] == 0x03) /* LLC SNAP as per RFC2684 */
           {
             call_dissector(llc_handle, next_tvb, pinfo, tree);
-            decoded = TRUE;
+            decoded = true;
           }
           else if ((pntoh16(octet) & 0xff) == PPP_IP)
           {
             call_dissector(ppp_handle, next_tvb, pinfo, tree);
-            decoded = TRUE;
+            decoded = true;
           }
           else if (pntoh16(octet) == 0x00)
           {
@@ -994,7 +994,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(tree, hf_atm_padding, tvb, 0, 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining(tvb, 2);
             call_dissector(eth_maybefcs_handle, next_tvb, pinfo, tree);
-            decoded = TRUE;
+            decoded = true;
           }
           else if (octet[2] == 0x03    && /* NLPID */
                   ((octet[3] == 0xcc   || /* IPv4  */
@@ -1004,7 +1004,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           {
             /* assume network interworking with FR 2 byte header */
             call_dissector(fr_handle, next_tvb, pinfo, tree);
-            decoded = TRUE;
+            decoded = true;
           }
           else if (octet[4] == 0x03    && /* NLPID */
                   ((octet[5] == 0xcc   || /* IPv4  */
@@ -1014,13 +1014,13 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           {
             /* assume network interworking with FR 4 byte header */
             call_dissector(fr_handle, next_tvb, pinfo, tree);
-            decoded = TRUE;
+            decoded = true;
           }
           else if (((octet[0] & 0xf0)== 0x40) ||
                    ((octet[0] & 0xf0) == 0x60))
           {
             call_dissector(ip_handle, next_tvb, pinfo, tree);
-            decoded = TRUE;
+            decoded = true;
           }
         }
       }
@@ -1050,7 +1050,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       if (dissector_try_uint(atm_type_aal2_table, atm_info->type, next_tvb, pinfo, tree))
       {
-        decoded = TRUE;
+        decoded = true;
       }
     }
     break;
@@ -1079,7 +1079,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 #define COSET_LEADER    0x055               /* x^6 + x^4 + x^2 + 1  */
 
-static const guint8 syndrome_table[256] = {
+static const uint8_t syndrome_table[256] = {
   0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15,
   0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d,
   0x70, 0x77, 0x7e, 0x79, 0x6c, 0x6b, 0x62, 0x65,
@@ -1253,9 +1253,9 @@ static const int err_posn_table[256] = {
  * and, if so, where the error was, if it was correctable.
  */
 static int
-get_header_err(const guint8 *cell_header)
+get_header_err(const uint8_t *cell_header)
 {
-  register guint8 syndrome;
+  register uint8_t syndrome;
   register int    i, err_posn;
 
   syndrome = 0;
@@ -1327,14 +1327,14 @@ static const value_string ft_ad_vals[] = {
 
 static void
 dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                         proto_tree *tree, guint aal, gboolean fill_columns,
+                         proto_tree *tree, unsigned aal, bool fill_columns,
                          struct atm_phdr *atm_info)
 {
   proto_tree *aal_tree;
   proto_item *ti;
-  guint8      octet;
-  gint        length;
-  guint16     aal3_4_hdr, crc10;
+  uint8_t     octet;
+  int         length;
+  uint16_t    aal3_4_hdr, crc10;
   tvbuff_t   *next_tvb;
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1344,7 +1344,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
    */
   if (dissector_try_uint_new(atm_cell_payload_vpi_vci_table,
                              ((atm_info->vpi) << 16) | atm_info->vci,
-                             next_tvb, pinfo, tree, TRUE, atm_info))
+                             next_tvb, pinfo, tree, true, atm_info))
   {
     return;
   }
@@ -1454,8 +1454,8 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * OAM F4 is VCI 3 or 4 and PT 0X0.
  * OAM F5 is PT 10X.
  */
-gboolean
-atm_is_oam_cell(const guint16 vci, const guint8 pt)
+bool
+atm_is_oam_cell(const uint16_t vci, const uint8_t pt)
 {
   return  (((vci == 3 || vci == 4) && ((pt & 0x5) == 0))
            || ((pt & 0x6) == 0x4));
@@ -1464,14 +1464,14 @@ atm_is_oam_cell(const guint16 vci, const guint8 pt)
 
 static void
 dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 proto_tree *atm_tree, guint aal, gboolean nni,
-                 gboolean crc_stripped, const struct atm_phdr *atm_info)
+                 proto_tree *atm_tree, unsigned aal, bool nni,
+                 bool crc_stripped, const struct atm_phdr *atm_info)
 {
   int         offset;
   proto_item *ti;
-  guint8      octet, pt;
+  uint8_t     octet, pt;
   int         err;
-  guint16     vpi, vci;
+  uint16_t    vpi, vci;
   struct atm_phdr atm_info_local;
 
   if (!nni) {
@@ -1538,7 +1538,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * FF: parse the Header Error Check (HEC).
      */
     ti = proto_tree_add_item(atm_tree, hf_atm_header_error_check, tvb, 4, 1, ENC_BIG_ENDIAN);
-    err = get_header_err((const guint8*)tvb_memdup(pinfo->pool, tvb, 0, 5));
+    err = get_header_err((const uint8_t*)tvb_memdup(pinfo->pool, tvb, 0, 5));
     if (err == NO_ERROR_DETECTED)
       proto_item_append_text(ti, " (correct)");
     else if (err == UNCORRECTIBLE_ERROR)
@@ -1587,12 +1587,12 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     atm_info_local.vci = vci;
   }
 
-  dissect_atm_cell_payload(tvb, offset, pinfo, tree, aal, TRUE, &atm_info_local);
+  dissect_atm_cell_payload(tvb, offset, pinfo, tree, aal, true, &atm_info_local);
 }
 
 static int
 dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean truncated, struct atm_phdr *atm_info, gboolean pseudowire_mode)
+    bool truncated, struct atm_phdr *atm_info, bool pseudowire_mode)
 {
   proto_tree *atm_tree        = NULL;
   proto_item *atm_ti          = NULL;
@@ -1655,7 +1655,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_item_set_len(atm_ti, 5);
     }
     dissect_atm_cell(tvb, pinfo, tree, atm_tree,
-                     atm_info->aal, FALSE,
+                     atm_info->aal, false,
                      atm_info->flags & ATM_NO_HEC, atm_info);
   } else {
     /* This is a reassembled PDU. */
@@ -1680,7 +1680,7 @@ dissect_atm_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
   DISSECTOR_ASSERT(atm_info != NULL);
 
-  return dissect_atm_common(tvb, pinfo, tree, TRUE, atm_info, FALSE);
+  return dissect_atm_common(tvb, pinfo, tree, true, atm_info, false);
 }
 
 static int
@@ -1690,7 +1690,7 @@ dissect_atm_pw_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
   DISSECTOR_ASSERT(atm_info != NULL);
 
-  return dissect_atm_common(tvb, pinfo, tree, TRUE, atm_info, TRUE);
+  return dissect_atm_common(tvb, pinfo, tree, true, atm_info, true);
 }
 
 static int
@@ -1700,7 +1700,7 @@ dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   DISSECTOR_ASSERT(atm_info != NULL);
 
-  return dissect_atm_common(tvb, pinfo, tree, FALSE, atm_info, FALSE);
+  return dissect_atm_common(tvb, pinfo, tree, false, atm_info, false);
 }
 
 static int
@@ -1710,7 +1710,7 @@ dissect_atm_pw_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   DISSECTOR_ASSERT(atm_info != NULL);
 
-  return dissect_atm_common(tvb, pinfo, tree, FALSE, atm_info, TRUE);
+  return dissect_atm_common(tvb, pinfo, tree, false, atm_info, true);
 }
 
 static int
@@ -1724,7 +1724,7 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   atm_ti   = proto_tree_add_item(tree, proto_atm, tvb, 0, 0, ENC_NA);
   atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE, NULL);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, false, false, NULL);
   return tvb_reported_length(tvb);
 }
 
@@ -1744,14 +1744,14 @@ dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_reported_length(tvb);
 }
 
-static void atm_prompt(packet_info *pinfo _U_, gchar* result)
+static void atm_prompt(packet_info *pinfo _U_, char* result)
 {
   snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode AAL2 traffic as");
 }
 
-static gpointer atm_value(packet_info *pinfo)
+static void *atm_value(packet_info *pinfo)
 {
-  return GUINT_TO_POINTER((guint)pinfo->pseudo_header->atm.type);
+  return GUINT_TO_POINTER((unsigned)pinfo->pseudo_header->atm.type);
 }
 
 void
@@ -1978,7 +1978,7 @@ proto_register_atm(void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_atm,
     &ett_ilmi,
     &ett_aal1,

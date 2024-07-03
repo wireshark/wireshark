@@ -44,7 +44,7 @@ void proto_reg_handoff_atn_cpdlc(void);
 static const char *object_identifier_id;
 
 /* IA5 charset (7-bit) for PER IA5 decoding */
-static const gchar ia5alpha[] = {
+static const char ia5alpha[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, \
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, \
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, \
@@ -81,7 +81,7 @@ static int dissect_ProtectedAircraftPDUs_PDU(
 #include "packet-atn-cpdlc-hf.c"
 
 #include "packet-atn-cpdlc-ett.c"
-static gint ett_atn_cpdlc;
+static int ett_atn_cpdlc;
 
 #include "packet-atn-cpdlc-fn.c"
 
@@ -301,7 +301,7 @@ void proto_register_atn_cpdlc (void)
         #include "packet-atn-cpdlc-hfarr.c"
       };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         #include "packet-atn-cpdlc-ettarr.c"
         &ett_atn_cpdlc
     };

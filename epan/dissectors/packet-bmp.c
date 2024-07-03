@@ -428,28 +428,28 @@ static int hf_bmpv4_tlv_value_bool;
 static int hf_bmpv4_tlv_value_index;
 static int hf_bmpv4_tlv_group_id;
 
-static gint ett_bmp;
-static gint ett_bmp_route_monitoring;
-static gint ett_bmp_stat_report;
-static gint ett_bmp_stat_type;
-static gint ett_bmp_peer_down;
-static gint ett_bmp_peer_up;
-static gint ett_bmp_peer_state_tlv;
-static gint ett_bmp_peer_header;
-static gint ett_bmp_peer_flags;
-static gint ett_bmp_init;
-static gint ett_bmp_init_types;
-static gint ett_bmp_init_type;
-static gint ett_bmp_term;
-static gint ett_bmp_term_type;
-static gint ett_bmp_term_types;
-static gint ett_bmp_route_mirroring;
-static gint ett_bmp_route_policy_flags;
-static gint ett_bmp_route_policy_tlv;
-static gint ett_bmp_route_policy_tlv_policy_flags;
-static gint ett_bmp_route_policy_tlv_policy;
-static gint ett_bmpv4_tlv;
-static gint ett_bmpv4_tlv_value;
+static int ett_bmp;
+static int ett_bmp_route_monitoring;
+static int ett_bmp_stat_report;
+static int ett_bmp_stat_type;
+static int ett_bmp_peer_down;
+static int ett_bmp_peer_up;
+static int ett_bmp_peer_state_tlv;
+static int ett_bmp_peer_header;
+static int ett_bmp_peer_flags;
+static int ett_bmp_init;
+static int ett_bmp_init_types;
+static int ett_bmp_init_type;
+static int ett_bmp_term;
+static int ett_bmp_term_type;
+static int ett_bmp_term_types;
+static int ett_bmp_route_mirroring;
+static int ett_bmp_route_policy_flags;
+static int ett_bmp_route_policy_tlv;
+static int ett_bmp_route_policy_tlv_policy_flags;
+static int ett_bmp_route_policy_tlv_policy;
+static int ett_bmpv4_tlv;
+static int ett_bmpv4_tlv_value;
 
 static expert_field ei_stat_data_unknown;
 static expert_field ei_bmpv4_tlv_wrong_cap_size;
@@ -463,9 +463,9 @@ static dissector_handle_t dissector_bgp;
 static bool bmp_desegment = true;
 
 typedef struct bmpv4_tlv_info {
-    guint16 type;
-    guint16 length;
-    guint16 idx;
+    uint16_t type;
+    uint16_t length;
+    uint16_t idx;
     bool has_index;
 } bmpv4_tlv_info;
 
@@ -489,11 +489,11 @@ typedef struct bmpv4_tlv_info {
  *   ~                      Value (variable)                         ~
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
-static bmpv4_tlv_info bmpv4_dissect_tlv_hdr(tvbuff_t *tvb, proto_tree **tree_ref, int *offset_ref, guint8 bmp_type) {
+static bmpv4_tlv_info bmpv4_dissect_tlv_hdr(tvbuff_t *tvb, proto_tree **tree_ref, int *offset_ref, uint8_t bmp_type) {
 
     int offset = *offset_ref;
     proto_tree *tree = *tree_ref;
-    guint32 value_holder;
+    uint32_t value_holder;
     bmpv4_tlv_info tlv = { 0 };
 
     tlv.type = tvb_get_ntohs(tvb, offset);
@@ -518,7 +518,7 @@ static bmpv4_tlv_info bmpv4_dissect_tlv_hdr(tvbuff_t *tvb, proto_tree **tree_ref
 
     if (tlv.has_index) {
         proto_tree_add_item_ret_uint(subtree, hf_bmpv4_tlv_index, tvb, offset, 2, ENC_BIG_ENDIAN, &value_holder);
-        tlv.idx = (guint16) value_holder;
+        tlv.idx = (uint16_t) value_holder;
         offset += 2;
     }
 
@@ -528,7 +528,7 @@ static bmpv4_tlv_info bmpv4_dissect_tlv_hdr(tvbuff_t *tvb, proto_tree **tree_ref
     return tlv;
 }
 
-static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 bmp_msg_type) {
+static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t bmp_msg_type) {
     bmpv4_tlv_info tlv = { 0 };
 
     while (tvb_captured_length_remaining(tvb, offset) >= 4) {
@@ -568,7 +568,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
             case BMPv4_TLV_TYPE_BGP_CAP_ADDPATH:
             case BMPv4_TLV_TYPE_BGP_CAP_MULTIPLE_LBL: {
 
-                guint16 cap_value = tvb_get_guint8(tvb, offset);
+                uint16_t cap_value = tvb_get_guint8(tvb, offset);
                 if (cap_value != 0 && cap_value != 1) {
                     expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_wrong_cap_value);
                 }
@@ -611,9 +611,9 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
  *
  */
 static void
-dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint8 flags _U_, bool is_v4)
+dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, int8_t flags _U_, bool is_v4)
 {
-    guint8 down_reason;
+    uint8_t down_reason;
 
     down_reason = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_peer_down_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -633,7 +633,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
             break;
         }
         case BMP_PEER_DOWN_LOCAL_SYSTEM_CLOSED: {
-            guint32 type, length;
+            uint32_t type, length;
             proto_item *tlv_item;
             proto_tree *tlv_tree;
             tlv_item = proto_tree_add_item(tree, hf_peer_state_tlv, tvb, offset, 2 + 2, ENC_NA);
@@ -692,7 +692,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
  *
  */
 static void
-dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint8 flags)
+dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, int8_t flags)
 {
     if (flags & BMP_PEER_FLAG_IPV6) {
         proto_tree_add_item(tree, hf_peer_up_ipv6_address, tvb, offset, 16, ENC_NA);
@@ -715,7 +715,7 @@ dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     offset += call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        guint32 type, length;
+        uint32_t type, length;
         proto_item *tlv_item;
         proto_tree *tlv_tree;
         tlv_item = proto_tree_add_item(tree, hf_peer_state_tlv, tvb, offset, 2 + 2, ENC_NA);
@@ -788,12 +788,12 @@ dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *p
  *
  */
 static void
-dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint8 flags _U_)
+dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, int8_t flags _U_)
 {
-    guint32 stat_len, stat_type;
-    guint32 i;
+    uint32_t stat_len, stat_type;
+    uint32_t i;
 
-    guint32 stats_count = tvb_get_ntohl(tvb, offset);
+    uint32_t stats_count = tvb_get_ntohl(tvb, offset);
 
     proto_tree_add_item(tree, hf_stats_count, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -920,10 +920,10 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
  *
  */
 static void
-dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, guint8 bmp_type _U_, guint16 len)
+dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, uint8_t bmp_type _U_, uint16_t len)
 {
-    guint16 term_type;
-    guint16 term_len;
+    uint16_t term_type;
+    uint16_t term_len;
 
     proto_item *ti;
     proto_item *subtree;
@@ -974,10 +974,10 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  *
  */
 static void
-dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_msg_type, guint16 len, guint8 bmp_version)
+dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, uint8_t bmp_msg_type, uint16_t len, uint8_t bmp_version)
 {
-    guint8  flags;
-    guint32 type;
+    uint8_t flags;
+    uint32_t type;
     proto_item *item;
     proto_item *ti;
     proto_item *peer_hdr_subtree;
@@ -1051,7 +1051,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
         }
         case BMP_MSG_TYPE_ROUTE_MIRRORING: {
             while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                guint32 route_mirroring_type, length;
+                uint32_t route_mirroring_type, length;
                 proto_tree_add_item_ret_uint(tree, hf_peer_route_mirroring_type, tvb, offset, 2, ENC_BIG_ENDIAN, &route_mirroring_type);
                 offset += 2;
                 proto_tree_add_item_ret_uint(tree, hf_peer_route_mirroring_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
@@ -1102,10 +1102,10 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
  *
  */
 static void
-dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, guint8 bmp_type _U_, guint16 len)
+dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, uint8_t bmp_type _U_, uint16_t len)
 {
-    guint16 init_type;
-    guint16 init_len;
+    uint16_t init_type;
+    uint16_t init_len;
     proto_tree *pti;
     proto_tree *parent_tree;
 
@@ -1164,7 +1164,7 @@ dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int of
 static int
 dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset)
 {
-    guint32 single_event_length;
+    uint32_t single_event_length;
 
     proto_tree_add_item_ret_uint(tree, hf_route_policy_single_event_length, tvb, offset, 2, ENC_NA, &single_event_length);
     offset += 2;
@@ -1195,7 +1195,7 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     single_event_length -=1;
 
     while (single_event_length > 0) {
-        guint32 type, length;
+        uint32_t type, length;
         proto_item *tlv_item;
         proto_tree *tlv_tree;
         tlv_item = proto_tree_add_item(tree, hf_route_policy_tlv, tvb, offset, 2+2, ENC_NA);
@@ -1222,8 +1222,8 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
             }
             break;
             case BMP_ROUTE_POLICY_TLV_POLICY: {
-                guint8 flags;
-                guint32 policy_count;
+                uint8_t flags;
+                uint32_t policy_count;
                 static int * const route_policy_tlv_policy_flags[] = {
                     &hf_route_policy_tlv_policy_flags_m,
                     &hf_route_policy_tlv_policy_flags_p,
@@ -1266,8 +1266,8 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
                 while(policy_count){
                     proto_item *policy_item;
                     proto_tree *policy_tree;
-                    const guint8 *policy_name, *policy_id;
-                    guint32 policy_name_length, policy_item_id_length;
+                    const uint8_t *policy_name, *policy_id;
+                    uint32_t policy_name_length, policy_item_id_length;
 
                     policy_item = proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy, tvb, offset, 2+2, ENC_NA);
                     policy_tree = proto_item_add_subtree(policy_item, ett_bmp_route_policy_tlv_policy);
@@ -1361,10 +1361,10 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  *
  */
 static void
-dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_type _U_, guint16 len _U_)
+dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, uint8_t bmp_type _U_, uint16_t len _U_)
 {
-    guint8 flags;
-    guint32 event_count;
+    uint8_t flags;
+    uint32_t event_count;
 
     static int * const route_policy_flags[] = {
         &hf_route_policy_flags_ipv6,
@@ -1421,7 +1421,7 @@ dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
  *   +---------------+
  *
  */
-static guint
+static unsigned
 get_bmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset + 1);
@@ -1431,9 +1431,9 @@ static int
 dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int         offset = 0;
-    guint8      bmp_type;
-    guint16     len;
-    gint        arg;
+    uint8_t     bmp_type;
+    uint16_t    len;
+    int         arg;
     proto_item  *ti;
     proto_item  *bmp_tree;
 
@@ -1478,9 +1478,9 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     bmp_tree = proto_item_add_subtree(ti, arg);
 
-    guint32 bmp_version_tmp = 0;
+    uint32_t bmp_version_tmp = 0;
     proto_tree_add_item_ret_uint(bmp_tree, hf_bmp_version, tvb, offset, 1, ENC_BIG_ENDIAN, &bmp_version_tmp);
-    guint8 bmp_version = (guint8) bmp_version_tmp;
+    uint8_t bmp_version = (uint8_t) bmp_version_tmp;
 
     offset += 1;
     proto_tree_add_item(bmp_tree, hf_bmp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1951,7 +1951,7 @@ proto_register_bmp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bmp,
         &ett_bmp_route_monitoring,
         &ett_bmp_stat_report,

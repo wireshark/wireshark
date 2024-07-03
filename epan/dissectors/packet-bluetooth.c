@@ -46,7 +46,7 @@ static int hf_bluetooth_addr_str;
 
 static int hf_llc_bluetooth_pid;
 
-static gint ett_bluetooth;
+static int ett_bluetooth;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t hci_usb_handle;
@@ -73,11 +73,11 @@ int bluetooth_hci_summary_tap;
 
 // UAT structure
 typedef struct _bt_uuid_t {
-    gchar *uuid;
-    gchar *label;
+    char *uuid;
+    char *label;
 } bt_uuid_t;
 static bt_uuid_t *bt_uuids;
-static guint num_bt_uuids;
+static unsigned num_bt_uuids;
 
 // Registery updated to published status of 28 December 2023
 
@@ -2531,7 +2531,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x03E4,   "Chip-ing AG" },
     { 0x03E5,   "ffly4u" },
     { 0x03E6,   "IoT Instruments Oy" },
-    { 0x03E7,   "TRUE Fitness Technology" },
+    { 0x03E7,   "true Fitness Technology" },
     { 0x03E8,   "Reiner Kartengeraete GmbH & Co. KG." },
     { 0x03E9,   "SHENZHEN LEMONJOY TECHNOLOGY CO., LTD." },
     { 0x03EA,   "Hello Inc." },
@@ -4969,7 +4969,7 @@ static const value_string bluetooth_pid_vals[] = {
     { 0,    NULL }
 };
 
-guint32 bluetooth_max_disconnect_in_frame = G_MAXUINT32;
+uint32_t bluetooth_max_disconnect_in_frame = UINT32_MAX;
 
 
 void proto_register_bluetooth(void);
@@ -4983,26 +4983,26 @@ bt_uuids_update_cb(void *r, char **err)
 
     if (rec->uuid == NULL) {
         *err = g_strdup("UUID can't be empty");
-        return FALSE;
+        return false;
     }
     g_strstrip(rec->uuid);
     if (rec->uuid[0] == 0) {
         *err = g_strdup("UUID can't be empty");
-        return FALSE;
+        return false;
     }
 
     if (rec->label == NULL) {
         *err = g_strdup("UUID Name can't be empty");
-        return FALSE;
+        return false;
     }
     g_strstrip(rec->label);
     if (rec->label[0] == 0) {
         *err = g_strdup("UUID Name can't be empty");
-        return FALSE;
+        return false;
     }
 
     *err = NULL;
-    return TRUE;
+    return true;
 }
 
 static void *
@@ -5022,7 +5022,7 @@ bt_uuids_free_cb(void*r)
 {
     bt_uuid_t* rec = (bt_uuid_t*)r;
 
-    const gchar *found_label;
+    const char *found_label;
 
     found_label = wmem_tree_lookup_string(bluetooth_uuids, rec->uuid, 0);
 
@@ -5038,7 +5038,7 @@ static void
 bt_uuids_post_update_cb(void)
 {
     if (num_bt_uuids) {
-        for (guint i = 0; i < num_bt_uuids; i++) {
+        for (unsigned i = 0; i < num_bt_uuids; i++) {
             wmem_tree_insert_string(bluetooth_uuids, bt_uuids[i].uuid,
                                     bt_uuids[i].label,
                                     0);
@@ -5055,35 +5055,35 @@ UAT_CSTRING_CB_DEF(bt_uuids, uuid, bt_uuid_t)
 UAT_CSTRING_CB_DEF(bt_uuids, label, bt_uuid_t)
 
 /* Decode As routines */
-static void bluetooth_uuid_prompt(packet_info *pinfo, gchar* result)
+static void bluetooth_uuid_prompt(packet_info *pinfo, char* result)
 {
-    gchar *value_data;
+    char *value_data;
 
-    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
+    value_data = (char *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
     if (value_data)
-        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "BT Service UUID %s as", (gchar *) value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "BT Service UUID %s as", (char *) value_data);
     else
         snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown BT Service UUID");
 }
 
-static gpointer bluetooth_uuid_value(packet_info *pinfo)
+static void *bluetooth_uuid_value(packet_info *pinfo)
 {
-    gchar *value_data;
+    char *value_data;
 
-    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
+    value_data = (char *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
 
     if (value_data)
-        return (gpointer) value_data;
+        return (void *) value_data;
 
     return NULL;
 }
 
-gint
-dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
-        tvbuff_t *tvb, gint offset, gboolean is_local_bd_addr,
-        guint32 interface_id, guint32 adapter_id, guint8 *bdaddr)
+int
+dissect_bd_addr(int hf_bd_addr, packet_info *pinfo, proto_tree *tree,
+        tvbuff_t *tvb, int offset, bool is_local_bd_addr,
+        uint32_t interface_id, uint32_t adapter_id, uint8_t *bdaddr)
 {
-    guint8 bd_addr[6];
+    uint8_t bd_addr[6];
 
     bd_addr[5] = tvb_get_guint8(tvb, offset);
     bd_addr[4] = tvb_get_guint8(tvb, offset + 1);
@@ -5102,7 +5102,7 @@ dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
         tap_device->interface_id = interface_id;
         tap_device->adapter_id   = adapter_id;
         memcpy(tap_device->bd_addr, bd_addr, 6);
-        tap_device->has_bd_addr = TRUE;
+        tap_device->has_bd_addr = true;
         tap_device->is_local = is_local_bd_addr;
         tap_device->type = BLUETOOTH_DEVICE_BD_ADDR;
         tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
@@ -5114,25 +5114,25 @@ dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-void bluetooth_unit_1p25_ms(gchar *buf, guint32 value) {
+void bluetooth_unit_1p25_ms(char *buf, uint32_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u)", 1.25 * value, value);
 }
 
-void bluetooth_unit_0p125_ms(gchar *buf, guint32 value) {
+void bluetooth_unit_0p125_ms(char *buf, uint32_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u)", 0.125 * value, value);
 }
 
 void
-save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        guint8 size, bluetooth_data_t *bluetooth_data)
+save_local_device_name_from_eir_ad(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        uint8_t size, bluetooth_data_t *bluetooth_data)
 {
-    gint                    i = 0;
-    guint8                  length;
+    int                     i = 0;
+    uint8_t                 length;
     wmem_tree_key_t         key[4];
-    guint32                 k_interface_id;
-    guint32                 k_adapter_id;
-    guint32                 k_frame_number;
-    gchar                   *name;
+    uint32_t                k_interface_id;
+    uint32_t                k_adapter_id;
+    uint32_t                k_frame_number;
+    char                    *name;
     localhost_name_entry_t  *localhost_name_entry;
 
     if (!(!pinfo->fd->visited && bluetooth_data)) return;
@@ -5239,8 +5239,8 @@ bluetooth_endpoint_packet(void *pit, packet_info *pinfo,
     conv_hash_t *hash = (conv_hash_t*) pit;
     hash->flags = flags;
 
-    add_endpoint_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_et_dissector_info, ENDPOINT_NONE);
-    add_endpoint_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_et_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, &pinfo->dl_src, 0, true,  1, pinfo->fd->pkt_len, &bluetooth_et_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, &pinfo->dl_dst, 0, false, 1, pinfo->fd->pkt_len, &bluetooth_et_dissector_info, ENDPOINT_NONE);
 
     return TAP_PACKET_REDRAW;
 }
@@ -5248,7 +5248,7 @@ bluetooth_endpoint_packet(void *pit, packet_info *pinfo,
 static conversation_t *
 get_conversation(packet_info *pinfo,
                      address *src_addr, address *dst_addr,
-                     guint32 src_endpoint, guint32 dst_endpoint)
+                     uint32_t src_endpoint, uint32_t dst_endpoint)
 {
     conversation_t *conversation;
 
@@ -5268,7 +5268,7 @@ get_conversation(packet_info *pinfo,
 }
 
 bluetooth_uuid_t
-get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
+get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size)
 {
     bluetooth_uuid_t  uuid;
 
@@ -5325,7 +5325,7 @@ get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
     return uuid;
 }
 
-const gchar *
+const char *
 print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
 {
     if (!(uuid && uuid->size > 0))
@@ -5334,9 +5334,9 @@ print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
     if (uuid->size != 16) {
         return bytes_to_str(pool, uuid->data, uuid->size);
     } else {
-        gchar *text;
+        char *text;
 
-        text = (gchar *) wmem_alloc(pool, 38);
+        text = (char *) wmem_alloc(pool, 38);
         bytes_to_hexstr(&text[0], uuid->data, 4);
         text[8] = '-';
         bytes_to_hexstr(&text[9], uuid->data + 4, 2);
@@ -5354,13 +5354,13 @@ print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
     return NULL;
 }
 
-const gchar *
+const char *
 print_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
 {
-    const gchar *description;
+    const char *description;
 
     if (uuid->bt_uuid) {
-        const gchar *name;
+        const char *name;
 
         /*
          * Known UUID?
@@ -5382,7 +5382,7 @@ print_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
     description = print_numeric_bluetooth_uuid(pool, uuid);
 
     if (description) {
-        description = (const gchar *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
+        description = (const char *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
         if (description)
             return description;
     }
@@ -5459,10 +5459,10 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_src_str, tvb, 0, 0, (const char *) src->data);
         proto_item_set_generated(sub_item);
     } else if (src && src->type == AT_ETHER) {
-        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) src->data);
+        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const uint8_t *) src->data);
         proto_item_set_hidden(sub_item);
 
-        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_src, tvb, 0, 0, (const guint8 *) src->data);
+        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_src, tvb, 0, 0, (const uint8_t *) src->data);
         proto_item_set_generated(sub_item);
     }
 
@@ -5473,10 +5473,10 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_dst_str, tvb, 0, 0, (const char *) dst->data);
         proto_item_set_generated(sub_item);
     } else if (dst && dst->type == AT_ETHER) {
-        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) dst->data);
+        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const uint8_t *) dst->data);
         proto_item_set_hidden(sub_item);
 
-        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_dst, tvb, 0, 0, (const guint8 *) dst->data);
+        sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_dst, tvb, 0, 0, (const uint8_t *) dst->data);
         proto_item_set_generated(sub_item);
     }
 
@@ -5493,7 +5493,7 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * the dissector registered in the bluetooth.encap table to handle the
  * metadata header in the packet.
  */
-static gint
+static int
 dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     bluetooth_data_t  *bluetooth_data;
@@ -5506,7 +5506,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     bluetooth_data->previous_protocol_data_type = BT_PD_NONE;
     bluetooth_data->previous_protocol_data.none = NULL;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, true, bluetooth_data)) {
         call_data_dissector(tvb, pinfo, tree);
     }
 
@@ -5522,7 +5522,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
  * the dissector registered in the bluetooth.encap table to handle the
  * metadata header in the packet.
  */
-static gint
+static int
 dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     bluetooth_data_t  *bluetooth_data;
@@ -5535,7 +5535,7 @@ dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data->previous_protocol_data_type = BT_PD_BTHCI;
     bluetooth_data->previous_protocol_data.bthci = (struct bthci_phdr *)data;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, true, bluetooth_data)) {
         call_data_dissector(tvb, pinfo, tree);
     }
 
@@ -5550,7 +5550,7 @@ dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  * the dissector registered in the bluetooth.encap table to handle the
  * metadata header in the packet.
  */
-static gint
+static int
 dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     bluetooth_data_t  *bluetooth_data;
@@ -5563,7 +5563,7 @@ dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data->previous_protocol_data_type = BT_PD_BTMON;
     bluetooth_data->previous_protocol_data.btmon = (struct btmon_phdr *)data;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, true, bluetooth_data)) {
         call_data_dissector(tvb, pinfo, tree);
     }
 
@@ -5573,7 +5573,7 @@ dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 /*
  * Register this in various USB dissector tables.
  */
-static gint
+static int
 dissect_bluetooth_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     bluetooth_data_t  *bluetooth_data;
@@ -5592,7 +5592,7 @@ dissect_bluetooth_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 /*
  * Register this by name; it's called from the Ubertooth dissector.
  */
-static gint
+static int
 dissect_bluetooth_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     bluetooth_data_t  *bluetooth_data;
@@ -5654,7 +5654,7 @@ proto_register_bluetooth(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bluetooth,
     };
 
@@ -5705,7 +5705,7 @@ proto_register_bluetooth(void)
     bluetooth_uuid_table = register_dissector_table("bluetooth.uuid", "BT Service UUID", proto_bluetooth, FT_STRING, STRING_CASE_SENSITIVE);
     llc_add_oui(OUI_BLUETOOTH, "llc.bluetooth_pid", "LLC Bluetooth OUI PID", oui_hf, proto_bluetooth);
 
-    register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_endpoint_packet);
+    register_conversation_table(proto_bluetooth, true, bluetooth_conversation_packet, bluetooth_endpoint_packet);
 
     register_decode_as(&bluetooth_uuid_da);
 
@@ -5713,7 +5713,7 @@ proto_register_bluetooth(void)
     bluetooth_uuids_uat = uat_new("Custom Bluetooth UUID names",
                                   sizeof(bt_uuid_t),
                                   "bluetooth_uuids",
-                                  TRUE,
+                                  true,
                                   &bt_uuids,
                                   &num_bt_uuids,
                                   UAT_AFFECTS_DISSECTION,
@@ -5787,7 +5787,7 @@ static int hf_btad_apple_ibeacon_uuid128;
 static int hf_btad_apple_ibeacon_major;
 static int hf_btad_apple_ibeacon_minor;
 
-static gint ett_btad_apple_ibeacon;
+static int ett_btad_apple_ibeacon;
 
 static dissector_handle_t btad_apple_ibeacon;
 
@@ -5795,12 +5795,12 @@ void proto_register_btad_apple_ibeacon(void);
 void proto_reg_handoff_btad_apple_ibeacon(void);
 
 
-static gint
+static int
 dissect_btad_apple_ibeacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree       *main_tree;
     proto_item       *main_item;
-    gint              offset = 0;
+    int               offset = 0;
 
     main_item = proto_tree_add_item(tree, proto_btad_apple_ibeacon, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btad_apple_ibeacon);
@@ -5838,7 +5838,7 @@ proto_register_btad_apple_ibeacon(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btad_apple_ibeacon,
     };
 
@@ -5863,7 +5863,7 @@ static int hf_btad_alt_beacon_id;
 static int hf_btad_alt_beacon_reference_rssi;
 static int hf_btad_alt_beacon_manufacturer_data;
 
-static gint ett_btad_alt_beacon;
+static int ett_btad_alt_beacon;
 
 static dissector_handle_t btad_alt_beacon;
 
@@ -5871,12 +5871,12 @@ void proto_register_btad_alt_beacon(void);
 void proto_reg_handoff_btad_alt_beacon(void);
 
 
-static gint
+static int
 dissect_btad_alt_beacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree       *main_tree;
     proto_item       *main_item;
-    gint              offset = 0;
+    int               offset = 0;
 
     main_item = proto_tree_add_item(tree, proto_btad_alt_beacon, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btad_alt_beacon);
@@ -5922,7 +5922,7 @@ proto_register_btad_alt_beacon(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btad_alt_beacon,
     };
 
@@ -5943,19 +5943,19 @@ static int proto_btad_gaen;
 static int hf_btad_gaen_rpi128;
 static int hf_btad_gaen_aemd32;
 
-static gint ett_btad_gaen;
+static int ett_btad_gaen;
 
 static dissector_handle_t btad_gaen;
 
 void proto_register_btad_gaen(void);
 void proto_reg_handoff_btad_gaen(void);
 
-static gint
+static int
 dissect_btad_gaen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree       *main_tree;
     proto_item       *main_item;
-    gint             offset = 0;
+    int              offset = 0;
 
     /* The "Service Data" blob of data has the following format for GAEN:
     1 byte: length (0x17)
@@ -5998,7 +5998,7 @@ proto_register_btad_gaen(void)
     }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btad_gaen,
     };
 

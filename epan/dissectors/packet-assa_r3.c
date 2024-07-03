@@ -214,7 +214,7 @@ typedef enum
   CONFIGITEM_CKSUMCONFIG,                 /*   16 - Configuration NVRAM checksum enable/disable  */
   CONFIGITEM_DAILY_BATTERY_CHECK,         /*   17 - Enable/disable daily battery check */
   CONFIGITEM_DAILY_BATTERY_CHECK_HOUR,    /*   18 - If daily battery check enabled, top of the hour to check at */
-  CONFIGITEM_BATTERY_LOW,                 /*   19 - Return low battery status (TRUE = low) */
+  CONFIGITEM_BATTERY_LOW,                 /*   19 - Return low battery status (true = low) */
 
   CONFIGITEM_LRU_HEAD,                    /*   20 - Cache LRU head pointer */
   CONFIGITEM_LRU_TAIL,                    /*   21 - Cache LRU tail pointer */
@@ -1024,714 +1024,714 @@ userType_e;
 /*
  *  Wireshark ID of the R3 protocol
  */
-static gint proto_r3;
+static int proto_r3;
 
 /*
  *  Packet variables
  */
-static gint hf_r3_tildex3ds;           /* Got ~~~ds */
+static int hf_r3_tildex3ds;           /* Got ~~~ds */
 
-static gint hf_r3_header;              /* Packet header */
-static gint hf_r3_payload;             /* Packet payload */
-static gint hf_r3_tail;                /* Packet tail */
+static int hf_r3_header;              /* Packet header */
+static int hf_r3_payload;             /* Packet payload */
+static int hf_r3_tail;                /* Packet tail */
 
-static gint hf_r3_sigil;               /* Packet sigil */
-static gint hf_r3_address;             /* Packet address */
-static gint hf_r3_packetnumber;        /* Packet number */
-static gint hf_r3_packetlength;        /* Packet length */
-static gint hf_r3_encryption;          /* Packet encryption scheme */
-static gint hf_r3_crc;                 /* Packet CRC */
-static gint hf_r3_crc_bad;             /* Packet CRC bad (for filtering) */
-static gint hf_r3_xor;                 /* Packet Xor */
-static gint hf_r3_xor_bad;             /* Packet Xor bad (for filtering) */
+static int hf_r3_sigil;               /* Packet sigil */
+static int hf_r3_address;             /* Packet address */
+static int hf_r3_packetnumber;        /* Packet number */
+static int hf_r3_packetlength;        /* Packet length */
+static int hf_r3_encryption;          /* Packet encryption scheme */
+static int hf_r3_crc;                 /* Packet CRC */
+static int hf_r3_crc_bad;             /* Packet CRC bad (for filtering) */
+static int hf_r3_xor;                 /* Packet Xor */
+static int hf_r3_xor_bad;             /* Packet Xor bad (for filtering) */
 
-static gint hf_r3_commandlength;       /* Command length */
-static gint hf_r3_command;             /* Command (cmdCommand_e) */
-static gint hf_r3_commanddata;         /* Command data (not always present) */
+static int hf_r3_commandlength;       /* Command length */
+static int hf_r3_command;             /* Command (cmdCommand_e) */
+static int hf_r3_commanddata;         /* Command data (not always present) */
 
-static gint hf_r3_commandmfglength;    /* Mfg Command length */
-static gint hf_r3_commandmfg;          /* Mfg Command (cmdCommand_e) */
-/*static gint hf_r3_commandmfgdata;*/    /* Mfg Command data (not always present) */
+static int hf_r3_commandmfglength;    /* Mfg Command length */
+static int hf_r3_commandmfg;          /* Mfg Command (cmdCommand_e) */
+/*static int hf_r3_commandmfgdata;*/    /* Mfg Command data (not always present) */
 
-static gint hf_r3_responselength;      /* Response length */
-static gint hf_r3_responsecommand;     /* Response command */
-static gint hf_r3_responsetype;        /* Response type (responseType_e) */
-static gint hf_r3_responsetocommand;   /* Response to command (cmdCommand_e) */
-/*static gint hf_r3_responsedata;*/       /* Response data (not always present) */
+static int hf_r3_responselength;      /* Response length */
+static int hf_r3_responsecommand;     /* Response command */
+static int hf_r3_responsetype;        /* Response type (responseType_e) */
+static int hf_r3_responsetocommand;   /* Response to command (cmdCommand_e) */
+/*static int hf_r3_responsedata;*/       /* Response data (not always present) */
 
-static gint hf_r3_upstreamcommand;
+static int hf_r3_upstreamcommand;
 
-static gint hf_r3_upstreamfield;       /* Upstream field (length + type + data) */
-static gint hf_r3_upstreamfieldlength; /* Upstream field length */
-static gint hf_r3_upstreamfieldtype;   /* Upstream field type (upstreamField_e) */
-/*static gint hf_r3_upstreamfielddatalen;*/         /* Upstream field data length */
-static gint hf_r3_upstreamfielderror;  /* Upstream field is unknown type */
-static gint hf_r3_upstreamfieldarray[UPSTREAMFIELD_LAST];
+static int hf_r3_upstreamfield;       /* Upstream field (length + type + data) */
+static int hf_r3_upstreamfieldlength; /* Upstream field length */
+static int hf_r3_upstreamfieldtype;   /* Upstream field type (upstreamField_e) */
+/*static int hf_r3_upstreamfielddatalen;*/         /* Upstream field data length */
+static int hf_r3_upstreamfielderror;  /* Upstream field is unknown type */
+static int hf_r3_upstreamfieldarray[UPSTREAMFIELD_LAST];
 
-static gint hf_r3_configitems;
-static gint hf_r3_configitem;
-/*static gint hf_r3_configfield;*/
-static gint hf_r3_configitemlength;
-static gint hf_r3_configitemtype;
-static gint hf_r3_configitemdata;
-static gint hf_r3_configitemdata_bool;
-static gint hf_r3_configitemdata_8;
-static gint hf_r3_configitemdata_16;
-static gint hf_r3_configitemdata_32;
-static gint hf_r3_configitemdata_string;
+static int hf_r3_configitems;
+static int hf_r3_configitem;
+/*static int hf_r3_configfield;*/
+static int hf_r3_configitemlength;
+static int hf_r3_configitemtype;
+static int hf_r3_configitemdata;
+static int hf_r3_configitemdata_bool;
+static int hf_r3_configitemdata_8;
+static int hf_r3_configitemdata_16;
+static int hf_r3_configitemdata_32;
+static int hf_r3_configitemdata_string;
 
-static gint hf_r3_timezonearray0;
-static gint hf_r3_timezonearray1;
-static gint hf_r3_timezonearray2;
-static gint hf_r3_timezonearray3;
-static gint hf_r3_timezonearray4;
-static gint hf_r3_timezonearray5;
-static gint hf_r3_timezonearray6;
-static gint hf_r3_timezonearray7;
-static gint hf_r3_timezonearray8;
-static gint hf_r3_timezonearray9;
-static gint hf_r3_timezonearray10;
-static gint hf_r3_timezonearray11;
-static gint hf_r3_timezonearray12;
-static gint hf_r3_timezonearray13;
-static gint hf_r3_timezonearray14;
-static gint hf_r3_timezonearray15;
-static gint hf_r3_timezonearray16;
-static gint hf_r3_timezonearray17;
-static gint hf_r3_timezonearray18;
-static gint hf_r3_timezonearray19;
-static gint hf_r3_timezonearray20;
-static gint hf_r3_timezonearray21;
-static gint hf_r3_timezonearray22;
-static gint hf_r3_timezonearray23;
-static gint hf_r3_timezonearray24;
-static gint hf_r3_timezonearray25;
-static gint hf_r3_timezonearray26;
-static gint hf_r3_timezonearray27;
-static gint hf_r3_timezonearray28;
-static gint hf_r3_timezonearray29;
-static gint hf_r3_timezonearray30;
-static gint hf_r3_timezonearray31;
+static int hf_r3_timezonearray0;
+static int hf_r3_timezonearray1;
+static int hf_r3_timezonearray2;
+static int hf_r3_timezonearray3;
+static int hf_r3_timezonearray4;
+static int hf_r3_timezonearray5;
+static int hf_r3_timezonearray6;
+static int hf_r3_timezonearray7;
+static int hf_r3_timezonearray8;
+static int hf_r3_timezonearray9;
+static int hf_r3_timezonearray10;
+static int hf_r3_timezonearray11;
+static int hf_r3_timezonearray12;
+static int hf_r3_timezonearray13;
+static int hf_r3_timezonearray14;
+static int hf_r3_timezonearray15;
+static int hf_r3_timezonearray16;
+static int hf_r3_timezonearray17;
+static int hf_r3_timezonearray18;
+static int hf_r3_timezonearray19;
+static int hf_r3_timezonearray20;
+static int hf_r3_timezonearray21;
+static int hf_r3_timezonearray22;
+static int hf_r3_timezonearray23;
+static int hf_r3_timezonearray24;
+static int hf_r3_timezonearray25;
+static int hf_r3_timezonearray26;
+static int hf_r3_timezonearray27;
+static int hf_r3_timezonearray28;
+static int hf_r3_timezonearray29;
+static int hf_r3_timezonearray30;
+static int hf_r3_timezonearray31;
 
-static gint hf_r3_expireon_year;
-static gint hf_r3_expireon_month;
-static gint hf_r3_expireon_day;
+static int hf_r3_expireon_year;
+static int hf_r3_expireon_month;
+static int hf_r3_expireon_day;
 
-static gint hf_r3_datetime_year;
-static gint hf_r3_datetime_month;
-static gint hf_r3_datetime_day;
-static gint hf_r3_datetime_dow;
-static gint hf_r3_datetime_hours;
-static gint hf_r3_datetime_minutes;
-static gint hf_r3_datetime_seconds;
-static gint hf_r3_datetime_dst;
+static int hf_r3_datetime_year;
+static int hf_r3_datetime_month;
+static int hf_r3_datetime_day;
+static int hf_r3_datetime_dow;
+static int hf_r3_datetime_hours;
+static int hf_r3_datetime_minutes;
+static int hf_r3_datetime_seconds;
+static int hf_r3_datetime_dst;
 
-static gint hf_r3_eventlog_recordnumber;
-static gint hf_r3_eventlog_year;
-static gint hf_r3_eventlog_month;
-static gint hf_r3_eventlog_day;
-static gint hf_r3_eventlog_hour;
-static gint hf_r3_eventlog_minute;
-static gint hf_r3_eventlog_second;
-static gint hf_r3_eventlog_usernumber;
-static gint hf_r3_eventlog_event;
+static int hf_r3_eventlog_recordnumber;
+static int hf_r3_eventlog_year;
+static int hf_r3_eventlog_month;
+static int hf_r3_eventlog_day;
+static int hf_r3_eventlog_hour;
+static int hf_r3_eventlog_minute;
+static int hf_r3_eventlog_second;
+static int hf_r3_eventlog_usernumber;
+static int hf_r3_eventlog_event;
 
-static gint hf_r3_declinedlog_recordnumber;
-static gint hf_r3_declinedlog_year;
-static gint hf_r3_declinedlog_month;
-static gint hf_r3_declinedlog_day;
-static gint hf_r3_declinedlog_hour;
-static gint hf_r3_declinedlog_minute;
-static gint hf_r3_declinedlog_second;
-static gint hf_r3_declinedlog_usernumber;
-static gint hf_r3_declinedlog_cred1type;
-static gint hf_r3_declinedlog_cred2type;
-static gint hf_r3_declinedlog_cred1;
-static gint hf_r3_declinedlog_cred2;
+static int hf_r3_declinedlog_recordnumber;
+static int hf_r3_declinedlog_year;
+static int hf_r3_declinedlog_month;
+static int hf_r3_declinedlog_day;
+static int hf_r3_declinedlog_hour;
+static int hf_r3_declinedlog_minute;
+static int hf_r3_declinedlog_second;
+static int hf_r3_declinedlog_usernumber;
+static int hf_r3_declinedlog_cred1type;
+static int hf_r3_declinedlog_cred2type;
+static int hf_r3_declinedlog_cred1;
+static int hf_r3_declinedlog_cred2;
 
-static gint hf_r3_alarmlog_recordnumber;
-static gint hf_r3_alarmlog_year;
-static gint hf_r3_alarmlog_month;
-static gint hf_r3_alarmlog_day;
-static gint hf_r3_alarmlog_hour;
-static gint hf_r3_alarmlog_minute;
-static gint hf_r3_alarmlog_second;
-static gint hf_r3_alarmlog_id;
-static gint hf_r3_alarmlog_usernumber;
+static int hf_r3_alarmlog_recordnumber;
+static int hf_r3_alarmlog_year;
+static int hf_r3_alarmlog_month;
+static int hf_r3_alarmlog_day;
+static int hf_r3_alarmlog_hour;
+static int hf_r3_alarmlog_minute;
+static int hf_r3_alarmlog_second;
+static int hf_r3_alarmlog_id;
+static int hf_r3_alarmlog_usernumber;
 
-static gint hf_r3_debugmsg;
+static int hf_r3_debugmsg;
 
-static gint hf_r3_setdate_year;
-static gint hf_r3_setdate_month;
-static gint hf_r3_setdate_day;
-static gint hf_r3_setdate_dow;
-static gint hf_r3_setdate_hours;
-static gint hf_r3_setdate_minutes;
-static gint hf_r3_setdate_seconds;
+static int hf_r3_setdate_year;
+static int hf_r3_setdate_month;
+static int hf_r3_setdate_day;
+static int hf_r3_setdate_dow;
+static int hf_r3_setdate_hours;
+static int hf_r3_setdate_minutes;
+static int hf_r3_setdate_seconds;
 
-static gint hf_r3_deleteusers;
+static int hf_r3_deleteusers;
 
-static gint hf_r3_defineexception_number;
-static gint hf_r3_defineexception_startdate_month;
-static gint hf_r3_defineexception_startdate_day;
-static gint hf_r3_defineexception_startdate_hours;
-static gint hf_r3_defineexception_startdate_minutes;
-static gint hf_r3_defineexception_enddate_month;
-static gint hf_r3_defineexception_enddate_day;
-static gint hf_r3_defineexception_enddate_hours;
-static gint hf_r3_defineexception_enddate_minutes;
+static int hf_r3_defineexception_number;
+static int hf_r3_defineexception_startdate_month;
+static int hf_r3_defineexception_startdate_day;
+static int hf_r3_defineexception_startdate_hours;
+static int hf_r3_defineexception_startdate_minutes;
+static int hf_r3_defineexception_enddate_month;
+static int hf_r3_defineexception_enddate_day;
+static int hf_r3_defineexception_enddate_hours;
+static int hf_r3_defineexception_enddate_minutes;
 
-static gint hf_r3_defineexceptiongroup_number;
-static gint hf_r3_defineexceptiongroup_bits;
+static int hf_r3_defineexceptiongroup_number;
+static int hf_r3_defineexceptiongroup_bits;
 
-static gint hf_r3_definecalendar_number;
-static gint hf_r3_definecalendar_bits;
+static int hf_r3_definecalendar_number;
+static int hf_r3_definecalendar_bits;
 
-static gint hf_r3_definetimezone_number;
-static gint hf_r3_definetimezone_starttime_hours;
-static gint hf_r3_definetimezone_starttime_minutes;
-static gint hf_r3_definetimezone_endtime_hours;
-static gint hf_r3_definetimezone_endtime_minutes;
-static gint hf_r3_definetimezone_daymap;
-static gint hf_r3_definetimezone_daymap0;
-static gint hf_r3_definetimezone_daymap1;
-static gint hf_r3_definetimezone_daymap2;
-static gint hf_r3_definetimezone_daymap3;
-static gint hf_r3_definetimezone_daymap4;
-static gint hf_r3_definetimezone_daymap5;
-static gint hf_r3_definetimezone_daymap6;
-static gint hf_r3_definetimezone_exceptiongroup;
-static gint hf_r3_definetimezone_mode;
-static gint hf_r3_definetimezone_calendar;
+static int hf_r3_definetimezone_number;
+static int hf_r3_definetimezone_starttime_hours;
+static int hf_r3_definetimezone_starttime_minutes;
+static int hf_r3_definetimezone_endtime_hours;
+static int hf_r3_definetimezone_endtime_minutes;
+static int hf_r3_definetimezone_daymap;
+static int hf_r3_definetimezone_daymap0;
+static int hf_r3_definetimezone_daymap1;
+static int hf_r3_definetimezone_daymap2;
+static int hf_r3_definetimezone_daymap3;
+static int hf_r3_definetimezone_daymap4;
+static int hf_r3_definetimezone_daymap5;
+static int hf_r3_definetimezone_daymap6;
+static int hf_r3_definetimezone_exceptiongroup;
+static int hf_r3_definetimezone_mode;
+static int hf_r3_definetimezone_calendar;
 
-static gint hf_r3_rmtauthretry_sequence;
-static gint hf_r3_rmtauthretry_retry;
+static int hf_r3_rmtauthretry_sequence;
+static int hf_r3_rmtauthretry_retry;
 
-static gint hf_r3_eventlogdump_starttime_year;
-static gint hf_r3_eventlogdump_starttime_month;
-static gint hf_r3_eventlogdump_starttime_day;
-static gint hf_r3_eventlogdump_starttime_hours;
-static gint hf_r3_eventlogdump_starttime_minutes;
-static gint hf_r3_eventlogdump_endtime_year;
-static gint hf_r3_eventlogdump_endtime_month;
-static gint hf_r3_eventlogdump_endtime_day;
-static gint hf_r3_eventlogdump_endtime_hours;
-static gint hf_r3_eventlogdump_endtime_minutes;
-static gint hf_r3_eventlogdump_user;
+static int hf_r3_eventlogdump_starttime_year;
+static int hf_r3_eventlogdump_starttime_month;
+static int hf_r3_eventlogdump_starttime_day;
+static int hf_r3_eventlogdump_starttime_hours;
+static int hf_r3_eventlogdump_starttime_minutes;
+static int hf_r3_eventlogdump_endtime_year;
+static int hf_r3_eventlogdump_endtime_month;
+static int hf_r3_eventlogdump_endtime_day;
+static int hf_r3_eventlogdump_endtime_hours;
+static int hf_r3_eventlogdump_endtime_minutes;
+static int hf_r3_eventlogdump_user;
 
-static gint hf_r3_declinedlogdump_starttime_year;
-static gint hf_r3_declinedlogdump_starttime_month;
-static gint hf_r3_declinedlogdump_starttime_day;
-static gint hf_r3_declinedlogdump_starttime_hours;
-static gint hf_r3_declinedlogdump_starttime_minutes;
-static gint hf_r3_declinedlogdump_endtime_year;
-static gint hf_r3_declinedlogdump_endtime_month;
-static gint hf_r3_declinedlogdump_endtime_day;
-static gint hf_r3_declinedlogdump_endtime_hours;
-static gint hf_r3_declinedlogdump_endtime_minutes;
+static int hf_r3_declinedlogdump_starttime_year;
+static int hf_r3_declinedlogdump_starttime_month;
+static int hf_r3_declinedlogdump_starttime_day;
+static int hf_r3_declinedlogdump_starttime_hours;
+static int hf_r3_declinedlogdump_starttime_minutes;
+static int hf_r3_declinedlogdump_endtime_year;
+static int hf_r3_declinedlogdump_endtime_month;
+static int hf_r3_declinedlogdump_endtime_day;
+static int hf_r3_declinedlogdump_endtime_hours;
+static int hf_r3_declinedlogdump_endtime_minutes;
 
-static gint hf_r3_alarmlogdump_starttime_year;
-static gint hf_r3_alarmlogdump_starttime_month;
-static gint hf_r3_alarmlogdump_starttime_day;
-static gint hf_r3_alarmlogdump_starttime_hours;
-static gint hf_r3_alarmlogdump_starttime_minutes;
-static gint hf_r3_alarmlogdump_endtime_year;
-static gint hf_r3_alarmlogdump_endtime_month;
-static gint hf_r3_alarmlogdump_endtime_day;
-static gint hf_r3_alarmlogdump_endtime_hours;
-static gint hf_r3_alarmlogdump_endtime_minutes;
+static int hf_r3_alarmlogdump_starttime_year;
+static int hf_r3_alarmlogdump_starttime_month;
+static int hf_r3_alarmlogdump_starttime_day;
+static int hf_r3_alarmlogdump_starttime_hours;
+static int hf_r3_alarmlogdump_starttime_minutes;
+static int hf_r3_alarmlogdump_endtime_year;
+static int hf_r3_alarmlogdump_endtime_month;
+static int hf_r3_alarmlogdump_endtime_day;
+static int hf_r3_alarmlogdump_endtime_hours;
+static int hf_r3_alarmlogdump_endtime_minutes;
 
-static gint hf_r3_nvramclearoptions;
-static gint hf_r3_nvramclearoptions0;
-static gint hf_r3_nvramclearoptions1;
-static gint hf_r3_nvramclearoptions2;
-static gint hf_r3_nvramclearoptions3;
-static gint hf_r3_nvramclearoptions4;
-static gint hf_r3_nvramclearoptions5;
-static gint hf_r3_nvramclearoptions6;
-static gint hf_r3_nvramclearoptions7;
-static gint hf_r3_nvramclearoptions8;
-static gint hf_r3_nvramclearoptions9;
-static gint hf_r3_nvramclearoptions10;
-static gint hf_r3_nvramclearoptions11;
-static gint hf_r3_nvramclearoptions12;
-static gint hf_r3_nvramclearoptions13;
-static gint hf_r3_nvramclearoptions14;
-static gint hf_r3_nvramclearoptions15;
+static int hf_r3_nvramclearoptions;
+static int hf_r3_nvramclearoptions0;
+static int hf_r3_nvramclearoptions1;
+static int hf_r3_nvramclearoptions2;
+static int hf_r3_nvramclearoptions3;
+static int hf_r3_nvramclearoptions4;
+static int hf_r3_nvramclearoptions5;
+static int hf_r3_nvramclearoptions6;
+static int hf_r3_nvramclearoptions7;
+static int hf_r3_nvramclearoptions8;
+static int hf_r3_nvramclearoptions9;
+static int hf_r3_nvramclearoptions10;
+static int hf_r3_nvramclearoptions11;
+static int hf_r3_nvramclearoptions12;
+static int hf_r3_nvramclearoptions13;
+static int hf_r3_nvramclearoptions14;
+static int hf_r3_nvramclearoptions15;
 
-static gint hf_r3_writeeventlog_user;
-static gint hf_r3_writeeventlog_event;
+static int hf_r3_writeeventlog_user;
+static int hf_r3_writeeventlog_event;
 
-static gint hf_r3_powertableselection;
+static int hf_r3_powertableselection;
 
-static gint hf_r3_filter_type;
-static gint hf_r3_filter_list;
+static int hf_r3_filter_type;
+static int hf_r3_filter_list;
 
-static gint hf_r3_alarm_length;
-static gint hf_r3_alarm_id;
-static gint hf_r3_alarm_state;
+static int hf_r3_alarm_length;
+static int hf_r3_alarm_id;
+static int hf_r3_alarm_state;
 
-static gint hf_r3_dpac_action;
-static gint hf_r3_dpac_waittime;
-static gint hf_r3_dpac_command;
+static int hf_r3_dpac_action;
+static int hf_r3_dpac_waittime;
+static int hf_r3_dpac_command;
 
-static gint hf_r3_dpacreply_stuff;
-static gint hf_r3_dpacreply_length;
-static gint hf_r3_dpacreply_reply;
+static int hf_r3_dpacreply_stuff;
+static int hf_r3_dpacreply_length;
+static int hf_r3_dpacreply_reply;
 
-static gint hf_r3_mfgfield_length;
-static gint hf_r3_mfgfield;
-/*static gint hf_r3_mfgfield_data;*/
+static int hf_r3_mfgfield_length;
+static int hf_r3_mfgfield;
+/*static int hf_r3_mfgfield_data;*/
 
-static gint hf_r3_mfgsetserialnumber;
-static gint hf_r3_mfgsetcryptkey;
-static gint hf_r3_mfgdumpnvram;
-static gint hf_r3_mfgremoteunlock;
-static gint hf_r3_mfgtestpreserve;
+static int hf_r3_mfgsetserialnumber;
+static int hf_r3_mfgsetcryptkey;
+static int hf_r3_mfgdumpnvram;
+static int hf_r3_mfgremoteunlock;
+static int hf_r3_mfgtestpreserve;
 
-static gint hf_r3_adc [8];
+static int hf_r3_adc [8];
 
-static gint hf_r3_hardwareid_board;
-static gint hf_r3_hardwareid_cpuid;
-static gint hf_r3_hardwareid_cpurev;
+static int hf_r3_hardwareid_board;
+static int hf_r3_hardwareid_cpuid;
+static int hf_r3_hardwareid_cpurev;
 
-static gint hf_r3_testkeypad;
-static gint hf_r3_testmagcard;
-static gint hf_r3_testproxcard;
+static int hf_r3_testkeypad;
+static int hf_r3_testmagcard;
+static int hf_r3_testproxcard;
 
-static gint hf_r3_nvramdump_record;
-static gint hf_r3_nvramdump_length;
-static gint hf_r3_nvramdump_data;
+static int hf_r3_nvramdump_record;
+static int hf_r3_nvramdump_length;
+static int hf_r3_nvramdump_data;
 
-static gint hf_r3_nvramdumprle_record;
-static gint hf_r3_nvramdumprle_length;
-static gint hf_r3_nvramdumprle_data;
+static int hf_r3_nvramdumprle_record;
+static int hf_r3_nvramdumprle_length;
+static int hf_r3_nvramdumprle_data;
 
-static gint hf_r3_iopins_lat;
-static gint hf_r3_iopins_port;
-static gint hf_r3_iopins_tris;
+static int hf_r3_iopins_lat;
+static int hf_r3_iopins_port;
+static int hf_r3_iopins_tris;
 
-static gint hf_r3_mortisepins_s1;
-static gint hf_r3_mortisepins_s2;
-static gint hf_r3_mortisepins_s3;
-static gint hf_r3_mortisepins_s4;
+static int hf_r3_mortisepins_s1;
+static int hf_r3_mortisepins_s2;
+static int hf_r3_mortisepins_s3;
+static int hf_r3_mortisepins_s4;
 
-static gint hf_r3_checksumresults;
-static gint hf_r3_checksumresults_field;
-static gint hf_r3_checksumresults_length;
-static gint hf_r3_checksumresults_state;
+static int hf_r3_checksumresults;
+static int hf_r3_checksumresults_field;
+static int hf_r3_checksumresults_length;
+static int hf_r3_checksumresults_state;
 
-static gint hf_r3_forceoptions_length;
-static gint hf_r3_forceoptions_item;
-static gint hf_r3_forceoptions_state_8;
-static gint hf_r3_forceoptions_state_16;
-static gint hf_r3_forceoptions_state_24;
-static gint hf_r3_forceoptions_state_32;
+static int hf_r3_forceoptions_length;
+static int hf_r3_forceoptions_item;
+static int hf_r3_forceoptions_state_8;
+static int hf_r3_forceoptions_state_16;
+static int hf_r3_forceoptions_state_24;
+static int hf_r3_forceoptions_state_32;
 
-static gint hf_r3_peekpoke_operation;
-static gint hf_r3_peekpoke_address;
-static gint hf_r3_peekpoke_length;
-static gint hf_r3_peekpoke_poke8;
-static gint hf_r3_peekpoke_poke16;
-static gint hf_r3_peekpoke_poke24;
-static gint hf_r3_peekpoke_poke32;
-static gint hf_r3_peekpoke_pokestring;
+static int hf_r3_peekpoke_operation;
+static int hf_r3_peekpoke_address;
+static int hf_r3_peekpoke_length;
+static int hf_r3_peekpoke_poke8;
+static int hf_r3_peekpoke_poke16;
+static int hf_r3_peekpoke_poke24;
+static int hf_r3_peekpoke_poke32;
+static int hf_r3_peekpoke_pokestring;
 
-static gint hf_r3_firmwaredownload_length;
-static gint hf_r3_firmwaredownload_record;
-static gint hf_r3_firmwaredownload_action;
-static gint hf_r3_firmwaredownload_timeout;
-static gint hf_r3_firmwaredownload_nvram;
-static gint hf_r3_firmwaredownload_address;
-static gint hf_r3_firmwaredownload_bytes;
-static gint hf_r3_firmwaredownload_data;
-static gint hf_r3_firmwaredownload_crc;
-static gint hf_r3_firmwaredownload_crc_bad;
+static int hf_r3_firmwaredownload_length;
+static int hf_r3_firmwaredownload_record;
+static int hf_r3_firmwaredownload_action;
+static int hf_r3_firmwaredownload_timeout;
+static int hf_r3_firmwaredownload_nvram;
+static int hf_r3_firmwaredownload_address;
+static int hf_r3_firmwaredownload_bytes;
+static int hf_r3_firmwaredownload_data;
+static int hf_r3_firmwaredownload_crc;
+static int hf_r3_firmwaredownload_crc_bad;
 
-static gint hf_r3_nvramchecksumvalue;
-static gint hf_r3_nvramchecksumvalue_fixup;
+static int hf_r3_nvramchecksumvalue;
+static int hf_r3_nvramchecksumvalue_fixup;
 
-static gint hf_r3_capabilities;
-static gint hf_r3_capabilities_length;
-static gint hf_r3_capabilities_type;
-static gint hf_r3_capabilities_value;
+static int hf_r3_capabilities;
+static int hf_r3_capabilities_length;
+static int hf_r3_capabilities_type;
+static int hf_r3_capabilities_value;
 
-static gint hf_r3_lockstate;
-static gint hf_r3_lockstate_passage;
-static gint hf_r3_lockstate_panic;
-static gint hf_r3_lockstate_lockout;
-static gint hf_r3_lockstate_relock;
-static gint hf_r3_lockstate_autoopen;
-static gint hf_r3_lockstate_nextauto;
-static gint hf_r3_lockstate_lockstate;
-static gint hf_r3_lockstate_wantstate;
-static gint hf_r3_lockstate_remote;
-static gint hf_r3_lockstate_update;
-static gint hf_r3_lockstate_exceptionspresent;
-static gint hf_r3_lockstate_exceptionsactive;
-static gint hf_r3_lockstate_timezonespresent;
-static gint hf_r3_lockstate_timezonesactive;
-static gint hf_r3_lockstate_autounlockspresent;
-static gint hf_r3_lockstate_autounlocksactive;
-static gint hf_r3_lockstate_uapmspresent;
-static gint hf_r3_lockstate_uapmsactive;
-static gint hf_r3_lockstate_uapmrelockspresent;
-static gint hf_r3_lockstate_uapmreslocksactive;
-static gint hf_r3_lockstate_nvramprotect;
-static gint hf_r3_lockstate_nvramchecksum;
+static int hf_r3_lockstate;
+static int hf_r3_lockstate_passage;
+static int hf_r3_lockstate_panic;
+static int hf_r3_lockstate_lockout;
+static int hf_r3_lockstate_relock;
+static int hf_r3_lockstate_autoopen;
+static int hf_r3_lockstate_nextauto;
+static int hf_r3_lockstate_lockstate;
+static int hf_r3_lockstate_wantstate;
+static int hf_r3_lockstate_remote;
+static int hf_r3_lockstate_update;
+static int hf_r3_lockstate_exceptionspresent;
+static int hf_r3_lockstate_exceptionsactive;
+static int hf_r3_lockstate_timezonespresent;
+static int hf_r3_lockstate_timezonesactive;
+static int hf_r3_lockstate_autounlockspresent;
+static int hf_r3_lockstate_autounlocksactive;
+static int hf_r3_lockstate_uapmspresent;
+static int hf_r3_lockstate_uapmsactive;
+static int hf_r3_lockstate_uapmrelockspresent;
+static int hf_r3_lockstate_uapmreslocksactive;
+static int hf_r3_lockstate_nvramprotect;
+static int hf_r3_lockstate_nvramchecksum;
 
-/*static gint hf_r3_mortisestatelog;*/
-static gint hf_r3_mortisestatelog_pointer;
-static gint hf_r3_mortisestatelog_mortisetype;
-static gint hf_r3_mortisestatelog_waiting;
-static gint hf_r3_mortisestatelog_state;
-static gint hf_r3_mortisestatelog_last;
-static gint hf_r3_mortisestatelog_event;
+/*static int hf_r3_mortisestatelog;*/
+static int hf_r3_mortisestatelog_pointer;
+static int hf_r3_mortisestatelog_mortisetype;
+static int hf_r3_mortisestatelog_waiting;
+static int hf_r3_mortisestatelog_state;
+static int hf_r3_mortisestatelog_last;
+static int hf_r3_mortisestatelog_event;
 
-static gint hf_r3_timerchain_newtick;
-static gint hf_r3_timerchain_currentboundary;
-static gint hf_r3_timerchain_tasktag;
-static gint hf_r3_timerchain_address;
-static gint hf_r3_timerchain_reload;
-static gint hf_r3_timerchain_boundary;
-static gint hf_r3_timerchain_count;
-static gint hf_r3_timerchain_flags;
+static int hf_r3_timerchain_newtick;
+static int hf_r3_timerchain_currentboundary;
+static int hf_r3_timerchain_tasktag;
+static int hf_r3_timerchain_address;
+static int hf_r3_timerchain_reload;
+static int hf_r3_timerchain_boundary;
+static int hf_r3_timerchain_count;
+static int hf_r3_timerchain_flags;
 
-static gint hf_r3_taskflags_taskid;
-static gint hf_r3_taskflags_flags;
+static int hf_r3_taskflags_taskid;
+static int hf_r3_taskflags_flags;
 
-static gint hf_r3_checkpointlog_entryptr;
-static gint hf_r3_checkpointlog_rcon;
-static gint hf_r3_checkpointlog_checkpoint;
+static int hf_r3_checkpointlog_entryptr;
+static int hf_r3_checkpointlog_rcon;
+static int hf_r3_checkpointlog_checkpoint;
 
-static gint hf_r3_cpuregisters_intcon;
-static gint hf_r3_cpuregisters_intcon2;
-static gint hf_r3_cpuregisters_intcon3;
-static gint hf_r3_cpuregisters_pir1;
-static gint hf_r3_cpuregisters_pir2;
-static gint hf_r3_cpuregisters_pir3;
-static gint hf_r3_cpuregisters_pie1;
-static gint hf_r3_cpuregisters_pie2;
-static gint hf_r3_cpuregisters_pie3;
-static gint hf_r3_cpuregisters_ipr1;
-static gint hf_r3_cpuregisters_ipr2;
-static gint hf_r3_cpuregisters_ipr3;
-static gint hf_r3_cpuregisters_rcon;
-static gint hf_r3_cpuregisters_osccon;
-static gint hf_r3_cpuregisters_rcsta;
-static gint hf_r3_cpuregisters_txsta;
-static gint hf_r3_cpuregisters_rcsta2;
-static gint hf_r3_cpuregisters_txsta2;
-static gint hf_r3_cpuregisters_wdtcon;
+static int hf_r3_cpuregisters_intcon;
+static int hf_r3_cpuregisters_intcon2;
+static int hf_r3_cpuregisters_intcon3;
+static int hf_r3_cpuregisters_pir1;
+static int hf_r3_cpuregisters_pir2;
+static int hf_r3_cpuregisters_pir3;
+static int hf_r3_cpuregisters_pie1;
+static int hf_r3_cpuregisters_pie2;
+static int hf_r3_cpuregisters_pie3;
+static int hf_r3_cpuregisters_ipr1;
+static int hf_r3_cpuregisters_ipr2;
+static int hf_r3_cpuregisters_ipr3;
+static int hf_r3_cpuregisters_rcon;
+static int hf_r3_cpuregisters_osccon;
+static int hf_r3_cpuregisters_rcsta;
+static int hf_r3_cpuregisters_txsta;
+static int hf_r3_cpuregisters_rcsta2;
+static int hf_r3_cpuregisters_txsta2;
+static int hf_r3_cpuregisters_wdtcon;
 
-static gint hf_r3_cpuregisters_intcon_rbif;
-static gint hf_r3_cpuregisters_intcon_int0if;
-static gint hf_r3_cpuregisters_intcon_tmr0if;
-static gint hf_r3_cpuregisters_intcon_rbie;
-static gint hf_r3_cpuregisters_intcon_int0ie;
-static gint hf_r3_cpuregisters_intcon_tmr0ie;
-static gint hf_r3_cpuregisters_intcon_giel;
-static gint hf_r3_cpuregisters_intcon_gieh;
-static gint hf_r3_cpuregisters_intcon2_rbip;
-static gint hf_r3_cpuregisters_intcon2_int3ip;
-static gint hf_r3_cpuregisters_intcon2_tmr0ip;
-static gint hf_r3_cpuregisters_intcon2_intedg3;
-static gint hf_r3_cpuregisters_intcon2_intedg2;
-static gint hf_r3_cpuregisters_intcon2_intedg1;
-static gint hf_r3_cpuregisters_intcon2_intedg0;
-static gint hf_r3_cpuregisters_intcon2_rbpu;
-static gint hf_r3_cpuregisters_intcon3_int1if;
-static gint hf_r3_cpuregisters_intcon3_int2if;
-static gint hf_r3_cpuregisters_intcon3_int3if;
-static gint hf_r3_cpuregisters_intcon3_int1ie;
-static gint hf_r3_cpuregisters_intcon3_int2ie;
-static gint hf_r3_cpuregisters_intcon3_int3ie;
-static gint hf_r3_cpuregisters_intcon3_int1ip;
-static gint hf_r3_cpuregisters_intcon3_int2ip;
-static gint hf_r3_cpuregisters_pir1_tmr1if;
-static gint hf_r3_cpuregisters_pir1_tmr2if;
-static gint hf_r3_cpuregisters_pir1_ccp1if;
-static gint hf_r3_cpuregisters_pir1_ssp1if;
-static gint hf_r3_cpuregisters_pir1_tx1if;
-static gint hf_r3_cpuregisters_pir1_rc1if;
-static gint hf_r3_cpuregisters_pir1_adif;
-static gint hf_r3_cpuregisters_pir1_pspif;
-static gint hf_r3_cpuregisters_pir2_ccp2if;
-static gint hf_r3_cpuregisters_pir2_tmr3if;
-static gint hf_r3_cpuregisters_pir2_hlvdif;
-static gint hf_r3_cpuregisters_pir2_bcl1if;
-static gint hf_r3_cpuregisters_pir2_eeif;
-static gint hf_r3_cpuregisters_pir2_unused5;
-static gint hf_r3_cpuregisters_pir2_cmif;
-static gint hf_r3_cpuregisters_pir2_oscfif;
-static gint hf_r3_cpuregisters_pir3_ccp3if;
-static gint hf_r3_cpuregisters_pir3_ccp4if;
-static gint hf_r3_cpuregisters_pir3_ccp5if;
-static gint hf_r3_cpuregisters_pir3_tmr4if;
-static gint hf_r3_cpuregisters_pir3_tx2if;
-static gint hf_r3_cpuregisters_pir3_rc2if;
-static gint hf_r3_cpuregisters_pir3_bcl2if;
-static gint hf_r3_cpuregisters_pir3_ssp2if;
-static gint hf_r3_cpuregisters_pie1_tmr1ie;
-static gint hf_r3_cpuregisters_pie1_tmr2ie;
-static gint hf_r3_cpuregisters_pie1_ccp1ie;
-static gint hf_r3_cpuregisters_pie1_ssp1ie;
-static gint hf_r3_cpuregisters_pie1_tx1ie;
-static gint hf_r3_cpuregisters_pie1_rc1ie;
-static gint hf_r3_cpuregisters_pie1_adie;
-static gint hf_r3_cpuregisters_pie1_pspie;
-static gint hf_r3_cpuregisters_pie2_oscfie;
-static gint hf_r3_cpuregisters_pie2_cmie;
-static gint hf_r3_cpuregisters_pie2_unused2;
-static gint hf_r3_cpuregisters_pie2_eeie;
-static gint hf_r3_cpuregisters_pie2_bcl1ie;
-static gint hf_r3_cpuregisters_pie2_hlvdie;
-static gint hf_r3_cpuregisters_pie2_tmr3ie;
-static gint hf_r3_cpuregisters_pie2_ccp2ie;
-static gint hf_r3_cpuregisters_pie3_ccp3ie;
-static gint hf_r3_cpuregisters_pie3_ccp4ie;
-static gint hf_r3_cpuregisters_pie3_ccp5ie;
-static gint hf_r3_cpuregisters_pie3_tmr4ie;
-static gint hf_r3_cpuregisters_pie3_tx2ie;
-static gint hf_r3_cpuregisters_pie3_rc2ie;
-static gint hf_r3_cpuregisters_pie3_bcl2ie;
-static gint hf_r3_cpuregisters_pie3_ssp2ie;
-static gint hf_r3_cpuregisters_ipr1_tmr1ip;
-static gint hf_r3_cpuregisters_ipr1_tmr2ip;
-static gint hf_r3_cpuregisters_ipr1_ccp1ip;
-static gint hf_r3_cpuregisters_ipr1_ssp1ip;
-static gint hf_r3_cpuregisters_ipr1_tx1ip;
-static gint hf_r3_cpuregisters_ipr1_rc1ip;
-static gint hf_r3_cpuregisters_ipr1_adip;
-static gint hf_r3_cpuregisters_ipr1_pspip;
-static gint hf_r3_cpuregisters_ipr2_ccp2ip;
-static gint hf_r3_cpuregisters_ipr2_tmr3ip;
-static gint hf_r3_cpuregisters_ipr2_hlvdip;
-static gint hf_r3_cpuregisters_ipr2_bcl1ip;
-static gint hf_r3_cpuregisters_ipr2_eeip;
-static gint hf_r3_cpuregisters_ipr2_unused5;
-static gint hf_r3_cpuregisters_ipr2_cmip;
-static gint hf_r3_cpuregisters_ipr2_oscfip;
-static gint hf_r3_cpuregisters_ipr3_ccp2ip;
-static gint hf_r3_cpuregisters_ipr3_ccp4ip;
-static gint hf_r3_cpuregisters_ipr3_ccp5ip;
-static gint hf_r3_cpuregisters_ipr3_tmr4ip;
-static gint hf_r3_cpuregisters_ipr3_tx2ip;
-static gint hf_r3_cpuregisters_ipr3_rc2ip;
-static gint hf_r3_cpuregisters_ipr3_bcl2ip;
-static gint hf_r3_cpuregisters_ipr3_ssp2ip;
-static gint hf_r3_cpuregisters_rcon_bor;
-static gint hf_r3_cpuregisters_rcon_por;
-static gint hf_r3_cpuregisters_rcon_pd;
-static gint hf_r3_cpuregisters_rcon_to;
-static gint hf_r3_cpuregisters_rcon_unused4;
-static gint hf_r3_cpuregisters_rcon_ri;
-static gint hf_r3_cpuregisters_rcon_sboren;
-static gint hf_r3_cpuregisters_rcon_ipen;
-static gint hf_r3_cpuregisters_osccon_scs0;
-static gint hf_r3_cpuregisters_osccon_scs1;
-static gint hf_r3_cpuregisters_osccon_iofs;
-static gint hf_r3_cpuregisters_osccon_osts;
-static gint hf_r3_cpuregisters_osccon_ircf0;
-static gint hf_r3_cpuregisters_osccon_ircf1;
-static gint hf_r3_cpuregisters_osccon_ircf2;
-static gint hf_r3_cpuregisters_osccon_idlen;
-static gint hf_r3_cpuregisters_rcsta_rx9d;
-static gint hf_r3_cpuregisters_rcsta_oerr;
-static gint hf_r3_cpuregisters_rcsta_ferr;
-static gint hf_r3_cpuregisters_rcsta_adden;
-static gint hf_r3_cpuregisters_rcsta_cren;
-static gint hf_r3_cpuregisters_rcsta_sren;
-static gint hf_r3_cpuregisters_rcsta_rx9;
-static gint hf_r3_cpuregisters_rcsta_spen;
-static gint hf_r3_cpuregisters_txsta_tx9d;
-static gint hf_r3_cpuregisters_txsta_trmt;
-static gint hf_r3_cpuregisters_txsta_brgh;
-static gint hf_r3_cpuregisters_txsta_sendb;
-static gint hf_r3_cpuregisters_txsta_sync;
-static gint hf_r3_cpuregisters_txsta_txen;
-static gint hf_r3_cpuregisters_txsta_tx9;
-static gint hf_r3_cpuregisters_txsta_csrc;
-static gint hf_r3_cpuregisters_rcsta2_rx9d;
-static gint hf_r3_cpuregisters_rcsta2_oerr;
-static gint hf_r3_cpuregisters_rcsta2_ferr;
-static gint hf_r3_cpuregisters_rcsta2_adden;
-static gint hf_r3_cpuregisters_rcsta2_cren;
-static gint hf_r3_cpuregisters_rcsta2_sren;
-static gint hf_r3_cpuregisters_rcsta2_rx9;
-static gint hf_r3_cpuregisters_rcsta2_spen;
-static gint hf_r3_cpuregisters_txsta2_tx9d;
-static gint hf_r3_cpuregisters_txsta2_trmt;
-static gint hf_r3_cpuregisters_txsta2_brgh;
-static gint hf_r3_cpuregisters_txsta2_sendb;
-static gint hf_r3_cpuregisters_txsta2_sync;
-static gint hf_r3_cpuregisters_txsta2_txen;
-static gint hf_r3_cpuregisters_txsta2_tx9;
-static gint hf_r3_cpuregisters_txsta2_csrc;
-static gint hf_r3_cpuregisters_wdtcon_swdten;
-static gint hf_r3_cpuregisters_wdtcon_unused1;
-static gint hf_r3_cpuregisters_wdtcon_unused2;
-static gint hf_r3_cpuregisters_wdtcon_unused3;
-static gint hf_r3_cpuregisters_wdtcon_unused4;
-static gint hf_r3_cpuregisters_wdtcon_unused5;
-static gint hf_r3_cpuregisters_wdtcon_unused6;
-static gint hf_r3_cpuregisters_wdtcon_unused7;
+static int hf_r3_cpuregisters_intcon_rbif;
+static int hf_r3_cpuregisters_intcon_int0if;
+static int hf_r3_cpuregisters_intcon_tmr0if;
+static int hf_r3_cpuregisters_intcon_rbie;
+static int hf_r3_cpuregisters_intcon_int0ie;
+static int hf_r3_cpuregisters_intcon_tmr0ie;
+static int hf_r3_cpuregisters_intcon_giel;
+static int hf_r3_cpuregisters_intcon_gieh;
+static int hf_r3_cpuregisters_intcon2_rbip;
+static int hf_r3_cpuregisters_intcon2_int3ip;
+static int hf_r3_cpuregisters_intcon2_tmr0ip;
+static int hf_r3_cpuregisters_intcon2_intedg3;
+static int hf_r3_cpuregisters_intcon2_intedg2;
+static int hf_r3_cpuregisters_intcon2_intedg1;
+static int hf_r3_cpuregisters_intcon2_intedg0;
+static int hf_r3_cpuregisters_intcon2_rbpu;
+static int hf_r3_cpuregisters_intcon3_int1if;
+static int hf_r3_cpuregisters_intcon3_int2if;
+static int hf_r3_cpuregisters_intcon3_int3if;
+static int hf_r3_cpuregisters_intcon3_int1ie;
+static int hf_r3_cpuregisters_intcon3_int2ie;
+static int hf_r3_cpuregisters_intcon3_int3ie;
+static int hf_r3_cpuregisters_intcon3_int1ip;
+static int hf_r3_cpuregisters_intcon3_int2ip;
+static int hf_r3_cpuregisters_pir1_tmr1if;
+static int hf_r3_cpuregisters_pir1_tmr2if;
+static int hf_r3_cpuregisters_pir1_ccp1if;
+static int hf_r3_cpuregisters_pir1_ssp1if;
+static int hf_r3_cpuregisters_pir1_tx1if;
+static int hf_r3_cpuregisters_pir1_rc1if;
+static int hf_r3_cpuregisters_pir1_adif;
+static int hf_r3_cpuregisters_pir1_pspif;
+static int hf_r3_cpuregisters_pir2_ccp2if;
+static int hf_r3_cpuregisters_pir2_tmr3if;
+static int hf_r3_cpuregisters_pir2_hlvdif;
+static int hf_r3_cpuregisters_pir2_bcl1if;
+static int hf_r3_cpuregisters_pir2_eeif;
+static int hf_r3_cpuregisters_pir2_unused5;
+static int hf_r3_cpuregisters_pir2_cmif;
+static int hf_r3_cpuregisters_pir2_oscfif;
+static int hf_r3_cpuregisters_pir3_ccp3if;
+static int hf_r3_cpuregisters_pir3_ccp4if;
+static int hf_r3_cpuregisters_pir3_ccp5if;
+static int hf_r3_cpuregisters_pir3_tmr4if;
+static int hf_r3_cpuregisters_pir3_tx2if;
+static int hf_r3_cpuregisters_pir3_rc2if;
+static int hf_r3_cpuregisters_pir3_bcl2if;
+static int hf_r3_cpuregisters_pir3_ssp2if;
+static int hf_r3_cpuregisters_pie1_tmr1ie;
+static int hf_r3_cpuregisters_pie1_tmr2ie;
+static int hf_r3_cpuregisters_pie1_ccp1ie;
+static int hf_r3_cpuregisters_pie1_ssp1ie;
+static int hf_r3_cpuregisters_pie1_tx1ie;
+static int hf_r3_cpuregisters_pie1_rc1ie;
+static int hf_r3_cpuregisters_pie1_adie;
+static int hf_r3_cpuregisters_pie1_pspie;
+static int hf_r3_cpuregisters_pie2_oscfie;
+static int hf_r3_cpuregisters_pie2_cmie;
+static int hf_r3_cpuregisters_pie2_unused2;
+static int hf_r3_cpuregisters_pie2_eeie;
+static int hf_r3_cpuregisters_pie2_bcl1ie;
+static int hf_r3_cpuregisters_pie2_hlvdie;
+static int hf_r3_cpuregisters_pie2_tmr3ie;
+static int hf_r3_cpuregisters_pie2_ccp2ie;
+static int hf_r3_cpuregisters_pie3_ccp3ie;
+static int hf_r3_cpuregisters_pie3_ccp4ie;
+static int hf_r3_cpuregisters_pie3_ccp5ie;
+static int hf_r3_cpuregisters_pie3_tmr4ie;
+static int hf_r3_cpuregisters_pie3_tx2ie;
+static int hf_r3_cpuregisters_pie3_rc2ie;
+static int hf_r3_cpuregisters_pie3_bcl2ie;
+static int hf_r3_cpuregisters_pie3_ssp2ie;
+static int hf_r3_cpuregisters_ipr1_tmr1ip;
+static int hf_r3_cpuregisters_ipr1_tmr2ip;
+static int hf_r3_cpuregisters_ipr1_ccp1ip;
+static int hf_r3_cpuregisters_ipr1_ssp1ip;
+static int hf_r3_cpuregisters_ipr1_tx1ip;
+static int hf_r3_cpuregisters_ipr1_rc1ip;
+static int hf_r3_cpuregisters_ipr1_adip;
+static int hf_r3_cpuregisters_ipr1_pspip;
+static int hf_r3_cpuregisters_ipr2_ccp2ip;
+static int hf_r3_cpuregisters_ipr2_tmr3ip;
+static int hf_r3_cpuregisters_ipr2_hlvdip;
+static int hf_r3_cpuregisters_ipr2_bcl1ip;
+static int hf_r3_cpuregisters_ipr2_eeip;
+static int hf_r3_cpuregisters_ipr2_unused5;
+static int hf_r3_cpuregisters_ipr2_cmip;
+static int hf_r3_cpuregisters_ipr2_oscfip;
+static int hf_r3_cpuregisters_ipr3_ccp2ip;
+static int hf_r3_cpuregisters_ipr3_ccp4ip;
+static int hf_r3_cpuregisters_ipr3_ccp5ip;
+static int hf_r3_cpuregisters_ipr3_tmr4ip;
+static int hf_r3_cpuregisters_ipr3_tx2ip;
+static int hf_r3_cpuregisters_ipr3_rc2ip;
+static int hf_r3_cpuregisters_ipr3_bcl2ip;
+static int hf_r3_cpuregisters_ipr3_ssp2ip;
+static int hf_r3_cpuregisters_rcon_bor;
+static int hf_r3_cpuregisters_rcon_por;
+static int hf_r3_cpuregisters_rcon_pd;
+static int hf_r3_cpuregisters_rcon_to;
+static int hf_r3_cpuregisters_rcon_unused4;
+static int hf_r3_cpuregisters_rcon_ri;
+static int hf_r3_cpuregisters_rcon_sboren;
+static int hf_r3_cpuregisters_rcon_ipen;
+static int hf_r3_cpuregisters_osccon_scs0;
+static int hf_r3_cpuregisters_osccon_scs1;
+static int hf_r3_cpuregisters_osccon_iofs;
+static int hf_r3_cpuregisters_osccon_osts;
+static int hf_r3_cpuregisters_osccon_ircf0;
+static int hf_r3_cpuregisters_osccon_ircf1;
+static int hf_r3_cpuregisters_osccon_ircf2;
+static int hf_r3_cpuregisters_osccon_idlen;
+static int hf_r3_cpuregisters_rcsta_rx9d;
+static int hf_r3_cpuregisters_rcsta_oerr;
+static int hf_r3_cpuregisters_rcsta_ferr;
+static int hf_r3_cpuregisters_rcsta_adden;
+static int hf_r3_cpuregisters_rcsta_cren;
+static int hf_r3_cpuregisters_rcsta_sren;
+static int hf_r3_cpuregisters_rcsta_rx9;
+static int hf_r3_cpuregisters_rcsta_spen;
+static int hf_r3_cpuregisters_txsta_tx9d;
+static int hf_r3_cpuregisters_txsta_trmt;
+static int hf_r3_cpuregisters_txsta_brgh;
+static int hf_r3_cpuregisters_txsta_sendb;
+static int hf_r3_cpuregisters_txsta_sync;
+static int hf_r3_cpuregisters_txsta_txen;
+static int hf_r3_cpuregisters_txsta_tx9;
+static int hf_r3_cpuregisters_txsta_csrc;
+static int hf_r3_cpuregisters_rcsta2_rx9d;
+static int hf_r3_cpuregisters_rcsta2_oerr;
+static int hf_r3_cpuregisters_rcsta2_ferr;
+static int hf_r3_cpuregisters_rcsta2_adden;
+static int hf_r3_cpuregisters_rcsta2_cren;
+static int hf_r3_cpuregisters_rcsta2_sren;
+static int hf_r3_cpuregisters_rcsta2_rx9;
+static int hf_r3_cpuregisters_rcsta2_spen;
+static int hf_r3_cpuregisters_txsta2_tx9d;
+static int hf_r3_cpuregisters_txsta2_trmt;
+static int hf_r3_cpuregisters_txsta2_brgh;
+static int hf_r3_cpuregisters_txsta2_sendb;
+static int hf_r3_cpuregisters_txsta2_sync;
+static int hf_r3_cpuregisters_txsta2_txen;
+static int hf_r3_cpuregisters_txsta2_tx9;
+static int hf_r3_cpuregisters_txsta2_csrc;
+static int hf_r3_cpuregisters_wdtcon_swdten;
+static int hf_r3_cpuregisters_wdtcon_unused1;
+static int hf_r3_cpuregisters_wdtcon_unused2;
+static int hf_r3_cpuregisters_wdtcon_unused3;
+static int hf_r3_cpuregisters_wdtcon_unused4;
+static int hf_r3_cpuregisters_wdtcon_unused5;
+static int hf_r3_cpuregisters_wdtcon_unused6;
+static int hf_r3_cpuregisters_wdtcon_unused7;
 
-static gint hf_r3_dumpm41t81_reg00;
-static gint hf_r3_dumpm41t81_reg01;
-static gint hf_r3_dumpm41t81_reg02;
-static gint hf_r3_dumpm41t81_reg03;
-static gint hf_r3_dumpm41t81_reg04;
-static gint hf_r3_dumpm41t81_reg05;
-static gint hf_r3_dumpm41t81_reg06;
-static gint hf_r3_dumpm41t81_reg07;
-static gint hf_r3_dumpm41t81_reg08;
-static gint hf_r3_dumpm41t81_reg09;
-static gint hf_r3_dumpm41t81_reg0a;
-static gint hf_r3_dumpm41t81_reg0b;
-static gint hf_r3_dumpm41t81_reg0c;
-static gint hf_r3_dumpm41t81_reg0d;
-static gint hf_r3_dumpm41t81_reg0e;
-static gint hf_r3_dumpm41t81_reg0f;
-static gint hf_r3_dumpm41t81_reg10;
-static gint hf_r3_dumpm41t81_reg11;
-static gint hf_r3_dumpm41t81_reg12;
-static gint hf_r3_dumpm41t81_reg13;
+static int hf_r3_dumpm41t81_reg00;
+static int hf_r3_dumpm41t81_reg01;
+static int hf_r3_dumpm41t81_reg02;
+static int hf_r3_dumpm41t81_reg03;
+static int hf_r3_dumpm41t81_reg04;
+static int hf_r3_dumpm41t81_reg05;
+static int hf_r3_dumpm41t81_reg06;
+static int hf_r3_dumpm41t81_reg07;
+static int hf_r3_dumpm41t81_reg08;
+static int hf_r3_dumpm41t81_reg09;
+static int hf_r3_dumpm41t81_reg0a;
+static int hf_r3_dumpm41t81_reg0b;
+static int hf_r3_dumpm41t81_reg0c;
+static int hf_r3_dumpm41t81_reg0d;
+static int hf_r3_dumpm41t81_reg0e;
+static int hf_r3_dumpm41t81_reg0f;
+static int hf_r3_dumpm41t81_reg10;
+static int hf_r3_dumpm41t81_reg11;
+static int hf_r3_dumpm41t81_reg12;
+static int hf_r3_dumpm41t81_reg13;
 
-static gint hf_r3_dumpm41t81_reg00_sec1;
-static gint hf_r3_dumpm41t81_reg00_sec01;
-static gint hf_r3_dumpm41t81_reg01_st;
-static gint hf_r3_dumpm41t81_reg01_10sec;
-static gint hf_r3_dumpm41t81_reg01_1sec;
-static gint hf_r3_dumpm41t81_reg02_notused;
-static gint hf_r3_dumpm41t81_reg02_10min;
-static gint hf_r3_dumpm41t81_reg02_1min;
-static gint hf_r3_dumpm41t81_reg03_cbe;
-static gint hf_r3_dumpm41t81_reg03_cb;
-static gint hf_r3_dumpm41t81_reg03_10hour;
-static gint hf_r3_dumpm41t81_reg03_1hour;
-static gint hf_r3_dumpm41t81_reg04_notused;
-static gint hf_r3_dumpm41t81_reg04_dow;
-static gint hf_r3_dumpm41t81_reg05_notused;
-static gint hf_r3_dumpm41t81_reg05_10day;
-static gint hf_r3_dumpm41t81_reg05_1day;
-static gint hf_r3_dumpm41t81_reg06_notused;
-static gint hf_r3_dumpm41t81_reg06_10month;
-static gint hf_r3_dumpm41t81_reg06_1month;
-static gint hf_r3_dumpm41t81_reg07_10year;
-static gint hf_r3_dumpm41t81_reg07_1year;
-static gint hf_r3_dumpm41t81_reg08_out;
-static gint hf_r3_dumpm41t81_reg08_ft;
-static gint hf_r3_dumpm41t81_reg08_s;
-static gint hf_r3_dumpm41t81_reg08_cal;
-static gint hf_r3_dumpm41t81_reg09_notused;
-static gint hf_r3_dumpm41t81_reg09_bmb;
-static gint hf_r3_dumpm41t81_reg09_rb;
-static gint hf_r3_dumpm41t81_reg0a_afe;
-static gint hf_r3_dumpm41t81_reg0a_sqwe;
-static gint hf_r3_dumpm41t81_reg0a_abe;
-static gint hf_r3_dumpm41t81_reg0a_10monthalm;
-static gint hf_r3_dumpm41t81_reg0a_1monthalm;
-static gint hf_r3_dumpm41t81_reg0b_rpt5;
-static gint hf_r3_dumpm41t81_reg0b_rpt4;
-static gint hf_r3_dumpm41t81_reg0b_10dayalm;
-static gint hf_r3_dumpm41t81_reg0b_1dayalm;
-static gint hf_r3_dumpm41t81_reg0c_rpt3;
-static gint hf_r3_dumpm41t81_reg0c_ht;
-static gint hf_r3_dumpm41t81_reg0c_10houralm;
-static gint hf_r3_dumpm41t81_reg0c_1houralm;
-static gint hf_r3_dumpm41t81_reg0d_rpt2;
-static gint hf_r3_dumpm41t81_reg0d_10minalm;
-static gint hf_r3_dumpm41t81_reg0d_1minalm;
-static gint hf_r3_dumpm41t81_reg0e_rpt1;
-static gint hf_r3_dumpm41t81_reg0e_10secalm;
-static gint hf_r3_dumpm41t81_reg0e_1secalm;
-static gint hf_r3_dumpm41t81_reg0f_wdf;
-static gint hf_r3_dumpm41t81_reg0f_af;
-static gint hf_r3_dumpm41t81_reg0f_notused;
-static gint hf_r3_dumpm41t81_reg10_notused;
-static gint hf_r3_dumpm41t81_reg11_notused;
-static gint hf_r3_dumpm41t81_reg12_notused;
-static gint hf_r3_dumpm41t81_reg13_rs;
-static gint hf_r3_dumpm41t81_reg13_notused;
+static int hf_r3_dumpm41t81_reg00_sec1;
+static int hf_r3_dumpm41t81_reg00_sec01;
+static int hf_r3_dumpm41t81_reg01_st;
+static int hf_r3_dumpm41t81_reg01_10sec;
+static int hf_r3_dumpm41t81_reg01_1sec;
+static int hf_r3_dumpm41t81_reg02_notused;
+static int hf_r3_dumpm41t81_reg02_10min;
+static int hf_r3_dumpm41t81_reg02_1min;
+static int hf_r3_dumpm41t81_reg03_cbe;
+static int hf_r3_dumpm41t81_reg03_cb;
+static int hf_r3_dumpm41t81_reg03_10hour;
+static int hf_r3_dumpm41t81_reg03_1hour;
+static int hf_r3_dumpm41t81_reg04_notused;
+static int hf_r3_dumpm41t81_reg04_dow;
+static int hf_r3_dumpm41t81_reg05_notused;
+static int hf_r3_dumpm41t81_reg05_10day;
+static int hf_r3_dumpm41t81_reg05_1day;
+static int hf_r3_dumpm41t81_reg06_notused;
+static int hf_r3_dumpm41t81_reg06_10month;
+static int hf_r3_dumpm41t81_reg06_1month;
+static int hf_r3_dumpm41t81_reg07_10year;
+static int hf_r3_dumpm41t81_reg07_1year;
+static int hf_r3_dumpm41t81_reg08_out;
+static int hf_r3_dumpm41t81_reg08_ft;
+static int hf_r3_dumpm41t81_reg08_s;
+static int hf_r3_dumpm41t81_reg08_cal;
+static int hf_r3_dumpm41t81_reg09_notused;
+static int hf_r3_dumpm41t81_reg09_bmb;
+static int hf_r3_dumpm41t81_reg09_rb;
+static int hf_r3_dumpm41t81_reg0a_afe;
+static int hf_r3_dumpm41t81_reg0a_sqwe;
+static int hf_r3_dumpm41t81_reg0a_abe;
+static int hf_r3_dumpm41t81_reg0a_10monthalm;
+static int hf_r3_dumpm41t81_reg0a_1monthalm;
+static int hf_r3_dumpm41t81_reg0b_rpt5;
+static int hf_r3_dumpm41t81_reg0b_rpt4;
+static int hf_r3_dumpm41t81_reg0b_10dayalm;
+static int hf_r3_dumpm41t81_reg0b_1dayalm;
+static int hf_r3_dumpm41t81_reg0c_rpt3;
+static int hf_r3_dumpm41t81_reg0c_ht;
+static int hf_r3_dumpm41t81_reg0c_10houralm;
+static int hf_r3_dumpm41t81_reg0c_1houralm;
+static int hf_r3_dumpm41t81_reg0d_rpt2;
+static int hf_r3_dumpm41t81_reg0d_10minalm;
+static int hf_r3_dumpm41t81_reg0d_1minalm;
+static int hf_r3_dumpm41t81_reg0e_rpt1;
+static int hf_r3_dumpm41t81_reg0e_10secalm;
+static int hf_r3_dumpm41t81_reg0e_1secalm;
+static int hf_r3_dumpm41t81_reg0f_wdf;
+static int hf_r3_dumpm41t81_reg0f_af;
+static int hf_r3_dumpm41t81_reg0f_notused;
+static int hf_r3_dumpm41t81_reg10_notused;
+static int hf_r3_dumpm41t81_reg11_notused;
+static int hf_r3_dumpm41t81_reg12_notused;
+static int hf_r3_dumpm41t81_reg13_rs;
+static int hf_r3_dumpm41t81_reg13_notused;
 
-static gint hf_r3_sn_manufacturer;
-static gint hf_r3_sn_year;
-static gint hf_r3_sn_week;
-static gint hf_r3_sn_model;
-static gint hf_r3_sn_sequence;
-static gint hf_r3_sn_group;
-static gint hf_r3_sn_nid;
-static gint hf_r3_sn_hid;
-static gint hf_r3_sn_power_supply;
-static gint hf_r3_sn_mortise;
+static int hf_r3_sn_manufacturer;
+static int hf_r3_sn_year;
+static int hf_r3_sn_week;
+static int hf_r3_sn_model;
+static int hf_r3_sn_sequence;
+static int hf_r3_sn_group;
+static int hf_r3_sn_nid;
+static int hf_r3_sn_hid;
+static int hf_r3_sn_power_supply;
+static int hf_r3_sn_mortise;
 
-static gint hf_r3_debuglog_recordnumber;
-static gint hf_r3_debuglog_flags;
-static gint hf_r3_debuglog_tick;
+static int hf_r3_debuglog_recordnumber;
+static int hf_r3_debuglog_flags;
+static int hf_r3_debuglog_tick;
 
-static gint hf_r3_adduserparamtype;
-static gint hf_r3_adduserparamtypelength;
-static gint hf_r3_adduserparamtypetype;
-/*static gint hf_r3_adduserparamtypedatalen;*/
-/*static gint hf_r3_adduserparamtypeerror;*/
-static gint hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_LAST];
+static int hf_r3_adduserparamtype;
+static int hf_r3_adduserparamtypelength;
+static int hf_r3_adduserparamtypetype;
+/*static int hf_r3_adduserparamtypedatalen;*/
+/*static int hf_r3_adduserparamtypeerror;*/
+static int hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_LAST];
 
-static gint ett_r3;
-static gint ett_r3header;
-static gint ett_r3tail;
-static gint ett_r3payload;
-static gint ett_r3cmd;
-static gint ett_r3configitem;
-static gint ett_r3upstreamcommand;
-static gint ett_r3upstreamfield;
-static gint ett_r3timezone;
-static gint ett_r3expireon;
-static gint ett_r3datetime;
-static gint ett_r3eventlogrecord;
-static gint ett_r3declinedlogrecord;
-static gint ett_r3alarmlogrecord;
-static gint ett_r3debugmsg;
-static gint ett_r3defineexceptionstartdate;
-static gint ett_r3defineexceptionenddate;
-static gint ett_r3defineexceptiongroupbits;
-static gint ett_r3definecalendarmonth [13];
-static gint ett_r3definetimezonestarttime;
-static gint ett_r3definetimezoneendtime;
-static gint ett_r3definetimezonedaymap;
-static gint ett_r3eventlogdumpstarttime;
-static gint ett_r3eventlogdumpendtime;
-static gint ett_r3declinedlogdumpstarttime;
-static gint ett_r3declinedlogdumpendtime;
-static gint ett_r3alarmlogdumpstarttime;
-static gint ett_r3alarmlogdumpendtime;
-static gint ett_r3clearnvram;
-static gint ett_r3filters;
-static gint ett_r3alarmlist;
-static gint ett_r3alarmcfg;
-static gint ett_r3commandmfg;
-static gint ett_r3serialnumber;
-static gint ett_r3iopins;
-static gint ett_r3checksumresults;
-static gint ett_r3checksumresultsfield;
-static gint ett_r3forceoptions;
-static gint ett_r3peekpoke;
-static gint ett_r3downloadfirmware;
-static gint ett_r3capabilities;
-static gint ett_r3lockstate;
-static gint ett_r3mortisestatelog;
-static gint ett_r3timerchain;
-static gint ett_r3taskflags;
-static gint ett_r3taskflagsentry;
-static gint ett_r3checkpointlog;
-static gint ett_r3checkpointlogentry;
-static gint ett_r3cpuregisters;
-static gint ett_r3cpuregister;
-static gint ett_r3m41t81registers;
-static gint ett_r3m41t81register;
-static gint ett_r3debuglogrecord;
-static gint ett_r3setdatetime;
-static gint ett_r3manageuser;
+static int ett_r3;
+static int ett_r3header;
+static int ett_r3tail;
+static int ett_r3payload;
+static int ett_r3cmd;
+static int ett_r3configitem;
+static int ett_r3upstreamcommand;
+static int ett_r3upstreamfield;
+static int ett_r3timezone;
+static int ett_r3expireon;
+static int ett_r3datetime;
+static int ett_r3eventlogrecord;
+static int ett_r3declinedlogrecord;
+static int ett_r3alarmlogrecord;
+static int ett_r3debugmsg;
+static int ett_r3defineexceptionstartdate;
+static int ett_r3defineexceptionenddate;
+static int ett_r3defineexceptiongroupbits;
+static int ett_r3definecalendarmonth [13];
+static int ett_r3definetimezonestarttime;
+static int ett_r3definetimezoneendtime;
+static int ett_r3definetimezonedaymap;
+static int ett_r3eventlogdumpstarttime;
+static int ett_r3eventlogdumpendtime;
+static int ett_r3declinedlogdumpstarttime;
+static int ett_r3declinedlogdumpendtime;
+static int ett_r3alarmlogdumpstarttime;
+static int ett_r3alarmlogdumpendtime;
+static int ett_r3clearnvram;
+static int ett_r3filters;
+static int ett_r3alarmlist;
+static int ett_r3alarmcfg;
+static int ett_r3commandmfg;
+static int ett_r3serialnumber;
+static int ett_r3iopins;
+static int ett_r3checksumresults;
+static int ett_r3checksumresultsfield;
+static int ett_r3forceoptions;
+static int ett_r3peekpoke;
+static int ett_r3downloadfirmware;
+static int ett_r3capabilities;
+static int ett_r3lockstate;
+static int ett_r3mortisestatelog;
+static int ett_r3timerchain;
+static int ett_r3taskflags;
+static int ett_r3taskflagsentry;
+static int ett_r3checkpointlog;
+static int ett_r3checkpointlogentry;
+static int ett_r3cpuregisters;
+static int ett_r3cpuregister;
+static int ett_r3m41t81registers;
+static int ett_r3m41t81register;
+static int ett_r3debuglogrecord;
+static int ett_r3setdatetime;
+static int ett_r3manageuser;
 
 static expert_field ei_r3_response_hasdata_octet_2;
 static expert_field ei_r3_mfgfield_too_many_adc_values;
@@ -1750,7 +1750,7 @@ static dissector_handle_t r3_handle;
 /*
  *  Indicates next command to be processed as a manufacturing command
  */
-static gint mfgCommandFlag;
+static int mfgCommandFlag;
 
 /*
  *  Some enums that don't exist in public.h and should
@@ -3240,40 +3240,40 @@ static configType_e configMap [] =
 /*
  *  Dissectors for each command
  */
-static void dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_handshake (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_killsession (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_queryserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_queryversion (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_setdatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_querydatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_getconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_deleteusers (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_defineexception (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_definecalendar (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_definetimezone (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_filters (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_eventlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_declinedlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_powertableselection (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_clearnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_selftest (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_reset (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_logwrite (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_mfgcommand (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_response (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_handshake (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_killsession (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_queryserialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_queryversion (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_setdatetime (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_querydatetime (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_setconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_getconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_manageuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_deleteusers (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_defineexception (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_definecalendar (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_definetimezone (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_filters (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_eventlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_declinedlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_powertableselection (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_clearnvram (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_dpac (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_selftest (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_reset (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_logwrite (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_mfgcommand (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
 
-static void (*r3command_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
+static void (*r3command_dissect []) (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *r3_tree) =
 {
   /* CMD_RESPONSE */                dissect_r3_cmd_response,
   /* CMD_HANDSHAKE */               dissect_r3_cmd_handshake,
@@ -3309,43 +3309,43 @@ static void (*r3command_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint3
   /* CMD_EXTENDEDRESPONSE */        dissect_r3_cmd_extendedresponse
 };
 
-static void dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_setcryptkey (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_dumpnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_terminal (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_remoteunlock (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_auxctlrversion (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_hardwareid (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_checkpointlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_checkpointlogclear (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_commuser (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_dumpkeypad (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_batterycheck (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_ramrefresh (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_taskflags (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_lockstate (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_capabilities (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_debuglogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_debuglogclear (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_testwdt (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_querycksum (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_validatechecksums (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_rebuildlrucache (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_tzupdate (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_testpreserve (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_mortisestatelogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_mortisestatelogclear (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_mortisepins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_setcryptkey (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_dumpnvram (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_terminal (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_remoteunlock (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_auxctlrversion (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_iopins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_adcs (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_hardwareid (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_checkpointlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_checkpointlogclear (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_commuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_dumpkeypad (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_batterycheck (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_ramrefresh (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_taskflags (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_lockstate (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_capabilities (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_dumpm41t81 (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_debuglogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_debuglogclear (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_testwdt (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_querycksum (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_validatechecksums (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_rebuildlrucache (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_tzupdate (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_testpreserve (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_mortisestatelogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_mortisestatelogclear (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_mortisepins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
 
-static void (*r3commandmfg_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
+static void (*r3commandmfg_dissect []) (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *r3_tree) =
 {
   /* CMDMFG_SETSERIALNUMBER */       dissect_r3_cmdmfg_setserialnumber,
   /* CMDMFG_SETCRYPTKEY */           dissect_r3_cmdmfg_setcryptkey,
@@ -3384,10 +3384,10 @@ static void (*r3commandmfg_dissect []) (tvbuff_t *tvb, guint32 start_offset, gui
   /* CMDMFG_HALTANDCATCHFIRE */      dissect_r3_cmdmfg_haltandcatchfire
 };
 
-static void dissect_r3_response_singlebyte (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_response_singlebyte (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_response_hasdata (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
 
-static void (*r3response_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
+static void (*r3response_dissect []) (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *r3_tree) =
 {
   /* RESPONSETYPE_OK */                  dissect_r3_response_singlebyte,
   /* RESPONSETYPE_ERROR */               dissect_r3_response_singlebyte,
@@ -3442,34 +3442,34 @@ static void (*r3response_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint
   /* RESPONSETYPE_INPASSAGEMODE */       dissect_r3_response_singlebyte
 };
 
-static void dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_queryversion (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_querydatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_queryserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dumpnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_rmtquthrequest (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_retrieveuser (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_rmteventlogrecord (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_notify (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_eventlogwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dumpnvramrle (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_rmtdeclinedrecord (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_declinedwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dumpdeclinedlog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_rmtalarmrecord (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_alarmwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dumpalarmlog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_connectscheduler (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_connectcommuser (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_commandalarm (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_queryversion (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_querydatetime (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_queryserialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dumpnvram (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_rmtquthrequest (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_retrieveuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_rmteventlogrecord (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_notify (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_eventlogwarning (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dumpnvramrle (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_rmtdeclinedrecord (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_declinedwarning (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dumpdeclinedlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_rmtalarmrecord (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_alarmwarning (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dumpalarmlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_connectscheduler (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_connectcommuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_commandalarm (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
 
-static void (*r3upstreamcommand_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
+static void (*r3upstreamcommand_dissect []) (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *r3_tree) =
 {
   /* UPSTREAMCOMMAND_RESERVED */           dissect_r3_upstreamcommand_reserved,
   /* UPSTREAMCOMMAND_DEBUGMSG */           dissect_r3_upstreamcommand_debugmsg,
@@ -3499,26 +3499,26 @@ static void (*r3upstreamcommand_dissect []) (tvbuff_t *tvb, guint32 start_offset
   /* UPSTREAMCOMMAND_DUMPDEBUGLOG */       dissect_r3_upstreamcommand_dumpdebuglog
 };
 
-static void dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_hardwareid (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_lockstate (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_mortisepins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
-static void dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_adcs (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_hardwareid (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_lockstate (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_mortisepins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
+static void dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree);
 
-static void (*r3upstreammfgfield_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
+static void (*r3upstreammfgfield_dissect []) (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *r3_tree) =
 {
   /* MFGFIELD_IOPINS */              dissect_r3_upstreammfgfield_iopins,
   /* MFGFIELD_ADCS */                dissect_r3_upstreammfgfield_adcs,
@@ -3544,11 +3544,11 @@ static void (*r3upstreammfgfield_dissect []) (tvbuff_t *tvb, guint32 start_offse
  * ***************************************************************************
  */
 static void
-dissect_serialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
+dissect_serialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
 {
   proto_item  *sn_item;
   proto_tree  *sn_tree;
-  const gchar *s;
+  const char *s;
 
   tvb_ensure_bytes_exist (tvb, start_offset, 16);
 
@@ -3585,21 +3585,21 @@ dissect_serialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, p
  *
  */
 static void
-dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamfields (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 offset = 0;
+  uint32_t offset = 0;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
   while (offset < tvb_reported_length (tvb))
   {
-    guint32      fieldLength = tvb_get_guint8 (tvb, offset + 0);
-    guint32      fieldType   = tvb_get_guint8 (tvb, offset + 1);
-    guint32      dataLength  = fieldLength - 2;
+    uint32_t     fieldLength = tvb_get_guint8 (tvb, offset + 0);
+    uint32_t     fieldType   = tvb_get_guint8 (tvb, offset + 1);
+    uint32_t     dataLength  = fieldLength - 2;
     proto_item  *upstreamfield_item;
     proto_item  *upstreamfield_length;
     proto_tree  *upstreamfield_tree;
-    const gchar *usfn;
+    const char *usfn;
 
     usfn = val_to_str_ext_const (fieldType, &r3_upstreamfieldnames_ext, "[Unknown Field]");
 
@@ -3731,8 +3731,8 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
           else
           {
             proto_tree *declinedlog_tree;
-            guint8 cred1type;
-            guint8 cred2type;
+            uint8_t cred1type;
+            uint8_t cred2type;
 
             if (!upstreamfield_tree)
               break;
@@ -3838,13 +3838,13 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
  *  These are passed a tvb that contains whatever occurs after the [UPSTREAMCOMMAND_*] byte
  */
 static void
-dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree_add_expert(tree, pinfo, &ei_r3_reserved_upstream_command_value, tvb, start_offset, length);
 }
 
 static void
-dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *debugmsg_tree;
 
@@ -3859,25 +3859,25 @@ dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, guint32 start_offset, guint3
 }
 
 static void
-dissect_r3_upstreamcommand_queryversion (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_queryversion (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_querydatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_querydatetime (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_queryserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_queryserialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -3890,7 +3890,7 @@ dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, guint32 start_offset, gu
   else
   {
     proto_tree  *eventlog_tree;
-    const gchar *en;
+    const char *en;
 
     if (!tree)
       return;
@@ -3913,7 +3913,7 @@ dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, guint32 start_offset, gu
 }
 
 static void
-dissect_r3_upstreamcommand_dumpnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_dumpnvram (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -3928,21 +3928,21 @@ dissect_r3_upstreamcommand_dumpnvram (tvbuff_t *tvb, guint32 start_offset, guint
 }
 
 static void
-dissect_r3_upstreamcommand_rmtquthrequest (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_rmtquthrequest (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_retrieveuser (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_retrieveuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 offset = 0;
+  uint32_t offset = 0;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -3953,8 +3953,8 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, gui
   {
     proto_item  *pi;
     proto_tree  *upstreamfield_tree;
-    const gchar *ci;
-    guint8 item_length;
+    const char *ci;
+    uint8_t item_length;
 
     ci = val_to_str_ext_const (tvb_get_guint8 (tvb, offset + 1), &r3_configitemnames_ext, "[Unknown Configuration Item]");
 
@@ -4007,13 +4007,13 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_upstreamcommand_rmteventlogrecord (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_rmteventlogrecord (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -4026,19 +4026,19 @@ dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 le
 }
 
 static void
-dissect_r3_upstreamcommand_notify (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_notify (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *mfg_tree = NULL;
-  guint8      mfg_fld;
+  uint8_t     mfg_fld;
   tvbuff_t   *mfg_tvb;
   proto_item  *mfg_item;
-  const gchar *cn;
+  const char *cn;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4063,13 +4063,13 @@ dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_upstreamcommand_eventlogwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_eventlogwarning (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_dumpnvramrle (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_dumpnvramrle (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (!tree)
     return;
@@ -4082,23 +4082,23 @@ dissect_r3_upstreamcommand_dumpnvramrle (tvbuff_t *tvb, guint32 start_offset, gu
 }
 
 static void
-dissect_r3_upstreamcommand_rmtdeclinedrecord (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_rmtdeclinedrecord (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_declinedwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_declinedwarning (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_dumpdeclinedlog (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_dumpdeclinedlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *declinedlog_tree;
-  guint8      cred1type;
-  guint8      cred2type;
+  uint8_t     cred1type;
+  uint8_t     cred2type;
 
   if (!tree)
     return;
@@ -4127,19 +4127,19 @@ dissect_r3_upstreamcommand_dumpdeclinedlog (tvbuff_t *tvb, guint32 start_offset,
 }
 
 static void
-dissect_r3_upstreamcommand_rmtalarmrecord (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_rmtalarmrecord (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_alarmwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_alarmwarning (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_dumpalarmlog (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_dumpalarmlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *alarmlog_tree;
 
@@ -4163,25 +4163,25 @@ dissect_r3_upstreamcommand_dumpalarmlog (tvbuff_t *tvb, guint32 start_offset, gu
 }
 
 static void
-dissect_r3_upstreamcommand_connectscheduler (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_connectscheduler (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_connectcommuser (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_connectcommuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_commandalarm (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_commandalarm (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   dissect_r3_upstreamfields (tvb, start_offset, length, pinfo, tree);
 }
 
 static void
-dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *debuglog_tree;
 
@@ -4202,9 +4202,9 @@ dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, guint32 start_offset, gu
  * ***************************************************************************
  */
 static void
-dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  gint len;
+  int len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4216,7 +4216,7 @@ dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32
   else
   {
     char portname = 'A';
-    gint i;
+    int i;
 
     if (!tree)
       return;
@@ -4234,10 +4234,10 @@ dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32
 }
 
 static void
-dissect_r3_upstreammfgfield_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreammfgfield_adcs (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint   len;
-  guint32 i;
+  unsigned   len;
+  uint32_t i;
 
   if (!tree)
     return;
@@ -4260,7 +4260,7 @@ dissect_r3_upstreammfgfield_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 l
 }
 
 static void
-dissect_r3_upstreammfgfield_hardwareid (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_hardwareid (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (!tree)
     return;
@@ -4273,12 +4273,12 @@ dissect_r3_upstreammfgfield_hardwareid (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *cpl_tree;
-  guint       counter;
-  gint        len;
-  gint        i;
+  unsigned    counter;
+  int         len;
+  int         i;
 
   if (!tree)
     return;
@@ -4293,13 +4293,13 @@ dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 start_offset, 
   counter = 0;
   for (i = 0; i < len; i += 2, counter++)
   {
-    guint        rcon      = tvb_get_guint8 (tvb, i + 0);
-    guint        cp        = tvb_get_guint8 (tvb, i + 1);
+    unsigned     rcon      = tvb_get_guint8 (tvb, i + 0);
+    unsigned     cp        = tvb_get_guint8 (tvb, i + 1);
     proto_item  *cpe_item;
     proto_tree  *cpe_tree;
-    guint        resettype;
-    const gchar *desc;
-    static const gchar *resets [] = { "Stack underflow", "Stack overflow", "Power-On",
+    unsigned     resettype;
+    const char *desc;
+    static const char *resets [] = { "Stack underflow", "Stack overflow", "Power-On",
                                       "Software", "Brown-out", "MCLR in sleep", "WDT",
                                       "Normal", "[Unknown Reset Type]" };
 
@@ -4339,7 +4339,7 @@ dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 start_offset, 
 }
 
 static void
-dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *tmp_tree [19];
   proto_tree *cr_tree;
@@ -4526,10 +4526,10 @@ dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, guint32 start_offset, g
 }
 
 static void
-dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  gint len;
-  gint i;
+  int len;
+  int i;
   proto_tree *tfg_tree;
 
   DISSECTOR_ASSERT(start_offset == 0);
@@ -4552,10 +4552,10 @@ dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_offset, guin
 }
 
 static void
-dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  gint len;
-  gint i;
+  int len;
+  int i;
 
   if (!tree)
     return;
@@ -4581,10 +4581,10 @@ dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  gint i;
-  gint len;
+  int i;
+  int len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4672,7 +4672,7 @@ dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint
 }
 
 static void
-dissect_r3_upstreammfgfield_lockstate (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_lockstate (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
 static int * const r3_lockstate_flags[] = {
   &hf_r3_lockstate_passage,
@@ -4706,14 +4706,14 @@ static int * const r3_lockstate_flags[] = {
 }
 
 static void
-dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cf_tree;
-  gint        len;
-  guint       items;
-  guint       octets;
-  gint        i;
-  guint8      step;
+  int         len;
+  unsigned    items;
+  unsigned    octets;
+  int         i;
+  uint8_t     step;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4744,7 +4744,7 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
   {
     proto_item  *tmp_item = proto_tree_add_item (cf_tree, hf_r3_capabilities, tvb, i, tvb_get_guint8 (tvb, i), ENC_NA);
     proto_tree  *tmp_tree = proto_item_add_subtree (tmp_item, ett_r3capabilities);
-    const gchar *fn;
+    const char *fn;
 
     fn = val_to_str_ext_const (tvb_get_guint8 (tvb, i + 1), &r3_capabilitiesnames_ext, "[Unknown Field Name]");
 
@@ -4758,7 +4758,7 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
 }
 
 static void
-dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4770,7 +4770,7 @@ dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, gui
   {
     proto_tree *rtc_tree;
     proto_tree *tmp_tree [20];
-    guint       offset_in_bits;
+    unsigned    offset_in_bits;
 
     if (!tree)
       return;
@@ -4860,7 +4860,7 @@ dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -4872,9 +4872,9 @@ dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, guint32 start_off
 }
 
 static void
-dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  gint len;
+  int len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4886,9 +4886,9 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
   else
   {
     proto_tree *cksum_tree;
-    guint32     error = FALSE;
-    gint        i;
-    guint8      step;
+    uint32_t    error = false;
+    int         i;
+    uint8_t     step;
 
     if (!tree)
       return;
@@ -4912,7 +4912,7 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
                                                   tvb_get_guint8 (tvb, i),
                                                   ENC_NA);
       proto_tree  *res_tree = proto_item_add_subtree (res_item, ett_r3checksumresultsfield);
-      const gchar *fn;
+      const char *fn;
 
       fn = val_to_str_ext_const (tvb_get_guint8 (tvb, i + 1), &r3_checksumresultnames_ext, "[Unknown Field Name]");
 
@@ -4928,10 +4928,10 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
 }
 
 static void
-dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  gint len;
-  gint i;
+  int len;
+  int i;
 
   if (!tree)
     return;
@@ -4946,9 +4946,9 @@ dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 start_offset
 
   for (i = 0; i < len; i += 3)
   {
-    guint       state   = tvb_get_guint8 (tvb, 3 + i + 0);
-    guint       last    = tvb_get_guint8 (tvb, 3 + i + 1);
-    guint       event   = tvb_get_guint8 (tvb, 3 + i + 2);
+    unsigned    state   = tvb_get_guint8 (tvb, 3 + i + 0);
+    unsigned    last    = tvb_get_guint8 (tvb, 3 + i + 1);
+    unsigned    event   = tvb_get_guint8 (tvb, 3 + i + 2);
     proto_tree  *ms_tree = proto_tree_add_subtree_format(tree, tvb, 3 + i, 3, ett_r3mortisestatelog, NULL,
                                                "State Log Entry %2d (State=0x%02x, Last=0x%02x, Event=%s (0x%02x))",
                                                i / 3,
@@ -4964,7 +4964,7 @@ dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 start_offset
 }
 
 static void
-dissect_r3_upstreammfgfield_mortisepins (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_mortisepins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *iopins_tree;
 
@@ -4983,7 +4983,7 @@ dissect_r3_upstreammfgfield_mortisepins (tvbuff_t *tvb, guint32 start_offset, gu
 }
 
 static void
-dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (!tree)
     return;
@@ -4996,7 +4996,7 @@ dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -5004,7 +5004,7 @@ dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset, guint3
 }
 
 static void
-dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -5017,7 +5017,7 @@ dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset, guint
  *  This is passed a tvb that contains [length] [CMD_RESPONSE] [responseType_e] [cmdCommand_e]
  */
 static void
-dissect_r3_response_singlebyte (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_response_singlebyte (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -5030,10 +5030,10 @@ dissect_r3_response_singlebyte (tvbuff_t *tvb, guint32 start_offset, guint32 len
  *  This is passed a tvb that contains [length] [CMD_RESPONSE] [RESPONSETYPE_HASDATA] [UPSTREAMCOMMAND_*]
  */
 static void
-dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_response_hasdata (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint32      commandPacketLen;
-  guint8       upstreamCmd;
+  uint32_t     commandPacketLen;
+  uint8_t      upstreamCmd;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -5055,7 +5055,7 @@ dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length
 
     if (tree)
     {
-      const gchar *ct;
+      const char *ct;
       ct = val_to_str_ext_const (upstreamCmd, &r3_upstreamcommandnames_ext, "[Unknown Command Type]");
 
       proto_tree_add_item (tree, hf_r3_responsetype, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -5079,15 +5079,15 @@ dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length
  *  These are passed a tvb that starts with [length] [CMD_RESPONSE] ...
  */
 static void
-dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmd_response (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
-  guint8          responseLen  = tvb_get_guint8 (tvb, start_offset + 0);
+  uint8_t         responseLen  = tvb_get_guint8 (tvb, start_offset + 0);
   responseType_e  responseType = (responseType_e)tvb_get_guint8 (tvb, start_offset + 2);
   tvbuff_t       *payload_tvb  = tvb_new_subset_length (tvb, start_offset, responseLen);
 
   if (tree)
   {
-    const gchar *rt;
+    const char *rt;
 
     rt = val_to_str_ext_const (responseType, &r3_responsetypenames_ext, "[Unknown Response Type]");
 
@@ -5108,7 +5108,7 @@ dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint32 length, pa
  *  These are passed a tvb that contains [length] [cmdCommand_e] [[data]]
  */
 static void
-dissect_r3_cmd_handshake (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_handshake (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -5118,7 +5118,7 @@ dissect_r3_cmd_handshake (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
 }
 
 static void
-dissect_r3_cmd_killsession (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_killsession (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -5128,7 +5128,7 @@ dissect_r3_cmd_killsession (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmd_queryserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_queryserialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -5138,7 +5138,7 @@ dissect_r3_cmd_queryserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 l
 }
 
 static void
-dissect_r3_cmd_queryversion (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_queryversion (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -5148,10 +5148,10 @@ dissect_r3_cmd_queryversion (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmd_setdatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_setdatetime (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *dt_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
 
   if (!tree)
@@ -5183,7 +5183,7 @@ dissect_r3_cmd_setdatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmd_querydatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_querydatetime (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -5193,11 +5193,11 @@ dissect_r3_cmd_querydatetime (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmd_setconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint     cmdLen;
+  unsigned  cmdLen;
   tvbuff_t *payload_tvb;
-  guint32   offset = 0;
+  uint32_t  offset = 0;
 
   if (!tree)
     return;
@@ -5212,9 +5212,9 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
   {
     proto_item  *sc_item;
     proto_tree  *sc_tree;
-    const gchar *ci;
-    guint8       configItem;
-    guint8       item_length;
+    const char *ci;
+    uint8_t      configItem;
+    uint8_t      item_length;
 
     configItem = tvb_get_guint8 (payload_tvb, offset + 1);
 
@@ -5279,12 +5279,12 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
 }
 
 static void
-dissect_r3_cmd_getconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_getconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *config_item;
   proto_tree *config_tree;
-  guint32     cmdLen;
-  guint32     i;
+  uint32_t    cmdLen;
+  uint32_t    i;
 
   if (!tree)
     return;
@@ -5302,26 +5302,26 @@ dissect_r3_cmd_getconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
 }
 
 static void
-dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmd_manageuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint8    cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
+  uint8_t   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
   tvbuff_t *payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
-  guint32   offset      = 0;
+  uint32_t  offset      = 0;
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 
   while (offset < tvb_reported_length (payload_tvb))
   {
-    guint32      paramLength = tvb_get_guint8 (payload_tvb, offset + 0);
-    guint32      paramType   = tvb_get_guint8 (payload_tvb, offset + 1);
-    guint32      dataLength  = paramLength - 2;
+    uint32_t     paramLength = tvb_get_guint8 (payload_tvb, offset + 0);
+    uint32_t     paramType   = tvb_get_guint8 (payload_tvb, offset + 1);
+    uint32_t     dataLength  = paramLength - 2;
     proto_tree  *mu_tree     = NULL;
     proto_item  *len_field   = NULL;
 
     if (tree)
     {
-      const gchar *auptn;
+      const char *auptn;
       auptn = val_to_str_ext_const (paramType, &r3_adduserparamtypenames_ext, "[Unknown Field]");
 
       mu_tree = proto_item_add_subtree (
@@ -5423,9 +5423,9 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
 }
 
 static void
-dissect_r3_cmd_deleteusers (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_deleteusers (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint8    cmdLen;
+  uint8_t   cmdLen;
   tvbuff_t *payload_tvb;
 
   if (!tree)
@@ -5441,11 +5441,11 @@ dissect_r3_cmd_deleteusers (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmd_defineexception (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_defineexception (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *startdate_tree;
   proto_tree *enddate_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
 
   if (!tree)
@@ -5485,13 +5485,13 @@ dissect_r3_cmd_defineexception (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *bits_tree;
-  guint       cmdLen;
+  unsigned    cmdLen;
   tvbuff_t   *payload_tvb;
-  guint32     i;
-  guint32     bit = 0;
+  uint32_t    i;
+  uint32_t    bit = 0;
 
   if (!tree)
     return;
@@ -5508,8 +5508,8 @@ dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, guint32 start_offset, guint3
 
   for (i = 1; i < (cmdLen - 2); i++)
   {
-    guint32 j;
-    guint8  byte = tvb_get_guint8 (payload_tvb, i);
+    uint32_t j;
+    uint8_t byte = tvb_get_guint8 (payload_tvb, i);
 
     for (j = 0; j < 8; j++)
       proto_tree_add_none_format (bits_tree, hf_r3_defineexceptiongroup_bits, payload_tvb, i, 1,
@@ -5518,12 +5518,12 @@ dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, guint32 start_offset, guint3
 }
 
 static void
-dissect_r3_cmd_definecalendar (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_definecalendar (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint8       cmdLen;
+  uint8_t      cmdLen;
   tvbuff_t    *payload_tvb;
-  const gchar *mn;
-  guint32      i;
+  const char *mn;
+  uint32_t     i;
 
   if (!tree)
     return;
@@ -5538,13 +5538,13 @@ dissect_r3_cmd_definecalendar (tvbuff_t *tvb, guint32 start_offset, guint32 leng
 
   for (i = 0; i < 12; i++)
   {
-    guint32     daymap = tvb_get_letohl (payload_tvb, (i * 4) + 1);
+    uint32_t    daymap = tvb_get_letohl (payload_tvb, (i * 4) + 1);
     proto_tree *calendar_tree = proto_tree_add_subtree_format(tree, payload_tvb, (i * 4) + 1, 4,
                                                      ett_r3definecalendarmonth [i + 1], NULL,
                                                      "Calendar Bit Field - %s (0x%08x)",
                                                      (mn = val_to_str_ext_const (i + 1, &r3_monthnames_ext, "[Unknown Month]")),
                                                      daymap);
-    guint32     j;
+    uint32_t    j;
 
     for (j = 0; j < 31; j++)
       proto_tree_add_none_format (calendar_tree, hf_r3_definecalendar_bits, payload_tvb, (i * 4) + 1, 4,
@@ -5556,13 +5556,13 @@ dissect_r3_cmd_definecalendar (tvbuff_t *tvb, guint32 start_offset, guint32 leng
 }
 
 static void
-dissect_r3_cmd_definetimezone (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_definetimezone (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *starttime_tree;
   proto_tree *endtime_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
-  guint8      tzmode;
+  uint8_t     tzmode;
 
   if (!tree)
     return;
@@ -5601,9 +5601,9 @@ dissect_r3_cmd_definetimezone (tvbuff_t *tvb, guint32 start_offset, guint32 leng
 }
 
 static void
-dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint8    cmdLen;
+  uint8_t   cmdLen;
   tvbuff_t *payload_tvb;
 
   if (!tree)
@@ -5620,12 +5620,12 @@ dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmd_filters (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_filters (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *filter_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
-  guint32     i;
+  uint32_t    i;
 
   if (!tree)
     return;
@@ -5646,14 +5646,14 @@ dissect_r3_cmd_filters (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_,
 }
 
 static void
-dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *alarm_item;
   proto_tree *alarm_tree;
-  guint       cmdLen;
+  unsigned    cmdLen;
   tvbuff_t   *payload_tvb;
-  guint32     offset = 0;
-  guint32     alarms = 0;
+  uint32_t    offset = 0;
+  uint32_t    alarms = 0;
 
   if (!tree)
     return;
@@ -5670,9 +5670,9 @@ dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 leng
   {
     proto_item  *pi;
     proto_tree  *alarmcfg_tree;
-    const gchar *ai;
-    const gchar *as;
-    guint32 alarm_len;
+    const char *ai;
+    const char *as;
+    uint32_t alarm_len;
 
     if (!(ai = try_val_to_str_ext (tvb_get_guint8 (payload_tvb, offset + 1), &r3_alarmidnames_ext)))
     {
@@ -5706,11 +5706,11 @@ dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 leng
 }
 
 static void
-dissect_r3_cmd_eventlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_eventlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *starttime_tree;
   proto_tree *endtime_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
 
   if (!tree)
@@ -5754,11 +5754,11 @@ dissect_r3_cmd_eventlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmd_declinedlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_declinedlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *starttime_tree;
   proto_tree *endtime_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
 
   if (!tree)
@@ -5800,11 +5800,11 @@ dissect_r3_cmd_declinedlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *starttime_tree;
   proto_tree *endtime_tree;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
 
   if (!tree)
@@ -5846,15 +5846,15 @@ dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *dlfw_item = NULL;
   proto_item *dlfw_action_item = NULL;
   proto_tree *dlfw_tree = NULL;
-  guint8      cmdLen;
+  uint8_t     cmdLen;
   tvbuff_t   *payload_tvb;
-  guint32     packetCRC;
-  guint32     calculatedCRC;
+  uint32_t    packetCRC;
+  uint32_t    calculatedCRC;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
   payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
@@ -5933,15 +5933,15 @@ dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 le
                                 cmdLen - 2 - 2, 2,
                                 packetCRC, "0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
     tmp_item = proto_tree_add_boolean (dlfw_tree, hf_r3_firmwaredownload_crc_bad, payload_tvb,
-                                       cmdLen - 2 - 2, 2, TRUE);
+                                       cmdLen - 2 - 2, 2, true);
     proto_item_set_generated (tmp_item);
   }
 }
 
 static void
-dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint8    cmdLen;
+  uint8_t   cmdLen;
   tvbuff_t *payload_tvb;
 
   if (tree)
@@ -5958,9 +5958,9 @@ dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_cmd_powertableselection (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_powertableselection (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint8    cmdLen;
+  uint8_t   cmdLen;
   tvbuff_t *payload_tvb;
 
   if (!tree)
@@ -5976,7 +5976,7 @@ dissect_r3_cmd_powertableselection (tvbuff_t *tvb, guint32 start_offset, guint32
 }
 
 static void
-dissect_r3_cmd_clearnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_clearnvram (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5985,9 +5985,9 @@ dissect_r3_cmd_clearnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _
 }
 
 static void
-dissect_r3_cmd_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_dpac (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint8    cmdLen;
+  uint8_t   cmdLen;
   tvbuff_t *payload_tvb;
 
   if (!tree)
@@ -6006,7 +6006,7 @@ dissect_r3_cmd_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, pa
 }
 
 static void
-dissect_r3_cmd_selftest (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_selftest (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6016,7 +6016,7 @@ dissect_r3_cmd_selftest (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_
 }
 
 static void
-dissect_r3_cmd_reset (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_reset (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6026,9 +6026,9 @@ dissect_r3_cmd_reset (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, p
 }
 
 static void
-dissect_r3_cmd_logwrite (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_logwrite (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint8    cmdLen;
+  uint8_t   cmdLen;
   tvbuff_t *payload_tvb;
 
   if (!tree)
@@ -6045,18 +6045,18 @@ dissect_r3_cmd_logwrite (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_
 }
 
 static void
-dissect_r3_cmd_mfgcommand (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_mfgcommand (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
     proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
   }
-  mfgCommandFlag = TRUE;
+  mfgCommandFlag = true;
 }
 
 static void
-dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6066,7 +6066,7 @@ dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6079,7 +6079,7 @@ dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 le
  * ***************************************************************************
  */
 static void
-dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *sn_tvb = tvb_new_subset_length (tvb, start_offset + 2, 16);
 
@@ -6092,7 +6092,7 @@ dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 
 }
 
 static void
-dissect_r3_cmdmfg_setcryptkey (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_setcryptkey (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6103,7 +6103,7 @@ dissect_r3_cmdmfg_setcryptkey (tvbuff_t *tvb, guint32 start_offset, guint32 leng
 }
 
 static void
-dissect_r3_cmdmfg_dumpnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_dumpnvram (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6114,7 +6114,7 @@ dissect_r3_cmdmfg_dumpnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmdmfg_terminal (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_terminal (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6124,7 +6124,7 @@ dissect_r3_cmdmfg_terminal (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmdmfg_remoteunlock (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_remoteunlock (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6135,7 +6135,7 @@ dissect_r3_cmdmfg_remoteunlock (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_cmdmfg_auxctlrversion (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_auxctlrversion (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6145,7 +6145,7 @@ dissect_r3_cmdmfg_auxctlrversion (tvbuff_t *tvb, guint32 start_offset, guint32 l
 }
 
 static void
-dissect_r3_cmdmfg_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_iopins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6155,7 +6155,7 @@ dissect_r3_cmdmfg_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
 }
 
 static void
-dissect_r3_cmdmfg_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_adcs (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6165,7 +6165,7 @@ dissect_r3_cmdmfg_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_,
 }
 
 static void
-dissect_r3_cmdmfg_hardwareid (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_hardwareid (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6175,7 +6175,7 @@ dissect_r3_cmdmfg_hardwareid (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmdmfg_checkpointlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_checkpointlogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6185,7 +6185,7 @@ dissect_r3_cmdmfg_checkpointlogdump (tvbuff_t *tvb, guint32 start_offset, guint3
 }
 
 static void
-dissect_r3_cmdmfg_checkpointlogclear (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_checkpointlogclear (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6195,7 +6195,7 @@ dissect_r3_cmdmfg_checkpointlogclear (tvbuff_t *tvb, guint32 start_offset, guint
 }
 
 static void
-dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6205,11 +6205,11 @@ dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, guint32 start_offset, guint32 le
 }
 
 static void
-dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  gint    i;
-  gint    len;
-  guint8  step;
+  int     i;
+  int     len;
+  uint8_t step;
 
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6253,7 +6253,7 @@ dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_cmdmfg_commuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_commuser (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6263,7 +6263,7 @@ dissect_r3_cmdmfg_commuser (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmdmfg_dumpkeypad (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_dumpkeypad (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6273,7 +6273,7 @@ dissect_r3_cmdmfg_dumpkeypad (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmdmfg_batterycheck (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_batterycheck (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6283,7 +6283,7 @@ dissect_r3_cmdmfg_batterycheck (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_cmdmfg_ramrefresh (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_ramrefresh (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6293,7 +6293,7 @@ dissect_r3_cmdmfg_ramrefresh (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmdmfg_taskflags (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_taskflags (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6303,7 +6303,7 @@ dissect_r3_cmdmfg_taskflags (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (tree)
   {
@@ -6313,10 +6313,10 @@ dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  gint i;
-  gint len;
+  int i;
+  int len;
 
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6423,77 +6423,77 @@ dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length 
 }
 
 static void
-dissect_r3_cmdmfg_lockstate (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_lockstate (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_capabilities (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_capabilities (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_dumpm41t81 (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_debuglogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_debuglogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_debuglogclear (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_debuglogclear (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_testwdt (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_testwdt (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_querycksum (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_querycksum (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_validatechecksums (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_validatechecksums (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_rebuildlrucache (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_rebuildlrucache (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_tzupdate (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_tzupdate (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_testpreserve (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_testpreserve (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6501,28 +6501,28 @@ dissect_r3_cmdmfg_testpreserve (tvbuff_t *tvb, guint32 start_offset, guint32 len
 }
 
 static void
-dissect_r3_cmdmfg_mortisestatelogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_mortisestatelogdump (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_mortisestatelogclear (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_mortisestatelogclear (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_mortisepins (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_mortisepins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6530,14 +6530,14 @@ dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, guint32 start_offset, guint32
 
 /*
  */
-static gint
-dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree)
+static int
+dissect_r3_command (tvbuff_t *tvb, uint32_t start_offset, uint32_t length, packet_info *pinfo, proto_tree *r3_tree)
 {
   proto_item  *cmd_item;
   proto_tree  *cmd_tree;
-  const gchar *cn;
-  guint8       cmdLen;
-  guint8       cmd;
+  const char *cn;
+  uint8_t      cmdLen;
+  uint8_t      cmd;
 
   tvb_ensure_bytes_exist (tvb, start_offset, 2);
 
@@ -6561,7 +6561,7 @@ dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_
   }
   else
   {
-    mfgCommandFlag = FALSE;
+    mfgCommandFlag = false;
 
     if (cmd >= CMDMFG_LAST)
     {
@@ -6586,9 +6586,9 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
 {
   proto_item *payload_item = NULL;
   proto_tree *payload_tree = NULL;
-  guint       offset       = 0;
-  guint32     packetLen;
-  guint       octConsumed;
+  unsigned    offset       = 0;
+  uint32_t    packetLen;
+  unsigned    octConsumed;
 
   if (tvb_strneql (tvb, 0, "~~~ds", 5) == 0)
   {
@@ -6625,7 +6625,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
 
   offset = 5;
 
-  mfgCommandFlag = FALSE;   /* XXX: Assumption: mfgCmd always follows Cmd in same r3 "packet" */
+  mfgCommandFlag = false;   /* XXX: Assumption: mfgCmd always follows Cmd in same r3 "packet" */
   while (offset < (packetLen - 3))
   {
     octConsumed = dissect_r3_command (tvb, offset, 0, pinfo, payload_tree);
@@ -6646,9 +6646,9 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
   {
     proto_item *tail_item     = proto_tree_add_item (r3_tree, hf_r3_tail, tvb, offset, 3, ENC_NA);
     proto_tree *tail_tree     = proto_item_add_subtree (tail_item, ett_r3tail);
-    guint32     packetCRC     = tvb_get_letohs (tvb, offset);
-    guint32     packetXor     = tvb_get_guint8 (tvb, offset + 2);
-    guint32     calculatedCRC;
+    uint32_t    packetCRC     = tvb_get_letohs (tvb, offset);
+    uint32_t    packetXor     = tvb_get_guint8 (tvb, offset + 2);
+    uint32_t    calculatedCRC;
 
     if ((calculatedCRC = crc16_r3_ccitt_tvb(tvb, 1, packetLen - 3)) == packetCRC)
       proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC, "0x%04x (correct)", packetCRC);
@@ -6658,7 +6658,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
 
       proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC,
                                   "0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
-      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset, 2, TRUE);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset, 2, true);
       proto_item_set_generated (tmp_item);
     }
 
@@ -6671,7 +6671,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
 
       proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor,
                                   "0x%02x (incorrect, should be 0x%02x)", packetXor, packetLen ^ 0xff);
-      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 7, 1, TRUE);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 7, 1, true);
       proto_item_set_generated (tmp_item);
     }
   }
@@ -6710,16 +6710,16 @@ dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   return tvb_reported_length(tvb);
 }
 
-static guint
+static unsigned
 get_r3_message_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  return (guint) tvb_get_guint8 (tvb, offset + 3) + 1;
+  return (unsigned) tvb_get_guint8 (tvb, offset + 3) + 1;
 }
 
 static int
 dissect_r3 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus (tvb, pinfo, tree, TRUE, 4, get_r3_message_len, dissect_r3_message, data);
+  tcp_dissect_pdus (tvb, pinfo, tree, true, 4, get_r3_message_len, dissect_r3_message, data);
   return tvb_reported_length(tvb);
 }
 
@@ -9993,7 +9993,7 @@ void proto_register_r3 (void)
     };
 
   /* Setup protocol subtree array */
-  static gint *ett [] =
+  static int *ett [] =
     {
       &ett_r3,
       &ett_r3header,

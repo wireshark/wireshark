@@ -143,7 +143,7 @@ static int hf_ax25_kiss_cksum;
 
 
 /* Initialize the subtree pointers */
-static gint ett_ax25_kiss;
+static int ett_ax25_kiss;
 
 static dissector_handle_t kiss_handle;
 
@@ -167,13 +167,13 @@ static const value_string kiss_frame_types[] = {
 };
 
 static bool
-capture_ax25_kiss( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_ax25_kiss( const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	int    l_offset;
-	guint8 kiss_cmd;
+	uint8_t kiss_cmd;
 
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, KISS_HEADER_SIZE ) )
-		return FALSE;
+		return false;
 
 	l_offset  = offset;
 	kiss_cmd  = pd[ l_offset ];
@@ -195,7 +195,7 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, capture_packet_info_t 
 		case KISS_RETURN	: break;
 		default			: break;
 	}
-	return FALSE;
+	return false;
 }
 
 /* Code to actually dissect the packets */
@@ -407,7 +407,7 @@ proto_register_ax25_kiss(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ax25_kiss,
 	};
 

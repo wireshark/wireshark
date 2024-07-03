@@ -298,10 +298,10 @@ static int hf_bacnet_update_control_clear_set1;
 static int hf_bacnet_update_control_set1_params_present;
 static int hf_bacnet_update_control_set1_times_present;
 
-static gint ett_bacnet;
-static gint ett_bacnet_control;
-static gint ett_bacnet_wrapper_control;
-static gint ett_bacnet_update_control;
+static int ett_bacnet;
+static int ett_bacnet_control;
+static int ett_bacnet_wrapper_control;
+static int ett_bacnet_update_control;
 
 static dissector_handle_t bacnet_handle;
 
@@ -344,12 +344,12 @@ static int * const wrapper_control_flags[] = {
 
 int
 bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-					gint offset, bool *pis_net_msg_flg)
+					int offset, bool *pis_net_msg_flg)
 {
-	guint8 bacnet_dlen;
-	guint8 bacnet_wrapper_control;
-	guint16 bacnet_len;
-	gint len;
+	uint8_t bacnet_dlen;
+	uint8_t bacnet_wrapper_control;
+	uint16_t bacnet_len;
+	int len;
 
 	/* get control octet from wrapper */
 	bacnet_wrapper_control = tvb_get_guint8(tvb, offset);
@@ -478,22 +478,22 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *bacnet_tree;
 
-	guint8 bacnet_version;
-	guint8 bacnet_control;
-	guint8 bacnet_update_control;
-	guint8 bacnet_dlen;
-	guint8 bacnet_slen;
-	guint8 bacnet_mesgtyp;
-	guint8 bacnet_rportnum;
-	guint8 bacnet_pinfolen;
-	guint8 i;
+	uint8_t bacnet_version;
+	uint8_t bacnet_control;
+	uint8_t bacnet_update_control;
+	uint8_t bacnet_dlen;
+	uint8_t bacnet_slen;
+	uint8_t bacnet_mesgtyp;
+	uint8_t bacnet_rportnum;
+	uint8_t bacnet_pinfolen;
+	uint8_t i;
 	tvbuff_t *next_tvb;
-	guint32 vendor_id;
+	uint32_t vendor_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 	col_set_str(pinfo->cinfo, COL_INFO, "Building Automation and Control Network NPDU");
@@ -733,7 +733,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 		case BAC_NET_SECUR_PAY:
 		{
 			bool is_net_msg_flg;
-			guint16 bacnet_len;
+			uint16_t bacnet_len;
 
 			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, &is_net_msg_flg);
 			if (offset < 0) {
@@ -762,7 +762,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 		/* Security-Response */
 		case BAC_NET_SECUR_RESP:
 		{
-			guint8 bacnet_responsecode;
+			uint8_t bacnet_responsecode;
 
 			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL);
 			if (offset < 0) {
@@ -913,7 +913,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 			}
 
 			if (bacnet_update_control & BAC_UPDATE_CONTROL_SET1_PARAMS_PRESENT) {
-				guint8 keycount;
+				uint8_t keycount;
 
 				keycount = tvb_get_guint8(tvb, offset);
 				offset++;
@@ -949,7 +949,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 			}
 
 			if (bacnet_update_control & BAC_UPDATE_CONTROL_SET2_PARAMS_PRESENT) {
-				guint8 keycount;
+				uint8_t keycount;
 
 				keycount = tvb_get_guint8(tvb, offset);
 				offset++;
@@ -1001,7 +1001,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 		/* Request-Masterkey */
 		case BAC_NET_REQ_MKEY:
 		{
-			guint8 keycount;
+			uint8_t keycount;
 
 			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL);
 			if (offset < 0) {
@@ -1690,7 +1690,7 @@ proto_register_bacnet(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bacnet,
 		&ett_bacnet_control,
 		&ett_bacnet_wrapper_control,

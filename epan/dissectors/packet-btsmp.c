@@ -76,9 +76,9 @@ static int * const hfx_btsmp_authreq[] = {
 
 
 /* Initialize the subtree pointers */
-static gint ett_btsmp;
-static gint ett_btsmp_auth_req;
-static gint ett_btsmp_key_dist;
+static int ett_btsmp;
+static int ett_btsmp_auth_req;
+static int ett_btsmp_key_dist;
 
 static dissector_handle_t btsmp_handle;
 
@@ -154,7 +154,7 @@ static const value_string notification_type_vals[] = {
 };
 
 /* X coordinate of debug public key. Little-endian. */
-static const guint8 debug_public_key_x[32] = {
+static const uint8_t debug_public_key_x[32] = {
     0xe6, 0x9d, 0x35, 0x0e, 0x48, 0x01, 0x03, 0xcc,
     0xdb, 0xfd, 0xf4, 0xac, 0x11, 0x91, 0xf4, 0xef,
     0xb9, 0xa5, 0xf9, 0xe9, 0xa7, 0x83, 0x2c, 0x5e,
@@ -162,7 +162,7 @@ static const guint8 debug_public_key_x[32] = {
 };
 
 /* Y coordinate of debug public key. Little-endian. */
-static const guint8 debug_public_key_y[32] = {
+static const uint8_t debug_public_key_y[32] = {
     0x8b, 0xd2, 0x89, 0x15, 0xd0, 0x8e, 0x1c, 0x74,
     0x24, 0x30, 0xed, 0x8f, 0xc2, 0x45, 0x63, 0x76,
     0x5c, 0x15, 0x52, 0x5a, 0xbf, 0x9a, 0x32, 0x63,
@@ -175,8 +175,8 @@ void proto_reg_handoff_btsmp(void);
 static int
 dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 value;
-    const guint8 *ph;
+    uint8_t value;
+    const uint8_t *ph;
 
     col_append_str(pinfo->cinfo, COL_INFO, "AuthReq: ");
     proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_authreq, ett_btsmp_auth_req, hfx_btsmp_authreq, ENC_LITTLE_ENDIAN);
@@ -199,10 +199,10 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, gboolean initiator)
+dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool initiator)
 {
-    guint8 value;
-    gboolean next = FALSE;
+    uint8_t value;
+    bool next = false;
 
     if (initiator) {
         col_append_str(pinfo->cinfo, COL_INFO, " | Initiator Key(s): ");
@@ -216,19 +216,19 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     if (value & 0x01) {
         col_append_str(pinfo->cinfo, COL_INFO, "LTK");
-        next = TRUE;
+        next = true;
     }
     if (value & 0x02) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "IRK");
-        next = TRUE;
+        next = true;
     }
     if (value & 0x04) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "CSRK");
-        next = TRUE;
+        next = true;
     }
     if (value & 0x08) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "Linkkey");
-        next = TRUE;
+        next = true;
     }
     if (value & 0xF0) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "Reserved");
@@ -246,10 +246,10 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     int          offset = 0;
     proto_item  *ti;
     proto_tree  *st;
-    guint8      opcode;
-    guint32     interface_id;
-    guint32     adapter_id;
-    gint        previous_proto;
+    uint8_t     opcode;
+    uint32_t    interface_id;
+    uint32_t    adapter_id;
+    int         previous_proto;
 
     interface_id = HCI_INTERFACE_DEFAULT;
     adapter_id = HCI_ADAPTER_DEFAULT;
@@ -282,7 +282,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (tvb_reported_length(tvb) < 1)
-        return FALSE;
+        return false;
 
     proto_tree_add_item(st, hf_btsmp_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);
     opcode = tvb_get_guint8(tvb, 0);
@@ -306,8 +306,8 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(st, hf_btsmp_max_enc_key_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
-        offset = dissect_btsmp_key_dist(tvb, offset, pinfo, st, TRUE);
-        offset = dissect_btsmp_key_dist(tvb, offset, pinfo, st, FALSE);
+        offset = dissect_btsmp_key_dist(tvb, offset, pinfo, st, true);
+        offset = dissect_btsmp_key_dist(tvb, offset, pinfo, st, false);
         break;
     }
 
@@ -348,7 +348,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(st, hf_address_type, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        offset = dissect_bd_addr(hf_bd_addr, pinfo, st, tvb, offset, FALSE, interface_id, adapter_id, NULL);
+        offset = dissect_bd_addr(hf_bd_addr, pinfo, st, tvb, offset, false, interface_id, adapter_id, NULL);
         break;
 
     case 0x0A: /* Signing Information */
@@ -555,7 +555,7 @@ proto_register_btsmp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
       &ett_btsmp,
       &ett_btsmp_auth_req,
       &ett_btsmp_key_dist

@@ -190,12 +190,12 @@ static const value_string bscvlc_hub_accept_conns_names[] = {
 	{ 0,    NULL }
 };
 
-static gint ett_bvlc;
-static gint ett_bscvlc;
-static gint ett_bscvlc_ctrl;
-static gint ett_bscvlc_hdr;
-static gint ett_bdt;
-static gint ett_fdt;
+static int ett_bvlc;
+static int ett_bscvlc;
+static int ett_bscvlc_ctrl;
+static int ett_bscvlc_hdr;
+static int ett_bdt;
+static int ett_fdt;
 
 #define BACNET_IP_ANNEX_J		0x81
 #define BACNET_IPV6_ANNEX_U		0x82
@@ -514,13 +514,13 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_tree *bdt_tree; /* Broadcast Distribution Table */
 	proto_tree *fdt_tree; /* Foreign Device Table */
 
-	gint offset;
-	guint8 bvlc_type;
-	guint8 bvlc_function;
-	guint16 bvlc_length;
-	guint16 packet_length;
-	guint npdu_length;
-	guint length_remaining;
+	int offset;
+	uint8_t bvlc_type;
+	uint8_t bvlc_function;
+	uint16_t bvlc_length;
+	uint16_t packet_length;
+	unsigned npdu_length;
+	unsigned length_remaining;
 	tvbuff_t *next_tvb;
 
 	offset = 0;
@@ -713,13 +713,13 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_item *ti;
 	proto_tree *bvlc_tree;
 
-	gint offset;
-	guint8 bvlc_type;
-	guint8 bvlc_function;
-	guint16 bvlc_length = 0;
-	guint16 packet_length;
-	guint npdu_length;
-	guint length_remaining;
+	int offset;
+	uint8_t bvlc_type;
+	uint8_t bvlc_function;
+	uint16_t bvlc_length = 0;
+	uint16_t packet_length;
+	unsigned npdu_length;
+	unsigned length_remaining;
 	tvbuff_t *next_tvb;
 
 	offset = 0;
@@ -886,8 +886,8 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static int
 dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint8 bvlc_type;
-	guint ret = 0;
+	uint8_t bvlc_type;
+	unsigned ret = 0;
 
 	bvlc_type = tvb_get_guint8(tvb, 0);
 
@@ -919,20 +919,20 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_item *ti;
 	proto_tree *bvlc_tree;
 	tvbuff_t *next_tvb;
-	gint offset;
-	gint start;
-	gint bvlc_length;
-	gint packet_length;
-	gint npdu_length;
-	guint8 bvlc_function;
-	guint8 bvlc_control;
-	guint8 bvlc_result;
-	guint8 hdr_byte;
-	gint8 mac_buffer[16];
-	guint bvlc_message_id;
-	guint idx;
-	gboolean bMoreFlag;
-	gboolean bDataFlag;
+	int offset;
+	int start;
+	int bvlc_length;
+	int packet_length;
+	int npdu_length;
+	uint8_t bvlc_function;
+	uint8_t bvlc_control;
+	uint8_t bvlc_result;
+	uint8_t hdr_byte;
+	int8_t mac_buffer[16];
+	unsigned bvlc_message_id;
+	unsigned idx;
+	bool bMoreFlag;
+	bool bDataFlag;
 	proto_tree *subtree;
 
 	/* Calculate length of BSCVLC block to get remaining payload length */
@@ -959,7 +959,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if ((bvlc_control & BSCVLC_CONTROL_DEST_OPTION) != 0)
 	{
-		bMoreFlag = TRUE;
+		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, bvlc_length) > 0 &&
 		      (hdr_byte = tvb_get_guint8(tvb, bvlc_length)) != 0 && bMoreFlag)
@@ -971,8 +971,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (gint)(tvb_get_guint8(tvb, bvlc_length++) << 8);
-				npdu_length += (gint)tvb_get_guint8(tvb, bvlc_length++);
+				npdu_length = (int)(tvb_get_guint8(tvb, bvlc_length++) << 8);
+				npdu_length += (int)tvb_get_guint8(tvb, bvlc_length++);
 				bvlc_length += npdu_length;
 			}
 		}
@@ -980,7 +980,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if ((bvlc_control & BSCVLC_CONTROL_DATA_OPTION) != 0)
 	{
-		bMoreFlag = TRUE;
+		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, bvlc_length) > 0 &&
 		      (hdr_byte = tvb_get_guint8(tvb, bvlc_length)) != 0 && bMoreFlag)
@@ -992,8 +992,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (gint)(tvb_get_guint8(tvb, bvlc_length++) << 8);
-				npdu_length += (gint)tvb_get_guint8(tvb, bvlc_length++);
+				npdu_length = (int)(tvb_get_guint8(tvb, bvlc_length++) << 8);
+				npdu_length += (int)tvb_get_guint8(tvb, bvlc_length++);
 				bvlc_length += npdu_length;
 			}
 		}
@@ -1074,7 +1074,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if ((bvlc_control & BSCVLC_CONTROL_DEST_OPTION) != 0)
 	{
-		bMoreFlag = TRUE;
+		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, offset) > 0 &&
 		      (hdr_byte = tvb_get_guint8(tvb, offset)) != 0 && bMoreFlag)
@@ -1088,8 +1088,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (gint)(tvb_get_guint8(tvb, offset++) << 8);
-				npdu_length += (gint)tvb_get_guint8(tvb, offset++);
+				npdu_length = (int)(tvb_get_guint8(tvb, offset++) << 8);
+				npdu_length += (int)tvb_get_guint8(tvb, offset++);
 				offset += npdu_length;
 			}
 
@@ -1108,7 +1108,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if ((bvlc_control & BSCVLC_CONTROL_DATA_OPTION) != 0)
 	{
-		bMoreFlag = TRUE;
+		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, offset) > 0 &&
 		      (hdr_byte = tvb_get_guint8(tvb, offset)) != 0 && bMoreFlag)
@@ -1122,8 +1122,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (gint)(tvb_get_guint8(tvb, offset++) << 8);
-				npdu_length += (gint)tvb_get_guint8(tvb, offset++);
+				npdu_length = (int)(tvb_get_guint8(tvb, offset++) << 8);
+				npdu_length += (int)tvb_get_guint8(tvb, offset++);
 				offset += npdu_length;
 			}
 
@@ -1380,7 +1380,7 @@ proto_register_bvlc(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bvlc,
 		&ett_bdt,
 		&ett_fdt,
@@ -1547,7 +1547,7 @@ proto_register_bvlc(void)
 		},
 	};
 
-	static gint *bsc_ett[] = {
+	static int *bsc_ett[] = {
 		&ett_bscvlc,
 		&ett_bscvlc_ctrl,
 		&ett_bscvlc_hdr

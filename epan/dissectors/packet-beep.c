@@ -135,11 +135,11 @@ struct beep_proto_data {
  */
 
 struct beep_request_key {
-  guint32 conversation;
+  uint32_t conversation;
 };
 
 struct beep_request_val {
-  guint16 processed;     /* Have we processed this conversation? */
+  uint16_t processed;     /* Have we processed this conversation? */
   int size;              /* Size of the message                  */
                          /* We need an indication in each dirn of
                           * whether on not a mime header is expected
@@ -150,8 +150,8 @@ struct beep_request_val {
 static wmem_map_t *beep_request_hash;
 
 /* Hash Functions */
-static gint
-beep_equal(gconstpointer v, gconstpointer w)
+static int
+beep_equal(const void *v, const void *w)
 {
   const struct beep_request_key *v1 = (const struct beep_request_key *)v;
   const struct beep_request_key *v2 = (const struct beep_request_key *)w;
@@ -168,11 +168,11 @@ beep_equal(gconstpointer v, gconstpointer w)
 
 }
 
-static guint
-beep_hash(gconstpointer v)
+static unsigned
+beep_hash(const void *v)
 {
   const struct beep_request_key *key = (const struct beep_request_key *)v;
-  guint val;
+  unsigned val;
 
   val = key->conversation;
 
@@ -197,7 +197,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
   proto_item *hidden_item;
   int ret = 0;
-  guint8 more = tvb_get_guint8(tvb, offset);
+  uint8_t more = tvb_get_guint8(tvb, offset);
 
   hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII|ENC_NA);
   proto_item_set_hidden(hidden_item);
@@ -287,7 +287,7 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 static int header_len(tvbuff_t *tvb, int offset)
 {
   int i = 0;
-  guint8 sc;
+  uint8_t sc;
 
   /* FIXME: Have to make sure we stop looking at the end of the tvb ... */
 
@@ -474,7 +474,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* Include space */
       proto_item_set_len(ti, 4);
 
-      proto_tree_add_boolean(hdr, hf_beep_req, tvb, offset, 3, TRUE);
+      proto_tree_add_boolean(hdr, hf_beep_req, tvb, offset, 3, true);
     }
 
     offset += 4;
@@ -944,7 +944,7 @@ proto_register_beep(void)
     { &hf_beep_crlf_terminator,
       { "Terminator: CRLF", "beep.crlf_terminator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_beep,
     &ett_mime_header,
     &ett_header,

@@ -66,9 +66,9 @@ static int hf_bfcp_setup_frame;
 static int hf_bfcp_setup_method;
 
 /* Initialize subtree pointers */
-static gint ett_bfcp;
-static gint ett_bfcp_setup;
-static gint ett_bfcp_attr;
+static int ett_bfcp;
+static int ett_bfcp_setup;
+static int ett_bfcp_attr;
 
 static expert_field ei_bfcp_attribute_length_too_small;
 
@@ -168,7 +168,7 @@ static const value_string bfcp_error_code_valuse[] = {
 void
 bfcp_add_address( packet_info *pinfo, port_type ptype,
 		address *addr, int port,
-		const gchar *setup_method, guint32 setup_frame_number)
+		const char *setup_method, uint32_t setup_frame_number)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -197,7 +197,7 @@ bfcp_add_address( packet_info *pinfo, port_type ptype,
 	*/
 	if (!p_conv) {
 		p_conv = conversation_new( pinfo->num, addr, &null_addr, conversation_pt_to_conversation_type(ptype),
-				   (guint32)port, 0,
+				   (uint32_t)port, 0,
 				   NO_ADDR2 | NO_PORT2);
 	}
 
@@ -221,7 +221,7 @@ bfcp_add_address( packet_info *pinfo, port_type ptype,
 	/*
 	* Update the conversation data.
 	*/
-	p_conv_data->setup_method_set = TRUE;
+	p_conv_data->setup_method_set = true;
 	(void) g_strlcpy(p_conv_data->setup_method, setup_method, MAX_BFCP_SETUP_METHOD_SIZE);
 	p_conv_data->setup_frame_number = setup_frame_number;
 }
@@ -286,11 +286,11 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 {
 	proto_item *ti, *item;
 	proto_tree  *bfcp_attr_tree = NULL;
-	gint        attr_start_offset;
-	gint        length;
-	guint8      attribute_type;
-	gint        read_attr = 0;
-	guint8      first_byte, pad_len;
+	int         attr_start_offset;
+	int         length;
+	uint8_t     attribute_type;
+	int         read_attr = 0;
+	uint8_t     first_byte, pad_len;
 
 	increment_dissection_depth(pinfo);
 	while ((tvb_reported_length_remaining(tvb, offset) >= 2) &&
@@ -510,9 +510,9 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static bool
 dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
-	guint8       primitive;
-	guint8      first_byte;
-	const gchar *str;
+	uint8_t      primitive;
+	uint8_t     first_byte;
+	const char *str;
 
 
 	/* Size of smallest BFCP packet: 12 octets */
@@ -547,9 +547,9 @@ static int
 dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	int          offset = 0;
-	guint8       primitive;
-	const gchar *str;
-	gint         bfcp_payload_length;
+	uint8_t      primitive;
+	const char *str;
+	int          bfcp_payload_length;
 	bool         f_bit;
 	proto_tree  *bfcp_tree;
 	proto_item	*ti;
@@ -842,7 +842,7 @@ void proto_register_bfcp(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bfcp,
 		&ett_bfcp_setup,
 		&ett_bfcp_attr,

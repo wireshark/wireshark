@@ -50,7 +50,7 @@ static int hf_ans_sender_id;
 static int hf_ans_team_id;
 
 /* Initialize the subtree pointers */
-static gint ett_ans;
+static int ett_ans;
 
 /* Code to actually dissect the packets */
 static int
@@ -58,8 +58,8 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item  *ti;
 	proto_tree  *ans_tree;
-	guint16      sender_id;
-	guint32      seq_num;
+	uint16_t     sender_id;
+	uint32_t     seq_num;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Intel ANS probe");
 
@@ -113,7 +113,7 @@ proto_register_ans(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ans,
 	};
 

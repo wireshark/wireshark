@@ -14,7 +14,7 @@
 #define __PACKET_AUTOSAR_IPDU_MULTIPLEXER_H__
 
 typedef struct _autosar_ipdu_multiplexer {
-    guint32 pdu_id;
+    uint32_t pdu_id;
 } autosar_ipdu_multiplexer_info_t;
 
 #endif /* __PACKET_AUTOSAR_IPDU_MULTIPLEXER_H__ */

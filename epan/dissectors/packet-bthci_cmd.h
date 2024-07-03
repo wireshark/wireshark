@@ -54,30 +54,30 @@ WS_DLL_PUBLIC const value_string bthci_cmd_inq_modes[];
 
 
 typedef struct _bthci_cmd_data_t {
-    guint32  opcode;
+    uint32_t opcode;
 
-    guint32  command_in_frame;
+    uint32_t command_in_frame;
     nstime_t command_abs_ts;
-    guint32  pending_in_frame;
+    uint32_t pending_in_frame;
     nstime_t pending_abs_ts;
-    guint32  response_in_frame;
+    uint32_t response_in_frame;
     nstime_t response_abs_ts;
 
     union {
-        gchar   *name;
-        guint8   scan;
-        guint16  page_timeout;
-        guint8   authentication;
-        guint8   encryption;
-        guint32  class_of_device;
-        guint16  voice_setting;
-        guint8   simple_pairing_mode;
-        guint8   inquiry_mode;
+        char    *name;
+        uint8_t  scan;
+        uint16_t page_timeout;
+        uint8_t  authentication;
+        uint8_t  encryption;
+        uint32_t class_of_device;
+        uint16_t voice_setting;
+        uint8_t  simple_pairing_mode;
+        uint8_t  inquiry_mode;
         struct {
-            guint16  acl_mtu;
-            guint8   sco_mtu;
-            guint16  acl_packets;
-            guint16  sco_packets;
+            uint16_t acl_mtu;
+            uint8_t  sco_mtu;
+            uint16_t acl_packets;
+            uint16_t sco_packets;
         } mtus;
     } data;
 } bthci_cmd_data_t;

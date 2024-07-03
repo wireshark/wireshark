@@ -169,15 +169,15 @@ static expert_field ei_missing_fragment_start;
 static expert_field ei_esco_incorrect_ltaddr;
 static expert_field ei_esco_incorrect_length;
 
-static gint ett_btbredr_rf;
-static gint ett_flags;
-static gint ett_payload_transport_rate;
-static gint ett_packet_header;
-static gint ett_bluetooth_header;
-static gint ett_payload_header;
-static gint ett_l2cap_msg_fragment;
-static gint ett_l2cap_msg_fragments;
-static gint ett_btbredr_fhs;
+static int ett_btbredr_rf;
+static int ett_flags;
+static int ett_payload_transport_rate;
+static int ett_packet_header;
+static int ett_bluetooth_header;
+static int ett_payload_header;
+static int ett_l2cap_msg_fragment;
+static int ett_l2cap_msg_fragments;
+static int ett_btbredr_fhs;
 
 static dissector_table_t  packet_type_sco_br_table;
 static dissector_table_t  packet_type_esco_br_table;
@@ -197,21 +197,21 @@ static wmem_tree_t *connection_info_tree;
 static wmem_tree_t *device_info_tree;
 
 typedef struct _device_info_t {
-    guint32  interface_id;
-    guint32  adapter_id;
-    guint8   bd_addr[6];
-    gint8    dir;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint8_t  bd_addr[6];
+    int8_t   dir;
 } device_info_t;
 
 #define BDADDR_MASTER  0
 #define BDADDR_SLAVE   1
 
 typedef struct _btbredr_frame_info_t {
-    guint    retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */
-    guint    ack : 1;             /* 0 = Nack, 1 = Ack */
-    guint    more_fragments : 1;  /* 0 = Last fragment, 1 = More fragments */
-    guint    missing_start : 1;   /* 0 = No, 1 = Missing fragment start */
-    guint32  l2cap_index;         /* Unique identifier for each L2CAP message */
+    unsigned retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */
+    unsigned ack : 1;             /* 0 = Nack, 1 = Ack */
+    unsigned more_fragments : 1;  /* 0 = Last fragment, 1 = More fragments */
+    unsigned missing_start : 1;   /* 0 = No, 1 = Missing fragment start */
+    uint32_t l2cap_index;         /* Unique identifier for each L2CAP message */
 } btbredr_frame_info_t;
 
 typedef struct {
@@ -220,7 +220,7 @@ typedef struct {
     device_info_t     *device_info;
 } btbredr_fhs_data_t;
 
-static const guint8 null_bd_addr[6] = { 0, 0, 0, 0, 0, 0 };
+static const uint8_t null_bd_addr[6] = { 0, 0, 0, 0, 0, 0 };
 
 /* Reassembly */
 static reassembly_table l2cap_msg_reassembly_table;
@@ -459,8 +459,8 @@ static const value_string fhs_page_scan_mode_vals[] = {
 void proto_register_btbredr_rf(void);
 void proto_reg_handoff_btbredr_rf(void);
 
-static guint8
-reverse_bits(guint8 value)
+static uint8_t
+reverse_bits(uint8_t value)
 {
     value = ((value >> 1) & 0x55) | ((value << 1) & 0xaa);
     value = ((value >> 2) & 0x33) | ((value << 2) & 0xcc);
@@ -468,13 +468,13 @@ reverse_bits(guint8 value)
     return value;
 }
 
-static gboolean
-broken_check_hec(guint8 uap, guint32 header)
+static bool
+broken_check_hec(uint8_t uap, uint32_t header)
 {
-    guint8   hec;
-    guint16  header_data;
-    guint8   lfsr;
-    gint8    i;
+    uint8_t  hec;
+    uint16_t header_data;
+    uint8_t  lfsr;
+    int8_t   i;
 
     hec = header & 0xFF;
     header_data = (header >> 8) & 0x3F;
@@ -493,28 +493,28 @@ broken_check_hec(guint8 uap, guint32 header)
     return lfsr == hec;
 }
 
-static gboolean
-check_hec(guint8 uap, guint32 header)
+static bool
+check_hec(uint8_t uap, uint32_t header)
 {
-    static const guint32 crc_poly_rev_bt_hec = 0xe5;
+    static const uint32_t crc_poly_rev_bt_hec = 0xe5;
     header &= 0x3ffff;
     header ^= reverse_bits(uap) & 0xff;
-    for (guint i = 0; i < 10; ++i, header >>= 1)
+    for (unsigned i = 0; i < 10; ++i, header >>= 1)
         if (header & 1)
             header ^= (crc_poly_rev_bt_hec << 1);
     return !header;
 }
 
-static gboolean
-check_crc(guint8 uap, tvbuff_t *tvb, gint offset, gint len)
+static bool
+check_crc(uint8_t uap, tvbuff_t *tvb, int offset, int len)
 {
-    static const guint16 crc_poly_rev_bt_pdu = 0x8408;
-    guint16 crc = reverse_bits(uap);
+    static const uint16_t crc_poly_rev_bt_pdu = 0x8408;
+    uint16_t crc = reverse_bits(uap);
     crc <<= 8;
     for (; len > 0; --len, ++offset) {
         crc ^= tvb_get_guint8(tvb, offset) & 0xff;
-        for (guint i = 0; i < 8; ++i) {
-            guint16 x = crc & 1;
+        for (unsigned i = 0; i < 8; ++i) {
+            uint16_t x = crc & 1;
             crc >>= 1;
             crc ^= crc_poly_rev_bt_pdu & -x;
         }
@@ -522,10 +522,10 @@ check_crc(guint8 uap, tvbuff_t *tvb, gint offset, gint len)
     return !crc;
 }
 
-static guint32
-extract_lap(const guint8 bd_addr[6])
+static uint32_t
+extract_lap(const uint8_t bd_addr[6])
 {
-    guint32 lap = bd_addr[3];
+    uint32_t lap = bd_addr[3];
     lap <<= 8;
     lap |= bd_addr[4];
     lap <<= 8;
@@ -533,14 +533,14 @@ extract_lap(const guint8 bd_addr[6])
     return lap;
 }
 
-static gboolean
-is_reserved_lap(guint32 lap)
+static bool
+is_reserved_lap(uint32_t lap)
 {
     return (lap >= 0x9e8b00) && (lap <= 0x9e8b3f);
 }
 
 static connection_info_t *
-lookup_connection_info(guint32 interface_id, guint32 adapter_id, guint32 lap, guint32 ltaddr, guint32 pktnum)
+lookup_connection_info(uint32_t interface_id, uint32_t adapter_id, uint32_t lap, uint32_t ltaddr, uint32_t pktnum)
 {
     connection_info_t *cinfo;
     wmem_tree_key_t key[6];
@@ -566,10 +566,10 @@ lookup_connection_info(guint32 interface_id, guint32 adapter_id, guint32 lap, gu
 }
 
 connection_info_t *
-btbredr_rf_add_esco_link(connection_info_t *cinfo, packet_info *pinfo, guint8 handle, guint32 ltaddr, guint16 pktszms, guint16 pktszsm)
+btbredr_rf_add_esco_link(connection_info_t *cinfo, packet_info *pinfo, uint8_t handle, uint32_t ltaddr, uint16_t pktszms, uint16_t pktszsm)
 {
     connection_info_t *ecinfo;
-    guint32 lap;
+    uint32_t lap;
     wmem_tree_key_t key[6];
     if (!cinfo || !pinfo || ltaddr >= 8 || !ltaddr)
         return NULL;
@@ -611,15 +611,15 @@ btbredr_rf_add_esco_link(connection_info_t *cinfo, packet_info *pinfo, guint8 ha
 }
 
 void
-btbredr_rf_remove_esco_link(connection_info_t *cinfo, packet_info *pinfo, guint8 handle)
+btbredr_rf_remove_esco_link(connection_info_t *cinfo, packet_info *pinfo, uint8_t handle)
 {
     connection_info_t *ecinfo;
-    guint32 lap;
+    uint32_t lap;
     wmem_tree_key_t key[6];
     if (!cinfo || !pinfo)
         return;
     lap = extract_lap(cinfo->bd_addr[BDADDR_MASTER]);
-    for (guint32 ltaddr = 1; ltaddr < 8; ++ltaddr) {
+    for (uint32_t ltaddr = 1; ltaddr < 8; ++ltaddr) {
         ecinfo = lookup_connection_info(cinfo->interface_id, cinfo->adapter_id, lap, ltaddr, pinfo->num);
         if (!ecinfo)
             continue;
@@ -643,7 +643,7 @@ btbredr_rf_remove_esco_link(connection_info_t *cinfo, packet_info *pinfo, guint8
     }
 }
 
-static gint
+static int
 dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item           *btbredr_rf_item;
@@ -654,29 +654,29 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree           *header_tree;
     proto_item           *reserved_item;
     proto_item           *hec_item = NULL;
-    gint                  offset = 0;
-    gint                  hf_x;
-    gint                  header_mode;
-    guint32               interface_id;
-    guint32               adapter_id;
-    guint16               flags;
-    guint32               lap;
-    guint8                uap = 0;
-    guint32               ltaddr;
-    guint8                payload_and_transport;
-    gint16                packet_type = PACKET_TYPE_UNKNOWN;
-    const gchar          *packet_type_str = "Unknown";
+    int                   offset = 0;
+    int                   hf_x;
+    int                   header_mode;
+    uint32_t              interface_id;
+    uint32_t              adapter_id;
+    uint16_t              flags;
+    uint32_t              lap;
+    uint8_t               uap = 0;
+    uint32_t              ltaddr;
+    uint8_t               payload_and_transport;
+    int16_t               packet_type = PACKET_TYPE_UNKNOWN;
+    const char           *packet_type_str = "Unknown";
     dissector_table_t     packet_type_table = NULL;
-    gboolean              decrypted;
-    gint                  isochronous_length = 0;
-    gboolean              isochronous_crc = FALSE;
-    gboolean              isochronous_esco = FALSE;
-    gint                  data_length = 0;
-    gint                  data_header = 0;
-    gboolean              data_crc = FALSE;
-    gboolean              arqn = FALSE;
-    gboolean              seqn = FALSE;
-    gint                  direction = -1;
+    bool                  decrypted;
+    int                   isochronous_length = 0;
+    bool                  isochronous_crc = false;
+    bool                  isochronous_esco = false;
+    int                   data_length = 0;
+    int                   data_header = 0;
+    bool                  data_crc = false;
+    bool                  arqn = false;
+    bool                  seqn = false;
+    int                   direction = -1;
     btbredr_frame_info_t *frame_info = NULL;
     connection_info_t    *connection_info = NULL;
     device_info_t        *device_info = NULL;
@@ -789,11 +789,11 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     offset += 1;
 
     {
-        guint32 hdr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
-        gboolean have_uap = device_info || !!(flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID);
-        gboolean is_inquiry = is_reserved_lap(lap);
-        gboolean is_inquiry_fhs = is_inquiry && (((hdr >> 3) & 0x0f) == 2);
-        gboolean is_inquiry_broken_fhs = is_inquiry && (((hdr >> 11) & 0x0f) == 2);
+        uint32_t hdr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+        bool have_uap = device_info || !!(flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID);
+        bool is_inquiry = is_reserved_lap(lap);
+        bool is_inquiry_fhs = is_inquiry && (((hdr >> 3) & 0x0f) == 2);
+        bool is_inquiry_broken_fhs = is_inquiry && (((hdr >> 11) & 0x0f) == 2);
         if (is_inquiry && !(is_inquiry_fhs || is_inquiry_broken_fhs))
             header_mode = -2;
         else if (!(flags & FLAGS_PACKET_HEADER_AND_BR_EDR_PAYLOAD_DEWHITENED))
@@ -1022,13 +1022,13 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     if ((flags & (FLAGS_SIGNAL_POWER_VALID | FLAGS_NOISE_POWER_VALID)) == (FLAGS_SIGNAL_POWER_VALID | FLAGS_NOISE_POWER_VALID)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (SP: %4i, NP: %4i)",
-                (gint)tvb_get_gint8(tvb, 1), (gint)tvb_get_gint8(tvb, 2));
+                (int)tvb_get_gint8(tvb, 1), (int)tvb_get_gint8(tvb, 2));
     } else if (flags & FLAGS_SIGNAL_POWER_VALID) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (SP: %4i)",
-                (gint)tvb_get_gint8(tvb, 1));
+                (int)tvb_get_gint8(tvb, 1));
     } else if (flags & FLAGS_NOISE_POWER_VALID) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (NP: %4i)",
-                (gint)tvb_get_gint8(tvb, 2));
+                (int)tvb_get_gint8(tvb, 2));
     }
 
    if (flags & FLAGS_PACKET_HEADER_AND_BR_EDR_PAYLOAD_DEWHITENED)
@@ -1040,59 +1040,59 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        case 0: // NULL
        case 1: // POLL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 2: // FHS
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 0;
-           data_crc = TRUE;
-           decrypted = TRUE;
+           data_crc = true;
+           decrypted = true;
            break;
 
        case 3: // DM1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 5: // HV1
            isochronous_length = 10;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 6: // HV2
            isochronous_length = 20;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 7: // HV3
            isochronous_length = 30;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 8: // DV
            isochronous_length = 10;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 10;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        default:
@@ -1103,37 +1103,37 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        case 0: // NULL
        case 1: // POLL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 7: // EV3
            isochronous_length = 30;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 12: // EV4
            isochronous_length = 120;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 13: // EV5
            isochronous_length = 180;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        default:
@@ -1144,46 +1144,46 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        case 0: // NULL
        case 1: // POLL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 6: // 2-EV3
            isochronous_length = 60;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 7: // 3-EV3
            isochronous_length = 90;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 12: // 2-EV5
            isochronous_length = 360;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 13: // 3-EV5
            isochronous_length = 540;
-           isochronous_crc = TRUE;
-           isochronous_esco = TRUE;
+           isochronous_crc = true;
+           isochronous_esco = true;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        default:
@@ -1194,75 +1194,75 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        case 0: // NULL
        case 1: // POLL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 2: // FHS
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 0;
-           data_crc = TRUE;
-           decrypted = TRUE;
+           data_crc = true;
+           decrypted = true;
            break;
 
        case 3: // DM1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 4: // DH1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 28;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 9: // AUX1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 30;
            data_header = 1;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 10: // DM3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 123;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 11: // DH3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 185;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 14: // DM5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 226;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 15: // DH5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 341;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        default:
@@ -1273,83 +1273,83 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        case 0: // NULL
        case 1: // POLL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 2: // FHS
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 0;
-           data_crc = TRUE;
-           decrypted = TRUE;
+           data_crc = true;
+           decrypted = true;
            break;
 
        case 3: // DM1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 4: // 2-DH1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 56;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 8: // 3-DH1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 85;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 9: // AUX1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 30;
            data_header = 1;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 10: // 2-DH3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 369;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 11: // 3-DH3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 554;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 14: // 2-DH5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 681;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 15: // 3-DH5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 1023;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        default:
@@ -1359,58 +1359,58 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        switch (packet_type) {
        case 0: // NULL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 3: // DM1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 4: // DH1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 28;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 10: // DM3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 123;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 11: // DH3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 185;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 14: // DM5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 226;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 15: // DH5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 341;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        default:
@@ -1420,66 +1420,66 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        switch (packet_type) {
        case 0: // NULL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 3: // DM1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 4: // 2-DH1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 56;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 8: // 3-DH1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 85;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 10: // 2-DH3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 369;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 11: // 3-DH3
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 554;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 14: // 2-DH5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 681;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        case 15: // 3-DH5
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 1023;
            data_header = 2;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        default:
@@ -1490,27 +1490,27 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        case 0: // NULL
        case 1: // POLL
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 0;
            data_header = 0;
-           data_crc = FALSE;
+           data_crc = false;
            break;
 
        case 2: // FHS
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 0;
-           data_crc = TRUE;
-           decrypted = TRUE;
+           data_crc = true;
+           decrypted = true;
            break;
 
        case 3: // DM1
            isochronous_length = 0;
-           isochronous_crc = FALSE;
+           isochronous_crc = false;
            data_length = 18;
            data_header = 1;
-           data_crc = TRUE;
+           data_crc = true;
            break;
 
        default:
@@ -1525,12 +1525,12 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                next_tvb = tvb_new_subset_remaining(tvb, offset);
                if (packet_type_table && packet_type > PACKET_TYPE_UNKNOWN &&
-                   dissector_try_uint_new(packet_type_table, packet_type, next_tvb, pinfo, tree, TRUE, bluetooth_data)) {
+                   dissector_try_uint_new(packet_type_table, packet_type, next_tvb, pinfo, tree, true, bluetooth_data)) {
                    offset = tvb_reported_length(tvb);
                } else {
                    if (isochronous_length > 0 &&
                        (!isochronous_crc || (flags & (FLAGS_CRC_PASS | FLAGS_CRC_CHECKED)) == (FLAGS_CRC_PASS | FLAGS_CRC_CHECKED))) {
-                       gint len = tvb_captured_length_remaining(tvb, offset);
+                       int len = tvb_captured_length_remaining(tvb, offset);
                        if (isochronous_crc)
                            len -= 2;
                        if (isochronous_length > len)
@@ -1557,42 +1557,42 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                    }
                    if (data_length > 0 &&
                        (!data_crc || (flags & (FLAGS_CRC_PASS | FLAGS_CRC_CHECKED)) == (FLAGS_CRC_PASS | FLAGS_CRC_CHECKED))) {
-                       gint len = tvb_captured_length_remaining(tvb, offset);
-                       gboolean error = FALSE;
-                       gint llid = -1;
+                       int len = tvb_captured_length_remaining(tvb, offset);
+                       bool error = false;
+                       int llid = -1;
                        if (data_crc)
                            len -= 2;
                        if (data_length > len)
                            data_length = len;
                        if (data_header > 0) {
                            if (len < data_header) {
-                               error = TRUE;
+                               error = true;
                            } else if (data_header == 1) {
-                               guint8 hdr = tvb_get_guint8(tvb, offset);
+                               uint8_t hdr = tvb_get_guint8(tvb, offset);
                                llid = hdr & 3;
                                hdr >>= 3;
                                hdr &= 0x1f;
                                ++hdr;
                                if (hdr > len)
-                                   error = TRUE;
+                                   error = true;
                                else
                                    data_length = hdr;
                            } else if (data_header == 2) {
-                               guint16 hdr = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                               uint16_t hdr = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
                                llid = hdr & 3;
                                hdr >>= 3;
                                hdr &= 0x3ff;
                                hdr += 2;
                                if (hdr > len)
-                                   error = TRUE;
+                                   error = true;
                                else
                                    data_length = hdr;
                            } else {
-                               error = TRUE;
+                               error = true;
                            }
                        }
                        if (data_length > 0 && !error) {
-                           gboolean handled = FALSE;
+                           bool handled = false;
                            fragment_head *frag_l2cap_msg = NULL;
                            if (data_header == 1) {
                                proto_item *pheader_item = proto_tree_add_item(btbredr_rf_tree, hf_payload_header1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1629,7 +1629,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    fhs_data->device_info     = device_info;
                                    fhs_data->connection_info = connection_info;
                                    call_dissector_with_data(btbredr_fhs_handle, next_tvb, pinfo, tree, fhs_data);
-                                   handled = TRUE;
+                                   handled = true;
                                }
                            }
                            switch (llid) {
@@ -1640,15 +1640,15 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                if (!next_tvb)
                                    break;
                                call_dissector_with_data(btlmp_handle, next_tvb, pinfo, tree, connection_info);
-                               handled = TRUE;
+                               handled = true;
                                break;
 
                            case 0x02: // Start of or complete L2CAP message
                                if (!btl2cap_handle)
                                    break;
                                if (frame_info && data_length > data_header) {
-                                   guint pdu_len = data_length - data_header;
-                                   guint l2cap_len = tvb_get_letohs(tvb, offset + data_header);
+                                   unsigned pdu_len = data_length - data_header;
+                                   unsigned l2cap_len = tvb_get_letohs(tvb, offset + data_header);
                                    if (l2cap_len + 4 <= pdu_len) {
                                        bthci_acl_data_t *acl_data = wmem_new(pinfo->pool, bthci_acl_data_t);
                                        acl_data->interface_id = interface_id;
@@ -1656,13 +1656,13 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                        acl_data->chandle      = 0; /* No connection handle at this layer */
                                        acl_data->remote_bd_addr_oui = 0;
                                        acl_data->remote_bd_addr_id  = 0;
-                                       acl_data->is_btle = TRUE;
-                                       acl_data->is_btle_retransmit = FALSE;
+                                       acl_data->is_btle = true;
+                                       acl_data->is_btle_retransmit = false;
                                        acl_data->adapter_disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
                                        acl_data->disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
                                        next_tvb = tvb_new_subset_length(tvb, offset + data_header, pdu_len);
                                        call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
-                                       handled = TRUE;
+                                       handled = true;
                                        col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
                                        if (!pinfo->fd->visited && connection_info && direction >= 0) {
                                            connection_info->reassembly[direction].l2cap_index = pinfo->num;
@@ -1670,7 +1670,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                        }
                                        break;
                                    }
-                                   pinfo->fragmented = TRUE;
+                                   pinfo->fragmented = true;
                                    if (!frame_info->retransmit && connection_info && direction >= 0) {
                                        if (!pinfo->fd->visited) {
                                            connection_info->reassembly[direction].l2cap_index = pinfo->num;
@@ -1680,7 +1680,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                        frag_l2cap_msg = fragment_add_seq_next(&l2cap_msg_reassembly_table,
                                                                               tvb, offset + data_header,
                                                                               pinfo,
-                                                                              frame_info->l2cap_index,      /* guint32 ID for fragments belonging together */
+                                                                              frame_info->l2cap_index,      /* uint32_t ID for fragments belonging together */
                                                                               NULL,                         /* data* */
                                                                               pdu_len,                      /* Fragment length */
                                                                               frame_info->more_fragments);  /* More fragments */
@@ -1692,7 +1692,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                                                 btbredr_rf_tree);
                                    }
                                    proto_tree_add_item(btbredr_rf_tree, hf_l2cap_fragment, tvb, offset + data_header, pdu_len, ENC_NA);
-                                   handled = TRUE;
+                                   handled = true;
                                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment Start");
                                }
                                break;
@@ -1704,9 +1704,9 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    col_set_str(pinfo->cinfo, COL_INFO, "Empty PDU");
                                    break;
                                }
-                               pinfo->fragmented = TRUE;
+                               pinfo->fragmented = true;
                                if (!frame_info->retransmit && connection_info && direction >= 0) {
-                                   guint pdu_len = data_length - data_header;
+                                   unsigned pdu_len = data_length - data_header;
                                    if (!pinfo->fd->visited) {
                                        if (connection_info->reassembly[direction].segment_len_rem > 0) {
                                            if (connection_info->reassembly[direction].segment_len_rem >= pdu_len) {
@@ -1737,7 +1737,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    frag_l2cap_msg = fragment_add_seq_next(&l2cap_msg_reassembly_table,
                                                                           tvb, offset + data_header,
                                                                           pinfo,
-                                                                          frame_info->l2cap_index,      /* guint32 ID for fragments belonging together */
+                                                                          frame_info->l2cap_index,      /* uint32_t ID for fragments belonging together */
                                                                           NULL,                         /* data* */
                                                                           pdu_len,                      /* Fragment length */
                                                                           frame_info->more_fragments);  /* More fragments */
@@ -1755,18 +1755,18 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    acl_data->chandle      = 0; /* No connection handle at this layer */
                                    acl_data->remote_bd_addr_oui = 0;
                                    acl_data->remote_bd_addr_id  = 0;
-                                   acl_data->is_btle = TRUE;
-                                   acl_data->is_btle_retransmit = FALSE;
+                                   acl_data->is_btle = true;
+                                   acl_data->is_btle_retransmit = false;
                                    acl_data->adapter_disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
                                    acl_data->disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
                                    call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
-                                   handled = TRUE;
+                                   handled = true;
                                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
                                } else {
                                    proto_item *item = proto_tree_add_item(btbredr_rf_tree, hf_l2cap_fragment, tvb, offset + data_header, data_length - data_header, ENC_NA);
                                    if (frame_info->missing_start)
                                        expert_add_info(pinfo, item, &ei_missing_fragment_start);
-                                   handled = TRUE;
+                                   handled = true;
                                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
                                }
                                break;
@@ -1818,20 +1818,20 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
    return offset;
 }
 
-static gint
+static int
 dissect_btbredr_fhs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item         *btbredr_fhs_item;
     proto_tree         *btbredr_fhs_tree;
-    gint                offset = 0;
-    guint32             interface_id;
-    guint32             adapter_id;
-    guint64             parity_lap_eir_sp_sr;
-    guint32             lap;
-    guint8              uap;
-    guint16             nap;
-    guint32             ltaddr_clk_pgscan;
-    guint32             ltaddr;
+    int                 offset = 0;
+    uint32_t            interface_id;
+    uint32_t            adapter_id;
+    uint64_t            parity_lap_eir_sp_sr;
+    uint32_t            lap;
+    uint8_t             uap;
+    uint16_t            nap;
+    uint32_t            ltaddr_clk_pgscan;
+    uint32_t            ltaddr;
     device_info_t      *device_info = NULL;
     connection_info_t  *connection_info = NULL;
     btbredr_fhs_data_t *fhs_data = (btbredr_fhs_data_t *) data;
@@ -2480,7 +2480,7 @@ proto_register_btbredr_rf(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btbredr_rf,
         &ett_flags,
         &ett_payload_transport_rate,

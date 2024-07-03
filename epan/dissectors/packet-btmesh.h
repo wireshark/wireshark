@@ -40,40 +40,40 @@ typedef enum {
 
 typedef struct {
     btle_mesh_tr_t transport;
-    gboolean fragmented;
-    guint segment_index;
+    bool fragmented;
+    unsigned segment_index;
 } btle_mesh_transport_ctx_t;
 
 typedef struct {
-    guint32 interface_id;
-    guint32 adapter_id;
-    guint16 chandle;
-    guint16 bt_uuid;
-    guint32 access_address;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint16_t chandle;
+    uint16_t bt_uuid;
+    uint32_t access_address;
     btle_mesh_proxy_side_t proxy_side;
 } btle_mesh_proxy_ctx_t;
 
 typedef struct {
     /* Network Layer */
-    guint32 src;
-    guint32 seq;
-    guint8 seq_src_buf[5];
-    guint8 ivindex_buf[4];
-    guint8 net_nonce_type;
-    guint32 net_key_iv_index_hash;
+    uint32_t src;
+    uint32_t seq;
+    uint8_t seq_src_buf[5];
+    uint8_t ivindex_buf[4];
+    uint8_t net_nonce_type;
+    uint32_t net_key_iv_index_hash;
 
     /* Transport layer */
-    guint32 dst;
-    guint8 dst_buf[2];
-    gint32 label_uuid_idx;
-    guint32 seg; /* Segmentation */
-    guint8 aid;
-    guint8 app_nonce_type;
-    guint32 seqzero;
+    uint32_t dst;
+    uint8_t dst_buf[2];
+    int32_t label_uuid_idx;
+    uint32_t seg; /* Segmentation */
+    uint8_t aid;
+    uint8_t app_nonce_type;
+    uint32_t seqzero;
     int transmic_size;
 } network_decryption_ctx_t;
 
-tvbuff_t *btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **decrypted_data, int *enc_data_len, network_decryption_ctx_t *dec_ctx);
+tvbuff_t *btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, uint8_t **decrypted_data, int *enc_data_len, network_decryption_ctx_t *dec_ctx);
 
 #endif /* __PACKET_BTMESH_H__ */
 

@@ -107,7 +107,7 @@ static const value_string le_pdus[] =
 };
 
 static const char *
-btle_rf_channel_type(guint8 rf_channel)
+btle_rf_channel_type(uint8_t rf_channel)
 {
     if (rf_channel <= 39) {
         switch(rf_channel) {
@@ -122,8 +122,8 @@ btle_rf_channel_type(guint8 rf_channel)
     return "Illegal channel";
 }
 
-static guint8
-btle_rf_channel_index(guint8 rf_channel)
+static uint8_t
+btle_rf_channel_index(uint8_t rf_channel)
 {
     if (rf_channel <= 39) {
         if (rf_channel == 39) {
@@ -142,19 +142,19 @@ btle_rf_channel_index(guint8 rf_channel)
             return 37;
         }
     }
-    return (guint8) -1;
+    return (uint8_t) -1;
 }
 
-static gint
+static int
 dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item        *ti;
     proto_tree        *btle_rf_tree;
     tvbuff_t          *btle_tvb;
     btle_context_t     context;
-    guint8             rf_channel;
-    guint8             aa_offenses;
-    guint16            flags;
+    uint8_t            rf_channel;
+    uint8_t            aa_offenses;
+    uint16_t           flags;
     bluetooth_data_t  *bluetooth_data = (bluetooth_data_t *) data;
 
     if (tvb_captured_length(tvb) < BTLE_RF_OCTETS)
@@ -182,13 +182,13 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case 1: // Auxiliary Advertising
         // advertising is never encrypted, so MIC flags are repurposed
         context.pdu_type = BTLE_PDU_TYPE_ADVERTISING;
-        context.mic_checked_at_capture = FALSE;
-        context.mic_valid_at_capture = FALSE;
+        context.mic_checked_at_capture = false;
+        context.mic_valid_at_capture = false;
 
         // context.aux_pdu_type values defined in aux_pdu_common_vals of packet-btle.c
         // they match with the definition for this link type
         context.aux_pdu_type = (flags & 0x3000) >> 12;
-        context.aux_pdu_type_valid = TRUE;
+        context.aux_pdu_type_valid = true;
         break;
     case 2: // Data, Master to Slave
         context.pdu_type = BTLE_PDU_TYPE_DATA;
@@ -420,7 +420,7 @@ proto_register_btle_rf(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btle_rf,
         &ett_btle_rf_flags,
     };

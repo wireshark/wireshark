@@ -57,11 +57,11 @@ static int hf_result;
 
 static expert_field ei_incomplete_message;
 
-static gint ett_adb_service;
-static gint ett_length;
-static gint ett_version;
-static gint ett_pixel;
-static gint ett_data;
+static int ett_adb_service;
+static int ett_length;
+static int ett_version;
+static int ett_pixel;
+static int ett_data;
 
 static dissector_handle_t  adb_service_handle;
 static dissector_handle_t  logcat_handle;
@@ -73,43 +73,43 @@ static wmem_tree_t *framebuffer_infos;
 static wmem_tree_t *continuation_infos;
 
 typedef struct _framebuffer_data_t {
-    guint32 data_in;
-    guint32 current_size;
-    guint32 completed_in_frame;
+    uint32_t data_in;
+    uint32_t current_size;
+    uint32_t completed_in_frame;
 
-    guint32 size;
-    guint32 red_offset;
-    guint32 red_length;
-    guint32 green_offset;
-    guint32 green_length;
-    guint32 blue_offset;
-    guint32 blue_length;
-    guint32 alpha_offset;
-    guint32 alpha_length;
+    uint32_t size;
+    uint32_t red_offset;
+    uint32_t red_length;
+    uint32_t green_offset;
+    uint32_t green_length;
+    uint32_t blue_offset;
+    uint32_t blue_length;
+    uint32_t alpha_offset;
+    uint32_t alpha_length;
 } framebuffer_data_t;
 
 typedef struct _fragment_t {
-    gint64    reassembled_in_frame;
-    gint      length;
-    guint8   *data;
+    int64_t   reassembled_in_frame;
+    int       length;
+    uint8_t  *data;
 } fragment_t;
 
 typedef struct _continuation_data_t {
-    guint32   length_in_frame;
-    guint32   completed_in_frame;
-    gint      length;
+    uint32_t  length_in_frame;
+    uint32_t  completed_in_frame;
+    int       length;
 } continuation_data_t;
 
 void proto_register_adb_service(void);
 void proto_reg_handoff_adb_service(void);
 
-gint
-dissect_ascii_uint32(proto_tree *tree, gint hf_hex_ascii, gint ett_hex_ascii,
-        gint hf_value, tvbuff_t *tvb, gint offset, guint32 *value)
+int
+dissect_ascii_uint32(proto_tree *tree, int hf_hex_ascii, int ett_hex_ascii,
+        int hf_value, tvbuff_t *tvb, int offset, uint32_t *value)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    gchar        hex_ascii[5];
+    char         hex_ascii[5];
 
     DISSECTOR_ASSERT(value);
 
@@ -119,7 +119,7 @@ dissect_ascii_uint32(proto_tree *tree, gint hf_hex_ascii, gint ett_hex_ascii,
     sub_item = proto_tree_add_item(tree, hf_hex_ascii, tvb, offset, 4, ENC_NA | ENC_ASCII);
     sub_tree = proto_item_add_subtree(sub_item, ett_hex_ascii);
 
-    *value = (guint32) g_ascii_strtoull(hex_ascii, NULL, 16);
+    *value = (uint32_t) g_ascii_strtoull(hex_ascii, NULL, 16);
 
     proto_tree_add_uint(sub_tree, hf_value, tvb, offset, 4, *value);
     offset += 4;
@@ -127,19 +127,19 @@ dissect_ascii_uint32(proto_tree *tree, gint hf_hex_ascii, gint ett_hex_ascii,
     return offset;
 }
 
-static gint
+static int
 dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item          *main_item;
     proto_tree          *main_tree;
     proto_item          *sub_item;
     proto_tree          *sub_tree;
-    gint                 offset = 0;
+    int                  offset = 0;
     adb_service_data_t  *adb_service_data = (adb_service_data_t *) data;
-    const gchar         *service;
+    const char          *service;
     wmem_tree_key_t      key[5];
     wmem_tree_t         *subtree;
-    guint32              i_key;
+    uint32_t             i_key;
     char                *display_str;
 
     main_item = proto_tree_add_item(tree, proto_adb_service, tvb, offset, -1, ENC_NA);
@@ -153,8 +153,8 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_item_set_generated(sub_item);
 
         if (g_strcmp0(service, "host:version") == 0) {
-            guint32               version;
-            guint32               data_length;
+            uint32_t              version;
+            uint32_t              data_length;
             continuation_data_t  *continuation_data;
 
             DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= array_length(key), "Tree session key is too small");
@@ -181,7 +181,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
                 continuation_data = wmem_new(wmem_file_scope(), continuation_data_t);
                 continuation_data->length_in_frame = pinfo->num;
-                continuation_data->completed_in_frame = G_MAXUINT32;
+                continuation_data->completed_in_frame = UINT32_MAX;
                 continuation_data->length = data_length;
 
                 wmem_tree_insert32_array(continuation_infos, key, continuation_data);
@@ -201,12 +201,12 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         } else if (g_strcmp0(service, "host:devices") == 0 ||
                 g_strcmp0(service, "host:devices-l") == 0 ||
                 g_strcmp0(service, "host:track-devices") == 0) {
-            guint32  data_length;
+            uint32_t data_length;
 
             offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
             sub_item = proto_tree_add_item(main_tree, hf_devices, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            if ((gint64) data_length < tvb_reported_length_remaining(tvb, offset)) {
+            if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
         } else if (g_strcmp0(service, "host:get-state") == 0 ||
@@ -214,12 +214,12 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 g_strcmp0(service, "host:get-devpath") == 0 ||
                 g_str_has_prefix(service, "connect:") ||
                 g_str_has_prefix(service, "disconnect:")) {
-            guint32  data_length;
+            uint32_t data_length;
 
             offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
             sub_item = proto_tree_add_item(main_tree, hf_result, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            if ((gint64) data_length < tvb_reported_length_remaining(tvb, offset)) {
+            if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
         } else if (g_str_has_prefix(service, "framebuffer:")) {
@@ -247,7 +247,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 framebuffer_data = wmem_new(wmem_file_scope(), framebuffer_data_t);
                 framebuffer_data->data_in      = pinfo->num;
                 framebuffer_data->current_size = 0;
-                framebuffer_data->completed_in_frame = G_MAXUINT32;
+                framebuffer_data->completed_in_frame = UINT32_MAX;
                 framebuffer_data->size         = tvb_get_letohl(tvb, offset + 4 * 2);
                 framebuffer_data->red_offset   = tvb_get_letohl(tvb, offset + 4 * 5);
                 framebuffer_data->red_length   = tvb_get_letohl(tvb, offset + 4 * 6);
@@ -375,13 +375,13 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 }
             }
         } else if (g_strcmp0(service, "track-jdwp") == 0) {
-            guint32  data_length;
+            uint32_t data_length;
 
             offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 sub_item = proto_tree_add_item(main_tree, hf_pids, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                if ((gint64) data_length < tvb_reported_length_remaining(tvb, offset)) {
+                if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
                     expert_add_info(pinfo, sub_item, &ei_incomplete_message);
                 }
             }
@@ -390,16 +390,16 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 (g_strcmp0(service, "shell:logcat -B") == 0)) {
             tvbuff_t    *next_tvb;
             tvbuff_t    *new_tvb;
-            guint8      *buffer = NULL;
-            gint         size = 0;
-            gint         i_offset = offset;
-            gint         old_offset;
-            gint         i_char = 0;
-            guint8       c1;
-            guint8       c2 = '\0';
-            guint16      payload_length;
-            guint16      try_header_size;
-            gint         logcat_length = 0;
+            uint8_t     *buffer = NULL;
+            int          size = 0;
+            int          i_offset = offset;
+            int          old_offset;
+            int          i_char = 0;
+            uint8_t      c1;
+            uint8_t      c2 = '\0';
+            uint16_t     payload_length;
+            uint16_t     try_header_size;
+            int          logcat_length = 0;
             fragment_t  *fragment;
 
             DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= array_length(key), "Tree session key is too small");
@@ -424,7 +424,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
             size += tvb_reported_length_remaining(tvb, i_offset);
             if (size > 0) {
-                buffer = (guint8 *) wmem_alloc(pinfo->pool, size);
+                buffer = (uint8_t *) wmem_alloc(pinfo->pool, size);
                 if (fragment && i_char > 0)
                     memcpy(buffer, fragment->data, i_char);
 
@@ -503,7 +503,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             fragment = wmem_new(wmem_file_scope(), fragment_t);
 
                             fragment->length = tvb_captured_length_remaining(next_tvb, i_offset);
-                            fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
+                            fragment->data = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
                             tvb_memcpy(next_tvb, fragment->data, i_offset, fragment->length);
                             fragment->reassembled_in_frame = -1;
 
@@ -734,7 +734,7 @@ proto_register_adb_service(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_adb_service,
         &ett_length,
         &ett_version,

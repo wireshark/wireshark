@@ -21,17 +21,17 @@ void proto_register_bencode(void);
 
 static int proto_bencode;
 
-static gint hf_bencode_str_length;
-static gint hf_bencode_str;
-static gint hf_bencode_int;
-static gint hf_bencode_dict;
-static gint hf_bencode_dict_entry;
-static gint hf_bencode_list;
-static gint hf_bencode_truncated_data;
+static int hf_bencode_str_length;
+static int hf_bencode_str;
+static int hf_bencode_int;
+static int hf_bencode_dict;
+static int hf_bencode_dict_entry;
+static int hf_bencode_list;
+static int hf_bencode_truncated_data;
 
-static gint ett_bencode_dict;
-static gint ett_bencode_dict_entry;
-static gint ett_bencode_list;
+static int ett_bencode_dict;
+static int ett_bencode_dict_entry;
+static int ett_bencode_list;
 
 static expert_field ei_bencode_str;
 static expert_field ei_bencode_str_length;
@@ -44,7 +44,7 @@ static expert_field ei_bencode_invalid;
 static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
-   guint8 ch;
+   uint8_t ch;
    int stringlen = 0, nextstringlen;
    int used;
    int izero = 0;
@@ -105,11 +105,11 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
-   gint32 ival  = 0;
+   int32_t ival  = 0;
    int    neg   = 0;
    int    izero = 0;
    int    used;
-   guint8 ch;
+   uint8_t ch;
 
    if (length<3) {
       proto_tree_add_expert(tree, pinfo, &ei_bencode_int, tvb, offset, length);
@@ -167,7 +167,7 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, int level, proto_item *treei, int treeadd)
 {
-   guint8 op;
+   uint8_t op;
    int oplen = 0, op1len, op2len;
    int used;
 
@@ -311,7 +311,7 @@ proto_register_bencode(void)
       },
    };
 
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_bencode_dict,
       &ett_bencode_dict_entry,
       &ett_bencode_list,

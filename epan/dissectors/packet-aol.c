@@ -124,11 +124,11 @@ static bool aol_desegment  = true;
 /**
  * Dissect the 'INIT' PDU.
  */
-static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offset, proto_tree *tree) {
+static unsigned dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, proto_tree *tree) {
 	proto_item *data_item;
 	proto_tree *data_tree;
-	guint16     dos_ver   = 0;
-	guint16     win_ver   = 0;
+	uint16_t    dos_ver   = 0;
+	uint16_t    win_ver   = 0;
 
 	/* Add the Data subtree */
 	data_item = proto_tree_add_item(tree,hf_aol_init,tvb,offset,tvb_reported_length_remaining(tvb,offset)-1,ENC_NA);
@@ -185,10 +185,10 @@ static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offse
 /**
  * Get the length of a particular PDU (+6 bytes for the frame)
  */
-static guint get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                              int offset, void *data _U_)
 {
-	guint16 plen;
+	uint16_t plen;
 
 	/* Get the PDU length */
 	plen = tvb_get_ntohs(tvb,offset+3);
@@ -201,9 +201,9 @@ static guint get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 	proto_item    *ti;
 	proto_tree    *aol_tree;
-	guint          offset     = 0;
-	guint16        pdu_len;
-	guint8         pdu_type   = 0;
+	unsigned       offset     = 0;
+	uint16_t       pdu_len;
+	uint8_t        pdu_type   = 0;
 
 	/* Set the protocol name, and info column text. */
 	col_set_str(pinfo->cinfo,COL_PROTOCOL,"AOL");
@@ -237,7 +237,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* Now for the data... */
 	if (pdu_len > 0) {
-		guint old_offset = offset;
+		unsigned old_offset = offset;
 
 		if (tvb_reported_length_remaining(tvb,offset) > pdu_len) {
 			/* Init packets are a special case */
@@ -245,7 +245,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				offset = dissect_aol_init(tvb,pinfo,offset,aol_tree);
 			} else {
 				if (pdu_len >= 2) {
-					const guint8* token;
+					const uint8_t* token;
 					/* Get the token */
 					proto_tree_add_item_ret_string(aol_tree,hf_aol_token,tvb,offset,2,ENC_ASCII,pinfo->pool,&token);
 					/* Add it */
@@ -347,7 +347,7 @@ void proto_register_aol(void) {
 	};
 
 	/* Trees */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_aol,
 		&ett_aol_data
 	};

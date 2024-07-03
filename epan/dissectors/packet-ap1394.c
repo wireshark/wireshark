@@ -28,17 +28,17 @@ static int hf_ap1394_dst;
 static int hf_ap1394_src;
 static int hf_ap1394_type;
 
-static gint ett_ap1394;
+static int ett_ap1394;
 
 static dissector_table_t ethertype_subdissector_table;
 
 static bool
-capture_ap1394(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_ap1394(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-  guint16    etype;
+  uint16_t   etype;
 
   if (!BYTES_ARE_IN_FRAME(offset, len, 18)) {
-    return FALSE;
+    return false;
   }
 
   /* Skip destination and source addresses */
@@ -54,7 +54,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  guint16    etype;
+  uint16_t   etype;
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/IEEE1394");
@@ -99,7 +99,7 @@ proto_register_ap1394(void)
       { "Type", "ap1394.type", FT_UINT16, BASE_HEX,
         VALS(etype_vals), 0x0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ap1394,
   };
 

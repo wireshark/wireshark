@@ -86,291 +86,291 @@
 #define BATADV_TVLVL_TT_CHANGE_ISOLATE 0x20
 
 struct batman_packet_v5 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
-	guint8  ttl;
-	guint8  gwflags;  /* flags related to gateway functions: gateway class */
-	guint8  tq;
-	guint16 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	uint8_t ttl;
+	uint8_t gwflags;  /* flags related to gateway functions: gateway class */
+	uint8_t tq;
+	uint16_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  num_tt;
-	guint8  pad;
+	uint8_t num_tt;
+	uint8_t pad;
 };
 #define BATMAN_PACKET_V5_SIZE 22
 
 struct batman_packet_v7 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
-	guint8  tq;
-	guint16 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	uint8_t tq;
+	uint16_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  ttl;
-	guint8  num_tt;
+	uint8_t ttl;
+	uint8_t num_tt;
 };
 #define BATMAN_PACKET_V7_SIZE 20
 
 struct batman_packet_v9 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
-	guint8  tq;
-	guint16 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	uint8_t tq;
+	uint16_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  ttl;
-	guint8  num_tt;
-	guint8  gwflags;
-	guint8  pad;
+	uint8_t ttl;
+	uint8_t num_tt;
+	uint8_t gwflags;
+	uint8_t pad;
 };
 #define BATMAN_PACKET_V9_SIZE 22
 
 struct batman_packet_v10 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
-	guint8  tq;
-	guint32 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	uint8_t tq;
+	uint32_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  ttl;
-	guint8  num_tt;
-	guint8  gwflags;
-	guint8  pad;
+	uint8_t ttl;
+	uint8_t num_tt;
+	uint8_t gwflags;
+	uint8_t pad;
 };
 #define BATMAN_PACKET_V10_SIZE 24
 
 struct batman_packet_v11 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
-	guint8  tq;
-	guint32 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	uint8_t tq;
+	uint32_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  ttl;
-	guint8  num_tt;
+	uint8_t ttl;
+	uint8_t num_tt;
 };
 #define BATMAN_PACKET_V11_SIZE 22
 
 struct batman_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
-	guint32 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	uint32_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  gw_flags;  /* flags related to gateway class */
-	guint8  tq;
-	guint8  tt_num_changes;
-	guint8  ttvn; /* translation table version number */
-	guint16 tt_crc;
+	uint8_t gw_flags;  /* flags related to gateway class */
+	uint8_t tq;
+	uint8_t tt_num_changes;
+	uint8_t ttvn; /* translation table version number */
+	uint16_t tt_crc;
 };
 #define BATMAN_PACKET_V14_SIZE 26
 
 struct iv_ogm_packet_v15 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  flags;
-	guint32 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t flags;
+	uint32_t seqno;
 	address orig;
 	address prev_sender;
-	guint8  reserved;
-	guint8  tq;
-	guint16 tvlv_len;
+	uint8_t reserved;
+	uint8_t tq;
+	uint16_t tvlv_len;
 };
 #define IV_OGM_PACKET_V15_SIZE 24
 
 struct elp_packet_v15 {
-	guint8  packet_type;
-	guint8  version;
+	uint8_t packet_type;
+	uint8_t version;
 	address orig;
-	guint32 seqno;
-	guint32 interval;
+	uint32_t seqno;
+	uint32_t interval;
 };
 #define ELP_PACKET_V15_SIZE 16
 
 struct ogm2_packet_v15 {
-	guint8  packet_type;
-	guint8  version;
-	guint8  ttl;
-	guint8  flags;
-	guint32 seqno;
+	uint8_t packet_type;
+	uint8_t version;
+	uint8_t ttl;
+	uint8_t flags;
+	uint32_t seqno;
 	address orig;
-	guint16 tvlv_len;
-	guint32 throughput;
+	uint16_t tvlv_len;
+	uint32_t throughput;
 };
 #define OGM2_PACKET_V15_SIZE 20
 
 struct icmp_packet_v6 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  msg_type;   /* 0 = ECHO REPLY, 3 = DESTINATION_UNREACHABLE, 8 = ECHO_REQUEST, 11 = TTL exceeded */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t msg_type;   /* 0 = ECHO REPLY, 3 = DESTINATION_UNREACHABLE, 8 = ECHO_REQUEST, 11 = TTL exceeded */
 	address dst;
 	address orig;
-	guint8  ttl;
-	guint8  uid;
-	guint16 seqno;
+	uint8_t ttl;
+	uint8_t uid;
+	uint16_t seqno;
 };
 #define ICMP_PACKET_V6_SIZE 19
 
 struct icmp_packet_v7 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  msg_type;   /* 0 = ECHO REPLY, 3 = DESTINATION_UNREACHABLE, 8 = ECHO_REQUEST, 11 = TTL exceeded */
-	guint8  ttl;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t msg_type;   /* 0 = ECHO REPLY, 3 = DESTINATION_UNREACHABLE, 8 = ECHO_REQUEST, 11 = TTL exceeded */
+	uint8_t ttl;
 	address dst;
 	address orig;
-	guint16 seqno;
-	guint8  uid;
+	uint16_t seqno;
+	uint8_t uid;
 };
 #define ICMP_PACKET_V7_SIZE 19
 
 struct icmp_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  msg_type; /* see ICMP message types above */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t msg_type; /* see ICMP message types above */
 	address dst;
 	address orig;
-	guint16 seqno;
-	guint8  uid;
-	guint8  reserved;
+	uint16_t seqno;
+	uint8_t uid;
+	uint8_t reserved;
 };
 #define ICMP_PACKET_V14_SIZE 20
 
 struct icmp_packet_v15 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  msg_type; /* see ICMP message types above */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t msg_type; /* see ICMP message types above */
 	address dst;
 	address orig;
-	guint8  uid;
-	guint8  rr_ptr;
-	guint16 seqno;
+	uint8_t uid;
+	uint8_t rr_ptr;
+	uint16_t seqno;
 };
 #define ICMP_PACKET_V15_SIZE 20
 
 struct icmp_tp_packet_v15 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  msg_type; /* see ICMP message types above */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t msg_type; /* see ICMP message types above */
 	address dst;
 	address orig;
-	guint8  uid;
-	guint8  subtype;
-	guint16 session;
-	guint32 seqno;
-	guint32 timestamp;
+	uint8_t uid;
+	uint8_t subtype;
+	uint16_t session;
+	uint32_t seqno;
+	uint32_t timestamp;
 };
 #define ICMP_TP_PACKET_V15_SIZE 28
 
 struct unicast_packet_v6 {
-	guint8  packet_type;
-	guint8  version;
+	uint8_t packet_type;
+	uint8_t version;
 	address dest;
-	guint8  ttl;
+	uint8_t ttl;
 };
 #define UNICAST_PACKET_V6_SIZE 9
 
 struct unicast_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  ttvn; /* destination translation table version number */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t ttvn; /* destination translation table version number */
 	address dest;
 };
 #define UNICAST_PACKET_V14_SIZE 10
 
 struct unicast_4addr_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  ttvn; /* destination translation table version number */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t ttvn; /* destination translation table version number */
 	address dest;
 	address src;
-	guint8  subtype;
-	guint8  reserved;
+	uint8_t subtype;
+	uint8_t reserved;
 };
 #define UNICAST_4ADDR_PACKET_V14_SIZE 18
 
 struct unicast_frag_packet_v12 {
-	guint8   packet_type;
-	guint8   version;
+	uint8_t  packet_type;
+	uint8_t  version;
 	address  dest;
-	guint8   ttl;
-	guint8   flags;
+	uint8_t  ttl;
+	uint8_t  flags;
 	address  orig;
-	guint16  seqno;
+	uint16_t seqno;
 };
 #define UNICAST_FRAG_PACKET_V12_SIZE 18
 
 struct unicast_frag_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  ttvn; /* destination translation table version number */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t ttvn; /* destination translation table version number */
 	address dest;
-	guint8  flags;
-	guint8  align;
+	uint8_t flags;
+	uint8_t align;
 	address orig;
-	guint16 seqno;
+	uint16_t seqno;
 };
 #define UNICAST_FRAG_PACKET_V14_SIZE 20
 
 struct unicast_frag_packet_v15 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  no; /* only upper 4 bit are used */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t no; /* only upper 4 bit are used */
 	address dest;
 	address orig;
-	guint16 seqno;
-	guint16 total_size;
+	uint16_t seqno;
+	uint16_t total_size;
 };
 #define UNICAST_FRAG_PACKET_V15_SIZE 20
 
 struct bcast_packet_v6 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
 	address orig;
-	guint16 seqno;
+	uint16_t seqno;
 };
 #define BCAST_PACKET_V6_SIZE 10
 
 struct bcast_packet_v10 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
 	address orig;
-	guint8  ttl;
-	guint32 seqno;
+	uint8_t ttl;
+	uint32_t seqno;
 };
 #define BCAST_PACKET_V10_SIZE 13
 
 struct bcast_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  reserved;
-	guint32 seqno;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t reserved;
+	uint32_t seqno;
 	address orig;
 };
 #define BCAST_PACKET_V14_SIZE 14
 
 struct vis_packet_v6 {
-	guint8  packet_type;
-	guint8  version;      /* batman version field */
-	guint8  vis_type;     /* which type of vis-participant sent this? */
-	guint8  seqno;        /* sequence number */
-	guint8  entries;      /* number of entries behind this struct */
-	guint8  ttl;          /* TTL */
+	uint8_t packet_type;
+	uint8_t version;      /* batman version field */
+	uint8_t vis_type;     /* which type of vis-participant sent this? */
+	uint8_t seqno;        /* sequence number */
+	uint8_t entries;      /* number of entries behind this struct */
+	uint8_t ttl;          /* TTL */
 	address vis_orig;     /* originator that informs about its neighbours */
 	address target_orig;  /* who should receive this packet */
 	address sender_orig;  /* who sent or rebroadcasted this packet */
@@ -378,12 +378,12 @@ struct vis_packet_v6 {
 #define VIS_PACKET_V6_SIZE 24
 
 struct vis_packet_v10 {
-	guint8  packet_type;
-	guint8  version;      /* batman version field */
-	guint8  vis_type;     /* which type of vis-participant sent this? */
-	guint8  entries;      /* number of entries behind this struct */
-	guint32 seqno;        /* sequence number */
-	guint8  ttl;          /* TTL */
+	uint8_t packet_type;
+	uint8_t version;      /* batman version field */
+	uint8_t vis_type;     /* which type of vis-participant sent this? */
+	uint8_t entries;      /* number of entries behind this struct */
+	uint32_t seqno;        /* sequence number */
+	uint8_t ttl;          /* TTL */
 	address vis_orig;     /* originator that informs about its neighbours */
 	address target_orig;  /* who should receive this packet */
 	address sender_orig;  /* who sent or rebroadcasted this packet */
@@ -391,13 +391,13 @@ struct vis_packet_v10 {
 #define VIS_PACKET_V10_SIZE 27
 
 struct vis_packet_v14 {
-	guint8  packet_type;
-	guint8  version;        /* batman version field */
-	guint8  ttl;		 /* TTL */
-	guint8  vis_type;	 /* which type of vis-participant sent this? */
-	guint32 seqno;		 /* sequence number */
-	guint8  entries;	 /* number of entries behind this struct */
-	guint8  reserved;
+	uint8_t packet_type;
+	uint8_t version;        /* batman version field */
+	uint8_t ttl;		 /* TTL */
+	uint8_t vis_type;	 /* which type of vis-participant sent this? */
+	uint32_t seqno;		 /* sequence number */
+	uint8_t entries;	 /* number of entries behind this struct */
+	uint8_t reserved;
 	address vis_orig;	 /* originator that announces its neighbors */
 	address target_orig; /* who should receive this packet */
 	address sender_orig; /* who sent or rebroadcasted this packet */
@@ -411,24 +411,24 @@ struct vis_packet_v14 {
 #define VIS_TYPE_CLIENT_UPDATE  1
 
 struct tt_query_packet_v14 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  flags;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t flags;
 	address dst;
 	address src;
-	guint8  ttvn;
-	guint16 tt_data;
+	uint8_t ttvn;
+	uint16_t tt_data;
 };
 #define TT_QUERY_PACKET_V14_SIZE 19
 
 #define TT_ENTRY_V14_SIZE 7
 
 struct roam_adv_packet_v14 {
-	guint8  packet_type;
-	guint8  version;
-	guint8  ttl;
-	guint8  reserved;
+	uint8_t packet_type;
+	uint8_t version;
+	uint8_t ttl;
+	uint8_t reserved;
 	address dst;
 	address src;
 	address client;
@@ -436,32 +436,32 @@ struct roam_adv_packet_v14 {
 #define ROAM_ADV_PACKET_V14_SIZE 22
 
 struct coded_packet_v15 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  first_ttvn;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t first_ttvn;
 	address first_source;
 	address first_orig_dest;
-	guint32 first_crc;
-	guint8  second_ttl;
-	guint8  second_ttvn;
+	uint32_t first_crc;
+	uint8_t second_ttl;
+	uint8_t second_ttvn;
 	address second_dest;
 	address second_source;
 	address second_orig_dest;
-	guint32 second_crc;
-	guint16 coded_len;
+	uint32_t second_crc;
+	uint16_t coded_len;
 };
 #define CODED_PACKET_V15_SIZE 46
 
 struct unicast_tvlv_packet_v15 {
-	guint8  packet_type;
-	guint8  version;  /* batman version field */
-	guint8  ttl;
-	guint8  reserved;
+	uint8_t packet_type;
+	uint8_t version;  /* batman version field */
+	uint8_t ttl;
+	uint8_t reserved;
 	address dest;
 	address src;
-	guint16 tvlv_len;
-	guint16 align;
+	uint16_t tvlv_len;
+	uint16_t align;
 };
 #define UNICAST_TVLV_PACKET_V15_SIZE 20
 
@@ -471,38 +471,38 @@ struct unicast_tvlv_packet_v15 {
 /* End content from packet-batadv.h */
 
 /* trees */
-static gint ett_batadv_batman;
-static gint ett_batadv_batman_flags;
-static gint ett_batadv_batman_gwflags;
-static gint ett_batadv_batman_tt;
-static gint ett_batadv_iv_ogm;
-static gint ett_batadv_iv_ogm_flags;
-static gint ett_batadv_elp;
-static gint ett_batadv_ogm2;
-//static gint ett_batadv_ogm2_flags;
-static gint ett_batadv_bcast;
-static gint ett_batadv_icmp;
-static gint ett_batadv_icmp_rr;
-static gint ett_batadv_unicast;
-static gint ett_batadv_unicast_4addr;
-static gint ett_batadv_unicast_frag;
-static gint ett_batadv_unicast_tvlv;
-static gint ett_batadv_vis;
-static gint ett_batadv_vis_entry;
-static gint ett_batadv_tt_query;
-static gint ett_batadv_tt_query_flags;
-static gint ett_batadv_tt_entry;
-static gint ett_batadv_tt_entry_flags;
-static gint ett_batadv_roam_adv;
-static gint ett_batadv_coded;
-static gint ett_batadv_tvlv;
-static gint ett_batadv_tvlv_mcast_flags;
-static gint ett_batadv_tvlv_vid;
-static gint ett_batadv_tvlv_tt_flags;
-static gint ett_batadv_tvlv_tt_vlan;
-static gint ett_batadv_tvlv_tt_change;
-static gint ett_msg_fragment;
-static gint ett_msg_fragments;
+static int ett_batadv_batman;
+static int ett_batadv_batman_flags;
+static int ett_batadv_batman_gwflags;
+static int ett_batadv_batman_tt;
+static int ett_batadv_iv_ogm;
+static int ett_batadv_iv_ogm_flags;
+static int ett_batadv_elp;
+static int ett_batadv_ogm2;
+//static int ett_batadv_ogm2_flags;
+static int ett_batadv_bcast;
+static int ett_batadv_icmp;
+static int ett_batadv_icmp_rr;
+static int ett_batadv_unicast;
+static int ett_batadv_unicast_4addr;
+static int ett_batadv_unicast_frag;
+static int ett_batadv_unicast_tvlv;
+static int ett_batadv_vis;
+static int ett_batadv_vis_entry;
+static int ett_batadv_tt_query;
+static int ett_batadv_tt_query_flags;
+static int ett_batadv_tt_entry;
+static int ett_batadv_tt_entry_flags;
+static int ett_batadv_roam_adv;
+static int ett_batadv_coded;
+static int ett_batadv_tvlv;
+static int ett_batadv_tvlv_mcast_flags;
+static int ett_batadv_tvlv_vid;
+static int ett_batadv_tvlv_tt_flags;
+static int ett_batadv_tvlv_tt_vlan;
+static int ett_batadv_tvlv_tt_change;
+static int ett_msg_fragment;
+static int ett_msg_fragments;
 
 static expert_field ei_batadv_tvlv_unknown_version;
 static expert_field ei_batadv_tvlv_tt_vlan_crc;
@@ -891,14 +891,14 @@ static void dissect_batadv_unicast_tvlv(tvbuff_t *tvb, packet_info *pinfo, proto
 static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_batadv_tvlv_v15_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 type);
-static void dissect_batadv_tvlv_v15_dat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version);
-static void dissect_batadv_tvlv_v15_nc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version);
-static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version);
-static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version);
-static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version);
-static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version);
-static int dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 tt_flags, int changes_offset);
+static void dissect_batadv_tvlv_v15_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint8_t type);
+static void dissect_batadv_tvlv_v15_dat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t version);
+static void dissect_batadv_tvlv_v15_nc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t version);
+static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t version);
+static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t version);
+static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t version);
+static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t version);
+static int dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t tt_flags, int changes_offset);
 static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
 
 
@@ -918,7 +918,7 @@ static unsigned int batadv_ethertype = ETH_P_BATMAN;
 
 static int dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8 version;
+	uint8_t version;
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -933,7 +933,7 @@ static int dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static void dissect_batadv_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 type;
+	uint8_t type;
 
 	type = tvb_get_guint8(tvb, 0);
 
@@ -969,7 +969,7 @@ static void dissect_batadv_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		/* dunno */
 	{
 		tvbuff_t *next_tvb;
-		gint length_remaining;
+		int length_remaining;
 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_???");
 
@@ -986,7 +986,7 @@ static void dissect_batadv_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 			       proto_tree *tree)
 {
-	guint8 type;
+	uint8_t type;
 
 	type = tvb_get_guint8(tvb, 0);
 
@@ -1025,7 +1025,7 @@ static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 		/* dunno */
 	{
 		tvbuff_t *next_tvb;
-		gint length_remaining;
+		int length_remaining;
 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_???");
 
@@ -1041,7 +1041,7 @@ static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 	int offset = 0;
 
 	/* set protocol name */
@@ -1090,13 +1090,13 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 }
 
-static void dissect_batadv_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto_item *tgw)
+static void dissect_batadv_gwflags(tvbuff_t *tvb, uint8_t gwflags, int offset, proto_item *tgw)
 {
 	proto_tree *gwflags_tree;
-	guint8 s = (gwflags & 0x80) >> 7;
-	guint8 downbits = (gwflags & 0x78) >> 3;
-	guint8 upbits = (gwflags & 0x07);
-	guint down, up;
+	uint8_t s = (gwflags & 0x80) >> 7;
+	uint8_t downbits = (gwflags & 0x78) >> 3;
+	uint8_t upbits = (gwflags & 0x07);
+	unsigned down, up;
 
 	if (gwflags == 0) {
 		down = 0;
@@ -1115,9 +1115,9 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	proto_item *ti, *tgw;
 	proto_tree *batadv_batman_tree;
-	guint8 type;
+	uint8_t type;
 	struct batman_packet_v5 *batman_packeth;
-	gint i;
+	int i;
 
 	tvbuff_t *next_tvb;
 
@@ -1210,9 +1210,9 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	proto_tree *batadv_batman_tree;
 	proto_item *ti;
-	guint8 type;
+	uint8_t type;
 	struct batman_packet_v7 *batman_packeth;
-	gint i;
+	int i;
 
 	tvbuff_t *next_tvb;
 
@@ -1295,9 +1295,9 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	proto_item *ti, *tgw;
 	proto_tree *batadv_batman_tree;
-	guint8 type;
+	uint8_t type;
 	struct batman_packet_v9 *batman_packeth;
-	gint i;
+	int i;
 
 	tvbuff_t *next_tvb;
 
@@ -1388,9 +1388,9 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	proto_item *ti, *tgw;
 	proto_tree *batadv_batman_tree;
-	guint8 type;
+	uint8_t type;
 	struct batman_packet_v10 *batman_packeth;
-	gint i;
+	int i;
 
 	tvbuff_t *next_tvb;
 
@@ -1481,9 +1481,9 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	proto_tree *batadv_batman_tree;
 	proto_item *ti;
-	guint8 type;
+	uint8_t type;
 	struct batman_packet_v11 *batman_packeth;
-	gint i;
+	int i;
 
 	tvbuff_t *next_tvb;
 
@@ -1566,12 +1566,12 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	proto_item *ti, *tgw;
 	proto_tree *batadv_batman_tree;
-	guint8 type;
+	uint8_t type;
 	struct batman_packet_v14 *batman_packeth;
-	gint i;
+	int i;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v14);
 
@@ -1669,7 +1669,7 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 
 static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 	int offset = 0;
 
 	/* set protocol name */
@@ -1695,7 +1695,7 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 {
 	proto_tree *batadv_iv_ogm_tree;
 	proto_item *ti;
-	guint8 type, version;
+	uint8_t type, version;
 	struct iv_ogm_packet_v15 *iv_ogm_packeth;
 	tvbuff_t *next_tvb;
 	static int * const flags[] = {
@@ -1816,7 +1816,7 @@ static void dissect_batadv_tt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_BCAST");
@@ -1851,7 +1851,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	struct bcast_packet_v6 *bcast_packeth;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_bcast_tree;
 	proto_item *ti;
@@ -1905,7 +1905,7 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	struct bcast_packet_v10 *bcast_packeth;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_bcast_tree;
 	proto_item *ti;
@@ -1964,7 +1964,7 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	struct bcast_packet_v14 *bcast_packeth;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_bcast_tree;
 	proto_item *ti;
@@ -2028,7 +2028,7 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ICMP");
@@ -2064,7 +2064,7 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	struct icmp_packet_v6 *icmp_packeth;
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_icmp_tree;
 	proto_item *ti;
@@ -2189,7 +2189,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree *batadv_icmp_tree;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_packet_v7);
@@ -2269,7 +2269,7 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree *batadv_icmp_tree;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_packet_v14);
@@ -2354,8 +2354,8 @@ static void dissect_batadv_icmp_tp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *batadv_icmp_tree = NULL;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
-	guint32 msg_type;
+	int length_remaining;
+	uint32_t msg_type;
 	int offset = 0;
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_tp_packet_v15);
@@ -2456,10 +2456,10 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *batadv_icmp_tree;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
-	guint32 msg_type;
+	int length_remaining;
+	uint32_t msg_type;
 	int offset = 0;
-	guint32 seqno;
+	uint32_t seqno;
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_packet_v15);
 
@@ -2552,7 +2552,7 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 				    proto_tree *tree)
 {
-	guint8 msg_type;
+	uint8_t msg_type;
 
 	msg_type = tvb_get_guint8(tvb, 3);
 	switch (msg_type) {
@@ -2567,7 +2567,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST");
@@ -2600,7 +2600,7 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	struct unicast_packet_v6 *unicast_packeth;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_unicast_tree;
 	proto_item *ti;
@@ -2656,7 +2656,7 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	struct unicast_packet_v14 *unicast_packeth;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_unicast_tree;
 	proto_item *ti;
@@ -2717,7 +2717,7 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 static void dissect_batadv_unicast_4addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_4ADDR");
@@ -2740,7 +2740,7 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	struct unicast_4addr_packet_v14 *unicast_4addr_packeth;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 	proto_tree *batadv_unicast_4addr_tree;
 	proto_item *ti;
@@ -2816,7 +2816,7 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 
 static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_FRAG");
@@ -2843,7 +2843,7 @@ static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto
 static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_frag_packet_v12 *unicast_frag_packeth;
-	gboolean save_fragmented;
+	bool save_fragmented;
 	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree;
 	proto_item *ti;
@@ -2851,7 +2851,7 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	tvbuff_t *new_tvb;
 	int offset = 0;
 	int head = 0;
-	gint length_remaining;
+	int length_remaining;
 
 	unicast_frag_packeth = wmem_new(pinfo->pool, struct unicast_frag_packet_v12);
 
@@ -2867,7 +2867,7 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 16);
 
 	save_fragmented = pinfo->fragmented;
-	pinfo->fragmented = TRUE;
+	pinfo->fragmented = true;
 
 	/* Set info column */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -2932,7 +2932,7 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_frag_packet_v14 *unicast_frag_packeth;
-	gboolean save_fragmented;
+	bool save_fragmented;
 	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree;
 	proto_item *ti;
@@ -2940,7 +2940,7 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	tvbuff_t *new_tvb;
 	int offset = 0;
 	int head = 0;
-	gint length_remaining;
+	int length_remaining;
 
 	unicast_frag_packeth = wmem_new(pinfo->pool, struct unicast_frag_packet_v14);
 
@@ -2958,7 +2958,7 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 18);
 
 	save_fragmented = pinfo->fragmented;
-	pinfo->fragmented = TRUE;
+	pinfo->fragmented = true;
 
 	/* Set info column */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -3030,7 +3030,7 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 					    proto_tree *tree)
 {
 	struct unicast_frag_packet_v15 *unicast_frag_packeth;
-	gboolean save_fragmented;
+	bool save_fragmented;
 	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree;
 	proto_item *ti;
@@ -3038,12 +3038,12 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 	tvbuff_t *new_tvb;
 	int offset = 0;
 	int frag_no = 0;
-	gint length_remaining;
+	int length_remaining;
 
 	unicast_frag_packeth = wmem_new(pinfo->pool, struct unicast_frag_packet_v15);
 
 	save_fragmented = pinfo->fragmented;
-	pinfo->fragmented = TRUE;
+	pinfo->fragmented = true;
 
 	/* Set info column */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -3126,7 +3126,7 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 	frag_msg = fragment_add_seq_check(&msg_reassembly_table,
 					  tvb, offset, pinfo,
 					  unicast_frag_packeth->seqno, NULL,
-					  1 - frag_no, length_remaining, TRUE);
+					  1 - frag_no, length_remaining, true);
 
 	/* Assemble 2 fragments */
 	fragment_set_tot_len(&msg_reassembly_table, pinfo,
@@ -3148,7 +3148,7 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_VIS");
@@ -3184,8 +3184,8 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	guint entry_size;
-	gint length_remaining;
+	unsigned entry_size;
+	int length_remaining;
 	int offset = 0, i;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v6);
@@ -3301,7 +3301,7 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0, i;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v10);
@@ -3393,7 +3393,7 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0, i;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v14);
@@ -3512,7 +3512,7 @@ static void dissect_vis_entry_v8(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static void dissect_batadv_tt_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_TT_QUERY");
@@ -3536,7 +3536,7 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0, i;
 	int tt_type;
 
@@ -3658,7 +3658,7 @@ static void dissect_tt_entry_v14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static void dissect_batadv_roam_adv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ROAM_ADV");
@@ -3682,7 +3682,7 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 
 	roam_adv_packeth = wmem_new(pinfo->pool, struct roam_adv_packet_v14);
@@ -3745,7 +3745,7 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static void dissect_batadv_coded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_CODED");
@@ -3770,7 +3770,7 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 
 	coded_packeth = wmem_new(pinfo->pool, struct coded_packet_v15);
@@ -3878,7 +3878,7 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_batadv_elp(tvbuff_t *tvb, packet_info *pinfo,
 			       proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ELP");
@@ -3904,7 +3904,7 @@ static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *ti;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 
 	elp_packeth = wmem_new(pinfo->pool, struct elp_packet_v15);
@@ -3964,7 +3964,7 @@ static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_ogm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 	int offset = 0;
 
 	/* set protocol name */
@@ -3990,7 +3990,7 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 {
 	proto_tree *batadv_ogm2_tree;
 	proto_item *ti, *throughput_item;
-	guint8 type, version;
+	uint8_t type, version;
 	struct ogm2_packet_v15 *ogm2_packeth;
 	tvbuff_t *next_tvb;
 #if 0
@@ -4090,7 +4090,7 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 
 static void dissect_batadv_unicast_tvlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_TVLV");
@@ -4199,8 +4199,8 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 				    proto_tree *tree)
 {
-	guint8 type, version;
-	guint16 length;
+	uint8_t type, version;
+	uint16_t length;
 	int offset = 0;
 	tvbuff_t *next_tvb;
 	proto_tree *batadv_tvlv_tree;
@@ -4268,7 +4268,7 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_tvlv_v15_header(tvbuff_t *tvb,
 					   packet_info *pinfo _U_,
-					   proto_tree *tree, guint8 type)
+					   proto_tree *tree, uint8_t type)
 {
 	int offset = 0;
 
@@ -4289,7 +4289,7 @@ static void dissect_batadv_tvlv_v15_header(tvbuff_t *tvb,
 
 static void dissect_batadv_tvlv_v15_dat(tvbuff_t *tvb, packet_info *pinfo,
 					proto_tree *tree, int offset,
-					guint8 version)
+					uint8_t version)
 {
 	if (version != 0x01) {
 		proto_tree_add_expert_format(
@@ -4301,7 +4301,7 @@ static void dissect_batadv_tvlv_v15_dat(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_tvlv_v15_nc(tvbuff_t *tvb, packet_info *pinfo,
 				       proto_tree *tree, int offset,
-				       guint8 version)
+				       uint8_t version)
 {
 	if (version != 0x01) {
 		proto_tree_add_expert_format(
@@ -4313,7 +4313,7 @@ static void dissect_batadv_tvlv_v15_nc(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo,
 					  proto_tree *tree, int offset,
-					  guint8 version)
+					  uint8_t version)
 {
 	static int * const flags[] = {
 		&hf_batadv_tvlv_mcast_flags_unsnoopables,
@@ -4339,9 +4339,9 @@ static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo,
 				       proto_tree *tree, int offset,
-				       guint8 version)
+				       uint8_t version)
 {
-	guint32 down, up;
+	uint32_t down, up;
 
 	if (version != 0x01) {
 		proto_tree_add_expert_format(
@@ -4364,7 +4364,7 @@ static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo,
 					 proto_tree *tree, int offset,
-					 guint8 version)
+					 uint8_t version)
 {
 	static int * const flags[] = {
 		&hf_batadv_tvlv_vid_vlan,
@@ -4389,17 +4389,17 @@ static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 				       proto_tree *tree, int offset,
-				       guint8 version)
+				       uint8_t version)
 {
-	guint16 num_vlan;
+	uint16_t num_vlan;
 	int i;
-	gint length_remaining;
+	int length_remaining;
 	static int * const flags[] = {
 		&hf_batadv_tvlv_tt_flags_type,
 		&hf_batadv_tvlv_tt_flags_full_table,
 		NULL
 	};
-	guint8 tt_flags;
+	uint8_t tt_flags;
 	int changes_offset;
 
 	tt_flags = tvb_get_guint8(tvb, offset);
@@ -4443,18 +4443,18 @@ static void dissect_batadv_tvlv_v15_tt_vlan_checksum(tvbuff_t *tvb,
 						     proto_item *ti,
 						     packet_info *pinfo,
 						     proto_tree *tree,
-						     guint16 vlan_id,
+						     uint16_t vlan_id,
 						     int crc_offset,
-						     guint8 tt_flags,
+						     uint8_t tt_flags,
 						     int offset)
 {
-	const guint8 *buf;
-	guint32 crc32;
-	guint32 crc = 0;
-	gint length_remaining;
-	guint16 vid;
+	const uint8_t *buf;
+	uint32_t crc32;
+	uint32_t crc = 0;
+	int length_remaining;
+	uint16_t vid;
 	unsigned int num_entries = 0;
-	guint8 full_response = (BATADV_TVLVL_TT_RESPONSE | BATADV_TVLVL_TT_FULL_TABLE);
+	uint8_t full_response = (BATADV_TVLVL_TT_RESPONSE | BATADV_TVLVL_TT_FULL_TABLE);
 
 	/* checksum checks are not possible with non full responses */
 	if (tt_flags != full_response) {
@@ -4501,11 +4501,11 @@ skip:
 static int dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb,
 					   packet_info *pinfo,
 					   proto_tree *tree, int offset,
-					   guint8 tt_flags,
+					   uint8_t tt_flags,
 					   int changes_offset)
 {
 	proto_tree *vlan_tree = NULL;
-	guint16 vid;
+	uint16_t vid;
 	proto_item *ti = NULL;
 	static int * const flags[] = {
 		&hf_batadv_tvlv_vid_vlan,
@@ -5460,7 +5460,7 @@ void proto_register_batadv(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_batadv_batman,
 		&ett_batadv_batman_flags,
 		&ett_batadv_batman_tt,
@@ -5528,13 +5528,13 @@ void proto_register_batadv(void)
 
 void proto_reg_handoff_batadv(void)
 {
-	static gboolean inited = FALSE;
+	static bool inited = false;
 	static unsigned int old_batadv_ethertype;
 
 	if (!inited) {
 		eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_batadv_plugin);
 
-		inited = TRUE;
+		inited = true;
 	} else {
 		dissector_delete_uint("ethertype", old_batadv_ethertype, batman_handle);
 	}

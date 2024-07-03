@@ -53,10 +53,10 @@ int proto_clacse;
 
 
 #include "packet-acse-hf.c"
-static gint hf_acse_user_data;
+static int hf_acse_user_data;
 
 /* Initialize the subtree pointers */
-static gint ett_acse;
+static int ett_acse;
 #include "packet-acse-ett.c"
 
 static expert_field ei_acse_dissector_not_available;
@@ -67,26 +67,26 @@ static dissector_handle_t acse_handle;
 
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
-static guint32 indir_ref=0;
+static uint32_t indir_ref=0;
 
 #if NOT_NEEDED
 /* to keep track of presentation context identifiers and protocol-oids */
 typedef struct _acse_ctx_oid_t {
 	/* XXX here we should keep track of ADDRESS/PORT as well */
-	guint32 ctx_id;
+	uint32_t ctx_id;
 	char *oid;
 } acse_ctx_oid_t;
 static wmem_map_t *acse_ctx_oid_table;
 
-static guint
-acse_ctx_oid_hash(gconstpointer k)
+static unsigned
+acse_ctx_oid_hash(const void *k)
 {
 	acse_ctx_oid_t *aco=(acse_ctx_oid_t *)k;
 	return aco->ctx_id;
 }
 /* XXX this one should be made ADDRESS/PORT aware */
-static gint
-acse_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
+static int
+acse_ctx_oid_equal(const void *k1, const void *k2)
 {
 	acse_ctx_oid_t *aco1=(acse_ctx_oid_t *)k1;
 	acse_ctx_oid_t *aco2=(acse_ctx_oid_t *)k2;
@@ -94,7 +94,7 @@ acse_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 }
 
 static void
-register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
+register_ctx_id_and_oid(packet_info *pinfo _U_, uint32_t idx, char *oid)
 {
 	acse_ctx_oid_t *aco, *tmpaco;
 	aco=wmem_new(wmem_file_scope(), acse_ctx_oid_t);
@@ -109,7 +109,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 	wmem_map_insert(acse_ctx_oid_table, aco, aco);
 }
 static char *
-find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
+find_oid_by_ctx_id(packet_info *pinfo _U_, uint32_t idx)
 {
 	acse_ctx_oid_t aco, *tmpaco;
 	aco.ctx_id=idx;
@@ -137,7 +137,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	char *oid;
 	struct SESSION_DATA_STRUCTURE* session;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	/* do we have spdu type from the session dissector?  */
 	if (data == NULL) {
@@ -215,7 +215,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	/*  postpone it before dissector will have more information */
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		int old_offset=offset;
-		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, &asn1_ctx, tree, -1);
+		offset = dissect_acse_ACSE_apdu(false, tvb, offset, &asn1_ctx, tree, -1);
 		if (offset == old_offset) {
 			proto_tree_add_expert(tree, pinfo, &ei_acse_malformed, tvb, offset, -1);
 			break;
@@ -238,7 +238,7 @@ void proto_register_acse(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_acse,
 #include "packet-acse-ettarr.c"
   };

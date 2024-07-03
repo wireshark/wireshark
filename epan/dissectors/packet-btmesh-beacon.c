@@ -79,18 +79,18 @@ static const true_false_string flags_iv_update = {
   "Normal operation"
 };
 
-static gint
+static int
 dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     proto_item *item, *oob_item, *flags_item;
     proto_tree *sub_tree, *oob_tree, *flags_tree;
-    guint offset = 0;
-    guint data_size = 0;
+    unsigned offset = 0;
+    unsigned data_size = 0;
     btle_mesh_transport_ctx_t *tr_ctx;
-    btle_mesh_transport_ctx_t dummy_ctx = {E_BTMESH_TR_UNKNOWN, FALSE, 0};
-    guint16 rfu_bits16;
-    guint8 rfu_bits8;
+    btle_mesh_transport_ctx_t dummy_ctx = {E_BTMESH_TR_UNKNOWN, false, 0};
+    uint16_t rfu_bits16;
+    uint8_t rfu_bits8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh Beacon");
 
@@ -103,7 +103,7 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     item = proto_tree_add_item(tree, proto_btmesh_beacon, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_btmesh_beacon);
 
-    guint8 beacon_type = tvb_get_guint8(tvb, offset);
+    uint8_t beacon_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree, hf_btmesh_beacon_type, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -322,7 +322,7 @@ proto_register_btmesh_beacon(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btmesh_beacon,
         &ett_btmesh_beacon_oob,
         &ett_btmesh_beacon_flags,

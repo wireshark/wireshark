@@ -34,7 +34,7 @@ static int hf_bootparams_hostaddr;
 static int hf_bootparams_routeraddr;
 static int hf_bootparams_addresstype;
 
-static gint ett_bootparams;
+static int ett_bootparams;
 
 
 static const value_string addr_type[] =
@@ -46,8 +46,8 @@ static const value_string addr_type[] =
 static int
 dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 {
-	guint32 type;
-	guint32 ipaddr;
+	uint32_t type;
+	uint32_t ipaddr;
 
 
 	type = tvb_get_ntohl(tvb, offset);
@@ -168,7 +168,7 @@ proto_register_bootparams(void)
 			"Address Type", "bootparams.type", FT_UINT32, BASE_DEC,
 			VALS(addr_type), 0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bootparams,
 	};
 

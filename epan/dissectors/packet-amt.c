@@ -45,7 +45,7 @@ static int hf_amt_multicast_data;
 static expert_field ei_amt_relay_address_unknown;
 static expert_field ei_amt_unknown;
 
-static gint ett_amt;
+static int ett_amt;
 
 #define RELAY_DISCOVERY         1
 #define RELAY_ADVERTISEMENT     2
@@ -79,8 +79,8 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *amt_tree;
-    guint       offset = 0;
-    guint32     type;
+    unsigned    offset = 0;
+    uint32_t    type;
     tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMT");
@@ -102,7 +102,7 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset += 4;
         break;
         case RELAY_ADVERTISEMENT:{ /* 2 */
-            guint32 relay_length;
+            uint32_t relay_length;
             proto_tree_add_item(amt_tree, hf_amt_reserved, tvb, offset, 3, ENC_NA);
             offset += 3;
             proto_tree_add_item(amt_tree, hf_amt_discovery_nonce, tvb, offset, 4, ENC_NA);
@@ -134,7 +134,7 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset += 4;
         break;
         case MEMBERSHIP_QUERY:{ /* 4 */
-            guint32 flags_g;
+            uint32_t flags_g;
             proto_tree_add_item(amt_tree, hf_amt_membership_query_reserved, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(amt_tree, hf_amt_membership_query_l, tvb, offset, 1, ENC_NA);
             proto_tree_add_item_ret_uint(amt_tree, hf_amt_membership_query_g, tvb, offset, 1, ENC_NA, &flags_g);
@@ -189,7 +189,7 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
         break;
         default:{
-            guint32 len_unknown;
+            uint32_t len_unknown;
             len_unknown = tvb_reported_length_remaining(tvb, offset);
             proto_tree_add_expert(amt_tree, pinfo, &ei_amt_unknown, tvb, offset, len_unknown);
             offset += len_unknown;
@@ -287,7 +287,7 @@ proto_register_amt(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_amt
     };
 

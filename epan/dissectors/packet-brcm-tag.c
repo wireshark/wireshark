@@ -48,13 +48,13 @@ static int hf_brcm_tag_dest_port_id;
 static int hf_brcm_tag_src_dev_id;
 static int hf_brcm_tag_src_port_id;
 
-static gint ett_brcm_tag;
+static int ett_brcm_tag;
 
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
 
-static int check_tvb_length(ptvcursor_t *cursor, const gint length)
+static int check_tvb_length(ptvcursor_t *cursor, const int length)
 {
    if (!cursor)
       return TVB_LEN_UNDEF;
@@ -80,8 +80,8 @@ dissect_brcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    proto_item  *ti;
    proto_tree  *brcm_tag_tree;
    ptvcursor_t *cursor;
-   guint8 opcode_mr_mo;
-   guint8 opcode;
+   uint8_t opcode_mr_mo;
+   uint8_t opcode;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Broadcom tag");
    col_set_str(pinfo->cinfo, COL_INFO, "MAC Management");
@@ -159,7 +159,7 @@ proto_register_brcm_tag(void)
       },
    };
 
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_brcm_tag,
    };
    proto_brcm_tag = proto_register_protocol("Broadcom tag protocol", "Broadcom tag", "brcm-tag");

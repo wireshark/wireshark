@@ -76,7 +76,7 @@ static int hf_bofl_sequence;
 static int hf_bofl_padding;
 
 /* Initialize the subtree pointers */
-static gint ett_bofl;
+static int ett_bofl;
 
 /* Code to actually dissect the packets */
 static int
@@ -84,8 +84,8 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item  *ti;
     proto_tree  *bofl_tree;
-    gint        len;
-    guint32     pdu, sequence;
+    int         len;
+    uint32_t    pdu, sequence;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOFL");
 
@@ -135,7 +135,7 @@ proto_register_bofl(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bofl,
     };
 

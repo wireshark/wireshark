@@ -30,7 +30,7 @@ static int hf_bctp_bvi;
 static int hf_bctp_tpei;
 static int hf_bctp_tpi;
 
-static gint ett_bctp;
+static int ett_bctp;
 static dissector_table_t bctp_dissector_table;
 static dissector_handle_t text_handle;
 
@@ -58,7 +58,7 @@ static int dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
 	proto_item* pi = proto_tree_add_item(tree, proto_bctp, tvb,0,2, ENC_NA);
 	proto_tree* pt = proto_item_add_subtree(pi,ett_bctp);
 	tvbuff_t* sub_tvb = tvb_new_subset_remaining(tvb, 2);
-	guint8 tpi = tvb_get_guint8(tvb,1) & 0x3f;
+	uint8_t tpi = tvb_get_guint8(tvb,1) & 0x3f;
 
 	proto_tree_add_item(pt, hf_bctp_bvei, tvb,0,2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(pt, hf_bctp_bvi, tvb,0,2, ENC_BIG_ENDIAN);
@@ -85,7 +85,7 @@ proto_register_bctp (void)
 		{&hf_bctp_tpei, {"TPEI", "bctp.tpei", FT_UINT16, BASE_HEX, NULL, 0x0040, "Tunneled Protocol Error Indicator", HFILL }},
 		{&hf_bctp_tpi, {"TPI", "bctp.tpi", FT_UINT16, BASE_HEX, NULL, 0x003F, "Tunneled Protocol Indicator", HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bctp
 	};
 

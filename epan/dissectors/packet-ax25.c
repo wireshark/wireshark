@@ -105,8 +105,8 @@ static const value_string pid_vals[] = {
 	{ 0, NULL }
 };
 
-static gint ett_ax25;
-static gint ett_ax25_ctl;
+static int ett_ax25;
+static int ett_ax25_ctl;
 
 static dissector_handle_t ax25_handle;
 
@@ -121,10 +121,10 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	/* char v2cmdresp; */
 	const char *ax25_version;
 	int is_response;
-	guint8 control;
-	guint8 pid = AX25_P_NO_L3;
-	guint8 src_ssid;
-	guint8 dst_ssid;
+	uint8_t control;
+	uint8_t pid = AX25_P_NO_L3;
+	uint8_t src_ssid;
+	uint8_t dst_ssid;
 	tvbuff_t *next_tvb = NULL;
 
 
@@ -167,17 +167,17 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		case 1 : /* V2.0 Response */
 			ax25_version = "V2.0+";
 			/* v2cmdresp = 'R'; */
-			is_response = TRUE;
+			is_response = true;
 			break;
 		case 2 : /* V2.0 Command */
 			ax25_version = "V2.0+";
 			/* v2cmdresp = 'C'; */
-			is_response = FALSE;
+			is_response = false;
 			break;
 		default :
 			ax25_version = "V?.?";
 			/* v2cmdresp = '?'; */
-			is_response = FALSE;
+			is_response = false;
 			break;
 		}
 	proto_item_append_text( ti, ", Ver: %s", ax25_version );
@@ -195,7 +195,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		offset += AX25_ADDR_LEN;
 		}
 
-	/* XXX - next-to-last argument should be TRUE if modulo 128 operation */
+	/* XXX - next-to-last argument should be true if modulo 128 operation */
 	control = dissect_xdlc_control(	tvb,
 					offset,
 					pinfo,
@@ -207,10 +207,10 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					NULL,
 					NULL,
 					is_response,
-					FALSE,
-					FALSE );
-	/* XXX - second argument should be TRUE if modulo 128 operation */
-	offset += XDLC_CONTROL_LEN(control, FALSE); /* step over control field */
+					false,
+					false );
+	/* XXX - second argument should be true if modulo 128 operation */
+	offset += XDLC_CONTROL_LEN(control, false); /* step over control field */
 
 	if ( XDLC_IS_INFORMATION( control ) )
 		{
@@ -239,14 +239,14 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 }
 
 static bool
-capture_ax25( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_ax25( const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-	guint8 control;
-	guint8 pid;
+	uint8_t control;
+	uint8_t pid;
 	int l_offset;
 
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, AX25_HEADER_SIZE ) )
-		return FALSE;
+		return false;
 
 	l_offset = offset;
 	l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
@@ -265,7 +265,7 @@ capture_ax25( const guchar *pd, int offset, int len, capture_packet_info_t *cpin
 		l_offset += 1; /* step over the pid and point to the first byte of the payload */
 		return try_capture_dissector("ax25.pid", pid & 0x0ff, pd, l_offset, len, cpinfo, pseudo_header);
 	}
-	return FALSE;
+	return false;
 }
 
 void
@@ -381,7 +381,7 @@ proto_register_ax25(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ax25,
 		&ett_ax25_ctl,
 	};

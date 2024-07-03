@@ -45,11 +45,11 @@ static int hf_close_local_in_frame;
 static int hf_close_remote_in_frame;
 static int hf_connection_info;
 
-static gint ett_adb;
-static gint ett_adb_arg0;
-static gint ett_adb_arg1;
-static gint ett_adb_crc;
-static gint ett_adb_magic;
+static int ett_adb;
+static int ett_adb_arg0;
+static int ett_adb_arg1;
+static int ett_adb_crc;
+static int ett_adb_magic;
 
 static expert_field ei_invalid_magic;
 static expert_field ei_invalid_crc;
@@ -58,43 +58,43 @@ static expert_field ei_invalid_data;
 static dissector_handle_t  adb_handle;
 static dissector_handle_t  adb_service_handle;
 
-static gint proto_tcp;
-static gint proto_usb;
+static int proto_tcp;
+static int proto_usb;
 
 static wmem_tree_t *command_info;
 static wmem_tree_t *service_info;
 
 typedef struct service_data_t {
-    guint32  start_in_frame;
+    uint32_t start_in_frame;
 
-    guint32  close_local_in_frame;
-    guint32  close_remote_in_frame;
+    uint32_t close_local_in_frame;
+    uint32_t close_remote_in_frame;
 
-    guint32  local_id;
-    guint32  remote_id;
+    uint32_t local_id;
+    uint32_t remote_id;
 
-    const gchar  *service;
+    const char   *service;
 } service_data_t;
 
 typedef struct command_data_t {
-    guint32   command;
+    uint32_t  command;
 
-    guint32   command_in_frame;
-    guint32   response_in_frame;
+    uint32_t  command_in_frame;
+    uint32_t  response_in_frame;
 
-    guint32   arg0;
-    guint32   arg1;
+    uint32_t  arg0;
+    uint32_t  arg1;
 
-    guint32   data_length;
-    guint32   crc32;
+    uint32_t  data_length;
+    uint32_t  crc32;
 
-    guint32   completed_in_frame;
-    guint32   reassemble_data_length;
-    guint8   *reassemble_data;
-    guint32   reassemble_error_in_frame;
+    uint32_t  completed_in_frame;
+    uint32_t  reassemble_data_length;
+    uint8_t  *reassemble_data;
+    uint32_t  reassemble_error_in_frame;
 } command_data_t;
 
-static guint32 max_in_frame = G_MAXUINT32;
+static uint32_t max_in_frame = UINT32_MAX;
 
 static const value_string command_vals[] = {
     { 0x434e5953,  "Synchronize" },
@@ -139,20 +139,20 @@ void proto_register_adb(void);
 void proto_reg_handoff_adb(void);
 
 static void
-save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
-        guint32 crc32, service_data_t *service_data, gint proto, void *data,
+save_command(uint32_t cmd, uint32_t arg0, uint32_t arg1, uint32_t data_length,
+        uint32_t crc32, service_data_t *service_data, int proto, void *data,
         packet_info *pinfo, service_data_t **returned_service_data,
         command_data_t **returned_command_data)
 {
     wmem_tree_key_t  key[6];
-    guint32          interface_id;
-    guint32          bus_id;
-    guint32          device_address;
-    guint32          side_id;
-    guint32          frame_number;
+    uint32_t         interface_id;
+    uint32_t         bus_id;
+    uint32_t         device_address;
+    uint32_t         side_id;
+    uint32_t         frame_number;
     command_data_t  *command_data;
     wmem_tree_t     *wmem_tree;
-    gint             direction = P2P_DIR_UNKNOWN;
+    int              direction = P2P_DIR_UNKNOWN;
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *) data;
 
     frame_number = pinfo->num;
@@ -247,7 +247,7 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
     else
         command_data->completed_in_frame = max_in_frame;
     command_data->reassemble_data_length = 0;
-    command_data->reassemble_data = (guint8 *) wmem_alloc(wmem_file_scope(), command_data->data_length);
+    command_data->reassemble_data = (uint8_t *) wmem_alloc(wmem_file_scope(), command_data->data_length);
     command_data->reassemble_error_in_frame = 0;
 
     key[3].length = 1;
@@ -317,7 +317,7 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
     *returned_command_data = command_data;
 }
 
-static gint
+static int
 dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *main_item;
@@ -330,24 +330,24 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *crc_item;
     proto_tree      *crc_tree = NULL;
     proto_item      *sub_item;
-    gint             offset = 0;
-    guint32          command;
-    guint32          arg0;
-    guint32          arg1;
-    guint32          data_length = 0;
-    guint32          crc32 = 0;
+    int              offset = 0;
+    uint32_t         command;
+    uint32_t         arg0;
+    uint32_t         arg1;
+    uint32_t         data_length = 0;
+    uint32_t         crc32 = 0;
     usb_conv_info_t *usb_conv_info = NULL;
     wmem_tree_key_t  key[5];
-    guint32          interface_id;
-    guint32          bus_id;
-    guint32          device_address;
-    guint32          side_id;
-    guint32          frame_number;
-    gboolean         is_command = TRUE;
-    gboolean         is_next_fragment = FALSE;
-    gboolean         is_service = FALSE;
-    gint             proto;
-    gint             direction = P2P_DIR_UNKNOWN;
+    uint32_t         interface_id;
+    uint32_t         bus_id;
+    uint32_t         device_address;
+    uint32_t         side_id;
+    uint32_t         frame_number;
+    bool             is_command = true;
+    bool             is_next_fragment = false;
+    bool             is_service = false;
+    int              proto;
+    int              direction = P2P_DIR_UNKNOWN;
     wmem_tree_t     *wmem_tree;
     command_data_t  *command_data = NULL;
     service_data_t  *service_data = NULL;
@@ -363,9 +363,9 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* XXX: Why? If interface is USB only first try is correct
      * (and seems strange...), in other cases standard check for
      * previous protocol is correct */
-    proto = (gint) GPOINTER_TO_INT(wmem_list_frame_data(/*wmem_list_frame_prev*/(wmem_list_tail(pinfo->layers))));
+    proto = (int) GPOINTER_TO_INT(wmem_list_frame_data(/*wmem_list_frame_prev*/(wmem_list_tail(pinfo->layers))));
     if (proto != proto_usb) {
-        proto = (gint) GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers))));
+        proto = (int) GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers))));
     }
 
     if (proto == proto_usb) {
@@ -422,8 +422,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 command_data->command_in_frame <= frame_number) {
 
             if (command_data->command_in_frame != frame_number) {
-                is_command = FALSE;
-                is_next_fragment = TRUE;
+                is_command = false;
+                is_next_fragment = true;
             }
 
             data_length = command_data->data_length;
@@ -447,7 +447,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (wmem_tree) {
                 service_data = (service_data_t *) wmem_tree_lookup32_le(wmem_tree, frame_number);
                 if (service_data && command_data->command == A_OPEN) {
-                    is_service = TRUE;
+                    is_service = true;
                 }
             }
         }
@@ -456,21 +456,21 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 /* Simple heuristics to check if packet is command or data */
     if ((command_data && command_data->completed_in_frame <= frame_number) || !command_data) {
         if (tvb_reported_length(tvb) < 24) {
-            is_command = FALSE;
+            is_command = false;
         } else if (tvb_reported_length(tvb) >= 24) {
             command = tvb_get_letohl(tvb, offset);
 
             if (command != A_SYNC && command != A_CLSE && command != A_WRTE &&
                     command != A_AUTH && command != A_CNXN && command != A_OPEN && command != A_OKAY)
-                is_command = FALSE;
+                is_command = false;
             else if (command != (0xFFFFFFFF ^ tvb_get_letohl(tvb, offset + 20)))
-                is_command = FALSE;
+                is_command = false;
 
             if (is_command) {
                 data_length = tvb_get_letohl(tvb, offset + 12);
                 crc32 = tvb_get_letohl(tvb, offset + 16);
             }
-            if (command == A_OPEN) is_service = TRUE;
+            if (command == A_OPEN) is_service = true;
         }
     }
 
@@ -577,8 +577,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (!pinfo->fd->visited && command_data) {
             if (command_data->command_in_frame != frame_number) {
-                is_command = FALSE;
-                is_next_fragment = TRUE;
+                is_command = false;
+                is_next_fragment = true;
             }
 
             data_length = command_data->data_length;
@@ -614,13 +614,13 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 
     if (tvb_captured_length_remaining(tvb, offset) > 0 && (!is_command || data_length > 0)) {
-        guint32 crc = 0;
-        guint32 i_offset;
+        uint32_t crc = 0;
+        uint32_t i_offset;
 
         /* First pass: store message payload (usually a single packet, but
          * potentially multiple fragments). */
         if (!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
-            guint chunklen = tvb_captured_length_remaining(tvb, offset);
+            unsigned chunklen = tvb_captured_length_remaining(tvb, offset);
             if (chunklen > command_data->data_length - command_data->reassemble_data_length) {
                 chunklen = command_data->data_length - command_data->reassemble_data_length;
                 /* This should never happen, but when it does, then either we
@@ -641,7 +641,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data, tvb, offset, -1);
         }
 
-        if ((!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
+        if ((!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (uint32_t) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
             proto_tree_add_item(main_tree, hf_data_fragment, tvb, offset, -1, ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO, "Data Fragment");
             offset = tvb_captured_length(tvb);
@@ -657,7 +657,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 adb_service_data.direction = direction;
 
                 adb_service_data.session_key_length = 3;
-                adb_service_data.session_key = (guint32 *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(guint32));
+                adb_service_data.session_key = (uint32_t *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(uint32_t));
                 adb_service_data.session_key[0] = interface_id;
 
                 if (proto == proto_usb) {
@@ -685,12 +685,12 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (is_service) {
                 proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII | ENC_NA);
                 if (!pinfo->fd->visited && service_data) {
-                    service_data->service = (gchar *) tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
+                    service_data->service = (char *) tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
                 }
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ASCII));
                 offset = tvb_captured_length(tvb);
             } else if (command_data && command_data->command == A_CNXN) {
-                const guint8    *info;
+                const uint8_t   *info;
 
                 /*
                  * Format: "<systemtype>:<serialno>:<banner>".
@@ -714,7 +714,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     adb_service_data.direction = direction;
 
                     adb_service_data.session_key_length = 3;
-                    adb_service_data.session_key = (guint32 *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(guint32));
+                    adb_service_data.session_key = (uint32_t *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(uint32_t));
                     adb_service_data.session_key[0] = interface_id;
 
                     if (proto == proto_usb) {
@@ -735,7 +735,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 } else {
                     proto_item  *data_item;
-                    gchar       *data_str;
+                    char        *data_str;
 
                     data_item = proto_tree_add_item(main_tree, hf_data, tvb, offset, data_length, ENC_NA);
                     data_str = tvb_format_text(pinfo->pool, tvb, offset, data_length);
@@ -875,7 +875,7 @@ proto_register_adb(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_adb,
         &ett_adb_arg0,
         &ett_adb_arg1,

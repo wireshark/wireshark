@@ -23,7 +23,7 @@ static int hf_chunk;
 static int hf_task;
 static int hf_user_name;
 
-static gint ett_raw;
+static int ett_raw;
 
 static const value_string encaps_vals[] = {
   {ASCEND_PFX_WDS_X,  "PPP Transmit"               },
@@ -114,12 +114,12 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       call_dissector(eth_withoutfcs_handle, tvb, pinfo, tree);
       break;
     case ASCEND_PFX_ISDN_X:
-      isdn.uton = TRUE;
+      isdn.uton = true;
       isdn.channel = 0;
       call_dissector_with_data(lapd_phdr_handle, tvb, pinfo, tree, &isdn);
       break;
     case ASCEND_PFX_ISDN_R:
-      isdn.uton = FALSE;
+      isdn.uton = false;
       isdn.channel = 0;
       call_dissector_with_data(lapd_phdr_handle, tvb, pinfo, tree, &isdn);
       break;
@@ -157,7 +157,7 @@ proto_register_ascend(void)
       { "User name",      "ascend.user",  FT_STRING, BASE_NONE,   NULL, 0x0,
         NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_raw,
   };
 

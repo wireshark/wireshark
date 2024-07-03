@@ -36,7 +36,7 @@ static int hf_aarp_dst_hw_mac;
 static int hf_aarp_dst_proto;
 static int hf_aarp_dst_proto_id;
 
-static gint ett_aarp;
+static int ett_aarp;
 
 static expert_field ei_aarp_length_invalid;
 
@@ -91,20 +91,20 @@ static const value_string hrd_vals[] = {
 #define AARP_PRO_IS_ATALK(ar_pro, ar_pln) \
         ((ar_pro) == ETHERTYPE_ATALK && (ar_pln) == 4)
 
-static gchar *
-tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset)
+static char *
+tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 {
-  gint node;
-  gchar *cur;
+  int node;
+  char *cur;
 
-  cur=(gchar *)wmem_alloc(scope, 16);
+  cur=(char *)wmem_alloc(scope, 16);
   node=tvb_get_guint8(tvb, offset+1)<<8|tvb_get_guint8(tvb, offset+2);
   snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+3));
   return cur;
 }
 
-static const gchar *
-tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+static const char *
+tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_len, uint16_t type)
 {
   if (AARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or Token Ring address, which is the same type
@@ -114,8 +114,8 @@ tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int 
   return tvb_bytes_to_str(scope, tvb, offset, ad_len);
 }
 
-static gchar *
-tvb_aarpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+static char *
+tvb_aarpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_len, uint16_t type)
 {
   if (AARP_PRO_IS_ATALK(type, ad_len)) {
     /* Appletalk address.  */
@@ -134,16 +134,16 @@ tvb_aarpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int 
 
 static int
 dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  guint16     ar_hrd;
-  guint16     ar_pro;
-  guint8      ar_hln;
-  guint8      ar_pln;
-  guint16     ar_op;
+  uint16_t    ar_hrd;
+  uint16_t    ar_pro;
+  uint8_t     ar_hln;
+  uint8_t     ar_pln;
+  uint16_t    ar_op;
   proto_tree  *aarp_tree;
   proto_item  *ti;
-  const gchar *op_str;
+  const char *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  const gchar *sha_str, *spa_str, /* *tha_str, */ *tpa_str;
+  const char *sha_str, *spa_str, /* *tha_str, */ *tpa_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -334,7 +334,7 @@ proto_register_aarp(void)
         FT_BYTES,       BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_aarp,
   };
 

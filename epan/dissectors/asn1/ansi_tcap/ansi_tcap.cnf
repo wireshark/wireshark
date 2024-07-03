@@ -31,8 +31,8 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
  proto_tree *subtree;
  proto_item *spcifier_item;
  int start_offset = offset;
- guint8 family;
- guint8 specifier;
+ uint8_t family;
+ uint8_t specifier;
 
   %(DEFAULT_BODY)s
   /* mask off the H bit */
@@ -43,7 +43,7 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
    * indicates that a reply is required; a value of 0 indicates that a reply is not required.
    */
   family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
-  specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
+  specifier = (uint8_t)(ansi_tcap_private.d.OperationCode_national & 0xff);
   proto_tree_add_item(subtree, hf_ansi_tcap_bit_h, tvb, start_offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_ansi_tcap_op_family, tvb, start_offset, 2, ENC_BIG_ENDIAN);
   spcifier_item = proto_tree_add_item(subtree, hf_ansi_tcap_op_specifier, tvb, start_offset, 2, ENC_BIG_ENDIAN);
@@ -129,7 +129,7 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
 
  %(DEFAULT_BODY)s
  	ansi_tcap_private.objectApplicationId_oid= (const void*) oid_str;
-	ansi_tcap_private.oid_is_present=TRUE;
+	ansi_tcap_private.oid_is_present=true;
 
 #.FN_HDR PackageType/unidirectional
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
@@ -162,7 +162,7 @@ col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
 
 tvbuff_t *next_tvb;
-guint8 len;
+uint8_t len;
 
 %(DEFAULT_BODY)s
 

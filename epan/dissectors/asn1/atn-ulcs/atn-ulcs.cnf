@@ -34,7 +34,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
         1U,
         127U,
         &ulcs_context_value,
-        TRUE);
+        true);
 
 #.END
 
@@ -55,7 +55,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
         hf_index,
         NO_BOUND,
         NO_BOUND,
-        FALSE,
+        false,
         NULL,
         0,
         &tvb_usr,
@@ -168,7 +168,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 #.FN_BODY AE-qualifier-form2
     packet_info * pinfo = actx->pinfo;
     atn_conversation_t *atn_cv = NULL;
-    guint32 ae_qualifier = 0;
+    uint32_t ae_qualifier = 0;
 
     /* dissect  ae-qualifier */
     offset = dissect_per_integer(
@@ -208,7 +208,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
     packet_info * pinfo = actx->pinfo;
     aarq_data_t *aarq_data = NULL;
     atn_conversation_t *atn_cv = NULL;
-    guint32 aircraft_24_bit_address = 0;
+    uint32_t aircraft_24_bit_address = 0;
 
     /* AARQ/DT: dstref present, srcref is always zero */
     if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
@@ -273,7 +273,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
         /* alloc aarq data */
         aarq_data = wmem_new(wmem_file_scope(), aarq_data_t);
-        aarq_data-> aarq_pending = FALSE;
+        aarq_data-> aarq_pending = false;
 
         /* insert aarq data */
         wmem_tree_insert32(aarq_data_tree ,aircraft_24_bit_address,(void*)aarq_data);
@@ -282,13 +282,13 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
     /* check for pending AARQ/AARE sequences */
     /* if "aarq_data-> aarq_pending" is set this means that there is already one  */
     /* AARQ/AARE sequence pending (is unwise to overwrite AARE/AARQ) */
-    if (aarq_data-> aarq_pending == FALSE ) {
+    if (aarq_data-> aarq_pending == false ) {
 
       /* init aarq data */
       memset(aarq_data,0,sizeof(aarq_data_t));
 
       aarq_data->cv = atn_cv;
-      aarq_data-> aarq_pending = TRUE;
+      aarq_data-> aarq_pending = true;
     }
 
 #.END
@@ -296,7 +296,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 #.FN_BODY AARE-apdu
   packet_info * pinfo = actx->pinfo;
-  guint32 aircraft_24_bit_address = 0 ;
+  uint32_t aircraft_24_bit_address = 0 ;
   atn_conversation_t *atn_cv = NULL;
   aarq_data_t *aarq_data = NULL;
 
@@ -374,7 +374,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
   /* clear aarq data */
   memset(aarq_data,0,sizeof(aarq_data_t));
-  aarq_data-> aarq_pending  =  FALSE;
+  aarq_data-> aarq_pending  =  false;
 
   %(DEFAULT_BODY)s
 
@@ -385,13 +385,13 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 #.FN_BODY Associate-result
  /* extension present: last param set to true. asn2wrs didn't take notice of that */
  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 2U, NULL, TRUE);
+                                                            0U, 2U, NULL, true);
 #.END
 
 #.FN_BODY Release-request-reason
  /* extension present: last param set to true. asn2wrs didn't take notice of that */
  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 30U, NULL, TRUE);
+                                                            0U, 30U, NULL, true);
 #.END
 
 #.FN_BODY Release-response-reason
@@ -406,7 +406,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
     0U,
     30U,
     NULL,
-    TRUE);
+    true);
 
 #.END
 
@@ -436,7 +436,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
    */
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_atn_ulcs_RDNSequence, RDNSequence_sequence_of,
-                                      1, 1, FALSE);
+                                      1, 1, false);
 
 #.END
 
@@ -447,7 +447,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
    */
   offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
                                              ett_atn_ulcs_RelativeDistinguishedName, RelativeDistinguishedName_set_of,
-                                             1, 1, FALSE);
+                                             1, 1, false);
 
 #.END
 
@@ -461,9 +461,9 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
       hf_index,
       -1,
       -1,
-      FALSE,
+      false,
       &actx->external.data_value_descriptor);
-  actx->external.data_value_descr_present = TRUE;
+  actx->external.data_value_descr_present = true;
 
 #.END
 
@@ -493,7 +493,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
     tree, hf_index,
     NO_BOUND,
     NO_BOUND,
-    FALSE,
+    false,
     NULL,
     0,
     &tvb_usr,

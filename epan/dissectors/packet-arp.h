@@ -12,7 +12,7 @@
 #ifndef __PACKET_ARP_H__
 #define __PACKET_ARP_H__
 
-const gchar *tvb_arphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type);
+const char *tvb_arphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_len, uint16_t type);
 
 void dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree);
 

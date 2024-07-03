@@ -16,36 +16,36 @@
 #define ANSI_TCAP_CTX_SIGNATURE 0x41544341  /* "ATCA" */
 
 struct ansi_tcap_private_t {
-  guint32 signature;
-  gboolean oid_is_present; /* Is the Application Context Version present */
+  uint32_t signature;
+  bool oid_is_present; /* Is the Application Context Version present */
   const void * objectApplicationId_oid;
-  guint32 session_id;
+  uint32_t session_id;
   void * context;
-  gchar *TransactionID_str;
+  char *TransactionID_str;
   struct {  /* "dynamic" data */
-    gint pdu;
+    int pdu;
       /*
          1 : invoke,
          2 : returnResult,
          3 : returnError,
          4 : reject
       */
-    gint OperationCode;
+    int OperationCode;
       /*
          0 : national,
          1 : private
       */
-    gint32 OperationCode_national;
-    gint32 OperationCode_private;
+    int32_t OperationCode_national;
+    int32_t OperationCode_private;
     proto_item *OperationCode_item;
   } d;
 
 };
 
-/*extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);*/
+/*extern void add_ansi_tcap_subdissector(uint32_t ssn, dissector_handle_t dissector);*/
 
 
-/*extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);*/
+/*extern void delete_ansi_tcap_subdissector(uint32_t ssn, dissector_handle_t dissector);*/
 
 
 #endif  /* PACKET_ANSI_TCAP_H */

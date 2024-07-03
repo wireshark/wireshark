@@ -84,8 +84,8 @@ static const value_string exttype_vals[] = {
 };
 
 typedef struct v6_ext {
-    guint8 type;
-    guint8 length;
+    uint8_t type;
+    uint8_t length;
 } aodv_ext_t;
 
 /* Initialize the protocol and registered fields */
@@ -120,10 +120,10 @@ static int hf_aodv_ext_interval;
 static int hf_aodv_ext_timestamp;
 
 /* Initialize the subtree pointers */
-static gint ett_aodv;
-static gint ett_aodv_flags;
-static gint ett_aodv_unreach_dest;
-static gint ett_aodv_extensions;
+static int ett_aodv;
+static int ett_aodv_flags;
+static int ett_aodv_unreach_dest;
+static int ett_aodv_extensions;
 
 static expert_field ei_aodv_ext_length;
 static expert_field ei_aodv_type;
@@ -135,7 +135,7 @@ dissect_aodv_ext(tvbuff_t * tvb, packet_info *pinfo, int offset, proto_tree * tr
 {
     proto_tree *ext_tree;
     proto_item *len_item;
-    guint8      type, len;
+    uint8_t     type, len;
 
 again:
     if ((int) tvb_reported_length(tvb) <= offset)
@@ -177,17 +177,17 @@ again:
 
 static void
 dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
-                  proto_item *ti, gboolean is_ipv6)
+                  proto_item *ti, bool is_ipv6)
 {
     int                offset = 1;
-    guint8             hop_count;
-    guint32            rreq_id;
-    const gchar       *dest_addr_v4;
-    const gchar       *dest_addr_v6;
-    guint32            dest_seqno;
-    const gchar       *orig_addr_v4;
-    const gchar       *orig_addr_v6;
-    guint32            orig_seqno;
+    uint8_t            hop_count;
+    uint32_t           rreq_id;
+    const char        *dest_addr_v4;
+    const char        *dest_addr_v6;
+    uint32_t           dest_seqno;
+    const char        *orig_addr_v4;
+    const char        *orig_addr_v6;
+    uint32_t           orig_seqno;
     int                extlen;
     static int * const aodv_flags[] = {
         &hf_aodv_flags_rreq_join,
@@ -274,18 +274,18 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 
 static void
 dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
-                  proto_item *ti, gboolean is_ipv6)
+                  proto_item *ti, bool is_ipv6)
 {
     int                offset = 1;
-    guint16            flags;
-    guint8             prefix_sz;
-    guint8             hop_count;
-    const gchar       *dest_addr_v4;
-    const gchar       *dest_addr_v6;
-    guint32            dest_seqno;
-    const gchar       *orig_addr_v4;
-    const gchar       *orig_addr_v6;
-    guint32            lifetime;
+    uint16_t           flags;
+    uint8_t            prefix_sz;
+    uint8_t            hop_count;
+    const char        *dest_addr_v4;
+    const char        *dest_addr_v6;
+    uint32_t           dest_seqno;
+    const char        *orig_addr_v4;
+    const char        *orig_addr_v6;
+    uint32_t           lifetime;
     int                extlen;
     static int * const aodv_flags[] = {
         &hf_aodv_flags_rrep_repair,
@@ -377,11 +377,11 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 
 static void
 dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
-                  gboolean is_ipv6)
+                  bool is_ipv6)
 {
     int         offset = 1;
     proto_tree *aodv_unreach_dest_tree;
-    guint8      dest_count;
+    uint8_t     dest_count;
     int         i;
     static int * const aodv_flags[] = {
         &hf_aodv_flags_rerr_nodelete,
@@ -432,12 +432,12 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree, proto_item *ti)
 {
     int                offset = 1;
-    guint8             hop_count;
-    guint32            rreq_id;
-    guint32            dest_seqno;
-    guint32            orig_seqno;
-    const gchar       *dest_addr_v6;
-    const gchar       *orig_addr_v6;
+    uint8_t            hop_count;
+    uint32_t           rreq_id;
+    uint32_t           dest_seqno;
+    uint32_t           orig_seqno;
+    const char        *dest_addr_v6;
+    const char        *orig_addr_v6;
     int                extlen;
     static int * const aodv_flags[] = {
         &hf_aodv_flags_rreq_join,
@@ -508,13 +508,13 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree, proto_item *ti)
 {
     int                offset = 1;
-    guint16            flags;
-    guint8             prefix_sz;
-    guint8             hop_count;
-    guint32            dest_seqno;
-    const gchar       *dest_addr_v6;
-    const gchar       *orig_addr_v6;
-    guint32            lifetime;
+    uint16_t           flags;
+    uint8_t            prefix_sz;
+    uint8_t            hop_count;
+    uint32_t           dest_seqno;
+    const char        *dest_addr_v6;
+    const char        *orig_addr_v6;
+    uint32_t           lifetime;
     int                extlen;
     static int * const aodv_flags[] = {
         &hf_aodv_flags_rrep_repair,
@@ -586,7 +586,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 {
     int         offset = 1;
     proto_tree *aodv_unreach_dest_tree;
-    guint8      dest_count;
+    uint8_t     dest_count;
     int         i;
     static int * const aodv_flags[] = {
         &hf_aodv_flags_rerr_nodelete,
@@ -625,8 +625,8 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item *ti, *type_item;
     proto_tree *aodv_tree;
-    gboolean    is_ipv6;
-    guint8      type;
+    bool        is_ipv6;
+    uint8_t     type;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AODV");
@@ -837,7 +837,7 @@ proto_register_aodv(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_aodv,
         &ett_aodv_flags,
         &ett_aodv_unreach_dest,

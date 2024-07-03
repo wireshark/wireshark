@@ -73,74 +73,74 @@ void proto_register_bluecom(void);
 static dissector_handle_t bcp_handle;
 static dissector_table_t bcp_subdissector_table;
 
-static gint proto_bcp;
-static gint ett_bcp;
-static gint ett_bcp_header;
-static gint ett_bcp_blockheader;
-static gint ett_bcp_data;
+static int proto_bcp;
+static int ett_bcp;
+static int ett_bcp_header;
+static int ett_bcp_blockheader;
+static int ett_bcp_data;
 
 /* protocol data id */
-static gint hf_bcp_hdr_version;
-static gint hf_bcp_hdr_format;
-static gint hf_bcp_hdr_protflags;
-static gint hf_bcp_hdr_blocknb;
-static gint hf_bcp_hdr_segcode;
-static gint hf_bcp_hdr_auth;
-static gint hf_bcp_hdr_sourceid;
-static gint hf_bcp_hdr_destid;
-static gint hf_bcp_hdr_transid;
-static gint hf_bcp_hdr_cmd;
-static gint hf_bcp_hdr_slavestate;
-static gint hf_bcp_hdr_blockflags;
-static gint hf_bcp_hdr_len;
-static gint hf_bcp_hdr_timestamp;
-static gint hf_bcp_hdr_fragoffset;
+static int hf_bcp_hdr_version;
+static int hf_bcp_hdr_format;
+static int hf_bcp_hdr_protflags;
+static int hf_bcp_hdr_blocknb;
+static int hf_bcp_hdr_segcode;
+static int hf_bcp_hdr_auth;
+static int hf_bcp_hdr_sourceid;
+static int hf_bcp_hdr_destid;
+static int hf_bcp_hdr_transid;
+static int hf_bcp_hdr_cmd;
+static int hf_bcp_hdr_slavestate;
+static int hf_bcp_hdr_blockflags;
+static int hf_bcp_hdr_len;
+static int hf_bcp_hdr_timestamp;
+static int hf_bcp_hdr_fragoffset;
 
-static gint hf_bcp_sync_starttime;
-static gint hf_bcp_sync_cycletime;
-static gint hf_bcp_sync_dataratio;
-static gint hf_bcp_sync_identify;
-static gint hf_bcp_sync_vlantag;
-static gint hf_bcp_sync_ethaddr;
-static gint hf_bcp_sync_ethaddr2;
+static int hf_bcp_sync_starttime;
+static int hf_bcp_sync_cycletime;
+static int hf_bcp_sync_dataratio;
+static int hf_bcp_sync_identify;
+static int hf_bcp_sync_vlantag;
+static int hf_bcp_sync_ethaddr;
+static int hf_bcp_sync_ethaddr2;
 
-static gint hf_bcp_identify_error;
-static gint hf_bcp_identify_starttime;
-static gint hf_bcp_identify_ipaddr;
-static gint hf_bcp_identify_name;
-static gint hf_bcp_identify_ethaddr;
-static gint hf_bcp_identify_ethaddr2;
+static int hf_bcp_identify_error;
+static int hf_bcp_identify_starttime;
+static int hf_bcp_identify_ipaddr;
+static int hf_bcp_identify_name;
+static int hf_bcp_identify_ethaddr;
+static int hf_bcp_identify_ethaddr2;
 
-static gint hf_bcp_searchreq_addrtype;
-static gint hf_bcp_searchreq_reserved;
-static gint hf_bcp_searchreq_name;
-static gint hf_bcp_searchreq_ipaddrfirst;
-static gint hf_bcp_searchreq_ipaddrlast;
-static gint hf_bcp_searchreq_addrdata;
+static int hf_bcp_searchreq_addrtype;
+static int hf_bcp_searchreq_reserved;
+static int hf_bcp_searchreq_name;
+static int hf_bcp_searchreq_ipaddrfirst;
+static int hf_bcp_searchreq_ipaddrlast;
+static int hf_bcp_searchreq_addrdata;
 
-static gint hf_bcp_searchrsp_error;
-static gint hf_bcp_searchrsp_starttime;
-static gint hf_bcp_searchrsp_lenin;
-static gint hf_bcp_searchrsp_lenout;
-static gint hf_bcp_searchrsp_ipaddr;
-static gint hf_bcp_searchrsp_name;
-static gint hf_bcp_searchrsp_ethaddr;
-static gint hf_bcp_searchrsp_ethaddr2;
+static int hf_bcp_searchrsp_error;
+static int hf_bcp_searchrsp_starttime;
+static int hf_bcp_searchrsp_lenin;
+static int hf_bcp_searchrsp_lenout;
+static int hf_bcp_searchrsp_ipaddr;
+static int hf_bcp_searchrsp_name;
+static int hf_bcp_searchrsp_ethaddr;
+static int hf_bcp_searchrsp_ethaddr2;
 
-static gint hf_bcp_connectreq_lenin;
-static gint hf_bcp_connectreq_lenout;
-static gint hf_bcp_connectreq_cycletime;
-static gint hf_bcp_connectreq_offlinefactor;
-static gint hf_bcp_connectreq_ipaddr;
-static gint hf_bcp_connectreq_name;
-static gint hf_bcp_connectreq_ethaddr;
-static gint hf_bcp_connectreq_ethaddr2;
+static int hf_bcp_connectreq_lenin;
+static int hf_bcp_connectreq_lenout;
+static int hf_bcp_connectreq_cycletime;
+static int hf_bcp_connectreq_offlinefactor;
+static int hf_bcp_connectreq_ipaddr;
+static int hf_bcp_connectreq_name;
+static int hf_bcp_connectreq_ethaddr;
+static int hf_bcp_connectreq_ethaddr2;
 
-static gint hf_bcp_connectrsp_error;
-static gint hf_bcp_connectrsp_lenin;
-static gint hf_bcp_connectrsp_lenout;
+static int hf_bcp_connectrsp_error;
+static int hf_bcp_connectrsp_lenin;
+static int hf_bcp_connectrsp_lenout;
 
-static gint hf_bcp_userdata;
+static int hf_bcp_userdata;
 
 /* command defines */
 static const value_string bcp_cmds[] = {
@@ -159,12 +159,12 @@ static const value_string bcp_cmds[] = {
  * return: nothing
  */
 static void
-dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
+dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, int flags)
 {
     proto_tree *bcp_subtree = NULL;
-    guint offset = 0;
-    guint offset_base = offset;
-    guint len = tvb_reported_length(tvb);
+    unsigned offset = 0;
+    unsigned offset_base = offset;
+    unsigned len = tvb_reported_length(tvb);
 
     if (flags & BCP_PROT_FLG_REQ)
     {
@@ -215,13 +215,13 @@ dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb
  * return: nothing
  */
 static void
-dissect_bcp_search_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
+dissect_bcp_search_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, int flags)
 {
     proto_tree *bcp_subtree = NULL;
-    guint type = 0;
-    guint offset = 0;
-    guint offset_base = offset;
-    guint len = tvb_reported_length(tvb);
+    unsigned type = 0;
+    unsigned offset = 0;
+    unsigned offset_base = offset;
+    unsigned len = tvb_reported_length(tvb);
 
     if (flags & BCP_PROT_FLG_REQ)
     {
@@ -313,9 +313,9 @@ static void
 dissect_bcp_identify_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb)
 {
     proto_tree *bcp_subtree = NULL;
-    guint offset = 0;
-    guint offset_base = offset;
-    guint len = tvb_reported_length(tvb);
+    unsigned offset = 0;
+    unsigned offset_base = offset;
+    unsigned len = tvb_reported_length(tvb);
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                     "BCP Identify Request: Name=%s, IpAddr=%s",
@@ -349,9 +349,9 @@ static void
 dissect_bcp_sync_data(proto_tree *bcp_tree, tvbuff_t *tvb)
 {
     proto_tree *bcp_subtree = NULL;
-    guint offset = 0;
-    guint offset_base = offset;
-    guint len = tvb_reported_length(tvb);
+    unsigned offset = 0;
+    unsigned offset_base = offset;
+    unsigned len = tvb_reported_length(tvb);
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                              "BCP Sync Data: Identify=%s",
@@ -384,7 +384,7 @@ dissect_bcp_sync_data(proto_tree *bcp_tree, tvbuff_t *tvb)
  */
 static void
 dissect_bcp_data(proto_tree *bcp_tree, packet_info *pinfo, tvbuff_t *tvb,
-                 guint segcode)
+                 unsigned segcode)
 {
     dissector_handle_t  handle;
 
@@ -410,9 +410,9 @@ dissect_bcp_data(proto_tree *bcp_tree, packet_info *pinfo, tvbuff_t *tvb,
  * output: command from header, length of following data
  * return: updated offset
  */
-static guint
-dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, guint offset,
-                         guint blocknb, guint *cmd, guint *len)
+static unsigned
+dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, unsigned offset,
+                         unsigned blocknb, unsigned *cmd, unsigned *len)
 {
     proto_tree *bcp_subtree = NULL;
 
@@ -454,10 +454,10 @@ dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, guint offset,
  * output: flags, block count, segcode from header
  * return: updated offset
  */
-static guint
+static unsigned
 dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
-                            guint offset, gint *flags, guint *blocknb,
-                            guint *segcode)
+                            unsigned offset, int *flags, unsigned *blocknb,
+                            unsigned *segcode)
 {
     proto_tree *bcp_subtree = NULL;
 
@@ -491,14 +491,14 @@ dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
  */
 static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint cmd, flags, blocknb;
-    volatile guint block;
-    guint len;
-    volatile guint offset = 0;
+    unsigned cmd, flags, blocknb;
+    volatile unsigned block;
+    unsigned len;
+    volatile unsigned offset = 0;
     proto_tree *bcp_tree = NULL;
     proto_item *bcp_item_base = NULL;
     tvbuff_t *block_tvb;
-    guint segcode = 0;
+    unsigned segcode = 0;
 
     /* set protocol name column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "bluecom");
@@ -757,7 +757,7 @@ proto_register_bluecom(void)
     };
 
     /* define subtree elements - this is used for behavior of tree display  */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bcp,
         &ett_bcp_header,
         &ett_bcp_blockheader,

@@ -84,12 +84,12 @@ static expert_field ei_amr_padding_bits_not0;
 static expert_field ei_amr_padding_bits_correct;
 static expert_field ei_amr_reserved;
 
-static gint  amr_encoding_type         = AMR_OA;
-static gint  pref_amr_mode             = AMR_NB;
+static int   amr_encoding_type         = AMR_OA;
+static int   pref_amr_mode             = AMR_NB;
 
 
 /* Currently only octet aligned works */
-/* static gboolean octet_aligned = TRUE; */
+/* static bool octet_aligned = true; */
 
 static const value_string amr_encoding_type_value[] = {
     {AMR_OA, "RFC 3267"},
@@ -224,7 +224,7 @@ amr_apply_prefs(void) {
 static int
 dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int         offset = 0;
-    guint8      octet;
+    uint8_t     octet;
     proto_item *ti;
 
     proto_tree_add_item(tree, hf_amr_nb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -254,7 +254,7 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int         offset = 0;
-    guint8      octet;
+    uint8_t     octet;
     proto_item *ti;
 
     proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -281,7 +281,7 @@ dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int    offset = 0;
-    guint8 octet;
+    uint8_t octet;
 
     proto_tree_add_item(tree, hf_amr_nb_if2_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset) & 0x0f;
@@ -304,7 +304,7 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int    offset = 0;
-    guint8 octet;
+    uint8_t octet;
 
     proto_tree_add_item(tree, hf_amr_wb_if2_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
@@ -325,14 +325,14 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static void
-dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mode) {
+dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode) {
     proto_item *item;
     int         ft;
     int         bit_offset = 0;
     int         bitcount;       /*bitcounter, MSB = bit 0, over bytes*/
     int         bits_used_for_frames = 0;
     int         bytes_needed_for_frames;
-    guint8      f_bit, q_bit;
+    uint8_t     f_bit, q_bit;
 
     /* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
     /* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
@@ -435,13 +435,13 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mod
 
 /* Code to actually dissect the packets */
 static void
-dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mode, unsigned encoding)
+dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode, unsigned encoding)
 {
     int         offset     = 0;
     int         bit_offset = 0;
-    guint8      octet;
+    uint8_t     octet;
     proto_item *item;
-    gboolean    first_time;
+    bool        first_time;
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -513,9 +513,9 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
     octet = tvb_get_guint8(tvb,offset);
     toc_tree = proto_tree_add_subtree(amr_tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
 
-    first_time = TRUE;
-    while ((( octet& 0x80 ) == 0x80) || (first_time == TRUE)) {
-        first_time = FALSE;
+    first_time = true;
+    while ((( octet& 0x80 ) == 0x80) || (first_time == true)) {
+        first_time = false;
         octet = tvb_get_guint8(tvb,offset);
 
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -609,8 +609,8 @@ dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 
 typedef struct _amr_capability_t {
-    const gchar     *id;
-    const gchar     *name;
+    const char      *id;
+    const char      *name;
     dissector_t  content_pdu;
 } amr_capability_t;
 
@@ -636,7 +636,7 @@ static amr_capability_t amr_capability_tab[] = {
     { NULL, NULL, NULL },
 };
 
-static amr_capability_t *find_cap(const gchar *id) {
+static amr_capability_t *find_cap(const char *id) {
     amr_capability_t *ftr = NULL;
     amr_capability_t *f;
 
@@ -809,7 +809,7 @@ proto_register_amr(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_amr,
         &ett_amr_toc,
     };
@@ -857,7 +857,7 @@ proto_register_amr(void)
                        "Type of AMR encoding of the payload",
                        "Type of AMR encoding of the payload, if not specified "
                        "via SDP",
-                       &amr_encoding_type, encoding_types, FALSE);
+                       &amr_encoding_type, encoding_types, false);
 
     prefs_register_enum_preference(amr_module, "mode",
                        "The AMR mode",

@@ -55,8 +55,8 @@ static int hf_btbnep_network_type_end;
 static int hf_btbnep_multicast_address_start;
 static int hf_btbnep_multicast_address_end;
 
-static gint ett_btbnep;
-static gint ett_addr;
+static int ett_btbnep;
+static int ett_addr;
 
 static expert_field ei_btbnep_src_not_group_address;
 static expert_field ei_btbnep_invalid_lentype;
@@ -140,14 +140,14 @@ static int
 dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item  *pitem = NULL;
-    guint        control_type;
-    guint8       unknown_control_type;
-    guint8       uuid_size;
-    guint16      uuid_dst;
-    guint16      uuid_src;
-    guint16      response_message;
-    guint16      list_length;
-    guint        i_item;
+    unsigned     control_type;
+    uint8_t      unknown_control_type;
+    uint8_t      uuid_size;
+    uint16_t     uuid_dst;
+    uint16_t     uuid_src;
+    uint16_t     response_message;
+    uint16_t     list_length;
+    unsigned     i_item;
 
     proto_tree_add_item(tree, hf_btbnep_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     control_type = tvb_get_guint8(tvb, offset);
@@ -240,10 +240,10 @@ static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint8  extension_flag;
-    guint8  extension_type;
-    guint16 extension_length;
-    guint8  type;
+    uint8_t extension_flag;
+    uint8_t extension_type;
+    uint16_t extension_length;
+    uint8_t type;
 
     proto_tree_add_item(tree, hf_btbnep_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -270,15 +270,15 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     return offset;
 }
 
-static gint
+static int
 dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item   *pi;
     proto_tree   *btbnep_tree;
-    gint          offset = 0;
-    guint         bnep_type;
-    guint         extension_flag;
-    guint         len_type = 0;
+    int           offset = 0;
+    unsigned      bnep_type;
+    unsigned      extension_flag;
+    unsigned      len_type = 0;
     proto_item   *addr_item;
     proto_tree   *addr_tree = NULL;
     proto_item   *length_ti = NULL;
@@ -383,8 +383,8 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         /* dissect normal network */
         if (top_dissect) {
             if (len_type <= IEEE_802_3_MAX_LEN) {
-                gboolean is_802_2;
-                gint reported_length;
+                bool is_802_2;
+                int reported_length;
                 tvbuff_t  *next_tvb;
 
                 /*
@@ -405,12 +405,12 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                  * (Probably won't happen, but we might as well do this
                  * anyway.)
                  */
-                is_802_2 = TRUE;
+                is_802_2 = true;
 
                 /* Don't throw an exception for this check (even a BoundsError) */
                 if (tvb_bytes_exist(tvb, offset, 2)) {
                     if (tvb_get_ntohs(tvb, offset) == 0xffff) {
-                        is_802_2 = FALSE;
+                        is_802_2 = false;
                     }
                 }
 
@@ -420,7 +420,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                  * Make sure the length doesn't go past the end of the
                  * payload.
                  */
-                if (reported_length >= 0 && len_type > (guint)reported_length) {
+                if (reported_length >= 0 && len_type > (unsigned)reported_length) {
                     len_type = reported_length;
                     expert_add_info(pinfo, length_ti, &ei_btbnep_len_past_end);
                 }
@@ -603,7 +603,7 @@ proto_register_btbnep(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btbnep,
         &ett_addr
     };

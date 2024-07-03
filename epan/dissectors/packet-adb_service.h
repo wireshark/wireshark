@@ -10,15 +10,15 @@
 #ifndef __PACKET_ADB_SERVICE_H__
 #define __PACKET_ADB_SERVICE_H__
 
-gint dissect_ascii_uint32(proto_tree *tree, gint hf_hex_ascii, gint ett_hex_ascii,
-        gint hf_value, tvbuff_t *tvb, gint offset, guint32 *value);
+int dissect_ascii_uint32(proto_tree *tree, int hf_hex_ascii, int ett_hex_ascii,
+        int hf_value, tvbuff_t *tvb, int offset, uint32_t *value);
 
 typedef struct {
-    guint32        session_key_length;
-    guint32       *session_key;
+    uint32_t       session_key_length;
+    uint32_t      *session_key;
 
-    const gchar   *service;
-    gint           direction;
+    const char    *service;
+    int            direction;
 } adb_service_data_t;
 
 #endif /* __PACKET_ADB_SERVICE_H__ */

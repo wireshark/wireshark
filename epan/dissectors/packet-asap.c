@@ -84,13 +84,13 @@ static int hf_home_enrp_server_bit;
 static int hf_reject_bit;
 
 /* Initialize the subtree pointers */
-static gint ett_asap;
-static gint ett_asap_parameter;
-static gint ett_asap_cause;
-static gint ett_asap_flags;
+static int ett_asap;
+static int ett_asap_parameter;
+static int ett_asap_cause;
+static int ett_asap_flags;
 
-static guint64 asap_total_msgs;
-static guint64 asap_total_bytes;
+static uint64_t asap_total_msgs;
+static uint64_t asap_total_bytes;
 
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *);
@@ -104,8 +104,8 @@ dissect_asap(tvbuff_t *, packet_info *, proto_tree *, void *);
 #define ASAP_SCTP_PORT 3863
 
 typedef struct _asap_tap_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } asap_tap_rec_t;
 
@@ -114,7 +114,7 @@ typedef struct _asap_tap_rec_t {
 static void
 dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
-  guint16 code, length, cause_info_length;
+  uint16_t code, length, cause_info_length;
 
   code              = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
@@ -128,7 +128,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  guint16 code, length, padding_length;
+  uint16_t code, length, padding_length;
   proto_item *cause_item;
   proto_tree *cause_tree;
   tvbuff_t *parameter_tvb, *message_tvb;
@@ -188,8 +188,8 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  guint16 length, total_length;
-  gint offset;
+  uint16_t length, total_length;
+  int offset;
   tvbuff_t *error_cause_tvb;
 
   offset = 0;
@@ -287,8 +287,8 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
 static void
 dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  guint32 type;
-  guint   length;
+  uint32_t type;
+  unsigned   length;
 
   proto_tree_add_item(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  ENC_BIG_ENDIAN);
   type = tvb_get_ntohl(parameter_tvb, POLICY_TYPE_OFFSET);
@@ -346,7 +346,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
 static void
 dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  guint16 handle_length;
+  uint16_t handle_length;
   proto_item*    pi;
 
   handle_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -395,7 +395,7 @@ dissect_operation_error_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 static void
 dissect_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 cookie_length;
+  uint16_t cookie_length;
 
   cookie_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (cookie_length > 0)
@@ -426,7 +426,7 @@ dissect_handle_resolution_option_parameter(tvbuff_t *parameter_tvb, proto_tree *
 static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 type, parameter_value_length;
+  uint16_t type, parameter_value_length;
 
   type                   = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -441,7 +441,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *asap_tree)
 {
-  guint16 type, length, padding_length;
+  uint16_t type, length, padding_length;
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
@@ -522,7 +522,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint offset, length, total_length, remaining_length;
+  int offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
 
   offset = 0;
@@ -597,7 +597,7 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   tvbuff_t       *parameters_tvb;
   proto_item     *flags_item;
   proto_tree     *flags_tree;
-  guint8          type;
+  uint8_t         type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_asap_message is called via dissect_error_cause */
@@ -735,9 +735,9 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   const asap_tap_rec_t*     tap_rec   = (const asap_tap_rec_t*)data;
   stat_tap_table*           table;
   stat_tap_table_item_type* msg_data;
-  gint                      idx;
-  guint64                   messages;
-  guint64                   bytes;
+  int                       idx;
+  uint64_t                  messages;
+  uint64_t                  bytes;
   int                       i         = 0;
   double                    firstSeen = -1.0;
   double                    lastSeen  = -1.0;
@@ -765,9 +765,9 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -825,7 +825,7 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
 static void
 asap_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -929,7 +929,7 @@ proto_register_asap(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_asap,
     &ett_asap_flags,
     &ett_asap_parameter,
@@ -937,7 +937,7 @@ proto_register_asap(void)
   };
 
   static tap_param asap_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui asap_stat_table = {

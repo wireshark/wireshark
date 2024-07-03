@@ -50,14 +50,14 @@
 
 typedef struct _btatt_data_t {
     bluetooth_data_t  *bluetooth_data;
-    guint8    opcode;
+    uint8_t   opcode;
     /* ATT handle for currently processed packet (optional) */
-    guint32   handle;
+    uint32_t  handle;
 } btatt_data_t;
 
 
 typedef struct _tap_handles_t {
-    guint32   handle;
+    uint32_t  handle;
     bluetooth_uuid_t uuid;
 } tap_handles_t;
 
@@ -71,10 +71,10 @@ extern const value_string tds_organization_id_vals[];
 extern const value_string characteristic_presentation_namespace_description_btsig_vals[];
 
 bluetooth_uuid_t
-get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, guint32 handle, guint8 opcode,
+get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode,
     bluetooth_data_t *bluetooth_data);
 
-WS_DLL_PUBLIC gboolean bluetooth_gatt_has_no_parameter(guint8 opcode);
+WS_DLL_PUBLIC bool bluetooth_gatt_has_no_parameter(uint8_t opcode);
 WS_DLL_PUBLIC expert_field ei_btatt_invalid_usage;
 
 #endif

@@ -81,13 +81,13 @@ static int hf_brdwlk_error_jumbo;
 static int hf_brdwlk_error_ctrl;
 
 /* Initialize the subtree pointers */
-static gint ett_brdwlk;
-static gint ett_brdwlk_error;
+static int ett_brdwlk;
+static int ett_brdwlk_error;
 
-static gint proto_brdwlk;
+static int proto_brdwlk;
 
-static guint16 packet_count;
-static gboolean first_pkt = TRUE;                /* start of capture */
+static uint16_t packet_count;
+static bool first_pkt = true;                /* start of capture */
 
 static dissector_handle_t fc_dissector_handle;
 static dissector_handle_t brdwlk_handle;
@@ -153,12 +153,12 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_item *ti, *hidden_item;
     proto_tree *brdwlk_tree;
     tvbuff_t *next_tvb;
-    guint8 error, eof, sof;
+    uint8_t error, eof, sof;
     int hdrlen = 2,
         offset = 0;
-    gint len, reported_len, plen;
-    guint16 pkt_cnt;
-    gboolean dropped_packets;
+    int len, reported_len, plen;
+    uint16_t pkt_cnt;
+    bool dropped_packets;
     fc_data_t fc_data;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -223,7 +223,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             proto_tree_add_uint(brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
                                 2, pkt_cnt);
         }
-        dropped_packets = FALSE;
+        dropped_packets = false;
         if (pinfo->fd->visited) {
             /*
              * This isn't the first pass, so we can't use the global
@@ -233,7 +233,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
              * any frame preceded by dropped packets.
              */
             if (p_get_proto_data(wmem_file_scope(), pinfo, proto_brdwlk, 0) != NULL)
-                dropped_packets = TRUE;
+                dropped_packets = true;
         } else {
             /*
              * This is the first pass, so we have to use the global
@@ -246,7 +246,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             if (pkt_cnt != packet_count + 1) {
                 if (!first_pkt &&
                     (pkt_cnt != 0 || (packet_count != BRDWLK_MAX_PACKET_CNT))) {
-                    dropped_packets = TRUE;
+                    dropped_packets = true;
 
                     /*
                      * Mark this frame as having been preceded by dropped
@@ -309,7 +309,7 @@ static void
 brdwlk_init(void)
 {
     packet_count = 0;
-    first_pkt = TRUE;
+    first_pkt = true;
 }
 
 /* Register the protocol with Wireshark */
@@ -372,7 +372,7 @@ proto_register_brdwlk(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_brdwlk,
         &ett_brdwlk_error,
     };

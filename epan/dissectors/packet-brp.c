@@ -80,35 +80,35 @@ static const value_string brp_stat_vals[] = {
 * our data fields; they are filled out when we call
 * proto_register_field_array() in proto_register_brp()
 */
-static gint hf_brp_type;
-static gint hf_brp_trans;
-static gint hf_brp_ver;
-static gint hf_brp_stat;
-static gint hf_brp_srcip;
-static gint hf_brp_dstip;
-static gint hf_brp_dstuport;
-static gint hf_brp_mbz;
-static gint hf_brp_bw;
-static gint hf_brp_life;
-static gint hf_brp_flid;
-static gint hf_brp_rmttl;
-static gint hf_brp_fltype;
+static int hf_brp_type;
+static int hf_brp_trans;
+static int hf_brp_ver;
+static int hf_brp_stat;
+static int hf_brp_srcip;
+static int hf_brp_dstip;
+static int hf_brp_dstuport;
+static int hf_brp_mbz;
+static int hf_brp_bw;
+static int hf_brp_life;
+static int hf_brp_flid;
+static int hf_brp_rmttl;
+static int hf_brp_fltype;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_brp;
-static gint ett_brp_type;
-static gint ett_brp_trans;
-static gint ett_brp_ver;
-static gint ett_brp_stat;
-static gint ett_brp_srcip;
-static gint ett_brp_dstip;
-static gint ett_brp_dstuport;
-static gint ett_brp_mbz;
-static gint ett_brp_bw;
-static gint ett_brp_life;
-static gint ett_brp_flid;
-static gint ett_brp_rmttl;
-static gint ett_brp_fltype;
+static int ett_brp;
+static int ett_brp_type;
+static int ett_brp_trans;
+static int ett_brp_ver;
+static int ett_brp_stat;
+static int ett_brp_srcip;
+static int ett_brp_dstip;
+static int ett_brp_dstuport;
+static int ett_brp_mbz;
+static int ett_brp_bw;
+static int ett_brp_life;
+static int ett_brp_flid;
+static int ett_brp_rmttl;
+static int ett_brp_fltype;
 
 static expert_field ei_brp_type_unknown;
 
@@ -118,9 +118,9 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     proto_item *brp_item    = NULL;
     proto_tree *brp_tree    = NULL;
-    gint        offset      = 0;
-    guint8      type        = 0;
-    guint8      packet_type = tvb_get_guint8(tvb, 0);
+    int         offset      = 0;
+    uint8_t     type        = 0;
+    uint8_t     packet_type = tvb_get_guint8(tvb, 0);
 
     /* If there is a "tree" requested, we handle that request. */
 
@@ -355,7 +355,7 @@ void proto_register_brp (void)
           { "Remaining TTL", "brp.rmttl", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_brp,
         &ett_brp_type,
         &ett_brp_trans,

@@ -11,14 +11,14 @@
 #define __PACKET_BTRFCOMM_H__
 
 typedef struct _btrfcomm_data_t {
-    guint32   interface_id;
-    guint32   adapter_id;
-    guint16   chandle;  /* only low 12 bits used */
-    guint16   cid;
-    gboolean  is_local_psm; /* otherwise it is PSM in remote device */
-    guint8    dlci;
-    guint32   remote_bd_addr_oui;
-    guint32   remote_bd_addr_id;
+    uint32_t  interface_id;
+    uint32_t  adapter_id;
+    uint16_t  chandle;  /* only low 12 bits used */
+    uint16_t  cid;
+    bool      is_local_psm; /* otherwise it is PSM in remote device */
+    uint8_t   dlci;
+    uint32_t  remote_bd_addr_oui;
+    uint32_t  remote_bd_addr_id;
 } btrfcomm_data_t;
 
 extern int proto_btrfcomm;

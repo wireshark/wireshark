@@ -101,10 +101,10 @@ extern value_string_ext afp_server_addr_type_vals_ext;
  * atp_asp_dsi_info.code        dsi.code
  */
 struct atp_asp_dsi_info {
-	guint8	reply;			/* 0 query  1 reply */
-	guint8  release;
-	guint16	tid;			/* request/transaction ID */
-	gint32  code;			/* error code/ offset NU */
+	uint8_t	reply;			/* 0 query  1 reply */
+	uint8_t release;
+	uint16_t	tid;			/* request/transaction ID */
+	int32_t code;			/* error code/ offset NU */
 };
 
 /*
@@ -117,10 +117,10 @@ WS_DLL_PUBLIC value_string_ext CommandCode_vals_ext;
  * tap for responses.
  */
 typedef struct {
-	guint8	command;
-	guint32 frame_req, frame_res;
+	uint8_t	command;
+	uint32_t frame_req, frame_res;
 	nstime_t req_time;
-	guint32 spotlight_req_command; /* Need this in the reply */
+	uint32_t spotlight_req_command; /* Need this in the reply */
 } afp_request_val;
 
 #endif

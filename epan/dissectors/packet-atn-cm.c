@@ -97,7 +97,7 @@ static int ett_atn_cm_DateTime;
 static int ett_atn_cm_LongTsap;
 static int ett_atn_cm_ShortTsap;
 static int ett_atn_cm_Time;
-static gint ett_atn_cm;
+static int ett_atn_cm;
 
 
 
@@ -892,7 +892,7 @@ void proto_register_atn_cm (void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "Timeminutes", HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
     &ett_atn_cm_CMAircraftMessage,
     &ett_atn_cm_CMGroundMessage,
     &ett_atn_cm_APAddress,

@@ -29,7 +29,7 @@
 /*
  */
 static void
-add_value_time_to_tree(guint64 value, int len, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_time_format)
+add_value_time_to_tree(uint64_t value, int len, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_time_format)
 {
     nstime_t dtn_time;
 
@@ -100,16 +100,16 @@ static int hf_amp_tnvc_values;
 /* Initialize the protocol and registered fields */
 static int proto_amp;
 
-static gint ett_amp_message_header;
-static gint ett_amp_proto;
-static gint ett_amp;
-static gint ett_amp_cbor_header;
-static gint ett_amp_message;
-static gint ett_amp_register;
-static gint ett_amp_report_set;
-static gint ett_amp_report;
-static gint ett_amp_tnvc_flags;
-static gint ett_amp_ari_flags;
+static int ett_amp_message_header;
+static int ett_amp_proto;
+static int ett_amp;
+static int ett_amp_cbor_header;
+static int ett_amp_message;
+static int ett_amp_register;
+static int ett_amp_report_set;
+static int ett_amp_report;
+static int ett_amp_tnvc_flags;
+static int ett_amp_ari_flags;
 
 static int hf_amp_reserved;
 static int hf_amp_acl;
@@ -196,9 +196,9 @@ typedef struct {
     int size; // for integers, the value
               // for bytestrings and textstrings, the size of the string
               // for arrays, the number of elements in the array
-    guint64 totalSize; // total size (including size above and any bytestring
+    uint64_t totalSize; // total size (including size above and any bytestring
                        // size).
-    guint64 uint;
+    uint64_t uint;
 } cborObj;
 
 
@@ -333,7 +333,7 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
 void
 dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint64 messages = 0;
+    uint64_t messages = 0;
     unsigned int i=0;
     unsigned int j=0;
     unsigned int k=0;
@@ -464,7 +464,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                 // Tempate (bytestring); starts with ARI
                 tmpObj3 = cbor_info(tvb, offset);
                 offset += tmpObj3.size;
-                guint8 ariFlags;
+                uint8_t ariFlags;
                 ariFlags = tvb_get_guint8(tvb, offset);
 
                 if ( (ariFlags&0x0F)==0x03 ) {
@@ -569,7 +569,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                         break;
                     }
                     if ( tmpObj3.totalSize > 0 ) {
-                        DISSECTOR_ASSERT(tmpObj3.totalSize <= G_MAXINT32);
+                        DISSECTOR_ASSERT(tmpObj3.totalSize <= INT32_MAX);
                         offset += (int)tmpObj3.totalSize;
                     } else {
                         break;
@@ -609,7 +609,7 @@ dissect_amp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   int offset = 0;
   proto_item  *amp_packet;
   proto_item  *amp_tree;
-  gint amp_packet_reported_length;
+  int amp_packet_reported_length;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -769,7 +769,7 @@ proto_register_amp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_amp,
         &ett_amp_message_header,
         &ett_amp_cbor_header,

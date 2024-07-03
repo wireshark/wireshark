@@ -35,7 +35,7 @@ void proto_reg_handoff_ansi_tcap(void);
 #define ANSI_TCAP_TID_ONLY            0
 #define ANSI_TCAP_TID_AND_SOURCE      1
 #define ANSI_TCAP_TID_SOURCE_AND_DEST 2
-static gint ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
+static int ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
 
 /* Initialize the protocol and registered fields */
 static int proto_ansi_tcap;
@@ -54,18 +54,18 @@ static int hf_ansi_tcap_op_specifier;
 #include "packet-ansi_tcap-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_tcap;
-static gint ett_param;
-static gint ett_ansi_tcap_op_code_nat;
+static int ett_tcap;
+static int ett_param;
+static int ett_ansi_tcap_op_code_nat;
 
-static gint ett_otid;
-static gint ett_dtid;
-static gint ett_ansi_tcap_stat;
+static int ett_otid;
+static int ett_dtid;
+static int ett_ansi_tcap_stat;
 
 static expert_field ei_ansi_tcap_dissector_not_implemented;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
-static gboolean tcap_subdissector_used=FALSE;
+static bool tcap_subdissector_used=false;
 
 static struct tcaphash_context_t * gp_tcap_context;
 
@@ -96,7 +96,7 @@ struct ansi_tcap_private_t ansi_tcap_private;
 static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
   memset(a_tcap_ctx, '\0', sizeof(*a_tcap_ctx));
   a_tcap_ctx->signature = ANSI_TCAP_CTX_SIGNATURE;
-  a_tcap_ctx->oid_is_present = FALSE;
+  a_tcap_ctx->oid_is_present = false;
   a_tcap_ctx->TransactionID_str = NULL;
 }
 
@@ -121,13 +121,13 @@ static const value_string ansi_tcap_national_op_code_family_vals[] = {
 /* Transaction tracking */
 /* Transaction table */
 struct ansi_tcap_invokedata_t {
-    gint OperationCode;
+    int OperationCode;
       /*
          0 : national,
          1 : private
       */
-    gint32 OperationCode_private;
-    gint32 OperationCode_national;
+    int32_t OperationCode_private;
+    int32_t OperationCode_national;
 };
 
 static wmem_multimap_t *TransactionId_table;
@@ -136,7 +136,7 @@ static wmem_multimap_t *TransactionId_table;
 static void
 save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
-  gchar *src, *dst;
+  char *src, *dst;
   char *buf;
 
   src = address_to_str(pinfo->pool, &(pinfo->src));
@@ -174,14 +174,14 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   }
 }
 
-static gboolean
+static bool
 find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
-  gchar *src, *dst;
+  char *src, *dst;
   char *buf;
 
   if (!ansi_tcap_private.TransactionID_str) {
-    return FALSE;
+    return false;
   }
 
   src = address_to_str(pinfo->pool, &(pinfo->src));
@@ -209,9 +209,9 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
           ansi_tcap_private.d.OperationCode                      = ansi_tcap_saved_invokedata->OperationCode;
           ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
           ansi_tcap_private.d.OperationCode_private  = ansi_tcap_saved_invokedata->OperationCode_private;
-          return TRUE;
+          return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* As currently ANSI MAP is the only possible sub dissector this function
@@ -230,7 +230,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
  *     Use SCCP SSN table as before? or a ansi.tcap.private dissector table?
  *
  */
-static gboolean
+static bool
 find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         proto_item *item;
 
@@ -239,7 +239,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
          *
         if(ansi_tcap_private.d.oid_is_present){
                 call_ber_oid_callback(ansi_tcap_private.objectApplicationId_oid, tvb, 0, actx-pinfo, tree, NULL);
-                return TRUE;
+                return true;
         }
         */
         if(ansi_tcap_private.d.pdu == 1){
@@ -260,16 +260,16 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         }
         if(ansi_tcap_private.d.OperationCode == 0){
                 /* national */
-                guint8 family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
-                guint8 specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
+                uint8_t family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
+                uint8_t specifier = (uint8_t)(ansi_tcap_private.d.OperationCode_national & 0xff);
                 if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, actx->subtree.top_tree)){
                         proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
                                         "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
                                         "not implemented. Contact Wireshark developers if you want this supported(Spec required)",
                                         ansi_tcap_private.d.OperationCode_national, family, specifier);
-                        return FALSE;
+                        return false;
                 }
-                return TRUE;
+                return true;
         }else if(ansi_tcap_private.d.OperationCode == 1){
                 /* private */
                 if((ansi_tcap_private.d.OperationCode_private & 0xff00) == 0x0900){
@@ -284,17 +284,17 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                     */
                     call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, actx->subtree.top_tree, &ansi_tcap_private);
 
-                    return TRUE;
+                    return true;
                 } else if ((ansi_tcap_private.d.OperationCode_private & 0xf000) == 0x6000) {
                     call_dissector_with_data(ain_handle, tvb, actx->pinfo, actx->subtree.top_tree, &ansi_tcap_private);
-                    return TRUE;
+                    return true;
                 }
         }
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
             "Dissector for ANSI TCAP PRIVATE code:%u not implemented.\n"
             "Contact Wireshark developers if you want this supported(Spec required)",
             ansi_tcap_private.d.OperationCode_private);
-        return FALSE;
+        return false;
 }
 
 #include "packet-ansi_tcap-fn.c"
@@ -310,13 +310,13 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 #if 0
     proto_item          *stat_item=NULL;
     proto_tree          *stat_tree=NULL;
-        gint                    offset = 0;
+        int                     offset = 0;
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 #endif
         asn1_ctx_t asn1_ctx;
 
-        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
         ansi_tcap_ctx_init(&ansi_tcap_private);
 
     asn1_ctx.subtree.top_tree = parent_tree;
@@ -331,9 +331,9 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     tcapext_oid = NULL;
 
     gp_tcapsrt_info=tcapsrt_razinfo();
-    tcap_subdissector_used=FALSE;
+    tcap_subdissector_used=false;
     gp_tcap_context=NULL;
-    dissect_ansi_tcap_PackageType(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+    dissect_ansi_tcap_PackageType(false, tvb, 0, &asn1_ctx, tree, -1);
 
 #if 0 /* Skip this part for now it will be rewritten */
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
@@ -352,7 +352,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
                         (void) g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
                         if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
                                 p_tcap_context->subdissector_handle=subdissector_handle;
-                                p_tcap_context->oid_present=TRUE;
+                                p_tcap_context->oid_present=true;
                         }
                 }
                 if (g_ansi_tcap_HandleSRT && p_tcap_context && p_tcap_context->callback) {
@@ -437,7 +437,7 @@ proto_register_ansi_tcap(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tcap,
         &ett_param,
         &ett_otid,
@@ -477,7 +477,7 @@ proto_register_ansi_tcap(void)
     prefs_register_enum_preference(ansi_tcap_module, "transaction.matchtype",
                                    "Type of matching invoke/response",
                                    "Type of matching invoke/response, risk of mismatch if loose matching chosen",
-                                   &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
+                                   &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, false);
 
     TransactionId_table = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 }

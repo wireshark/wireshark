@@ -39,7 +39,7 @@ static int hf_arcnet_sequence;
 static int hf_arcnet_padding;
 
 /* Initialize the subtree pointers */
-static gint ett_arcnet;
+static int ett_arcnet;
 
 static int arcnet_address_type = -1;
 
@@ -56,11 +56,11 @@ static int arcnet_str_len(const address* addr _U_)
   return 5;
 }
 
-static int arcnet_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int arcnet_to_str(const address* addr, char *buf, int buf_len _U_)
 {
   *buf++ = '0';
   *buf++ = 'x';
-  buf = bytes_to_hexstr(buf, (const guint8 *)addr->data, 1);
+  buf = bytes_to_hexstr(buf, (const uint8_t *)addr->data, 1);
   *buf = '\0'; /* NULL terminate */
 
   return arcnet_str_len(addr);
@@ -79,11 +79,11 @@ static int arcnet_len(void)
   return 1;
 }
 
-static gboolean
-capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header, gboolean has_exception)
+static bool
+capture_arcnet_common(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header, bool has_exception)
 {
   if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-    return FALSE;
+    return false;
   }
 
   switch (pd[offset]) {
@@ -121,7 +121,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info
      */
     offset++;
     if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-      return FALSE;
+      return false;
     }
     if (has_exception && pd[offset] == 0xff) {
       /* This is an exception packet.  The flag value there is the
@@ -144,30 +144,30 @@ capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info
     break;
 
   default:
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 static bool
-capture_arcnet (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_arcnet (const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-  return capture_arcnet_common(pd, 4, len, cpinfo, pseudo_header, FALSE);
+  return capture_arcnet_common(pd, 4, len, cpinfo, pseudo_header, false);
 }
 
 static bool
-capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_arcnet_has_exception(const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-  return capture_arcnet_common(pd, 2, len, cpinfo, pseudo_header, TRUE);
+  return capture_arcnet_common(pd, 2, len, cpinfo, pseudo_header, true);
 }
 
 static void
 dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-                       gboolean has_offset, gboolean has_exception)
+                       bool has_offset, bool has_exception)
 {
   int offset = 0;
-  guint8 dst, src, protID, split_flag;
+  uint8_t dst, src, protID, split_flag;
   tvbuff_t *next_tvb;
   proto_item *ti;
   proto_tree *arcnet_tree;
@@ -289,7 +289,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 static int
 dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  dissect_arcnet_common (tvb, pinfo, tree, FALSE, TRUE);
+  dissect_arcnet_common (tvb, pinfo, tree, false, true);
   return tvb_captured_length(tvb);
 }
 
@@ -301,7 +301,7 @@ dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 static int
 dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
+  dissect_arcnet_common (tvb, pinfo, tree, true, false);
   return tvb_captured_length(tvb);
 }
 
@@ -375,7 +375,7 @@ proto_register_arcnet (void)
   };
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_arcnet,
   };
 

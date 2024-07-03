@@ -88,9 +88,9 @@ static dissector_table_t papi_dissector_table;
 static bool g_papi_debug;
 
 /* Initialize the subtree pointers */
-static gint ett_papi;
-static gint ett_papi_licmgr;
-static gint ett_papi_licmgr_tlv;
+static int ett_papi;
+static int ett_papi_licmgr;
+static int ett_papi_licmgr_tlv;
 
 #define SAMBA_WRAPPER               8442
 #define RESOLVER_PORT               8392
@@ -423,7 +423,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     proto_item *ti;
     proto_tree *licmgr_tree, *licmgr_subtree;
-    guint offset_end, payload_len, offset = 0;
+    unsigned offset_end, payload_len, offset = 0;
 
     ti = proto_tree_add_item(tree, hf_papi_licmgr, tvb, offset, -1, ENC_NA);
     licmgr_tree = proto_item_add_subtree(ti, ett_papi_licmgr);
@@ -435,7 +435,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     offset_end = offset + payload_len;
 
     while (offset< offset_end) {
-        guint optlen, type;
+        unsigned optlen, type;
         proto_item *tlv_item;
 
         type = tvb_get_ntohs(tvb, offset);
@@ -523,7 +523,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* PAPI Debug loop ! */
 static int
-dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *debug_tree, *debug_sub_tree;
@@ -588,14 +588,14 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item *ti;
     proto_tree *papi_tree;
-    guint     offset = 0;
-    guint32 dest_port, src_port, hdr_version;
+    unsigned  offset = 0;
+    uint32_t dest_port, src_port, hdr_version;
     tvbuff_t *next_tvb;
 
 
     /* All PAPI packet start with 0x4972 !  */
     if ( tvb_get_ntohs(tvb, offset) != 0x4972 )
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAPI");
     col_set_str(pinfo->cinfo, COL_INFO, "PAPI - Aruba AP Control Protocol");
@@ -658,8 +658,8 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_uint_new(papi_dissector_table, dest_port, next_tvb, pinfo, tree, TRUE, NULL)) {
-        if (!dissector_try_uint_new(papi_dissector_table, src_port, next_tvb, pinfo, tree, TRUE, NULL)) {
+    if (!dissector_try_uint_new(papi_dissector_table, dest_port, next_tvb, pinfo, tree, true, NULL)) {
+        if (!dissector_try_uint_new(papi_dissector_table, src_port, next_tvb, pinfo, tree, true, NULL)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }
@@ -912,7 +912,7 @@ proto_register_papi(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_papi,
         &ett_papi_licmgr,
         &ett_papi_licmgr_tlv

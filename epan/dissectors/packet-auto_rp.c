@@ -23,48 +23,48 @@ void proto_reg_handoff_auto_rp(void);
 
 static dissector_handle_t auto_rp_handle;
 
-static gint proto_auto_rp;
-static gint ett_auto_rp;
-static gint ett_auto_rp_ver_type;
-static gint ett_auto_rp_map;
-static gint ett_auto_rp_group;
+static int proto_auto_rp;
+static int ett_auto_rp;
+static int ett_auto_rp_ver_type;
+static int ett_auto_rp_map;
+static int ett_auto_rp_group;
 
-static gint hf_auto_rp_version;
-static gint hf_auto_rp_type;
-static gint hf_auto_rp_count;
-static gint hf_auto_rp_holdtime;
-static gint hf_auto_rp_pim_ver;
-static gint hf_auto_rp_rp_addr;
-static gint hf_auto_rp_prefix_sgn;
-static gint hf_auto_rp_mask_len;
-static gint hf_auto_rp_group_prefix;
-static gint hf_auto_rp_reserved;
-static gint hf_auto_rp_trailing_junk;
-static gint hf_auto_rp_group_num;
+static int hf_auto_rp_version;
+static int hf_auto_rp_type;
+static int hf_auto_rp_count;
+static int hf_auto_rp_holdtime;
+static int hf_auto_rp_pim_ver;
+static int hf_auto_rp_rp_addr;
+static int hf_auto_rp_prefix_sgn;
+static int hf_auto_rp_mask_len;
+static int hf_auto_rp_group_prefix;
+static int hf_auto_rp_reserved;
+static int hf_auto_rp_trailing_junk;
+static int hf_auto_rp_group_num;
 
 #define UDP_PORT_PIM_RP_DISC 496
 
 struct auto_rp_fixed_hdr {
 #define AUTO_RP_VERSION_MASK 0xf0
 #define AUTO_RP_TYPE_MASK    0x0f
-        guint8  ver_type;       /* pim-autorp-spec01.txt defines version 1+ */
-        guint8  rp_count;       /* Number of struct auto_rp_maps that follow the this header */
-        guint16 holdtime;       /* Time in seconds this announcement is valid. 0 equals forever */
-        guint32 reserved;
+        uint8_t ver_type;       /* pim-autorp-spec01.txt defines version 1+ */
+        uint8_t rp_count;       /* Number of struct auto_rp_maps that follow the this header */
+        uint16_t holdtime;       /* Time in seconds this announcement is valid. 0 equals forever */
+        uint32_t reserved;
 };
 
 struct auto_rp_map_hdr {
-        guint32 rp_address;       /* The unicast IPv4 address of this RP */
+        uint32_t rp_address;       /* The unicast IPv4 address of this RP */
 #define AUTO_RP_PIM_VER_MASK 0x03
-        guint8  pim_version;      /* RP's highest PIM version. 2-bit field */
-        guint8  group_count;      /* Number of encoded group addresses that follow this header */
+        uint8_t pim_version;      /* RP's highest PIM version. 2-bit field */
+        uint8_t group_count;      /* Number of encoded group addresses that follow this header */
 };
 
 struct auto_rp_enc_grp_hdr {   /* Encoded group address */
 #define AUTO_RP_SIGN_MASK 0x01
-        guint8  prefix_sgn;    /* 0 positive, 1 negative group prefix */
-        guint8  mask_len;      /* Length of group prefix */
-        guint32 addr;          /* Group prefix */
+        uint8_t prefix_sgn;    /* 0 positive, 1 negative group prefix */
+        uint8_t mask_len;      /* Length of group prefix */
+        uint32_t addr;          /* Group prefix */
 };
 
 #define AUTO_RP_VER_1PLUS 1
@@ -105,7 +105,7 @@ static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, pr
 
 static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-        guint8 ver_type, rp_count;
+        uint8_t ver_type, rp_count;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Auto-RP");
         col_clear(pinfo->cinfo, COL_INFO);
@@ -121,7 +121,7 @@ static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_item *ti;
                 proto_tree *auto_rp_tree, *ver_type_tree;
                 int         i, offset;
-                guint16     holdtime;
+                uint16_t    holdtime;
 
                 offset = 0;
                 ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, ENC_NA);
@@ -162,7 +162,7 @@ static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
 {
         proto_tree *map_tree;
-        guint8      group_count;
+        uint8_t     group_count;
         int         i;
 
         group_count = tvb_get_guint8(tvb, offset + 5);
@@ -182,7 +182,7 @@ static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, pr
 
         for (i = 0; i < group_count; i++) {
                 proto_tree *grp_tree;
-                guint8      sign, mask_len;
+                uint8_t     sign, mask_len;
 
                 sign = tvb_get_guint8(tvb, offset);
                 mask_len = tvb_get_guint8(tvb, offset + 1);
@@ -267,7 +267,7 @@ void proto_register_auto_rp(void)
                    NULL, HFILL }},
         };
 
-        static gint *ett[] = {
+        static int *ett[] = {
                 &ett_auto_rp,
                 &ett_auto_rp_ver_type,
                 &ett_auto_rp_map,

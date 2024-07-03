@@ -59,9 +59,9 @@ static bool gPREF_APRS;
 static bool gPREF_DX;
 
 /* Initialize the subtree pointers */
-static gint ett_ax25_nol3;
+static int ett_ax25_nol3;
 
-static gint ett_dx;
+static int ett_dx;
 
 
 /* Code to actually dissect the packets */
@@ -95,10 +95,10 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
-isaprs( guint8 dti )
+static bool
+isaprs( uint8_t dti )
 {
-	gboolean b = FALSE;
+	bool b = false;
 
 	switch ( dti )
 		{
@@ -128,7 +128,7 @@ isaprs( guint8 dti )
 		case '_'	:
 		case '`'	:
 		case '{'	:
-		case '}'	: b = TRUE; break;
+		case '}'	: b = true; break;
 		default		: break;
 		}
 	return b;
@@ -142,8 +142,8 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	char       *info_buffer;
 	int         offset;
 	tvbuff_t   *next_tvb = NULL;
-	guint8      dti      = 0;
-	gboolean    dissected;
+	uint8_t     dti      = 0;
+	bool        dissected;
 
 	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
 	info_buffer[0] = '\0';
@@ -181,12 +181,12 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	ax25_nol3_tree = proto_item_add_subtree( ti, ett_ax25_nol3 );
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	dissected = FALSE;
+	dissected = false;
 	if ( gPREF_APRS )
 		{
 		if ( isaprs( dti ) )
 			{
-			dissected = TRUE;
+			dissected = true;
 			call_dissector( aprs_handle , next_tvb, pinfo, ax25_nol3_tree );
 			}
 		}
@@ -194,7 +194,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 		{
 		if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
 			{
-			dissected = TRUE;
+			dissected = true;
 			dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );
 			}
 		}
@@ -229,7 +229,7 @@ proto_register_ax25_nol3(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ax25_nol3,
 		&ett_dx,
 	};

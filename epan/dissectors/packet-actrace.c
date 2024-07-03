@@ -418,7 +418,7 @@ static int actrace_tap;
 static actrace_info_t *actrace_pi;
 
 /* Some basic utility functions that are specific to this dissector */
-static int is_actrace(tvbuff_t *tvb, gint offset);
+static int is_actrace(tvbuff_t *tvb, int offset);
 
 /*
  * The dissect functions
@@ -480,9 +480,9 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *actrace_tree)
 {
 	/* Declare variables */
-	gint32       value, function, trunk, bchannel, source, event, curr_state, next_state;
-	gint32       par0, par1, par2;
-	const gchar *frame_label = NULL;
+	int32_t      value, function, trunk, bchannel, source, event, curr_state, next_state;
+	int32_t      par0, par1, par2;
+	const char *frame_label = NULL;
 	int          direction   = 0;
 	int          offset      = 0;
 
@@ -633,8 +633,8 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				 proto_tree *actrace_tree)
 {
 	/* Declare variables */
-	gint      len;
-	gint32    value, trunk;
+	int       len;
+	int32_t   value, trunk;
 	tvbuff_t *next_tvb;
 	int       offset = 0;
 	struct isdn_phdr isdn;
@@ -694,10 +694,10 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  * in tvb, ACTRACE_CAS if there's a CAS packet there, ACTRACE_ISDN if
  * there's an ISDN packet there.
  */
-static int is_actrace(tvbuff_t *tvb, gint offset)
+static int is_actrace(tvbuff_t *tvb, int offset)
 {
-	gint   tvb_len;
-	gint32 source, isdn_header;
+	int    tvb_len;
+	int32_t source, isdn_header;
 
 	tvb_len = tvb_reported_length(tvb);
 
@@ -772,7 +772,7 @@ void proto_register_actrace(void)
 			    NULL, HFILL }},
 		};
 
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_actrace,
 		};

@@ -55,7 +55,7 @@ static const value_string a615a_operation_status_codes[] = {
 
 static int proto_a615a;
 
-static gint ett_a615a;
+static int ett_a615a;
 
 static int hf_a615a_file_length;
 static int hf_a615a_protocol_version;
@@ -82,7 +82,7 @@ static int hf_a615a_file_type;
 
 static int proto_find;
 
-static gint ett_find;
+static int ett_find;
 
 static int hf_find_opcode;
 static int hf_find_target_hardware_identifier;
@@ -105,7 +105,7 @@ static const value_string find_opcode_vals[] = {
 
 static void dissect_a615a_LCL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
-    guint32 th_count, pn_count;
+    uint32_t th_count, pn_count;
     proto_item *pi;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
@@ -130,9 +130,9 @@ static void dissect_a615a_LCL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 
 static void dissect_a615a_LUS(ptvcursor_t *ptvc, packet_info *pinfo)
 {
-    guint32 status, file_count;
-    const guint8 *ratio;
-    const guint8 *protocol_version = NULL;
+    uint32_t status, file_count;
+    const uint8_t *ratio;
+    const uint8_t *protocol_version = NULL;
     proto_item *pi;
 
     ptvcursor_add_ret_string(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA,
@@ -169,7 +169,7 @@ static void dissect_a615a_LUS(ptvcursor_t *ptvc, packet_info *pinfo)
 
 static void dissect_a615a_LCS(ptvcursor_t *ptvc, packet_info *pinfo)
 {
-    guint32 status;
+    uint32_t status;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add(ptvc, hf_a615a_counter, 2, ENC_BIG_ENDIAN);
@@ -183,7 +183,7 @@ static void dissect_a615a_LCS(ptvcursor_t *ptvc, packet_info *pinfo)
 
 static void dissect_a615a_LUI_LCI_LND_LNO(ptvcursor_t *ptvc, packet_info *pinfo)
 {
-    guint32 status;
+    uint32_t status;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_operation_status, 2, ENC_BIG_ENDIAN, &status);
@@ -194,7 +194,7 @@ static void dissect_a615a_LUI_LCI_LND_LNO(ptvcursor_t *ptvc, packet_info *pinfo)
 
 static void dissect_a615a_LUR(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
-    guint32 file_count;
+    uint32_t file_count;
     proto_item *pi;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
@@ -209,7 +209,7 @@ static void dissect_a615a_LUR(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 
 static void dissect_a615a_LNL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
-    guint32 file_count;
+    uint32_t file_count;
     proto_item *pi;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
@@ -224,7 +224,7 @@ static void dissect_a615a_LNL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 
 static void dissect_a615a_LNR(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
-    guint32 file_count;
+    uint32_t file_count;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
@@ -236,9 +236,9 @@ static void dissect_a615a_LNR(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 
 static void dissect_a615a_LNS(ptvcursor_t *ptvc, packet_info *pinfo)
 {
-    guint32 status, file_count;
+    uint32_t status, file_count;
     proto_item *pi;
-    const guint8 *protocol_version = NULL;
+    const uint8_t *protocol_version = NULL;
 
     ptvcursor_add_ret_string(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA,
                             pinfo->pool, &protocol_version);
@@ -268,7 +268,7 @@ static void dissect_a615a_LNS(ptvcursor_t *ptvc, packet_info *pinfo)
 
 static void dissect_a615a_LNA(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
-    guint32 file_count;
+    uint32_t file_count;
 
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
@@ -339,9 +339,9 @@ static void dissect_a615a_protocol_file(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static bool dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint psize = tvb_captured_length(tvb);
+    unsigned psize = tvb_captured_length(tvb);
     if (psize < 6) return false;
-    if ((tvb_get_ntohl(tvb, 0) != psize) || ((gchar)tvb_get_guint8(tvb, 4) != 'A')) return false;
+    if ((tvb_get_ntohl(tvb, 0) != psize) || ((char)tvb_get_guint8(tvb, 4) != 'A')) return false;
 
     const char *filename = ((struct tftpinfo *)data)->filename;
     if (filename == NULL) {
@@ -367,7 +367,7 @@ static int dissect_find(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, find_tree, tvb, 0);
 
-    guint32 opcode;
+    uint32_t opcode;
     ptvcursor_add_ret_uint(ptvc, hf_find_opcode, 2, ENC_BIG_ENDIAN, &opcode);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(opcode, find_opcode_vals, "Unknown (0x%04x)"));
 
@@ -450,7 +450,7 @@ void proto_register_a615a(void)
          {"Type", "a615a.type", FT_STRINGZ, BASE_NONE, NULL, 0x0, "A615a File type", HFILL}},
     };
 
-    static gint *ett[] = {&ett_a615a};
+    static int *ett[] = {&ett_a615a};
 
     proto_a615a = proto_register_protocol("Arinc 615a Protocol", "A615a", "a615a");
     proto_register_field_array(proto_a615a, hf, array_length(hf));
@@ -480,7 +480,7 @@ void proto_register_a615a(void)
           "FIND Packet terminator", HFILL}}
     };
 
-    static gint *etts_find[] = {&ett_find};
+    static int *etts_find[] = {&ett_find};
 
     proto_find = proto_register_protocol("Find Identification of Network Devices", "FIND", "find");
     proto_register_field_array(proto_find, hf_find, array_length(hf_find));

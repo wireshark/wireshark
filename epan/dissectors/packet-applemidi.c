@@ -78,8 +78,8 @@ static int	hf_applemidi_rtp_bitrate_limit;
 static int	hf_applemidi_unknown_data;
 
 
-static gint	ett_applemidi;
-static gint	ett_applemidi_seq_num;
+static int	ett_applemidi;
+static int	ett_applemidi_seq_num;
 
 
 static const value_string applemidi_commands[] = {
@@ -102,15 +102,15 @@ static dissector_handle_t	rtp_handle;
 static const char applemidi_unknown_command[]		= "unknown command: 0x%04x";
 
 static void
-dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 command ) {
+dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t command ) {
 
 	proto_item *ti;
-	guint16		 seq_num;
-	guint8		 count;
-	guint8		*name;
-	gint		 offset			= 0;
-	gint		 len;
-	gint		 string_size;
+	uint16_t		 seq_num;
+	uint8_t		 count;
+	uint8_t		*name;
+	int		 offset			= 0;
+	int		 len;
+	int		 string_size;
 	proto_tree	*applemidi_tree;
 	proto_tree	*applemidi_tree_seq_num;
 
@@ -151,7 +151,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 		/* Name is optional */
 		if ( len > 0 ) {
 			name = tvb_get_string_enc( pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA );
-			string_size = (gint)( strlen( name ) + 1 );
+			string_size = (int)( strlen( name ) + 1 );
 			proto_tree_add_item( applemidi_tree, hf_applemidi_name, tvb, offset, string_size, ENC_UTF_8 );
 			col_append_fstr( pinfo->cinfo, COL_INFO, ": peer = \"%s\"", name );
 			offset += string_size;
@@ -216,14 +216,14 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	}
 }
 
-static gboolean
-test_applemidi(tvbuff_t *tvb, guint16 *command_p, gboolean conversation_established ) {
+static bool
+test_applemidi(tvbuff_t *tvb, uint16_t *command_p, bool conversation_established ) {
 
 	*command_p = 0xffff;
 
 	/* An applemidi session protocol UDP-packet must start with the "magic value" of 0xffff ... */
 	if ( APPLEMIDI_PROTOCOL_SIGNATURE != tvb_get_ntohs( tvb, 0 ) )
-		return FALSE;
+		return false;
 
 	*command_p = tvb_get_ntohs( tvb, 2 );
 
@@ -231,7 +231,7 @@ test_applemidi(tvbuff_t *tvb, guint16 *command_p, gboolean conversation_establis
 	 * we won't check the commands anymore - this way we still show new commands
 	 * Apple might introduce as "unknown" instead of punting to RTP-dissector */
 	if ( conversation_established ) {
-		return TRUE;
+		return true;
 	}
 
 
@@ -243,9 +243,9 @@ test_applemidi(tvbuff_t *tvb, guint16 *command_p, gboolean conversation_establis
 	     ( APPLEMIDI_COMMAND_SYNCHRONIZATION       == *command_p ) ||
 	     ( APPLEMIDI_COMMAND_RECEIVER_FEEDBACK     == *command_p ) ||
 	     ( APPLEMIDI_COMMAND_BITRATE_RECEIVE_LIMIT == *command_p ) )
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 
@@ -255,9 +255,9 @@ test_applemidi(tvbuff_t *tvb, guint16 *command_p, gboolean conversation_establis
 
 static int
 dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ ) {
-	guint16		command;
+	uint16_t		command;
 
-	if ( test_applemidi( tvb, &command, TRUE ) )
+	if ( test_applemidi( tvb, &command, true ) )
 		dissect_applemidi_common( tvb, pinfo, tree, command );
 	else
 		call_dissector( rtp_handle, tvb, pinfo, tree );
@@ -268,14 +268,14 @@ dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static bool
 dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ ) {
 
-	guint16		 command;
+	uint16_t		 command;
 	conversation_t	*p_conv;
 	rtp_dyn_payload_t *rtp_dyn_payload;
 
 	if ( tvb_captured_length( tvb ) < 4)
 		return false;  /* not enough bytes to check */
 
-	if ( !test_applemidi( tvb, &command, FALSE ) ) {
+	if ( !test_applemidi( tvb, &command, false ) ) {
 		return false;
 	}
 
@@ -285,7 +285,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	rtp_dyn_payload = rtp_dyn_payload_new();
 	rtp_dyn_payload_insert(rtp_dyn_payload, 97, "rtp-midi", 10000, 1);
 	rtp_add_address( pinfo, PT_UDP, &pinfo->src, pinfo->srcport, 0, APPLEMIDI_DISSECTOR_SHORTNAME,
-			 pinfo->num, FALSE, rtp_dyn_payload);
+			 pinfo->num, false, rtp_dyn_payload);
 
 	/* call dissect_applemidi() from now on for UDP packets on this "connection"
 	   it is important to do this step after calling rtp_add_address, otherwise
@@ -489,7 +489,7 @@ proto_register_applemidi( void )
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_applemidi,
 		&ett_applemidi_seq_num
 	};

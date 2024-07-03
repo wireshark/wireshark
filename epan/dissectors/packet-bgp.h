@@ -12,10 +12,10 @@
 #define __PACKET_BGP_H__
 
 const char*
-decode_bgp_rd(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset);
+decode_bgp_rd(wmem_allocator_t *pool, tvbuff_t *tvb, int offset);
 
 void
-dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len, guint tvb_off, packet_info *pinfo);
+dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len, unsigned tvb_off, packet_info *pinfo);
 
 #endif
 

@@ -18,23 +18,23 @@
 typedef struct _media_packet_info_t {
     nstime_t  abs_ts;
     nstime_t  first_abs_ts;
-    gdouble   cumulative_frame_duration;
-    gdouble   avrcp_song_position;
-    guint32   stream_number;
+    double    cumulative_frame_duration;
+    double    avrcp_song_position;
+    uint32_t  stream_number;
 } media_packet_info_t;
 
 typedef struct _bta2dp_codec_info_t {
     dissector_handle_t    codec_dissector;
-    guint8                configuration_length;
-    guint8               *configuration;
-    gint                  content_protection_type;
+    uint8_t               configuration_length;
+    uint8_t              *configuration;
+    int                   content_protection_type;
     media_packet_info_t  *previous_media_packet_info;
     media_packet_info_t  *current_media_packet_info;
 } bta2dp_codec_info_t;
 
 typedef struct _btvdp_codec_info_t {
     dissector_handle_t   codec_dissector;
-    gint                 content_protection_type;
+    int                  content_protection_type;
 } btvdp_codec_info_t;
 
 #endif

@@ -84,67 +84,67 @@ static bool afs_defragment;
 #define FILE_TYPE_LINK 3
 
 struct afs_header {
-	guint32 opcode;
+	uint32_t opcode;
 };
 
 struct afs_volsync {
-	guint32 spare1;
-	guint32 spare2;
-	guint32 spare3;
-	guint32 spare4;
-	guint32 spare5;
-	guint32 spare6;
+	uint32_t spare1;
+	uint32_t spare2;
+	uint32_t spare3;
+	uint32_t spare4;
+	uint32_t spare5;
+	uint32_t spare6;
 };
 
 struct afs_status {
-	guint32 InterfaceVersion;
-	guint32 FileType;
-	guint32 LinkCount;
-	guint32 Length;
-	guint32 DataVersion;
-	guint32 Author;
-	guint32 Owner;
-	guint32 CallerAccess;
-	guint32 AnonymousAccess;
-	guint32 UnixModeBits;
-	guint32 ParentVnode;
-	guint32 ParentUnique;
-	guint32 SegSize;
-	guint32 ClientModTime;
-	guint32 ServerModTime;
-	guint32 Group;
-	guint32 SyncCount;
-	guint32 spare1;
-	guint32 spare2;
-	guint32 spare3;
-	guint32 spare4;
+	uint32_t InterfaceVersion;
+	uint32_t FileType;
+	uint32_t LinkCount;
+	uint32_t Length;
+	uint32_t DataVersion;
+	uint32_t Author;
+	uint32_t Owner;
+	uint32_t CallerAccess;
+	uint32_t AnonymousAccess;
+	uint32_t UnixModeBits;
+	uint32_t ParentVnode;
+	uint32_t ParentUnique;
+	uint32_t SegSize;
+	uint32_t ClientModTime;
+	uint32_t ServerModTime;
+	uint32_t Group;
+	uint32_t SyncCount;
+	uint32_t spare1;
+	uint32_t spare2;
+	uint32_t spare3;
+	uint32_t spare4;
 };
 
 struct afs_volumeinfo {
-	guint32 Vid;
-	guint32 Type;
-	guint32 Type0;
-	guint32 Type1;
-	guint32 Type2;
-	guint32 Type3;
-	guint32 Type4;
-	guint32 ServerCount;
-	guint32 Server0;
-	guint32 Server1;
-	guint32 Server2;
-	guint32 Server3;
-	guint32 Server4;
-	guint32 Server5;
-	guint32 Server6;
-	guint32 Server7;
-	guint16 Part0;
-	guint16 Part1;
-	guint16 Part2;
-	guint16 Part3;
-	guint16 Part4;
-	guint16 Part5;
-	guint16 Part6;
-	guint16 Part7;
+	uint32_t Vid;
+	uint32_t Type;
+	uint32_t Type0;
+	uint32_t Type1;
+	uint32_t Type2;
+	uint32_t Type3;
+	uint32_t Type4;
+	uint32_t ServerCount;
+	uint32_t Server0;
+	uint32_t Server1;
+	uint32_t Server2;
+	uint32_t Server3;
+	uint32_t Server4;
+	uint32_t Server5;
+	uint32_t Server6;
+	uint32_t Server7;
+	uint16_t Part0;
+	uint16_t Part1;
+	uint16_t Part2;
+	uint16_t Part3;
+	uint16_t Part4;
+	uint16_t Part5;
+	uint16_t Part6;
+	uint16_t Part7;
 };
 
 static int proto_afs;
@@ -436,23 +436,23 @@ static int hf_afs_fragment_count;
 static int hf_afs_reassembled_in;
 static int hf_afs_reassembled_length;
 
-static gint ett_afs;
-static gint ett_afs_op;
-static gint ett_afs_acl;
-static gint ett_afs_fid;
-static gint ett_afs_callback;
-static gint ett_afs_ubikver;
-static gint ett_afs_status;
-static gint ett_afs_status_mask;
-static gint ett_afs_volsync;
-static gint ett_afs_volumeinfo;
-static gint ett_afs_vicestat;
-static gint ett_afs_vldb_flags;
+static int ett_afs;
+static int ett_afs_op;
+static int ett_afs_acl;
+static int ett_afs_fid;
+static int ett_afs_callback;
+static int ett_afs_ubikver;
+static int ett_afs_status;
+static int ett_afs_status_mask;
+static int ett_afs_volsync;
+static int ett_afs_volumeinfo;
+static int ett_afs_vicestat;
+static int ett_afs_vldb_flags;
 
-static gint ett_afs_fragment;
-static gint ett_afs_fragments;
-static gint ett_afs_cm_interfaces;
-static gint ett_afs_cm_capabilities;
+static int ett_afs_fragment;
+static int ett_afs_fragments;
+static int ett_afs_cm_interfaces;
+static int ett_afs_cm_capabilities;
 
 static const fragment_items afs_frag_items = {
 	/* Fragment subtrees */
@@ -542,13 +542,13 @@ static void OUT_RXString(ptvcursor_t *cursor, int field)
 }
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
-static void OUT_RXStringV(ptvcursor_t *cursor, int field, guint32 length)
+static void OUT_RXStringV(ptvcursor_t *cursor, int field, uint32_t length)
 {
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
 	wmem_strbuf_t *strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), length+1);
 	int offset = ptvcursor_current_offset(cursor),
 		start_offset = offset;
-	guint32 idx;
+	uint32_t idx;
 
 	for (idx = 0; idx<length; idx++)
 	{
@@ -1400,14 +1400,14 @@ static const value_string volume_types[] = {
 };
 
 struct afs_request_key {
-	guint32 conversation, epoch, cid, callnumber;
-	guint16 service;
+	uint32_t conversation, epoch, cid, callnumber;
+	uint16_t service;
 };
 
 struct afs_request_val {
-	guint32 opcode;
-	guint req_num;
-	guint rep_num;
+	uint32_t opcode;
+	unsigned req_num;
+	unsigned rep_num;
 	nstime_t req_time;
 };
 
@@ -1417,8 +1417,8 @@ static reassembly_table afs_reassembly_table;
 /*
  * Hash Functions
  */
-static gint
-afs_equal(gconstpointer v, gconstpointer w)
+static int
+afs_equal(const void *v, const void *w)
 {
 	const struct afs_request_key *v1 = (const struct afs_request_key *)v;
 	const struct afs_request_key *v2 = (const struct afs_request_key *)w;
@@ -1434,11 +1434,11 @@ afs_equal(gconstpointer v, gconstpointer w)
 	return 0;
 }
 
-static guint
-afs_hash (gconstpointer v)
+static unsigned
+afs_hash (const void *v)
 {
 	const struct afs_request_key *key = (const struct afs_request_key *)v;
-	guint val;
+	unsigned val;
 
 	val = key -> conversation + key -> epoch + key -> cid + key -> callnumber;
 
@@ -1473,7 +1473,7 @@ static void
 dissect_acl(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_)
 {
 	int old_offset = ptvcursor_current_offset(cursor), offset;
-	gint32 bytes;
+	int32_t bytes;
 	int i, n, pos, neg, acl;
 	proto_tree* tree = ptvcursor_tree(cursor);
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
@@ -2760,7 +2760,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	value_string_ext *vals_ext;
 	int offset = 0;
 	nstime_t delta_ts;
-	guint8 save_fragmented;
+	uint8_t save_fragmented;
 	int reassembled = 0;
 	ptvcursor_t *cursor;
 
@@ -2945,8 +2945,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	if( (afs_defragment && (!(rxinfo->flags & RX_LAST_PACKET) || rxinfo->seq > 1 ))) {   /* Fragmented */
 		tvbuff_t * new_tvb = NULL;
 		fragment_head * frag_msg = NULL;
-		guint32 afs_seqid = rxinfo->callnumber ^ rxinfo->cid;
-		pinfo->fragmented = TRUE;
+		uint32_t afs_seqid = rxinfo->callnumber ^ rxinfo->cid;
+		pinfo->fragmented = true;
 
 		frag_msg = fragment_add_seq_check(&afs_reassembly_table,
 				tvb, offset, pinfo, afs_seqid, NULL,
@@ -3648,7 +3648,7 @@ proto_register_afs(void)
 		FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_afs,
 		&ett_afs_op,
 		&ett_afs_acl,

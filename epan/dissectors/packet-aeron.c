@@ -50,8 +50,8 @@ static bool aeron_use_heuristic_subdissectors;
 /*----------------------------------------------------------------------------*/
 typedef struct
 {
-    guint32 term_id;
-    guint32 term_offset;
+    uint32_t term_id;
+    uint32_t term_offset;
 } aeron_pos_t;
 
 static int aeron_pos_roundup(int offset)
@@ -83,13 +83,13 @@ static int aeron_pos_compare(const aeron_pos_t * pos1, const aeron_pos_t * pos2)
     }
 }
 
-static guint32 aeron_pos_delta(const aeron_pos_t * pos1, const aeron_pos_t * pos2, guint32 term_size)
+static uint32_t aeron_pos_delta(const aeron_pos_t * pos1, const aeron_pos_t * pos2, uint32_t term_size)
 {
     const aeron_pos_t * p1;
     const aeron_pos_t * p2;
-    guint64 p1_val;
-    guint64 p2_val;
-    guint64 delta;
+    uint64_t p1_val;
+    uint64_t p2_val;
+    uint64_t delta;
     int rc;
 
     rc = aeron_pos_compare(pos1, pos2);
@@ -103,23 +103,23 @@ static guint32 aeron_pos_delta(const aeron_pos_t * pos1, const aeron_pos_t * pos
         p1 = pos2;
         p2 = pos1;
     }
-    p1_val = ((guint64) p1->term_id * term_size) + ((guint64) p1->term_offset);
-    p2_val = ((guint64) p2->term_id * term_size) + ((guint64) p2->term_offset);
+    p1_val = ((uint64_t) p1->term_id * term_size) + ((uint64_t) p1->term_offset);
+    p2_val = ((uint64_t) p2->term_id * term_size) + ((uint64_t) p2->term_offset);
     delta = p1_val - p2_val;
-    return ((guint32) (delta & G_GUINT64_CONSTANT(0x00000000ffffffff)));
+    return ((uint32_t) (delta & UINT64_C(0x00000000ffffffff)));
 }
 
-static gboolean aeron_pos_add_length(aeron_pos_t * pos, guint32 length, guint32 term_length)
+static bool aeron_pos_add_length(aeron_pos_t * pos, uint32_t length, uint32_t term_length)
 {
-    guint32 next_term_offset;
-    guint32 rounded_next_term_offset;
+    uint32_t next_term_offset;
+    uint32_t rounded_next_term_offset;
 
     next_term_offset = pos->term_offset + length;
     if (next_term_offset < pos->term_offset)
-        return FALSE;  /* overflow */
+        return false;  /* overflow */
     rounded_next_term_offset = aeron_pos_roundup(next_term_offset);
     if (rounded_next_term_offset < next_term_offset)
-        return FALSE;  /* overflow */
+        return false;  /* overflow */
     next_term_offset = rounded_next_term_offset;
 
     if (next_term_offset >= term_length)
@@ -131,7 +131,7 @@ static gboolean aeron_pos_add_length(aeron_pos_t * pos, guint32 length, guint32 
     {
         pos->term_offset = next_term_offset;
     }
-    return TRUE;
+    return true;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -145,28 +145,28 @@ typedef struct aeron_frame_info_t_stct aeron_frame_info_t;
 typedef struct
 {
     aeron_frame_info_t * frame_info;        /* Frame (aeron_frame_info_t) containing the RX data */
-    guint32 term_offset;                 /* Term offset of RX data */
-    guint32 length;                      /* Length of RX data */
+    uint32_t term_offset;                 /* Term offset of RX data */
+    uint32_t length;                      /* Length of RX data */
 } aeron_rx_info_t;
 
 typedef struct
 {
     aeron_frame_info_t * frame_info;        /* Frame (aeron_frame_info_t) in which this NAK occurs */
     wmem_list_t * rx;                       /* List of RX frames for this NAK */
-    guint32 flags;
-    guint32 nak_term_offset;                /* Term offset specified by this NAK */
-    guint32 nak_length;                     /* NAK length */
-    guint32 unrecovered_length;             /* Number of bytes unrecovered via RX */
+    uint32_t flags;
+    uint32_t nak_term_offset;                /* Term offset specified by this NAK */
+    uint32_t nak_length;                     /* NAK length */
+    uint32_t unrecovered_length;             /* Number of bytes unrecovered via RX */
 } aeron_nak_analysis_t;
 
 typedef struct
 {
-    guint32 flags;
-    guint32 flags2;
+    uint32_t flags;
+    uint32_t flags2;
     aeron_pos_t high;
     aeron_pos_t completed;
-    guint32 receiver_window;
-    guint32 outstanding_bytes;
+    uint32_t receiver_window;
+    uint32_t outstanding_bytes;
 } aeron_stream_analysis_t;
 #define AERON_STREAM_ANALYSIS_FLAGS_WINDOW_FULL      0x00000001
 #define AERON_STREAM_ANALYSIS_FLAGS_IDLE_RX          0x00000002
@@ -184,8 +184,8 @@ typedef struct
 
 typedef struct
 {
-    guint32 previous;
-    guint32 next;
+    uint32_t previous;
+    uint32_t next;
 } aeron_frame_link_t;
 
 struct aeron_msg_t_stct;
@@ -193,8 +193,8 @@ typedef struct aeron_msg_t_stct aeron_msg_t;
 
 struct aeron_frame_info_t_stct
 {
-    guint32 frame;
-    guint32 ofs;
+    uint32_t frame;
+    uint32_t ofs;
     aeron_frame_link_t transport;
     aeron_frame_link_t stream;
     aeron_frame_link_t term;
@@ -203,19 +203,19 @@ struct aeron_frame_info_t_stct
     aeron_nak_analysis_t * nak_analysis;
     aeron_msg_t * message;
     wmem_list_t * rx;
-    guint32 flags;
+    uint32_t flags;
 };
 #define AERON_FRAME_INFO_FLAGS_RETRANSMISSION  0x00000001
 #define AERON_FRAME_INFO_FLAGS_KEEPALIVE       0x00000002
 #define AERON_FRAME_INFO_FLAGS_REASSEMBLED_MSG 0x00000004
 
-static wmem_tree_key_t * aeron_frame_info_key_build(guint32 frame, guint32 ofs)
+static wmem_tree_key_t * aeron_frame_info_key_build(uint32_t frame, uint32_t ofs)
 {
     wmem_tree_key_t * fkey;
-    guint32 * key;
+    uint32_t * key;
 
     fkey = wmem_alloc_array(wmem_packet_scope(), wmem_tree_key_t, 2);
-    key = wmem_alloc_array(wmem_packet_scope(), guint32, 2);
+    key = wmem_alloc_array(wmem_packet_scope(), uint32_t, 2);
     key[0] = frame;
     key[1] = ofs;
     fkey[0].length = 2;
@@ -233,13 +233,13 @@ static aeron_frame_info_t * aeron_frame_info_lookup(wmem_tree_key_t * key)
     return (fi);
 }
 
-static aeron_frame_info_t * aeron_frame_info_find(guint32 frame, guint32 ofs)
+static aeron_frame_info_t * aeron_frame_info_find(uint32_t frame, uint32_t ofs)
 {
     wmem_tree_key_t * key = aeron_frame_info_key_build(frame, ofs);
     return (aeron_frame_info_lookup(key));
 }
 
-static aeron_frame_info_t * aeron_frame_info_add(guint32 frame, guint32 ofs)
+static aeron_frame_info_t * aeron_frame_info_add(uint32_t frame, uint32_t ofs)
 {
     aeron_frame_info_t * fi;
     wmem_tree_key_t * key = aeron_frame_info_key_build(frame, ofs);
@@ -262,9 +262,9 @@ static aeron_frame_info_t * aeron_frame_info_add(guint32 frame, guint32 ofs)
 /*----------------------------------------------------------------------------*/
 /* Aeron channel ID management.                                               */
 /*----------------------------------------------------------------------------*/
-static guint64 aeron_channel_id = 1;
+static uint64_t aeron_channel_id = 1;
 
-static guint64 aeron_channel_id_assign(void)
+static uint64_t aeron_channel_id_assign(void)
 {
     return (aeron_channel_id++);
 }
@@ -281,8 +281,8 @@ typedef struct
 {
     address * addr1;
     address * addr2;
-    guint16 port1;
-    guint16 port2;
+    uint16_t port1;
+    uint16_t port2;
 } aeron_conversation_info_t;
 
 struct aeron_transport_t_stct;
@@ -299,14 +299,14 @@ typedef struct aeron_fragment_t_stct aeron_fragment_t;
 
 struct aeron_transport_t_stct
 {
-    guint64 channel_id;
+    uint64_t channel_id;
     wmem_map_t * stream;                    /* Map of all streams (aeron_stream_t) in this transport, keyed by stream ID */
     aeron_frame_info_t * last_frame;
     address addr1;
     address addr2;
-    guint32 session_id;
-    guint16 port1;
-    guint16 port2;
+    uint32_t session_id;
+    uint16_t port1;
+    uint16_t port2;
 };
 
 struct aeron_stream_rcv_t_stct;
@@ -315,9 +315,9 @@ typedef struct aeron_stream_rcv_t_stct aeron_stream_rcv_t;
 struct aeron_stream_rcv_t_stct
 {
     address addr;                           /* Receiver's IP address */
-    guint16 port;                           /* Receiver's (sending) port */
+    uint16_t port;                           /* Receiver's (sending) port */
     aeron_pos_t completed;
-    guint32 receiver_window;
+    uint32_t receiver_window;
 };
 
 struct aeron_stream_t_stct
@@ -325,13 +325,13 @@ struct aeron_stream_t_stct
     aeron_transport_t * transport;          /* Parent transport */
     wmem_map_t * term;                      /* Map of all terms (aeron_term_t) in this stream, keyed by term ID */
     wmem_list_t * rcv;                      /* List of receivers (aeron_stream_rcv_t) */
-    guint32 rcv_count;
+    uint32_t rcv_count;
     aeron_frame_info_t * last_frame;
-    guint32 stream_id;
-    guint32 term_length;
-    guint32 mtu;
-    guint32 ttl;
-    guint32 flags;
+    uint32_t stream_id;
+    uint32_t term_length;
+    uint32_t mtu;
+    uint32_t ttl;
+    uint32_t flags;
     aeron_pos_t high;
 };
 #define AERON_STREAM_FLAGS_HIGH_VALID 0x1
@@ -340,8 +340,8 @@ typedef struct
 {
     aeron_term_t * term;                    /* Parent term */
     aeron_frame_info_t * frame_info;        /* Frame info (aeron_frame_info_t) in which this NAK occurred */
-    guint32 term_offset;                    /* NAK term offset */
-    guint32 length;                         /* Length of NAK */
+    uint32_t term_offset;                    /* NAK term offset */
+    uint32_t length;                         /* Length of NAK */
 } aeron_nak_t;
 
 struct aeron_term_t_stct
@@ -352,7 +352,7 @@ struct aeron_term_t_stct
     wmem_list_t * orphan_fragment;
     aeron_frame_info_t * last_frame;        /* Pointer to last frame seen for this term */
     wmem_list_t * nak;                      /* List of all NAKs (aeron_nak_t) in this term */
-    guint32 term_id;
+    uint32_t term_id;
 };
 
 struct aeron_fragment_t_stct
@@ -362,29 +362,29 @@ struct aeron_fragment_t_stct
     aeron_frame_info_t * first_frame;       /* First frame which contains this fragment (term offset) */
     aeron_frame_info_t * last_frame;        /* Last frame which contains this fragment (term offset) */
     aeron_frame_info_t * first_data_frame;  /* First frame which contains this fragment (term offset) as actual data (not as a KA) */
-    guint32 term_offset;
-    guint32 length;
-    guint32 data_length;
-    guint32 frame_count;
+    uint32_t term_offset;
+    uint32_t length;
+    uint32_t data_length;
+    uint32_t frame_count;
 };
 
 /*----------------------------------------------------------------------------*/
 /* Aeron transport management.                                                */
 /*----------------------------------------------------------------------------*/
-static guint aeron_guint32_hash_func(gconstpointer key)
+static unsigned aeron_guint32_hash_func(const void *key)
 {
-    guint32 value = *((const guint32 *) key);
-    return ((guint) value);
+    uint32_t value = *((const uint32_t *) key);
+    return ((unsigned) value);
 }
 
-static gboolean aeron_guint32_compare_func(gconstpointer lhs, gconstpointer rhs)
+static gboolean aeron_guint32_compare_func(const void *lhs, const void *rhs)
 {
-    guint32 key1 = *((const guint32 *) lhs);
-    guint32 key2 = *((const guint32 *) rhs);
-    return ((key1 == key2) ? TRUE : FALSE);
+    uint32_t key1 = *((const uint32_t *) lhs);
+    uint32_t key2 = *((const uint32_t *) rhs);
+    return ((key1 == key2) ? true : false);
 }
 
-static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t * cinfo, guint32 session_id, guint32 frame)
+static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t * cinfo, uint32_t session_id, uint32_t frame)
 {
     aeron_transport_t * transport;
     conversation_t * conv;
@@ -423,7 +423,7 @@ static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t *
     return (transport);
 }
 
-static aeron_stream_t * aeron_transport_stream_find(aeron_transport_t * transport, guint32 stream_id)
+static aeron_stream_t * aeron_transport_stream_find(aeron_transport_t * transport, uint32_t stream_id)
 {
     aeron_stream_t * stream;
 
@@ -431,7 +431,7 @@ static aeron_stream_t * aeron_transport_stream_find(aeron_transport_t * transpor
     return (stream);
 }
 
-static aeron_stream_t * aeron_transport_stream_add(aeron_transport_t * transport, guint32 stream_id)
+static aeron_stream_t * aeron_transport_stream_add(aeron_transport_t * transport, uint32_t stream_id)
 {
     aeron_stream_t * stream;
 
@@ -456,7 +456,7 @@ static aeron_stream_t * aeron_transport_stream_add(aeron_transport_t * transport
     return (stream);
 }
 
-static void aeron_transport_frame_add(aeron_transport_t * transport, aeron_frame_info_t * finfo, guint32 flags)
+static void aeron_transport_frame_add(aeron_transport_t * transport, aeron_frame_info_t * finfo, uint32_t flags)
 {
     if (flags != 0)
     {
@@ -474,7 +474,7 @@ static void aeron_transport_frame_add(aeron_transport_t * transport, aeron_frame
 /*----------------------------------------------------------------------------*/
 /* Aeron stream management.                                                   */
 /*----------------------------------------------------------------------------*/
-static aeron_term_t * aeron_stream_term_find(aeron_stream_t * stream, guint32 term_id)
+static aeron_term_t * aeron_stream_term_find(aeron_stream_t * stream, uint32_t term_id)
 {
     aeron_term_t * term;
 
@@ -482,7 +482,7 @@ static aeron_term_t * aeron_stream_term_find(aeron_stream_t * stream, guint32 te
     return (term);
 }
 
-static aeron_term_t * aeron_stream_term_add(aeron_stream_t * stream, guint32 term_id)
+static aeron_term_t * aeron_stream_term_add(aeron_stream_t * stream, uint32_t term_id)
 {
     aeron_term_t * term;
 
@@ -501,7 +501,7 @@ static aeron_term_t * aeron_stream_term_add(aeron_stream_t * stream, guint32 ter
     return (term);
 }
 
-static aeron_stream_rcv_t * aeron_stream_rcv_find(aeron_stream_t * stream, const address * addr, guint16 port)
+static aeron_stream_rcv_t * aeron_stream_rcv_find(aeron_stream_t * stream, const address * addr, uint16_t port)
 {
     wmem_list_frame_t * lf = wmem_list_head(stream->rcv);
     aeron_stream_rcv_t * rcv = NULL;
@@ -522,7 +522,7 @@ static aeron_stream_rcv_t * aeron_stream_rcv_find(aeron_stream_t * stream, const
     return (rcv);
 }
 
-static aeron_stream_rcv_t * aeron_stream_rcv_add(aeron_stream_t * stream, const address * addr, guint16 port)
+static aeron_stream_rcv_t * aeron_stream_rcv_add(aeron_stream_t * stream, const address * addr, uint16_t port)
 {
     aeron_stream_rcv_t * rcv;
 
@@ -542,7 +542,7 @@ static aeron_stream_rcv_t * aeron_stream_rcv_add(aeron_stream_t * stream, const 
     return (rcv);
 }
 
-static void aeron_stream_frame_add(aeron_stream_t * stream, aeron_frame_info_t * finfo, guint32 flags)
+static void aeron_stream_frame_add(aeron_stream_t * stream, aeron_frame_info_t * finfo, uint32_t flags)
 {
     if (flags != 0)
     {
@@ -561,7 +561,7 @@ static void aeron_stream_frame_add(aeron_stream_t * stream, aeron_frame_info_t *
 /*----------------------------------------------------------------------------*/
 /* Aeron term management.                                                     */
 /*----------------------------------------------------------------------------*/
-static aeron_fragment_t * aeron_term_fragment_find(aeron_term_t * term, guint32 term_offset)
+static aeron_fragment_t * aeron_term_fragment_find(aeron_term_t * term, uint32_t term_offset)
 {
     aeron_fragment_t * fragment;
 
@@ -569,7 +569,7 @@ static aeron_fragment_t * aeron_term_fragment_find(aeron_term_t * term, guint32 
     return (fragment);
 }
 
-static aeron_fragment_t * aeron_term_fragment_add(aeron_term_t * term, guint32 term_offset, guint32 length, guint32 data_length)
+static aeron_fragment_t * aeron_term_fragment_add(aeron_term_t * term, uint32_t term_offset, uint32_t length, uint32_t data_length)
 {
     aeron_fragment_t * fragment;
 
@@ -591,7 +591,7 @@ static aeron_fragment_t * aeron_term_fragment_add(aeron_term_t * term, guint32 t
     return (fragment);
 }
 
-static void aeron_term_frame_add(aeron_term_t * term, aeron_frame_info_t * finfo, guint32 flags)
+static void aeron_term_frame_add(aeron_term_t * term, aeron_frame_info_t * finfo, uint32_t flags)
 {
     if (flags != 0)
     {
@@ -610,7 +610,7 @@ static void aeron_term_frame_add(aeron_term_t * term, aeron_frame_info_t * finfo
 /*----------------------------------------------------------------------------*/
 /* Aeron fragment management.                                                 */
 /*----------------------------------------------------------------------------*/
-static void aeron_fragment_frame_add(aeron_fragment_t * fragment, aeron_frame_info_t * finfo, guint32 flags, guint32 length)
+static void aeron_fragment_frame_add(aeron_fragment_t * fragment, aeron_frame_info_t * finfo, uint32_t flags, uint32_t length)
 {
     if (flags != 0)
     {
@@ -642,28 +642,28 @@ static void aeron_fragment_frame_add(aeron_fragment_t * fragment, aeron_frame_in
 /*----------------------------------------------------------------------------*/
 /* Utility functions.                                                         */
 /*----------------------------------------------------------------------------*/
-static gboolean aeron_is_address_multicast(const address * addr)
+static bool aeron_is_address_multicast(const address * addr)
 {
-    const guint8 * addr_data = (const guint8 *) addr->data;
+    const uint8_t * addr_data = (const uint8_t *) addr->data;
 
     switch (addr->type)
     {
         case AT_IPv4:
             if (addr_data && ((addr_data[0] & 0xf0) == 0xe0))
             {
-                return TRUE;
+                return true;
             }
             break;
         case AT_IPv6:
             if (addr_data && (addr_data[0] == 0xff))
             {
-                return TRUE;
+                return true;
             }
             break;
         default:
             break;
     }
-    return FALSE;
+    return false;
 }
 
 static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo)
@@ -867,7 +867,7 @@ static const value_string aeron_frame_type[] =
 
 */
 
-static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_info * pinfo, guint16 type)
+static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_info * pinfo, uint16_t type)
 {
     aeron_conversation_info_t * cinfo;
     int addr_len = pinfo->dst.len;
@@ -877,17 +877,17 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
     {
         case AT_IPv4:
             {
-                const guint8 * dst_addr = (const guint8 *) pinfo->dst.data;
+                const uint8_t * dst_addr = (const uint8_t *) pinfo->dst.data;
 
                 cinfo->addr1 = wmem_new0(pinfo->pool, address);
                 cinfo->addr2 = wmem_new0(pinfo->pool, address);
                 if (aeron_is_address_multicast(&(pinfo->dst)))
                 {
-                    guint8 * addr1;
-                    guint8 * addr2;
+                    uint8_t * addr1;
+                    uint8_t * addr2;
 
-                    addr1 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
-                    addr2 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
+                    addr1 = (uint8_t *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
+                    addr2 = (uint8_t *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
                     if ((dst_addr[addr_len - 1] & 0x1) != 0)
                     {
                         /* Address is odd, so it's the data group (in addr2). Increment the last byte of addr1 for the control group. */
@@ -933,17 +933,17 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
             break;
         case AT_IPv6:
             {
-                const guint8 * dst_addr = (const guint8 *) pinfo->dst.data;
+                const uint8_t * dst_addr = (const uint8_t *) pinfo->dst.data;
 
                 cinfo->addr1 = wmem_new0(pinfo->pool, address);
                 cinfo->addr2 = wmem_new0(pinfo->pool, address);
                 if (aeron_is_address_multicast(&(pinfo->dst)))
                 {
-                    guint8 * addr1;
-                    guint8 * addr2;
+                    uint8_t * addr1;
+                    uint8_t * addr2;
 
-                    addr1 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
-                    addr2 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
+                    addr1 = (uint8_t *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
+                    addr2 = (uint8_t *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
                     if ((dst_addr[addr_len - 1] & 0x1) != 0)
                     {
                         /* Address is odd, so it's the data group (in addr2). Increment the last byte of addr1 for the control group. */
@@ -998,24 +998,24 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
 /*----------------------------------------------------------------------------*/
 
 /* Dissector tree handles */
-static gint ett_aeron;
-static gint ett_aeron_pad;
-static gint ett_aeron_data;
-static gint ett_aeron_data_flags;
-static gint ett_aeron_data_reassembly;
-static gint ett_aeron_nak;
-static gint ett_aeron_sm;
-static gint ett_aeron_sm_flags;
-static gint ett_aeron_rtt;
-static gint ett_aeron_rtt_flags;
-static gint ett_aeron_err;
-static gint ett_aeron_setup;
-static gint ett_aeron_ext;
-static gint ett_aeron_sequence_analysis;
-static gint ett_aeron_sequence_analysis_retransmission_rx;
-static gint ett_aeron_sequence_analysis_nak_rx;
-static gint ett_aeron_sequence_analysis_term_offset;
-static gint ett_aeron_stream_analysis;
+static int ett_aeron;
+static int ett_aeron_pad;
+static int ett_aeron_data;
+static int ett_aeron_data_flags;
+static int ett_aeron_data_reassembly;
+static int ett_aeron_nak;
+static int ett_aeron_sm;
+static int ett_aeron_sm_flags;
+static int ett_aeron_rtt;
+static int ett_aeron_rtt_flags;
+static int ett_aeron_err;
+static int ett_aeron_setup;
+static int ett_aeron_ext;
+static int ett_aeron_sequence_analysis;
+static int ett_aeron_sequence_analysis_retransmission_rx;
+static int ett_aeron_sequence_analysis_nak_rx;
+static int ett_aeron_sequence_analysis_term_offset;
+static int ett_aeron_stream_analysis;
 
 /* Dissector field handles */
 static int hf_aeron_channel_id;
@@ -1161,24 +1161,24 @@ static expert_field ei_aeron_analysis_invalid_setup_length;
 /*----------------------------------------------------------------------------*/
 typedef struct
 {
-    guint32 info_flags;
-    guint32 stream_id;
-    guint32 term_id;
-    guint32 term_offset;
-    guint32 length;
-    guint32 data_length;
-    guint32 receiver_window;
-    guint64 receiver_id;
-    guint32 nak_term_offset;
-    guint32 nak_length;
-    guint16 type;
-    guint8 flags;
+    uint32_t info_flags;
+    uint32_t stream_id;
+    uint32_t term_id;
+    uint32_t term_offset;
+    uint32_t length;
+    uint32_t data_length;
+    uint32_t receiver_window;
+    uint64_t receiver_id;
+    uint32_t nak_term_offset;
+    uint32_t nak_length;
+    uint16_t type;
+    uint8_t flags;
 } aeron_packet_info_t;
 #define AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID   0x00000001
 #define AERON_PACKET_INFO_FLAGS_TERM_ID_VALID     0x00000002
 #define AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID 0x00000004
 
-static void aeron_frame_nak_rx_add(aeron_frame_info_t * nak_info, aeron_frame_info_t * rx_info, guint32 term_offset, guint32 length)
+static void aeron_frame_nak_rx_add(aeron_frame_info_t * nak_info, aeron_frame_info_t * rx_info, uint32_t term_offset, uint32_t length)
 {
     if (nak_info->nak_analysis->unrecovered_length >= length)
     {
@@ -1250,28 +1250,28 @@ static void aeron_frame_nak_analysis_setup(aeron_packet_info_t * info, aeron_fra
 }
 
 /* return 0 for success and -1 for error */
-static int aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_info_t * info, aeron_frame_info_t * finfo, aeron_stream_t * stream, aeron_term_t * term, gboolean new_term)
+static int aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_info_t * info, aeron_frame_info_t * finfo, aeron_stream_t * stream, aeron_term_t * term, bool new_term)
 {
     aeron_stream_rcv_t * rcv = NULL;
     /*  dp is the current data position (from this frame). */
     aeron_pos_t dp = { 0, 0 };
     /*
         pdp is the previous (high) data position (from the stream).
-        pdpv is TRUE if pdp is valid (meaning we previously saw a data message).
+        pdpv is true if pdp is valid (meaning we previously saw a data message).
     */
     aeron_pos_t pdp = stream->high;
-    gboolean pdpv = ((stream->flags & AERON_STREAM_FLAGS_HIGH_VALID) != 0);
+    bool pdpv = ((stream->flags & AERON_STREAM_FLAGS_HIGH_VALID) != 0);
     /*  rp is the current receiver position (from this frame). */
     aeron_pos_t rp = { 0, 0 };
     /*
         prp is the previous (high) receiver completed position (from the stream receiver).
-        prpv is TRUE if prp is valid (meaning we previously saw a status message).
+        prpv is true if prp is valid (meaning we previously saw a status message).
     */
     aeron_pos_t prp = { 0, 0 };
-    gboolean prpv = FALSE;
-    guint32 cur_receiver_window = 0;
+    bool prpv = false;
+    uint32_t cur_receiver_window = 0;
     /* Flags to be used when creating the fragment frame entry */
-    guint32 frame_flags = 0;
+    uint32_t frame_flags = 0;
 
     if (info->type == HDR_TYPE_SM)
     {
@@ -1283,7 +1283,7 @@ static int aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_i
         }
         else
         {
-            prpv = TRUE;
+            prpv = true;
             prp = rcv->completed;
             cur_receiver_window = rcv->receiver_window;
         }
@@ -1505,13 +1505,13 @@ static int aeron_frame_info_setup(packet_info * pinfo, aeron_transport_t * trans
         if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_ID_VALID) != 0)
         {
             aeron_term_t * term;
-            gboolean new_term = FALSE;
+            bool new_term = false;
 
             term = aeron_stream_term_find(stream, info->term_id);
             if (term == NULL)
             {
                 term = aeron_stream_term_add(stream, info->term_id);
-                new_term = TRUE;
+                new_term = true;
             }
             if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID) != 0)
             {
@@ -1625,8 +1625,8 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                     if (fragment != NULL)
                                     {
                                         proto_item * fei_item;
-                                        gboolean rx = ((finfo->flags & AERON_FRAME_INFO_FLAGS_RETRANSMISSION) != 0);
-                                        gboolean ka = ((finfo->flags & AERON_FRAME_INFO_FLAGS_KEEPALIVE) != 0);
+                                        bool rx = ((finfo->flags & AERON_FRAME_INFO_FLAGS_RETRANSMISSION) != 0);
+                                        bool ka = ((finfo->flags & AERON_FRAME_INFO_FLAGS_KEEPALIVE) != 0);
 
                                         if (fragment->frame_count > 1)
                                         {
@@ -1788,7 +1788,7 @@ static void aeron_stream_report(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 }
 
-static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_transport_t * transport, guint32 stream_id, guint32 term_id, guint32 term_offset, guint32 length)
+static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_transport_t * transport, uint32_t stream_id, uint32_t term_id, uint32_t term_offset, uint32_t length)
 {
     aeron_stream_t * stream;
 
@@ -1806,8 +1806,8 @@ static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_tr
             aeron_fragment_t * fragment = aeron_term_fragment_find(term, term_offset);
             if (fragment != NULL)
             {
-                guint32 next_offset = term_offset + length;
-                guint32 next_offset_term_id = term_id;
+                uint32_t next_offset = term_offset + length;
+                uint32_t next_offset_term_id = term_id;
                 aeron_term_t * next_offset_term = NULL;
                 proto_item * item;
 
@@ -1846,9 +1846,9 @@ static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_tr
     }
 }
 
-static void aeron_info_stream_progress_report(packet_info * pinfo, guint16 msgtype, guint8 flags, guint32 term_id, guint32 term_offset, aeron_frame_info_t * finfo)
+static void aeron_info_stream_progress_report(packet_info * pinfo, uint16_t msgtype, uint8_t flags, uint32_t term_id, uint32_t term_offset, aeron_frame_info_t * finfo)
 {
-    const gchar * type_string = val_to_str_const((guint32) msgtype, aeron_frame_type, "Unknown");
+    const char * type_string = val_to_str_const((uint32_t) msgtype, aeron_frame_type, "Unknown");
 
     if (aeron_sequence_analysis && aeron_stream_analysis && (finfo != NULL) && (finfo->stream_analysis != NULL))
     {
@@ -1911,28 +1911,28 @@ struct aeron_msg_t_stct
     wmem_list_t * fragment;
     aeron_term_t * term;
     tvbuff_t * reassembled_data;
-    guint32 first_fragment_term_offset;
-    guint32 next_expected_term_offset;
-    guint32 length;                 /* Total message payload length */
-    guint32 frame_length;           /* Total length of all message frames accumulated */
-    guint32 fragment_count;         /* Number of fragments in this message */
-    guint32 contiguous_length;      /* Number of contiguous frame bytes accumulated for this message */
-    guint32 begin_frame;            /* Data frame in which the B flag was set */
-    guint32 first_frame;            /* Lowest-numbered frame which is part of this message */
-    guint32 end_frame;              /* Data frame in which the E flag was set */
-    guint32 last_frame;             /* Highest-numbered frame which is part of this message */
-    gboolean complete;
+    uint32_t first_fragment_term_offset;
+    uint32_t next_expected_term_offset;
+    uint32_t length;                 /* Total message payload length */
+    uint32_t frame_length;           /* Total length of all message frames accumulated */
+    uint32_t fragment_count;         /* Number of fragments in this message */
+    uint32_t contiguous_length;      /* Number of contiguous frame bytes accumulated for this message */
+    uint32_t begin_frame;            /* Data frame in which the B flag was set */
+    uint32_t first_frame;            /* Lowest-numbered frame which is part of this message */
+    uint32_t end_frame;              /* Data frame in which the E flag was set */
+    uint32_t last_frame;             /* Highest-numbered frame which is part of this message */
+    bool complete;
 };
 
 struct aeron_msg_fragment_t_stct
 {
-    gchar * data;
-    guint32 term_offset;            /* Term offset for entire fragment */
-    guint32 frame_length;           /* Length of entire frame/fragment */
-    guint32 data_length;            /* Payload length */
-    guint32 frame;                  /* Frame in which the fragment resides */
-    gint frame_offset;              /* Offset into the frame for the entire Aeron message */
-    guint8 flags;                   /* Frame data flags */
+    char * data;
+    uint32_t term_offset;            /* Term offset for entire fragment */
+    uint32_t frame_length;           /* Length of entire frame/fragment */
+    uint32_t data_length;            /* Payload length */
+    uint32_t frame;                  /* Frame in which the fragment resides */
+    int frame_offset;              /* Offset into the frame for the entire Aeron message */
+    uint8_t flags;                   /* Frame data flags */
 };
 
 static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fragment)
@@ -1954,17 +1954,17 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
     msg->next_expected_term_offset += fragment->frame_length;
     if ((fragment->flags & DATA_FLAGS_END) == DATA_FLAGS_END)
     {
-        guint8 * buf;
+        uint8_t * buf;
         wmem_list_frame_t * lf;
         size_t ofs = 0;
         size_t accum_len = 0;
-        guint32 last_frame_offset = 0;
-        gboolean last_frame_found = FALSE;
+        uint32_t last_frame_offset = 0;
+        bool last_frame_found = false;
         aeron_frame_info_t * finfo = NULL;
 
-        msg->complete = TRUE;
+        msg->complete = true;
         msg->end_frame = fragment->frame;
-        buf = (guint8 *) wmem_alloc(wmem_file_scope(), (size_t) msg->length);
+        buf = (uint8_t *) wmem_alloc(wmem_file_scope(), (size_t) msg->length);
         lf = wmem_list_head(msg->fragment);
         while (lf != NULL)
         {
@@ -1974,7 +1974,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
                 if (cur_frag->frame == msg->last_frame)
                 {
                     last_frame_offset = cur_frag->frame_offset;
-                    last_frame_found = TRUE;
+                    last_frame_found = true;
                 }
                 memcpy((void *) (buf + ofs), (void *) cur_frag->data, (size_t) cur_frag->data_length);
                 ofs += (size_t) cur_frag->data_length;
@@ -1983,7 +1983,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
             lf = wmem_list_frame_next(lf);
         }
         DISSECTOR_ASSERT(accum_len == (size_t) msg->length);
-        DISSECTOR_ASSERT(last_frame_found == TRUE);
+        DISSECTOR_ASSERT(last_frame_found == true);
         if (last_frame_found)
         {
             finfo = aeron_frame_info_find(msg->last_frame, last_frame_offset);
@@ -2002,17 +2002,17 @@ static bool aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void 
 {
     aeron_msg_t * msg = (aeron_msg_t *) value;
     aeron_term_t * term = (aeron_term_t *) userdata;
-    gboolean frag_found = FALSE;
+    bool frag_found = false;
     wmem_list_frame_t * lf = NULL;
     aeron_msg_fragment_t * frag = NULL;
 
     if (msg->complete)
     {
         /* This message is complete, no need to check for orphans */
-        return FALSE;
+        return false;
     }
     /* Scan through the orphan fragments */
-    while (TRUE)
+    while (true)
     {
         lf = wmem_list_head(term->orphan_fragment);
         while (lf != NULL)
@@ -2025,7 +2025,7 @@ static bool aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void 
                     /* Found one! Remove it from the orphan list, and add it to the message */
                     wmem_list_remove_frame(term->orphan_fragment, lf);
                     aeron_msg_fragment_add(msg, frag);
-                    frag_found = TRUE;
+                    frag_found = true;
                     break;
                 }
             }
@@ -2035,9 +2035,9 @@ static bool aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void 
         {
             break;
         }
-        frag_found = FALSE;
+        frag_found = false;
     }
-    return FALSE;
+    return false;
 }
 
 static void aeron_msg_process_orphan_fragments(aeron_term_t * term)
@@ -2060,7 +2060,7 @@ static aeron_msg_fragment_t * aeron_msg_fragment_create(tvbuff_t * tvb, int offs
     frag->data_length = info->data_length;
     frag->frame = pinfo->num;
     frag->frame_offset = offset;
-    frag->data = (gchar *) tvb_memdup(wmem_file_scope(), tvb, frag->frame_offset + O_AERON_DATA_DATA, (size_t) frag->data_length);
+    frag->data = (char *) tvb_memdup(wmem_file_scope(), tvb, frag->frame_offset + O_AERON_DATA_DATA, (size_t) frag->data_length);
     frag->flags = info->flags;
     return (frag);
 }
@@ -2090,7 +2090,7 @@ static aeron_msg_fragment_t * aeron_msg_fragment_find(aeron_msg_t * message, aer
     return (frag);
 }
 
-static aeron_msg_t * aeron_term_msg_find_le(aeron_term_t * term, guint32 term_offset)
+static aeron_msg_t * aeron_term_msg_find_le(aeron_term_t * term, uint32_t term_offset)
 {
     /* Return the last aeron_msg_t with starting_fragment_term_offset <= offset */
     aeron_msg_t * msg = (aeron_msg_t *) wmem_tree_lookup32_le(term->message, term_offset);
@@ -2121,7 +2121,7 @@ static aeron_msg_t * aeron_term_msg_add(aeron_term_t * term, packet_info * pinfo
     msg->first_frame = pinfo->num;
     msg->end_frame = 0;
     msg->last_frame = 0;
-    msg->complete = FALSE;
+    msg->complete = false;
     wmem_tree_insert32(term->message, msg->first_fragment_term_offset, (void *) msg);
     return (msg);
 }
@@ -2220,13 +2220,13 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_item * pad_item;
     proto_item * channel_item;
     proto_item * frame_length_item;
-    guint32 frame_length;
-    guint32 pad_length;
+    uint32_t frame_length;
+    uint32_t pad_length;
     aeron_transport_t * transport;
-    guint32 session_id;
-    guint32 stream_id;
-    guint32 term_id;
-    guint32 term_offset;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint32_t term_id;
+    uint32_t term_offset;
     int rounded_length;
     aeron_packet_info_t pktinfo;
 
@@ -2263,7 +2263,7 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_tree_add_item(subtree, hf_aeron_pad_flags, tvb, offset + O_AERON_PAD_FLAGS, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_type, tvb, offset + O_AERON_PAD_TYPE, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_term_offset, tvb, offset + O_AERON_PAD_TERM_OFFSET, 4, ENC_LITTLE_ENDIAN);
-    aeron_next_offset_report(tvb, subtree, transport, stream_id, term_id, term_offset, (guint32) rounded_length);
+    aeron_next_offset_report(tvb, subtree, transport, stream_id, term_id, term_offset, (uint32_t) rounded_length);
     proto_tree_add_item(subtree, hf_aeron_pad_session_id, tvb, offset + O_AERON_PAD_SESSION_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_stream_id, tvb, offset + O_AERON_PAD_STREAM_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_term_id, tvb, offset + O_AERON_PAD_TERM_ID, 4, ENC_LITTLE_ENDIAN);
@@ -2287,8 +2287,8 @@ static void dissect_aeron_reassembled_data(packet_info * pinfo, proto_tree * tre
     proto_tree * frag_tree;
     aeron_msg_t * msg;
     wmem_list_frame_t * lf;
-    gboolean first_item = TRUE;
-    guint32 msg_ofs = 0;
+    bool first_item = true;
+    uint32_t msg_ofs = 0;
 
     if (finfo->message == NULL)
     {
@@ -2333,7 +2333,7 @@ static void dissect_aeron_reassembled_data(packet_info * pinfo, proto_tree * tre
                 proto_item_append_text(frag_item, ", #%" PRIu32 "(%" PRIu32 ")", frag->frame, frag->data_length);
             }
             msg_ofs += frag->data_length;
-            first_item = FALSE;
+            first_item = false;
         }
         lf = wmem_list_frame_next(lf);
     }
@@ -2346,7 +2346,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     proto_item * data_item;
     proto_item * channel_item;
     proto_item * frame_length_item;
-    guint32 frame_length;
+    uint32_t frame_length;
     static int * const flags[] =
     {
         &hf_aeron_data_flags_b,
@@ -2355,14 +2355,14 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
         NULL
     };
     aeron_transport_t * transport;
-    guint32 session_id;
-    guint32 stream_id;
-    guint32 term_id;
-    guint32 term_offset;
-    guint32 data_length;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint32_t term_id;
+    uint32_t term_offset;
+    uint32_t data_length;
     int rounded_length = 0;
     aeron_packet_info_t pktinfo;
-    guint32 offset_increment = 0;
+    uint32_t offset_increment = 0;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_DATA_FRAME_LENGTH);
     if (frame_length == 0)
@@ -2398,7 +2398,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_DATA, pktinfo.flags, term_id, term_offset, finfo);
     data_item = proto_tree_add_none_format(tree, hf_aeron_data, tvb, offset, -1, "Data Frame: Term 0x%x, Ofs %" PRIu32 ", Len %" PRIu32 "(%d)",
-        (guint32) term_id, term_offset, frame_length, rounded_length);
+        (uint32_t) term_id, term_offset, frame_length, rounded_length);
     subtree = proto_item_add_subtree(data_item, ett_aeron_data);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     proto_item_set_generated(channel_item);
@@ -2415,14 +2415,14 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     if (data_length > 0)
     {
         tvbuff_t * data_tvb = NULL;
-        gboolean can_call_subdissector = FALSE;
+        bool can_call_subdissector = false;
         bool dissector_found = false;
         heur_dtbl_entry_t * hdtbl_entry;
 
         aeron_msg_process(tvb, offset, pinfo, transport, &pktinfo, finfo);
         if ((pktinfo.flags & DATA_FLAGS_COMPLETE) == DATA_FLAGS_COMPLETE)
         {
-            can_call_subdissector = TRUE;
+            can_call_subdissector = true;
         }
         if (finfo != NULL)
         {
@@ -2430,7 +2430,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
             {
                 dissect_aeron_reassembled_data(pinfo, subtree, finfo);
                 data_tvb = finfo->message->reassembled_data;
-                can_call_subdissector = TRUE;
+                can_call_subdissector = true;
             }
             else
             {
@@ -2471,13 +2471,13 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_item * frame_length_item;
     proto_item * channel_item;
     proto_item * nak_offset_item;
-    guint32 frame_length;
+    uint32_t frame_length;
     aeron_transport_t * transport;
-    guint32 session_id;
-    guint32 stream_id;
-    guint32 term_id;
-    guint32 nak_term_offset;
-    guint32 nak_length;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint32_t term_id;
+    uint32_t nak_term_offset;
+    uint32_t nak_length;
     int rounded_length;
     aeron_packet_info_t pktinfo;
 
@@ -2549,20 +2549,20 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     proto_item * frame_length_item;
     proto_item * item;
     proto_item * rcv_window_item;
-    guint32 frame_length;
+    uint32_t frame_length;
     static int * const flags[] =
     {
         &hf_aeron_sm_flags_s,
         NULL
     };
-    guint32 feedback_length;
+    uint32_t feedback_length;
     aeron_transport_t * transport;
-    guint32 session_id;
-    guint32 stream_id;
-    guint32 term_id;
-    guint32 consumption_offset;
-    guint32 rcv_window;
-    guint64 rcv_id;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint32_t term_id;
+    uint32_t consumption_offset;
+    uint32_t rcv_window;
+    uint64_t rcv_id;
     int rounded_length;
     aeron_packet_info_t pktinfo;
 
@@ -2644,9 +2644,9 @@ static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_item * err_item;
     proto_item * frame_length_item;
     int rounded_length;
-    guint32 bad_frame_length;
-    gint string_length;
-    guint32 frame_length;
+    uint32_t bad_frame_length;
+    int string_length;
+    uint32_t frame_length;
     int ofs;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_ERR_FRAME_LENGTH);
@@ -2688,7 +2688,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
     proto_item * data_item;
     proto_item * channel_item;
     proto_item * frame_length_item;
-    guint32 frame_length;
+    uint32_t frame_length;
     static int * const flags[] =
     {
         &hf_aeron_heartbeat_flags_b,
@@ -2696,10 +2696,10 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
         NULL
     };
     aeron_transport_t * transport;
-    guint32 term_offset;
-    guint32 session_id;
-    guint32 stream_id;
-    guint32 term_id;
+    uint32_t term_offset;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint32_t term_id;
 
     int rounded_length = 24;
     aeron_packet_info_t pktinfo;
@@ -2724,7 +2724,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_DATA, pktinfo.flags, term_id, term_offset, finfo);
     data_item = proto_tree_add_none_format(tree, hf_aeron_heartbeat, tvb, offset, -1, "Heartbeat Frame: Term 0x%x, Ofs %" PRIu32 ", Len %" PRIu32 "(%d)",
-        (guint32) term_id, term_offset, frame_length, rounded_length);
+        (uint32_t) term_id, term_offset, frame_length, rounded_length);
     subtree = proto_item_add_subtree(data_item, ett_aeron_data);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     proto_item_set_generated(channel_item);
@@ -2757,16 +2757,16 @@ static int dissect_aeron_rtt(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_item * rtt_item;
     proto_item * frame_length_item;
     proto_item * item;
-    guint32 frame_length;
+    uint32_t frame_length;
     static int * const flags[] =
     {
         &hf_aeron_rtt_flags_r,
         NULL
     };
     aeron_transport_t * transport;
-    guint32 session_id;
-    guint32 stream_id;
-    guint64 rcv_id;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint64_t rcv_id;
     int rounded_length;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_RTT_FRAME_LENGTH);
@@ -2806,7 +2806,7 @@ static int dissect_aeron_rtt(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 /*----------------------------------------------------------------------------*/
 /* Aeron setup packet dissection functions.                                   */
 /*----------------------------------------------------------------------------*/
-static void aeron_set_stream_mtu_ttl_term_length(packet_info * pinfo, aeron_transport_t * transport, guint32 stream_id, guint32 mtu, guint32 ttl, guint32 term_length)
+static void aeron_set_stream_mtu_ttl_term_length(packet_info * pinfo, aeron_transport_t * transport, uint32_t stream_id, uint32_t mtu, uint32_t ttl, uint32_t term_length)
 {
     if (PINFO_FD_VISITED(pinfo) == 0)
     {
@@ -2825,17 +2825,17 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     proto_tree * subtree;
     proto_item * setup_item;
     proto_item * frame_length_item;
-    guint32 frame_length;
+    uint32_t frame_length;
     proto_item * channel_item;
     aeron_transport_t * transport;
-    guint32 session_id;
-    guint32 stream_id;
-    guint32 active_term_id;
-    guint32 initial_term_id;
-    guint32 term_offset;
-    guint32 term_length;
-    guint32 mtu;
-    guint32 ttl;
+    uint32_t session_id;
+    uint32_t stream_id;
+    uint32_t active_term_id;
+    uint32_t initial_term_id;
+    uint32_t term_offset;
+    uint32_t term_length;
+    uint32_t mtu;
+    uint32_t ttl;
     int rounded_length;
     aeron_packet_info_t pktinfo;
 
@@ -2869,7 +2869,7 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Setup");
     setup_item = proto_tree_add_none_format(tree, hf_aeron_setup, tvb, offset, -1,
         "Setup Frame: InitTerm 0x%x, ActiveTerm 0x%x, TermLen %" PRIu32 ", Ofs %" PRIu32 ", MTU %" PRIu32 ", TTL %" PRIu32,
-        initial_term_id, (guint32) active_term_id, term_length, term_offset, mtu, ttl);
+        initial_term_id, (uint32_t) active_term_id, term_length, term_offset, mtu, ttl);
     subtree = proto_item_add_subtree(setup_item, ett_aeron_setup);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     proto_item_set_generated(channel_item);
@@ -2901,9 +2901,9 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
 {
     int total_dissected_length = 0;
-    guint32 frame_length;
-    guint8 frame_flags;
-    guint16 frame_type;
+    uint32_t frame_length;
+    uint8_t frame_flags;
+    uint16_t frame_type;
     proto_tree * aeron_tree;
     proto_item * aeron_item;
     int dissected_length = 0;
@@ -2941,7 +2941,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
         if (aeron_sequence_analysis)
         {
-            finfo = aeron_frame_info_add(pinfo->num, (guint32) offset);
+            finfo = aeron_frame_info_add(pinfo->num, (uint32_t) offset);
         }
         frame_length = tvb_get_letohl(tvb, offset + O_AERON_BASIC_FRAME_LENGTH);
         frame_flags = tvb_get_guint8(tvb, offset + O_AERON_BASIC_FLAGS);
@@ -2997,10 +2997,10 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 static bool test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
 {
-    guint8 ver;
-    guint16 packet_type;
-    gint length;
-    gint length_remaining;
+    uint8_t ver;
+    uint16_t packet_type;
+    int length;
+    int length_remaining;
     int rc;
 
     length_remaining = tvb_captured_length_remaining(tvb, 0);
@@ -3029,7 +3029,7 @@ static bool test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         default:
             return false;
     }
-    length = (gint) (tvb_get_letohl(tvb, O_AERON_BASIC_FRAME_LENGTH) & 0x7fffffff);
+    length = (int) (tvb_get_letohl(tvb, O_AERON_BASIC_FRAME_LENGTH) & 0x7fffffff);
     if (!((packet_type == HDR_TYPE_DATA) && (length == 0)))
     {
         if (length < HDR_LENGTH_MIN)
@@ -3040,7 +3040,7 @@ static bool test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     if (packet_type == HDR_TYPE_PAD)
     {
         /* Pad frames can't have a zero term offset */
-        guint32 term_offset = tvb_get_letohl(tvb, O_AERON_PAD_TERM_OFFSET);
+        uint32_t term_offset = tvb_get_letohl(tvb, O_AERON_PAD_TERM_OFFSET);
         if (term_offset == 0)
         {
             return false;
@@ -3299,7 +3299,7 @@ void proto_register_aeron(void)
         { &hf_aeron_stream_analysis_outstanding_bytes,
             { "Outstanding bytes", "aeron.stream_analysis.outstanding_bytes", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
     };
-    static gint * ett[] =
+    static int * ett[] =
     {
         &ett_aeron,
         &ett_aeron_pad,

@@ -14,11 +14,11 @@
 #define __PACKET_BTAVCTP_H__
 
 typedef struct _btavctp_data_t {
-    guint32   interface_id;
-    guint32   adapter_id;
-    guint16   chandle;  /* only low 12 bits used */
-    guint16   psm;
-    guint8    cr;
+    uint32_t  interface_id;
+    uint32_t  adapter_id;
+    uint16_t  chandle;  /* only low 12 bits used */
+    uint16_t  psm;
+    uint8_t   cr;
 } btavctp_data_t;
 
 extern int proto_btavctp;

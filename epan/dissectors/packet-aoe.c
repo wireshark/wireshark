@@ -43,8 +43,8 @@ static int hf_aoe_response_in;
 static int hf_aoe_response_to;
 static int hf_aoe_time;
 
-static gint ett_aoe;
-static gint ett_aoe_flags;
+static int ett_aoe;
+static int ett_aoe_flags;
 
 #define AOE_FLAGS_RESPONSE 0x08
 #define AOE_FLAGS_ERROR    0x04
@@ -153,38 +153,38 @@ static const value_string ata_cmd_vals[] = {
 };
 
 typedef struct ata_info_t {
-  guint32 tag;
+  uint32_t tag;
   void *conversation; /* just used to multiplex different conversations */
-  guint32 request_frame;
-  guint32 response_frame;
+  uint32_t request_frame;
+  uint32_t response_frame;
   nstime_t req_time;
-  guint8 cmd;
+  uint8_t cmd;
 } ata_info_t;
 static wmem_map_t *ata_cmd_unmatched;
 static wmem_map_t *ata_cmd_matched;
 
-static guint
-ata_cmd_hash_matched(gconstpointer k)
+static unsigned
+ata_cmd_hash_matched(const void *k)
 {
   return GPOINTER_TO_UINT(k);
 }
 
-static gint
-ata_cmd_equal_matched(gconstpointer k1, gconstpointer k2)
+static int
+ata_cmd_equal_matched(const void *k1, const void *k2)
 {
   return k1==k2;
 }
 
-static guint
-ata_cmd_hash_unmatched(gconstpointer k)
+static unsigned
+ata_cmd_hash_unmatched(const void *k)
 {
   const ata_info_t *key = (const ata_info_t *)k;
 
   return key->tag;
 }
 
-static gint
-ata_cmd_equal_unmatched(gconstpointer k1, gconstpointer k2)
+static int
+ata_cmd_equal_unmatched(const void *k1, const void *k2)
 {
   const ata_info_t *key1 = (const ata_info_t *)k1;
   const ata_info_t *key2 = (const ata_info_t *)k2;
@@ -193,11 +193,11 @@ ata_cmd_equal_unmatched(gconstpointer k1, gconstpointer k2)
 }
 
 static void
-dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean response, guint32 tag)
+dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool response, uint32_t tag)
 {
   proto_item *tmp_item;
-  guint8 aflags;
-  guint64 lba;
+  uint8_t aflags;
+  uint64_t lba;
   ata_info_t *ata_info=NULL;
   conversation_t *conversation;
 
@@ -306,8 +306,8 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
 static void
 dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 flags, cmd;
-  guint32 tag;
+  uint8_t flags, cmd;
+  uint32_t tag;
   proto_item *flags_item;
   proto_tree *flags_tree;
 
@@ -358,7 +358,7 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 {
   proto_item *item;
   proto_tree *tree;
-  guint8 version;
+  uint8_t version;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AoE");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -434,7 +434,7 @@ proto_register_aoe(void)
       { "Time from request", "aoe.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for ATA calls", HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_aoe,
     &ett_aoe_flags,
   };

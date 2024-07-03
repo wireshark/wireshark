@@ -189,10 +189,10 @@ static const value_string zip_atp_function_vals[] = {
   {0, NULL}
 };
 
-static gint ett_zip;
-static gint ett_zip_flags;
-static gint ett_zip_zones_list;
-static gint ett_zip_network_list;
+static int ett_zip;
+static int ett_zip_flags;
+static int ett_zip_zones_list;
+static int ett_zip_network_list;
 
 /* --------------------------------
  * from netatalk/include/atalk/ats.h
@@ -233,19 +233,19 @@ static int hf_asp_seq;
 static int hf_asp_size;
 
 typedef struct {
-  guint32 conversation;
-  guint8  src[4];
-  guint16 tid;
+  uint32_t conversation;
+  uint8_t src[4];
+  uint16_t tid;
 } asp_request_key;
 
 typedef struct {
-  guint8  value;        /* command for asp, bitmap for atp */
+  uint8_t value;        /* command for asp, bitmap for atp */
 } asp_request_val;
 
 static wmem_map_t *asp_request_hash;
 
 /* Hash Functions */
-static gint  asp_equal (gconstpointer v, gconstpointer v2)
+static int   asp_equal (const void *v, const void *v2)
 {
   const asp_request_key *val1 = (const asp_request_key*)v;
   const asp_request_key *val2 = (const asp_request_key*)v2;
@@ -258,7 +258,7 @@ static gint  asp_equal (gconstpointer v, gconstpointer v2)
   return 0;
 }
 
-static guint asp_hash  (gconstpointer v)
+static unsigned asp_hash  (const void *v)
 {
   const asp_request_key *asp_key = (const asp_request_key*)v;
   return asp_key->tid;
@@ -294,22 +294,22 @@ static int hf_rtmp_tuple_dist;
 static int hf_rtmp_version;
 static int hf_rtmp_function;
 
-static gint ett_atp;
+static int ett_atp;
 
-static gint ett_atp_segments;
-static gint ett_atp_segment;
-static gint ett_atp_info;
-static gint ett_asp;
-static gint ett_pap;
+static int ett_atp_segments;
+static int ett_atp_segment;
+static int ett_atp_info;
+static int ett_asp;
+static int ett_pap;
 
-static gint ett_nbp;
-static gint ett_nbp_info;
-static gint ett_nbp_node;
-static gint ett_rtmp;
-static gint ett_rtmp_tuple;
-static gint ett_ddp;
-static gint ett_llap;
-static gint ett_pstring;
+static int ett_nbp;
+static int ett_nbp_info;
+static int ett_nbp_node;
+static int ett_rtmp;
+static int ett_rtmp_tuple;
+static int ett_ddp;
+static int ett_llap;
+static int ett_pstring;
 
 static expert_field ei_ddp_len_invalid;
 
@@ -524,7 +524,7 @@ static int
 dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_tree *rtmp_tree;
   proto_item *ti;
-  guint8      function;
+  uint8_t     function;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -548,9 +548,9 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_tree *rtmp_tree;
   proto_item *ti;
   int         offset = 0;
-  guint16     net;
-  guint8      nodelen,nodelen_bits;
-  guint16     node;             /* might be more than 8 bits */
+  uint16_t    net;
+  uint8_t     nodelen,nodelen_bits;
+  uint16_t    node;             /* might be more than 8 bits */
   int         i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
@@ -594,10 +594,10 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     i = 1;
     while (tvb_offset_exists(tvb, offset)) {
       proto_tree *tuple_tree;
-      guint16 tuple_net;
-      guint8 tuple_dist;
-      guint16 tuple_range_end;
-      guint8 version;
+      uint16_t tuple_net;
+      uint8_t tuple_dist;
+      uint16_t tuple_range_end;
+      uint8_t version;
 
       tuple_net = tvb_get_ntohs(tvb, offset);
       tuple_dist = tvb_get_guint8(tvb, offset+2);
@@ -661,9 +661,9 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree *nbp_info_tree;
   proto_item *ti, *info_item;
   int         offset = 0;
-  guint8      info;
-  guint       op, count;
-  guint       i;
+  uint8_t     info;
+  unsigned    op, count;
+  unsigned    i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -728,19 +728,19 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree      *atp_info_tree;
   proto_item      *info_item;
   int              offset        = 0;
-  guint8           ctrlinfo;
-  guint8           frag_number   = 0;
-  guint            op;
-  guint16          tid;
-  guint8           query;
+  uint8_t          ctrlinfo;
+  uint8_t          frag_number   = 0;
+  unsigned         op;
+  uint16_t         tid;
+  uint8_t          query;
   struct atp_asp_dsi_info   atp_asp_dsi_info;
   tvbuff_t        *new_tvb       = NULL;
-  gboolean         save_fragmented;
-  gboolean         more_fragment = FALSE;
+  bool             save_fragmented;
+  bool             more_fragment = false;
   int              len;
-  guint8           bitmap;
-  guint8           nbe           = 0;
-  guint8           t             = 0;
+  uint8_t          bitmap;
+  uint8_t          nbe           = 0;
+  uint8_t          t             = 0;
   conversation_t  *conversation;
   asp_request_val *request_val   = NULL;
 
@@ -887,7 +887,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
            but I don't want to keep track of NBP msgs and open connection
            port allocation.
         */
-        guint8 fn = tvb_get_guint8(new_tvb, 0);
+        uint8_t fn = tvb_get_guint8(new_tvb, 0);
 
         if (!fn || fn > ASPFUNC_ATTN) {
           sub = pap_handle;
@@ -923,8 +923,8 @@ static int
 dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int         offset   = 0;
-  guint8      fn;
-  guint8      connID;
+  uint8_t     fn;
+  uint8_t     connID;
   proto_tree *pap_tree = NULL;
   proto_item *ti;
 
@@ -1013,7 +1013,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_
   conversation_t  *conversation;
   asp_request_key  request_key, *new_request_key;
   asp_request_val *request_val;
-  guint8           fn;
+  uint8_t          fn;
 
   conversation = find_or_create_conversation(pinfo);
 
@@ -1045,7 +1045,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   int             offset   = 0;
   proto_tree     *asp_tree = NULL;
   proto_item     *ti;
-  guint8          fn;
+  uint8_t         fn;
 
   /* Reject the packet if data is NULL */
   if (data == NULL)
@@ -1059,7 +1059,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   if (!request_val)
      return 0;
 
-  fn = (guint8) request_val->value;
+  fn = (uint8_t) request_val->value;
 
   if (atp_asp_dsi_info->reply)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
@@ -1188,8 +1188,8 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
  * data pointed to by an Appletalk "address" structure.
  */
 struct atalk_ddp_addr {
-    guint16 net;
-    guint8  node;
+    uint16_t net;
+    uint8_t node;
 };
 
 
@@ -1198,7 +1198,7 @@ static int atalk_str_len(const address* addr _U_)
     return 8;
 }
 
-static int atalk_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int atalk_to_str(const address* addr, char *buf, int buf_len _U_)
 {
     struct atalk_ddp_addr atalk;
     memcpy(&atalk, addr->data, sizeof atalk);
@@ -1233,9 +1233,9 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   proto_tree     *zip_tree;
   proto_tree     *sub_tree;
   proto_item     *ti;
-  guint8          fn;
-  guint16         count;
-  guint8          len;
+  uint8_t         fn;
+  uint16_t        count;
+  uint8_t         len;
 
   /* Reject the packet if data is NULL */
   if (data == NULL)
@@ -1249,7 +1249,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   if (!request_val)
      return tvb_reported_length(tvb);
 
-  fn = (guint8) request_val->value;
+  fn = (uint8_t) request_val->value;
 
   if (atp_asp_dsi_info->reply)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
@@ -1277,7 +1277,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
   }
   else {
-    guint i;
+    unsigned i;
 
     proto_tree_add_uint(zip_tree, hf_zip_atp_function, tvb, 0, 0, fn);
     switch(fn) {
@@ -1310,15 +1310,15 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 {
   proto_tree *zip_tree = NULL;
   proto_item *ti;
-  guint8      fn;
-  guint8      len;
-  gint        offset   = 0;
+  uint8_t     fn;
+  uint8_t     len;
+  int         offset   = 0;
   proto_tree *sub_tree;
   proto_tree *net_tree;
-  guint8      flag;
-  guint16     net;
-  guint       i;
-  guint       count;
+  uint8_t     flag;
+  uint16_t    net;
+  unsigned    i;
+  unsigned    count;
 
   static int * const zip_flags[] = {
     &hf_zip_flags_zone_invalid,
@@ -1432,18 +1432,18 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 typedef struct ddp_nodes
 {
-  guint8 dnode;
-  guint8 snode;
+  uint8_t dnode;
+  uint8_t snode;
 
 } ddp_nodes_t;
 
 static int
 dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  guint16                len;
-  guint8                 dport;
-  guint8                 sport;
-  guint8                 type;
+  uint16_t               len;
+  uint8_t                dport;
+  uint8_t                sport;
+  uint8_t                type;
   proto_tree            *ddp_tree = NULL;
   proto_item            *ti, *hidden_item, *len_item;
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
@@ -1467,7 +1467,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     len = DDP_SHORT_HEADER_SIZE;
   } else {
     /* Length of the payload following the DDP header */
-    guint reported_length = tvb_reported_length(tvb);
+    unsigned reported_length = tvb_reported_length(tvb);
     if (len > reported_length) {
       expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
                              "Length field is larger than the remaining packet payload");
@@ -1525,8 +1525,8 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
                         *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
-  guint                 type;
-  guint32               len;
+  unsigned              type;
+  uint32_t              len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1552,7 +1552,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     len = DDP_HEADER_SIZE;
   } else {
     /* Length of the payload following the DDP header */
-    guint reported_length = tvb_reported_length(tvb);
+    unsigned reported_length = tvb_reported_length(tvb);
     if (len > reported_length) {
       expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
                              "Length field is larger than the remaining packet payload");
@@ -1602,22 +1602,22 @@ static const value_string llap_type_vals[] = {
 static value_string_ext llap_type_vals_ext = VALUE_STRING_EXT_INIT(llap_type_vals);
 
 static bool
-capture_llap(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo _U_, const union wtap_pseudo_header *pseudo_header _U_)
+capture_llap(const unsigned char *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo _U_, const union wtap_pseudo_header *pseudo_header _U_)
 {
   /* XXX - get its own counter
   counts->other++; */
-  return FALSE;
+  return false;
 }
 
 static int
 dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   ddp_nodes_t ddp_node;
-  guint8 type;
+  uint8_t type;
   proto_tree *llap_tree;
   proto_item *ti;
   tvbuff_t   *new_tvb;
-  guint       new_reported_length;
+  unsigned    new_reported_length;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -2049,7 +2049,7 @@ proto_register_atalk(void)
      { &ei_ddp_len_invalid, { "ddp.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_llap,
     &ett_ddp,
     &ett_atp,

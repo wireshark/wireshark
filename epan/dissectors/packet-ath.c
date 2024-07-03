@@ -61,22 +61,22 @@ static int hf_ath_plen;
 static int hf_ath_payload;
 static int hf_ath_end;
 
-static gint ett_ath;
+static int ett_ath;
 
 static expert_field ei_ath_hlen_invalid;
 static expert_field ei_ath_hmark_invalid;
 
-static gboolean
+static bool
 test_ath(tvbuff_t *tvb)
 {
   /* Apache Tribes packets start with "TRIBES-B" in ASCII.
    * tvb_strneql returns -1 if there aren't enough bytes.
    */
   if (tvb_strneql(tvb, 0, "TRIBES-B", 8) != 0) {
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 static int
@@ -85,18 +85,18 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   int offset = 0;
 
   /* various lengths as reported in the packet itself */
-  guint8 hlen = 0;
-  gint32 clen = 0;
-  gint32 dlen = 0;
-  gint32 plen = 0;
+  uint8_t hlen = 0;
+  int32_t clen = 0;
+  int32_t dlen = 0;
+  int32_t plen = 0;
 
   /* detect the Tribes (Tomcat) version */
-  gint   tribes_version_mark;
+  int    tribes_version_mark;
 
   /* store the info */
-  const gchar *info_srcaddr = "";
-  const gchar *info_domain  = "";
-  const gchar *info_command = "";
+  const char *info_srcaddr = "";
+  const char *info_domain  = "";
+  const char *info_command = "";
 
   proto_item *ti, *hlen_item;
   proto_tree *ath_tree;
@@ -430,7 +430,7 @@ proto_register_ath(void)
     { &ei_ath_hmark_invalid, { "ath.hmark.invalid", PI_MALFORMED, PI_ERROR, "Decode aborted: not an ATH packet", EXPFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ath,
   };
 

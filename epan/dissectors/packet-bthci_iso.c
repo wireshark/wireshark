@@ -41,8 +41,8 @@ static int hf_bthci_iso_data_status_flag;
 static int hf_bthci_iso_data_sdu;
 
 /* Initialize the subtree pointers */
-static gint ett_bthci_iso;
-static gint ett_bthci_iso_data;
+static int ett_bthci_iso;
+static int ett_bthci_iso_data;
 
 static expert_field ei_length_bad;
 
@@ -52,9 +52,9 @@ static dissector_handle_t bthci_iso_data_handle;
 static bool iso_reassembly = true;
 
 typedef struct _multi_fragment_pdu_t {
-    guint32  first_frame;
-    guint32  last_frame;
-    guint16  tot_len;
+    uint32_t first_frame;
+    uint32_t last_frame;
+    uint16_t tot_len;
     char    *reassembled;
     int      cur_off;           /* counter used by reassembly */
 } multi_fragment_pdu_t;
@@ -85,38 +85,38 @@ void proto_reg_handoff_bthci_iso(void);
 void proto_register_iso_data(void);
 
 typedef struct _iso_data_info_t {
-    guint16 handle;
-    gboolean timestamp_present;
+    uint16_t handle;
+    bool timestamp_present;
 } iso_data_info_t;
 
 /* Code to actually dissect the packets */
-static gint
+static int
 dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item               *bthci_iso_item;
     proto_tree               *bthci_iso_tree;
     proto_item               *sub_item;
-    guint16                   flags;
-    guint16                   pb_flag = FALSE;
-    guint16                   length;
-    gboolean                  fragmented = FALSE;
-    gint                      offset = 0;
+    uint16_t                  flags;
+    uint16_t                  pb_flag = false;
+    uint16_t                  length;
+    bool                      fragmented = false;
+    int                       offset = 0;
     tvbuff_t                 *next_tvb;
     chandle_data_t           *chandle_data;
     bluetooth_data_t         *bluetooth_data;
     wmem_tree_key_t           key[6];
-    guint32                   k_connection_handle = 0;
-    guint32                   k_stream_handle;
-    guint32                   k_frame_number;
-    guint32                   k_interface_id;
-    guint32                   k_adapter_id;
-    guint32                   direction;
+    uint32_t                  k_connection_handle = 0;
+    uint32_t                  k_stream_handle;
+    uint32_t                  k_frame_number;
+    uint32_t                  k_interface_id;
+    uint32_t                  k_adapter_id;
+    uint32_t                  direction;
     remote_bdaddr_t          *remote_bdaddr;
-    const gchar              *localhost_name;
-    guint8                   *localhost_bdaddr;
-    const gchar              *localhost_ether_addr;
-    gchar                    *localhost_addr_name;
-    gint                      localhost_length;
+    const char               *localhost_name;
+    uint8_t                  *localhost_bdaddr;
+    const char               *localhost_ether_addr;
+    char                     *localhost_addr_name;
+    int                       localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
     chandle_session_t        *chandle_session;
@@ -161,7 +161,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     /* determine if packet is fragmented */
     if (pb_flag != 0x2) {
-        fragmented = TRUE;
+        fragmented = true;
     }
 
     bluetooth_data = (bluetooth_data_t *) data;
@@ -212,15 +212,15 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (remote_bdaddr && remote_bdaddr->interface_id == bluetooth_data->interface_id &&
             remote_bdaddr->adapter_id == bluetooth_data->adapter_id &&
             remote_bdaddr->chandle == k_connection_handle) {
-        guint32         k_bd_addr_oui;
-        guint32         k_bd_addr_id;
-        guint32         bd_addr_oui;
-        guint32         bd_addr_id;
+        uint32_t        k_bd_addr_oui;
+        uint32_t        k_bd_addr_id;
+        uint32_t        bd_addr_oui;
+        uint32_t        bd_addr_id;
         device_name_t  *device_name;
-        const gchar    *remote_name;
-        const gchar    *remote_ether_addr;
-        gchar          *remote_addr_name;
-        gint            remote_length;
+        const char     *remote_name;
+        const char     *remote_ether_addr;
+        char           *remote_addr_name;
+        int             remote_length;
 
         bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
         bd_addr_id  = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
@@ -249,8 +249,8 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             remote_name = "";
 
         remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
-        remote_length = (gint)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
-        remote_addr_name = (gchar *)wmem_alloc(pinfo->pool, remote_length);
+        remote_length = (int)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
+        remote_addr_name = (char *)wmem_alloc(pinfo->pool, remote_length);
 
         snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
 
@@ -287,7 +287,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(bluetooth_data->localhost_bdaddr, key);
-    localhost_bdaddr = (guint8 *) wmem_alloc(pinfo->pool, 6);
+    localhost_bdaddr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == bluetooth_data->interface_id &&
         localhost_bdaddr_entry->adapter_id == bluetooth_data->adapter_id) {
 
@@ -306,8 +306,8 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     else
         localhost_name = "";
 
-    localhost_length = (gint)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
-    localhost_addr_name = (gchar *)wmem_alloc(pinfo->pool, localhost_length);
+    localhost_length = (int)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
+    localhost_addr_name = (char *)wmem_alloc(pinfo->pool, localhost_length);
 
     snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
 
@@ -372,10 +372,10 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         call_dissector_with_data(bthci_iso_data_handle, next_tvb, pinfo, tree, &iso_data_info);
     } else if (fragmented && iso_reassembly) {
         multi_fragment_pdu_t *mfp = NULL;
-        gint                  len;
+        int                   len;
         if (pb_flag == 0x00) { /* first fragment */
             if (!pinfo->fd->visited) {
-                gint timestamp_size = 0;
+                int timestamp_size = 0;
                 mfp = (multi_fragment_pdu_t *) wmem_new(wmem_file_scope(), multi_fragment_pdu_t);
                 mfp->first_frame = pinfo->num;
                 mfp->last_frame  = 0;
@@ -387,7 +387,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 mfp->tot_len += timestamp_size + (tvb_get_letohs(tvb, offset + 2 + timestamp_size) & 0xfff);
                 mfp->reassembled = (char *) wmem_alloc(wmem_file_scope(), mfp->tot_len);
                 if (len <= mfp->tot_len) {
-                    tvb_memcpy(tvb, (guint8 *) mfp->reassembled, offset, len);
+                    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled, offset, len);
                     mfp->cur_off = len;
                     wmem_tree_insert32(chandle_data->start_fragments, pinfo->num, mfp);
                 }
@@ -413,7 +413,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         /* Try to reassemble as much as possible */
                         len = avail;
                     }
-                    tvb_memcpy(tvb, (guint8 *) mfp->reassembled + mfp->cur_off, offset, len);
+                    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled + mfp->cur_off, offset, len);
                     mfp->cur_off += len;
                     if (pb_flag == 0x03)
                         mfp->last_frame = pinfo->num;
@@ -432,7 +432,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 }
 
                 if (pb_flag == 0x03) { /* last fragment */
-                    next_tvb = tvb_new_child_real_data(tvb, (guint8 *) mfp->reassembled, mfp->tot_len, mfp->tot_len);
+                    next_tvb = tvb_new_child_real_data(tvb, (uint8_t *) mfp->reassembled, mfp->tot_len, mfp->tot_len);
                     add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ISO");
 
                     call_dissector_with_data(bthci_iso_data_handle, next_tvb, pinfo, tree, &iso_data_info);
@@ -452,7 +452,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         sub_item = proto_tree_add_uint(bthci_iso_tree, hf_bthci_iso_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
         proto_item_set_generated(sub_item);
 
-        if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
+        if (chandle_session->disconnect_in_frame < UINT32_MAX) {
             sub_item = proto_tree_add_uint(bthci_iso_tree, hf_bthci_iso_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
             proto_item_set_generated(sub_item);
         }
@@ -521,7 +521,7 @@ proto_register_bthci_iso(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bthci_iso,
     };
 
@@ -558,14 +558,14 @@ proto_reg_handoff_bthci_iso(void)
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_ISO, bthci_iso_handle);
 }
 
-static gint
+static int
 dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *iso_data_load_item;
     proto_tree      *iso_data_load_tree;
-    gint remaining;
-    guint16 seq_no;
-    guint32 sdu_length;
+    int remaining;
+    uint16_t seq_no;
+    uint32_t sdu_length;
     iso_data_info_t *iso_data_info = (iso_data_info_t *) data;
     int offset = 0;
 
@@ -588,7 +588,7 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     col_add_fstr(pinfo->cinfo, COL_INFO, "Handle: 0x%x, SeqNo: %d, SDU length: %d", iso_data_info->handle, seq_no, sdu_length);
 
     if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        guint16 status = tvb_get_letohs(tvb, offset) >> 14;
+        uint16_t status = tvb_get_letohs(tvb, offset) >> 14;
         proto_tree_add_item(iso_data_load_tree, hf_bthci_iso_data_status_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_const(status, VALS(iso_data_status_vals), "RFU"));
     }
@@ -598,7 +598,7 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if (remaining > 0) {
         proto_item *item;
         item = proto_tree_add_item(iso_data_load_tree, hf_bthci_iso_data_sdu, tvb, offset, -1, ENC_NA);
-        if (remaining < (guint16)sdu_length)
+        if (remaining < (uint16_t)sdu_length)
             proto_item_append_text(item, " (Incomplete)");
         offset += remaining;
     }
@@ -637,7 +637,7 @@ proto_register_iso_data(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bthci_iso_data
     };
 

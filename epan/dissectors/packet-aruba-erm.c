@@ -33,10 +33,10 @@
  * Payload contains a pcap record header:
  *
  * typedef struct pcaprec_hdr_s {
- *       guint32 ts_sec;          timestamp seconds
- *       guint32 ts_usec;         timestamp microseconds
- *       guint32 incl_len;        number of octets of packet saved in file
- *       guint32 orig_len;        actual length of packet
+ *       uint32_t ts_sec;          timestamp seconds
+ *       uint32_t ts_usec;         timestamp microseconds
+ *       uint32_t incl_len;        number of octets of packet saved in file
+ *       uint32_t orig_len;        actual length of packet
  * } pcaprec_hdr_t;
  *
  * followed by the packet data, starting with an 802.11 header.
@@ -123,7 +123,7 @@ void proto_reg_handoff_aruba_erm(void);
 void proto_reg_handoff_aruba_erm_radio(void);
 
 #if 0
-static gint  aruba_erm_type;
+static int   aruba_erm_type;
 #endif
 
 static int  proto_aruba_erm;
@@ -143,7 +143,7 @@ static int  hf_aruba_erm_data_rate_gen;
 static int  hf_aruba_erm_channel;
 static int  hf_aruba_erm_signal_strength;
 
-static gint ett_aruba_erm;
+static int ett_aruba_erm;
 
 static expert_field ei_aruba_erm_airmagnet;
 static expert_field ei_aruba_erm_decode;
@@ -165,7 +165,7 @@ static dissector_handle_t radiotap_handle;
 static dissector_table_t aruba_erm_subdissector_table;
 
 static int
-dissect_aruba_erm_pcap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *aruba_erm_tree, gint offset)
+dissect_aruba_erm_pcap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *aruba_erm_tree, int offset)
 {
     proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_time, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
     offset +=8;
@@ -269,20 +269,20 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     int offset = 0;
     proto_tree *aruba_erm_tree;
     struct ieee_802_11_phdr phdr;
-    guint32 signal_strength;
+    uint32_t signal_strength;
     proto_item *ti_data_rate;
-    guint16 data_rate;
-    guint channel;
+    uint16_t data_rate;
+    unsigned channel;
 
     aruba_erm_tree = dissect_aruba_erm_common(tvb, pinfo, tree, &offset);
 
     offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
 
     memset(&phdr, 0, sizeof(phdr));
-    phdr.decrypted = FALSE;
-    phdr.datapad = FALSE;
+    phdr.decrypted = false;
+    phdr.datapad = false;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-    phdr.has_data_rate = TRUE;
+    phdr.has_data_rate = true;
     data_rate = tvb_get_ntohs(tvb, offset);
     phdr.data_rate = data_rate;
     proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_data_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -295,12 +295,12 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     offset += 2;
 
     proto_tree_add_item_ret_uint(aruba_erm_tree, hf_aruba_erm_channel, tvb, offset, 1, ENC_BIG_ENDIAN, &channel);
-    phdr.has_channel = TRUE;
+    phdr.has_channel = true;
     phdr.channel = channel;
     offset += 1;
 
     proto_tree_add_item_ret_uint(aruba_erm_tree, hf_aruba_erm_signal_strength, tvb, offset, 1, ENC_BIG_ENDIAN, &signal_strength);
-    phdr.has_signal_percent = TRUE;
+    phdr.has_signal_percent = true;
     phdr.signal_percent = signal_strength;
     offset += 1;
 
@@ -314,18 +314,18 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (RATE_IS_DSSS(phdr.data_rate)) {
         /* 11b */
         phdr.phy = PHDR_802_11_PHY_11B;
-        phdr.phy_info.info_11b.has_short_preamble = FALSE;
+        phdr.phy_info.info_11b.has_short_preamble = false;
     } else if (RATE_IS_OFDM(phdr.data_rate)) {
         /* 11a or 11g, depending on the band. */
         if (CHAN_IS_BG(phdr.channel)) {
             /* 11g */
             phdr.phy = PHDR_802_11_PHY_11G;
-            phdr.phy_info.info_11g.has_mode = FALSE;
+            phdr.phy_info.info_11g.has_mode = false;
         } else {
             /* 11a */
             phdr.phy = PHDR_802_11_PHY_11A;
-            phdr.phy_info.info_11a.has_channel_type = FALSE;
-            phdr.phy_info.info_11a.has_turbo_type = FALSE;
+            phdr.phy_info.info_11a.has_channel_type = false;
+            phdr.phy_info.info_11a.has_turbo_type = false;
         }
     }
 
@@ -384,7 +384,7 @@ dissect_aruba_erm_type6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static void
-aruba_erm_prompt(packet_info *pinfo _U_, gchar* result)
+aruba_erm_prompt(packet_info *pinfo _U_, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Aruba ERM payload as");
 }
@@ -419,7 +419,7 @@ proto_register_aruba_erm(void)
     };
 
     /* both formats share the same tree */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_aruba_erm,
     };
 
@@ -459,7 +459,7 @@ proto_register_aruba_erm(void)
     prefs_register_enum_preference(aruba_erm_module, "type.captured",
                        "Type of formats for captured packets",
                        "Type of formats for captured packets",
-                       &aruba_erm_type, aruba_erm_types, FALSE);
+                       &aruba_erm_type, aruba_erm_types, false);
 #endif
     prefs_register_obsolete_preference(aruba_erm_module, "type.captured");
 

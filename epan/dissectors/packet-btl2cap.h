@@ -43,20 +43,20 @@
 #define BTL2CAP_UNKNOWN_CID 0xFFFFFFFF
 
 typedef struct _btl2cap_data_t {
-    guint32   interface_id;
-    guint32   adapter_id;
-    guint32  *adapter_disconnect_in_frame;
-    guint16   chandle;  /* only low 12 bits used */
-    guint32  *hci_disconnect_in_frame;
-    guint16   psm;
-    guint32  *disconnect_in_frame;
-    guint16   cid;
-    guint32   local_cid;
-    guint32   remote_cid;
+    uint32_t  interface_id;
+    uint32_t  adapter_id;
+    uint32_t *adapter_disconnect_in_frame;
+    uint16_t  chandle;  /* only low 12 bits used */
+    uint32_t *hci_disconnect_in_frame;
+    uint16_t  psm;
+    uint32_t *disconnect_in_frame;
+    uint16_t  cid;
+    uint32_t  local_cid;
+    uint32_t  remote_cid;
 
-    gboolean  is_local_psm; /* otherwise it is PSM in remote device */
-    guint32   remote_bd_addr_oui;
-    guint32   remote_bd_addr_id;
+    bool      is_local_psm; /* otherwise it is PSM in remote device */
+    uint32_t  remote_bd_addr_oui;
+    uint32_t  remote_bd_addr_id;
 } btl2cap_data_t;
 
 extern int proto_btl2cap;

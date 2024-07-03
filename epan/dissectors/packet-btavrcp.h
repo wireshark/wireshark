@@ -16,8 +16,8 @@
 extern wmem_tree_t *btavrcp_song_positions;
 
 typedef struct _btavrcp_song_position_data_t {
-    guint32   song_position;
-    guint32   used_in_frame;
+    uint32_t  song_position;
+    uint32_t  used_in_frame;
 } btavrcp_song_position_data_t;
 
 #endif

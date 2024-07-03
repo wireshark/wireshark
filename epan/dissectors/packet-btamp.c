@@ -45,11 +45,11 @@ static int hf_btamp_amp_assoc_size;
 static int hf_btamp_amp_assoc;
 
 /* Initialize the subtree pointers */
-static gint ett_btamp;
-static gint ett_btamp_cmd;
-static gint ett_btamp_caps;
-static gint ett_btamp_controller_entry;
-static gint ett_btamp_controller_list;
+static int ett_btamp;
+static int ett_btamp_cmd;
+static int ett_btamp_caps;
+static int ett_btamp_controller_entry;
+static int ett_btamp_controller_list;
 
 static dissector_handle_t btamp_handle;
 
@@ -125,7 +125,7 @@ void proto_reg_handoff_btamp(void);
 static int
 dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint16 reason;
+    uint16_t reason;
 
     reason = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree, hf_btamp_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -155,7 +155,7 @@ dissect_discoverrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 }
 
 static int
-dissect_controller_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 idx)
+dissect_controller_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, uint16_t idx)
 {
     proto_item *ti_controller_entry;
     proto_tree *btamp_controller_entry_tree;
@@ -181,8 +181,8 @@ dissect_controller_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 static int
 dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16     length;
-    guint16     idx = 1;
+    uint16_t    length;
+    uint16_t    idx = 1;
     proto_item *ti_controller_list;
     proto_tree *btamp_controller_list_tree;
 
@@ -210,8 +210,8 @@ dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 dissect_changenotify(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16     length;
-    guint16     idx = 1;
+    uint16_t    length;
+    uint16_t    idx = 1;
     proto_item *ti_controller_list;
     proto_tree *btamp_controller_list_tree;
 
@@ -372,11 +372,11 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     int         offset         = 0;
     proto_item *ti;
     proto_tree *btamp_tree;
-    guint16     length;
+    uint16_t    length;
     proto_item *ti_command;
     proto_tree *btamp_cmd_tree;
-    guint8      cmd_code;
-    guint16     cmd_length;
+    uint8_t     cmd_code;
+    uint16_t    cmd_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMP");
 
@@ -615,7 +615,7 @@ proto_register_btamp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btamp,
         &ett_btamp_cmd,
         &ett_btamp_caps,

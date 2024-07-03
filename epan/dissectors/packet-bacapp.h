@@ -19,10 +19,10 @@
 
 /* Used for BACnet statistics */
 typedef struct _bacapp_info_value_t {
-    const gchar     *service_type;
-    const gchar     *invoke_id;
-    const gchar     *instance_ident;
-    const gchar     *object_ident;
+    const char      *service_type;
+    const char      *invoke_id;
+    const char      *instance_ident;
+    const char      *object_ident;
 } bacapp_info_value_t;
 
 /* Possible datatypes of the present_value property.

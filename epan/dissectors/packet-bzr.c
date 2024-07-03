@@ -23,18 +23,18 @@ void proto_reg_handoff_bzr(void);
 
 static int proto_bzr;
 
-static gint ett_bzr;
-static gint ett_prefixed_bencode;
-static gint ett_prefixed_bytes;
+static int ett_bzr;
+static int ett_prefixed_bencode;
+static int ett_prefixed_bytes;
 
-static gint hf_bzr_prefixed_bencode;
-static gint hf_bzr_prefixed_bencode_len;
-static gint hf_bzr_bytes;
-static gint hf_bzr_bytes_data;
-static gint hf_bzr_bytes_length;
-static gint hf_bzr_result;
-static gint hf_bzr_packet_protocol_version;
-static gint hf_bzr_packet_kind;
+static int hf_bzr_prefixed_bencode;
+static int hf_bzr_prefixed_bencode_len;
+static int hf_bzr_bytes;
+static int hf_bzr_bytes_data;
+static int hf_bzr_bytes_length;
+static int hf_bzr_result;
+static int hf_bzr_packet_protocol_version;
+static int hf_bzr_packet_kind;
 
 static dissector_handle_t bencode_handle;
 static dissector_handle_t bzr_handle;
@@ -62,24 +62,24 @@ static const value_string message_results[] = {
 /* desegmentation of Bazaar over TCP */
 static bool bzr_desegment = true;
 
-static guint get_bzr_prefixed_len(tvbuff_t *tvb, int offset)
+static unsigned get_bzr_prefixed_len(tvbuff_t *tvb, int offset)
 {
-    guint header_len;
+    unsigned header_len;
     header_len = tvb_get_ntohl(tvb, offset);
     return 4 + header_len;
 }
 
-static guint
+static unsigned
 get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     int    next_offset;
-    gint   len = 0, current_len;
-    gint   protocol_version_len;
-    guint8 cmd = 0;
+    int    len = 0, current_len;
+    int    protocol_version_len;
+    uint8_t cmd = 0;
 
     /* Protocol version */
     protocol_version_len = tvb_find_line_end(tvb, offset, -1, &next_offset,
-                                             TRUE);
+                                             true);
     if (protocol_version_len == -1) /* End of the packet not seen yet */
         return -1;
 
@@ -114,11 +114,11 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return -1;
 }
 
-static gint
-dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+static int
+dissect_prefixed_bencode(tvbuff_t *tvb, int offset, packet_info *pinfo,
                          proto_tree *tree)
 {
-    guint32     plen;
+    uint32_t    plen;
     proto_tree *prefixed_bencode_tree;
     proto_item *ti;
     tvbuff_t *subtvb;
@@ -140,11 +140,11 @@ dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return 4 + plen;
 }
 
-static gint
-dissect_prefixed_bytes(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_prefixed_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                        proto_tree *tree)
 {
-    guint32     plen;
+    uint32_t    plen;
     proto_tree *prefixed_bytes_tree;
     proto_item *ti;
 
@@ -164,10 +164,10 @@ dissect_prefixed_bytes(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return 4 + plen;
 }
 
-static gint
-dissect_body(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_body(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 cmd = 0;
+    uint8_t cmd = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         cmd = tvb_get_guint8(tvb, offset);
@@ -200,12 +200,12 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *bzr_tree;
     proto_item *ti;
     int         offset = 0;
-    gint        protocol_version_len;
+    int         protocol_version_len;
 
     ti = proto_tree_add_item(tree, proto_bzr, tvb, offset, -1, ENC_NA);
     bzr_tree = proto_item_add_subtree(ti, ett_bzr);
 
-    protocol_version_len = tvb_find_line_end(tvb, offset, -1, &offset, TRUE);
+    protocol_version_len = tvb_find_line_end(tvb, offset, -1, &offset, true);
     if (protocol_version_len == -1) /* Invalid packet */
         return;
 
@@ -222,7 +222,7 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint      offset = 0, pdu_len;
+    int       offset = 0, pdu_len;
     tvbuff_t *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BZR");
@@ -289,7 +289,7 @@ proto_register_bzr(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bzr,
         &ett_prefixed_bencode,
         &ett_prefixed_bytes,

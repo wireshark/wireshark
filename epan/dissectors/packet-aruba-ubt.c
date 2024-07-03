@@ -124,9 +124,9 @@ static int hf_ubt_dt_maxmsgs;
 static expert_field ei_ubt_unknown;
 
 /* Initialize the subtree pointers */
-static gint ett_ubt;
-static gint ett_ubt_tlv;
-static gint ett_ubt_flags;
+static int ett_ubt;
+static int ett_ubt_tlv;
+static int ett_ubt_flags;
 
 /* Definition of different sizes and counts used throughout the program */
 #define PAPI_PACKET_SIZE 76
@@ -285,7 +285,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     /* declaration of variables used */
     proto_item* ti, * ubt_msg_type;
     proto_tree* message_tree, * message_subtree, * message_subtree2, * message_subtree3, * message_subtree4;
-    guint offset_end = 0, msgtype = 0, offset = 0;
+    unsigned offset_end = 0, msgtype = 0, offset = 0;
     tvbuff_t* next_tvb;
 
     /* Setting protocol column to UBT */
@@ -342,7 +342,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     while (offset < offset_end) {
 
         /* variable to store T, L, V of TLVs & other data */
-        guint optlen = 0, type = 0, val = 0;
+        unsigned optlen = 0, type = 0, val = 0;
         bool bool_val = false;
         proto_item* tlv, * tlv_item, * tlv_item2;
 
@@ -1315,7 +1315,7 @@ proto_register_ubt(void)
     };
 
     /* Setup protocol subtree array */
-    static gint* ett[] = {
+    static int* ett[] = {
         &ett_ubt,
         &ett_ubt_tlv,
         &ett_ubt_flags

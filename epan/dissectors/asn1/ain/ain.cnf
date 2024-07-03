@@ -109,7 +109,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 # Create a table of opcode and corresponding args and res
 #.TABLE11_HDR
 typedef struct _ain_op_t {
-  gint32 opcode;
+  int32_t opcode;
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } ain_op_t;
@@ -123,7 +123,7 @@ static const ain_op_t ain_op_tab[] = {
 
 #.TABLE11_HDR
 typedef struct _ain_err_t {
-  gint32 errcode;
+  int32_t errcode;
   dissector_t err_pdu;
 } ain_err_t;
 

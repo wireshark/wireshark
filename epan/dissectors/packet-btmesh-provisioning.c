@@ -249,7 +249,7 @@ static const value_string btmesh_provisioning_input_oob_size_format[] = {
     { 0, NULL }
 };
 
-static gint
+static int
 dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *item, *algorithms_item, *public_key_type_item;
@@ -260,14 +260,14 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree *expert_tree;
     int offset = 0;
     btle_mesh_transport_ctx_t *tr_ctx;
-    btle_mesh_transport_ctx_t dummy_ctx = {E_BTMESH_TR_UNKNOWN, FALSE, 0};
-    guint8 authentication_method, authentication_action, authentication_size;
-    guint8 provisioning_algorithm;
-    guint8 prohibited_value, output_oob_size, input_oob_size;
-    guint16 rfu_uint16;
-    guint8 no_of_elements;
-    guint8 error_code;
-    guint8 provisioning_public_key;
+    btle_mesh_transport_ctx_t dummy_ctx = {E_BTMESH_TR_UNKNOWN, false, 0};
+    uint8_t authentication_method, authentication_action, authentication_size;
+    uint8_t provisioning_algorithm;
+    uint8_t prohibited_value, output_oob_size, input_oob_size;
+    uint16_t rfu_uint16;
+    uint8_t no_of_elements;
+    uint8_t error_code;
+    uint8_t provisioning_public_key;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh Provisioning PDU");
 
@@ -281,9 +281,9 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     sub_tree = proto_item_add_subtree(item, ett_btmesh_provisioning);
 
     proto_tree_add_item(sub_tree, hf_btmesh_provisioning_pdu_type, tvb, offset, 1, ENC_NA);
-    guint8 pdu_type = tvb_get_guint8(tvb, offset) & 0x3F;
+    uint8_t pdu_type = tvb_get_guint8(tvb, offset) & 0x3F;
     proto_tree_add_item(sub_tree, hf_btmesh_provisioning_pdu_padding, tvb, offset, 1, ENC_NA);
-    guint8 pdu_padding = (tvb_get_guint8(tvb, offset) & 0xC0) >> 6;
+    uint8_t pdu_padding = (tvb_get_guint8(tvb, offset) & 0xC0) >> 6;
     if (pdu_padding != 0) {
         //Padding should be 0
         proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_provisioning_rfu_not_zero, tvb, offset, -1);
@@ -808,7 +808,7 @@ proto_register_btmesh_provisioning(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btmesh_provisioning,
         &ett_btmesh_provisioning_algorithms,
         &ett_btmesh_provisioning_public_key_type,

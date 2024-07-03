@@ -42,7 +42,7 @@ static capture_dissector_handle_t ax25_cap_handle;
 static int proto_bpq;
 static int hf_bpq_len;
 
-static gint ett_bpq;
+static int ett_bpq;
 
 static int
 dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
@@ -50,7 +50,7 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_item *ti;
 	proto_tree *bpq_tree;
 	int	    offset;
-	guint16	    bpq_len;
+	uint16_t	    bpq_len;
 	tvbuff_t   *next_tvb;
 
 
@@ -91,12 +91,12 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 }
 
 static bool
-capture_bpq( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_bpq( const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	int l_offset;
 
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, BPQ_HEADER_SIZE ) )
-		return FALSE;
+		return false;
 
 	l_offset = offset;
 	l_offset += BPQ_HEADER_SIZE; /* step over bpq header to point at the AX.25 packet*/
@@ -116,7 +116,7 @@ proto_register_bpq(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bpq,
 	};
 

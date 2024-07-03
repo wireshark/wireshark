@@ -130,7 +130,7 @@ static int hf_acp133_OnSupported_acp127_pn;
 static int hf_acp133_OnSupported_acp127_tn;
 
 /* Initialize the subtree pointers */
-static gint ett_acp133;
+static int ett_acp133;
 static int ett_acp133_OnSupported;
 static int ett_acp133_Addressees;
 static int ett_acp133_MonthlyUKMs;
@@ -1543,7 +1543,7 @@ void proto_register_acp133(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_acp133,
     &ett_acp133_OnSupported,
     &ett_acp133_Addressees,

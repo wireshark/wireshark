@@ -38,7 +38,7 @@ static int hf_btavctp_rfa;
 static int hf_btavctp_pid;
 static int hf_btavctp_number_of_packets;
 
-static gint ett_btavctp;
+static int ett_btavctp;
 
 static expert_field ei_btavctp_unexpected_frame;
 static expert_field ei_btavctp_invalid_profile;
@@ -46,18 +46,18 @@ static expert_field ei_btavctp_invalid_profile;
 static dissector_handle_t btavctp_handle;
 
 typedef struct _fragment_t {
-    guint   length;
-    guint8  *data;
+    unsigned   length;
+    uint8_t *data;
 } fragment_t;
 
 typedef struct _fragments_t {
-    guint32      interface_id;
-    guint32      adapter_id;
-    guint32      chandle;
-    guint32      psm;
-    guint32      count;
-    guint32      number_of_packets;
-    guint32      pid;
+    uint32_t     interface_id;
+    uint32_t     adapter_id;
+    uint32_t     chandle;
+    uint32_t     psm;
+    uint32_t     count;
+    uint32_t     number_of_packets;
+    uint32_t     pid;
     wmem_tree_t  *fragment;
 } fragments_t;
 
@@ -87,7 +87,7 @@ static const value_string ipid_vals[] = {
 void proto_register_btavctp(void);
 void proto_reg_handoff_btavctp(void);
 
-static gint
+static int
 dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *ti;
@@ -96,20 +96,20 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *ipid_item = NULL;
     btavctp_data_t  *avctp_data;
     tvbuff_t        *next_tvb;
-    gint            offset = 0;
-    guint           packet_type;
-    guint           cr;
-    guint           pid = 0;
-    guint           transaction;
-    guint           number_of_packets = 0;
-    guint           length;
-    guint           i_frame;
-    gboolean        ipid = FALSE;
-    guint32         interface_id;
-    guint32         adapter_id;
-    guint32         chandle;
-    guint32         psm;
-    gint            previous_proto;
+    int             offset = 0;
+    unsigned        packet_type;
+    unsigned        cr;
+    unsigned        pid = 0;
+    unsigned        transaction;
+    unsigned        number_of_packets = 0;
+    unsigned        length;
+    unsigned        i_frame;
+    bool            ipid = false;
+    uint32_t        interface_id;
+    uint32_t        adapter_id;
+    uint32_t        chandle;
+    uint32_t        psm;
+    int             previous_proto;
 
     previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
     if (previous_proto == proto_btl2cap) {
@@ -172,7 +172,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pid = tvb_get_ntohs(tvb, offset);
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID ) == NULL) {
-            guint8 *value_data;
+            uint8_t *value_data;
             bluetooth_uuid_t  uuid;
 
             uuid.size = 2;
@@ -224,7 +224,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     } else {
         fragment_t     *fragment;
         wmem_tree_key_t key[6];
-        guint32         frame_number;
+        uint32_t        frame_number;
 
         frame_number = pinfo->num;
 
@@ -245,7 +245,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (!pinfo->fd->visited) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
-                fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
+                fragment->data = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments = wmem_new(wmem_file_scope(), fragments_t);
@@ -285,7 +285,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (!pinfo->fd->visited && fragments != NULL) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
-                fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
+                fragment->data = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments->count++;
@@ -328,7 +328,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (!pinfo->fd->visited && fragments != NULL) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
-                fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
+                fragment->data = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments->count++;
@@ -362,13 +362,13 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 expert_add_info(pinfo, pitem, &ei_btavctp_unexpected_frame);
                 call_data_dissector(next_tvb, pinfo, tree);
             } else {
-                guint8   *reassembled = NULL;
+                uint8_t  *reassembled = NULL;
                 bluetooth_uuid_t  uuid;
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
                     fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
                     if (fragment) {
-                        reassembled = (guint8*)wmem_realloc(pinfo->pool, reassembled, length + fragment->length);
+                        reassembled = (uint8_t*)wmem_realloc(pinfo->pool, reassembled, length + fragment->length);
                         memcpy(reassembled + length, fragment->data, fragment->length);
                         length += fragment->length;
                     }
@@ -440,7 +440,7 @@ proto_register_btavctp(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btavctp
     };
 

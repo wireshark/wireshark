@@ -161,17 +161,17 @@ static int hf_bpdu_pvst_tlvlength;
 static int hf_bpdu_pvst_tlvvalue;
 static int hf_bpdu_pvst_tlv_origvlan;
 
-static gint ett_bpdu;
-static gint ett_bpdu_flags;
-static gint ett_root_id;
-static gint ett_bridge_id;
-static gint ett_mstp;
-static gint ett_msti;
-static gint ett_cist_bridge_id;
-static gint ett_spt;
-static gint ett_aux_mcid;
-static gint ett_agreement;
-static gint ett_bpdu_pvst_tlv;
+static int ett_bpdu;
+static int ett_bpdu_flags;
+static int ett_root_id;
+static int ett_bridge_id;
+static int ett_mstp;
+static int ett_msti;
+static int ett_cist_bridge_id;
+static int ett_spt;
+static int ett_aux_mcid;
+static int ett_agreement;
+static int ett_bpdu_pvst_tlv;
 
 static expert_field ei_pvst_tlv_length_invalid;
 static expert_field ei_pvst_tlv_origvlan_missing;
@@ -241,8 +241,8 @@ static const char cont_sep[] = ", ";
 
 static void
 dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
-  gboolean pvst_tlv_origvlan_present = FALSE;
-  guint16 tlv_type, tlv_length;
+  bool pvst_tlv_origvlan_present = false;
+  uint16_t tlv_type, tlv_length;
   int offset = BPDU_PVST_TLV;
   proto_item * ti = NULL;
   proto_item * tlv_length_item = NULL;
@@ -275,7 +275,7 @@ dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
         if (tlv_length == 2) { /* Originating VLAN ID must be 2 bytes long */
           proto_item_append_text(ti, " (PVID): %u", tvb_get_ntohs(tvb, offset));
           proto_tree_add_item(tlv_tree, hf_bpdu_pvst_tlv_origvlan, tvb, offset, tlv_length, ENC_BIG_ENDIAN);
-          pvst_tlv_origvlan_present = TRUE;
+          pvst_tlv_origvlan_present = true;
         }
         else
           expert_add_info(pinfo, tlv_length_item, &ei_pvst_tlv_length_invalid);
@@ -290,47 +290,47 @@ dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
     offset += tlv_length;
   }
 
-  if (pvst_tlv_origvlan_present == FALSE) /* If a (R)PVST+ BPDU lacks the Originating VLAN TLV, it is malformed */
+  if (pvst_tlv_origvlan_present == false) /* If a (R)PVST+ BPDU lacks the Originating VLAN TLV, it is malformed */
     expert_add_info(pinfo, tree, &ei_pvst_tlv_origvlan_missing);
 }
 
 static void
-dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bpdu_pvst)
+dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_pvst)
 {
-  guint16 protocol_identifier;
-  guint8  protocol_version_identifier;
-  guint8  bpdu_type;
-  guint8  flags;
-  guint16 root_identifier_bridge_priority;
-  guint16 root_identifier_system_id_extension = 0;
-  const gchar *root_identifier_mac_str;
-  guint32 root_path_cost;
-  guint16 bridge_identifier_bridge_priority;
-  guint16 bridge_identifier_system_id_extension = 0;
-  const gchar *bridge_identifier_mac_str;
-  guint16 port_identifier;
+  uint16_t protocol_identifier;
+  uint8_t protocol_version_identifier;
+  uint8_t bpdu_type;
+  uint8_t flags;
+  uint16_t root_identifier_bridge_priority;
+  uint16_t root_identifier_system_id_extension = 0;
+  const char *root_identifier_mac_str;
+  uint32_t root_path_cost;
+  uint16_t bridge_identifier_bridge_priority;
+  uint16_t bridge_identifier_system_id_extension = 0;
+  const char *bridge_identifier_mac_str;
+  uint16_t port_identifier;
   double message_age;
   double max_age;
   double hello_time;
   double forward_delay;
-  guint8 version_1_length;
-  guint16 version_3_length;
-  guint16 version_4_length = 0;
-  guint16 bpdu_version_4_length = 0;
-  guint8 config_format_selector;
-  guint16 cist_bridge_identifier_bridge_priority;
-  guint16 cist_bridge_identifier_system_id_extension = 0;
-  const gchar *cist_bridge_identifier_mac_str;
-  guint32 msti_regional_root_mstid, msti_regional_root_priority;
-  const gchar *msti_regional_root_mac_str;
-  guint16 msti_bridge_identifier_priority, msti_port_identifier_priority;
+  uint8_t version_1_length;
+  uint16_t version_3_length;
+  uint16_t version_4_length = 0;
+  uint16_t bpdu_version_4_length = 0;
+  uint8_t config_format_selector;
+  uint16_t cist_bridge_identifier_bridge_priority;
+  uint16_t cist_bridge_identifier_system_id_extension = 0;
+  const char *cist_bridge_identifier_mac_str;
+  uint32_t msti_regional_root_mstid, msti_regional_root_priority;
+  const char *msti_regional_root_mac_str;
+  uint16_t msti_bridge_identifier_priority, msti_port_identifier_priority;
   int   total_msti_length, offset, msti_format;
   int   msti_length_remaining;
 
   int spt_offset = 0;
 
   int MCID_LEN = 51;
-  guint8 spt_agree_data = 0;
+  uint8_t spt_agree_data = 0;
 
   proto_tree *bpdu_tree;
   proto_tree *mstp_tree, *msti_tree, *spt_tree = NULL, *aux_mcid_tree = NULL, *agreement_tree = NULL;
@@ -369,9 +369,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
      on Linux cooked captures, there *is* no destination address,
      so it's AT_NONE. */
   if (pinfo->dl_dst.type == AT_ETHER) {
-    const guint8 *dstaddr;
+    const uint8_t *dstaddr;
 
-    dstaddr = (const guint8 *)pinfo->dl_dst.data;
+    dstaddr = (const uint8_t *)pinfo->dl_dst.data;
     if(dstaddr[0] == 0x01 && dstaddr[1] == 0x80 &&
        dstaddr[2] == 0xC2 && dstaddr[3] == 0x00 &&
        dstaddr[4] == 0x00 && ((dstaddr[5] == 0x0D) || ((dstaddr[5] & 0xF0) == 0x20))) {
@@ -687,7 +687,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           total_msti_length = version_3_length * MSTI_MESSAGE_SIZE;
         }
       } else {
-        if (tvb_reported_length(tvb) == (guint)config_format_selector + MST_BPDU_SIZE + 1 ) {
+        if (tvb_reported_length(tvb) == (unsigned)config_format_selector + MST_BPDU_SIZE + 1 ) {
           msti_format = MSTI_FORMAT_ALTERNATIVE;
           total_msti_length = config_format_selector - VERSION_3_STATIC_LENGTH;
         } else {
@@ -1001,14 +1001,14 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
 static int
 dissect_bpdu_cisco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_bpdu(tvb, pinfo, tree, TRUE);
+  dissect_bpdu(tvb, pinfo, tree, true);
   return tvb_captured_length(tvb);
 }
 
 static int
 dissect_bpdu_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_bpdu(tvb, pinfo, tree, FALSE);
+  dissect_bpdu(tvb, pinfo, tree, false);
   return tvb_captured_length(tvb);
 }
 
@@ -1286,7 +1286,7 @@ proto_register_bpdu(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_bpdu,
     &ett_bpdu_flags,
     &ett_root_id,

@@ -135,16 +135,16 @@ enum AcdrTracePoints
 };
 
 typedef struct {
-    gboolean header_added;
-    guint8  version;
-    guint16 tls_source_port;
-    guint16 tls_dest_port;
-    guint8  tls_application;
-    guint8 media_type;
-    guint16 payload_type;
-    guint8 trace_point;
-    gboolean medium_mii;
-    gboolean li_packet;
+    bool header_added;
+    uint8_t version;
+    uint16_t tls_source_port;
+    uint16_t tls_dest_port;
+    uint8_t tls_application;
+    uint8_t media_type;
+    uint16_t payload_type;
+    uint8_t trace_point;
+    bool medium_mii;
+    bool li_packet;
 } acdr_dissector_data_t;
 
 #endif /* __PACKET_ACDR_H__ */

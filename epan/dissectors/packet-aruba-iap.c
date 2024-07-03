@@ -40,7 +40,7 @@ void proto_reg_handoff_aruba_iap(void);
 static dissector_handle_t iap_handle;
 
 static int proto_aruba_iap;
-static gint ett_aruba_iap;
+static int ett_aruba_iap;
 
 static int hf_iap_magic;
 static int hf_iap_version;
@@ -78,8 +78,8 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
     proto_tree *ti;
     proto_tree *aruba_iap_tree;
-    guint16 magic;
-    guint8 type;
+    uint16_t magic;
+    uint8_t type;
     int offset = 0;
 
     magic = tvb_get_ntohs(tvb, offset);
@@ -197,7 +197,7 @@ proto_register_aruba_iap(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_aruba_iap,
     };
 

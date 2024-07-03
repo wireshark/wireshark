@@ -51,8 +51,8 @@ static int hf_pdu_name;
 static int hf_payload_unparsed;
 
 /* etts */
-static gint ett_ipdum;
-static gint ett_ipdum_pdu;
+static int ett_ipdum;
+static int ett_ipdum_pdu;
 
 /**************************************
  ********      UAT configs     ********
@@ -65,92 +65,92 @@ static gint ett_ipdum_pdu;
 
 
 typedef struct _ipdum_message_item {
-    guint32     pos;
-    guint32     pdu_id;
-    gchar      *name;
-    guint32     start_pos;
-    guint32     bit_length;
-    guint32     update_bit_pos;
+    uint32_t    pos;
+    uint32_t    pdu_id;
+    char       *name;
+    uint32_t    start_pos;
+    uint32_t    bit_length;
+    uint32_t    update_bit_pos;
 } ipdum_message_item_t;
 
 typedef struct _ipdum_message_list {
-    guint32     id;
-    guint32     num_of_items;
+    uint32_t    id;
+    uint32_t    num_of_items;
 
     ipdum_message_item_t *items;
 } ipdum_message_list_t;
 
 typedef struct _ipdum_message_list_uat {
-    guint32     id;
-    guint32     num_of_params;
+    uint32_t    id;
+    uint32_t    num_of_params;
 
-    guint32     pos;
-    guint32     pdu_id;
-    gchar      *name;
-    guint32     start_pos;
-    guint32     bit_length;
-    guint32     update_bit_pos;
+    uint32_t    pos;
+    uint32_t    pdu_id;
+    char       *name;
+    uint32_t    start_pos;
+    uint32_t    bit_length;
+    uint32_t    update_bit_pos;
 } ipdum_message_list_uat_t;
 
 
 typedef struct _ipdum__can_mapping {
-    guint32     can_id;
-    guint32     bus_id;
-    guint32     message_id;
+    uint32_t    can_id;
+    uint32_t    bus_id;
+    uint32_t    message_id;
 } ipdum_can_mapping_t;
 typedef ipdum_can_mapping_t ipdum_can_mapping_uat_t;
 
 typedef struct _ipdum_flexray_mapping {
-    guint32     channel;
-    guint32     cycle;
-    guint32     frame_id;
-    guint32     message_id;
+    uint32_t    channel;
+    uint32_t    cycle;
+    uint32_t    frame_id;
+    uint32_t    message_id;
 } ipdum_flexray_mapping_t;
 typedef ipdum_flexray_mapping_t ipdum_flexray_mapping_uat_t;
 
 typedef struct _ipdum_lin_mapping {
-    guint32     frame_id;
-    guint32     bus_id;
-    guint32     message_id;
+    uint32_t    frame_id;
+    uint32_t    bus_id;
+    uint32_t    message_id;
 } ipdum_lin_mapping_t;
 typedef ipdum_lin_mapping_t ipdum_lin_mapping_uat_t;
 
 typedef struct _ipdum_pdu_transport_mapping {
-    guint32     pdu_id;
-    guint32     message_id;
+    uint32_t    pdu_id;
+    uint32_t    message_id;
 } ipdum_pdu_transport_mapping_t;
 typedef ipdum_pdu_transport_mapping_t ipdum_pdu_transport_mapping_uat_t;
 
 static ipdum_message_list_uat_t *ipdum_message_list;
-static guint ipdum_message_list_num;
+static unsigned ipdum_message_list_num;
 static GHashTable *data_ipdum_messages;
 
 static ipdum_can_mapping_t *ipdum_can_mapping;
-static guint ipdum_can_mapping_num;
+static unsigned ipdum_can_mapping_num;
 static GHashTable *data_ipdum_can_mappings;
 
 static ipdum_flexray_mapping_t *ipdum_flexray_mapping;
-static guint ipdum_flexray_mapping_num;
+static unsigned ipdum_flexray_mapping_num;
 static GHashTable *data_ipdum_flexray_mappings;
 
 static ipdum_lin_mapping_t *ipdum_lin_mapping;
-static guint ipdum_lin_mapping_num;
+static unsigned ipdum_lin_mapping_num;
 static GHashTable *data_ipdum_lin_mappings;
 
 static ipdum_pdu_transport_mapping_t *ipdum_pdu_transport_mapping;
-static guint ipdum_pdu_transport_mapping_num;
+static unsigned ipdum_pdu_transport_mapping_num;
 static GHashTable *data_ipdum_pdu_transport_mappings;
 
 
 /* UAT Callbacks and Helpers */
 
 static void
-ipdum_payload_free_key(gpointer key) {
+ipdum_payload_free_key(void *key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
 static void
-ipdum_payload_free_generic_data(gpointer data _U_) {
+ipdum_payload_free_generic_data(void *data _U_) {
     /* currently nothing to be free */
 }
 
@@ -195,25 +195,25 @@ update_ipdum_message_list(void *r, char **err) {
 
     if (rec->pos >= 0xffff) {
         *err = ws_strdup_printf("Position too big");
-        return FALSE;
+        return false;
     }
 
     if (rec->num_of_params >= 0xffff) {
         *err = ws_strdup_printf("Number of PDUs too big");
-        return FALSE;
+        return false;
     }
 
     if (rec->pos >= rec->num_of_params) {
         *err = ws_strdup_printf("Position >= Number of PDUs");
-        return FALSE;
+        return false;
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
         *err = ws_strdup_printf("Name cannot be empty");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -226,18 +226,18 @@ free_ipdum_message_list_cb(void*r) {
 }
 
 static void
-post_update_ipdum_message_list_read_in_data(ipdum_message_list_uat_t *data, guint data_num, GHashTable *ht) {
+post_update_ipdum_message_list_read_in_data(ipdum_message_list_uat_t *data, unsigned data_num, GHashTable *ht) {
     if (ht == NULL || data == NULL || data_num == 0) {
         return;
     }
 
     if (data_num) {
-        guint i = 0;
+        unsigned i = 0;
         for (i = 0; i < data_num; i++) {
 
             /* the hash table does not know about uint64, so we use int64*/
-            gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-            *key = (guint32)data[i].id;
+            int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
+            *key = (uint32_t)data[i].id;
 
             ipdum_message_list_t *list = (ipdum_message_list_t *)g_hash_table_lookup(ht, key);
             if (list == NULL) {
@@ -287,12 +287,12 @@ post_update_ipdum_message_list_cb(void) {
 }
 
 static ipdum_message_list_t *
-get_message_config(guint32 id) {
+get_message_config(uint32_t id) {
     if (data_ipdum_messages == NULL) {
         return NULL;
     }
 
-    gint64 key = (gint64)id;
+    int64_t key = (int64_t)id;
     return (ipdum_message_list_t *)g_hash_table_lookup(data_ipdum_messages, &key);
 }
 
@@ -320,15 +320,15 @@ update_ipdum_can_mapping(void *r, char **err) {
 
     if ((rec->can_id & (CAN_RTR_FLAG | CAN_ERR_FLAG)) != 0) {
         *err = g_strdup_printf("We currently do not support CAN IDs with RTR or Error Flag set (CAN_ID: 0x%x)", rec->can_id);
-        return FALSE;
+        return false;
     }
 
     if ((rec->can_id & CAN_EFF_FLAG) == 0 && rec->can_id > CAN_SFF_MASK) {
         *err = g_strdup_printf("Standard CAN ID (EFF flag not set) cannot be bigger than 0x7ff (CAN_ID: 0x%x)", rec->can_id);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -346,7 +346,7 @@ post_update_register_can(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            gint32 id = (*(gint32*)tmp->data);
+            int32_t id = (*(int32_t*)tmp->data);
 
             if ((id & CAN_EFF_FLAG) == CAN_EFF_FLAG) {
                 dissector_add_uint("can.extended_id", id & CAN_EFF_MASK, ipdum_handle_can);
@@ -375,11 +375,11 @@ post_update_ipdum_can_mapping_cb(void) {
     }
 
     if (ipdum_can_mapping_num > 0) {
-        guint i;
+        unsigned i;
         for (i = 0; i < ipdum_can_mapping_num; i++) {
-            gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+            int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
             *key = ipdum_can_mapping[i].can_id;
-            *key |= ((gint64)(ipdum_can_mapping[i].bus_id & 0xffff)) << 32;
+            *key |= ((int64_t)(ipdum_can_mapping[i].bus_id & 0xffff)) << 32;
 
             g_hash_table_insert(data_ipdum_can_mappings, key, &ipdum_can_mapping[i]);
         }
@@ -390,12 +390,12 @@ post_update_ipdum_can_mapping_cb(void) {
 }
 
 static ipdum_can_mapping_t *
-get_can_mapping(guint32 id, guint16 bus_id) {
+get_can_mapping(uint32_t id, uint16_t bus_id) {
     if (data_ipdum_can_mappings == NULL) {
         return NULL;
     }
 
-    gint64 key = ((gint64)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((gint64)bus_id << 32);
+    int64_t key = ((int64_t)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((int64_t)bus_id << 32);
     ipdum_can_mapping_t *tmp = (ipdum_can_mapping_t *)g_hash_table_lookup(data_ipdum_can_mappings, &key);
     if (tmp == NULL) {
         /* try again without Bus ID set */
@@ -432,15 +432,15 @@ update_ipdum_flexray_mapping(void *r, char **err) {
 
     if (rec->cycle > 0xff) {
         *err = ws_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
-        return FALSE;
+        return false;
     }
 
     if (rec->frame_id > 0xffff) {
         *err = ws_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -459,12 +459,12 @@ post_update_ipdum_flexray_mapping_cb(void) {
     }
 
     if (ipdum_flexray_mapping_num > 0) {
-        guint i;
+        unsigned i;
         for (i = 0; i < ipdum_flexray_mapping_num; i++) {
-            gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+            int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
             *key = ipdum_flexray_mapping[i].frame_id & 0xffff;
-            *key |= ((gint64)ipdum_flexray_mapping[i].cycle & 0xff) << 16;
-            *key |= ((gint64)ipdum_flexray_mapping[i].channel & 0xff) << 24;
+            *key |= ((int64_t)ipdum_flexray_mapping[i].cycle & 0xff) << 16;
+            *key |= ((int64_t)ipdum_flexray_mapping[i].channel & 0xff) << 24;
 
             g_hash_table_insert(data_ipdum_flexray_mappings, key, &ipdum_flexray_mapping[i]);
         }
@@ -472,12 +472,12 @@ post_update_ipdum_flexray_mapping_cb(void) {
 }
 
 static ipdum_flexray_mapping_t *
-get_flexray_mapping(guint8 channel, guint8 cycle, guint16 flexray_id) {
+get_flexray_mapping(uint8_t channel, uint8_t cycle, uint16_t flexray_id) {
     if (data_ipdum_flexray_mappings == NULL) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+    int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
     *key = (channel << 24) | (cycle << 16) | flexray_id;
 
     ipdum_flexray_mapping_t *tmp = (ipdum_flexray_mapping_t*)g_hash_table_lookup(data_ipdum_flexray_mappings, key);
@@ -510,15 +510,15 @@ update_ipdum_lin_mapping(void *r, char **err) {
 
     if (rec->frame_id > LIN_ID_MASK) {
         *err = ws_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
-        return FALSE;
+        return false;
     }
 
     if (rec->bus_id > 0xffff) {
         *err = ws_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -535,7 +535,7 @@ post_update_register_lin(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            gint32 *id = (gint32*)tmp->data;
+            int32_t *id = (int32_t*)tmp->data;
             /* we register the combination of bus and frame id */
             dissector_add_uint("lin.frame_id", *id, ipdum_handle_lin);
         }
@@ -560,9 +560,9 @@ post_update_ipdum_lin_mapping_cb(void) {
     }
 
     if (ipdum_lin_mapping_num > 0) {
-        guint i;
+        unsigned i;
         for (i = 0; i < ipdum_lin_mapping_num; i++) {
-            gint *key = wmem_new(wmem_epan_scope(), gint);
+            int *key = wmem_new(wmem_epan_scope(), int);
             *key = (ipdum_lin_mapping[i].frame_id) & LIN_ID_MASK;
             *key |= ((ipdum_lin_mapping[i].bus_id) & 0xffff) << 16;
 
@@ -580,7 +580,7 @@ get_lin_mapping(lin_info_t *lininfo) {
         return NULL;
     }
 
-    gint32 key = ((lininfo->id) & LIN_ID_MASK) | (((lininfo->bus_id) & 0xffff) << 16);
+    int32_t key = ((lininfo->id) & LIN_ID_MASK) | (((lininfo->bus_id) & 0xffff) << 16);
 
     ipdum_lin_mapping_t *tmp = (ipdum_lin_mapping_t *)g_hash_table_lookup(data_ipdum_lin_mappings, &key);
 
@@ -615,10 +615,10 @@ update_ipdum_pdu_transport_mapping(void *r, char **err) {
 
     if (rec->pdu_id > 0xffffffff) {
         *err = ws_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -635,8 +635,8 @@ post_update_register_pdu_transport(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            gint64 *id = (gint64*)tmp->data;
-            dissector_add_uint("pdu_transport.id", ((guint32)((guint64)(*id)) & 0xffffffff), ipdum_handle_pdu_transport);
+            int64_t *id = (int64_t*)tmp->data;
+            dissector_add_uint("pdu_transport.id", ((uint32_t)((uint64_t)(*id)) & 0xffffffff), ipdum_handle_pdu_transport);
         }
 
         g_list_free(keys);
@@ -659,9 +659,9 @@ post_update_ipdum_pdu_transport_mapping_cb(void) {
     }
 
     if (ipdum_pdu_transport_mapping_num > 0) {
-        guint i;
+        unsigned i;
         for (i = 0; i < ipdum_pdu_transport_mapping_num; i++) {
-            gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+            int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
             *key = ipdum_pdu_transport_mapping[i].pdu_id;
 
             g_hash_table_insert(data_ipdum_pdu_transport_mappings, key, &ipdum_pdu_transport_mapping[i]);
@@ -673,12 +673,12 @@ post_update_ipdum_pdu_transport_mapping_cb(void) {
 }
 
 static ipdum_pdu_transport_mapping_t *
-get_pdu_transport_mapping(guint32 pdu_transport_id) {
+get_pdu_transport_mapping(uint32_t pdu_transport_id) {
     if (data_ipdum_pdu_transport_mappings == NULL) {
         return NULL;
     }
 
-    gint64 key = (gint64)pdu_transport_id;
+    int64_t key = (int64_t)pdu_transport_id;
     return (ipdum_pdu_transport_mapping_t *)g_hash_table_lookup(data_ipdum_pdu_transport_mappings, &key);
 }
 
@@ -687,15 +687,15 @@ get_pdu_transport_mapping(guint32 pdu_transport_id) {
  **************************************/
 
 static int
-dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, guint32 id) {
-    gint offset = 0;
-    gint length = tvb_captured_length_remaining(tvb, 0);
+dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, uint32_t id) {
+    int offset = 0;
+    int length = tvb_captured_length_remaining(tvb, 0);
 
     proto_item *ti = proto_tree_add_item(root_tree, proto_ipdu_multiplexer, tvb, offset, -1, ENC_NA);
     proto_tree *tree = proto_item_add_subtree(ti, ett_ipdum);
 
     ipdum_message_list_t *config = get_message_config(id);
-    guint i;
+    unsigned i;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, IPDUM_NAME);
     col_set_str(pinfo->cinfo, COL_INFO, IPDUM_NAME);
@@ -704,23 +704,23 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
         proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset, length, ENC_NA);
     } else {
         for (i = 0; i < config->num_of_items; i++) {
-            gboolean update_bit_ok = true;
+            bool update_bit_ok = true;
 
             if (config->items[i].update_bit_pos != 0xffff) {
-                gint update_byte = config->items[i].update_bit_pos / 8;
-                gint update_bit_mask = 1 << (config->items[i].update_bit_pos % 8);
-                guint8 tmp = tvb_get_guint8(tvb, update_byte);
+                int update_byte = config->items[i].update_bit_pos / 8;
+                int update_bit_mask = 1 << (config->items[i].update_bit_pos % 8);
+                uint8_t tmp = tvb_get_guint8(tvb, update_byte);
                 update_bit_ok = (tmp & update_bit_mask) == update_bit_mask;
             }
 
             if (update_bit_ok) {
-                gint start_byte = config->items[i].start_pos / 8;
-                gint end_byte = (config->items[i].start_pos + config->items[i].bit_length) / 8;
+                int start_byte = config->items[i].start_pos / 8;
+                int end_byte = (config->items[i].start_pos + config->items[i].bit_length) / 8;
                 if ((config->items[i].start_pos + config->items[i].bit_length) % 8 != 0) {
                     end_byte++;
                 }
 
-                gint pdu_len = end_byte - start_byte;
+                int pdu_len = end_byte - start_byte;
                 if (pdu_len > tvb_captured_length_remaining(tvb, offset + start_byte)) {
                     pdu_len = tvb_captured_length_remaining(tvb, offset + start_byte);
                 }
@@ -735,7 +735,7 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
                     autosar_ipdu_multiplexer_info_t pdu_t_info;
                     pdu_t_info.pdu_id = config->items[i].pdu_id;
 
-                    dissector_try_uint_new(subdissector_table, config->items[i].pdu_id, subtvb, pinfo, root_tree, FALSE, (void *)(&pdu_t_info));
+                    dissector_try_uint_new(subdissector_table, config->items[i].pdu_id, subtvb, pinfo, root_tree, false, (void *)(&pdu_t_info));
                 }
             }
         }
@@ -842,7 +842,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
             { "Unparsed Payload", "ipdum.unparsed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipdum,
         &ett_ipdum_pdu,
     };
@@ -901,7 +901,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     ipdum_message_uat = uat_new("I-PduM Message List",
         sizeof(ipdum_message_list_uat_t),                  /* record size           */
         DATAFILE_IPDUM_MESSAGES,                           /* filename              */
-        TRUE,                                              /* from profile          */
+        true,                                              /* from profile          */
         (void**)&ipdum_message_list,                       /* data_ptr              */
         &ipdum_message_list_num,                           /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                            /* but not fields        */
@@ -925,7 +925,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     ipdum_can_mapping_uat = uat_new("CAN",
         sizeof(ipdum_can_mapping_uat_t),                   /* record size           */
         DATAFILE_IPDUM_CAN_MAPPING,                        /* filename              */
-        TRUE,                                              /* from profile          */
+        true,                                              /* from profile          */
         (void**)&ipdum_can_mapping,                        /* data_ptr              */
         &ipdum_can_mapping_num,                            /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                            /* but not fields        */
@@ -945,7 +945,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     ipdum_flexray_mapping_uat = uat_new("FlexRay",
         sizeof(ipdum_flexray_mapping_uat_t),               /* record size           */
         DATAFILE_IPDUM_FLEXRAY_MAPPING,                    /* filename              */
-        TRUE,                                              /* from profile          */
+        true,                                              /* from profile          */
         (void**)&ipdum_flexray_mapping,                    /* data_ptr              */
         &ipdum_flexray_mapping_num,                        /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                            /* but not fields        */
@@ -965,7 +965,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     ipdum_lin_mapping_uat = uat_new("LIN",
         sizeof(ipdum_lin_mapping_uat_t),                   /* record size           */
         DATAFILE_IPDUM_LIN_MAPPING,                        /* filename              */
-        TRUE,                                              /* from profile          */
+        true,                                              /* from profile          */
         (void**)&ipdum_lin_mapping,                        /* data_ptr              */
         &ipdum_lin_mapping_num,                            /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                            /* but not fields        */
@@ -985,7 +985,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     ipdum_pdu_transport_mapping_uat = uat_new("PDU Transport",
         sizeof(ipdum_pdu_transport_mapping_uat_t),         /* record size           */
         DATAFILE_IPDUM_PDU_TRANSPORT_MAPPING,              /* filename              */
-        TRUE,                                              /* from profile          */
+        true,                                              /* from profile          */
         (void**)&ipdum_pdu_transport_mapping,              /* data_ptr              */
         &ipdum_pdu_transport_mapping_num,                  /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                            /* but not fields        */
@@ -1004,7 +1004,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
 
 void
 proto_reg_handoff_autosar_ipdu_multiplexer(void) {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized) {
         ipdum_handle_can = register_dissector("ipdu_multiplexer_over_can", dissect_ipdum_message_can, proto_ipdu_multiplexer);
@@ -1019,7 +1019,7 @@ proto_reg_handoff_autosar_ipdu_multiplexer(void) {
 
         ipdum_handle_pdu_transport = register_dissector("ipdu_multiplexer_over_pdu_transport", dissect_ipdum_message_pdu_transport, proto_ipdu_multiplexer);
 
-        initialized = TRUE;
+        initialized = true;
     }
 }
 

@@ -29,21 +29,21 @@ static dissector_handle_t vis_handle;
 #define DIRECTLINK 0x40
 
 struct batman_packet_v5 {
-	guint8  version;  /* batman version field */
-	guint8  flags;    /* 0x80: UNIDIRECTIONAL link, 0x40: DIRECTLINK flag, ... */
-	guint8  ttl;
-	guint8  gwflags;  /* flags related to gateway functions: gateway class */
-	guint16 seqno;
-	guint16 gwport;
+	uint8_t version;  /* batman version field */
+	uint8_t flags;    /* 0x80: UNIDIRECTIONAL link, 0x40: DIRECTLINK flag, ... */
+	uint8_t ttl;
+	uint8_t gwflags;  /* flags related to gateway functions: gateway class */
+	uint16_t seqno;
+	uint16_t gwport;
 	address orig;
 	address old_orig;
-	guint8  tq;
-	guint8  hna_len;
+	uint8_t tq;
+	uint8_t hna_len;
 };
 #define BATMAN_PACKET_V5_SIZE 18
 
 struct gw_packet {
-	guint8  type;
+	uint8_t type;
 };
 #define GW_PACKET_SIZE 1
 
@@ -59,43 +59,43 @@ struct gw_packet {
 
 struct vis_packet_v22 {
 	address sender_ip;
-	guint8  version;
-	guint8  gw_class;
-	guint16 tq_max;
+	uint8_t version;
+	uint8_t gw_class;
+	uint16_t tq_max;
 };
 #define VIS_PACKET_V22_SIZE 8
 
 struct vis_data_v22 {
-	guint8  type;
-	guint16 data;
+	uint8_t type;
+	uint16_t data;
 	address ip;
 };
 #define VIS_PACKET_V22_DATA_SIZE 7
 
 struct vis_packet_v23 {
 	address sender_ip;
-	guint8  version;
-	guint8  gw_class;
-	guint8  tq_max;
+	uint8_t version;
+	uint8_t gw_class;
+	uint8_t tq_max;
 };
 #define VIS_PACKET_V23_SIZE 7
 
 struct vis_data_v23 {
-	guint8  type;
-	guint8  data;
+	uint8_t type;
+	uint8_t data;
 	address ip;
 };
 #define VIS_PACKET_V23_DATA_SIZE 6
 /* End content from packet-bat.h */
 
 /* trees */
-static gint ett_bat_batman;
-static gint ett_bat_batman_flags;
-static gint ett_bat_batman_gwflags;
-static gint ett_bat_batman_hna;
-static gint ett_bat_gw;
-static gint ett_bat_vis;
-static gint ett_bat_vis_entry;
+static int ett_bat_batman;
+static int ett_bat_batman_flags;
+static int ett_bat_batman_gwflags;
+static int ett_bat_batman_hna;
+static int ett_bat_gw;
+static int ett_bat_vis;
+static int ett_bat_vis_entry;
 
 /* hfs */
 static int hf_bat_batman_version;
@@ -171,7 +171,7 @@ static int bat_follow_tap;
 
 static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8 version;
+	uint8_t version;
 	int offset = 0;
 
 	/* set protocol name */
@@ -193,13 +193,13 @@ static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return tvb_captured_length(tvb);
 }
 
-static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto_item *tgw)
+static void dissect_bat_gwflags(tvbuff_t *tvb, uint8_t gwflags, int offset, proto_item *tgw)
 {
 	proto_tree *gwflags_tree;
-	guint8 s = (gwflags & 0x80) >> 7;
-	guint8 downbits = (gwflags & 0x78) >> 3;
-	guint8 upbits = (gwflags & 0x07);
-	guint  down, up;
+	uint8_t s = (gwflags & 0x80) >> 7;
+	uint8_t downbits = (gwflags & 0x78) >> 3;
+	uint8_t upbits = (gwflags & 0x07);
+	unsigned  down, up;
 
 	down = 32 * (s + 2) * (1 << downbits);
 	up = ((upbits + 1) * down) / 8;
@@ -215,8 +215,8 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_item *tgw;
 	proto_tree *bat_batman_tree = NULL;
 	struct batman_packet_v5 *batman_packeth;
-	guint32 old_orig, orig;
-	gint i;
+	uint32_t old_orig, orig;
+	int i;
 	static int * const batman_flags[] = {
 		&hf_bat_batman_flags_unidirectional,
 		&hf_bat_batman_flags_directlink,
@@ -304,8 +304,8 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 hna;
-	guint8 hna_netmask;
+	uint32_t hna;
+	uint8_t hna_netmask;
 
 	hna = tvb_get_ipv4(tvb, 0);
 	hna_netmask = tvb_get_guint8(tvb, 4);
@@ -334,11 +334,11 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	struct gw_packet *gw_packeth;
-	guint32 ip;
+	uint32_t ip;
 	int ip_pos;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining;
+	int length_remaining;
 	int offset = 0;
 
 	gw_packeth = wmem_new(pinfo->pool, struct gw_packet);
@@ -408,7 +408,7 @@ static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 static int dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8 version;
+	uint8_t version;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
@@ -432,11 +432,11 @@ static int dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v22 *vis_packeth;
-	guint32 sender_ip;
+	uint32_t sender_ip;
 	proto_tree *bat_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining, i;
+	int length_remaining, i;
 	int offset = 0;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v22);
@@ -513,7 +513,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	struct vis_data_v22 *vis_datah;
-	guint32 ip;
+	uint32_t ip;
 
 	vis_datah = wmem_new(pinfo->pool, struct vis_data_v22);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
@@ -553,11 +553,11 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v23 *vis_packeth;
-	guint32 sender_ip;
+	uint32_t sender_ip;
 	proto_tree *bat_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
-	gint length_remaining, i;
+	int length_remaining, i;
 	int offset = 0;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v23);
@@ -634,7 +634,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	struct vis_data_v23 *vis_datah;
-	guint32 ip;
+	uint32_t ip;
 
 	vis_datah = wmem_new(pinfo->pool, struct vis_data_v23);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
@@ -817,7 +817,7 @@ void proto_register_bat(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bat_batman,
 		&ett_bat_batman_flags,
 		&ett_bat_batman_gwflags,

@@ -136,7 +136,7 @@ static int hf_param_samd;
 static int hf_param_saminstant;
 static int hf_params;
 
-static gint ett_btlmp;
+static int ett_btlmp;
 
 static dissector_handle_t btlmp_handle;
 
@@ -542,9 +542,9 @@ static const unit_name_string units_slotpairs = { " slot pair", " slot pairs" };
 
 
 
-static void decode_uint8_binary(gchar *s, guint8 value)
+static void decode_uint8_binary(char *s, uint8_t value)
 {
-    for (guint i = 0; i < 8 && i + 1 < ITEM_LABEL_LENGTH; ++i, value <<= 1)
+    for (unsigned i = 0; i < 8 && i + 1 < ITEM_LABEL_LENGTH; ++i, value <<= 1)
         *s++ = '0' + ((value >> 7) & 1);
     *s = 0;
 }
@@ -552,13 +552,13 @@ static void decode_uint8_binary(gchar *s, guint8 value)
 void proto_register_btlmp(void);
 void proto_reg_handoff_btlmp(void);
 
-static gint
+static int
 dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item                *btlmp_item;
     proto_tree                *btlmp_tree;
-    gint                       offset = 0;
-    guint16                    opcode;
+    int                        offset = 0;
+    uint16_t                   opcode;
     connection_info_t *connection_info = (connection_info_t *)data;
 
     btlmp_item = proto_tree_add_item(tree, proto_btlmp, tvb, offset, -1, ENC_NA);
@@ -566,7 +566,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT LMP");
 
-    for (guint i = 0; i < array_length(hf_opcode); ++i)
+    for (unsigned i = 0; i < array_length(hf_opcode); ++i)
         proto_tree_add_item(btlmp_tree, hf_opcode[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
     opcode = tvb_get_guint8(tvb, offset) >> 1;
     offset += 1;
@@ -666,7 +666,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x017: // LMP_sniff_req
-        for (guint i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_timingcontrolflags[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_dsniff, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -694,7 +694,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
        break;
 
     case 0x024: // LMP_preferred_rate
-        for (guint i = 0; i < array_length(hf_param_datarate); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_datarate); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_datarate[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
 
@@ -710,28 +710,28 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case 0x027: // LMP_features_req
     case 0x028: // LMP_features_res
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte0); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte0); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte0[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte1); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte1); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte1[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte2); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte2); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte2[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte3); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte3); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte3[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte4); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte4); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte4[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte5); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte5); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte5[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte6); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte6); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte6[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_feature_page0_byte7); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte7); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte7[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         break;
@@ -747,7 +747,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case 0x02b: // LMP_SCO_link_req
         proto_tree_add_item(btlmp_tree, hf_param_scohandle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_timingcontrolflags[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_dsco, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -843,7 +843,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 4;
         proto_tree_add_item(btlmp_tree, hf_param_afh_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_afh_channelmap); ++i, ++offset)
+        for (unsigned i = 0; i < array_length(hf_param_afh_channelmap); ++i, ++offset)
             proto_tree_add_item(btlmp_tree, hf_param_afh_channelmap[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
 
@@ -900,43 +900,43 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         ++offset;
         switch (tvb_get_guint8(tvb, offset - 2)) {
         case 0:
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte0); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte0); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte0[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte1); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte1); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte1[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte2); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte2); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte2[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte3); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte3); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte3[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte4); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte4); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte4[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte5); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte5); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte5[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte6); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte6); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte6[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page0_byte7); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page0_byte7); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page0_byte7[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
             break;
 
         case 1:
-            for (guint i = 0; i < array_length(hf_param_feature_page1_byte0); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page1_byte0); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page1_byte0[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
             break;
 
         case 2:
-            for (guint i = 0; i < array_length(hf_param_feature_page2_byte0); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page2_byte0); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page2_byte0[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            for (guint i = 0; i < array_length(hf_param_feature_page2_byte1); ++i)
+            for (unsigned i = 0; i < array_length(hf_param_feature_page2_byte1); ++i)
                 proto_tree_add_item(btlmp_tree, hf_param_feature_page2_byte1[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
             break;
@@ -987,7 +987,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_escoltaddr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_timingcontrolflags[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_escod, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1028,8 +1028,8 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x411: // LMP_channel_classification
-        for (guint i = 0; i < array_length(hf_param_afh_channelclass); ++i)
-            for (guint j = 0; j < array_length(hf_param_afh_channelclass[0]); ++j)
+        for (unsigned i = 0; i < array_length(hf_param_afh_channelclass); ++i)
+            for (unsigned j = 0; j < array_length(hf_param_afh_channelclass[0]); ++j)
                 proto_tree_add_item(btlmp_tree, hf_param_afh_channelclass[i][j], tvb, offset + i, 1, ENC_LITTLE_ENDIAN);
         offset += array_length(hf_param_afh_channelclass);
         break;
@@ -1074,7 +1074,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
        break;
 
     case 0x420: // LMP_power_control_res
-        for (guint i = 0; i < array_length(hf_param_poweradjresp); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_poweradjresp); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_poweradjresp[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         break;
@@ -1104,7 +1104,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case 0x425: // LMP_SAM_switch
         proto_tree_add_item(btlmp_tree, hf_param_samindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        for (guint i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
+        for (unsigned i = 0; i < array_length(hf_param_timingcontrolflags); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_timingcontrolflags[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_samd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2429,7 +2429,7 @@ proto_register_btlmp(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btlmp
     };
 

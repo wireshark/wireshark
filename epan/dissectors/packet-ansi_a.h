@@ -16,15 +16,15 @@ typedef struct _ansi_a_tap_rec_t {
     /*
      * value from packet-bssap.h
      */
-    guint8              pdu_type;
-    guint8              message_type;
+    uint8_t             pdu_type;
+    uint8_t             message_type;
 } ansi_a_tap_rec_t;
 
 typedef struct ext_value_string_t
 {
-    guint32             value;
-    const gchar         *strptr;
-    gint                dec_index;
+    uint32_t            value;
+    const char          *strptr;
+    int                 dec_index;
 }
 ext_value_string_t;
 
@@ -78,7 +78,7 @@ WS_DLL_PUBLIC const value_string ansi_a_ms_info_rec_num_plan_vals[];
 #define A_VARIANT_IOS401        9
 #define A_VARIANT_IOS501        10
 
-WS_DLL_PUBLIC gint a_global_variant;
+WS_DLL_PUBLIC int a_global_variant;
 
 /*
  * allows ANSI MAP to use this for IS-880 enhancements
@@ -96,7 +96,7 @@ WS_DLL_PUBLIC const ext_value_string_t *ansi_a_elem_1_strings;
  */
 #define ANSI_A_MAX_NUM_IOS_ELEM_1_STRINGS       255
 
-void dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len);
+void dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

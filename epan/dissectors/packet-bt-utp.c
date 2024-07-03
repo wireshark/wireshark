@@ -218,45 +218,45 @@ static int hf_bt_utp_continuation_to;
 
 static expert_field ei_extension_len_invalid;
 
-static gint ett_bt_utp;
-static gint ett_bt_utp_extension;
+static int ett_bt_utp;
+static int ett_bt_utp_extension;
 
 static bool enable_version0;
-static guint max_window_size = V1_MAX_WINDOW_SIZE;
+static unsigned max_window_size = V1_MAX_WINDOW_SIZE;
 /* XXX: Desegmentation and OOO-reassembly are not supported yet */
-static gboolean utp_desegment;
-/*static gboolean utp_reassemble_out_of_order = FALSE;*/
+static bool utp_desegment;
+/*static bool utp_reassemble_out_of_order = false;*/
 static bool utp_analyze_seq = true;
 
-static guint32 bt_utp_stream_count;
+static uint32_t bt_utp_stream_count;
 
 typedef struct _utp_multisegment_pdu {
 
-  guint16 first_seq;
-  guint16 last_seq;
-  guint first_seq_start_offset;
-  guint last_seq_end_offset;
-  /*gint length;
-  guint32 reassembly_id;*/
-  guint32 first_frame;
+  uint16_t first_seq;
+  uint16_t last_seq;
+  unsigned first_seq_start_offset;
+  unsigned last_seq_end_offset;
+  /*int length;
+  uint32_t reassembly_id;*/
+  uint32_t first_frame;
 
 } utp_multisegment_pdu;
 
 typedef struct _utp_flow_t {
 #if 0
   /* XXX: Some other things to add in later. */
-  gboolean base_seq_set;
-  guint16 base_seq;
-  guint32 fin;
-  guint32 window;
-  guint32 maxnextseq;
+  bool base_seq_set;
+  uint16_t base_seq;
+  uint32_t fin;
+  uint32_t window;
+  uint32_t maxnextseq;
 #endif
 
   wmem_tree_t *multisegment_pdus;
 } utp_flow_t;
 
 typedef struct {
-  guint32 stream;
+  uint32_t stream;
 
   utp_flow_t flow[2];
   utp_flow_t *fwd;
@@ -265,20 +265,20 @@ typedef struct {
   /* XXX: Some other things to add in later. */
   nstime_t ts_first;
   nstime_t ts_prev;
-  guint8 conversation_completeness;
+  uint8_t conversation_completeness;
 #endif
 } utp_stream_info_t;
 
 /* Per-packet header information. */
 typedef struct {
-  guint8  type;
-  gboolean v0;
-  guint32 connection; /* The prelease "V0" version is 32 bit */
-  guint32 stream;
-  guint16 seq;
-  guint16 ack;
-  guint32 seglen; /* reported length remaining */
-  gboolean have_seglen;
+  uint8_t type;
+  bool v0;
+  uint32_t connection; /* The prelease "V0" version is 32 bit */
+  uint32_t stream;
+  uint16_t seq;
+  uint16_t ack;
+  uint32_t seglen; /* reported length remaining */
+  bool have_seglen;
 
   proto_tree *tree; /* For the bittorrent subdissector to access */
 } utp_info_t;
@@ -288,7 +288,7 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
 {
   conversation_t* conv;
   utp_stream_info_t *stream_info;
-  guint32 id_up, id_down;
+  uint32_t id_up, id_down;
   int direction;
 
   /* Handle connection ID wrapping correctly. (Mainline libutp source
@@ -299,8 +299,8 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
     id_up = utp_info->connection+1;
     id_down = utp_info->connection-1;
   } else {
-    id_up = (guint16)(utp_info->connection+1);
-    id_down = (guint16)(utp_info->connection-1);
+    id_up = (uint16_t)(utp_info->connection+1);
+    id_down = (uint16_t)(utp_info->connection-1);
   }
 
   if (utp_info->type == ST_SYN) {
@@ -392,7 +392,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *utp_tree, packet_info *pinfo, wmem_
 {
   utp_multisegment_pdu *msp;
   utp_info_t *p_utp_info;
-  guint16 seq, prev_seq;
+  uint16_t seq, prev_seq;
 
   p_utp_info = (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num);
 
@@ -449,7 +449,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *utp_tree, packet_info *pinfo, wmem_
 }
 
 static utp_multisegment_pdu *
-pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint16 seq, int offset, guint32 bytes_until_next_pdu, wmem_tree_t *multisegment_pdus)
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, uint16_t seq, int offset, uint32_t bytes_until_next_pdu, wmem_tree_t *multisegment_pdus)
 {
   utp_multisegment_pdu *msp;
 
@@ -467,7 +467,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint16 seq, int offset
 #if 0
 static void
 desegment_utp(tvbuff_t *tvb, packet_info *pinfo, int offset,
-              guint32 seq, guint32 nxtseq,
+              uint32_t seq, uint32_t nxtseq,
               proto_tree *tree, proto_tree *utp_tree,
               utp_stream_info_t *stream_info)
 {
@@ -477,19 +477,19 @@ desegment_utp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 void
 utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 gboolean proto_desegment, guint fixed_len,
-                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+                 bool proto_desegment, unsigned fixed_len,
+                 unsigned (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
                  dissector_t dissect_pdu, void* dissector_data)
 {
   volatile int offset = 0;
   int offset_before;
-  guint captured_length_remaining;
-  volatile guint plen;
-  guint length;
+  unsigned captured_length_remaining;
+  volatile unsigned plen;
+  unsigned length;
   tvbuff_t *next_tvb;
   proto_item *item=NULL;
   const char *saved_proto;
-  guint8 curr_layer_num;
+  uint8_t curr_layer_num;
   wmem_list_frame_t *frame;
 
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -571,7 +571,7 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * somewhere in the middle of a segment.
      */
     if(!pinfo->fd->visited && utp_analyze_seq) {
-      guint remaining_bytes;
+      unsigned remaining_bytes;
       remaining_bytes = tvb_reported_length_remaining(tvb, offset);
       if(plen>remaining_bytes) {
         pinfo->want_pdu_tracking=2;
@@ -600,7 +600,7 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     curr_layer_num = pinfo->curr_layer_num-1;
     frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-    while (frame && (proto_bt_utp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
+    while (frame && (proto_bt_utp != (int) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
       frame = wmem_list_frame_prev(frame);
       curr_layer_num--;
     }
@@ -677,13 +677,13 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-static gint
+static int
 get_utp_version(tvbuff_t *tvb) {
-  guint8  v0_flags;
-  guint8  v1_ver_type, ext, ext_len;
-  guint32 window;
-  guint   len, offset = 0;
-  gint    ver = -1;
+  uint8_t v0_flags;
+  uint8_t v1_ver_type, ext, ext_len;
+  uint32_t window;
+  unsigned   len, offset = 0;
+  int     ver = -1;
 
   /* Simple heuristics inspired by code from utp.cpp */
 
@@ -745,17 +745,17 @@ get_utp_version(tvbuff_t *tvb) {
 }
 
 static int
-dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
+dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t *extension_type)
 {
   /* "Original" (V0) */
   utp_info_t        *p_utp_info = NULL;
   utp_stream_info_t *stream_info = NULL;
 
   proto_item     *ti;
-  guint32 type, connection, win, seq, ack;
+  uint32_t type, connection, win, seq, ack;
 
   p_utp_info = wmem_new(pinfo->pool, utp_info_t);
-  p_utp_info->v0 = TRUE;
+  p_utp_info->v0 = true;
   p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num, p_utp_info);
 
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, ENC_BIG_ENDIAN, &connection);
@@ -802,7 +802,7 @@ dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 static int
-dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
+dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t *extension_type)
 {
   /* V1 */
   utp_info_t        *p_utp_info = NULL;
@@ -810,10 +810,10 @@ dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
   proto_item     *ti;
 
-  guint32 type, connection, win, seq, ack;
+  uint32_t type, connection, win, seq, ack;
 
   p_utp_info = wmem_new(pinfo->pool, utp_info_t);
-  p_utp_info->v0 = FALSE;
+  p_utp_info->v0 = false;
   p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num, p_utp_info);
 
   proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -858,11 +858,11 @@ dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 static int
-dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset, guint8 *extension_type)
+dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset, uint8_t *extension_type)
 {
   proto_item *ti;
   proto_tree *ext_tree;
-  guint32 next_extension, extension_length;
+  uint32_t next_extension, extension_length;
   /* display the extension tree */
 
   while(*extension_type != EXT_NO_EXTENSION && offset < (int)tvb_reported_length(tvb))
@@ -908,14 +908,14 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
   return offset;
 }
 
-static gboolean
+static bool
 decode_utp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree)
 {
   proto_tree *parent_tree;
   tvbuff_t *next_tvb;
   int save_desegment_offset;
-  guint32 save_desegment_len;
+  uint32_t save_desegment_len;
 
   /* XXX: Check for retransmission? */
 
@@ -929,7 +929,7 @@ decode_utp(tvbuff_t *tvb, int offset, packet_info *pinfo,
   parent_tree = proto_tree_get_parent_tree(tree);
   if (call_dissector_with_data(bittorrent_handle, next_tvb, pinfo, parent_tree, NULL)) {
     pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
-    return TRUE;
+    return true;
   }
 
   DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
@@ -938,12 +938,12 @@ decode_utp(tvbuff_t *tvb, int offset, packet_info *pinfo,
   call_data_dissector(tvb, pinfo, parent_tree);
   pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
 
-  return FALSE;
+  return false;
 }
 
 static void
 process_utp_payload(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, guint16 seq, gboolean is_utp_segment,
+    proto_tree *tree, uint16_t seq, bool is_utp_segment,
     utp_stream_info_t *stream_info)
 {
   volatile int offset = 0;
@@ -1001,14 +1001,14 @@ process_utp_payload(tvbuff_t *tvb, packet_info *pinfo,
   ENDTRY;
 }
 
-static guint
+static unsigned
 dissect_utp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
 
   utp_info_t *p_utp_info;
-  guint len_tvb;
-  gboolean save_fragmented;
+  unsigned len_tvb;
+  bool save_fragmented;
 
   p_utp_info = (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num);
 
@@ -1030,7 +1030,7 @@ dissect_utp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->can_desegment = 0;
   if (!pinfo->fragmented && !pinfo->flags.in_error_pkt) {
     p_utp_info->seglen = len_tvb;
-    p_utp_info->have_seglen = TRUE;
+    p_utp_info->have_seglen = true;
 
     ti = proto_tree_add_uint(tree, hf_bt_utp_len, tvb, 0, 0, len_tvb);
     proto_item_set_generated(ti);
@@ -1041,18 +1041,18 @@ dissect_utp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       pinfo->can_desegment = 2;
     }
   } else {
-    p_utp_info->have_seglen = FALSE;
+    p_utp_info->have_seglen = false;
   }
 
   if(tvb_captured_length(tvb)) {
     proto_tree_add_item(tree, hf_bt_utp_data, tvb, 0, len_tvb, ENC_NA);
     if (pinfo->can_desegment) {
       /* XXX: desegment_utp() is not implemented, but we can't get
-       * into this code path yet because utp_desegment is FALSE. */
+       * into this code path yet because utp_desegment is false. */
     } else {
       save_fragmented = pinfo->fragmented;
-      pinfo->fragmented = TRUE;
-      process_utp_payload(tvb, pinfo, tree, p_utp_info->seq, TRUE, stream_info);
+      pinfo->fragmented = true;
+      process_utp_payload(tvb, pinfo, tree, p_utp_info->seq, true, stream_info);
       pinfo->fragmented = save_fragmented;
     }
   }
@@ -1063,7 +1063,7 @@ dissect_utp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  gint version;
+  int version;
   version = get_utp_version(tvb);
 
   /* try dissecting */
@@ -1071,8 +1071,8 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   {
     proto_tree *sub_tree = NULL;
     proto_item *ti;
-    gint offset = 0;
-    guint8 extension_type;
+    int offset = 0;
+    uint8_t extension_type;
 
     /* set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
@@ -1103,7 +1103,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static bool
 dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  gint version;
+  int version;
   version = get_utp_version(tvb);
 
   if (version >= 0)
@@ -1255,7 +1255,7 @@ proto_register_bt_utp(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = { &ett_bt_utp, &ett_bt_utp_extension };
+  static int *ett[] = { &ett_bt_utp, &ett_bt_utp_extension };
 
   module_t *bt_utp_module;
   expert_module_t *expert_bt_utp;

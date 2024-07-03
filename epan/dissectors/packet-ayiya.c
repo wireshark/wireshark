@@ -33,7 +33,7 @@ static int hf_epoch;
 static int hf_identity;
 static int hf_signature;
 
-static gint ett_ayiya;
+static int ett_ayiya;
 
 static dissector_handle_t ayiya_handle;
 
@@ -80,7 +80,7 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree *ayiya_tree;
     int offset = 0;
     int idlen, siglen, ayiya_len;
-    guint8 next_header, opcode;
+    uint8_t next_header, opcode;
     tvbuff_t *payload;
 
     idlen = 1 << tvb_get_bits8(tvb, 0, 4);
@@ -178,7 +178,7 @@ proto_register_ayiya(void)
           }
         },
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ayiya,
     };
 

@@ -52,17 +52,17 @@ static int hf_bthcrp_control_status_not_error;
 static int hf_bthcrp_control_status_reserved_20;
 static int hf_bthcrp_data;
 
-static gint ett_bthcrp;
+static int ett_bthcrp;
 
 static expert_field ei_bthcrp_control_parameter_length;
 static expert_field ei_bthcrp_unexpected_data;
 
 static dissector_handle_t bthcrp_handle;
 
-static gint     force_client     = FORCE_CLIENT_DEFAULT;
-static gint     psm_control;
-static gint     psm_data_stream;
-static gint     psm_notification;
+static int      force_client     = FORCE_CLIENT_DEFAULT;
+static int      psm_control;
+static int      psm_data_stream;
+static int      psm_notification;
 
 static const value_string control_pdu_id_vals[] = {
     { 0x0001,   "CR_DataChannelCreditGrant" },
@@ -108,19 +108,19 @@ void proto_register_bthcrp(void);
 void proto_reg_handoff_bthcrp(void);
 
 
-static gint
+static int
 dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset,  gboolean is_client_message)
+        int offset,  bool is_client_message)
 {
     /* flow: requests: only client -> server; responses: only server ->  */
     proto_item   *pitem;
-    guint16       control_pdu_id;
-    guint         credits;
-    guint         timeout;
-    guint         context_id;
-    guint         notification_register;
-    guint         number;
-    gint          parameter_length;
+    uint16_t      control_pdu_id;
+    unsigned      credits;
+    unsigned      timeout;
+    unsigned      context_id;
+    unsigned      notification_register;
+    unsigned      number;
+    int           parameter_length;
 
     pitem = proto_tree_add_item(tree, hf_bthcrp_control_pdu_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     control_pdu_id = tvb_get_ntohs(tvb, offset);
@@ -233,7 +233,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Number Of Bytes: %u", number);
                 offset += 2;
             } else {
-                const guint8 *id;
+                const uint8_t *id;
 
                 proto_tree_add_item_ret_string(tree, hf_bthcrp_control_1284_id, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII | ENC_NA, pinfo->pool, &id);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 1284 ID: %s", id);
@@ -285,8 +285,8 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-static gint
-dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+static int
+dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     /* flow: server <-> client */
     tvbuff_t *next_tvb;
@@ -302,12 +302,12 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 }
 
 
-static gint
+static int
 dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gboolean is_client_message)
+        int offset, bool is_client_message)
 {
     /* flow: only server -> client */
-    guint16       notification_pdu_id;
+    uint16_t      notification_pdu_id;
     proto_item   *pitem;
 
     if (is_client_message) {
@@ -343,29 +343,29 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static gint
+static int
 dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *main_item;
     proto_tree      *main_tree;
-    gint             offset = 0;
-    gint             protocol = -1;
-    gboolean         is_client_message = FALSE;
-    gint             previous_proto;
+    int              offset = 0;
+    int              protocol = -1;
+    bool             is_client_message = false;
+    int              previous_proto;
 
     previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
     if (previous_proto == proto_btl2cap) {
         btl2cap_data_t  *l2cap_data;
         wmem_tree_key_t  key[10];
-        guint32          interface_id;
-        guint32          adapter_id;
-        guint32          sdp_psm = SDP_PSM_DEFAULT;
-        guint32          direction;
-        guint32          bd_addr_oui;
-        guint32          bd_addr_id;
-        guint32          service_type;
-        guint32          service_channel;
-        guint32          frame_number;
+        uint32_t         interface_id;
+        uint32_t         adapter_id;
+        uint32_t         sdp_psm = SDP_PSM_DEFAULT;
+        uint32_t         direction;
+        uint32_t         bd_addr_oui;
+        uint32_t         bd_addr_id;
+        uint32_t         service_type;
+        uint32_t         service_channel;
+        uint32_t         frame_number;
         service_info_t  *service_info;
 
         l2cap_data = (btl2cap_data_t *) data;
@@ -424,11 +424,11 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     service_info->protocol == BTSDP_HARDCOPY_DATA_CHANNEL_PROTOCOL_UUID) &&
                     ((!l2cap_data->is_local_psm && pinfo->p2p_dir == P2P_DIR_SENT) ||
                     (l2cap_data->is_local_psm && pinfo->p2p_dir == P2P_DIR_RECV))) {
-                is_client_message = TRUE;
+                is_client_message = true;
             } else if (service_info->protocol == BTSDP_HARDCOPY_NOTIFICATION_PROTOCOL_UUID &&
                     ((l2cap_data->is_local_psm && pinfo->p2p_dir == P2P_DIR_SENT) ||
                     (!l2cap_data->is_local_psm && pinfo->p2p_dir == P2P_DIR_RECV))) {
-                is_client_message = TRUE;
+                is_client_message = true;
             }
 
             protocol = service_info->protocol;
@@ -616,7 +616,7 @@ proto_register_bthcrp(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bthcrp
     };
 
@@ -642,7 +642,7 @@ proto_register_bthcrp(void)
 
     prefs_register_enum_preference(module, "hcrp.force_client", "Force Client",
          "If \"yes\" localhost will be treat as Client, \"no\" as Server",
-         &force_client, force_client_enum, FALSE);
+         &force_client, force_client_enum, false);
 
     prefs_register_uint_preference(module, "hcrp.control.psm", "L2CAP PSM for Control",
          "L2CAP PSM for Control",

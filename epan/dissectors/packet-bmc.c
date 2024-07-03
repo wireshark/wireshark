@@ -65,16 +65,16 @@ static const value_string message_description_type_vals[] = {
     {0, NULL}
 };
 
-static gint ett_bmc;
-static gint ett_bmc_message_description;
+static int ett_bmc;
+static int ett_bmc_message_description;
 
 static int
 dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8      message_type;
-    guint8     *reversing_buffer;
-    gint        offset = 0;
-    gint        len;
+    uint8_t     message_type;
+    uint8_t    *reversing_buffer;
+    int         offset = 0;
+    int         len;
     proto_item *ti;
     proto_tree *bmc_tree;
     tvbuff_t   *bit_reversed_tvb;
@@ -87,7 +87,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Needs bit-reversing. Create a new buffer, copy the message to it and bit-reverse */
     len = tvb_reported_length(tvb);
-    reversing_buffer = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, len);
+    reversing_buffer = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, len);
     bitswap_buf_inplace(reversing_buffer, len);
 
     /* Make this new buffer part of the display and provide a way to dispose of it */
@@ -123,7 +123,7 @@ static int
 dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *cell_broadcast_tvb;
-    gint      offset = 1;
+    int       offset = 1;
 
     dissect_cbs_message_identifier(tvb, tree, offset);
     offset += 2;
@@ -144,14 +144,14 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint        offset = 1, i, saved_offset;
-    guint8      new_message_bitmap_len;
-    guint8      length_of_cbs_schedule_period;
-    guint8      message_description_type;
-    guint8      future_extension_bitmap;
-    guint8      length_of_serial_number_list;
-    guint8      entry;
-    guint8      bit;
+    int         offset = 1, i, saved_offset;
+    uint8_t     new_message_bitmap_len;
+    uint8_t     length_of_cbs_schedule_period;
+    uint8_t     message_description_type;
+    uint8_t     future_extension_bitmap;
+    uint8_t     length_of_serial_number_list;
+    uint8_t     entry;
+    uint8_t     bit;
     proto_tree *message_description_tree;
     proto_item *ti;
 
@@ -223,7 +223,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int
 dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset=1;
+    int offset=1;
 
     proto_tree_add_item(tree, hf_bmc_broadcast_address, tvb, offset, 5, ENC_NA);
     offset += 5;
@@ -317,7 +317,7 @@ proto_register_bmc(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bmc,
         &ett_bmc_message_description
     };

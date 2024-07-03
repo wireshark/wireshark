@@ -25,7 +25,7 @@ void proto_reg_handoff_aruba_adp(void);
 static dissector_handle_t adp_handle;
 
 static int proto_aruba_adp;
-static gint ett_aruba_adp;
+static int ett_aruba_adp;
 
 static int hf_adp_version;
 static int hf_adp_type;
@@ -45,9 +45,9 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
     proto_tree *ti = NULL;
     proto_tree *aruba_adp_tree = NULL;
-    guint16 type;
-    const gchar *mac_str;
-    const gchar *switchip;
+    uint16_t type;
+    const char *mac_str;
+    const char *switchip;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADP");
@@ -121,7 +121,7 @@ proto_register_aruba_adp(void)
 
         };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_aruba_adp,
     };
 

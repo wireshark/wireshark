@@ -7,8 +7,8 @@
 #ifndef __PACKET_BICC_MST_H__
 #define __PACKET_BICC_MST_H__
 
-guint
-dissect_bicc_mst_lcls_gcr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+unsigned
+dissect_bicc_mst_lcls_gcr(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, unsigned len);
 
 #endif
 

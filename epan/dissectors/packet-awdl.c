@@ -277,28 +277,28 @@ static int hf_awdl_mcsset_rx_bitmask_24to31;
 
 static int hf_llc_apple_awdl_pid;
 
-static gint ett_awdl_data;
-static gint ett_awdl;
-static gint ett_awdl_fixed_parameters;
-static gint ett_awdl_tagged_parameters;
-static gint ett_awdl_unknown;
-static gint ett_awdl_tag;
-static gint ett_awdl_channelseq_flags;
-static gint ett_awdl_version;
-static gint ett_awdl_dns_record;
-static gint ett_awdl_dns_name;
-static gint ett_awdl_channelseq_channel_list;
-static gint ett_awdl_channelseq_channel;
-static gint ett_awdl_datastate_flags;
-static gint ett_awdl_datastate_social_channel_map;
-static gint ett_awdl_datastate_extflags;
-static gint ett_awdl_ht_capabilities;
-static gint ett_awdl_ht_ampduparam;
-static gint ett_awdl_ht_mcsset_tree;
-static gint ett_awdl_ht_mcsbit_tree;
-static gint ett_awdl_serviceparams_bitmask;
-static gint ett_awdl_serviceparams_values;
-static gint ett_awdl_serviceparams_value;
+static int ett_awdl_data;
+static int ett_awdl;
+static int ett_awdl_fixed_parameters;
+static int ett_awdl_tagged_parameters;
+static int ett_awdl_unknown;
+static int ett_awdl_tag;
+static int ett_awdl_channelseq_flags;
+static int ett_awdl_version;
+static int ett_awdl_dns_record;
+static int ett_awdl_dns_name;
+static int ett_awdl_channelseq_channel_list;
+static int ett_awdl_channelseq_channel;
+static int ett_awdl_datastate_flags;
+static int ett_awdl_datastate_social_channel_map;
+static int ett_awdl_datastate_extflags;
+static int ett_awdl_ht_capabilities;
+static int ett_awdl_ht_ampduparam;
+static int ett_awdl_ht_mcsset_tree;
+static int ett_awdl_ht_mcsbit_tree;
+static int ett_awdl_serviceparams_bitmask;
+static int ett_awdl_serviceparams_values;
+static int ett_awdl_serviceparams_value;
 
 static expert_field ei_awdl_tag_length;
 static expert_field ei_awdl_tag_data;
@@ -579,7 +579,7 @@ static const value_string apple_awdl_pid_vals[] = {
 static proto_item *
 add_awdl_version(tvbuff_t *tvb, int offset, proto_tree *tree) {
   proto_item *version_item;
-  guint64 version;
+  uint64_t version;
   static int * const fields[] = {
     &hf_awdl_version_major,
     &hf_awdl_version_minor,
@@ -588,7 +588,7 @@ add_awdl_version(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
   version_item = proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_awdl_version, ett_awdl_version,
                                                               fields, ENC_LITTLE_ENDIAN, BMT_NO_APPEND, &version);
-  proto_item_append_text(version_item, " (%u.%u)", (guint8) ((version >> 4) & 0xf), (guint8) (version & 0xf));
+  proto_item_append_text(version_item, " (%u.%u)", (uint8_t) ((version >> 4) & 0xf), (uint8_t) (version & 0xf));
 
   return version_item;
 }
@@ -617,8 +617,8 @@ awdl_tag_sync_tree(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
   return offset;
 }
 
-inline static gboolean
-test_bit_guint32(guint i, guint32 n) {
+inline static bool
+test_bit_guint32(unsigned i, uint32_t n) {
   return ((n >> i) & 1) == 1;
 }
 
@@ -685,19 +685,19 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   values_tree = proto_item_add_subtree(values_item, ett_awdl_serviceparams_values);
 
   offset_item = proto_tree_add_bitmask_with_flags(values_tree, tvb, offset, hf_awdl_serviceparams_bitmask, ett_awdl_serviceparams_bitmask, bitmask_fields, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  guint32 bitmask = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  uint32_t bitmask = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   if (bitmask != 0) {
-    guint count = 0;
-    for (guint i = 0; i < 32; i++) {
+    unsigned count = 0;
+    for (unsigned i = 0; i < 32; i++) {
       if (test_bit_guint32(i, bitmask)) {
         proto_item *value_item;
-        guint shift = i << 3;
+        unsigned shift = i << 3;
         value_item = proto_tree_add_bitmask(values_tree, tvb, offset, hf_awdl_serviceparams_values,
                                ett_awdl_serviceparams_value, value_fields, ENC_LITTLE_ENDIAN);
-        guint8 value = tvb_get_guint8(tvb, offset);
-        for (guint k = 0; k < 8; k++) {
+        uint8_t value = tvb_get_guint8(tvb, offset);
+        for (unsigned k = 0; k < 8; k++) {
           if (test_bit_guint32(k, value)) {
             if (count == 0) {
               proto_item_append_text(values_item, ": %u", k + shift);
@@ -722,8 +722,8 @@ static int
 awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item *chanlist_item, *channel_item;
   proto_tree *chanlist_tree, *channel_tree;
-  guint channels;
-  guint32 chan_number;
+  unsigned channels;
+  uint32_t chan_number;
   wmem_strbuf_t *strbuf;
   int offset = 0;
 
@@ -739,7 +739,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   channels += 1; /* channel list length is +1 */
   offset += 1;
 
-  guint8 seq_enc = tvb_get_guint8(tvb, offset);
+  uint8_t seq_enc = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(tree, hf_awdl_channelseq_enc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
   proto_tree_add_item(tree, hf_awdl_channelseq_duplicate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -756,7 +756,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case AWDL_CHANSEQ_ENC_CHANNELNUMBER:
     chanlist_item = proto_tree_add_item(tree, hf_awdl_channelseq_channel_list, tvb, offset, channels, ENC_NA);
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
-    for (guint i = 0; i < channels; i++) {
+    for (unsigned i = 0; i < channels; i++) {
       proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN, &chan_number);
       offset += 1;
 
@@ -771,7 +771,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case AWDL_CHANSEQ_ENC_LEGACY:
     chanlist_item = proto_tree_add_item(tree, hf_awdl_channelseq_channel_list, tvb, offset, 2 * channels, ENC_NA);
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
-    for (guint i = 0; i < channels; i++) {
+    for (unsigned i = 0; i < channels; i++) {
       /* channel number is 2nd byte */
       channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset + 1, 1,
                                                   ENC_LITTLE_ENDIAN, &chan_number);
@@ -793,7 +793,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case AWDL_CHANSEQ_ENC_OPCLASS:
     chanlist_item = proto_tree_add_item(tree, hf_awdl_channelseq_channel_list, tvb, offset, 2 * channels, ENC_NA);
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
-    for (guint i = 0; i < channels; i++) {
+    for (unsigned i = 0; i < channels; i++) {
       /* channel number is 1st byte */
       channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 1,
                                                   ENC_LITTLE_ENDIAN, &chan_number);
@@ -882,7 +882,7 @@ static int
 awdl_tag_election_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
   int offset = 0;
 
-  guint8 private_election = tvb_get_guint8(tvb, offset);
+  uint8_t private_election = tvb_get_guint8(tvb, offset);
 
   proto_tree_add_item(tree, hf_awdl_electionparams_flags, tvb, offset, 1, ENC_NA);
   offset += 1;
@@ -944,7 +944,7 @@ awdl_tag_election_params_v2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int
 awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
   int offset = 0;
-  guint16 flags;
+  uint16_t flags;
 
   static int * const flags_fields[] = {
     &hf_awdl_datastate_flags_0,
@@ -1004,7 +1004,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
   if (flags & 0x0200) {
     /* this can either be a channel or a map indicating which channels this node supports */
-    guint16 map = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint16_t map = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
     /* TODO unverified heuristic to decide whether this is a map or number */
     if (map & 1) {
       proto_tree_add_bitmask(tree, tvb, offset, hf_awdl_datastate_social_channel_map,
@@ -1034,7 +1034,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     offset += 2;
   }
   if (flags & 0x1000) {
-    guint16 optionlength = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint16_t optionlength = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_awdl_datastate_umioptions_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_awdl_datastate_umioptions, tvb, offset, optionlength, ENC_NA);
@@ -1042,7 +1042,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
   /* now come the extended parameters */
   if (flags & 0x8000) {
-    guint16 extflags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint16_t extflags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(tree, tvb, offset, hf_awdl_datastate_extflags,
                            ett_awdl_datastate_extflags, extflags_fields, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1074,7 +1074,7 @@ static int
 awdl_tag_ieee80211_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   int offset = 0;
 
-  const guint8 ids[] = {
+  const uint8_t ids[] = {
     191, // VHT Capability
   };
   offset += add_tagged_field(pinfo, tree, tvb, offset, MGT_ACTION, ids, G_N_ELEMENTS(ids), NULL);
@@ -1086,7 +1086,7 @@ static int
 awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
   proto_item *ti, *cap_item;
   proto_tree *mcs_tree, *bit_tree, *cap_tree;
-  guint8 streams; /* 0-4 for HT and 0-8 for VHT*/
+  uint8_t streams; /* 0-4 for HT and 0-8 for VHT*/
   int offset = 0;
   int tag_len = tvb_reported_length(tvb);
 
@@ -1166,10 +1166,10 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  */
 static int
 add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
-                  tvbuff_t *tvb, int offset, int len, wmem_allocator_t *scope, const gchar **name) {
+                  tvbuff_t *tvb, int offset, int len, wmem_allocator_t *scope, const char **name) {
   int start_offset = offset;
-  guint8 component_len;
-  const guchar *component;
+  uint8_t component_len;
+  const unsigned char *component;
   wmem_strbuf_t *strbuf;
 
   strbuf = wmem_strbuf_new_sized(scope, MAX_DNAME_LEN);
@@ -1178,7 +1178,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
     component_len = tvb_get_guint8(tvb, offset);
     if (component_len & 0xC0) {
       /* compressed label */
-      guint compressed_value;
+      unsigned compressed_value;
       proto_tree_add_item_ret_uint(tree, hfindex_compressed, tvb, offset, 2, ENC_BIG_ENDIAN, &compressed_value);
       if (compressed_value == 0xC000) {
         // 'NULL' compression -> ignore in printed string
@@ -1189,7 +1189,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
       offset += 2;
     } else {
       /* regular label */
-      guint label_len;
+      unsigned label_len;
       proto_tree_add_item_ret_string_and_length(tree, hfindex_regular, tvb, offset, 1, ENC_ASCII, scope, &component, &label_len);
       offset += label_len;
     }
@@ -1207,13 +1207,13 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
 }
 
 static int
-add_awdl_dns_entry(packet_info *pinfo, proto_tree *tree, gint ett,
+add_awdl_dns_entry(packet_info *pinfo, proto_tree *tree, int ett,
                    int hfindex_entry, int hfindex_regular, int hfindex_compressed,
-                   tvbuff_t *tvb, int offset, int len, const gchar **name) {
+                   tvbuff_t *tvb, int offset, int len, const char **name) {
   int start_offset = offset;
   proto_item *entry_item;
   proto_tree *entry_tree;
-  const gchar *n;
+  const char *n;
 
   entry_item = proto_tree_add_item(tree, hfindex_entry, tvb, offset, 0, ENC_NA);
   entry_tree = proto_item_add_subtree(entry_item, ett);
@@ -1244,10 +1244,10 @@ static int
 awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item *rr_item;
   proto_tree *rr_tree, *data_len;
-  const gchar *name;
+  const char *name;
   int offset = 0;
-  guint len, type;
-  guint prio, weight, port;
+  unsigned len, type;
+  unsigned prio, weight, port;
 
   rr_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_awdl_dns_record, &rr_item, "");
 
@@ -1273,13 +1273,13 @@ awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   switch (type) {
   case T_TXT:
     while (len > 0) {
-      const guchar *txt;
-      gint label_len;
+      const unsigned char *txt;
+      int label_len;
       proto_tree_add_item_ret_string_and_length(rr_tree, hf_awdl_dns_txt, tvb, offset, 1, ENC_ASCII,
                                                 pinfo->pool, &txt, &label_len);
       offset += label_len;
       proto_item_append_text(rr_item, ", %s", txt);
-      if (label_len > (gint) len) {
+      if (label_len > (int) len) {
         expert_add_info_format(pinfo, data_len, &ei_awdl_tag_length,
                                "DNS data length is too short");
         break;
@@ -1315,7 +1315,7 @@ awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static int
 awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, enum tag_length hdr_len) {
   tvbuff_t     *tag_tvb;
-  guint32       tag_no, tag_len;
+  uint32_t      tag_no, tag_len;
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
   proto_item   *ti_len, *ti_tag;
@@ -1338,7 +1338,7 @@ awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   ti_tag = proto_tree_add_uint(tree, hf_awdl_tag_number, tvb, offset, 1, tag_no);
   ti_len = proto_tree_add_uint(tree, hf_awdl_tag_length, tvb, offset + 1, hdr_len - 1, tag_len);
   offset += hdr_len;
-  if (tag_len > (guint)tvb_reported_length_remaining(tvb, offset)) {
+  if (tag_len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
     expert_add_info_format(pinfo, ti_len, &ei_awdl_tag_length,
                            "Tag Length is longer than remaining payload");
   }
@@ -1346,7 +1346,7 @@ awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   tag_tvb = tvb_new_subset_length(tvb, offset, tag_len);
   field_data.item_tag = ti;
   field_data.item_tag_length = ti_len;
-  if (!(parsed = dissector_try_uint_new(tagged_field_table, tag_no, tag_tvb, pinfo, tree, FALSE, &field_data)))
+  if (!(parsed = dissector_try_uint_new(tagged_field_table, tag_no, tag_tvb, pinfo, tree, false, &field_data)))
   {
     proto_tree_add_item(tree, hf_awdl_tag_data, tag_tvb, 0, tag_len, ENC_NA);
     expert_add_info_format(pinfo, ti_tag, &ei_awdl_tag_data,
@@ -1393,11 +1393,11 @@ static int
 dissect_awdl_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int        offset = 0;
-  gint       tagged_parameter_tree_len;
+  int        tagged_parameter_tree_len;
   proto_tree *parent, *af_tree, *fixed_tree, *tag_tree;
   proto_item *ti, *item, *fixed_fields;
-  guint32 phytime, targettime;
-  guint8 subtype;
+  uint32_t phytime, targettime;
+  uint8_t subtype;
 
   parent = proto_tree_get_parent_tree(proto_tree_get_parent_tree(tree));
   ti = proto_tree_add_item(parent, proto_awdl, tvb, offset, -1, ENC_NA);
@@ -1438,12 +1438,12 @@ dissect_awdl_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static int
 dissect_awdl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  gint      offset = 0;
-  guint     etype;
+  int       offset = 0;
+  unsigned  etype;
   tvbuff_t *next_tvb;
   proto_item *ti;
   proto_tree *awdl_tree;
-  guint seq;
+  unsigned seq;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AWDL Data");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1465,7 +1465,7 @@ dissect_awdl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       proto_item *tagged_item;
       proto_tree *tagged_tree;
       int         start_offset;
-      guint8      slen;
+      uint8_t     slen;
 
       slen = tvb_get_guint8(tvb, offset + 1);
       proto_tree_add_item(awdl_tree, hf_awdl_data_header, tvb, offset, 2 + slen, ENC_NA);
@@ -2689,7 +2689,7 @@ void proto_register_awdl(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_awdl_data,
     &ett_awdl,
     &ett_awdl_fixed_parameters,

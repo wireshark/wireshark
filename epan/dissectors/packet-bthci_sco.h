@@ -13,7 +13,7 @@
 extern wmem_tree_t *bthci_sco_stream_numbers;
 
 typedef struct _bthci_sco_stream_number_t {
-    guint32  stream_number;
+    uint32_t stream_number;
 } bthci_sco_stream_number_t;
 
 #endif

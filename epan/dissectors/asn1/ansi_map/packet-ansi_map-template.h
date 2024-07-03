@@ -17,8 +17,8 @@
 #define	ANSI_MAP_MAX_NUM_MESSAGE_TYPES	256
 
 typedef struct _ansi_map_tap_rec_t {
-    guint8		message_type;
-    guint16		size;
+    uint8_t		message_type;
+    uint16_t		size;
 } ansi_map_tap_rec_t;
 
 

@@ -48,7 +48,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY Authentication-value-other/other-mechanism-name
 %(DEFAULT_BODY)s
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
   if (actx->external.direct_ref_present) {
@@ -59,37 +59,37 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 /*XXX not implemented yet */
 
 #.FN_BODY AARQ-apdu/_untag/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY AARE-apdu/_untag/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY ACRQ-apdu/_untag/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY ACRP-apdu/_untag/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY EXTERNALt/_untag/indirect-reference
   char *oid;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*) actx->private_data;
 
-  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
+  offset = dissect_ber_integer(false, actx, tree, tvb, offset,
                 hf_acse_indirect_reference,
                 &indir_ref);
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
     actx->external.direct_reference = wmem_strdup(actx->pinfo->pool, oid);
-    actx->external.direct_ref_present = TRUE;
+    actx->external.direct_ref_present = true;
   }
 
   if(session)
@@ -100,7 +100,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY EXTERNALt/_untag/direct-reference
 %(DEFAULT_BODY)s
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
   if (actx->external.direct_ref_present) {

@@ -61,16 +61,16 @@ static int hf_CTRL_mode;
 static int hf_CTRL_fsize;
 
 /**Subtrees */
-static gint ett_FTRIM;
-static gint ett_ar_drone;
-static gint ett_PCMD;
-static gint ett_REF;
-static gint ett_CONFIG;
-static gint ett_CONFIG_ID;
-static gint ett_COMWDG;
-static gint ett_LED;
-static gint ett_ANIM;
-static gint ett_CTRL;
+static int ett_FTRIM;
+static int ett_ar_drone;
+static int ett_PCMD;
+static int ett_REF;
+static int ett_CONFIG;
+static int ett_CONFIG_ID;
+static int ett_COMWDG;
+static int ett_LED;
+static int ett_ANIM;
+static int ett_CTRL;
 
 static expert_field ei_NO_COMMA;
 static expert_field ei_NO_CR;
@@ -103,13 +103,13 @@ static const string_string CTRL_mode_vs[] = {
 static int
 dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        offset, length;
-    gint        master_offset = 0;
+    int         offset, length;
+    int         master_offset = 0;
     proto_item *ti, *sub_item;
     proto_tree *ar_tree, *sub_tree;
     char       *command;
-    guint8     *complete_str;
-    guint32     dword;
+    uint8_t    *complete_str;
+    uint32_t    dword;
 
     if (tvb_captured_length(tvb) < 4)
         return 0;
@@ -142,7 +142,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (!strncmp(command, "AT*PCMD", 7))
         {
             /** Parse according the PCMD layout: */
-            guint8      PCMD_byte;
+            uint8_t     PCMD_byte;
             const char *PCMD_str;
 
             sub_tree = proto_item_add_subtree(sub_item, ett_PCMD);
@@ -508,7 +508,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         }else if (!strncmp(command, "AT*CTRL", 7))
         {
-            const guint8* CTRL_mode_str;
+            const uint8_t* CTRL_mode_str;
 
             /** Parse according to the CTRL layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_CTRL);
@@ -738,7 +738,7 @@ proto_register_ar_drone(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
     &ett_ar_drone,
     &ett_PCMD,
     &ett_REF,

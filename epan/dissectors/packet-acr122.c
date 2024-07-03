@@ -71,11 +71,11 @@ static int hf_uid;
 static int hf_ats;
 static int hf_data;
 
-static gint ett_acr122;
-static gint ett_p1_item;
-static gint ett_p2_item;
-static gint ett_status_word;
-static gint ett_status_word_sw2;
+static int ett_acr122;
+static int ett_p1_item;
+static int ett_p2_item;
+static int ett_status_word;
+static int ett_status_word_sw2;
 
 static expert_field ei_unknown_command_or_invalid_parameters;
 
@@ -85,13 +85,13 @@ static dissector_handle_t  pn532_handle;
 static wmem_tree_t *command_info;
 
 typedef struct command_data_t {
-    guint32  bus_id;
-    guint32  device_address;
-    guint32  endpoint;
+    uint32_t bus_id;
+    uint32_t device_address;
+    uint32_t endpoint;
 
-    guint8   command;
-    guint32  command_frame_number;
-    guint32  response_frame_number;
+    uint8_t  command;
+    uint32_t command_frame_number;
+    uint32_t response_frame_number;
 } command_data_t;
 
 /* Not part of protocol, generated values */
@@ -179,12 +179,12 @@ void proto_register_acr122(void);
 void proto_reg_handoff_acr122(void);
 
 static void
-duration_base(gchar *buf, guint32 value) {
+duration_base(char *buf, uint32_t value) {
         snprintf(buf, ITEM_LABEL_LENGTH, "%u.%03u s", value * 100 / 1000, value * 100 % 1000);
 }
 
 static void
-timeout_base(gchar *buf, guint32 value) {
+timeout_base(char *buf, uint32_t value) {
         if (value == 0x00)
             snprintf(buf, ITEM_LABEL_LENGTH, "No timeout check");
         else if (value == 0xFF)
@@ -196,7 +196,7 @@ timeout_base(gchar *buf, guint32 value) {
 }
 
 
-static gint
+static int
 dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *main_item;
@@ -209,25 +209,25 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *sub_tree;
     proto_item      *sw2_item;
     proto_item      *sw2_tree;
-    gint             offset = 0;
-    guint32          value;
+    int              offset = 0;
+    uint32_t         value;
     tvbuff_t        *next_tvb;
-    guint8           acr_class;
-    guint8           ins;
-    guint8           p1;
-    guint8           p2;
-    guint8           length;
-    guint8           command = CMD_UNKNOWN;
+    uint8_t          acr_class;
+    uint8_t          ins;
+    uint8_t          p1;
+    uint8_t          p2;
+    uint8_t          length;
+    uint8_t          command = CMD_UNKNOWN;
     command_data_t  *command_data;
     usb_conv_info_t *usb_conv_info;
     wmem_tree_key_t  key[5];
-    guint32          bus_id;
-    guint32          device_address;
-    guint32          endpoint;
-    guint32          k_bus_id;
-    guint32          k_device_address;
-    guint32          k_endpoint;
-    guint32          k_frame_number;
+    uint32_t         bus_id;
+    uint32_t         device_address;
+    uint32_t         endpoint;
+    uint32_t         k_bus_id;
+    uint32_t         k_device_address;
+    uint32_t         k_endpoint;
+    uint32_t         k_frame_number;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACR 122");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -468,8 +468,8 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
     } else { /* Response */
-        guint32       command_frame_number = 0;
-        gboolean      use_status_word = FALSE;
+        uint32_t      command_frame_number = 0;
+        bool          use_status_word = false;
         wmem_tree_t  *wmem_tree;
 
         key[3].length = 0;
@@ -507,7 +507,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
 
         case CMD_DIRECT_TRANSMIT:
-            use_status_word = TRUE;
+            use_status_word = true;
 
             if (tvb_captured_length_remaining(tvb, offset) > 2) {
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2);
@@ -518,24 +518,24 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 
         case CMD_READ_BINARY_BLOCKS:
-            use_status_word = TRUE;
+            use_status_word = true;
             proto_tree_add_item(main_tree, hf_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, ENC_NA);
             offset += tvb_captured_length_remaining(tvb, offset) - 2;
             break;
 
         case CMD_READ_VALUE_BLOCK:
-            use_status_word = TRUE;
+            use_status_word = true;
             proto_tree_add_item(main_tree, hf_value, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
 
         case CMD_GET_DATA_UID:
-            use_status_word = TRUE;
+            use_status_word = true;
             proto_tree_add_item(main_tree, hf_uid, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, ENC_NA);
             offset += tvb_captured_length_remaining(tvb, offset) - 2;
             break;
 
         case CMD_GET_DATA_ATS:
-            use_status_word = TRUE;
+            use_status_word = true;
             proto_tree_add_item(main_tree, hf_ats, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, ENC_NA);
             offset += tvb_captured_length_remaining(tvb, offset) - 2;
             break;
@@ -552,7 +552,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case CMD_SET_PICC_OPERATING_PARAMETER:
         case CMD_GET_PICC_OPERATING_PARAMETER:
         default:
-            use_status_word = TRUE;
+            use_status_word = true;
             break;
         }
 
@@ -862,7 +862,7 @@ proto_register_acr122(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_acr122,
         &ett_p1_item,
         &ett_p2_item,

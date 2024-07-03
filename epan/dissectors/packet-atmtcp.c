@@ -30,7 +30,7 @@ static int hf_atmtcp_length;
 
 #define ATMTCP_TCP_PORT     2812
 
-static gint ett_atmtcp;
+static int ett_atmtcp;
 
 #define ATMTCP_HDR_MAGIC        (~0)    /* this length indicates a command */
 #define ATMTCP_CTRL_OPEN        1       /* request/reply */
@@ -42,8 +42,8 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     proto_item *ti;
     proto_tree *atmtcp_tree;
-    guint       offset = 0;
-    gint32      length;
+    unsigned    offset = 0;
+    int32_t     length;
     tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMTCP");
@@ -109,7 +109,7 @@ proto_register_atmtcp(void)
     };
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_atmtcp
     };
 

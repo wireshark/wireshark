@@ -85,9 +85,9 @@ static const val64_string crc_vals[] = {
 
 typedef struct {
     /// Type of block
-    guint64 type_code;
+    uint64_t type_code;
     /// Limit on total count
-    guint64 limit;
+    uint64_t limit;
 } blocktype_limit;
 /// Block type count limits
 static const blocktype_limit blocktype_limits[] = {
@@ -242,8 +242,8 @@ static int hf_payload_fragment_count;
 static int hf_payload_reassembled_in;
 static int hf_payload_reassembled_length;
 static int hf_payload_reassembled_data;
-static gint ett_payload_fragment;
-static gint ett_payload_fragments;
+static int ett_payload_fragment;
+static int ett_payload_fragments;
 
 /// Field definitions
 static hf_register_info fields[] = {
@@ -496,11 +496,11 @@ static ei_register_info expertitems[] = {
  *
  * @param ptr The object to delete.
  */
-static void file_scope_delete(gpointer ptr) {
+static void file_scope_delete(void *ptr) {
     wmem_free(wmem_file_scope(), ptr);
 }
 
-gint bp_creation_ts_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_) {
+int bp_creation_ts_compare(const void *a, const void *b, void *user_data _U_) {
     const bp_creation_ts_t *ats = a;
     const bp_creation_ts_t *bts = b;
     if (ats->abstime.dtntime < bts->abstime.dtntime) {
@@ -533,7 +533,7 @@ void bp_eid_free(wmem_allocator_t *alloc, bp_eid_t *obj) {
     wmem_free(alloc, obj);
 }
 
-gboolean bp_eid_equal(gconstpointer a, gconstpointer b) {
+bool bp_eid_equal(const void *a, const void *b) {
     const bp_eid_t *aobj = a;
     const bp_eid_t *bobj = b;
     return addresses_equal(&(aobj->uri), &(bobj->uri));
@@ -565,7 +565,7 @@ void bp_block_primary_free(wmem_allocator_t *alloc, bp_block_primary_t *obj) {
     wmem_free(alloc, obj);
 }
 
-bp_block_canonical_t * bp_block_canonical_new(wmem_allocator_t *alloc, guint64 blk_ix) {
+bp_block_canonical_t * bp_block_canonical_new(wmem_allocator_t *alloc, uint64_t blk_ix) {
     bp_block_canonical_t *obj = wmem_new0(alloc, bp_block_canonical_t);
     obj->blk_ix = blk_ix;
     obj->sec.data_i = wmem_map_new(alloc, g_int64_hash, g_int64_equal);
@@ -573,8 +573,8 @@ bp_block_canonical_t * bp_block_canonical_new(wmem_allocator_t *alloc, guint64 b
     return obj;
 }
 
-static guint64 * guint64_new(wmem_allocator_t *alloc, const guint64 val) {
-    guint64 *obj = wmem_new(alloc, guint64);
+static uint64_t * guint64_new(wmem_allocator_t *alloc, const uint64_t val) {
+    uint64_t *obj = wmem_new(alloc, uint64_t);
     *obj = val;
     return obj;
 }
@@ -597,7 +597,7 @@ void bp_bundle_free(wmem_allocator_t *alloc, bp_bundle_t *obj) {
 
 /** Function to match the GCompareFunc signature.
  */
-static gint bp_bundle_frameloc_compare(gconstpointer a, gconstpointer b) {
+static int bp_bundle_frameloc_compare(const void *a, const void *b) {
   const bp_bundle_t *aobj = a;
   const bp_bundle_t *bobj = b;
   if (aobj->frame_num < bobj->frame_num) {
@@ -615,7 +615,7 @@ static gint bp_bundle_frameloc_compare(gconstpointer a, gconstpointer b) {
   return 0;
 }
 
-bp_bundle_ident_t * bp_bundle_ident_new(wmem_allocator_t *alloc, const bp_eid_t *src, const bp_creation_ts_t *ts, const guint64 *off, const guint64 *len) {
+bp_bundle_ident_t * bp_bundle_ident_new(wmem_allocator_t *alloc, const bp_eid_t *src, const bp_creation_ts_t *ts, const uint64_t *off, const uint64_t *len) {
     DISSECTOR_ASSERT(src != NULL);
     DISSECTOR_ASSERT(ts != NULL);
     bp_bundle_ident_t *ident = wmem_new(alloc, bp_bundle_ident_t);
@@ -632,7 +632,7 @@ void bp_bundle_ident_free(wmem_allocator_t *alloc, bp_bundle_ident_t *obj) {
 
 /** Either both values are defined and equal or both are null.
  */
-static gboolean optional_uint64_equal(const guint64 *a, const guint64 *b) {
+static bool optional_uint64_equal(const uint64_t *a, const uint64_t *b) {
     if (a && b) {
         return (*a == *b);
     }
@@ -641,7 +641,7 @@ static gboolean optional_uint64_equal(const guint64 *a, const guint64 *b) {
     }
 }
 
-gboolean bp_bundle_ident_equal(gconstpointer a, gconstpointer b) {
+gboolean bp_bundle_ident_equal(const void *a, const void *b) {
     const bp_bundle_ident_t *aobj = a;
     const bp_bundle_ident_t *bobj = b;
     return (
@@ -653,7 +653,7 @@ gboolean bp_bundle_ident_equal(gconstpointer a, gconstpointer b) {
     );
 }
 
-guint bp_bundle_ident_hash(gconstpointer key) {
+unsigned bp_bundle_ident_hash(const void *key) {
     const bp_bundle_ident_t *obj = key;
     return (
         add_address_to_hash(0, &(obj->src))
@@ -668,7 +668,7 @@ guint bp_bundle_ident_hash(gconstpointer key) {
  * @param dtntime Number of milliseconds from an epoch.
  * @return The associated absolute time.
  */
-static nstime_t dtn_to_delta(const gint64 dtntime) {
+static nstime_t dtn_to_delta(const int64_t dtntime) {
     nstime_t utctime;
     utctime.secs = dtntime / 1000;
     utctime.nsecs = 1000000 * (dtntime % 1000);
@@ -681,18 +681,18 @@ static nstime_t dtn_to_delta(const gint64 dtntime) {
  * @param dtntime Number of milliseconds from an epoch.
  * @return The associated absolute time.
  */
-static nstime_t dtn_to_utctime(const gint64 dtntime) {
+static nstime_t dtn_to_utctime(const int64_t dtntime) {
     nstime_t utctime;
     utctime.secs = 946684800 + dtntime / 1000;
     utctime.nsecs = 1000000 * (dtntime % 1000);
     return utctime;
 }
 
-proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_uri, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_eid_t *eid) {
+proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_uri, packet_info *pinfo, tvbuff_t *tvb, int *offset, bp_eid_t *eid) {
     wmem_allocator_t *alloc_eid = wmem_file_scope();
     proto_item *item_eid = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, ENC_NA);
     proto_tree *tree_eid = proto_item_add_subtree(item_eid, ett_eid);
-    const gint eid_start = *offset;
+    const int eid_start = *offset;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
     wscbor_require_array_size(chunk, 2, 2);
@@ -702,7 +702,7 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-    const guint64 *scheme = wscbor_require_uint64(alloc_eid, chunk);
+    const uint64_t *scheme = wscbor_require_uint64(alloc_eid, chunk);
     proto_item *item_scheme = proto_tree_add_cbor_uint64(tree_eid, hf_eid_scheme, pinfo, tvb, chunk, scheme);
     if (!scheme) {
         wscbor_skip_next_item(pinfo->pool, tvb, offset);
@@ -712,13 +712,13 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     wmem_strbuf_t *uribuf = wmem_strbuf_new(alloc_eid, NULL);
     const char *dtn_wkssp = NULL;
     const char *dtn_serv = NULL;
-    guint64 *ipn_serv = NULL;
+    uint64_t *ipn_serv = NULL;
     switch (*scheme) {
         case EID_SCHEME_DTN: {
             chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
             switch (chunk->type_major) {
                 case CBOR_TYPE_UINT: {
-                    const guint64 *ssp_code = wscbor_require_uint64(pinfo->pool, chunk);
+                    const uint64_t *ssp_code = wscbor_require_uint64(pinfo->pool, chunk);
                     proto_item *item = proto_tree_add_cbor_uint64(tree_eid, hf_eid_dtn_ssp_code, pinfo, tvb, chunk, ssp_code);
 
                     switch (*ssp_code) {
@@ -768,7 +768,7 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
             wscbor_require_array_size(chunk, 2, 2);
             if (!wscbor_skip_if_errors(pinfo->pool, tvb, offset, chunk)) {
                 chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-                const guint64 *node = wscbor_require_uint64(pinfo->pool, chunk);
+                const uint64_t *node = wscbor_require_uint64(pinfo->pool, chunk);
                 proto_tree_add_cbor_uint64(tree_eid, hf_eid_ipn_node, pinfo, tvb, chunk, node);
 
                 chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
@@ -827,15 +827,15 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     return item_eid;
 }
 
-static void dissect_dtn_time(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_dtn_time_t *out)
+static void dissect_dtn_time(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, int *offset, bp_dtn_time_t *out)
 {
     proto_item *item_time = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, ENC_NA);
     proto_tree *tree_time = proto_item_add_subtree(item_time, ett_time);
-    const gint offset_start = *offset;
+    const int offset_start = *offset;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
     if (chunk) {
-        const guint64 *dtntime = wscbor_require_uint64(pinfo->pool, chunk);
+        const uint64_t *dtntime = wscbor_require_uint64(pinfo->pool, chunk);
         proto_tree_add_cbor_uint64(tree_time, hf_time_dtntime, pinfo, tvb, chunk, dtntime);
 
         if (dtntime) {
@@ -848,7 +848,7 @@ static void dissect_dtn_time(proto_tree *tree, int hfindex, packet_info *pinfo, 
                 proto_item *item_utctime = proto_tree_add_time(tree_time, hf_time_utctime, tvb, chunk->start, chunk->data_length, &utctime);
                 proto_item_set_generated(item_utctime);
 
-                gchar *time_text = abs_time_to_str(pinfo->pool, &utctime, ABSOLUTE_TIME_UTC, TRUE);
+                char *time_text = abs_time_to_str(pinfo->pool, &utctime, ABSOLUTE_TIME_UTC, true);
                 proto_item_append_text(item_time, ": %s", time_text);
 
                 if (out) {
@@ -876,7 +876,7 @@ static void dissect_dtn_time(proto_tree *tree, int hfindex, packet_info *pinfo, 
  * @param[in,out] offset Starting offset within @c tvb.
  * @param[out] ts If non-null, the timestamp to write to.
  */
-static void dissect_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_creation_ts_t *ts)
+static void dissect_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, int *offset, bp_creation_ts_t *ts)
 {
     proto_item *item_ts = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, ENC_NA);
     proto_tree *tree_ts = proto_item_add_subtree(item_ts, ett_create_ts);
@@ -889,7 +889,7 @@ static void dissect_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *p
         dissect_dtn_time(tree_ts, hf_create_ts_time, pinfo, tvb, offset, &abstime);
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-        const guint64 *seqno = wscbor_require_uint64(wmem_file_scope(), chunk);
+        const uint64_t *seqno = wscbor_require_uint64(wmem_file_scope(), chunk);
         proto_tree_add_cbor_uint64(tree_ts, hf_create_ts_seqno, pinfo, tvb, chunk, seqno);
 
         if (ts) {
@@ -908,7 +908,7 @@ static void dissect_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *p
  * @param[in,out] item_type The item associated with the type field.
  * @param[in,out] item_parent The parent item to label.
  */
-static void label_type_field(const guint64 *type_code, dissector_handle_t type_dissect, proto_item *item_type, proto_item *item_parent)
+static void label_type_field(const uint64_t *type_code, dissector_handle_t type_dissect, proto_item *item_type, proto_item *item_parent)
 {
     if (!item_type || !item_parent) {
         return;
@@ -930,7 +930,7 @@ static void label_type_field(const guint64 *type_code, dissector_handle_t type_d
  * @param crc_type Type of CRC to compute.
  * @param crc_field The read-in field value.
  */
-static void show_crc_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_block, const guint64 *crc_type, tvbuff_t *crc_field) {
+static void show_crc_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_block, const uint64_t *crc_type, tvbuff_t *crc_field) {
     if (!crc_type || !crc_field) {
         return;
     }
@@ -950,15 +950,15 @@ static void show_crc_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_bl
     }
 
     // Compare against expected result
-    guint32 crc_actual = 0;
-    guint chksum_flags = PROTO_CHECKSUM_NO_FLAGS;
+    uint32_t crc_actual = 0;
+    unsigned chksum_flags = PROTO_CHECKSUM_NO_FLAGS;
     if (bp_compute_crc) {
         if (*crc_type == BP_CRC_NONE) {
             chksum_flags |= PROTO_CHECKSUM_NOT_PRESENT;
         }
         else {
-            const guint block_len = tvb_reported_length(tvb);
-            guint8 *crcbuf = tvb_memdup(pinfo->pool, tvb, 0, block_len);
+            const unsigned block_len = tvb_reported_length(tvb);
+            uint8_t *crcbuf = tvb_memdup(pinfo->pool, tvb, 0, block_len);
             switch (*crc_type) {
                 case BP_CRC_16:
                     memset(crcbuf + block_len - 2, 0, 2);
@@ -1002,12 +1002,12 @@ static proto_item * proto_tree_add_ident(packet_info *pinfo, proto_tree *tree, i
 }
 
 
-static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_block,
-                                  gint start, bp_block_primary_t *block,
+static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_block,
+                                  int start, bp_block_primary_t *block,
                                   bp_bundle_t *bundle _U_) {
     proto_item *item_block = proto_tree_get_parent(tree_block);
-    gint field_ix = 0;
-    gint offset = start;
+    int field_ix = 0;
+    int offset = start;
     block->item_block = item_block;
 
     wscbor_chunk_t *chunk_block = wscbor_chunk_read(pinfo->pool, tvb, &offset);
@@ -1021,7 +1021,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 #endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *version = wscbor_require_uint64(pinfo->pool, chunk);
+    const uint64_t *version = wscbor_require_uint64(pinfo->pool, chunk);
     proto_item *item_version = proto_tree_add_cbor_uint64(tree_block, hf_primary_version, pinfo, tvb, chunk, version);
     field_ix++;
     if (version && (*version != 7)) {
@@ -1029,13 +1029,13 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *flags = wscbor_require_uint64(pinfo->pool, chunk);
+    const uint64_t *flags = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_bitmask(tree_block, hf_primary_bundle_flags, ett_bundle_flags, bundle_flags, pinfo, tvb, chunk, flags);
     field_ix++;
     block->flags = (flags ? *flags : 0);
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    guint64 *crc_type = wscbor_require_uint64(pinfo->pool, chunk);
+    uint64_t *crc_type = wscbor_require_uint64(pinfo->pool, chunk);
     proto_item *item_crc_type = proto_tree_add_cbor_uint64(tree_block, hf_crc_type, pinfo, tvb, chunk, crc_type);
     field_ix++;
     block->crc_type = (crc_type ? *crc_type : BP_CRC_NONE);
@@ -1067,7 +1067,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     field_ix++;
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *lifetime = wscbor_require_uint64(pinfo->pool, chunk);
+    const uint64_t *lifetime = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_uint64(tree_block, hf_primary_lifetime, pinfo, tvb, chunk, lifetime);
     if (lifetime) {
         nstime_t lifetime_exp = dtn_to_delta(*lifetime);
@@ -1134,12 +1134,12 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return offset - start;
 }
 
-static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_block,
-                                    gint start, bp_block_canonical_t *block,
+static int dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_block,
+                                    int start, bp_block_canonical_t *block,
                                     bp_bundle_t *bundle _U_) {
     proto_item *item_block = proto_tree_get_parent(tree_block);
-    gint field_ix = 0;
-    gint offset = start;
+    int field_ix = 0;
+    int offset = start;
     block->item_block = item_block;
 
     wscbor_chunk_t *chunk_block = wscbor_chunk_read(pinfo->pool, tvb, &offset);
@@ -1153,7 +1153,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 #endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    guint64 *type_code = wscbor_require_uint64(wmem_file_scope(), chunk);
+    uint64_t *type_code = wscbor_require_uint64(wmem_file_scope(), chunk);
     proto_item *item_type = proto_tree_add_cbor_uint64(tree_block, hf_canonical_type_code, pinfo, tvb, chunk, type_code);
     field_ix++;
     block->type_code = type_code;
@@ -1163,7 +1163,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         label_type_field(type_code, type_dissect, item_type, item_block);
 
         // Check duplicate of this type
-        guint64 limit = UINT64_MAX;
+        uint64_t limit = UINT64_MAX;
         for (int ix = 0; ; ++ix) {
             const blocktype_limit *row = blocktype_limits + ix;
             if (row->type_code == BP_BLOCKTYPE_INVALID) {
@@ -1175,7 +1175,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             }
         }
 
-        guint64 count = 1; // this block counts regardless of presence in the map
+        uint64_t count = 1; // this block counts regardless of presence in the map
         wmem_list_t *list_found = wmem_map_lookup(bundle->block_types, type_code);
         if (list_found) {
             for (wmem_list_frame_t *it = wmem_list_head(list_found); it;
@@ -1194,7 +1194,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    guint64 *block_num = wscbor_require_uint64(wmem_file_scope(), chunk);
+    uint64_t *block_num = wscbor_require_uint64(wmem_file_scope(), chunk);
     proto_item *item_block_num = proto_tree_add_cbor_uint64(tree_block, hf_canonical_block_num, pinfo, tvb, chunk, block_num);
     field_ix++;
     block->block_number = block_num;
@@ -1203,13 +1203,13 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *flags = wscbor_require_uint64(wmem_file_scope(), chunk);
+    const uint64_t *flags = wscbor_require_uint64(wmem_file_scope(), chunk);
     proto_tree_add_cbor_bitmask(tree_block, hf_canonical_block_flags, ett_block_flags, block_flags, pinfo, tvb, chunk, flags);
     field_ix++;
     block->flags = (flags ? *flags : 0);
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    guint64 *crc_type = wscbor_require_uint64(wmem_file_scope(), chunk);
+    uint64_t *crc_type = wscbor_require_uint64(wmem_file_scope(), chunk);
     proto_item *item_crc_type = proto_tree_add_cbor_uint64(tree_block, hf_crc_type, pinfo, tvb, chunk, crc_type);
     field_ix++;
     block->crc_type = (crc_type ? *crc_type : BP_CRC_NONE);
@@ -1261,7 +1261,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (block->type_code) {
         wmem_list_t *type_list = wmem_map_lookup(bundle->block_types, block->type_code);
         if (!type_list) {
-            guint64 *key = guint64_new(wmem_file_scope(), *(block->type_code));
+            uint64_t *key = guint64_new(wmem_file_scope(), *(block->type_code));
             type_list = wmem_list_new(wmem_file_scope());
             wmem_map_insert(bundle->block_types, key, type_list);
         }
@@ -1273,7 +1273,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             expert_add_info(pinfo, item_block_num, &ei_block_num_dupe);
         }
         else {
-            guint64 *key = guint64_new(wmem_file_scope(), *(block->block_number));
+            uint64_t *key = guint64_new(wmem_file_scope(), *(block->block_number));
             wmem_map_insert(bundle->block_nums, key, block);
         }
     }
@@ -1295,8 +1295,8 @@ typedef struct {
     const char *sectype;
 } bpsec_block_mark_t;
 /// Mark blocks with BPSec expert info
-static void mark_target_block(gpointer key, gpointer value _U_, gpointer user_data) {
-    const guint64 *blk_num = (guint64 *)key;
+static void mark_target_block(void *key, void *value _U_, void *user_data) {
+    const uint64_t *blk_num = (uint64_t *)key;
     const bpsec_block_mark_t *mark = (bpsec_block_mark_t *)user_data;
     expert_add_info_format(
         mark->pinfo, mark->pi, mark->eiindex,
@@ -1332,12 +1332,12 @@ static void apply_bpsec_mark(const security_mark_t *sec, packet_info *pinfo, pro
  * @param type_exp True if the type code is in the private/experimental range.
  * @return The number of dissected octets.
  */
-static gint dissect_carried_data(dissector_handle_t dissector, void *context, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean type_exp) {
+static int dissect_carried_data(dissector_handle_t dissector, void *context, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool type_exp) {
     int sublen = 0;
     if (dissector) {
         sublen = call_dissector_only(dissector, tvb, pinfo, tree, context);
         if ((sublen < 0) ||
-            ((sublen > 0) && ((guint)sublen < tvb_reported_length(tvb)))) {
+            ((sublen > 0) && ((unsigned)sublen < tvb_reported_length(tvb)))) {
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_sub_partial_decode);
         }
     }
@@ -1360,7 +1360,7 @@ static gint dissect_carried_data(dissector_handle_t dissector, void *context, tv
 /** Handle iteration over status subject set.
  *
  */
-static void show_status_subj_ref(gpointer key, gpointer val _U_, gpointer data) {
+static void show_status_subj_ref(void *key, void *val _U_, void *data) {
     bp_bundle_ident_t *status_ident = key;
     proto_tree *tree_bundle = data;
     const wmem_list_t *subj_list = wmem_map_lookup(bp_history->bundles, status_ident);
@@ -1373,7 +1373,7 @@ static void show_status_subj_ref(gpointer key, gpointer val _U_, gpointer data) 
 }
 
 /// Stable sort, preserving relative order of same priority
-static int block_dissect_sort(gconstpointer a, gconstpointer b) {
+static int block_dissect_sort(const void *a, const void *b) {
     DISSECTOR_ASSERT(a && b);
     const bp_block_canonical_t *aobj = *(bp_block_canonical_t **)a;
     const bp_block_canonical_t *bobj = *(bp_block_canonical_t **)b;
@@ -1392,13 +1392,13 @@ static int block_dissect_sort(gconstpointer a, gconstpointer b) {
 /// Top-level protocol dissector
 static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     {
-        const gchar *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
+        const char *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
         if (g_strcmp0(proto_name, proto_name_bp) != 0) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_bp);
             col_clear(pinfo->cinfo, COL_INFO);
         }
     }
-    gint offset = 0;
+    int offset = 0;
 
     proto_item *item_bundle = proto_tree_add_item(tree, proto_bp, tvb, 0, -1, ENC_NA);
     proto_tree *tree_bundle = proto_item_add_subtree(item_bundle, ett_bundle);
@@ -1409,7 +1409,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     bundle->frame_time = pinfo->abs_ts;
 
     // Read blocks directly from buffer with same addresses as #tvb
-    const guint buflen = tvb_reported_length(tvb);
+    const unsigned buflen = tvb_reported_length(tvb);
 
     // Require indefinite-length array type
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
@@ -1423,9 +1423,9 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         // continue on even for definite-length array
     }
 
-    guint64 block_ix = 0;
-    while (TRUE) {
-        if (offset >= (gint)buflen) {
+    uint64_t block_ix = 0;
+    while (true) {
+        if (offset >= (int)buflen) {
             proto_item *item_break = proto_tree_add_item(tree_bundle, hf_bundle_break, tvb, offset, -1, ENC_NA);
             expert_add_info_format(pinfo, item_break, &ei_invalid_framing, "Array break missing");
             break;
@@ -1440,14 +1440,14 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         offset = chunk->start;
 
         // Load just the array start
-        const gint block_start = offset;
+        const int block_start = offset;
         proto_item *item_block = proto_tree_add_item(tree_bundle, hf_block, tvb, block_start, -1, ENC_NA);
         proto_tree *tree_block = proto_item_add_subtree(item_block, ett_block);
 
         if (block_ix == 0) {
             // Primary block
             proto_item_prepend_text(item_block, "Primary ");
-            const gint sublen = dissect_block_primary(tvb, pinfo, tree_block, offset, bundle->primary, bundle);
+            const int sublen = dissect_block_primary(tvb, pinfo, tree_block, offset, bundle->primary, bundle);
             if (sublen <= 0) {
                 break;
             }
@@ -1514,7 +1514,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             // Non-primary block
             proto_item_prepend_text(item_block, "Canonical ");
             bp_block_canonical_t *block = bp_block_canonical_new(wmem_file_scope(), block_ix);
-            const gint sublen = dissect_block_canonical(tvb, pinfo, tree_block, offset, block, bundle);
+            const int sublen = dissect_block_canonical(tvb, pinfo, tree_block, offset, block, bundle);
             if (sublen <= 0) {
                 break;
             }
@@ -1536,9 +1536,9 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
 
             if (block->data) {
-                bundle->pyld_start = wmem_new(wmem_file_scope(), guint);
+                bundle->pyld_start = wmem_new(wmem_file_scope(), unsigned);
                 *(bundle->pyld_start) = tvb_raw_offset(block->data) - tvb_raw_offset(tvb);
-                bundle->pyld_len = wmem_new(wmem_file_scope(), guint);
+                bundle->pyld_len = wmem_new(wmem_file_scope(), unsigned);
                 *(bundle->pyld_len) = tvb_reported_length(block->data);
             }
         }
@@ -1549,7 +1549,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         pinfo->pool,  sizeof(bp_block_canonical_t*),
         wmem_list_count(bundle->blocks)
     );
-    guint ix = 0;
+    unsigned ix = 0;
     for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
             it = wmem_list_frame_next(it), ++ix) {
         bp_block_canonical_t *block = wmem_list_frame_data(it);
@@ -1569,7 +1569,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         // sub-dissect after all is read
         dissector_handle_t data_dissect = NULL;
-        gboolean type_exp = FALSE;
+        bool type_exp = false;
         if (block->type_code) {
             data_dissect = dissector_get_custom_table_handle(block_dissectors, block->type_code);
             type_exp = (*(block->type_code) >= 192) && (*(block->type_code) <= 255);
@@ -1625,7 +1625,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             conv_el[2].type=CE_CONVERSATION_TYPE;
             conv_el[2].conversation_type_val=CONVERSATION_BP;
 
-            pinfo->use_conv_addr_port_endpoints = FALSE;
+            pinfo->use_conv_addr_port_endpoints = false;
             pinfo->conv_addr_port_endpoints = NULL;
             pinfo->conv_elements = conv_el;
             find_or_create_conversation(pinfo);
@@ -1636,7 +1636,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_item_append_text(item_bundle, ", Payload-Size: %d", *(bundle->pyld_len));
 
         // Treat payload as non-protocol data
-        const guint trailer_start = *(bundle->pyld_start) + *(bundle->pyld_len);
+        const unsigned trailer_start = *(bundle->pyld_start) + *(bundle->pyld_len);
         proto_item_set_len(item_bundle, *(bundle->pyld_start));
         proto_tree_set_appendix(tree_bundle, tvb, trailer_start, offset - trailer_start);
     }
@@ -1669,11 +1669,11 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return offset;
 }
 
-static gboolean dissect_status_assertion(proto_tree *tree, int hfassert, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static bool dissect_status_assertion(proto_tree *tree, int hfassert, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     proto_item *item_assert = proto_tree_add_item(tree, hfassert, tvb, *offset, -1, ENC_NA);
 
-    gboolean result = FALSE;
+    bool result = false;
 
     wscbor_chunk_t *chunk_assert = wscbor_chunk_read(pinfo->pool, tvb, offset);
     wscbor_require_array_size(chunk_assert, 1, 2);
@@ -1702,14 +1702,14 @@ static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     bp_dissector_data_t *context = (bp_dissector_data_t *)data;
     DISSECTOR_ASSERT(context);
     {
-        const gchar *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
+        const char *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
         if (g_strcmp0(proto_name, proto_name_bp_admin) != 0) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_bp_admin);
             col_clear(pinfo->cinfo, COL_INFO);
         }
     }
     proto_item *item_rec = proto_tree_add_item(tree, proto_bp_admin, tvb, 0, -1, ENC_NA);
-    gint offset = 0;
+    int offset = 0;
 
     wscbor_chunk_t *chunk_rec = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     wscbor_require_array_size(chunk_rec, 1, 2);
@@ -1718,18 +1718,18 @@ static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree *tree_rec = proto_item_add_subtree(item_rec, ett_admin);
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-        guint64 *type_code = wscbor_require_uint64(pinfo->pool, chunk);
+        uint64_t *type_code = wscbor_require_uint64(pinfo->pool, chunk);
         proto_item *item_type = proto_tree_add_cbor_uint64(tree_rec, hf_admin_record_type, pinfo, tvb, chunk, type_code);
 
         dissector_handle_t type_dissect = NULL;
-        gboolean type_exp = FALSE;
+        bool type_exp = false;
         if (type_code) {
             type_dissect = dissector_get_custom_table_handle(admin_dissectors, type_code);
             label_type_field(type_code, type_dissect, item_type, item_rec);
             type_exp = (*type_code >= 65536);
         }
         tvbuff_t *tvb_record = tvb_new_subset_remaining(tvb, offset);
-        gint sublen = dissect_carried_data(type_dissect, context, tvb_record, pinfo, tree_rec, type_exp);
+        int sublen = dissect_carried_data(type_dissect, context, tvb_record, pinfo, tree_rec, type_exp);
         offset += sublen;
     }
 
@@ -1742,12 +1742,12 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (!context) {
         return -1;
     }
-    gint offset = 0;
+    int offset = 0;
 
     // Status Information array head
     proto_item *item_status = proto_tree_add_item(tree, hf_status_rep, tvb, offset, -1, ENC_NA);
     proto_tree *tree_status = proto_item_add_subtree(item_status, ett_status_rep);
-    guint status_field_ix = 0;
+    unsigned status_field_ix = 0;
 
     wscbor_chunk_t *chunk_status = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     wscbor_require_array_size(chunk_status, 4, 6);
@@ -1758,10 +1758,10 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     wscbor_chunk_t *chunk;
-    gboolean status_received = FALSE;
-    gboolean status_forwarded = FALSE;
-    gboolean status_delivered = FALSE;
-    gboolean status_deleted = FALSE;
+    bool status_received = false;
+    bool status_forwarded = false;
+    bool status_delivered = false;
+    bool status_deleted = false;
 
     wscbor_chunk_t *chunk_info = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     wscbor_require_array_size(chunk_info, 4, 4);
@@ -1782,7 +1782,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    guint64 *reason_code = wscbor_require_uint64(pinfo->pool, chunk);
+    uint64_t *reason_code = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_uint64(tree_status, hf_status_rep_reason_code, pinfo, tvb, chunk, reason_code);
     status_field_ix++;
 
@@ -1848,27 +1848,27 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_item *item_admin = proto_tree_get_parent(tree);
     {
         wmem_strbuf_t *status_text = wmem_strbuf_new(pinfo->pool, NULL);
-        gboolean sep = FALSE;
+        bool sep = false;
         if (status_received) {
             if (sep) {
                 wmem_strbuf_append(status_text, "|");
             }
             wmem_strbuf_append(status_text, "RECEIVED");
-            sep = TRUE;
+            sep = true;
         }
         if (status_forwarded) {
             if (sep) {
                 wmem_strbuf_append(status_text, "|");
             }
             wmem_strbuf_append(status_text, "FORWARDED");
-            sep = TRUE;
+            sep = true;
         }
         if (status_delivered) {
             if (sep) {
                 wmem_strbuf_append(status_text, "|");
             }
             wmem_strbuf_append(status_text, "DELIVERED");
-            sep = TRUE;
+            sep = true;
         }
         if (status_deleted) {
             if (sep) {
@@ -1904,9 +1904,9 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     // Back up to top-level
     proto_item *tree_top = proto_tree_get_parent_tree(tree_bundle);
 
-    const gboolean is_fragment = bundle->primary->flags & BP_BUNDLE_IS_FRAGMENT;
-    const gboolean is_admin = bundle->primary->flags & BP_BUNDLE_PAYLOAD_ADMIN;
-    const guint payload_len = tvb_reported_length(tvb);
+    const bool is_fragment = bundle->primary->flags & BP_BUNDLE_IS_FRAGMENT;
+    const bool is_admin = bundle->primary->flags & BP_BUNDLE_PAYLOAD_ADMIN;
+    const unsigned payload_len = tvb_reported_length(tvb);
 
     // Set if the payload is fully defragmented
     tvbuff_t *tvb_payload = NULL;
@@ -1929,22 +1929,22 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             );
 
             if (
-                (G_MAXUINT32 < *(bundle->primary->frag_offset))
-                || (G_MAXUINT32 < *(bundle->primary->total_len))) {
+                (UINT32_MAX < *(bundle->primary->frag_offset))
+                || (UINT32_MAX < *(bundle->primary->total_len))) {
                 expert_add_info(pinfo, bundle->primary->item_block, &ei_fragment_reassemble_size);
             }
             else {
-                const guint32 frag_offset = (guint32)*(bundle->primary->frag_offset);
-                const guint32 total_len = (guint32)*(bundle->primary->total_len);
+                const uint32_t frag_offset = (uint32_t)*(bundle->primary->frag_offset);
+                const uint32_t total_len = (uint32_t)*(bundle->primary->total_len);
                 fragment_head *payload_frag_msg = fragment_add_check(
                     &bp_reassembly_table,
                     tvb, 0,
                     pinfo, 0, corr_ident,
                     frag_offset,
                     payload_len,
-                    TRUE
+                    true
                 );
-                const guint32 old_total_len = fragment_get_tot_len(
+                const uint32_t old_total_len = fragment_get_tot_len(
                     &bp_reassembly_table,
                     pinfo, 0, corr_ident
                 );
@@ -2005,17 +2005,17 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         payload_dissect = dissector_get_string_handle(payload_dissectors_dtn_serv, bundle->primary->dst_eid->dtn_serv);
     }
     else if (bundle->primary->dst_eid->ipn_serv &&
-        (*(bundle->primary->dst_eid->ipn_serv) <= G_MAXUINT)) {
-        payload_dissect = dissector_get_uint_handle(payload_dissectors_ipn_serv, (guint)(*(bundle->primary->dst_eid->ipn_serv)));
+        (*(bundle->primary->dst_eid->ipn_serv) <= UINT_MAX)) {
+        payload_dissect = dissector_get_uint_handle(payload_dissectors_ipn_serv, (unsigned)(*(bundle->primary->dst_eid->ipn_serv)));
     }
 
-    return dissect_carried_data(payload_dissect, context, tvb_payload, pinfo, tree_top, TRUE);
+    return dissect_carried_data(payload_dissect, context, tvb_payload, pinfo, tree_top, true);
 }
 
 /** Dissector for Previous Node block.
  */
 static int dissect_block_prev_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gint offset = 0;
+    int offset = 0;
 
     proto_tree_add_cbor_eid(tree, hf_previous_node_nodeid, hf_previous_node_uri, pinfo, tvb, &offset, NULL);
 
@@ -2025,10 +2025,10 @@ static int dissect_block_prev_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /** Dissector for Bundle Age block.
  */
 static int dissect_block_bundle_age(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gint offset = 0;
+    int offset = 0;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *age = wscbor_require_uint64(pinfo->pool, chunk);
+    const uint64_t *age = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_uint64(tree, hf_bundle_age_time, pinfo, tvb, chunk, age);
 
     return offset;
@@ -2037,7 +2037,7 @@ static int dissect_block_bundle_age(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /** Dissector for Hop Count block.
  */
 static int dissect_block_hop_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gint offset = 0;
+    int offset = 0;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     wscbor_require_array_size(chunk, 2, 2);
@@ -2046,22 +2046,22 @@ static int dissect_block_hop_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *limit = wscbor_require_uint64(pinfo->pool, chunk);
+    const uint64_t *limit = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_uint64(tree, hf_hop_count_limit, pinfo, tvb, chunk, limit);
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    const guint64 *current = wscbor_require_uint64(pinfo->pool, chunk);
+    const uint64_t *current = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_uint64(tree, hf_hop_count_current, pinfo, tvb, chunk, current);
 
     return offset;
 }
 
 static bool btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gint offset = 0;
-    volatile gint count = 0;
+    int offset = 0;
+    volatile int count = 0;
 
-    while ((guint)offset < tvb_reported_length(tvb)) {
-        volatile gboolean valid = FALSE;
+    while ((unsigned)offset < tvb_reported_length(tvb)) {
+        volatile bool valid = false;
         TRY {
             valid = wscbor_skip_next_item(pinfo->pool, tvb, &offset);
         }
@@ -2074,7 +2074,7 @@ static bool btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     // Anything went wrong with any part of the data
-    if ((count == 0) || ((guint)offset != tvb_reported_length(tvb))) {
+    if ((count == 0) || ((unsigned)offset != tvb_reported_length(tvb))) {
         return false;
     }
 
@@ -2102,12 +2102,12 @@ static void bp_cleanup(void) {}
 static void bp_reinit_config(void) {}
 
 
-static gpointer fragment_bundle_ident_temporary_key(
-        const packet_info *pinfo _U_, const guint32 id _U_, const void *data) {
+static void *fragment_bundle_ident_temporary_key(
+        const packet_info *pinfo _U_, const uint32_t id _U_, const void *data) {
     return (bp_bundle_ident_t *)data;
 }
-static gpointer fragment_bundle_ident_persistent_key(
-        const packet_info *pinfo _U_, const guint32 id _U_, const void *data) {
+static void *fragment_bundle_ident_persistent_key(
+        const packet_info *pinfo _U_, const uint32_t id _U_, const void *data) {
     const bp_bundle_ident_t *ident = (const bp_bundle_ident_t *)data;
 
     bp_bundle_ident_t *key = g_slice_new0(bp_bundle_ident_t);
@@ -2115,22 +2115,22 @@ static gpointer fragment_bundle_ident_persistent_key(
     copy_address(&(key->src), &(ident->src));
     key->ts = ident->ts;
     if (ident->frag_offset) {
-        key->frag_offset = g_slice_new(guint64);
+        key->frag_offset = g_slice_new(uint64_t);
         key->frag_offset = ident->frag_offset;
     }
     if (ident->total_len) {
-        key->total_len = g_slice_new(guint64);
+        key->total_len = g_slice_new(uint64_t);
         key->total_len = ident->total_len;
     }
     return key;
 }
-static void fragment_bundle_ident_free_temporary_key(gpointer ptr _U_) {}
-static void fragment_bundle_ident_free_persistent_key(gpointer ptr) {
+static void fragment_bundle_ident_free_temporary_key(void *ptr _U_) {}
+static void fragment_bundle_ident_free_persistent_key(void *ptr) {
     bp_bundle_ident_t *key = (bp_bundle_ident_t *)ptr;
 
     free_address(&(key->src));
-    g_slice_free(guint64, (void *)(key->frag_offset));
-    g_slice_free(guint64, (void *)(key->total_len));
+    g_slice_free(uint64_t, (void *)(key->frag_offset));
+    g_slice_free(uint64_t, (void *)(key->total_len));
 
     g_slice_free(bp_bundle_ident_t, key);
 }
@@ -2143,7 +2143,7 @@ static const reassembly_table_functions bundle_reassembly_table_functions = {
     fragment_bundle_ident_free_persistent_key
 };
 
-static void dtn_serv_prompt(packet_info *pinfo, gchar *result) {
+static void dtn_serv_prompt(packet_info *pinfo, char *result) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
 
     const char *serv = NULL;
@@ -2154,7 +2154,7 @@ static void dtn_serv_prompt(packet_info *pinfo, gchar *result) {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "dst (%s)", serv);
 }
 
-static gpointer dtn_serv_value(packet_info *pinfo) {
+static void *dtn_serv_value(packet_info *pinfo) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     if (bundle && bundle->primary->dst_eid->dtn_serv) {
         const char *serv = bundle->primary->dst_eid->dtn_serv;
@@ -2163,23 +2163,23 @@ static gpointer dtn_serv_value(packet_info *pinfo) {
     return 0;
 }
 
-static void ipn_serv_prompt(packet_info *pinfo, gchar *result) {
+static void ipn_serv_prompt(packet_info *pinfo, char *result) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
 
-    guint32 serv = 0;
+    uint32_t serv = 0;
     if (bundle && bundle->primary->dst_eid->ipn_serv
-        && (*(bundle->primary->dst_eid->ipn_serv) <= G_MAXUINT)) {
+        && (*(bundle->primary->dst_eid->ipn_serv) <= UINT_MAX)) {
         serv = (unsigned int) *(bundle->primary->dst_eid->ipn_serv);
     }
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "dst (%u)", serv);
 }
 
-static gpointer ipn_serv_value(packet_info *pinfo) {
+static void *ipn_serv_value(packet_info *pinfo) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     if (bundle && bundle->primary->dst_eid->ipn_serv
-        && (*(bundle->primary->dst_eid->ipn_serv) <= G_MAXUINT)) {
-        guint64 serv = *(bundle->primary->dst_eid->ipn_serv);
+        && (*(bundle->primary->dst_eid->ipn_serv) <= UINT_MAX)) {
+        uint64_t serv = *(bundle->primary->dst_eid->ipn_serv);
         return GUINT_TO_POINTER(serv);
     }
     return 0;
@@ -2242,14 +2242,14 @@ static tap_packet_status bp_endp_packet(void *pit, packet_info *pinfo, epan_diss
 
     if (bundle->primary->src_nodeid->uri.type == AT_STRINGZ) {
         add_endpoint_table_data(
-            hash, &(bundle->primary->src_nodeid->uri), 0, TRUE,
+            hash, &(bundle->primary->src_nodeid->uri), 0, true,
             1, pinfo->fd->pkt_len,
             &bp_endp_dissector_info, ENDPOINT_NONE
         );
     }
     if (bundle->primary->dst_eid->uri.type == AT_STRINGZ) {
         add_endpoint_table_data(
-            hash, &(bundle->primary->dst_eid->uri), 0, FALSE,
+            hash, &(bundle->primary->dst_eid->uri), 0, false,
             1, pinfo->fd->pkt_len,
             &bp_endp_dissector_info, ENDPOINT_NONE
         );
@@ -2262,7 +2262,7 @@ static bool bp_filter_valid(packet_info *pinfo, void *user_data _U_) {
     return bundle != NULL;
 }
 
-static gchar * bp_build_filter(packet_info *pinfo, void *user_data _U_) {
+static char * bp_build_filter(packet_info *pinfo, void *user_data _U_) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     if (!bundle) {
         return NULL;
@@ -2355,7 +2355,7 @@ void proto_register_bpv7(void) {
     btsd_heur = register_heur_dissector_list_with_description("bpv7.btsd", "BPv7 block data fallback", proto_bp);
 
     bp_tap = register_tap("bpv7");
-    register_conversation_table(proto_bp, TRUE, bp_conv_packet, bp_endp_packet);
+    register_conversation_table(proto_bp, true, bp_conv_packet, bp_endp_packet);
     register_conversation_filter("bpv7", "BPv7", bp_filter_valid, bp_build_filter, NULL);
 
     proto_bp_admin = proto_register_protocol("BPv7 Administrative Record", "BPv7 Admin", "bpv7.admin_rec");
@@ -2373,31 +2373,31 @@ void proto_reg_handoff_bpv7(void) {
 
     /* Packaged extensions */
     {
-        guint64 *key = g_new(guint64, 1);
+        uint64_t *key = g_new(uint64_t, 1);
         *key = BP_BLOCKTYPE_PAYLOAD;
         dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_payload, proto_blocktype, NULL, "Payload");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
-        guint64 *key = g_new(guint64, 1);
+        uint64_t *key = g_new(uint64_t, 1);
         *key = BP_BLOCKTYPE_PREV_NODE;
         dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_prev_node, proto_blocktype, NULL, "Previous Node");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
-        guint64 *key = g_new(guint64, 1);
+        uint64_t *key = g_new(uint64_t, 1);
         *key = BP_BLOCKTYPE_BUNDLE_AGE;
         dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_bundle_age, proto_blocktype, NULL, "Bundle Age");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
-        guint64 *key = g_new(guint64, 1);
+        uint64_t *key = g_new(uint64_t, 1);
         *key = BP_BLOCKTYPE_HOP_COUNT;
         dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_block_hop_count, proto_blocktype, NULL, "Hop Count");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
-        guint64 *key = g_new(guint64, 1);
+        uint64_t *key = g_new(uint64_t, 1);
         *key = BP_ADMINTYPE_BUNDLE_STATUS;
         dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_status_report, proto_admintype, NULL, "Bundle Status Report");
         dissector_add_custom_table_handle("bpv7.admin_record_type", key, hdl);

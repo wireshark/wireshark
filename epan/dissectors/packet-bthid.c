@@ -36,7 +36,7 @@ static int hf_bthid_buffer_size;
 static int hf_bthid_protocol_code;
 static int hf_bthid_data;
 
-static gint ett_bthid;
+static int ett_bthid;
 
 static expert_field ei_bthid_parameter_control_operation_deprecated;
 static expert_field ei_bthid_transaction_type_deprecated;
@@ -119,9 +119,9 @@ static const value_string protocol_code_vals[] = {
 void proto_register_bthid(void);
 void proto_reg_handoff_bthid(void);
 
-static gint
+static int
 dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, guint report_type)
+        int offset, unsigned report_type)
 {
     unsigned int protocol_code;
 
@@ -157,12 +157,12 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     proto_item   *ti;
     proto_tree   *bthid_tree;
-    gint          offset = 0;
-    guint         transaction_type;
-    guint         parameter;
-    guint         protocol;
-    guint         idle_rate;
-    guint8        control_operation;
+    int           offset = 0;
+    unsigned      transaction_type;
+    unsigned      parameter;
+    unsigned      protocol;
+    unsigned      idle_rate;
+    uint8_t       control_operation;
     proto_item   *pitem;
 
     ti = proto_tree_add_item(tree, proto_bthid, tvb, offset, -1, ENC_NA);
@@ -379,7 +379,7 @@ proto_register_bthid(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bthid
     };
 

@@ -3931,7 +3931,7 @@ static const value_string artnet_file_type_vals[] = {
   { 0, NULL },
 };
 
-static const gchar * artnet_poll_reply_node_report_regex = "^#([A-Fa-f0-9]+) \\[([0-9]+)\\] (.*)";
+static const char * artnet_poll_reply_node_report_regex = "^#([A-Fa-f0-9]+) \\[([0-9]+)\\] (.*)";
 
 static const value_string vals_artnet_poll_reply_style[] = {
   { 0x00, "StNode (Art-Net to DMX device)" },
@@ -4022,7 +4022,7 @@ static int hf_artnet_poll_target_port_bottom;
 static int hf_artnet_poll_esta_man;
 static int hf_artnet_poll_oem;
 
-static gint ett_artnet_poll_talktome;
+static int ett_artnet_poll_talktome;
 
 static int * const artnet_poll_talktome_fields[] = {
   &hf_artnet_poll_talktome_reply_change,
@@ -4145,23 +4145,23 @@ static int hf_artnet_poll_reply_node_report_status_code;
 static int hf_artnet_poll_reply_node_report_response_counter;
 static int hf_artnet_poll_reply_node_report_status_string;
 
-static gint ett_artnet_poll_reply_status;
-static gint ett_artnet_poll_reply_good_input_1;
-static gint ett_artnet_poll_reply_good_input_2;
-static gint ett_artnet_poll_reply_good_input_3;
-static gint ett_artnet_poll_reply_good_input_4;
-static gint ett_artnet_poll_reply_good_output_1;
-static gint ett_artnet_poll_reply_good_output_2;
-static gint ett_artnet_poll_reply_good_output_3;
-static gint ett_artnet_poll_reply_good_output_4;
-static gint ett_artnet_poll_reply_good_output_b_1;
-static gint ett_artnet_poll_reply_good_output_b_2;
-static gint ett_artnet_poll_reply_good_output_b_3;
-static gint ett_artnet_poll_reply_good_output_b_4;
-static gint ett_artnet_poll_reply_swmacro;
-static gint ett_artnet_poll_reply_swremote;
-static gint ett_artnet_poll_reply_status2;
-static gint ett_artnet_poll_reply_status3;
+static int ett_artnet_poll_reply_status;
+static int ett_artnet_poll_reply_good_input_1;
+static int ett_artnet_poll_reply_good_input_2;
+static int ett_artnet_poll_reply_good_input_3;
+static int ett_artnet_poll_reply_good_input_4;
+static int ett_artnet_poll_reply_good_output_1;
+static int ett_artnet_poll_reply_good_output_2;
+static int ett_artnet_poll_reply_good_output_3;
+static int ett_artnet_poll_reply_good_output_4;
+static int ett_artnet_poll_reply_good_output_b_1;
+static int ett_artnet_poll_reply_good_output_b_2;
+static int ett_artnet_poll_reply_good_output_b_3;
+static int ett_artnet_poll_reply_good_output_b_4;
+static int ett_artnet_poll_reply_swmacro;
+static int ett_artnet_poll_reply_swremote;
+static int ett_artnet_poll_reply_status2;
+static int ett_artnet_poll_reply_status3;
 
 static int hf_artnet_poll_reply_good_input_recv_error;
 static int hf_artnet_poll_reply_good_input_disabled;
@@ -4311,8 +4311,8 @@ static int hf_artnet_address_subswitch_write;
 static int hf_artnet_address_sacnprio;
 static int hf_artnet_address_command;
 
-static gint ett_artnet_address_netswitch;
-static gint ett_artnet_address_subswitch;
+static int ett_artnet_address_netswitch;
+static int ett_artnet_address_subswitch;
 
 static int * const artnet_address_netswitch_fields[] = {
   &hf_artnet_address_netswitch_net,
@@ -4343,10 +4343,10 @@ static int hf_artnet_input_input_3;
 static int hf_artnet_input_input_4;
 static int hf_artnet_input_input_disabled;
 
-static gint ett_artnet_input_input_1;
-static gint ett_artnet_input_input_2;
-static gint ett_artnet_input_input_3;
-static gint ett_artnet_input_input_4;
+static int ett_artnet_input_input_1;
+static int ett_artnet_input_input_2;
+static int ett_artnet_input_input_3;
+static int ett_artnet_input_input_4;
 
 static int * const artnet_input_input_fields[] = {
   &hf_artnet_input_input_disabled,
@@ -4448,7 +4448,7 @@ static int hf_artnet_ip_prog_sm;
 static int hf_artnet_ip_prog_port;
 static int hf_artnet_ip_prog_gw;
 
-static gint ett_artnet_ip_prog_command;
+static int ett_artnet_ip_prog_command;
 
 static int * const artnet_ip_prog_command_fields[] = {
   &hf_artnet_ip_prog_command_prog_port,
@@ -4472,7 +4472,7 @@ static int hf_artnet_ip_prog_reply_status_unused;
 static int hf_artnet_ip_prog_reply_status_dhcp_enable;
 static int hf_artnet_ip_prog_reply_gw;
 
-static gint ett_artnet_ip_prog_reply_status;
+static int ett_artnet_ip_prog_reply_status;
 
 static int * const artnet_ip_prog_reply_status_fields[] = {
   &hf_artnet_ip_prog_reply_status_unused,
@@ -4644,7 +4644,7 @@ static int hf_artnet_nzs_vlc_payload_beacon_url;
 static int hf_artnet_nzs_vlc_payload_beacon_text;
 static int hf_artnet_nzs_vlc_payload_beacon_location_id;
 
-static gint ett_artnet_nzs_vlc_flags;
+static int ett_artnet_nzs_vlc_flags;
 
 static int * const artnet_nzs_vlc_flags_fields[] = {
   &hf_artnet_nzs_vlc_flags_beacon,
@@ -4688,8 +4688,8 @@ static int ett_artnet;
 static dissector_handle_t rdm_handle;
 static dissector_handle_t dmx_chan_handle;
 
-static guint
-dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo)
+static unsigned
+dissect_artnet_poll(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo)
 {
 
   proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_poll_talktome,
@@ -4737,14 +4737,14 @@ dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *
   return offset;
 }
 
-static guint
-dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo)
+static unsigned
+dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo)
 {
   proto_tree *hi, *si, *ti;
   proto_item *tf, *tp;
-  guint16 universe,uni_port;
-  guint8 bind_index;
-  guint32 bind_ip_address;
+  uint16_t universe,uni_port;
+  uint8_t bind_index;
+  uint32_t bind_ip_address;
   GRegex *regex = NULL;
   GMatchInfo *match_info = NULL;
 
@@ -4805,19 +4805,19 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
     DISSECTOR_ASSERT(regex != NULL);
     g_regex_match(
       regex,
-      (const gchar*)tvb_get_string_enc(pinfo->pool, tvb, offset, 64, ENC_ASCII),
+      (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 64, ENC_ASCII),
       (GRegexMatchFlags) 0,
       &match_info);
 
     if(g_match_info_matches(match_info) && g_match_info_get_match_count(match_info) == 4) {
-      gchar *status_code = g_match_info_fetch(match_info, 1);
-      gchar *counter = g_match_info_fetch(match_info, 2);
-      gchar *status_string = g_match_info_fetch(match_info, 3);
+      char *status_code = g_match_info_fetch(match_info, 1);
+      char *counter = g_match_info_fetch(match_info, 2);
+      char *status_string = g_match_info_fetch(match_info, 3);
 
-      tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_status_code, tvb, 0, 0, (guint16)strtol(status_code, NULL, 16));
+      tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_status_code, tvb, 0, 0, (uint16_t)strtol(status_code, NULL, 16));
       proto_item_set_generated(tf);
 
-      tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_response_counter, tvb, 0, 0, (guint32)strtoul(counter, NULL, 10));
+      tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_response_counter, tvb, 0, 0, (uint32_t)strtoul(counter, NULL, 10));
       proto_item_set_generated(tf);
 
       tf = proto_tree_add_string(tree, hf_artnet_poll_reply_node_report_status_string, tvb, 0, 0, status_string);
@@ -5136,12 +5136,12 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
   return offset;
 }
 
-static guint
-dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, proto_tree* base_tree)
+static unsigned
+dissect_artnet_output(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, proto_tree* base_tree)
 {
   tvbuff_t *next_tvb;
-  guint16   length;
-  guint     size;
+  uint16_t  length;
+  unsigned  size;
   bool      save_info;
 
   proto_tree_add_item(tree, hf_artnet_output_sequence, tvb,
@@ -5178,8 +5178,8 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
   return offset + size;
 }
 
-static guint
-dissect_artnet_sync(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_sync(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_sync_aux, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
@@ -5188,12 +5188,12 @@ dissect_artnet_sync(tvbuff_t *tvb, guint offset, proto_tree *tree)
   return offset;
 }
 
-static guint
-dissect_artnet_nzs(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, proto_tree* base_tree)
+static unsigned
+dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, proto_tree* base_tree)
 {
-  guint16 length, payload_length, lang_code;
-  guint8 start_code;
-  gboolean save_info;
+  uint16_t length, payload_length, lang_code;
+  uint8_t start_code;
+  bool save_info;
   tvbuff_t *next_tvb;
   proto_item *pi;
 
@@ -5324,10 +5324,10 @@ dissect_artnet_nzs(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *p
   }
 }
 
-static guint
-dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo) {
+static unsigned
+dissect_artnet_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo) {
   proto_tree *hi, *si, *ti;
-  guint8 net, sub;
+  uint8_t net, sub;
 
   net = tvb_get_guint8(tvb, offset);
 
@@ -5431,8 +5431,8 @@ dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_inf
   return offset;
 }
 
-static guint
-dissect_artnet_input(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo) {
+static unsigned
+dissect_artnet_input(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo) {
   proto_tree *hi, *si;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
@@ -5485,10 +5485,10 @@ dissect_artnet_input(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info 
   return offset;
 }
 
-static guint
-dissect_artnet_video_setup(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
-  guint32 size;
-  guint8  font_height, last_font;
+static unsigned
+dissect_artnet_video_setup(tvbuff_t *tvb, unsigned offset, proto_tree *tree ) {
+  uint32_t size;
+  uint8_t font_height, last_font;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 4, ENC_NA);
@@ -5526,8 +5526,8 @@ dissect_artnet_video_setup(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
   return offset;
 }
 
-static guint
-dissect_artnet_video_palette(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_video_palette(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
@@ -5548,10 +5548,10 @@ dissect_artnet_video_palette(tvbuff_t *tvb, guint offset, proto_tree *tree)
   return offset;
 }
 
-static guint
-dissect_artnet_video_data(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  guint8  len_x, len_y;
-  guint32 size;
+static unsigned
+dissect_artnet_video_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
+  uint8_t len_x, len_y;
+  uint32_t size;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
@@ -5585,8 +5585,8 @@ dissect_artnet_video_data(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   return offset;
 }
 
-static guint
-dissect_artnet_firmware_master(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
+static unsigned
+dissect_artnet_firmware_master(tvbuff_t *tvb, unsigned offset, proto_tree *tree ) {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
   offset += 2;
@@ -5614,8 +5614,8 @@ dissect_artnet_firmware_master(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
   return offset;
 }
 
-static guint
-dissect_artnet_firmware_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+static unsigned
+dissect_artnet_firmware_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
   offset += 2;
@@ -5631,10 +5631,10 @@ dissect_artnet_firmware_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   return offset;
 }
 
-static guint
-dissect_artnet_tod_request(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo)
+static unsigned
+dissect_artnet_tod_request(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo)
 {
-  guint8 ad_count;
+  uint8_t ad_count;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
@@ -5665,12 +5665,12 @@ dissect_artnet_tod_request(tvbuff_t *tvb, guint offset, proto_tree *tree, packet
   return offset;
 }
 
-static guint
-dissect_artnet_tod_data(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo)
+static unsigned
+dissect_artnet_tod_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo)
 {
-  guint16     universe;
+  uint16_t    universe;
   proto_item *tf;
-  guint8 i, uid_count;
+  uint8_t i, uid_count;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_rdm_ver, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5729,10 +5729,10 @@ dissect_artnet_tod_data(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_in
   return offset;
 }
 
-static guint
-dissect_artnet_tod_control(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo)
+static unsigned
+dissect_artnet_tod_control(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo)
 {
-  guint16 universe;
+  uint16_t universe;
   proto_item *tf;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
@@ -5764,15 +5764,15 @@ dissect_artnet_tod_control(tvbuff_t *tvb, guint offset, proto_tree *tree, packet
   return offset;
 }
 
-static guint
-dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *pinfo, proto_tree *base_tree)
+static unsigned
+dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_info *pinfo, proto_tree *base_tree)
 {
-  guint16     universe;
+  uint16_t    universe;
   proto_item *tf;
-  guint8    rdmver;
-  guint8    sc;
-  guint     size;
-  gboolean  save_info;
+  uint8_t   rdmver;
+  uint8_t   sc;
+  unsigned  size;
+  bool      save_info;
   tvbuff_t *next_tvb;
 
   rdmver = tvb_get_guint8(tvb, offset);
@@ -5842,11 +5842,11 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
 }
 
 
-static guint
-dissect_artnet_rdm_sub(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *pinfo _U_)
+static unsigned
+dissect_artnet_rdm_sub(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_info *pinfo _U_)
 {
-  guint8 cc;
-  gint   size;
+  uint8_t cc;
+  int    size;
 
   proto_tree_add_item(tree, hf_artnet_rdm_rdmver, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5905,8 +5905,8 @@ dissect_artnet_rdm_sub(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_in
   return offset;
 }
 
-static guint
-dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_ip_prog(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
@@ -5945,8 +5945,8 @@ dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree)
   return offset;
 }
 
-static guint
-dissect_artnet_ip_prog_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_ip_prog_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 4, ENC_NA);
@@ -5985,18 +5985,18 @@ dissect_artnet_ip_prog_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   return offset;
 }
 
-static guint
-dissect_artnet_poll_fp_reply(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_poll_fp_reply(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 
 /* ArtDiagData */
-static guint
-dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_diag_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-  guint16 length;
+  uint16_t length;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 1, ENC_NA);
@@ -6027,10 +6027,10 @@ dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtCommand */
-static guint
-dissect_artnet_command(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_command(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-  guint16 length;
+  uint16_t length;
 
   proto_tree_add_item(tree, hf_artnet_command_esta_man, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
@@ -6049,8 +6049,8 @@ dissect_artnet_command(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtDataRequest */
-static guint
-dissect_artnet_data_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_data_request(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_data_request_esta_man, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
@@ -6072,10 +6072,10 @@ dissect_artnet_data_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtDataReply */
-static guint
-dissect_artnet_data_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_data_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-  guint16 payload_length;
+  uint16_t payload_length;
 
   proto_tree_add_item(tree, hf_artnet_data_reply_esta_man, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
@@ -6107,36 +6107,36 @@ dissect_artnet_data_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtMedia */
-static guint
-dissect_artnet_media(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_media(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtMediaPatch */
-static guint
-dissect_artnet_media_patch(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_media_patch(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtMediaControl */
-static guint
-dissect_artnet_media_control(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_media_control(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtMediaControlReply */
-static guint
-dissect_artnet_media_control_reply(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_media_control_reply(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtTimeCode */
-static guint
-dissect_artnet_time_code(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_time_code(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
@@ -6166,17 +6166,17 @@ dissect_artnet_time_code(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtTimeSync */
-static guint
-dissect_artnet_time_sync(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_time_sync(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtTrigger */
-static guint
-dissect_artnet_trigger(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_trigger(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-  guint16 oem;
+  uint16_t oem;
   proto_item *pi;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
@@ -6210,8 +6210,8 @@ dissect_artnet_trigger(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtDirectory */
-static guint
-dissect_artnet_directory(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_directory(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_directory_filler, tvb,
                       offset, 2, ENC_NA);
@@ -6229,8 +6229,8 @@ dissect_artnet_directory(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtDirectoryReply */
-static guint
-dissect_artnet_directory_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_directory_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_directory_reply_filler, tvb,
                       offset, 2, ENC_NA);
@@ -6264,22 +6264,22 @@ dissect_artnet_directory_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtMacMaster */
-static guint
-dissect_artnet_mac_master(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_mac_master(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtMacSlave */
-static guint
-dissect_artnet_mac_slave(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_mac_slave(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtFileTnMaster */
-static guint
-dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+dissect_artnet_file_tn_master(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_file_tn_master_filler, tvb,
                       offset, 2, ENC_NA);
@@ -6316,25 +6316,25 @@ dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* ArtFileFnMaster */
-static guint
-dissect_artnet_file_fn_master(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_file_fn_master(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 /* ArtFileFnReply */
-static guint
-dissect_artnet_file_fn_reply(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+static unsigned
+dissect_artnet_file_fn_reply(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 static int
 dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  gint          offset = 0;
-  guint         size;
-  guint16       opcode;
-  const guint8 *header;
+  int           offset = 0;
+  unsigned      size;
+  uint16_t      opcode;
+  const uint8_t *header;
   proto_tree   *ti, *hi, *si = NULL, *artnet_tree, *artnet_header_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARTNET");
@@ -7091,7 +7091,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 static bool
 dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  guint64     qword;
+  uint64_t    qword;
 
   /* check if we atleast have the 8 byte header */
   if (tvb_captured_length(tvb) < 8)
@@ -7099,7 +7099,7 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
   /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e657400*/
   qword = tvb_get_ntoh64(tvb,0);
-  if(qword != G_GUINT64_CONSTANT (0x4172742d4e657400))
+  if(qword != UINT64_C (0x4172742d4e657400))
     return false;
 
   /* if the header matches, dissect it */
@@ -9233,7 +9233,7 @@ proto_register_artnet(void) {
     }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_artnet,
     &ett_artnet_poll_talktome,
     &ett_artnet_poll_reply_status,

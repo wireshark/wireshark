@@ -169,13 +169,13 @@ static expert_field ei_iphoneaccev_key_out_of_range;
 static expert_field ei_xapl_features_reserved;
 static expert_field ei_parameter_blank;
 
-static gint ett_bthfp;
-static gint ett_bthfp_command;
-static gint ett_bthfp_parameters;
-static gint ett_bthfp_brsf_hf;
-static gint ett_bthfp_brsf_ag;
-static gint ett_bthfp_xapl_features;
-static gint ett_bthfp_xapl_accessory_info;
+static int ett_bthfp;
+static int ett_bthfp_command;
+static int ett_bthfp_parameters;
+static int ett_bthfp_brsf_hf;
+static int ett_bthfp_brsf_ag;
+static int ett_bthfp_xapl_features;
+static int ett_bthfp_xapl_accessory_info;
 
 static dissector_handle_t bthfp_handle;
 
@@ -193,7 +193,7 @@ static wmem_tree_t *fragments;
 #define TYPE_READ          0x003f
 #define TYPE_TEST          0x3d3f
 
-static gint hfp_role = ROLE_UNKNOWN;
+static int hfp_role = ROLE_UNKNOWN;
 
 enum reassemble_state_t {
     REASSEMBLE_FRAGMENT,
@@ -202,31 +202,31 @@ enum reassemble_state_t {
 };
 
 typedef struct _fragment_t {
-    guint32                  interface_id;
-    guint32                  adapter_id;
-    guint32                  chandle;
-    guint32                  dlci;
-    guint32                  role;
+    uint32_t                 interface_id;
+    uint32_t                 adapter_id;
+    uint32_t                 chandle;
+    uint32_t                 dlci;
+    uint32_t                 role;
 
-    guint                    idx;
-    guint                    length;
-    guint8                  *data;
+    unsigned                 idx;
+    unsigned                 length;
+    uint8_t                 *data;
     struct _fragment_t      *previous_fragment;
 
-    guint                    reassemble_start_offset;
-    guint                    reassemble_end_offset;
+    unsigned                 reassemble_start_offset;
+    unsigned                 reassemble_end_offset;
     enum reassemble_state_t  reassemble_state;
 } fragment_t;
 
 typedef struct _at_cmd_t {
-    const gchar *name;
-    const gchar *long_name;
+    const char *name;
+    const char *long_name;
 
-    gboolean (*check_command)(gint role, guint16 type);
-    gboolean (*dissect_parameter)(tvbuff_t *tvb, packet_info *pinfo,
-            proto_tree *tree, gint offset, gint role, guint16 type,
-            guint8 *parameter_stream, guint parameter_number,
-            gint parameter_length, void **data);
+    bool (*check_command)(int role, uint16_t type);
+    bool (*dissect_parameter)(tvbuff_t *tvb, packet_info *pinfo,
+            proto_tree *tree, int offset, int role, uint16_t type,
+            uint8_t *parameter_stream, unsigned parameter_number,
+            int parameter_length, void **data);
 } at_cmd_t;
 
 static const value_string role_vals[] = {
@@ -513,270 +513,270 @@ extern value_string_ext csd_data_rate_vals_ext;
 void proto_register_bthfp(void);
 void proto_reg_handoff_bthfp(void);
 
-static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_length)
+static uint32_t get_uint_parameter(uint8_t *parameter_stream, int parameter_length)
 {
-    guint32      value;
-    gchar       *val;
+    uint32_t     value;
+    char        *val;
 
-    val = (gchar *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
+    val = (char *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
-    value = (guint32) g_ascii_strtoull(val, NULL, 10);
+    value = (uint32_t) g_ascii_strtoull(val, NULL, 10);
 
     return value;
 }
 
-static guint32 get_uint_hex_parameter(guint8 *parameter_stream, gint parameter_length)
+static uint32_t get_uint_hex_parameter(uint8_t *parameter_stream, int parameter_length)
 {
-    guint32      value;
-    gchar       *val;
+    uint32_t     value;
+    char        *val;
 
-    val = (gchar *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
+    val = (char *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
-    value = (guint32) g_ascii_strtoull(val, NULL, 16);
+    value = (uint32_t) g_ascii_strtoull(val, NULL, 16);
 
     return value;
 }
 
-static gboolean check_aplefm(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_aplefm(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_aplsiri(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_READ) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_aplsiri(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_READ) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_iphoneaccev(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+static bool check_iphoneaccev(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_xapl(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && (type == TYPE_RESPONSE || type == TYPE_ACTION)) return TRUE;
+static bool check_xapl(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && (type == TYPE_RESPONSE || type == TYPE_ACTION)) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_biev(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+static bool check_biev(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bind(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_bind(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bac(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+static bool check_bac(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bcs(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_bcs(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bcc(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return TRUE;
+static bool check_bcc(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bia(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+static bool check_bia(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_binp(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_binp(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bldn(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return TRUE;
+static bool check_bldn(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bvra(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_bvra(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_brsf(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_brsf(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_nrec(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+static bool check_nrec(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_vgs(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_vgs(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_vgm(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_vgm(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_bsir(gint role, guint16 type) {
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_bsir(int role, uint16_t type) {
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_btrh(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_READ || type == TYPE_ACTION)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_btrh(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_READ || type == TYPE_ACTION)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_only_ag_role(gint role, guint16 type) {
-    if (role == ROLE_AG && type == TYPE_RESPONSE_ACK) return TRUE;
+static bool check_only_ag_role(int role, uint16_t type) {
+    if (role == ROLE_AG && type == TYPE_RESPONSE_ACK) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_only_hs_role(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return TRUE;
+static bool check_only_hs_role(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_ccwa(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_ccwa(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_chld(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_chld(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_chup(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+static bool check_chup(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_clcc(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_clcc(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_cind(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_READ || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_cind(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_READ || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_cmer(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_cmer(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_cops(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_cops(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_cmee(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+static bool check_cmee(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_cme(gint role, guint16 type) {
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_cme(int role, uint16_t type) {
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_clip(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_clip(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_ciev(gint role, guint16 type) {
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_ciev(int role, uint16_t type) {
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_vts(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_vts(int role, uint16_t type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_TEST)) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean check_cnum(gint role, guint16 type) {
-    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return TRUE;
-    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+static bool check_cnum(int role, uint16_t type) {
+    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return true;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return true;
 
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -825,23 +825,23 @@ dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_vgs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -851,23 +851,23 @@ dissect_vgs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_vgs_gain);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_vgm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -877,23 +877,23 @@ dissect_vgm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_vgm_gain);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_nrec_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -903,23 +903,23 @@ dissect_nrec_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_nrec);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_bvra_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -929,22 +929,22 @@ dissect_bvra_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_bvra);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_bcs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!check_bcs(role, type)) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -954,19 +954,19 @@ dissect_bcs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_bcs);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number _U_, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number _U_, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!check_bac(role, type)) {
-        return FALSE;
+        return false;
     }
 
     value = get_uint_parameter(parameter_stream, parameter_length);
@@ -977,17 +977,17 @@ dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_bac);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_bind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_bind(role, type)) return FALSE;
+    if (!check_bind(role, type)) return false;
 
 /* TODO Need to implement request-response tracking to recognise answer to AT+BIND? vs unsolicited */
     if (parameter_number < 20) {
@@ -996,21 +996,21 @@ dissect_bind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_uint(tree, hf_bind_parameter, tvb, offset,
                 parameter_length, value);
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-static gint
+static bool
 dissect_aplefm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_aplefm(role, type)) return FALSE;
+    if (!check_aplefm(role, type)) return false;
 
     if (parameter_number == 0) {
         value = get_uint_parameter(parameter_stream, parameter_length);
@@ -1021,20 +1021,20 @@ dissect_aplefm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (value > 1) {
             expert_add_info(pinfo, pitem, &ei_aplefm_out_of_range);
         }
-    } else return FALSE;
+    } else return false;
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_aplsiri_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_aplsiri(role, type)) return FALSE;
+    if (!check_aplsiri(role, type)) return false;
 
     if (parameter_number == 0) {
         value = get_uint_parameter(parameter_stream, parameter_length);
@@ -1045,20 +1045,20 @@ dissect_aplsiri_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (value < 1 || value > 2) {
             expert_add_info(pinfo, pitem, &ei_aplsiri_out_of_range);
         }
-    } else return FALSE;
+    } else return false;
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_iphoneaccev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_iphoneaccev(role, type)) return FALSE;
+    if (!check_iphoneaccev(role, type)) return false;
 
     if (parameter_number == 0) {
         value = get_uint_parameter(parameter_stream, parameter_length);
@@ -1081,19 +1081,19 @@ dissect_iphoneaccev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 parameter_length, value);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_xapl_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     proto_tree  *ptree;
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_xapl(role, type)) return FALSE;
+    if (!check_xapl(role, type)) return false;
 
     if (parameter_number == 0) {
         if (role == ROLE_HS) {
@@ -1129,20 +1129,20 @@ dissect_xapl_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (value >> 5) {
             expert_add_info(pinfo, pitem, &ei_xapl_features_reserved);
         }
-    } else return FALSE;
+    } else return false;
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_biev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_biev(role, type)) return FALSE;
+    if (!check_biev(role, type)) return false;
     if (parameter_number == 0) {
         value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -1159,32 +1159,32 @@ dissect_biev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* TODO: Decode assigned numbers - assigned_number=1 */
         /*pitem =*/ proto_tree_add_uint(tree, hf_biev_value, tvb, offset,
                 parameter_length, value);
-    } else return FALSE;
+    } else return false;
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-        gint offset _U_, gint role _U_, guint16 type _U_, guint8 *parameter_stream _U_,
-        guint parameter_number _U_, gint parameter_length _U_, void **data _U_)
+        int offset _U_, int role _U_, uint16_t type _U_, uint8_t *parameter_stream _U_,
+        unsigned parameter_number _U_, int parameter_length _U_, void **data _U_)
 {
-    return FALSE;
+    return false;
 }
 
-static gint
+static bool
 dissect_bsir_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!(role == ROLE_AG && type == TYPE_RESPONSE)) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -1194,23 +1194,23 @@ dissect_bsir_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_bsir);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_btrh_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -1220,21 +1220,21 @@ dissect_btrh_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_btrh);
     }
 
-    return TRUE;
+    return true;
 }
 
 
-static gint
+static bool
 dissect_binp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
     if (role == ROLE_HS && type == TYPE_ACTION) {
@@ -1247,24 +1247,24 @@ dissect_binp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (value != 1) {
                 expert_add_info(pinfo, pitem, &ei_binp);
             }
-        } else return FALSE;
+        } else return false;
     } else {
         proto_tree_add_item(tree, hf_binp_response, tvb, offset,
                 parameter_length, ENC_NA | ENC_ASCII);
     }
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_bia_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!((role == ROLE_HS && type == TYPE_ACTION))) return FALSE;
-    if (parameter_number > 19) return FALSE;
+    if (!((role == ROLE_HS && type == TYPE_ACTION))) return false;
+    if (parameter_number > 19) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -1274,31 +1274,31 @@ dissect_bia_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pitem, &ei_bia);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream _U_,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
-    if (!check_cind(role, type)) return FALSE;
-    if (parameter_number > 19) return FALSE;
+    if (!check_cind(role, type)) return false;
+    if (parameter_number > 19) return false;
 
     proto_tree_add_item(tree, hf_indicator[parameter_number], tvb, offset,
             parameter_length, ENC_NA | ENC_ASCII);
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_chld(role, type)) return FALSE;
+    if (!check_chld(role, type)) return false;
 
     if (role == ROLE_HS && type == TYPE_ACTION && parameter_number == 0) {
         value = get_uint_parameter(parameter_stream, 1);
@@ -1317,28 +1317,28 @@ dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         proto_tree_add_uint(tree, hf_chld_mode, tvb, offset, parameter_length, value);
-        return TRUE;
+        return true;
     }
 
     /* Type == Test  */
     proto_tree_add_item(tree, hf_chld_supported_modes, tvb, offset,
             parameter_length, ENC_NA | ENC_ASCII);
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!check_ccwa(role, type)) return FALSE;
+    if (!check_ccwa(role, type)) return false;
 
-    if (role == ROLE_HS && parameter_number > 2) return FALSE;
-    if (role == ROLE_AG && parameter_number > 7) return FALSE;
+    if (role == ROLE_HS && parameter_number > 2) return false;
+    if (role == ROLE_AG && parameter_number > 7) return false;
 
     if (role == ROLE_HS) switch (parameter_number) {
         case 0:
@@ -1390,22 +1390,22 @@ dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 4) return FALSE;
+    if (parameter_number > 4) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -1437,24 +1437,24 @@ dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!check_clip(role, type))
-        return FALSE;
+        return false;
 
     if (role == ROLE_HS && type == TYPE_ACTION && parameter_number > 1)
-        return FALSE;
+        return false;
     else if (role == ROLE_AG && parameter_number > 5)
-        return FALSE;
+        return false;
 
     if (role == ROLE_HS && type == TYPE_ACTION) switch (parameter_number) {
         case 0:
@@ -1493,41 +1493,41 @@ dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
-    guint32      value;
+    uint32_t     value;
 
     if (!(role == ROLE_HS && type == TYPE_ACTION)) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
     proto_tree_add_uint(tree, hf_cmee, tvb, offset, parameter_length, value);
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ)) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 3) return FALSE;
+    if (parameter_number > 3) return false;
 
     switch (parameter_number) {
     case 0:
@@ -1547,23 +1547,23 @@ dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
     if (!((role == ROLE_HS && type == TYPE_ACTION_SIMPLY) ||
             (role == ROLE_AG && type == TYPE_RESPONSE))) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 8) return FALSE;
+    if (parameter_number > 8) return false;
 
     switch (parameter_number) {
     case 0:
@@ -1604,39 +1604,39 @@ dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
 
-static gint
+static bool
 dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
-    guint32      value;
+    uint32_t     value;
 
     if (!(role == ROLE_AG && type == TYPE_RESPONSE)) {
-        return FALSE;
+        return false;
     }
 
-    if (parameter_number > 0) return FALSE;
+    if (parameter_number > 0) return false;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
     proto_tree_add_uint(tree, hf_cme_error, tvb, offset, parameter_length, value);
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) return TRUE;
-    if (parameter_number > 5) return FALSE;
+    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) return true;
+    if (parameter_number > 5) return false;
 
     switch (parameter_number) {
     case 0:
@@ -1673,19 +1673,19 @@ dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data _U_)
 {
     proto_item  *pitem;
-    guint32      value;
+    uint32_t     value;
 
-    if (!(role == ROLE_HS && type == TYPE_ACTION)) return TRUE;
-    if (parameter_number > 1) return FALSE;
+    if (!(role == ROLE_HS && type == TYPE_ACTION)) return true;
+    if (parameter_number > 1) return false;
 
     switch (parameter_number) {
     case 0:
@@ -1699,29 +1699,29 @@ dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
-static gint
+static bool
 dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data)
+        int offset, int role, uint16_t type, uint8_t *parameter_stream,
+        unsigned parameter_number, int parameter_length, void **data)
 {
-    guint32      value;
-    guint        indicator_index;
+    uint32_t     value;
+    unsigned     indicator_index;
 
-    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) return TRUE;
-    if (parameter_number > 1) return FALSE;
+    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) return true;
+    if (parameter_number > 1) return false;
 
     switch (parameter_number) {
     case 0:
         value = get_uint_parameter(parameter_stream, parameter_length);
         proto_tree_add_uint(tree, hf_ciev_indicator_index, tvb, offset, parameter_length, value);
-        *data = wmem_alloc(pinfo->pool, sizeof(guint));
-        *((guint *) *data) = value;
+        *data = wmem_alloc(pinfo->pool, sizeof(unsigned));
+        *((unsigned *) *data) = value;
         break;
     case 1:
-        indicator_index = *((guint *) *data) - 1;
+        indicator_index = *((unsigned *) *data) - 1;
         if (indicator_index > 19) {
             proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
         } else {
@@ -1730,7 +1730,7 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* TODO: Some commands need to save request command type (request with TYPE_READ vs TYPE_TEST, etc.)
@@ -1782,30 +1782,30 @@ static const at_cmd_t at_cmds[] = {
 };
 
 
-static gint
+static int
 dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, guint32 role, gint command_number)
+        int offset, uint32_t role, int command_number)
 {
     proto_item      *pitem;
     proto_tree      *command_item = NULL;
     proto_item      *command_tree = NULL;
     proto_tree      *parameters_item = NULL;
     proto_item      *parameters_tree = NULL;
-    guint8          *col_str = NULL;
-    guint8          *at_stream;
-    guint8          *at_command = NULL;
-    gint             i_char = 0;
-    guint            i_char_fix = 0;
-    gint             length;
+    uint8_t         *col_str = NULL;
+    uint8_t         *at_stream;
+    uint8_t         *at_command = NULL;
+    int              i_char = 0;
+    unsigned         i_char_fix = 0;
+    int              length;
     const at_cmd_t  *i_at_cmd;
-    gint             parameter_length;
-    guint            parameter_number = 0;
-    gint             first_parameter_offset = offset;
-    gint             last_parameter_offset  = offset;
-    guint16          type = TYPE_UNKNOWN;
-    guint32          brackets;
-    gboolean         quotation;
-    gboolean         next;
+    int              parameter_length;
+    unsigned         parameter_number = 0;
+    int              first_parameter_offset = offset;
+    int              last_parameter_offset  = offset;
+    uint16_t         type = TYPE_UNKNOWN;
+    uint32_t         brackets;
+    bool             quotation;
+    bool             next;
     void            *data;
 
     length = tvb_reported_length_remaining(tvb, offset);
@@ -1814,12 +1814,12 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_str = (guint8 *) wmem_alloc(pinfo->pool, length + 1);
+        col_str = (uint8_t *) wmem_alloc(pinfo->pool, length + 1);
         tvb_memcpy(tvb, col_str, offset, length);
         col_str[length] = '\0';
     }
 
-    at_stream = (guint8 *) wmem_alloc(pinfo->pool, length + 1);
+    at_stream = (uint8_t *) wmem_alloc(pinfo->pool, length + 1);
     tvb_memcpy(tvb, at_stream, offset, length);
     at_stream[length] = '\0';
 
@@ -1845,7 +1845,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset, 0, "Command %u", command_number);
                 command_tree = proto_item_add_subtree(command_item, ett_bthfp_command);
 
-                i_char = (guint) (at_command - at_stream);
+                i_char = (unsigned) (at_command - at_stream);
                 if (i_char) {
                     proto_tree_add_item(command_tree, hf_at_ignored, tvb, offset,
                         i_char, ENC_NA | ENC_ASCII);
@@ -1903,7 +1903,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             while (i_at_cmd->name) {
                 if (g_str_has_prefix(&at_command[0], i_at_cmd->name)) {
                     pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset,
-                            (gint) strlen(i_at_cmd->name), ENC_NA | ENC_ASCII);
+                            (int) strlen(i_at_cmd->name), ENC_NA | ENC_ASCII);
                     proto_item_append_text(pitem, " (%s)", i_at_cmd->long_name);
                     break;
                 }
@@ -1974,23 +1974,23 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             parameter_length = 0;
             brackets = 0;
-            quotation = FALSE;
-            next = FALSE;
+            quotation = false;
+            next = false;
 
             if (at_command[i_char + parameter_length] != '\r') {
                 while (i_char + parameter_length < length &&
                         at_command[i_char + parameter_length] != '\r') {
 
                     if (at_command[i_char + parameter_length] == ';') {
-                        next = TRUE;
+                        next = true;
                         break;
                     }
 
                     if (at_command[i_char + parameter_length] == '"') {
-                        quotation = quotation ? FALSE : TRUE;
+                        quotation = quotation ? false : true;
                     }
 
-                    if (quotation == TRUE) {
+                    if (quotation == true) {
                         parameter_length += 1;
                         continue;
                     }
@@ -2064,34 +2064,34 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static gint
+static int
 dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item       *main_item;
     proto_tree       *main_tree;
     proto_item       *pitem;
-    gint              offset = 0;
-    guint32           role = ROLE_UNKNOWN;
+    int               offset = 0;
+    uint32_t          role = ROLE_UNKNOWN;
     wmem_tree_key_t   key[10];
-    guint32           interface_id;
-    guint32           adapter_id;
-    guint32           chandle;
-    guint32           dlci;
-    guint32           frame_number;
-    guint32           direction;
-    guint32           bd_addr_oui;
-    guint32           bd_addr_id;
+    uint32_t          interface_id;
+    uint32_t          adapter_id;
+    uint32_t          chandle;
+    uint32_t          dlci;
+    uint32_t          frame_number;
+    uint32_t          direction;
+    uint32_t          bd_addr_oui;
+    uint32_t          bd_addr_id;
     fragment_t       *fragment;
     fragment_t       *previous_fragment;
     fragment_t       *i_fragment;
-    guint8           *at_stream;
-    gint              length;
-    gint              command_number;
-    gint              i_length;
+    uint8_t          *at_stream;
+    int               length;
+    int               command_number;
+    int               i_length;
     tvbuff_t         *reassembled_tvb = NULL;
-    guint             reassemble_start_offset = 0;
-    guint             reassemble_end_offset   = 0;
-    gint              previous_proto;
+    unsigned          reassemble_start_offset = 0;
+    unsigned          reassemble_end_offset   = 0;
+    int               previous_proto;
 
     previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
     if (data && previous_proto == proto_btrfcomm) {
@@ -2148,9 +2148,9 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (role == ROLE_UNKNOWN) {
-        guint32          sdp_psm;
-        guint32          service_type;
-        guint32          service_channel;
+        uint32_t         sdp_psm;
+        uint32_t         service_type;
+        uint32_t         service_channel;
         service_info_t  *service_info;
 
         sdp_psm         = SDP_PSM_DEFAULT;
@@ -2268,7 +2268,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         fragment->idx               = previous_fragment ? previous_fragment->idx + previous_fragment->length : 0;
         fragment->reassemble_state  = REASSEMBLE_FRAGMENT;
         fragment->length            = tvb_reported_length(tvb);
-        fragment->data              = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
+        fragment->data              = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
         fragment->previous_fragment = previous_fragment;
         tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
@@ -2381,11 +2381,11 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             fragment->dlci == dlci &&
             fragment->role == role &&
             fragment->reassemble_state != REASSEMBLE_FRAGMENT) {
-        guint8    *at_data;
-        guint      i_data_offset;
+        uint8_t   *at_data;
+        unsigned   i_data_offset;
 
         i_data_offset = fragment->idx + fragment->length;
-        at_data = (guint8 *) wmem_alloc(pinfo->pool, fragment->idx + fragment->length);
+        at_data = (uint8_t *) wmem_alloc(pinfo->pool, fragment->idx + fragment->length);
 
         i_fragment = fragment;
 
@@ -2422,7 +2422,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         command_number = 0;
         if (reassembled_tvb) {
-            guint reassembled_offset = 0;
+            unsigned reassembled_offset = 0;
 
             while (tvb_reported_length(reassembled_tvb) > reassembled_offset) {
                 reassembled_offset = dissect_at_command(reassembled_tvb,
@@ -2431,7 +2431,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             offset = tvb_captured_length(tvb);
         } else {
-            while (tvb_reported_length(tvb) > (guint) offset) {
+            while (tvb_reported_length(tvb) > (unsigned) offset) {
                 offset = dissect_at_command(tvb, pinfo, main_tree, offset, role, command_number);
                 command_number += 1;
             }
@@ -3223,7 +3223,7 @@ proto_register_bthfp(void)
         { &ei_xapl_features_reserved, { "bthfp.expert.xapl.reserved", PI_PROTOCOL, PI_WARN, "The reserved bits [6-31] shall be initialized to Zero", EXPFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bthfp,
         &ett_bthfp_brsf_hf,
         &ett_bthfp_brsf_ag,
@@ -3249,7 +3249,7 @@ proto_register_bthfp(void)
     prefs_register_enum_preference(module, "hfp.hfp_role",
             "Force treat packets as AG or HS role",
             "Force treat packets as AG or HS role",
-            &hfp_role, pref_hfp_role, TRUE);
+            &hfp_role, pref_hfp_role, true);
 
     expert_bthfp = expert_register_protocol(proto_bthfp);
     expert_register_field_array(expert_bthfp, ei, array_length(ei));

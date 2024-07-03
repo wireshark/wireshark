@@ -33,7 +33,7 @@ static int hf_bthci_sco_disconnect_in;
 static int hf_bthci_sco_stream_number;
 
 /* Initialize the subtree pointers */
-static gint ett_bthci_sco;
+static int ett_bthci_sco;
 
 wmem_tree_t *bthci_sco_stream_numbers;
 
@@ -51,28 +51,28 @@ void proto_register_bthci_sco(void);
 void proto_reg_handoff_bthci_sco(void);
 
 /* Code to actually dissect the packets */
-static gint
+static int
 dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item               *ti;
     proto_tree               *bthci_sco_tree;
-    gint                      offset = 0;
-    guint16                   flags;
+    int                       offset = 0;
+    uint16_t                  flags;
     bluetooth_data_t         *bluetooth_data;
     wmem_tree_key_t           key[6];
-    guint32                   k_connection_handle;
-    guint32                   k_frame_number;
-    guint32                   k_interface_id;
-    guint32                   k_adapter_id;
-    guint32                   k_bd_addr_oui;
-    guint32                   k_bd_addr_id;
-    guint16                   packet_status;
+    uint32_t                  k_connection_handle;
+    uint32_t                  k_frame_number;
+    uint32_t                  k_interface_id;
+    uint32_t                  k_adapter_id;
+    uint32_t                  k_bd_addr_oui;
+    uint32_t                  k_bd_addr_id;
+    uint16_t                  packet_status;
     remote_bdaddr_t          *remote_bdaddr;
-    const gchar              *localhost_name;
-    guint8                   *localhost_bdaddr;
-    const gchar              *localhost_ether_addr;
-    gchar                    *localhost_addr_name;
-    gint                      localhost_length;
+    const char               *localhost_name;
+    uint8_t                  *localhost_bdaddr;
+    const char               *localhost_ether_addr;
+    char                     *localhost_addr_name;
+    int                       localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
     chandle_session_t        *chandle_session;
@@ -150,13 +150,13 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (remote_bdaddr && remote_bdaddr->interface_id == bluetooth_data->interface_id &&
             remote_bdaddr->adapter_id == bluetooth_data->adapter_id &&
             remote_bdaddr->chandle == (flags & 0x0fff)) {
-        guint32         bd_addr_oui;
-        guint32         bd_addr_id;
+        uint32_t        bd_addr_oui;
+        uint32_t        bd_addr_id;
         device_name_t  *device_name;
-        const gchar    *remote_name;
-        const gchar    *remote_ether_addr;
-        gchar          *remote_addr_name;
-        gint            remote_length;
+        const char     *remote_name;
+        const char     *remote_ether_addr;
+        char           *remote_addr_name;
+        int             remote_length;
 
         bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
         bd_addr_id  = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
@@ -185,8 +185,8 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             remote_name = "";
 
         remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
-        remote_length = (gint)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
-        remote_addr_name = (gchar *)wmem_alloc(pinfo->pool, remote_length);
+        remote_length = (int)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
+        remote_addr_name = (char *)wmem_alloc(pinfo->pool, remote_length);
 
         snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
 
@@ -227,7 +227,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(bluetooth_data->localhost_bdaddr, key);
-    localhost_bdaddr = (guint8 *) wmem_alloc(pinfo->pool, 6);
+    localhost_bdaddr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == bluetooth_data->interface_id &&
         localhost_bdaddr_entry->adapter_id == bluetooth_data->adapter_id) {
 
@@ -246,8 +246,8 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     else
         localhost_name = "";
 
-    localhost_length = (gint)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
-    localhost_addr_name = (gchar *)wmem_alloc(pinfo->pool, localhost_length);
+    localhost_length = (int)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
+    localhost_addr_name = (char *)wmem_alloc(pinfo->pool, localhost_length);
 
     snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
 
@@ -267,7 +267,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
         proto_item_set_generated(sub_item);
 
-        if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
+        if (chandle_session->disconnect_in_frame < UINT32_MAX) {
             sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
             proto_item_set_generated(sub_item);
         }
@@ -328,7 +328,7 @@ proto_register_bthci_sco(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
       &ett_bthci_sco
     };
 

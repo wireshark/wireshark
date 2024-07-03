@@ -125,9 +125,9 @@ static int hf_adwin_config_version;
 static int hf_adwin_config_xilinx_version;
 
 /* Initialize the subtree pointers */
-static gint ett_adwin_config;
-static gint ett_adwin_config_status;
-static gint ett_adwin_config_debug;
+static int ett_adwin_config;
+static int ett_adwin_config_status;
+static int ett_adwin_config_debug;
 
 static void
 dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
@@ -176,7 +176,7 @@ dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 static void
 dissect_UDPExtStatus(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 {
-	const gchar *processor_type, *system_type;
+	const char *processor_type, *system_type;
 
 	if (! adwin_tree)
 		return;
@@ -212,7 +212,7 @@ dissect_UDPExtStatus(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 static void
 dissect_UDPMessage(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 {
-	const gchar *processor_type, *system_type;
+	const char *processor_type, *system_type;
 
 	if (! adwin_tree)
 		return;
@@ -296,7 +296,7 @@ dissect_UDPOut(tvbuff_t *tvb, proto_tree *adwin_tree)
 	proto_tree_add_item(adwin_tree, hf_adwin_config_port16, tvb, 20,  2, ENC_BIG_ENDIAN);
 }
 
-static guint
+static unsigned
 get_adwin_TCPUpdate_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                         int offset, void *data _U_)
 {
@@ -311,8 +311,8 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 {
 	proto_tree *adwin_tree;
 	proto_item *ti;
-	gint length, offset;
-	guint8 *filename;
+	int length, offset;
+	uint8_t *filename;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
 	col_set_str(pinfo->cinfo, COL_INFO, "TCPFlashUpdate");
@@ -325,11 +325,11 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 	length = tvb_strnlen(tvb, offset, -1) + 1;
 	filename = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII|ENC_NA);
 	if (strncmp(filename, "eeprom_on", length) == 0) {
-		proto_tree_add_boolean(adwin_tree, hf_adwin_config_eeprom_support, tvb, offset, length, TRUE);
+		proto_tree_add_boolean(adwin_tree, hf_adwin_config_eeprom_support, tvb, offset, length, true);
 		return offset+length;
 	}
 	if (strncmp(filename, "eeprom_off", length) == 0) {
-		proto_tree_add_boolean(adwin_tree, hf_adwin_config_eeprom_support, tvb, offset, length, FALSE);
+		proto_tree_add_boolean(adwin_tree, hf_adwin_config_eeprom_support, tvb, offset, length, false);
 		return offset+length;
 	}
 	proto_tree_add_item(adwin_tree, hf_adwin_config_filename, tvb, 4, length, ENC_ASCII);
@@ -362,31 +362,31 @@ static const unsigned char mac_oui_end[]   = { 0x00, 0x22, 0x71, 0xff, 0xff, 0xf
 /* ff:ff:ff:ff:ff:ff */
 static const unsigned char mac_broadcast[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-/* return TRUE if mac is in mac address range assigned to ADwin or if
+/* return true if mac is in mac address range assigned to ADwin or if
  * mac is broadcast */
-static gboolean
+static bool
 is_adwin_mac_or_broadcast(address mac)
 {
 	if (mac.type != AT_ETHER)
-		return FALSE;
+		return false;
 
 	if (mac.len != 6) /* length of MAC address */
-		return FALSE;
+		return false;
 
 	if ((memcmp(mac.data, mac_iab_start, mac.len) >= 0) &&
 	    (memcmp(mac.data, mac_iab_end  , mac.len) <= 0))
-		return TRUE;
+		return true;
 
 	if ((memcmp(mac.data, mac_oui_start, mac.len) >= 0) &&
 	    (memcmp(mac.data, mac_oui_end, mac.len) <= 0))
-		return TRUE;
+		return true;
 
 	/* adwin configuration protocol uses MAC broadcasts for
 	   device discovery */
 	if (memcmp(mac.data, mac_broadcast, mac.len) == 0)
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 
@@ -411,7 +411,7 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
 	proto_item *ti;
 	proto_tree *adwin_config_tree;
-	guint32 length;
+	uint32_t length;
 
 	length = tvb_reported_length(tvb);
 
@@ -744,7 +744,7 @@ proto_register_adwin_config(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_adwin_config,
 		&ett_adwin_config_status,
 		&ett_adwin_config_debug,

@@ -32,7 +32,7 @@ static expert_field ei_reserved;
 static expert_field ei_battery_level_reserved;
 static expert_field ei_unexpected_data;
 
-static gint ett_bt3ds;
+static int ett_bt3ds;
 
 static dissector_handle_t b3ds_handle;
 
@@ -44,14 +44,14 @@ static const value_string message_opcode_vals[] = {
 void proto_register_bt3ds(void);
 void proto_reg_handoff_bt3ds(void);
 
-static gint
+static int
 dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item     *main_item;
     proto_tree     *main_tree;
     proto_item     *sub_item;
-    gint            offset = 0;
-    guint8          value;
+    int             offset = 0;
+    uint8_t         value;
 
     main_item = proto_tree_add_item(tree, proto_bt3ds, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_bt3ds);
@@ -145,7 +145,7 @@ proto_register_bt3ds(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bt3ds
     };
 

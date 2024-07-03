@@ -29,7 +29,7 @@ static int hf_artemis_type;
 static int hf_artemis_channel;
 static int hf_artemis_buffer;
 
-static gint ett_artemis;
+static int ett_artemis;
 
 static expert_field ei_artemis_len_short;
 
@@ -40,12 +40,12 @@ void proto_register_artemis(void);
 void proto_reg_handoff_artemis(void);
 static int dissect_artemis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
 
-static guint
+static unsigned
 get_artemis_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                          int offset, void *data _U_)
 {
     /* The 4bytes length doesn't include the actual length byte, that's why the "+4" */
-    return (guint) tvb_get_ntohl(tvb, offset) + 4;
+    return (unsigned) tvb_get_ntohl(tvb, offset) + 4;
 }
 
 static int
@@ -54,7 +54,7 @@ dissect_artemis_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     proto_item  *ti, *len_item;
     proto_tree  *artemis_tree;
-    guint32     length;
+    uint32_t    length;
 
     ti = proto_tree_add_item(tree, proto_artemis, tvb, 0, -1, ENC_NA);
     artemis_tree = proto_item_add_subtree(ti, ett_artemis);
@@ -80,7 +80,7 @@ dissect_artemis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* fixed_len = 4(len) + 1(type) + 8(channel) */
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_artemis_message_len,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 4, get_artemis_message_len,
                          dissect_artemis_frame, data);
 
     return tvb_captured_length(tvb);
@@ -108,7 +108,7 @@ proto_register_artemis(void)
             "Binary buffer", HFILL}}
     };
 
-    static gint *ett [] = {
+    static int *ett [] = {
          &ett_artemis
     };
 
@@ -131,12 +131,12 @@ proto_register_artemis(void)
 void
 proto_reg_handoff_artemis(void)
 {
-    static gboolean initialize = FALSE;
+    static bool initialize = false;
 
     if (!initialize) {
         /* Register TCP port for dissection */
         dissector_add_uint_with_preference("tcp.port", ARTEMIS_PORT, artemis_tcp_handle);
-        initialize = TRUE;
+        initialize = true;
     }
 }
 

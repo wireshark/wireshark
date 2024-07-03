@@ -32,23 +32,23 @@ static int hf_acap_response;
 static int hf_acap_response_data;
 static int hf_acap_response_tag;
 
-static gint ett_acap;
-static gint ett_acap_reqresp;
+static int ett_acap;
+static int ett_acap_reqresp;
 
 #define TCP_PORT_ACAP           674
 
 static int
 dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gboolean      is_request;
+    bool          is_request;
     proto_tree   *acap_tree, *reqresp_tree;
     proto_item   *ti, *hidden_item;
-    gint          offset = 0;
-    const guchar *line;
-    gint          next_offset;
+    int           offset = 0;
+    const unsigned char *line;
+    int           next_offset;
     int           linelen;
     int           tokenlen;
-    const guchar *next_token;
+    const unsigned char *next_token;
 
 
     /*
@@ -70,13 +70,13 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
     line = tvb_get_ptr(tvb, offset, linelen);
 
     if (pinfo->match_uint == pinfo->destport)
-        is_request = TRUE;
+        is_request = true;
     else
-        is_request = FALSE;
+        is_request = false;
 
     /*
      * Put the first line from the buffer into the summary
@@ -93,11 +93,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         if (is_request) {
             hidden_item = proto_tree_add_boolean(acap_tree,
-                hf_acap_request, tvb, 0, 0, TRUE);
+                hf_acap_request, tvb, 0, 0, true);
             proto_item_set_hidden(hidden_item);
         } else {
             hidden_item = proto_tree_add_boolean(acap_tree,
-                hf_acap_response, tvb, 0, 0, TRUE);
+                hf_acap_response, tvb, 0, 0, true);
             proto_item_set_hidden(hidden_item);
         }
 
@@ -161,12 +161,12 @@ proto_register_acap(void)
         { &hf_acap_response,
             { "Response", "acap.response",
               FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              "TRUE if ACAP response", HFILL }
+              "true if ACAP response", HFILL }
         },
         { &hf_acap_request,
             { "Request", "acap.request",
               FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              "TRUE if ACAP request", HFILL }
+              "true if ACAP request", HFILL }
         },
         { &hf_acap_request_tag,
             { "Request Tag", "acap.request_tag",
@@ -190,7 +190,7 @@ proto_register_acap(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_acap,
         &ett_acap_reqresp,
     };

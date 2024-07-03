@@ -35,11 +35,11 @@ static int hf_lcls_gcr_call_ref_id;
 
 static int ett_lcls_gcr;
 
-guint
-dissect_bicc_mst_lcls_gcr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+unsigned
+dissect_bicc_mst_lcls_gcr(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, unsigned len)
 {
-	guint net_id_len, node_id_len, call_ref_id_len;
-	guint32 curr_offset = offset;
+	unsigned net_id_len, node_id_len, call_ref_id_len;
+	uint32_t curr_offset = offset;
 	proto_tree *subtree;
 	proto_item *ti;
 
@@ -79,7 +79,7 @@ proto_register_bicc_mst(void)
 		  "bicc_mst.lcls_gcr.call_ref_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lcls_gcr,
 	};
 

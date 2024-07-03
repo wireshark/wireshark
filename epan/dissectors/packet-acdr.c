@@ -87,8 +87,8 @@ enum Direction
 #define AC_SEQ_NUM_AR_SIZE 255
 struct SeqNumIpSeq
 {
-    guint ip;
-    guint seq;
+    unsigned ip;
+    unsigned seq;
 };
 
 static const value_string acdr_trace_pt_vals[] = {
@@ -238,16 +238,16 @@ enum AcdrAc5xProtocolType
 
 struct AcdrAc5xPrivateData
 {
-    guint packet_direction;
+    unsigned packet_direction;
     enum AcdrAc5xProtocolType protocol_type;
-    guint mii_header_exist;
+    unsigned mii_header_exist;
 };
 
 typedef struct AcdrTlsPacketInfo
 {
-    guint16 source_port;
-    guint16 dest_port;
-    guint8  application;
+    uint16_t source_port;
+    uint16_t dest_port;
+    uint8_t application;
 } AcdrTlsPacketInfo;
 
 
@@ -412,26 +412,26 @@ static dissector_handle_t lix2x3_dissector_handle;
 static dissector_handle_t ssh_dissector_handle;
 
 static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                               guint8 media_type, guint16 payload_type);
+                               uint8_t media_type, uint16_t payload_type);
 static void create_5x_analysis_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 static void create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 
 static int
-create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 ver)
+create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t ver)
 {
-    guint64 full_session_id = tvb_get_letoh64(tvb, offset);
+    uint64_t full_session_id = tvb_get_letoh64(tvb, offset);
     proto_item *packet_item = NULL;
     proto_item *packet_tree = NULL;
-    guint64 session_int = 0;
-    gint session_id_length;
+    uint64_t session_int = 0;
+    int session_id_length;
 
     // SessionID
     const char *str = "N/A";
 
     if (full_session_id != 0) {
         const char *session_ext = "";
-        guint32 board_id = tvb_get_ntoh24(tvb, offset);
-        guint8 reset_counter = tvb_get_guint8(tvb, offset + 3);
+        uint32_t board_id = tvb_get_ntoh24(tvb, offset);
+        uint8_t reset_counter = tvb_get_guint8(tvb, offset + 3);
 
         if ((ver & 0xF) == 7)
             session_int = tvb_get_ntohl(tvb, offset + 4);
@@ -478,12 +478,12 @@ create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff
 }
 
 static void
-create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 extension_length,
-                                guint32 ver, guint8 media_type, guint8 trace_point, guint8 extra_data,
+create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t extension_length,
+                                uint32_t ver, uint8_t media_type, uint8_t trace_point, uint8_t extra_data,
                                 AcdrTlsPacketInfo *tls_packet_info)
 {
     proto_tree *extension_tree;
-    gboolean ipv6 = ((IPV6_MASK & extra_data) == IPV6_MASK);
+    bool ipv6 = ((IPV6_MASK & extra_data) == IPV6_MASK);
 
     // parse the header extension
     proto_item *ti = proto_tree_add_item(tree, hf_acdr_header_extension, tvb, offset,
@@ -693,7 +693,7 @@ create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, gint offset, gu
 }
 
 static void
-create_mii_header_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 media_type)
+create_mii_header_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t media_type)
 {
     proto_tree *mii_header_tree;
 
@@ -804,14 +804,14 @@ acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             return;
     }
     // check registered media types
-    if (dissector_try_uint_new(media_type_table, data->media_type, tvb, pinfo, tree, FALSE, data))
+    if (dissector_try_uint_new(media_type_table, data->media_type, tvb, pinfo, tree, false, data))
         return;
     proto_tree_add_item(tree, hf_acdr_unknown_packet, tvb, 0, 0, ENC_NA);
 }
 
 static void
-dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 media_type,
-                   guint16 payload_type)
+dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t media_type,
+                   uint16_t payload_type)
 {
     proto_tree *rtp_data_tree;
     dissector_handle_t old_dissector_handle = NULL;
@@ -933,12 +933,12 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 m
 }
 
 static int
-dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 trace_point)
+dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t trace_point)
 {
     tvbuff_t *next_tvb = NULL;
-    gint32 offset = 0;
-    gint remaining;
-    const gboolean is_incoming = trace_point == Host2Pstn || trace_point == DspIncoming;
+    int32_t offset = 0;
+    int remaining;
+    const bool is_incoming = trace_point == Host2Pstn || trace_point == DspIncoming;
 
     proto_tree_add_item(tree, hf_acdr_signaling_opcode, tvb, HEADER_FIELD_SIG_OPCODE_BYTE_NO,
                         HEADER_FIELD_SIG_OPCODE_BYTE_COUNT, ENC_BIG_ENDIAN);
@@ -948,7 +948,7 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
                             HEADER_FIELD_SIG_SIZE_BYTE_COUNT, ENC_BIG_ENDIAN);
         offset += HEADER_FIELD_SIG_SIZE_BYTE_COUNT;
     } else {
-        const guint32 timestamp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
+        const uint32_t timestamp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
         nstime_t sig_time = {timestamp / 1000000, (timestamp % 1000000) * 1000};
         proto_tree_add_time_format_value(
                     tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
@@ -964,10 +964,10 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     return call_data_dissector(next_tvb, pinfo, tree);
 }
 
-static gint32
-add_cid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint cid_byte_length, int hf)
+static int32_t
+add_cid(proto_tree *tree, tvbuff_t *tvb, int offset, int cid_byte_length, int hf)
 {
-    gint32 cid = 0;
+    int32_t cid = 0;
     if (cid_byte_length == 2) {
         cid = tvb_get_ntohs(tvb, offset);
     } else {
@@ -985,20 +985,20 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     proto_item *header_ti = NULL;
     proto_tree *acdr_tree;
     tvbuff_t *next_tvb = NULL;
-    gint offset = 0;
-    gint header_byte_length = 15;
-    gint cid_byte_length = 2;
-    guint32 sequence_num = 0;
-    guint32 version, trace_point, header_extension_len = 0;
-    guint8 media_type, extra_data;
-    gboolean medium_mii = 0;
-    gint64 timestamp;
+    int offset = 0;
+    int header_byte_length = 15;
+    int cid_byte_length = 2;
+    uint32_t sequence_num = 0;
+    uint32_t version, trace_point, header_extension_len = 0;
+    uint8_t media_type, extra_data;
+    bool medium_mii = 0;
+    int64_t timestamp;
     nstime_t acdr_time = NSTIME_INIT_ZERO;
-    gint time_size = 0;
+    int time_size = 0;
     int acdr_header_length;
-    gboolean header_added;
-    gboolean li_packet;
-    guint16 payload_type = 0;
+    bool header_added;
+    bool li_packet;
+    uint16_t payload_type = 0;
     AcdrTlsPacketInfo tls_packet_info = {0xFFFF, 0xFFFF, TLS_APP_UNKNWN};
     const char *proto_name = NULL;
 
@@ -1365,7 +1365,7 @@ static int
 dissect_acdr_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data,
                  int hf, int ett, const char *name, dissector_handle_t dissector)
 {
-    guint packet_direction;
+    unsigned packet_direction;
     proto_item *packet_item;
     proto_tree *packet_tree;
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
@@ -1948,7 +1948,7 @@ proto_register_acdr(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_acdr,
         &ett_extension,
         &ett_ac45x_packet,

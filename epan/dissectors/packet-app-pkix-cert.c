@@ -29,10 +29,10 @@ static dissector_handle_t cert_handle;
 /* Initialize the protocol and registered fields */
 static int proto_cert;
 
-static gint hf_cert;
+static int hf_cert;
 
 /* Initialize the subtree pointers */
-static gint ett_cert;
+static int ett_cert;
 
 
 static int
@@ -41,7 +41,7 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree *subtree = NULL;
         proto_item *ti;
         asn1_ctx_t asn1_ctx;
-        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "(application/pkix-cert)");
 
@@ -50,7 +50,7 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 subtree = proto_item_add_subtree(ti, ett_cert);
         }
 
-        dissect_x509af_Certificate(FALSE, tvb, 0, &asn1_ctx, subtree, hf_cert);
+        dissect_x509af_Certificate(false, tvb, 0, &asn1_ctx, subtree, hf_cert);
         return tvb_captured_length(tvb);
 }
 
@@ -73,7 +73,7 @@ proto_register_cert(void)
         };
 
         /* Setup protocol subtree array */
-        static gint *ett[] = {
+        static int *ett[] = {
                 &ett_cert,
         };
 

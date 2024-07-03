@@ -42,18 +42,18 @@ typedef enum {
 
 typedef struct {
     btle_AA_category_t aa_category;
-    guint crc_checked_at_capture: 1;
-    guint crc_valid_at_capture: 1;
-    guint mic_checked_at_capture: 1;
-    guint mic_valid_at_capture: 1;
-    guint direction: 2; /* 0 Unknown, 1 Master -> Slave, 2 Slave -> Master */
-    guint aux_pdu_type_valid: 1;
-    guint event_counter_valid: 1;
-    guint8 pdu_type;
-    guint8 aux_pdu_type;
-    guint8 channel;
-    guint8 phy;
-    guint16 event_counter;
+    unsigned crc_checked_at_capture: 1;
+    unsigned crc_valid_at_capture: 1;
+    unsigned mic_checked_at_capture: 1;
+    unsigned mic_valid_at_capture: 1;
+    unsigned direction: 2; /* 0 Unknown, 1 Master -> Slave, 2 Slave -> Master */
+    unsigned aux_pdu_type_valid: 1;
+    unsigned event_counter_valid: 1;
+    uint8_t pdu_type;
+    uint8_t aux_pdu_type;
+    uint8_t channel;
+    uint8_t phy;
+    uint16_t event_counter;
 
     union {
         void              *data;

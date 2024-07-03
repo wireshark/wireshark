@@ -120,15 +120,15 @@ static const value_string btmesh_gpcf_bearer_opcode_reason_format[] = {
 static reassembly_table pbadv_reassembly_table;
 
 typedef struct _pbadv_fragment_key {
-    guint32 link_id;
-    guint8 transaction_number;
+    uint32_t link_id;
+    uint8_t transaction_number;
 } pbadv_fragment_key;
 
-static guint
-pbadv_fragment_hash(gconstpointer k)
+static unsigned
+pbadv_fragment_hash(const void *k)
 {
     const pbadv_fragment_key* key = (const pbadv_fragment_key*) k;
-    guint hash_val;
+    unsigned hash_val;
 
     hash_val = 0;
 
@@ -137,18 +137,18 @@ pbadv_fragment_hash(gconstpointer k)
     return hash_val;
 }
 
-static gint
-pbadv_fragment_equal(gconstpointer k1, gconstpointer k2)
+static int
+pbadv_fragment_equal(const void *k1, const void *k2)
 {
     const pbadv_fragment_key* key1 = (const pbadv_fragment_key*) k1;
     const pbadv_fragment_key* key2 = (const pbadv_fragment_key*) k2;
 
     return ((key1->link_id == key2->link_id) && (key1->transaction_number == key2->transaction_number)
-            ? TRUE : FALSE);
+            ? true : false);
 }
 
 static void *
-pbadv_fragment_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_,
+pbadv_fragment_temporary_key(const packet_info *pinfo _U_, const uint32_t id _U_,
                               const void *data)
 {
     pbadv_fragment_key *key = g_slice_new(pbadv_fragment_key);
@@ -161,7 +161,7 @@ pbadv_fragment_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_,
 }
 
 static void
-pbadv_fragment_free_temporary_key(gpointer ptr)
+pbadv_fragment_free_temporary_key(void *ptr)
 {
     pbadv_fragment_key *key = (pbadv_fragment_key *)ptr;
 
@@ -169,7 +169,7 @@ pbadv_fragment_free_temporary_key(gpointer ptr)
 }
 
 static void *
-pbadv_fragment_persistent_key(const packet_info *pinfo _U_, const guint32 id _U_,
+pbadv_fragment_persistent_key(const packet_info *pinfo _U_, const uint32_t id _U_,
                               const void *data)
 {
     pbadv_fragment_key *key = g_slice_new(pbadv_fragment_key);
@@ -182,7 +182,7 @@ pbadv_fragment_persistent_key(const packet_info *pinfo _U_, const guint32 id _U_
 }
 
 static void
-pbadv_fragment_free_persistent_key(gpointer ptr)
+pbadv_fragment_free_persistent_key(void *ptr)
 {
     pbadv_fragment_key *key = (pbadv_fragment_key *)ptr;
     if (key) {
@@ -199,30 +199,30 @@ static const reassembly_table_functions pbadv_reassembly_table_functions = {
     pbadv_fragment_free_persistent_key
 };
 
-static gint
+static int
 dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     proto_item *item;
     proto_tree *sub_tree, *sub_tree_generic_provisioning;
     proto_item *ti;
-    gboolean defragment = FALSE;
+    bool defragment = false;
     int offset = 0;
     btle_mesh_transport_ctx_t tr_ctx;
-    guint8 segn, length;
-    guint32 total_length;
-    guint8 gpcf_bearer_opcode;
+    uint8_t segn, length;
+    uint32_t total_length;
+    uint8_t gpcf_bearer_opcode;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh PB-ADV");
 
     item = proto_tree_add_item(tree, proto_btmesh_pbadv, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_btmesh_pbadv);
 
-    guint32 pbadv_link_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    uint32_t pbadv_link_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_btmesh_pbadv_linkid, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    guint8 pbadv_trnumber = tvb_get_guint8(tvb, offset);
+    uint8_t pbadv_trnumber = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree, hf_btmesh_pbadv_trnumber, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -233,12 +233,12 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     sub_tree_generic_provisioning = proto_tree_add_subtree(sub_tree, tvb, offset, -1, ett_btmesh_generic_provisioning, &ti, "Generic Provisioning PDU");
 
     proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_generic_provisioning_control_format, tvb, offset, 1, ENC_NA);
-    guint8 gpcf = tvb_get_guint8(tvb, offset) & 0x03;
+    uint8_t gpcf = tvb_get_guint8(tvb, offset) & 0x03;
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(gpcf, btmesh_generic_provisioning_control_format, "Unknown PDU"));
 
     fragment_head *fd_head = NULL;
-    gint segment_index = -1;
+    int segment_index = -1;
 
     switch (gpcf) {
         //Transaction Start
@@ -246,18 +246,18 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_segn, tvb, offset, 1, ENC_NA);
             segn = (tvb_get_guint8(tvb, offset) & 0xFC) >> 2;
             offset += 1;
-            total_length = (guint32)tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            total_length = (uint32_t)tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_total_length, tvb, offset, 2, ENC_NA);
             offset += 2;
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_fcs, tvb, offset, 1, ENC_NA);
             offset += 1;
             segment_index = 0;
-            defragment = TRUE;
+            defragment = true;
             if (segn == 0) {
                 if (btmesh_provisioning_handle) {
                     length = tvb_reported_length(tvb);
                     tr_ctx.transport = E_BTMESH_TR_ADV;
-                    tr_ctx.fragmented = FALSE;
+                    tr_ctx.fragmented = false;
                     tr_ctx.segment_index = 0;
                     call_dissector_with_data(btmesh_provisioning_handle, tvb_new_subset_length(tvb, offset, length),
                         pinfo, proto_tree_get_root(sub_tree_generic_provisioning), &tr_ctx);
@@ -277,7 +277,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         BTMESH_PB_ADV_NOT_USED, &frg_key,
                         0,
                         tvb_captured_length_remaining(tvb, offset),
-                        TRUE);
+                        true);
                     if (!fd_head) {
                        //Set the length only when not reassembled
                        fragment_set_tot_len(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key, total_length);
@@ -297,7 +297,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         case TRANSACTION_CONTINUATION:
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_segment_index, tvb, offset, 1, ENC_NA);
             segment_index = (tvb_get_guint8(tvb, offset) & 0xFC) >> 2;
-            defragment = TRUE;
+            defragment = true;
             offset += 1;
             //Segmentation
             if (!pinfo->fd->visited) {
@@ -306,7 +306,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     BTMESH_PB_ADV_NOT_USED, &frg_key,
                     20 + (segment_index - 1) * 23,
                     tvb_captured_length_remaining(tvb, offset),
-                    TRUE);
+                    true);
             } else {
                 proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpp_payload_fragment, tvb, offset, -1, ENC_NA);
             }
@@ -356,7 +356,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                 if (btmesh_provisioning_handle) {
                     tr_ctx.transport = E_BTMESH_TR_ADV;
-                    tr_ctx.fragmented = TRUE;
+                    tr_ctx.fragmented = true;
                     tr_ctx.segment_index = segment_index;
                     call_dissector_with_data(btmesh_provisioning_handle, next_tvb, pinfo,
                         proto_tree_get_root(sub_tree_generic_provisioning), &tr_ctx);
@@ -497,7 +497,7 @@ proto_register_btmesh_pbadv(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btmesh_pbadv,
         &ett_btmesh_generic_provisioning,
         &ett_btmesh_gpp_fragments,

@@ -160,31 +160,31 @@
  * dynamically assigned server channels and PSM's, respectively.
  */
 typedef struct _btsdp_data_t {
-    guint32    interface_id;
-    guint32    adapter_id;
-    guint32    chandle;
-    guint32    frame_number;
-    guint32    service;    /* service UUID, see below */
-    guint32    channel;    /* rfcomm server channel or PSM */
-    guint16    protocol;   /* either rfcomm or l2cap UUID */
-    guint16    flags;      /* indicate if the service is local or remote
+    uint32_t   interface_id;
+    uint32_t   adapter_id;
+    uint32_t   chandle;
+    uint32_t   frame_number;
+    uint32_t   service;    /* service UUID, see below */
+    uint32_t   channel;    /* rfcomm server channel or PSM */
+    uint16_t   protocol;   /* either rfcomm or l2cap UUID */
+    uint16_t   flags;      /* indicate if the service is local or remote
                               peer device) and/or a secondary PSM */
 } btsdp_data_t;
 
 
 typedef struct _service_info_t {
-    guint32  interface_id;
-    guint32  adapter_id;
-    guint32  sdp_psm;
-    guint32  direction;
-    guint32  bd_addr_oui;
-    guint32  bd_addr_id;
-    guint32  type;
-    guint32  channel;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t sdp_psm;
+    uint32_t direction;
+    uint32_t bd_addr_oui;
+    uint32_t bd_addr_id;
+    uint32_t type;
+    uint32_t channel;
 
     bluetooth_uuid_t uuid;
-    gint     protocol_order; /* main service protocol has 0, goep -1, additional protocol 1, 2... */
-    gint     protocol;
+    int      protocol_order; /* main service protocol has 0, goep -1, additional protocol 1, 2... */
+    int      protocol;
 
     void    *data;        /* Used to transfer service record data to profiles */
 

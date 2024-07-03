@@ -46,7 +46,7 @@ static int hf_bthci_acl_mode;
 static int hf_bthci_acl_mode_last_change_in_frame;
 
 /* Initialize the subtree pointers */
-static gint ett_bthci_acl;
+static int ett_bthci_acl;
 
 static expert_field ei_invalid_session;
 static expert_field ei_length_bad;
@@ -57,9 +57,9 @@ static dissector_handle_t btl2cap_handle;
 static bool acl_reassembly = true;
 
 typedef struct _multi_fragment_pdu_t {
-    guint32  first_frame;
-    guint32  last_frame;
-    guint16  tot_len;
+    uint32_t first_frame;
+    uint32_t last_frame;
+    uint16_t tot_len;
     char    *reassembled;
     int      cur_off;           /* counter used by reassembly */
 } multi_fragment_pdu_t;
@@ -100,60 +100,60 @@ static const value_string bc_flag_vals[] = {
     { 0, NULL }
 };
 
-static guint32 invalid_session;
+static uint32_t invalid_session;
 
 
 void proto_register_bthci_acl(void);
 void proto_reg_handoff_bthci_acl(void);
 
 /* Code to actually dissect the packets */
-static gint
+static int
 dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item               *bthci_acl_item;
     proto_tree               *bthci_acl_tree;
     proto_item               *sub_item;
     proto_item               *length_item;
-    guint16                   flags;
-    guint16                   length;
-    gboolean                  fragmented;
-    gint                      offset                = 0;
-    guint16                   pb_flag, l2cap_length = 0;
+    uint16_t                  flags;
+    uint16_t                  length;
+    bool                      fragmented;
+    int                       offset                = 0;
+    uint16_t                  pb_flag, l2cap_length = 0;
     tvbuff_t                 *next_tvb;
     bthci_acl_data_t         *acl_data;
     chandle_data_t           *chandle_data;
     bluetooth_data_t         *bluetooth_data;
     wmem_tree_t              *subtree;
     wmem_tree_key_t           key[6];
-    guint32                   interface_id;
-    guint32                   adapter_id;
-    guint32                   connection_handle;
-    guint32                   direction;
-    guint32                   k_bd_addr_oui;
-    guint32                   k_bd_addr_id;
-    guint32                   frame_number;
+    uint32_t                  interface_id;
+    uint32_t                  adapter_id;
+    uint32_t                  connection_handle;
+    uint32_t                  direction;
+    uint32_t                  k_bd_addr_oui;
+    uint32_t                  k_bd_addr_id;
+    uint32_t                  frame_number;
     remote_bdaddr_t          *remote_bdaddr;
-    const gchar              *localhost_name;
-    guint8                    localhost_bdaddr[6];
-    const gchar              *localhost_ether_addr;
-    gchar                    *localhost_addr_name;
-    gint                      localhost_length;
+    const char               *localhost_name;
+    uint8_t                   localhost_bdaddr[6];
+    const char               *localhost_ether_addr;
+    char                     *localhost_addr_name;
+    int                       localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
-    static const guint8       unknown_bd_addr[6] = {0};
-    const guint8             *src_bd_addr = &unknown_bd_addr[0];
-    const gchar              *src_name = "";
-    const gchar              *src_addr_name = "";
-    const guint8             *dst_bd_addr = &unknown_bd_addr[0];
-    const gchar              *dst_name = "";
-    const gchar              *dst_addr_name = "";
+    static const uint8_t      unknown_bd_addr[6] = {0};
+    const uint8_t            *src_bd_addr = &unknown_bd_addr[0];
+    const char               *src_name = "";
+    const char               *src_addr_name = "";
+    const uint8_t            *dst_bd_addr = &unknown_bd_addr[0];
+    const char               *dst_name = "";
+    const char               *dst_addr_name = "";
     chandle_session_t        *chandle_session;
-    guint32                   src_role = ROLE_UNKNOWN;
-    guint32                   dst_role = ROLE_UNKNOWN;
-    guint32                   role_last_change_in_frame = 0;
+    uint32_t                  src_role = ROLE_UNKNOWN;
+    uint32_t                  dst_role = ROLE_UNKNOWN;
+    uint32_t                  role_last_change_in_frame = 0;
     connection_mode_t        *connection_mode;
-    gint32                    mode = -1;
-    guint32                   mode_last_change_in_frame = 0;
+    int32_t                   mode = -1;
+    uint32_t                  mode_last_change_in_frame = 0;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -195,8 +195,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     acl_data->adapter_id                  = adapter_id;
     acl_data->adapter_disconnect_in_frame = bluetooth_data->adapter_disconnect_in_frame;
     acl_data->chandle                     = connection_handle;
-    acl_data->is_btle                     = FALSE;
-    acl_data->is_btle_retransmit          = FALSE;
+    acl_data->is_btle                     = false;
+    acl_data->is_btle_retransmit          = false;
 
     key[0].length = 1;
     key[0].key    = &interface_id;
@@ -232,14 +232,14 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_to_bdaddr, key);
     remote_bdaddr = (subtree) ? (remote_bdaddr_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
     if (remote_bdaddr) {
-        guint32         bd_addr_oui;
-        guint32         bd_addr_id;
+        uint32_t        bd_addr_oui;
+        uint32_t        bd_addr_id;
         device_name_t  *device_name;
         device_role_t  *device_role;
-        const gchar    *remote_name;
-        const gchar    *remote_ether_addr;
-        gchar          *remote_addr_name;
-        gint            remote_length;
+        const char     *remote_name;
+        const char     *remote_ether_addr;
+        char           *remote_addr_name;
+        int             remote_length;
 
         bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
         bd_addr_id  = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
@@ -284,8 +284,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             remote_name = "";
 
         remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
-        remote_length = (gint)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
-        remote_addr_name = (gchar *)wmem_alloc(pinfo->pool, remote_length);
+        remote_length = (int)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
+        remote_addr_name = (char *)wmem_alloc(pinfo->pool, remote_length);
 
         snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
 
@@ -331,8 +331,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     else
         localhost_name = "";
 
-    localhost_length = (gint)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
-    localhost_addr_name = (gchar *)wmem_alloc(pinfo->pool, localhost_length);
+    localhost_length = (int)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
+    localhost_addr_name = (char *)wmem_alloc(pinfo->pool, localhost_length);
 
     snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
 
@@ -389,7 +389,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* determine if packet is fragmented */
     switch(pb_flag) {
     case 0x01:  /* Continuation fragment */
-        fragmented = TRUE;
+        fragmented = true;
         break;
     case 0x00:  /* First fragment/packet, non-auto flushable */
     case 0x02:  /* First fragment/packet, auto flushable */
@@ -398,7 +398,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     default:
         /* unknown pb_flag */
-        fragmented = FALSE;
+        fragmented = false;
     }
 
     alloc_address_wmem(pinfo->pool, &pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
@@ -423,7 +423,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
     } else if (fragmented && acl_reassembly) {
         multi_fragment_pdu_t *mfp = NULL;
-        gint                  len;
+        int                   len;
 
         if (!(pb_flag & 0x01)) { /* first fragment */
             if (!pinfo->fd->visited) {
@@ -434,7 +434,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 mfp->reassembled = (char *) wmem_alloc(wmem_file_scope(), mfp->tot_len);
                 len = tvb_captured_length_remaining(tvb, offset);
                 if (len <= mfp->tot_len) {
-                    tvb_memcpy(tvb, (guint8 *) mfp->reassembled, offset, len);
+                    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled, offset, len);
                     mfp->cur_off = len;
                     wmem_tree_insert32(chandle_data->start_fragments, pinfo->num, mfp);
                 }
@@ -454,7 +454,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame && (mfp->tot_len >= mfp->cur_off + len)) {
-                    tvb_memcpy(tvb, (guint8 *) mfp->reassembled + mfp->cur_off, offset, len);
+                    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled + mfp->cur_off, offset, len);
                     mfp->cur_off += len;
                     if (mfp->cur_off == mfp->tot_len) {
                         mfp->last_frame = pinfo->num;
@@ -474,7 +474,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 }
             }
             if (mfp != NULL && mfp->last_frame == pinfo->num) {
-                next_tvb = tvb_new_child_real_data(tvb, (guint8 *) mfp->reassembled, mfp->tot_len, mfp->tot_len);
+                next_tvb = tvb_new_child_real_data(tvb, (uint8_t *) mfp->reassembled, mfp->tot_len, mfp->tot_len);
                 add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ACL");
 
                 call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
@@ -493,7 +493,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
         proto_item_set_generated(sub_item);
 
-        if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
+        if (chandle_session->disconnect_in_frame < UINT32_MAX) {
             sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
             proto_item_set_generated(sub_item);
         }
@@ -650,7 +650,7 @@ proto_register_bthci_acl(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_bthci_acl,
     };
 

@@ -313,10 +313,10 @@ static int hf_ansi_637_tele_srvc_cat_prog_data_num_fields;
 static int hf_ansi_637_tele_srvc_cat_prog_data_text;
 
 /* Initialize the subtree pointers */
-static gint ett_ansi_637_tele;
-static gint ett_ansi_637_trans;
-static gint ett_ansi_637_header_ind;
-static gint ett_params;
+static int ett_ansi_637_tele;
+static int ett_ansi_637_trans;
+static int ett_ansi_637_header_ind;
+static int ett_params;
 
 static expert_field ei_ansi_637_extraneous_data;
 static expert_field ei_ansi_637_short_data;
@@ -333,7 +333,7 @@ static dissector_handle_t ansi_637_tele_handle;
 static dissector_handle_t ansi_637_trans_handle;
 static dissector_handle_t ansi_637_trans_app_handle;
 
-static guint32 ansi_637_trans_tele_id;
+static uint32_t ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
 static dissector_table_t tele_dissector_table;
 static proto_tree *g_tree;
@@ -369,14 +369,14 @@ static proto_tree *g_tree;
  * there are 'unused_bits' bits remaining in the octet at 'offset'
  */
 static void
-text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 encoding,
-             guint8 num_fields, guint16 num_bits, guint8 unused_bits, guint8 fill_bits, int hf_index)
+text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint8_t encoding,
+             uint8_t num_fields, uint16_t num_bits, uint8_t unused_bits, uint8_t fill_bits, int hf_index)
 {
-    guint8      bit;
-    guint32     required_octs;
+    uint8_t     bit;
+    uint32_t    required_octs;
     tvbuff_t    *tvb_out = NULL;
 
-    const guchar *ustr = NULL;
+    const unsigned char *ustr = NULL;
 
     /*
      * has to be big enough to hold all of the 'shifted' bits
@@ -464,11 +464,11 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 }
 
 static void
-tele_param_timestamp(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, guint len, guint32 offset, int hf_year, int hf_month, int hf_day, int hf_hours, int hf_minutes, int hf_seconds)
+tele_param_timestamp(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, unsigned len, uint32_t offset, int hf_year, int hf_month, int hf_day, int hf_hours, int hf_minutes, int hf_seconds)
 {
-    guint8      oct;
-    guint16     temp;
-    const gchar *str = NULL;
+    uint8_t     oct;
+    uint16_t    temp;
+    const char *str = NULL;
 
     EXACT_DATA_CHECK(len, 6);
 
@@ -539,7 +539,7 @@ tele_param_timestamp(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, guint
 }
 
 static void
-tele_param_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p)
+tele_param_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p)
 {
     EXACT_DATA_CHECK(len, 3);
 
@@ -550,7 +550,7 @@ tele_param_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len
     proto_tree_add_item(tree, hf_ansi_637_tele_msg_header_ind, tvb, offset, 3, ENC_BIG_ENDIAN);
     if ((tvb_get_guint8(tvb, offset + 2) & 0x08) == 0x08)
     {
-        *has_private_data_p = TRUE;
+        *has_private_data_p = true;
     }
 
     proto_tree_add_item(tree, hf_ansi_637_tele_msg_rsvd, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -560,7 +560,7 @@ tele_param_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len
  * for record types 0, 1, 2 and 3 for unknowns
  */
 #define NUM_CMAS_PARAM 4
-static gint ett_tia_1149_cmas_param[NUM_CMAS_PARAM];
+static int ett_tia_1149_cmas_param[NUM_CMAS_PARAM];
 
 /*
  * Special dissection for CMAS Message as defined in TIA-1149
@@ -612,23 +612,23 @@ static const value_string cmas_certainty_strings[] = {
 };
 
 static void
-tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     proto_tree  *subtree;
-    guint8      oct, oct2;
-    guint8      encoding;
-    guint8      num_fields;
-    guint8      reserved_bits;
-    guint8      unused_bits;
-    guint8      record_type;
-    guint8      record_len;
-    guint8      subtree_idx;
-    guint16     num_bits;
-    guint32     value;
-    guint32     temp_offset;
-    guint32     required_octs;
+    uint8_t     oct, oct2;
+    uint8_t     encoding;
+    uint8_t     num_fields;
+    uint8_t     reserved_bits;
+    uint8_t     unused_bits;
+    uint8_t     record_type;
+    uint8_t     record_len;
+    uint8_t     subtree_idx;
+    uint16_t    num_bits;
+    uint32_t    value;
+    uint32_t    temp_offset;
+    uint32_t    required_octs;
     tvbuff_t    *tvb_out = NULL;
-    const gchar *str = NULL;
+    const char *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -897,19 +897,19 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 static void
-tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p)
+tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p)
 {
-    guint8              encoding;
-    guint8              encoding_bit_len;
-    guint8              num_fields;
-    guint8              unused_bits;
-    guint8              fill_bits;
-    guint16             reserved_bits;
-    guint32             value;
-    guint32             orig_offset;
-    guint32             saved_offset;
-    guint32             required_octs;
-    const gchar         *str;
+    uint8_t             encoding;
+    uint8_t             encoding_bit_len;
+    uint8_t             num_fields;
+    uint8_t             unused_bits;
+    uint8_t             fill_bits;
+    uint16_t            reserved_bits;
+    uint32_t            value;
+    uint32_t            orig_offset;
+    uint32_t            saved_offset;
+    uint32_t            required_octs;
+    const char          *str;
     tvbuff_t            *tvb_out;
     enum character_set  cset;
 
@@ -920,7 +920,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
     value = tvb_get_ntohs(tvb, offset);
 
-    encoding = (guint8) ((value & 0xf800) >> 11);
+    encoding = (uint8_t) ((value & 0xf800) >> 11);
     str = val_to_str_const(encoding, ansi_tsb58_encoding_vals, "Reserved");
     switch (encoding)
     {
@@ -987,10 +987,10 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     /*
      * ALL of this is for header support !
      */
-    if (*has_private_data_p == TRUE)
+    if (*has_private_data_p == true)
     {
         gsm_sms_udh_fields_t    udh_fields;
-        gint32                  num_udh_bits;
+        int32_t                 num_udh_bits;
 
         memset(&udh_fields, 0, sizeof(udh_fields));
 
@@ -1092,8 +1092,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         case GSM_7BITS:
             {
                 crumb_spec_t crumbs[3];
-                guint8 i = 0;
-                guint bits_offset;
+                uint8_t i = 0;
+                unsigned bits_offset;
 
                 if (reserved_bits > 3) {
                     bits_offset = ((orig_offset + len - 2)*8)+5;
@@ -1119,7 +1119,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 }
 
 static void
-tele_param_rsp_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_rsp_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1127,7 +1127,7 @@ tele_param_rsp_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 }
 
 static void
-tele_param_message_center_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_message_center_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 6);
 
@@ -1141,7 +1141,7 @@ tele_param_message_center_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 static void
-tele_param_validity_period_abs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_validity_period_abs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 6);
 
@@ -1155,12 +1155,12 @@ tele_param_validity_period_abs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void
-tele_param_timestamp_rel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint len _U_, guint32 offset, int hf)
+tele_param_timestamp_rel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned len _U_, uint32_t offset, int hf)
 {
-    guint8      oct;
-    guint32     value = 0;
-    const gchar *str = NULL;
-    const gchar *str2 = NULL;
+    uint8_t     oct;
+    uint32_t    value = 0;
+    const char *str = NULL;
+    const char *str2 = NULL;
 
     oct = tvb_get_guint8(tvb, offset);
 
@@ -1195,7 +1195,7 @@ tele_param_timestamp_rel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
-tele_param_validity_period_rel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_validity_period_rel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1203,7 +1203,7 @@ tele_param_validity_period_rel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void
-tele_param_deferred_del_abs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_deferred_del_abs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 6);
 
@@ -1217,7 +1217,7 @@ tele_param_deferred_del_abs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-tele_param_deferred_del_rel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_deferred_del_rel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1233,7 +1233,7 @@ static const value_string tele_param_priority_ind_strings[] = {
 };
 
 static void
-tele_param_pri_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_pri_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1250,7 +1250,7 @@ static const value_string tele_param_privacy_ind_strings[] = {
 };
 
 static void
-tele_param_priv_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_priv_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1259,7 +1259,7 @@ tele_param_priv_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 }
 
 static void
-tele_param_reply_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_reply_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1271,9 +1271,9 @@ tele_param_reply_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 }
 
 static void
-tele_param_num_messages(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_num_messages(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint8      oct;
+    uint8_t     oct;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -1294,7 +1294,7 @@ static const value_string tele_param_alert_priority_strings[] = {
 };
 
 static void
-tele_param_alert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_alert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1303,10 +1303,10 @@ tele_param_alert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len,
 }
 
 static void
-tele_param_lang_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_lang_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint8      oct;
-    const gchar *str = NULL;
+    uint8_t     oct;
+    const char *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -1320,13 +1320,13 @@ tele_param_lang_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 }
 
 static void
-tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint8      oct, oct2, num_fields, odd;
-    guint8      *poctets;
-    guint32     saved_offset;
-    guint32     required_octs;
-    guint32     i;
+    uint8_t     oct, oct2, num_fields, odd;
+    uint8_t     *poctets;
+    uint32_t    saved_offset;
+    uint32_t    required_octs;
+    uint32_t    i;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -1354,9 +1354,9 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len
         poctets = tvb_get_string_enc(pinfo->pool, tvb, offset, num_fields, ENC_ASCII|ENC_NA);
 
         proto_tree_add_string_format(tree, hf_ansi_637_tele_cb_num_number, tvb, offset, num_fields,
-            (gchar *) poctets,
+            (char *) poctets,
             "Number: %s",
-            (gchar *) format_text(pinfo->pool, poctets, num_fields));
+            (char *) format_text(pinfo->pool, poctets, num_fields));
     }
     else
     {
@@ -1368,7 +1368,7 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len
         proto_tree_add_item(tree, hf_ansi_637_tele_cb_num_num_fields07f8, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         oct = oct2;
-        odd = FALSE;
+        odd = false;
 
         if (num_fields > 0)
         {
@@ -1420,7 +1420,7 @@ static const value_string tele_param_msg_display_mode_strings[] = {
 };
 
 static void
-tele_param_disp_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_disp_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1429,15 +1429,15 @@ tele_param_disp_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 }
 
 static void
-tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint64             encoding;
-    guint8              encoding_bit_len;
-    guint64             num_fields;
-    guint8              unused_bits;
-    guint8              fill_bits;
-    guint16             reserved_bits;
-    guint32             orig_offset;
+    uint64_t            encoding;
+    uint8_t             encoding_bit_len;
+    uint64_t            num_fields;
+    uint8_t             unused_bits;
+    uint8_t             fill_bits;
+    uint16_t            reserved_bits;
+    uint32_t            orig_offset;
     enum character_set  cset = OTHER;
 
     SHORT_DATA_CHECK(len, 2);
@@ -1492,10 +1492,10 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         fill_bits = 0;
 
         if (num_fields) {
-            text_decoder(tvb, pinfo, tree, offset>>3, (guint8)encoding, (guint8)num_fields, (guint8)num_fields * encoding_bit_len,
+            text_decoder(tvb, pinfo, tree, offset>>3, (uint8_t)encoding, (uint8_t)num_fields, (uint8_t)num_fields * encoding_bit_len,
                 unused_bits, fill_bits, hf_ansi_637_tele_mult_enc_user_data_text);
-            offset +=  (guint8)num_fields * encoding_bit_len;
-            reserved_bits -= (guint8)num_fields * encoding_bit_len;
+            offset +=  (uint8_t)num_fields * encoding_bit_len;
+            reserved_bits -= (uint8_t)num_fields * encoding_bit_len;
         }
     }
 
@@ -1512,8 +1512,8 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         case GSM_7BITS:
             {
                 crumb_spec_t crumbs[3];
-                guint8 i = 0;
-                guint bits_offset;
+                uint8_t i = 0;
+                unsigned bits_offset;
 
                 if (reserved_bits > 3) {
                     bits_offset = ((orig_offset + len - 2)*8)+5;
@@ -1539,7 +1539,7 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
-tele_param_msg_deposit_idx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_msg_deposit_idx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 2);
 
@@ -1570,15 +1570,15 @@ static const value_string tele_param_srvc_cat_prog_data_alert_option_vals[] = {
 };
 
 static void
-tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint64             encoding;
-    guint8              encoding_bit_len;
-    guint64             num_fields;
-    guint8              unused_bits;
-    guint8              fill_bits;
-    guint16             reserved_bits;
-    guint32             orig_offset;
+    uint64_t            encoding;
+    uint8_t             encoding_bit_len;
+    uint64_t            num_fields;
+    uint8_t             unused_bits;
+    uint8_t             fill_bits;
+    uint16_t            reserved_bits;
+    uint32_t            orig_offset;
     enum character_set  cset = OTHER;
 
     SHORT_DATA_CHECK(len, 2);
@@ -1658,10 +1658,10 @@ tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         fill_bits = 0;
 
         if (num_fields) {
-            text_decoder(tvb, pinfo, tree, offset>>3, (guint8)encoding, (guint8)num_fields, (guint8)num_fields * encoding_bit_len,
+            text_decoder(tvb, pinfo, tree, offset>>3, (uint8_t)encoding, (uint8_t)num_fields, (uint8_t)num_fields * encoding_bit_len,
                 unused_bits, fill_bits, hf_ansi_637_tele_srvc_cat_prog_data_text);
-            offset +=  (guint8)num_fields * encoding_bit_len;
-            reserved_bits -= (guint8)num_fields * encoding_bit_len;
+            offset +=  (uint8_t)num_fields * encoding_bit_len;
+            reserved_bits -= (uint8_t)num_fields * encoding_bit_len;
         }
     }
 
@@ -1678,8 +1678,8 @@ tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         case GSM_7BITS:
             {
                 crumb_spec_t crumbs[3];
-                guint8 i = 0;
-                guint bits_offset;
+                uint8_t i = 0;
+                unsigned bits_offset;
 
                 if (reserved_bits > 3) {
                     bits_offset = ((orig_offset + len - 2)*8)+5;
@@ -1725,11 +1725,11 @@ static const value_string tele_param_srvc_cat_prog_results_result_strings[] = {
 };
 
 static void
-tele_param_srvc_cat_prog_results(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_srvc_cat_prog_results(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint32     curr_offset;
-    guint32     value;
-    const gchar *str = NULL;
+    uint32_t    curr_offset;
+    uint32_t    value;
+    const char *str = NULL;
 
     curr_offset = offset;
 
@@ -1764,11 +1764,11 @@ static const value_string tele_param_msg_status_error_class_strings[] = {
 };
 
 static void
-tele_param_msg_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_msg_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
-    guint8      oct;
-    guint8      msg_status_code;
-    const gchar *str = NULL;
+    uint8_t     oct;
+    uint8_t     msg_status_code;
+    const char *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -1830,7 +1830,7 @@ tele_param_msg_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static void
-tele_param_tp_failure_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+tele_param_tp_failure_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 1);
 
@@ -1838,8 +1838,8 @@ tele_param_tp_failure_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 #define NUM_TELE_PARAM array_length(ansi_tele_param_strings)
-static gint ett_ansi_637_tele_param[NUM_TELE_PARAM];
-static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p) = {
+static int ett_ansi_637_tele_param[NUM_TELE_PARAM];
+static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p) = {
     tele_param_msg_id,                  /* Message Identifier */
     tele_param_user_data,               /* User Data */
     tele_param_rsp_code,                /* User Response Code */
@@ -1867,10 +1867,10 @@ static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, prot
 };
 
 static void
-trans_param_tele_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
+trans_param_tele_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string, int string_len)
 {
-    guint32     value;
-    const gchar *str = NULL;
+    uint32_t    value;
+    const char *str = NULL;
 
     EXACT_DATA_CHECK(len, 2);
 
@@ -1949,10 +1949,10 @@ trans_param_tele_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 }
 
 static void
-trans_param_srvc_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
+trans_param_srvc_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string, int string_len)
 {
-    guint32     value;
-    const gchar *str;
+    uint32_t    value;
+    const char *str;
 
     EXACT_DATA_CHECK(len, 2);
 
@@ -1980,12 +1980,12 @@ static const value_string trans_param_addr_data_net_ton_strings[] = {
 };
 
 static void
-trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
+trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string _U_, int string_len _U_)
 {
-    guint8      oct, oct2, odd;
-    gboolean    email_addr;
-    guint32     i, saved_offset, required_octs;
-    guint64     num_fields;
+    uint8_t     oct, oct2, odd;
+    bool        email_addr;
+    uint32_t    i, saved_offset, required_octs;
+    uint64_t    num_fields;
     tvbuff_t   *tvb_out;
 
     SHORT_DATA_CHECK(len, 2);
@@ -1999,7 +1999,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
     {
         if (oct & 0x40)
         {
-            email_addr = (((oct & 0x38) >> 3) == 0x02) ? TRUE : FALSE;
+            email_addr = (((oct & 0x38) >> 3) == 0x02) ? true : false;
 
             /*
              * do not change to ...add_item() with VALS in hf definition because this parameter is
@@ -2016,20 +2016,20 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 
             SHORT_DATA_CHECK(len - 2, num_fields);
 
-            tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 5, (gint)num_fields*8);
+            tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 5, (int)num_fields*8);
             add_new_data_source(pinfo, tvb_out, "Address");
 
             if (email_addr)
             {
-                proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_number, tvb_out, 0, (gint)num_fields,
+                proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_number, tvb_out, 0, (int)num_fields,
                     ENC_ASCII);
             }
             else
             {
-                proto_tree_add_item(tree, hf_ansi_637_trans_bin_addr, tvb_out, 0, (gint)num_fields, ENC_NA);
+                proto_tree_add_item(tree, hf_ansi_637_trans_bin_addr, tvb_out, 0, (int)num_fields, ENC_NA);
             }
 
-            offset += ((guint32)num_fields);
+            offset += ((uint32_t)num_fields);
 
             proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_07, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
@@ -2054,13 +2054,13 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 
             SHORT_DATA_CHECK(len - 3, num_fields);
 
-            tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 1, (gint)num_fields*8);
+            tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 1, (int)num_fields*8);
             add_new_data_source(pinfo, tvb_out, "Address");
 
-            proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_number, tvb_out, 0, (gint)num_fields,
+            proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_number, tvb_out, 0, (int)num_fields,
                 ENC_ASCII);
 
-            offset += ((guint32)num_fields);
+            offset += ((uint32_t)num_fields);
 
             proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_7f, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
@@ -2071,11 +2071,11 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
         offset += 1;
 
         oct = tvb_get_guint8(tvb, offset);
-        odd = FALSE;
+        odd = false;
 
         if (num_fields > 0)
         {
-            i = ((guint32)num_fields - 1) * 4;
+            i = ((uint32_t)num_fields - 1) * 4;
             required_octs = (i / 8) + ((i % 8) ? 1 : 0);
 
             SHORT_DATA_CHECK(len - 2, required_octs);
@@ -2124,10 +2124,10 @@ static const value_string trans_param_subaddr_type_strings[] = {
 };
 
 static void
-trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
+trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string _U_, int string_len _U_)
 {
-    guint8      num_fields;
-    guint32     value;
+    uint8_t     num_fields;
+    uint32_t    value;
     tvbuff_t   *tvb_out;
 
     SHORT_DATA_CHECK(len, 2);
@@ -2160,7 +2160,7 @@ trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 }
 
 static void
-trans_param_bearer_reply_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint len _U_, guint32 offset, gchar *add_string, int string_len)
+trans_param_bearer_reply_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned len _U_, uint32_t offset, char *add_string, int string_len)
 {
     proto_tree_add_item(tree, hf_ansi_637_trans_bearer_reply_seq_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_03, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2178,10 +2178,10 @@ static const value_string trans_param_cause_codes_error_class_strings[] = {
 };
 
 static void
-trans_param_cause_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
+trans_param_cause_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned len, uint32_t offset, char *add_string, int string_len)
 {
-    guint8      oct;
-    const gchar *str;
+    uint8_t     oct;
+    const char *str;
 
     proto_tree_add_item(tree, hf_ansi_637_trans_cause_codes_seq_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_637_trans_cause_codes_error_class, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2249,7 +2249,7 @@ trans_param_cause_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-trans_param_bearer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
+trans_param_bearer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, unsigned len, uint32_t offset, char *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *tele_tvb;
 
@@ -2262,8 +2262,8 @@ trans_param_bearer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_,
 }
 
 #define NUM_TRANS_PARAM array_length(ansi_trans_param_strings)
-static gint ett_ansi_637_trans_param[NUM_TRANS_PARAM];
-static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len) = {
+static int ett_ansi_637_trans_param[NUM_TRANS_PARAM];
+static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string, int string_len) = {
     trans_param_tele_id,                /* Teleservice Identifier */
     trans_param_srvc_cat,               /* Service Category */
     trans_param_address,                /* Originating Address */
@@ -2277,31 +2277,31 @@ static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, pro
 };
 
 #define NUM_TRANS_MSG_TYPE array_length(ansi_trans_msg_type_strings)
-static gint ett_ansi_637_trans_msg[NUM_TRANS_MSG_TYPE];
+static int ett_ansi_637_trans_msg[NUM_TRANS_MSG_TYPE];
 
 /* GENERIC IS-637 DISSECTOR FUNCTIONS */
 
-static gboolean
-dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 *offset, gboolean *has_private_data_p)
+static bool
+dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offset, bool *has_private_data_p)
 {
-    void        (*param_fcn)(tvbuff_t *, packet_info *, proto_tree *, guint, guint32, gboolean *) = NULL;
-    guint8      oct;
-    guint8      len;
-    guint32     curr_offset;
-    gint        ett_param_idx, idx;
+    void        (*param_fcn)(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint32_t, bool *) = NULL;
+    uint8_t     oct;
+    uint8_t     len;
+    uint32_t    curr_offset;
+    int         ett_param_idx, idx;
     proto_tree  *subtree;
     proto_item  *item;
-    const gchar *str = NULL;
+    const char *str = NULL;
 
 
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = try_val_to_str_idx_ext((guint32) oct, &ansi_tele_param_strings_ext, &idx);
+    str = try_val_to_str_idx_ext((uint32_t) oct, &ansi_tele_param_strings_ext, &idx);
 
     if (NULL == str)
     {
-        return FALSE;
+        return false;
     }
 
     ett_param_idx = ett_ansi_637_tele_param[idx];
@@ -2353,14 +2353,14 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     *offset = curr_offset;
 
-    return TRUE;
+    return true;
 }
 
 static void
-dissect_ansi_637_tele_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ansi_637_tree, gboolean *has_private_data_p)
+dissect_ansi_637_tele_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ansi_637_tree, bool *has_private_data_p)
 {
-    guint8      len;
-    guint32     curr_offset;
+    uint8_t     len;
+    uint32_t    curr_offset;
 
     curr_offset = 0;
     len = tvb_reported_length(tvb);
@@ -2380,9 +2380,9 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
     proto_item  *ansi_637_item;
     proto_tree  *ansi_637_tree = NULL;
-    const gchar *str = NULL;
-    guint32     value;
-    gboolean    has_private_data = FALSE;
+    const char *str = NULL;
+    uint32_t    value;
+    bool        has_private_data = false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
@@ -2484,26 +2484,26 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     return tvb_captured_length(tvb);
 }
 
-static gboolean
-dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 *offset)
+static bool
+dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offset)
 {
-    void        (*param_fcn)(tvbuff_t *, packet_info *, proto_tree *, guint, guint32, gchar *, int) = NULL;
-    guint8      oct;
-    guint8      len;
-    guint32     curr_offset;
-    gint        ett_param_idx, idx;
+    void        (*param_fcn)(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint32_t, char *, int) = NULL;
+    uint8_t     oct;
+    uint8_t     len;
+    uint32_t    curr_offset;
+    int         ett_param_idx, idx;
     proto_tree  *subtree;
     proto_item  *item;
-    const gchar *str;
+    const char *str;
 
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = try_val_to_str_idx((guint32) oct, ansi_trans_param_strings, &idx);
+    str = try_val_to_str_idx((uint32_t) oct, ansi_trans_param_strings, &idx);
 
     if (NULL == str)
     {
-        return FALSE;
+        return false;
     }
 
     ett_param_idx = ett_ansi_637_trans_param[idx];
@@ -2531,9 +2531,9 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         else
         {
-            gchar       *ansi_637_add_string;
+            char        *ansi_637_add_string;
 
-            ansi_637_add_string = (gchar *) wmem_alloc(pinfo->pool, 1024);
+            ansi_637_add_string = (char *) wmem_alloc(pinfo->pool, 1024);
             ansi_637_add_string[0] = '\0';
             (*param_fcn)(tvb, pinfo, subtree, len, curr_offset, ansi_637_add_string, 1024);
 
@@ -2548,7 +2548,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     *offset = curr_offset;
 
-    return TRUE;
+    return true;
 }
 
 
@@ -2557,11 +2557,11 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
     proto_item  *ansi_637_item;
     proto_tree  *ansi_637_tree = NULL;
-    guint32     curr_offset;
-    gint        idx;
-    const gchar *str = NULL;
-    guint8      oct;
-    guint8      len;
+    uint32_t    curr_offset;
+    int         idx;
+    const char *str = NULL;
+    uint8_t     oct;
+    uint8_t     len;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
@@ -2647,7 +2647,7 @@ dissect_ansi_637_trans_app(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 void
 proto_register_ansi_637(void)
 {
-    guint               i;
+    unsigned            i;
 
     /* Setup list of header fields */
     static hf_register_info hf_trans[] = {
@@ -3273,7 +3273,7 @@ proto_register_ansi_637(void)
 
     /* Setup protocol subtree array */
 #define NUM_INDIVIDUAL_PARAMS   4
-    gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+NUM_TRANS_MSG_TYPE+NUM_TRANS_PARAM+NUM_CMAS_PARAM];
+    int *ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+NUM_TRANS_MSG_TYPE+NUM_TRANS_PARAM+NUM_CMAS_PARAM];
 
     memset((void *) ett, 0, sizeof(ett));
 
@@ -3331,7 +3331,7 @@ proto_register_ansi_637(void)
 void
 proto_reg_handoff_ansi_637(void)
 {
-    guint i;
+    unsigned i;
 
     /* Dissect messages embedded in SIP */
     dissector_add_string("media_type", "application/vnd.3gpp2.sms", ansi_637_trans_app_handle);

@@ -55,33 +55,33 @@ void proto_reg_handoff_aasp(void);
 static dissector_handle_t aasp_handle;
 
 /* Initialize the protocol and registered fields */
-static gint proto_aasp;
+static int proto_aasp;
 
-static gint hf_a_data;
-static gint hf_a_cmd;
-static gint hf_a_id;
-static gint hf_a_length;
-static gint hf_a_text;
-static gint hf_a_line;
-static gint hf_a_cdpn;
-static gint hf_a_button_id;
+static int hf_a_data;
+static int hf_a_cmd;
+static int hf_a_id;
+static int hf_a_length;
+static int hf_a_text;
+static int hf_a_line;
+static int hf_a_cdpn;
+static int hf_a_button_id;
 
-static gint hf_a_attr;
+static int hf_a_attr;
 
-static gint hf_a_item;
-static gint hf_a_hour;
-static gint hf_a_minute;
-static gint hf_a_day;
-static gint hf_a_month;
-static gint hf_a_weekofyear;
-static gint hf_a_weekday;
-static gint hf_a_month_name;
-static gint hf_a_weekofyear_prefix;
+static int hf_a_item;
+static int hf_a_hour;
+static int hf_a_minute;
+static int hf_a_day;
+static int hf_a_month;
+static int hf_a_weekofyear;
+static int hf_a_weekday;
+static int hf_a_month_name;
+static int hf_a_weekofyear_prefix;
 
 /* Initialize the subtree pointers */
-static gint ett_aasp;
-static gint ett_a_cmd;
-static gint ett_a_item;
+static int ett_aasp;
+static int ett_a_cmd;
+static int ett_a_item;
 
 /* Preferences */
 
@@ -128,8 +128,8 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     proto_item *ti;
     proto_tree *subtree;
-    const guint8* pstr;
-    guint i, len;
+    const uint8_t* pstr;
+    unsigned i, len;
 
     /* create command subtree */
     ti = proto_tree_add_item(tree, hf_a_cmd, tvb, 0, -1, ENC_NA);
@@ -185,7 +185,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         }
     case BUTTON_PRESSED:
         {
-            guint8 c = tvb_get_guint8(tvb, 5);
+            uint8_t c = tvb_get_guint8(tvb, 5);
             proto_item_append_text(ti, ": %d '%c'", c, c);
 
             proto_tree_add_item(subtree, hf_a_data, tvb, 1, 4, ENC_NA);
@@ -351,7 +351,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /**
  *      Searching for the next command when the variable or unknown length.
  */
-static guint searchNext(tvbuff_t *tvb, guint begin, guint end)
+static unsigned searchNext(tvbuff_t *tvb, unsigned begin, unsigned end)
 {
     for(; begin < end; begin++)
     {
@@ -368,7 +368,7 @@ static int
 dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti; proto_tree *aasp_tree; guint n;
+    proto_item *ti; proto_tree *aasp_tree; unsigned n;
 
     /* Check that there's enough data */
     n = tvb_reported_length(tvb);
@@ -379,14 +379,14 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     if(tree)
     {
-        guint i, prev;
+        unsigned i, prev;
 
         /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_aasp, tvb, 0, -1, ENC_NA);
         aasp_tree = proto_item_add_subtree(ti, ett_aasp);
 
         /* separation of command; jump "a=" */
-        if(tvb_memeql(tvb, 0, (const guint8*)"a=", 2) == 0)
+        if(tvb_memeql(tvb, 0, (const uint8_t*)"a=", 2) == 0)
         {
             prev = 2;
             for(i=2; i<n;)
@@ -486,7 +486,7 @@ proto_register_aasp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_aasp,
         &ett_a_cmd,
         &ett_a_item,
