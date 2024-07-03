@@ -28,14 +28,14 @@ struct register_analysis {
     const char* ui_name;       /* Name used for UI */
     int proto_id;              /* protocol id (0-indexed) */
     const char* tap_listen_str;      /* string used in register_tap_listener (NULL to use protocol name) */
-    guint tap_flags;
+    unsigned tap_flags;
     tap_packet_cb analysis_func;    /* function to be called for new incoming packets for sequence analysis */
 };
 
 static wmem_tree_t *registered_seq_analysis;
 
 void
-register_seq_analysis(const char* name, const char* ui_name, const int proto_id, const char* tap_listener, guint tap_flags, tap_packet_cb tap_func)
+register_seq_analysis(const char* name, const char* ui_name, const int proto_id, const char* tap_listener, unsigned tap_flags, tap_packet_cb tap_func)
 {
     register_analysis_t* analysis;
 
@@ -79,7 +79,7 @@ tap_packet_cb sequence_analysis_get_packet_func(register_analysis_t* analysis)
     return analysis->analysis_func;
 }
 
-guint sequence_analysis_get_tap_flags(register_analysis_t* analysis)
+unsigned sequence_analysis_get_tap_flags(register_analysis_t* analysis)
 {
     return analysis->tap_flags;
 }
@@ -90,7 +90,7 @@ register_analysis_t* sequence_analysis_find_by_name(const char* name)
     return (register_analysis_t*)wmem_tree_lookup_string(registered_seq_analysis, name, 0);
 }
 
-void sequence_analysis_table_iterate_tables(wmem_foreach_func func, gpointer user_data)
+void sequence_analysis_table_iterate_tables(wmem_foreach_func func, void *user_data)
 {
     wmem_tree_foreach(registered_seq_analysis, func, user_data);
 }
@@ -128,14 +128,14 @@ void sequence_analysis_use_color_filter(packet_info *pinfo, seq_analysis_item_t 
     if (pinfo->fd->color_filter) {
         sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
         sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
-        sai->has_color_filter = TRUE;
+        sai->has_color_filter = true;
     }
 }
 
 void sequence_analysis_use_col_info_as_label_comment(packet_info *pinfo, seq_analysis_item_t *sai)
 {
-    const gchar *protocol = NULL;
-    const gchar *colinfo = NULL;
+    const char *protocol = NULL;
+    const char *colinfo = NULL;
 
     if (pinfo->cinfo) {
         colinfo = col_get_text(pinfo->cinfo, COL_INFO);
@@ -183,7 +183,7 @@ void sequence_analysis_info_free(seq_analysis_info_t *sainfo)
     g_free(sainfo);
 }
 
-static void sequence_analysis_item_free(gpointer data)
+static void sequence_analysis_item_free(void *data)
 {
     seq_analysis_item_t *seq_item = (seq_analysis_item_t *)data;
     g_free(seq_item->frame_label);
@@ -207,8 +207,8 @@ static void sequence_analysis_item_free(gpointer data)
 
 
 /* compare two list entries by packet no */
-static gint
-sequence_analysis_sort_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+static int
+sequence_analysis_sort_compare(const void *a, const void *b, void *user_data _U_)
 {
     const seq_analysis_item_t *entry_a = (const seq_analysis_item_t *)a;
     const seq_analysis_item_t *entry_b = (const seq_analysis_item_t *)b;
@@ -254,8 +254,8 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
  * and Return -2 if the array is full
  */
 /****************************************************************************/
-static guint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
-    guint i;
+static unsigned add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
+    unsigned i;
 
     if (node->type == AT_NONE) return NODE_OVERFLOW;
 
@@ -278,8 +278,8 @@ static guint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
  * value is 0 for the first occurrence, 1 for the second, and we never go higher to not have
  * too many Y-Axis in the diagram.
  */
-static guint add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, guint8 occurrence) {
-    guint i;
+static unsigned add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, uint8_t occurrence) {
+    unsigned i;
 
     if (node->type == AT_NONE) return NODE_OVERFLOW;
 
@@ -309,7 +309,7 @@ struct sainfo_counter {
     int num_items;
 };
 
-static void sequence_analysis_get_nodes_item_proc(gpointer data, gpointer user_data)
+static void sequence_analysis_get_nodes_item_proc(void *data, void *user_data)
 {
     seq_analysis_item_t *gai = (seq_analysis_item_t *)data;
     struct sainfo_counter *sc = (struct sainfo_counter *)user_data;
@@ -375,9 +375,9 @@ sequence_analysis_free_nodes(seq_analysis_info_t *sainfo)
 /* Adds trailing characters to complete the requested length.               */
 /****************************************************************************/
 
-static void enlarge_string(GString *gstr, guint32 length, char pad) {
+static void enlarge_string(GString *gstr, uint32_t length, char pad) {
 
-    gsize i;
+    size_t i;
 
     for (i = gstr->len; i < length; i++) {
         g_string_append_c(gstr, pad);
@@ -390,11 +390,11 @@ static void enlarge_string(GString *gstr, guint32 length, char pad) {
 /*   NB: it does not check that p1 and p2 fit into string                   */
 /****************************************************************************/
 
-static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 p2) {
+static void overwrite (GString *gstr, char *text_to_insert, uint32_t p1, uint32_t p2) {
 
     glong len, ins_len;
-    gsize pos;
-    gchar *ins_str = NULL;
+    size_t pos;
+    char *ins_str = NULL;
 
     if (p1 == p2)
         return;
@@ -430,12 +430,12 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 void
 sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned int first_node)
 {
-    guint32  i, display_items, display_nodes;
-    guint32  start_position, end_position, item_width, header_length;
+    uint32_t i, display_items, display_nodes;
+    uint32_t start_position, end_position, item_width, header_length;
     seq_analysis_item_t *sai;
-    guint16  first_conv_num = 0;
-    gboolean several_convs  = FALSE;
-    gboolean first_packet   = TRUE;
+    uint16_t first_conv_num = 0;
+    bool several_convs  = false;
+    bool first_packet   = true;
 
     GString    *label_string, *empty_line, *separator_line, *tmp_str, *tmp_str2;
     const char *empty_header;
@@ -458,10 +458,10 @@ sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned 
         display_items += 1;
         if (first_packet) {
             first_conv_num = sai->conv_num;
-            first_packet = FALSE;
+            first_packet = false;
         }
         else if (sai->conv_num != first_conv_num) {
-            several_convs = TRUE;
+            several_convs = true;
         }
     }
 
@@ -530,7 +530,7 @@ sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned 
 
     g_string_append_c(empty_line, '|');
 
-    enlarge_string(separator_line, (guint32) empty_line->len + header_length, '-');
+    enlarge_string(separator_line, (uint32_t) empty_line->len + header_length, '-');
 
     /*
      * Draw the items
@@ -627,11 +627,11 @@ sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned 
         fprintf(of, "%s\n", tmp_str->str);
     }
 
-    g_string_free(label_string, TRUE);
-    g_string_free(empty_line, TRUE);
-    g_string_free(separator_line, TRUE);
-    g_string_free(tmp_str, TRUE);
-    g_string_free(tmp_str2, TRUE);
+    g_string_free(label_string, true);
+    g_string_free(empty_line, true);
+    g_string_free(separator_line, true);
+    g_string_free(tmp_str, true);
+    g_string_free(tmp_str2, true);
 }
 
 /*

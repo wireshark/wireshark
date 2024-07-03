@@ -42,36 +42,36 @@ typedef enum _ga_info_type {
 
 /** defines an entry for the graph analysis */
 typedef struct _seq_analysis_item {
-    guint32 frame_number;
+    uint32_t frame_number;
     address src_addr;
-    guint16 port_src;
+    uint16_t port_src;
     address dst_addr;
-    guint16 port_dst;
-    gchar *frame_label;                 /**< the label on top of the arrow */
-    gchar *time_str;                    /**< timestamp */
-    gchar *comment;                     /**< a comment that appears at the right of the graph */
-    guint16 conv_num;                   /**< The conversation number. Used for coloring VoIP calls. */
-    unsigned fg_color;                  /**< Foreground color, 0xRRGGBB. Qt only. */
-    unsigned bg_color;                  /**< Background color, 0xRRGGBB. Qt only. */
-    gboolean has_color_filter;          /**< Set if packet has color filter. Qt only. */
-    gboolean display;                   /**< indicate if the packet is displayed or not in the graph */
-    guint src_node;                     /**< this is used by graph_analysis.c to identify the node */
-    guint dst_node;                     /**< a node is an IP address that will be displayed in columns */
-    guint16 line_style;                 /**< the arrow line width in pixels*/
-    ga_info_type info_type;             /**< type of info for item */
-    gpointer info_ptr;                  /**< ptr to info for item */
+    uint16_t port_dst;
+    char *frame_label;              /**< the label on top of the arrow */
+    char *time_str;                 /**< timestamp */
+    char *comment;                  /**< a comment that appears at the right of the graph */
+    uint16_t conv_num;              /**< The conversation number. Used for coloring VoIP calls. */
+    unsigned fg_color;              /**< Foreground color, 0xRRGGBB. Qt only. */
+    unsigned bg_color;              /**< Background color, 0xRRGGBB. Qt only. */
+    bool has_color_filter;          /**< Set if packet has color filter. Qt only. */
+    bool display;                   /**< indicate if the packet is displayed or not in the graph */
+    unsigned src_node;              /**< this is used by graph_analysis.c to identify the node */
+    unsigned dst_node;              /**< a node is an IP address that will be displayed in columns */
+    uint16_t line_style;            /**< the arrow line width in pixels*/
+    ga_info_type info_type;         /**< type of info for item */
+    void *info_ptr;                 /**< ptr to info for item */
 } seq_analysis_item_t;
 
 /** defines the graph analysis structure */
 typedef struct _seq_analysis_info {
-    const char* name;        /**< Name of sequence analysis */
-    gboolean    any_addr;    /**< any addr (DL+net) vs net-only */
-    int         nconv;       /**< number of conversations in the list */
-    GQueue*     items;       /**< list of seq_analysis_info_t */
-    GHashTable *ht;          /**< hash table of seq_analysis_info_t */
+    const char* name;                  /**< Name of sequence analysis */
+    bool        any_addr;              /**< any addr (DL+net) vs net-only */
+    int         nconv;                 /**< number of conversations in the list */
+    GQueue*     items;                 /**< list of seq_analysis_info_t */
+    GHashTable *ht;                    /**< hash table of seq_analysis_info_t */
     address nodes[MAX_NUM_NODES];      /**< horizontal node list */
-    guint8  occurrence[MAX_NUM_NODES]; /**< horizontal occurrence list 0|1 */
-    guint32 num_nodes;       /**< actual number of nodes */
+    uint8_t occurrence[MAX_NUM_NODES]; /**< horizontal occurrence list 0|1 */
+    uint32_t num_nodes;                /**< actual number of nodes */
 } seq_analysis_info_t;
 
 /** Structure for information about a registered sequence analysis function */
@@ -87,7 +87,7 @@ typedef struct register_analysis register_analysis_t;
 #define SEQ_ANALYSIS_DEBUG()
 #endif
 
-WS_DLL_PUBLIC void register_seq_analysis(const char* name, const char* ui_name, const int proto_id, const char* tap_listener, guint tap_flags, tap_packet_cb tap_func);
+WS_DLL_PUBLIC void register_seq_analysis(const char* name, const char* ui_name, const int proto_id, const char* tap_listener, unsigned tap_flags, tap_packet_cb tap_func);
 
 /** Helper function to get sequence analysis name
  *
@@ -122,7 +122,7 @@ WS_DLL_PUBLIC tap_packet_cb sequence_analysis_get_packet_func(register_analysis_
  * @param analysis Registered sequence analysis
  * @return sequence analysis tap flags
  */
-WS_DLL_PUBLIC guint sequence_analysis_get_tap_flags(register_analysis_t* analysis);
+WS_DLL_PUBLIC unsigned sequence_analysis_get_tap_flags(register_analysis_t* analysis);
 
 /** Helper function to create a sequence analysis item with address fields populated
  * Allocate a seq_analysis_item_t to return and populate the time_str and src_addr and dst_addr
@@ -160,7 +160,7 @@ WS_DLL_PUBLIC register_analysis_t* sequence_analysis_find_by_name(const char* na
  * @param func action to be performed on all sequence_analysis tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void sequence_analysis_table_iterate_tables(wmem_foreach_func func, gpointer user_data);
+WS_DLL_PUBLIC void sequence_analysis_table_iterate_tables(wmem_foreach_func func, void *user_data);
 
 /** Create and initialize a seq_analysis_info_t struct
  * @return A pointer to a newly allocated seq_analysis_info_t struct.
@@ -203,7 +203,7 @@ WS_DLL_PUBLIC void sequence_analysis_free_nodes(seq_analysis_info_t *sainfo);
  * @param sainfo Sequence analysis information.
  * @param first_node Start drawing at this node.
  */
-WS_DLL_PUBLIC void sequence_analysis_dump_to_file(FILE *of, seq_analysis_info_t *sainfo, unsigned int first_node);
+WS_DLL_PUBLIC void sequence_analysis_dump_to_file(FILE *of, seq_analysis_info_t *sainfo, unsigned first_node);
 
 #ifdef __cplusplus
 }
