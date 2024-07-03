@@ -31,7 +31,7 @@
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
 static char* json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length_ptr);
-static const char* get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, gboolean remove_quotes);
+static const char* get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quotes);
 
 static dissector_handle_t json_handle;
 static dissector_handle_t json_file_handle;
@@ -65,20 +65,20 @@ static int hf_json_value_number;
 static int hf_json_value_string;
 static int hf_json_value_true;
 
-static gint ett_json;
-static gint ett_json_array;
-static gint ett_json_object;
-static gint ett_json_member;
+static int ett_json;
+static int ett_json_array;
+static int ett_json_object;
+static int ett_json_member;
 /* Define the trees for json compact form */
-static gint ett_json_compact;
-static gint ett_json_array_compact;
-static gint ett_json_object_compact;
-static gint ett_json_member_compact;
+static int ett_json_compact;
+static int ett_json_array_compact;
+static int ett_json_object_compact;
+static int ett_json_member_compact;
 /* Define the trees for json raw form */
-static gint ett_json_raw;
-static gint ett_json_array_raw;
-static gint ett_json_object_raw;
-static gint ett_json_member_raw;
+static int ett_json_raw;
+static int ett_json_array_raw;
+static int ett_json_object_raw;
+static int ett_json_member_raw;
 
 /* Preferences */
 static bool json_compact;
@@ -87,9 +87,9 @@ static bool json_raw;
 
 /* Determine whether to hide the tree of original form or root item of compact or raw form
  * based on the enabled status of compact_form and raw_form preferences.
- * If the preference auto_hide is TRUE and compact_form or raw_form is TRUE, hide the tree of
- * original form. If the preference auto_hide is TRUE and only one of preference of
- * compact_form or raw_form is TRUE, then hide the root item of compact or raw form and put
+ * If the preference auto_hide is true and compact_form or raw_form is true, hide the tree of
+ * original form. If the preference auto_hide is true and only one of preference of
+ * compact_form or raw_form is true, then hide the root item of compact or raw form and put
  * the content of compact or raw form under the tree item of JSON protocol directly.
  */
 static bool auto_hide;
@@ -161,7 +161,7 @@ typedef struct {
 static void
 json_array_index_increment(json_parser_data_t *data)
 {
-	gint idx = GPOINTER_TO_INT(wmem_stack_pop(data->array_idx));
+	int idx = GPOINTER_TO_INT(wmem_stack_pop(data->array_idx));
 	idx++;
 	wmem_stack_push(data->array_idx, GINT_TO_POINTER(idx));
 }
@@ -189,7 +189,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 			break;
 		}
 
-		guint8 current_character = string[read_index];
+		uint8_t current_character = string[read_index];
 
 		// character that IS NOT escaped
 		if (current_character != '\\')
@@ -263,15 +263,15 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 			{
 				read_index++;
 
-				guint32 code_point = 0;
-				gboolean is_valid_unicode_character = TRUE;
+				uint32_t code_point = 0;
+				bool is_valid_unicode_character = true;
 
 				for (int i = 0; i < 4; i++)
 				{
 					// Do not overflow input string
 					if (!(read_index < string_length))
 					{
-						is_valid_unicode_character = FALSE;
+						is_valid_unicode_character = false;
 						break;
 					}
 
@@ -282,7 +282,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 
 					if(nibble < 0)
 					{
-						is_valid_unicode_character = FALSE;
+						is_valid_unicode_character = false;
 						break;
 					}
 
@@ -311,8 +311,8 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 
 						current_character = string[read_index];
 						if (current_character == 'u') {
-							guint16 lead_surrogate = code_point;
-							guint16 trail_surrogate = 0;
+							uint16_t lead_surrogate = code_point;
+							uint16_t trail_surrogate = 0;
 
 							read_index++;
 
@@ -321,7 +321,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 								// Do not overflow input string
 								if (!(read_index < string_length))
 								{
-									is_valid_unicode_character = FALSE;
+									is_valid_unicode_character = false;
 									break;
 								}
 
@@ -332,7 +332,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 
 								if (nibble < 0)
 								{
-									is_valid_unicode_character = FALSE;
+									is_valid_unicode_character = false;
 									break;
 								}
 
@@ -346,31 +346,31 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 							}
 							else
 							{
-								is_valid_unicode_character = FALSE;
+								is_valid_unicode_character = false;
 							}
 						}
 						else
 						{
 							read_index++;
-							is_valid_unicode_character = FALSE;
+							is_valid_unicode_character = false;
 						}
 					}
 					else
 					{
 						read_index++;
-						is_valid_unicode_character = FALSE;
+						is_valid_unicode_character = false;
 					}
 				}
 				else if ((IS_TRAIL_SURROGATE(code_point)))
 				{
-					is_valid_unicode_character = FALSE;
+					is_valid_unicode_character = false;
 				}
 
 				if (is_valid_unicode_character)
 				{
 					if (g_unichar_validate(code_point) && g_unichar_isprint(code_point))
 					{
-						gchar length_test_buffer[6];
+						char length_test_buffer[6];
 						int utf8_character_length = (int)g_unichar_to_utf8(code_point, length_test_buffer);
 
 						for (int i = 0; i < utf8_character_length; i++)
@@ -403,7 +403,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 /* This functions allocates memory with packet_scope but the returned pointer
  * cannot be freed. */
 static const char*
-get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, gboolean remove_quotes)
+get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quotes)
 {
 	char *string;
 	size_t length;
@@ -432,7 +432,7 @@ get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, gboolean remove_q
 GHashTable* json_header_fields_hash;
 
 static proto_item*
-json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, packet_info* pinfo, gboolean use_compact)
+json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, packet_info* pinfo, bool use_compact)
 {
 	proto_item* ti;
 	int hf_id;
@@ -569,7 +569,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	{
 		while (offset < buffer_length)
 		{
-			guint8 current_character = tvb_get_guint8(tvb, offset);
+			uint8_t current_character = tvb_get_guint8(tvb, offset);
 			if (current_character == '[' || current_character == '{')
 			{
 				break;
@@ -659,7 +659,7 @@ before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		proto_tree *subtree_compact;
 		proto_item *ti_compact;
 
-		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		if (JSON_INSIDE_ARRAY(idx)) {
 			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_object_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
@@ -709,7 +709,7 @@ after_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t* 
 		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
 		proto_item *parent_item = proto_tree_get_parent(tree_compact);
 
-		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		if (JSON_OBJECT_SET_HAS_KEY(idx))
 			proto_item_append_text(parent_item, " {...}");
@@ -747,7 +747,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	proto_tree *subtree;
 	proto_item *ti;
 
-	const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, tok->sub, TRUE);
+	const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, tok->sub, true);
 
 	ti = proto_tree_add_string(tree, hf_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
 
@@ -773,7 +773,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo, TRUE);
+			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo, true);
 			if (!ti_compact) {
 				ti_compact = proto_tree_add_none_format(tree_compact, hf_json_member_compact, tok->tvb, tok->offset, tok->len, "\"%s\":", key_string_without_quotation_marks);
 			}
@@ -796,7 +796,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		}
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_raw = json_key_lookup(tree_raw, tok, key_string_without_quotation_marks, data->pinfo, TRUE);
+			ti_raw = json_key_lookup(tree_raw, tok, key_string_without_quotation_marks, data->pinfo, true);
 			if (!ti_raw) {
 				ti_raw = proto_tree_add_none_format(tree_raw, hf_json_member_raw, tok->tvb, tok->offset, tok->len, "\"%s\":", key_string_without_quotation_marks);
 			}
@@ -821,7 +821,7 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	tvbparse_elem_t* key_tok = tok->sub;
 	if (tree && key_tok && key_tok->id == JSON_TOKEN_STRING) {
 
-		const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, key_tok, TRUE);
+		const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, key_tok, true);
 
 		proto_tree_add_string(tree, hf_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
 	}
@@ -877,14 +877,14 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	wmem_stack_push(data->stack_path, "[]");
 
 	// Try key_lookup
-	json_key_lookup(tree, tok, last_key_string, data->pinfo, FALSE);
+	json_key_lookup(tree, tok, last_key_string, data->pinfo, false);
 
 	if (json_compact) {
 		proto_tree* tree_compact = (proto_tree*)wmem_stack_peek(data->stack_compact);
 		proto_tree* subtree_compact;
 		proto_item* ti_compact;
 
-		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		if (JSON_INSIDE_ARRAY(idx)) {
 			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_array_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
@@ -938,7 +938,7 @@ after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t* t
 		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
 		proto_item *parent_item = proto_tree_get_parent(tree_compact);
 
-		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 		if (idx == 0)
 			proto_item_append_text(parent_item, " []");
 		else
@@ -987,11 +987,11 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 	const char* value_str = NULL;
 	if (value_id == JSON_TOKEN_STRING && tok->len >= 2)
 	{
-		value_str = get_json_string(data->pinfo->pool, tok, TRUE);
+		value_str = get_json_string(data->pinfo->pool, tok, true);
 	}
 	else
 	{
-		value_str = get_json_string(data->pinfo->pool, tok, FALSE);
+		value_str = get_json_string(data->pinfo->pool, tok, false);
 	}
 
 	char* path_with_value = join_strings(data->pinfo->pool, path, value_str, ':');
@@ -1016,7 +1016,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 			if (tok->len >= 2) {
 				// Try key_lookup
 				proto_item *key_lookup = NULL;
-				key_lookup = json_key_lookup(tree, tok, key_string, data->pinfo, FALSE);
+				key_lookup = json_key_lookup(tree, tok, key_string, data->pinfo, false);
 				if (!key_lookup) {
 					proto_tree_add_string(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
 				}
@@ -1061,7 +1061,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 	if (json_compact) {
 		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
 
-		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		char *val_str = tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
@@ -1114,7 +1114,7 @@ init_json_parser(void) {
 
 	want_string = tvbparse_set_seq(JSON_TOKEN_STRING, NULL, NULL, NULL,
 			want_quot,
-			tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL,
+			tvbparse_some(-1, 0, INT_MAX, NULL, NULL, NULL,
 				tvbparse_set_oneof(-1, NULL, NULL, NULL,
 					tvbparse_not_chars(-1, 0, 0, "\"" "\\", NULL, NULL, NULL), /* XXX, without invalid unicode characters */
 					tvbparse_set_seq(-1, NULL, NULL, NULL,
@@ -1183,7 +1183,7 @@ init_json_parser(void) {
 			tvbparse_optional(-1, NULL, NULL, NULL,
 				tvbparse_set_seq(-1, NULL, NULL, NULL,
 					want_value,
-					tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL,
+					tvbparse_some(-1, 0, INT_MAX, NULL, NULL, NULL,
 						tvbparse_set_seq(-1, NULL, NULL, NULL,
 							want_value_separator,
 							want_value,
@@ -1207,7 +1207,7 @@ init_json_parser(void) {
 			tvbparse_optional(-1, NULL, NULL, NULL,
 				tvbparse_set_seq(-1, NULL, NULL, NULL,
 					want_member,
-					tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL,
+					tvbparse_some(-1, 0, INT_MAX, NULL, NULL, NULL,
 						tvbparse_set_seq(-1, NULL, NULL, NULL,
 							want_value_separator,
 							want_member,
@@ -1234,10 +1234,10 @@ init_json_parser(void) {
 static bool
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint len = tvb_captured_length(tvb);
-	const guint8* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
+	unsigned len = tvb_captured_length(tvb);
+	const uint8_t* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
 
-	if (json_validate(buf, len) == FALSE)
+	if (json_validate(buf, len) == false)
 		return false;
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
@@ -1247,7 +1247,7 @@ dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static bool
 dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
+	unsigned acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
 	if (acdr_prot == ACDR_VoiceAI)
 		return dissect_json_heur(tvb, pinfo, tree, data);
 	return false;
@@ -1382,7 +1382,7 @@ proto_register_json(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_json,
 		&ett_json_array,
 		&ett_json_object,
