@@ -537,7 +537,11 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * Support protocols which have a variable length which cannot
        * always be determined within the given fixed_len.
        */
-      DISSECTOR_ASSERT(proto_desegment && pinfo->can_desegment);
+      /*
+       * If another segment was requested but we can't do reassembly,
+       * abort and warn about the unreassembled packet.
+       */
+      THROW_ON(!(proto_desegment && pinfo->can_desegment), FragmentBoundsError);
       pinfo->desegment_offset = offset;
       pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
       return;

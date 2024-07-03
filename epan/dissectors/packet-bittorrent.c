@@ -414,18 +414,16 @@ get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
          }
       } else {
          /* We don't have the type field, so we can't determine
-            whether this is a valid message.  For now, we assume
-            it's continuation data from the middle of a message,
-            and just return the remaining length in the tvbuff so
-            the rest of the tvbuff is displayed as continuation
-            data. */
-         return tvb_reported_length_remaining(tvb, offset);
+            whether this is a valid message.  Return 0, which
+            tcp_dissect_pdus (and utp_dissect_pdus) treats as
+            "variable length, needs one more segment". */
+         return 0;
       }
    }
 }
 
 static void
-dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bittorrent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    int         offset  = 0;
    int         i;
@@ -442,9 +440,20 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint32     stringlen;
    tvbuff_t   *subtvb;
 
+   /* Guaranteed BITTORRENT_HEADER_LENGTH by tcp_dissect_pdus */
+   length = tvb_get_ntohl(tvb, offset);
+
+   /* Keepalive message */
+   if (length == 0) {
+      ti = proto_tree_add_item(tree, hf_bittorrent_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, ENC_NA);
+      mtree = proto_item_add_subtree(ti, ett_bittorrent_msg);
+      proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, ENC_BIG_ENDIAN);
+      col_set_str(pinfo->cinfo, COL_INFO, "KeepAlive");
+      return;
+   }
+
    if (tvb_bytes_exist(tvb, offset + BITTORRENT_HEADER_LENGTH, 1)) {
       /* Check for data from the middle of a message. */
-      length = tvb_get_ntohl(tvb, offset);
       type = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH);
 
       if (type==BITTORRENT_MESSAGE_CHOKE && length>4) {
@@ -503,13 +512,6 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(tree, hf_bittorrent_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, ENC_NA);
    }
    mtree = proto_item_add_subtree(ti, ett_bittorrent_msg);
-
-   /* Keepalive message */
-   if (length == 0) {
-      proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, ENC_BIG_ENDIAN);
-      col_set_str(pinfo->cinfo, COL_INFO, "KeepAlive");
-      return;
-   }
 
    proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, ENC_BIG_ENDIAN);
    offset += BITTORRENT_HEADER_LENGTH;
