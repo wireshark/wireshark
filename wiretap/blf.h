@@ -529,6 +529,12 @@ typedef struct blf_linsenderror {
     uint8_t  fullTime;
 } blf_linsenderror_t;
 
+typedef struct blf_linwakeupevent {
+    uint16_t    channel;
+    uint8_t     signal;
+    uint8_t     external;
+} blf_linwakeupevent_t;
+
 typedef struct blf_linbusevent {
     uint64_t sof;
     uint32_t eventBaudrate;

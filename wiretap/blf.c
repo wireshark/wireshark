@@ -2419,6 +2419,47 @@ blf_read_linsenderror(blf_params_t* params, int* err, char** err_info, int64_t b
 }
 
 static bool
+blf_read_linwakeupevent(blf_params_t* params, int* err, char** err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
+    blf_linwakeupevent_t    linevent;
+
+    if (object_length < (data_start - block_start) + (int)sizeof(linevent)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: LIN_WAKEUP: not enough bytes for linwakeup in object");
+        ws_debug("not enough bytes for linwakeup in object");
+        return false;
+    }
+
+    if (!blf_read_bytes(params, data_start, &linevent, sizeof(linevent), err, err_info)) {
+        ws_debug("not enough bytes for linwakeup in file");
+        return false;
+    }
+    linevent.channel = GUINT16_FROM_LE(linevent.channel);
+
+    uint8_t tmpbuf[12]; /* LIN events have a fixed length of 12 bytes */
+    tmpbuf[0] = 1; /* message format rev = 1 */
+    tmpbuf[1] = 0; /* reserved */
+    tmpbuf[2] = 0; /* reserved */
+    tmpbuf[3] = 0; /* reserved */
+    tmpbuf[4] = 3 << 2; /* dlc (4bit) | type (2bit) | checksum type (2bit) */
+    tmpbuf[5] = 0; /* parity (2bit) | id (6bit) */
+    tmpbuf[6] = 0; /* checksum */
+    tmpbuf[7] = 0; /* errors */
+
+    /* Wake-up event */
+    tmpbuf[8] = 0xB0;
+    tmpbuf[9] = 0xB0;
+    tmpbuf[10] = 0x00;
+    tmpbuf[11] = 0x04;
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linevent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
+
+    return true;
+}
+
+static bool
 blf_read_linmessage2(blf_params_t* params, int* err, char** err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp, uint16_t object_version) {
     blf_linmessage2_t         linmessage;
 
@@ -3526,6 +3567,10 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_LIN_SND_ERROR:
             return blf_read_linsenderror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            break;
+
+        case BLF_OBJTYPE_LIN_WAKEUP:
+            return blf_read_linwakeupevent(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
             break;
 
         case BLF_OBJTYPE_LIN_MESSAGE2:
