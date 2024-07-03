@@ -2984,6 +2984,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
 
         default:
             pkt_encap = 0xffffffff;
+            break;
         }
 
         /* we use lookup to create interface, if not existing yet */
@@ -3294,6 +3295,7 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             *err_info = ws_strdup_printf("blf: unknown header type %u", header.header_type);
             ws_debug("unknown header type");
             return false;
+            break;
         }
 
         if (metadata_cont && header.object_type != BLF_OBJTYPE_APP_TEXT) {
@@ -3391,6 +3393,7 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_LIN_SND_ERROR:
             return blf_read_linsenderror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            break;
 
         case BLF_OBJTYPE_LIN_MESSAGE2:
             return blf_read_linmessage2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
@@ -3402,6 +3405,7 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_LIN_SND_ERROR2:
             return blf_read_linsenderror2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
+            break;
 
         case BLF_OBJTYPE_APP_TEXT:
         {
@@ -3426,16 +3430,19 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             switch (result) {
                 case BLF_APPTEXT_FAILED:
                     return false;
+                    break;
                 case BLF_APPTEXT_COMMENT:
                 case BLF_APPTEXT_METADATA:
                 case BLF_APPTEXT_ATTACHMENT:
                 case BLF_APPTEXT_TRACELINE:
                     return true;
+                    break;
                 case BLF_APPTEXT_CHANNEL:
                 case BLF_APPTEXT_CONT:
                 default:
                     /* we do not return since there is no packet to show here */
                     start_pos += MAX(MAX(16, header.object_length), header.header_length);
+                    break;
             }
         }
             break;
