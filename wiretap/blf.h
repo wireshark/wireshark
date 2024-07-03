@@ -505,6 +505,20 @@ typedef struct blf_linmessage {
 */
 } blf_linmessage_t;
 
+typedef struct blf_linrcverror {
+    uint16_t channel;
+    uint8_t  id;
+    uint8_t  dlc;
+    uint8_t  fsmId;
+    uint8_t  fsmState;
+    uint8_t  headerTime;
+    uint8_t  fullTime;
+    uint8_t  stateReason;
+    uint8_t  offendingByte;
+    uint8_t  shortError;
+    uint8_t  timeoutDuringDlcDetection;
+} blf_linrcverror_t;
+
 typedef struct blf_linsenderror {
     uint16_t channel;
     uint8_t  id;
