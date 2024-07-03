@@ -635,6 +635,14 @@ typedef struct blf_linsenderror2 {
 */
 } blf_linsenderror2_t;
 
+typedef struct blf_linwakeupevent2 {
+    blf_linbusevent_t   linBusEvent;
+    uint8_t             lengthInfo; /* Wake-up lenght: 0 = OK; 1 = Too short; 2 = Too long. */
+    uint8_t             signal;
+    uint8_t             external;
+    uint8_t             res;
+} blf_linwakeupevent2_t;
+
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/AppText.h */
 

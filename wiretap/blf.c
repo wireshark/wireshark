@@ -603,6 +603,13 @@ fix_endianness_blf_linsenderror2(blf_linsenderror2_t* message) {
 }
 
 static void
+fix_endianness_blf_linwakeupevent2(blf_linwakeupevent2_t* message) {
+    message->linBusEvent.sof = GUINT64_FROM_LE(message->linBusEvent.sof);
+    message->linBusEvent.eventBaudrate = GUINT32_FROM_LE(message->linBusEvent.eventBaudrate);
+    message->linBusEvent.channel = GUINT16_FROM_LE(message->linBusEvent.channel);
+}
+
+static void
 fix_endianness_blf_apptext_header(blf_apptext_t *header) {
     header->source = GUINT32_FROM_LE(header->source);
     header->reservedAppText1 = GUINT32_FROM_LE(header->reservedAppText1);
@@ -2692,6 +2699,47 @@ blf_read_linsenderror2(blf_params_t* params, int* err, char** err_info, int64_t 
     return true;
 }
 
+static bool
+blf_read_linwakeupevent2(blf_params_t* params, int* err, char** err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
+    blf_linwakeupevent2_t   linevent;
+
+    if (object_length < (data_start - block_start) + (int)sizeof(linevent)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: LIN_WAKEUP2: not enough bytes for linwakeup2 in object");
+        ws_debug("not enough bytes for linwakeup2 in object");
+        return false;
+    }
+
+    if (!blf_read_bytes(params, data_start, &linevent, sizeof(linevent), err, err_info)) {
+        ws_debug("not enough bytes for linwakeup2 in file");
+        return false;
+    }
+    fix_endianness_blf_linwakeupevent2(&linevent);
+
+    uint8_t tmpbuf[12]; /* LIN events have a fixed length of 12 bytes */
+    tmpbuf[0] = 1; /* message format rev = 1 */
+    tmpbuf[1] = 0; /* reserved */
+    tmpbuf[2] = 0; /* reserved */
+    tmpbuf[3] = 0; /* reserved */
+    tmpbuf[4] = 3 << 2; /* dlc (4bit) | type (2bit) | checksum type (2bit) */
+    tmpbuf[5] = 0; /* parity (2bit) | id (6bit) */
+    tmpbuf[6] = 0; /* checksum */
+    tmpbuf[7] = 0; /* errors */
+
+    /* Wake-up event */
+    tmpbuf[8] = 0xB0;
+    tmpbuf[9] = 0xB0;
+    tmpbuf[10] = 0x00;
+    tmpbuf[11] = 0x04;
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linevent.linBusEvent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
+
+    return true;
+}
+
 uint16_t blf_get_xml_channel_number(const char* start, const char* end) {
     char* text;
     size_t len;
@@ -3587,6 +3635,10 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_LIN_SND_ERROR2:
             return blf_read_linsenderror2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
+            break;
+
+        case BLF_OBJTYPE_LIN_WAKEUP2:
+            return blf_read_linwakeupevent2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
             break;
 
         case BLF_OBJTYPE_APP_TEXT:
