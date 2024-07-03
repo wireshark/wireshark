@@ -93,11 +93,10 @@ the same way *Capinfos* handles this.
 == OPTIONS
 
 -a::
-Displays the start time of the capture.  *Capinfos* considers
-the earliest timestamp seen to be the start time, so the
-first packet in the capture is not necessarily the earliest -
-if packets exist "out-of-order", time-wise, in the capture,
-*Capinfos* detects this.
+Displays the timestamp of the earliest packet in the capture. The
+earliest packet in the capture is not necessarily the first packet in
+the capture - if packets exist "out-of-order", time-wise, in the
+capture, *Capinfos* detects this.
 
 -A::
 Generate all infos. By default *Capinfos* will display
@@ -162,11 +161,10 @@ Displays a count of the number of decryption secrets in the file. This informati
 is not available in table format.
 
 -e::
-Displays the end time of the capture.  *Capinfos* considers
-the latest timestamp seen to be the end time, so the
-last packet in the capture is not necessarily the latest -
-if packets exist "out-of-order", time-wise, in the capture,
-*Capinfos* detects this.
+Displays the timestamp of the latest packet in the capture. The latest
+packet in the capture is not necessarily the last packet in the capture
+- if packets exist "out-of-order", time-wise, in the capture, *Capinfos*
+detects this.
 
 -E::
 Displays the per-file encapsulation of the capture file.
@@ -285,8 +283,8 @@ Displays the size of the file, in bytes.  This reports
 the size of the capture file itself.
 
 -S::
-Display the start and end times as seconds since January
-1, 1970. Handy for synchronizing dumps using *editcap -t*.
+Display the earliest and latest packet timestamps as seconds since
+January 1, 1970. Handy for synchronizing dumps using *editcap -t*.
 
 -t::
 Displays the capture type of the capture file.
