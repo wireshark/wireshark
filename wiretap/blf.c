@@ -522,18 +522,38 @@ fix_endianness_blf_linmessage(blf_linmessage_t* message) {
 }
 
 static void
-fix_endianness_blf_linmessage2(blf_linmessage2_t* message) {
+fix_endianness_blf_linbusevent(blf_linbusevent_t* linbusevent) {
+    linbusevent->sof = GUINT64_FROM_LE(linbusevent->sof);
+    linbusevent->eventBaudrate = GUINT32_FROM_LE(linbusevent->eventBaudrate);
+    linbusevent->channel = GUINT16_FROM_LE(linbusevent->channel);
+}
+
+static void
+fix_endianness_blf_linsynchfieldevent(blf_linsynchfieldevent_t* linsynchfieldevent) {
+    fix_endianness_blf_linbusevent(&linsynchfieldevent->linBusEvent);
+    linsynchfieldevent->synchBreakLength = GUINT64_FROM_LE(linsynchfieldevent->synchBreakLength);
+    linsynchfieldevent->synchDelLength = GUINT64_FROM_LE(linsynchfieldevent->synchDelLength);
+}
+
+static void
+fix_endianness_blf_linmessagedescriptor(blf_linmessagedescriptor_t* linmessagedescriptor) {
+    fix_endianness_blf_linsynchfieldevent(&linmessagedescriptor->linSynchFieldEvent);
+    linmessagedescriptor->supplierId = GUINT16_FROM_LE(linmessagedescriptor->supplierId);
+    linmessagedescriptor->messageId = GUINT16_FROM_LE(linmessagedescriptor->messageId);
+}
+
+static void
+fix_endianness_blf_lindatabytetimestampevent(blf_lindatabytetimestampevent_t* lindatabytetimestampevent) {
     int i;
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate = GUINT32_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchBreakLength = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchBreakLength);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchDelLength = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchDelLength);
-    message->linDataByteTimestampEvent.linMessageDescriptor.supplierId = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.supplierId);
-    message->linDataByteTimestampEvent.linMessageDescriptor.messageId = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.messageId);
+    fix_endianness_blf_linmessagedescriptor(&lindatabytetimestampevent->linMessageDescriptor);
     for (i = 0; i < 9; i++) {
-        message->linDataByteTimestampEvent.databyteTimestamps[i] = GUINT64_FROM_LE(message->linDataByteTimestampEvent.databyteTimestamps[i]);
+        lindatabytetimestampevent->databyteTimestamps[i] = GUINT64_FROM_LE(lindatabytetimestampevent->databyteTimestamps[i]);
     }
+}
+
+static void
+fix_endianness_blf_linmessage2(blf_linmessage2_t* message) {
+    fix_endianness_blf_lindatabytetimestampevent(&message->linDataByteTimestampEvent);
     message->crc = GUINT16_FROM_LE(message->crc);
 /*  skip the optional part
     message->respBaudrate = GUINT32_FROM_LE(message->respBaudrate);
@@ -545,17 +565,7 @@ fix_endianness_blf_linmessage2(blf_linmessage2_t* message) {
 
 static void
 fix_endianness_blf_lincrcerror2(blf_lincrcerror2_t* message) {
-    int i;
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate = GUINT32_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchBreakLength = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchBreakLength);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchDelLength = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchDelLength);
-    message->linDataByteTimestampEvent.linMessageDescriptor.supplierId = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.supplierId);
-    message->linDataByteTimestampEvent.linMessageDescriptor.messageId = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.messageId);
-    for (i = 0; i < 9; i++) {
-        message->linDataByteTimestampEvent.databyteTimestamps[i] = GUINT64_FROM_LE(message->linDataByteTimestampEvent.databyteTimestamps[i]);
-    }
+    fix_endianness_blf_lindatabytetimestampevent(&message->linDataByteTimestampEvent);
     message->crc = GUINT16_FROM_LE(message->crc);
 /*  skip the optional part
     message->respBaudrate = GUINT32_FROM_LE(message->respBaudrate);
@@ -567,34 +577,18 @@ fix_endianness_blf_lincrcerror2(blf_lincrcerror2_t* message) {
 
 static void
 fix_endianness_blf_linrcverror2(blf_linrcverror2_t* message) {
-    int i;
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate = GUINT32_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchBreakLength = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchBreakLength);
-    message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchDelLength = GUINT64_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.linSynchFieldEvent.synchDelLength);
-    message->linDataByteTimestampEvent.linMessageDescriptor.supplierId = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.supplierId);
-    message->linDataByteTimestampEvent.linMessageDescriptor.messageId = GUINT16_FROM_LE(message->linDataByteTimestampEvent.linMessageDescriptor.messageId);
-    for (i = 0; i < 9; i++) {
-        message->linDataByteTimestampEvent.databyteTimestamps[i] = GUINT64_FROM_LE(message->linDataByteTimestampEvent.databyteTimestamps[i]);
-    }
-    /*  skip the optional part
-        message->respBaudrate = GUINT32_FROM_LE(message->respBaudrate);
-        message->exactHeaderBaudrate = GUINT64_FROM_LE(message->exactHeaderBaudrate);
-        message->earlyStopBitOffset = GUINT32_FROM_LE(message->earlyStopBitOffset);
-        message->earlyStopBitOffsetResponse = GUINT32_FROM_LE(message->earlyStopBitOffsetResponse);
-    */
+    fix_endianness_blf_lindatabytetimestampevent(&message->linDataByteTimestampEvent);
+/*  skip the optional part
+    message->respBaudrate = GUINT32_FROM_LE(message->respBaudrate);
+    message->exactHeaderBaudrate = GUINT64_FROM_LE(message->exactHeaderBaudrate);
+    message->earlyStopBitOffset = GUINT32_FROM_LE(message->earlyStopBitOffset);
+    message->earlyStopBitOffsetResponse = GUINT32_FROM_LE(message->earlyStopBitOffsetResponse);
+*/
 }
 
 static void
 fix_endianness_blf_linsenderror2(blf_linsenderror2_t* message) {
-    message->linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof = GUINT64_FROM_LE(message->linMessageDescriptor.linSynchFieldEvent.linBusEvent.sof);
-    message->linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate = GUINT32_FROM_LE(message->linMessageDescriptor.linSynchFieldEvent.linBusEvent.eventBaudrate);
-    message->linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel = GUINT16_FROM_LE(message->linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel);
-    message->linMessageDescriptor.linSynchFieldEvent.synchBreakLength = GUINT64_FROM_LE(message->linMessageDescriptor.linSynchFieldEvent.synchBreakLength);
-    message->linMessageDescriptor.linSynchFieldEvent.synchDelLength = GUINT64_FROM_LE(message->linMessageDescriptor.linSynchFieldEvent.synchDelLength);
-    message->linMessageDescriptor.supplierId = GUINT16_FROM_LE(message->linMessageDescriptor.supplierId);
-    message->linMessageDescriptor.messageId = GUINT16_FROM_LE(message->linMessageDescriptor.messageId);
+    fix_endianness_blf_linmessagedescriptor(&message->linMessageDescriptor);
     message->eoh = GUINT64_FROM_LE(message->eoh);
 /*  skip the optional part
     message->exactHeaderBaudrate = GUINT64_FROM_LE(message->exactHeaderBaudrate);
@@ -604,9 +598,7 @@ fix_endianness_blf_linsenderror2(blf_linsenderror2_t* message) {
 
 static void
 fix_endianness_blf_linwakeupevent2(blf_linwakeupevent2_t* message) {
-    message->linBusEvent.sof = GUINT64_FROM_LE(message->linBusEvent.sof);
-    message->linBusEvent.eventBaudrate = GUINT32_FROM_LE(message->linBusEvent.eventBaudrate);
-    message->linBusEvent.channel = GUINT16_FROM_LE(message->linBusEvent.channel);
+    fix_endianness_blf_linbusevent(&message->linBusEvent);
 }
 
 static void
