@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 4.3.0 (v4.3.0rc0-87-g9c90105c365a)
+Capinfos (Wireshark) 4.3.0 (v4.3.0rc1-339-gd7ebffe1475b)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
@@ -21,10 +21,10 @@ Size infos:
 
 Time infos:
   -u display the capture duration (in seconds)
-  -a display the capture start time
-  -e display the capture end time
+  -a display the timestamp of the earliest packet
+  -e display the timestamp of the latest packet
   -o display the capture file chronological status (True/False)
-  -S display start and end times as seconds
+  -S display earliest and latest packet timestamps as seconds
 
 Statistic infos:
   -y display average data rate (in bytes/sec)
