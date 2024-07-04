@@ -3,7 +3,7 @@ include::../attributes.adoc[]
 :doctype: manpage
 :stylesheet: ws.css
 :linkcss:
-:copycss: ../docbook/{stylesheet}
+:copycss: {build_dir}/docbook/{stylesheet}
 
 == NAME
 
