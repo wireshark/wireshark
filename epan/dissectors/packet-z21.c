@@ -773,7 +773,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             offset += 1;
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                tfs_get_string((bool)temp_guint64 >> 7, &tfs_forward_reverse));
+                tfs_get_string((bool)(temp_guint64 >> 7), &tfs_forward_reverse));
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02" PRIx64,
                 temp_guint64 & 0x7f);
 
@@ -902,12 +902,12 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Address=%d, %s, Output=%s",
                 addr,
-                tfs_get_string((bool)temp_guint64 & 0x08, &tfs_turnout_command),
-                tfs_get_string((bool)temp_guint64 & 0x01, &tfs_turnout_output));
+                tfs_get_string((bool)(temp_guint64 & 0x08), &tfs_turnout_command),
+                tfs_get_string((bool)(temp_guint64 & 0x01), &tfs_turnout_output));
             proto_item_append_text(z21_tree, ", Address: %d, %s, Output: %s",
                 addr,
-                tfs_get_string((bool)temp_guint64 & 0x08, &tfs_turnout_command),
-                tfs_get_string((bool)temp_guint64 & 0x01, &tfs_turnout_output));
+                tfs_get_string((bool)(temp_guint64 & 0x08), &tfs_turnout_command),
+                tfs_get_string((bool)(temp_guint64 & 0x01), &tfs_turnout_output));
             break;
         case Z21_LAN_X_GET_EXT_ACCESSORY_INFO:
             addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
