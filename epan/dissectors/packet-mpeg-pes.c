@@ -818,7 +818,7 @@ dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 static int
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
-static gboolean
+static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -829,11 +829,11 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	guint8 stream_type;
 
 	if (!tvb_bytes_exist(tvb, 0, 3))
-		return FALSE;	/* not enough bytes for a PES prefix */
+		return 0;	/* not enough bytes for a PES prefix */
 
 	prefix = tvb_get_ntoh24(tvb, 0);
 	if (prefix != PES_PREFIX)
-		return FALSE;
+		return 0;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG PES");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -847,10 +847,6 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	 * to PMT but maps stream_ids to stream_types instead of PIDs.)
 	 */
 
-#if 0
-	if (tree == NULL)
-		return TRUE;
-#endif
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 	offset = dissect_mpeg_pes_PES(tvb, offset, &asn1_ctx,
 			tree, proto_mpeg_pes);
@@ -1021,7 +1017,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				offset / 8, -1, ENC_NA);
 	}
 	decrement_dissection_depth(pinfo);
-	return TRUE;
+	return tvb_reported_length(tvb);
 }
 
 static heur_dissector_list_t heur_subdissector_list;
