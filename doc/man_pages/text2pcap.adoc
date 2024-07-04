@@ -16,7 +16,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [ *-a* ]
 [ *-b* 2|8|16|64 ]
 [ *-D* ]
-[ *-e* <l3pid> ]
+[ *-e* <ethertype> ]
 [ *-E* <encapsulation type> ]
 [ *-F* <file format> ]
 [ *-i* <proto> ]
@@ -203,10 +203,10 @@ supports it (e.g. pcapng), and is also used when generating dummy headers
 to swap the source and destination addresses and ports as appropriate.
 --
 
--e <l3pid>::
+-e <ethertype>::
 +
 --
-Include a dummy Ethernet header before each packet. Specify the L3PID
+Include a dummy Ethernet header before each packet. Specify the EtherType
 for the Ethernet header in hex. Use this option if your dump has Layer
 3 header and payload (e.g. IP header), but no Layer 2
 encapsulation. Example: __-e 0x806__ to specify an ARP packet.
@@ -385,7 +385,7 @@ Print the full version information and exit.
 -4 <srcip>,<destip>::
 +
 --
-Prepend dummy IP header with specified IPv4 dest and source address.
+Prepend dummy IP header with specified IPv4 source and destination addresses.
 This option should be accompanied by one of the following options: -i, -s, -S, -T, -u
 Use this option to apply "custom" IP addresses.
 Example: __-4 10.0.0.1,10.0.0.2__ to use 10.0.0.1 and 10.0.0.2 for all IP packets.
@@ -394,7 +394,7 @@ Example: __-4 10.0.0.1,10.0.0.2__ to use 10.0.0.1 and 10.0.0.2 for all IP packet
 -6 <srcip>,<destip>::
 +
 --
-Prepend dummy IP header with specified IPv6 dest and source address.
+Prepend dummy IP header with specified IPv6 source and destination addresses.
 This option should be accompanied by one of the following options: -i, -s, -S, -T, -u
 Use this option to apply "custom" IP addresses.
 Example: __-6 2001:db8::b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334__ to

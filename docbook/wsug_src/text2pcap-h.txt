@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 4.3.0 (v4.3.0rc0-215-gf1f6c1369d12)
+Text2pcap (Wireshark) 4.3.0-CDC (v4.3.0rc1-342-ga849cf7d9b6b)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -55,7 +55,7 @@ Output:
   -N <intf-name>         assign name to the interface in the pcapng file.
 
 Prepend dummy header:
-  -e <l3pid>             prepend dummy Ethernet II header with specified L3PID
+  -e <ethertype>         prepend dummy Ethernet II header with specified EtherType
                          (in HEX).
                          Example: -e 0x806 to specify an ARP packet.
   -i <proto>             prepend dummy IP header with specified IP protocol
@@ -64,10 +64,10 @@ Prepend dummy header:
                          link-layer type is Ethernet.
                          Example: -i 46
   -4 <srcip>,<destip>    prepend dummy IPv4 header with specified
-                         dest and source address.
+                         source and destination addresses.
                          Example: -4 10.0.0.1,10.0.0.2
   -6 <srcip>,<destip>    prepend dummy IPv6 header with specified
-                         dest and source address.
+                         source and destination addresses.
                          Example: -6 2001:db8::b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334
   -u <srcp>,<destp>      prepend dummy UDP header with specified
                          source and destination ports (in DECIMAL).
@@ -79,11 +79,11 @@ Prepend dummy header:
                          Automatically prepends Ethernet & IP headers as well.
                          Example: -T 50,60
   -s <srcp>,<dstp>,<tag> prepend dummy SCTP header with specified
-                         source/dest ports and verification tag (in DECIMAL).
+                         source/destination ports and verification tag (in DECIMAL).
                          Automatically prepends Ethernet & IP headers as well.
                          Example: -s 30,40,34
   -S <srcp>,<dstp>,<ppi> prepend dummy SCTP header with specified
-                         source/dest ports and verification tag 0.
+                         source/destination ports and verification tag 0.
                          Automatically prepends a dummy SCTP DATA
                          chunk header with payload protocol identifier ppi.
                          Example: -S 30,40,34
