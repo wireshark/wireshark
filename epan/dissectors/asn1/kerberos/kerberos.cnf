@@ -140,34 +140,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.END
 #.FN_BODY KRB-ERROR/_untag/e-data
-  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-
-  switch (private_data->errorcode) {
-  case KRB5_ET_KRB5KDC_ERR_BADOPTION:
-  case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
-  case KRB5_ET_KRB5KDC_ERR_KEY_EXP:
-  case KRB5_ET_KRB5KDC_ERR_POLICY:
-    /* ms windows kdc sends e-data of this type containing a "salt"
-     * that contains the nt_status code for these error codes.
-     */
-    private_data->try_nt_status = true;
-    offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
-    break;
-  case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
-  case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
-  case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
-  case KRB5_ET_KDC_ERR_WRONG_REALM:
-  case KRB5_ET_KDC_ERR_PREAUTH_EXPIRED:
-  case KRB5_ET_KDC_ERR_MORE_PREAUTH_DATA_REQUIRED:
-  case KRB5_ET_KDC_ERR_PREAUTH_BAD_AUTHENTICATION_SET:
-  case KRB5_ET_KDC_ERR_UNKNOWN_CRITICAL_FAST_OPTIONS:
-    offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA);
-    break;
-  default:
-    offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
-    break;
-  }
-
+  offset = dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_T_e_data_octets);
 
 #.FN_BODY PADATA-TYPE VAL_PTR=&(private_data->padata_type)
   kerberos_private_data_t* private_data = kerberos_get_private_data(actx);

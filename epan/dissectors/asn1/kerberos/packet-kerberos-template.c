@@ -110,7 +110,6 @@ typedef struct {
 	uint32_t msg_type;
 	bool is_win2k_pkinit;
 	uint32_t errorcode;
-	bool try_nt_status;
 	uint32_t etype;
 	uint32_t padata_type;
 	uint32_t is_enc_padata;
@@ -182,6 +181,8 @@ static int dissect_kerberos_PA_PAC_OPTIONS(bool implicit_tag _U_, tvbuff_t *tvb 
 static int dissect_kerberos_KERB_AD_RESTRICTION_ENTRY(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_SEQUENCE_OF_ENCTYPE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_SPAKE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 #ifdef HAVE_KERBEROS
 static int dissect_kerberos_KrbFastReq(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_KrbFastResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -4063,15 +4064,11 @@ dissect_krb5_PW_SALT(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 		goto no_error;
 	}
 
-	if (!private_data->try_nt_status) {
-		goto no_error;
-	}
-
 	nt_status = tvb_get_letohl(tvb, offset);
 	reserved = tvb_get_letohl(tvb, offset + 4);
 	flags = tvb_get_letohl(tvb, offset + 8);
 
-	if (nt_status == 0 || reserved != 0 || flags == 0) {
+	if (reserved != 0 || flags != 1 || !try_val_to_str_ext(nt_status, &NT_errors_ext)) {
 		goto no_error;
 	}
 
@@ -4732,6 +4729,43 @@ dissect_krb5_AD_WIN2K_PAC(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1
 	}
 
 	return offset;
+}
+
+static int dissect_kerberos_T_e_data_octets(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
+{
+	int8_t ber_class;
+	bool pc;
+	int32_t tag;
+	int len_offset;
+	uint32_t len;
+	bool ind;
+	int next_offset;
+
+	/*
+	 * dissect_ber_octet_string_wcb() always passes
+	 * implicit_tag=false, offset=0 and hf_index=-1
+	 */
+	ws_assert(implicit_tag == false);
+	ws_assert(offset == 0);
+	ws_assert(hf_index <= 0);
+
+	len_offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+	if (ber_class != BER_CLASS_UNI || !pc || tag != BER_UNI_TAG_SEQUENCE) {
+		goto unknown;
+	}
+	next_offset = get_ber_length(tvb, len_offset, &len, &ind);
+	if (len < 1) {
+		goto unknown;
+	}
+	get_ber_identifier(tvb, next_offset, &ber_class, &pc, &tag);
+	if (ber_class == BER_CLASS_CON && pc && tag == 1) {
+		return dissect_kerberos_PA_DATA(implicit_tag, tvb, offset, actx, tree, hf_index);
+	}
+	if (ber_class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
+		return dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA(implicit_tag, tvb, offset, actx, tree, hf_index);
+	}
+unknown:
+	return tvb_reported_length_remaining(tvb, offset);
 }
 
 #include "packet-kerberos-fn.c"
