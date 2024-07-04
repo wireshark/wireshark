@@ -619,6 +619,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
             proto_tree_, &ProtoTree::setCaptureFile);
 
     connect(mainApp, &MainApplication::zoomMonospaceFont, packet_list_, &PacketList::setMonospaceFont);
+    connect(mainApp, &MainApplication::zoomRegularFont, packet_list_, &PacketList::setRegularFont);
     connect(mainApp, &MainApplication::zoomMonospaceFont, proto_tree_, &ProtoTree::setMonospaceFont);
 
     connectFileMenuActions();

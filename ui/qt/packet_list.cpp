@@ -1607,7 +1607,12 @@ void PacketList::setCaptureFile(capture_file *cf)
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
     setFont(mono_font);
-    header()->setFont(mainApp->font());
+}
+
+void PacketList::setRegularFont(const QFont &regular_font)
+{
+    header()->setFont(regular_font);
+    header()->viewport()->setFont(regular_font);
 }
 
 void PacketList::goNextPacket(void)
