@@ -18,9 +18,9 @@
 #define	GSM_MAP_MAX_NUM_OPR_CODES	256
 
 typedef struct _gsm_map_tap_rec_t {
-  gboolean invoke;
-  guint32  opcode;
-  guint16  size;
+  bool invoke;
+  uint32_t opcode;
+  uint16_t size;
 } gsm_map_tap_rec_t;
 
 
@@ -38,7 +38,7 @@ extern const value_string gsm_map_PDP_Type_Organisation_vals[];
 extern const value_string gsm_map_ietf_defined_pdp_vals[];
 extern const value_string gsm_map_etsi_defined_pdp_vals[];
 
-guint8 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint16 offset);
+uint8_t dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint16_t offset);
 void dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
 
 typedef enum {
@@ -57,10 +57,10 @@ typedef enum {
 /* structure accessible via p_get_proto_data(wmem_file_scope(), pinfo, proto_gsm_map, 0) */
 typedef struct {
   gsm_map_sm_rp_oa_id sm_rp_oa_id;
-  const gchar *sm_rp_oa_str;
+  const char *sm_rp_oa_str;
   gsm_map_sm_rp_da_id sm_rp_da_id;
-  const gchar *sm_rp_da_str;
-  guint32 tcap_src_tid;
+  const char *sm_rp_da_str;
+  uint32_t tcap_src_tid;
 } gsm_map_packet_info_t;
 
 #include "packet-gsm_map-exp.h"

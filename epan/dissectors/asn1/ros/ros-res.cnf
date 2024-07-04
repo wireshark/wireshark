@@ -4,7 +4,7 @@
 
 #.FN_HDR ReturnResult
   dissector_handle_t res_handle = NULL;
-  const gchar *descr = "";
+  const char *descr = "";
 
   actx->rose_ctx->d.code = -1;
   res_next_tvb = NULL;

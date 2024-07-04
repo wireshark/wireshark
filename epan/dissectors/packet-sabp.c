@@ -217,10 +217,10 @@ static int ett_sabp_SuccessfulOutcome;
 static int ett_sabp_UnsuccessfulOutcome;
 
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ProtocolExtensionID;
-static guint8 sms_encoding;
+static uint32_t ProcedureCode;
+static uint32_t ProtocolIE_ID;
+static uint32_t ProtocolExtensionID;
+static uint8_t sms_encoding;
 
 #define SABP_PORT 3452
 
@@ -653,12 +653,12 @@ dissect_sabp_T_pLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
  proto_tree *subtree;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
 
 	 if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_e212);
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_SAI, FALSE);
+	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_SAI, false);
 
 
   return offset;
@@ -1714,7 +1714,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *page_tvb, *unpacked_tvb;
   int offset = 0;
   int n;
-  guint8 nr_pages, len, cb_inf_msg_len;
+  uint8_t nr_pages, len, cb_inf_msg_len;
 
 
   /* Octet 1 Number-of-Pages */
@@ -1771,12 +1771,12 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static int
 dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  guint32 type_length, msg_len;
-  guint tvb_length;
+  uint32_t type_length, msg_len;
+  unsigned tvb_length;
   int bit_offset;
   bool is_fragmented;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 
   tvb_length = tvb_reported_length(tvb);
 
@@ -2149,7 +2149,7 @@ void proto_register_sabp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_sabp,
     &ett_sabp_e212,
     &ett_sabp_cbs_data_coding,

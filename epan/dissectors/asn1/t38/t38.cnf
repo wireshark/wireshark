@@ -54,7 +54,7 @@ UDPTLPacket
 #.END
 
 #.FN_PARS Data-Field/_item/field-type
-EXT=(use_pre_corrigendum_asn1_specification)?FALSE:TRUE
+EXT=(use_pre_corrigendum_asn1_specification)?false:true
 EXT_NUM=(use_pre_corrigendum_asn1_specification)?0:4
 VAL_PTR=&Data_Field_field_type_value
 #.FN_FTR Data-Field/_item/field-type
@@ -67,17 +67,17 @@ VAL_PTR=&Data_Field_field_type_value
         if (Data_Field_field_type_value == 2 || Data_Field_field_type_value == 4 || Data_Field_field_type_value == 7) {/* hdlc-fcs-OK or hdlc-fcs-OK-sig-end or t4-non-ecm-sig-end*/
             fragment_head *frag_msg = NULL;
             tvbuff_t* new_tvb = NULL;
-            gboolean save_fragmented = actx->pinfo->fragmented;
+            bool save_fragmented = actx->pinfo->fragmented;
 
-            actx->pinfo->fragmented = TRUE;
+            actx->pinfo->fragmented = true;
 
             /* if reass_start_seqnum=-1 it means we have received the end of the fragmente, without received any fragment data */
             if (p_t38_packet_conv_info->reass_start_seqnum != -1) {
-                guint32 frag_seq_num;
-                if (seq_number == (guint32)p_t38_packet_conv_info->reass_start_seqnum) {
-                    frag_seq_num = (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num - p_t38_packet_conv_info->reass_start_data_field;
+                uint32_t frag_seq_num;
+                if (seq_number == (uint32_t)p_t38_packet_conv_info->reass_start_seqnum) {
+                    frag_seq_num = (uint32_t)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num - p_t38_packet_conv_info->reass_start_data_field;
                 } else {
-                    frag_seq_num = seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num;
+                    frag_seq_num = seq_number - (uint32_t)p_t38_packet_conv_info->reass_start_seqnum + (uint32_t)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num;
                 }
                 frag_msg = fragment_add_seq(&data_reassembly_table, /* reassembly table */
                     tvb, offset, actx->pinfo,
@@ -86,7 +86,7 @@ VAL_PTR=&Data_Field_field_type_value
                     frag_seq_num,  /* fragment sequence number */
                     /*0,*/
                     0, /* fragment length */
-                    FALSE, /* More fragments */
+                    false, /* More fragments */
                     0);
                 if ( Data_Field_field_type_value == 7 ) {
                     /* if there was packet lost or other errors during the defrag then frag_msg is NULL. This could also means
@@ -135,7 +135,7 @@ VAL_PTR=&Data_Field_field_type_value
                  * (i.e., a retransmission), we don't expect to have any
                  * fragment data (we reassembled it in the previous packet).
                  */
-                if (p_t38_packet_conv && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum)) {
+                if (p_t38_packet_conv && ((int32_t) seq_number != p_t38_packet_conv_info->last_seqnum)) {
                     proto_tree_add_expert_format(tree, actx->pinfo, &ei_t38_malformed, tvb, offset, tvb_reported_length_remaining(tvb, offset),
                             "[RECEIVED END OF FRAGMENT W/OUT ANY FRAGMENT DATA]");
                     col_append_str(actx->pinfo->cinfo, COL_INFO, " [Malformed?]");
@@ -164,7 +164,7 @@ VAL_PTR=&Data_Field_field_type_value
 
 #.FN_BODY Data-Field/_item/field-data  VAL_PTR=&value_tvb
     tvbuff_t *value_tvb = NULL;
-    guint32 value_len;
+    uint32_t value_len;
 
 %(DEFAULT_BODY)s
     value_len = tvb_reported_length(value_tvb);
@@ -186,9 +186,9 @@ VAL_PTR=&Data_Field_field_type_value
 
         /* HDLC Data or t4-non-ecm-data */
         if (Data_Field_field_type_value == 0 || Data_Field_field_type_value == 6) { /* 0=HDLC Data or 6=t4-non-ecm-data*/
-            gboolean save_fragmented = actx->pinfo->fragmented;
+            bool save_fragmented = actx->pinfo->fragmented;
 
-            actx->pinfo->fragmented = TRUE;
+            actx->pinfo->fragmented = true;
 
             /* if we have not reassembled this packet and it is the first fragment, reset the reassemble ID and the start seq number*/
             if (p_t38_packet_conv && p_t38_conv && (p_t38_packet_conv_info->reass_start_seqnum == -1)) {
@@ -208,16 +208,16 @@ VAL_PTR=&Data_Field_field_type_value
                     p_t38_packet_conv_info->additional_hdlc_data_field_counter = p_t38_conv_info->additional_hdlc_data_field_counter;
                     p_t38_packet_conv_info->time_first_t4_data = p_t38_conv_info->time_first_t4_data;
             }
-            if (seq_number == (guint32)p_t38_packet_conv_info->seqnum_prev_data_field){
+            if (seq_number == (uint32_t)p_t38_packet_conv_info->seqnum_prev_data_field){
                    if(p_t38_conv){
                      p_t38_conv_info->additional_hdlc_data_field_counter++;
                    }
 	    }
-            guint32 frag_seq_num;
-            if (seq_number == (guint32)p_t38_packet_conv_info->reass_start_seqnum) {
-                frag_seq_num = (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_data_field;
+            uint32_t frag_seq_num;
+            if (seq_number == (uint32_t)p_t38_packet_conv_info->reass_start_seqnum) {
+                frag_seq_num = (uint32_t)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num - (uint32_t)p_t38_packet_conv_info->reass_start_data_field;
             } else {
-                frag_seq_num = seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num;
+                frag_seq_num = seq_number - (uint32_t)p_t38_packet_conv_info->reass_start_seqnum + (uint32_t)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num;
             }
             frag_msg = fragment_add_seq(&data_reassembly_table,
                 value_tvb, 0,
@@ -226,9 +226,9 @@ VAL_PTR=&Data_Field_field_type_value
                 NULL,
                 frag_seq_num, /* fragment sequence number */
                 value_len, /* fragment length */
-                TRUE, /* More fragments */
+                true, /* More fragments */
                 0);
-            p_t38_packet_conv_info->seqnum_prev_data_field = (gint32)seq_number;
+            p_t38_packet_conv_info->seqnum_prev_data_field = (int32_t)seq_number;
             process_reassembled_data(tvb, offset, actx->pinfo,
                         "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
@@ -236,7 +236,7 @@ VAL_PTR=&Data_Field_field_type_value
                 if (Data_Field_field_type_value == 0) {
                     col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", frag_seq_num);
                 } else {
-                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (uint32_t)p_t38_packet_conv_info->reass_start_seqnum);
                 }
             }
 
@@ -262,19 +262,19 @@ VAL_PTR=&Data_Field_field_type_value
 #.END
 
 #.FN_HDR UDPTLPacket/primary-ifp-packet
-    primary_part = TRUE;
+    primary_part = true;
 #.FN_FTR UDPTLPacket/primary-ifp-packet
     /* if is a valid t38 packet, add to tap */
     /* Note that t4-non-ecm-sig-end without first_t4_data is not valid */
-    if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum) &&
+    if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((int32_t) seq_number != p_t38_packet_conv_info->last_seqnum) &&
         !(t38_info->type_msg == 1 && t38_info->Data_Field_field_type_value == 7 && t38_info->frame_num_first_t4_data == 0))
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
 
-    if (p_t38_conv) p_t38_conv_info->last_seqnum = (gint32) seq_number;
+    if (p_t38_conv) p_t38_conv_info->last_seqnum = (int32_t) seq_number;
 #.END
 
 #.FN_HDR UDPTLPacket/error-recovery
-    primary_part = FALSE;
+    primary_part = false;
 #.FN_FTR UDPTLPacket/error-recovery
-    primary_part = TRUE;
+    primary_part = true;
 #.END

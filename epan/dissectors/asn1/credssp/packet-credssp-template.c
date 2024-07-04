@@ -30,8 +30,8 @@
 #define TS_SMARTCARD_CREDS  2
 #define TS_REMOTEGUARD_CREDS  6
 
-static gint creds_type;
-static gint credssp_ver;
+static int creds_type;
+static int credssp_ver;
 
 static char kerberos_pname[] = "K\0e\0r\0b\0e\0r\0o\0s";
 static char ntlm_pname[] = "N\0T\0L\0M";
@@ -40,9 +40,9 @@ static char ntlm_pname[] = "N\0T\0L\0M";
 #define TS_RGC_KERBEROS	1
 #define TS_RGC_NTLM	2
 
-static gint credssp_TS_RGC_package;
+static int credssp_TS_RGC_package;
 
-static gint exported_pdu_tap = -1;
+static int exported_pdu_tap = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_credssp;
@@ -61,8 +61,8 @@ static int hf_credssp_decr_PublicKeyAuth;/* decr_PublicKeyAuth */
 #include "packet-credssp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_credssp;
-static gint ett_credssp_RGC_CredBuffer;
+static int ett_credssp;
+static int ett_credssp_RGC_CredBuffer;
 
 #include "packet-credssp-ett.c"
 
@@ -95,18 +95,18 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 {
   asn1_ctx_t asn1_ctx;
   int offset = 0;
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint32 tag;
-  guint32 length;
-  gint8 ver;
+  int32_t tag;
+  uint32_t length;
+  int8_t ver;
 
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
   /* Look for SEQUENCE, CONTEXT 0, and INTEGER 2 */
   if(tvb_captured_length(tvb) > 7) {
     offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-    if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == TRUE)) {
+    if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == true)) {
       offset = get_ber_length(tvb, offset, NULL, NULL);
       offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
       if((ber_class == BER_CLASS_CON) && (tag == 0)) {
@@ -166,7 +166,7 @@ void proto_register_credssp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_credssp,
     &ett_credssp_RGC_CredBuffer,
 #include "packet-credssp-ettarr.c"

@@ -25,8 +25,8 @@ CameraFilterCapability/filterTextLabel/_item/filterTextLabel ABBREV=filterTextLa
 #.FN_PARS RequestPDU
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h282_RequestPDU_vals));
   if (p)
@@ -36,8 +36,8 @@ CameraFilterCapability/filterTextLabel/_item/filterTextLabel ABBREV=filterTextLa
 #.FN_PARS ResponsePDU
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h282_ResponsePDU_vals));
   if (p)
@@ -47,8 +47,8 @@ CameraFilterCapability/filterTextLabel/_item/filterTextLabel ABBREV=filterTextLa
 #.FN_PARS IndicationPDU
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h282_IndicationPDU_vals));
   if (p)

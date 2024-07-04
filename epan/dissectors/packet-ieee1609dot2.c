@@ -412,11 +412,11 @@ static dissector_table_t ssp_subdissector_table;
 
 typedef struct ieee1609_private_data {
   tvbuff_t *unsecured_data;
-  guint64 psidssp; // psid for Service Specific Permissions
+  uint64_t psidssp; // psid for Service Specific Permissions
 } ieee1609_private_data_t;
 
 void
-ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
+ieee1609dot2_set_next_default_psid(packet_info *pinfo, uint32_t psid)
 {
   p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, GUINT_TO_POINTER(psid));
 }
@@ -1357,7 +1357,7 @@ dissect_ieee1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
-                                               0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
+                                               0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, false);
 
 
   return offset;
@@ -1371,12 +1371,12 @@ dissect_ieee1609dot2_T_opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
-                                       0, NO_BOUND, FALSE, &ssp);
+                                       0, NO_BOUND, false, &ssp);
   if (ssp) {
     // Create subtree
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ieee1609dot2_ssp);
     /* Call next dissector here */
-    dissector_try_uint(ssp_subdissector_table, (guint32) my_private_data->psidssp, ssp, actx->pinfo, subtree);
+    dissector_try_uint(ssp_subdissector_table, (uint32_t) my_private_data->psidssp, ssp, actx->pinfo, subtree);
   }
 
   return offset;
@@ -2064,15 +2064,15 @@ dissect_ieee1609dot2_CrlSignedDataPayload(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_ieee1609dot2_T_hiPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint64 psid;
+  uint64_t psid;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
-                                                            0U, NO_BOUND, &psid, FALSE);
+                                                            0U, NO_BOUND, &psid, false);
   if ((my_private_data != NULL) && (my_private_data->unsecured_data != NULL)) {
     /* Call next dissector here */
-    ieee1609dot2_set_next_default_psid(actx->pinfo, (guint32)psid);
-    dissector_try_uint(unsecured_data_subdissector_table, (guint32) psid, my_private_data->unsecured_data, actx->pinfo, tree);
+    ieee1609dot2_set_next_default_psid(actx->pinfo, (uint32_t)psid);
+    dissector_try_uint(unsecured_data_subdissector_table, (uint32_t) psid, my_private_data->unsecured_data, actx->pinfo, tree);
     my_private_data->unsecured_data = NULL;
   }
 
@@ -2694,11 +2694,11 @@ dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &my_private_data->unsecured_data);
+                                       NO_BOUND, NO_BOUND, false, &my_private_data->unsecured_data);
 
   if (my_private_data->unsecured_data) {
     // psid may also be provided in HeaderInfo
-    guint32 psid = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0));
+    uint32_t psid = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0));
     if (psid) {
       /* Call next dissector here */
       dissector_try_uint(unsecured_data_subdissector_table, psid, my_private_data->unsecured_data, actx->pinfo, tree);
@@ -3055,9 +3055,9 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 static void
-ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
+ieee1609dot2_NinetyDegreeInt_fmt(char *s, uint32_t v)
 {
-  gint32 lat = (gint32)v;
+  int32_t lat = (int32_t)v;
   if (lat == 900000001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
   } else {
@@ -3071,9 +3071,9 @@ ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
 }
 
 static void
-ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
+ieee1609dot2_OneEightyDegreeInt_fmt(char *s, uint32_t v)
 {
-  gint32 lng = (gint32)v;
+  int32_t lng = (int32_t)v;
   if (lng == 1800000001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
   } else {
@@ -3088,7 +3088,7 @@ ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
 
 
 static void
-ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
+ieee1609dot2_Time32_fmt(char *s, uint32_t v)
 {
   time_t secs = v + 1072915200 - 5;
   struct tm *tm = gmtime(&secs);
@@ -3098,10 +3098,10 @@ ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
 }
 
 static void
-ieee1609dot2_Time64_fmt(gchar *s, guint64 v)
+ieee1609dot2_Time64_fmt(char *s, uint64_t v)
 {
   time_t secs = v / 1000000 + 1072915200 - 5;
-  guint32 usecs = v % 1000000;
+  uint32_t usecs = v % 1000000;
   struct tm *tm = gmtime(&secs);
   snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" PRIu64 ")",
     tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, usecs, v
@@ -4116,7 +4116,7 @@ void proto_register_ieee1609dot2(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ieee1609dot2_SequenceOfUint8,
     &ett_ieee1609dot2_SequenceOfUint16,
     &ett_ieee1609dot2_SequenceOfHashedId3,

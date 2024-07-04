@@ -42,9 +42,9 @@ static int hf_x509if_any_string;
 static proto_tree *top_of_dn;
 static proto_tree *top_of_rdn;
 
-static gboolean rdn_one_value; /* have we seen one value in an RDN yet */
-static gboolean dn_one_rdn; /* have we seen one RDN in a DN yet */
-static gboolean doing_attr;
+static bool rdn_one_value; /* have we seen one value in an RDN yet */
+static bool dn_one_rdn; /* have we seen one RDN in a DN yet */
+static bool doing_attr;
 
 static wmem_strbuf_t *last_dn_buf;
 static wmem_strbuf_t *last_rdn_buf;
@@ -61,9 +61,9 @@ x509if_frame_end(void)
   top_of_dn = NULL;
   top_of_rdn = NULL;
 
-  rdn_one_value = FALSE;
-  dn_one_rdn = FALSE;
-  doing_attr = FALSE;
+  rdn_one_value = false;
+  dn_one_rdn = false;
+  doing_attr = false;
 
   last_dn_buf = NULL;
   last_rdn_buf = NULL;
@@ -77,7 +77,7 @@ const char * x509if_get_last_dn(void)
   return last_dn_buf ? wmem_strbuf_get_str(last_dn_buf) : NULL;
 }
 
-gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
+bool x509if_register_fmt(int hf_index, const char *fmt)
 {
   static int idx = 0;
 
@@ -91,10 +91,10 @@ gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
     fmt_vals[idx].value = 0;
     fmt_vals[idx].strptr = NULL;
 
-    return TRUE;
+    return true;
 
   } else
-    return FALSE; /* couldn't register it */
+    return false; /* couldn't register it */
 
 }
 
@@ -119,7 +119,7 @@ void proto_register_x509if(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-x509if-ettarr.c"
   };
 

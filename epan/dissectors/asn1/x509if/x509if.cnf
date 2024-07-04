@@ -235,7 +235,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   actx->external.direct_reference = orig_oid;
 
   /* try and dissect as a string */
-  dissect_ber_octet_string(FALSE, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  dissect_ber_octet_string(false, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
 
   /* should also try and dissect as an OID and integer */
   /* of course, if I can look up the syntax .... */
@@ -328,7 +328,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY RelativeDistinguishedName
-  rdn_one_value = FALSE;
+  rdn_one_value = false;
   top_of_rdn = tree;
   last_rdn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
@@ -367,12 +367,12 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
   %(DEFAULT_BODY)s
 
-  rdn_one_value = TRUE;
+  rdn_one_value = true;
 
 #.FN_BODY RDNSequence
   const char *fmt;
 
-  dn_one_rdn = FALSE; /* reset */
+  dn_one_rdn = false; /* reset */
   last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
@@ -399,7 +399,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
   %(DEFAULT_BODY)s
 
-  dn_one_rdn = TRUE;
+  dn_one_rdn = true;
 
 #.FN_BODY AttributeValueAssertion
 
@@ -412,7 +412,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 	ava_hf_index=-1;
 
 #.FN_BODY Attribute
-	doing_attr = TRUE;
+	doing_attr = true;
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	%(DEFAULT_BODY)s

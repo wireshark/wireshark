@@ -143,7 +143,7 @@ static const value_string qsig_str_service_name[] = {
 };
 
 #define NO_SRV (-1)
-static const gint32 op2srv_tab[] = {
+static const int32_t op2srv_tab[] = {
   /*   0 */ 13868,
   /*   1 */ 13868,
   /*   2 */ 13868,
@@ -1571,9 +1571,9 @@ static int *hf_qsig_ie_type_arr[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_qsig;
-static gint ett_qsig_ie;
-static gint ett_qsig_unknown_extension;
+static int ett_qsig;
+static int ett_qsig_ie;
+static int ett_qsig_unknown_extension;
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
@@ -2012,7 +2012,7 @@ static int ett_qsig_mid_PartyInfo;
 static int ett_qsig_mid_String;
 static int ett_qsig_mid_MIDExtensions;
 static int ett_qsig_mid_SEQUENCE_OF_Extension;
-static gint ett_cnq_PSS1InformationElement;
+static int ett_cnq_PSS1InformationElement;
 
 /* static expert_field ei_qsig_unsupported_arg_type; */
 static expert_field ei_qsig_unsupported_result_type;
@@ -2048,7 +2048,7 @@ dissect_qsig_T_extensionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
     tvbuff_t *next_tvb;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_string_new(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree, FALSE, NULL)) {
+    if (!dissector_try_string_new(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree, false, NULL)) {
         proto_tree *next_tree;
 
         next_tree=proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_qsig_unknown_extension, NULL,
@@ -11899,7 +11899,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 typedef struct _qsig_op_t {
-  gint32 opcode;
+  int32_t opcode;
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } qsig_op_t;
@@ -12116,7 +12116,7 @@ static const qsig_op_t qsig_op_tab[] = {
 };
 
 typedef struct _qsig_err_t {
-  gint32 errcode;
+  int32_t errcode;
   dissector_t err_pdu;
 } qsig_err_t;
 
@@ -12305,7 +12305,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 };
 
-static const qsig_op_t *get_op(gint32 opcode) {
+static const qsig_op_t *get_op(int32_t opcode) {
   int i;
 
   /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
@@ -12315,13 +12315,13 @@ static const qsig_op_t *get_op(gint32 opcode) {
   return NULL;
 }
 
-static gint32 get_service(gint32 opcode) {
+static int32_t get_service(int32_t opcode) {
   if ((opcode < 0) || (opcode >= (int)array_length(op2srv_tab)))
     return NO_SRV;
   return op2srv_tab[opcode];
 }
 
-static const qsig_err_t *get_err(gint32 errcode) {
+static const qsig_err_t *get_err(int32_t errcode) {
   int i;
 
   /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
@@ -12336,9 +12336,9 @@ static int
 dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
   rose_ctx_t *rctx;
-  gint32 opcode = 0, service, oid_num;
+  int32_t opcode = 0, service, oid_num;
   const qsig_op_t *op_ptr = NULL;
-  const gchar *p, *oid;
+  const char *p, *oid;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
@@ -12398,11 +12398,11 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 /*--- dissect_qsig_res -------------------------------------------------------*/
 static int
 dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  gint offset = 0;
+  int offset = 0;
   rose_ctx_t *rctx;
-  gint32 opcode, service;
+  int32_t opcode, service;
   const qsig_op_t *op_ptr;
-  const gchar *p;
+  const char *p;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
@@ -12454,9 +12454,9 @@ static int
 dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
   rose_ctx_t *rctx;
-  gint32 errcode;
+  int32_t errcode;
   const qsig_err_t *err_ptr;
-  const gchar *p;
+  const char *p;
   proto_item *ti;
   proto_tree *qsig_tree;
 
@@ -12516,10 +12516,10 @@ dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo  _U
 /*--- dissect_qsig_ie -------------------------------------------------------*/
 static void
 dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset) {
-  gint offset;
+  int offset;
   proto_item *ti, *hidden_item;
   proto_tree *ie_tree;
-  guint8 ie_type, ie_len;
+  uint8_t ie_type, ie_len;
 
   offset = 0;
 
@@ -15864,7 +15864,7 @@ void proto_register_qsig(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_qsig,
     &ett_qsig_ie,
     &ett_qsig_unknown_extension,
@@ -16343,7 +16343,7 @@ void proto_register_qsig(void) {
 /*--- proto_reg_handoff_qsig ------------------------------------------------*/
 void proto_reg_handoff_qsig(void) {
   int i;
-  gchar *oid;
+  char *oid;
   dissector_handle_t q931_handle;
 
   q931_handle = find_dissector_add_dependency("q931", proto_qsig);

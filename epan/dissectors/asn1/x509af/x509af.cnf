@@ -102,25 +102,25 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   tvbuff_t *bs_tvb = NULL;
 # proto_tree *subtree;
 
-  dissect_ber_bitstring(FALSE, actx, NULL, tvb, offset,
+  dissect_ber_bitstring(false, actx, NULL, tvb, offset,
                         NULL, 0, hf_index, -1, &bs_tvb);
 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
   if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
-    offset += dissect_pkcs1_RSAPublicKey(FALSE, bs_tvb, 0, actx, tree, hf_index);
+    offset += dissect_pkcs1_RSAPublicKey(false, bs_tvb, 0, actx, tree, hf_index);
 
 # TODO: PKCS#1 only defines RSA; DH and DSA are from PKIX1Algorithms2008
 # } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */
 #   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
-#   offset += dissect_DSAPublicKey(FALSE, bs_tvb, 0, actx, subtree, hf_dsa_y);
+#   offset += dissect_DSAPublicKey(false, bs_tvb, 0, actx, subtree, hf_dsa_y);
 #
 # } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10046.2.1")) { /* dhpublicnumber */
 #   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
-#   offset += dissect_DHPublicKey(FALSE, bs_tvb, 0, actx, subtree, hf_dh_y);
+#   offset += dissect_DHPublicKey(false, bs_tvb, 0, actx, subtree, hf_dh_y);
 #
   } else {
-    offset = dissect_ber_bitstring(FALSE, actx, tree, tvb, offset,
+    offset = dissect_ber_bitstring(false, actx, tree, tvb, offset,
                                    NULL, 0, hf_index, -1, NULL);
   }
 
@@ -139,10 +139,10 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   }
 
 #.FN_BODY Extension/extnValue
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -150,7 +150,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
 #.FN_BODY Time/utcTime
   char *outstr, *newstr;
-  guint32 tvblen;
+  uint32_t tvblen;
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);

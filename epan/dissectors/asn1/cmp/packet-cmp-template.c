@@ -44,8 +44,8 @@ static dissector_handle_t cmp_tcp_handle;
 /* desegmentation of CMP over TCP */
 static bool cmp_desegment = true;
 
-static guint cmp_alternate_http_port;
-static guint cmp_alternate_tcp_style_http_port;
+static unsigned cmp_alternate_http_port;
+static unsigned cmp_alternate_tcp_style_http_port;
 
 /* Initialize the protocol and registered fields */
 static int proto_cmp;
@@ -60,7 +60,7 @@ static int hf_cmp_tcptrans10_flags;
 #include "packet-cmp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_cmp;
+static int ett_cmp;
 #include "packet-cmp-ett.c"
 #include "packet-cmp-fn.c"
 
@@ -68,9 +68,9 @@ static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-	return dissect_cmp_PKIMessage(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+	return dissect_cmp_PKIMessage(false, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 #define CMP_TYPE_PKIMSG		0
@@ -95,8 +95,8 @@ static const value_string cmp_pdu_types[] = {
 static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	tvbuff_t   *next_tvb;
-	guint32    pdu_len;
-	guint8     pdu_type;
+	uint32_t   pdu_len;
+	uint8_t    pdu_type;
 	proto_item *item=NULL;
 	proto_item *ti=NULL;
 	proto_tree *tree=NULL;
@@ -177,10 +177,10 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	return offset;
 }
 
-static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                              int offset, void *data _U_)
 {
-	guint32 plen;
+	uint32_t plen;
 
 	/*
 	 * Get the length of the CMP-over-TCP packet.
@@ -195,8 +195,8 @@ static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	guint32 pdu_len;
-	guint8 pdu_type;
+	uint32_t pdu_len;
+	uint8_t pdu_type;
 	int offset=4; /* RFC2510 TCP transport header length */
 
 	/* only attempt to dissect it as CMP over TCP if we have
@@ -308,7 +308,7 @@ void proto_register_cmp(void) {
 	};
 
 	/* List of subtrees */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cmp,
 #include "packet-cmp-ettarr.c"
 	};
@@ -353,9 +353,9 @@ void proto_register_cmp(void) {
 
 /*--- proto_reg_handoff_cmp -------------------------------------------*/
 void proto_reg_handoff_cmp(void) {
-	static gboolean inited = FALSE;
-	static guint cmp_alternate_http_port_prev = 0;
-	static guint cmp_alternate_tcp_style_http_port_prev = 0;
+	static bool inited = false;
+	static unsigned cmp_alternate_http_port_prev = 0;
+	static unsigned cmp_alternate_tcp_style_http_port_prev = 0;
 
 	if (!inited) {
 		dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
@@ -375,7 +375,7 @@ void proto_reg_handoff_cmp(void) {
 		oid_add_from_string("HMAC RIPEMD-160","1.3.6.1.5.5.8.1.4");
 
 #include "packet-cmp-dis-tab.c"
-		inited = TRUE;
+		inited = true;
 	}
 
 	/* change alternate HTTP port if changed in the preferences */

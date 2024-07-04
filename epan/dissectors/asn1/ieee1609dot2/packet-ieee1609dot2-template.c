@@ -48,11 +48,11 @@ static dissector_table_t ssp_subdissector_table;
 
 typedef struct ieee1609_private_data {
   tvbuff_t *unsecured_data;
-  guint64 psidssp; // psid for Service Specific Permissions
+  uint64_t psidssp; // psid for Service Specific Permissions
 } ieee1609_private_data_t;
 
 void
-ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
+ieee1609dot2_set_next_default_psid(packet_info *pinfo, uint32_t psid)
 {
   p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, GUINT_TO_POINTER(psid));
 }
@@ -61,9 +61,9 @@ ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
 
 
 static void
-ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
+ieee1609dot2_NinetyDegreeInt_fmt(char *s, uint32_t v)
 {
-  gint32 lat = (gint32)v;
+  int32_t lat = (int32_t)v;
   if (lat == 900000001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
   } else {
@@ -77,9 +77,9 @@ ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
 }
 
 static void
-ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
+ieee1609dot2_OneEightyDegreeInt_fmt(char *s, uint32_t v)
 {
-  gint32 lng = (gint32)v;
+  int32_t lng = (int32_t)v;
   if (lng == 1800000001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
   } else {
@@ -94,7 +94,7 @@ ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
 
 
 static void
-ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
+ieee1609dot2_Time32_fmt(char *s, uint32_t v)
 {
   time_t secs = v + 1072915200 - 5;
   struct tm *tm = gmtime(&secs);
@@ -104,10 +104,10 @@ ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
 }
 
 static void
-ieee1609dot2_Time64_fmt(gchar *s, guint64 v)
+ieee1609dot2_Time64_fmt(char *s, uint64_t v)
 {
   time_t secs = v / 1000000 + 1072915200 - 5;
-  guint32 usecs = v % 1000000;
+  uint32_t usecs = v % 1000000;
   struct tm *tm = gmtime(&secs);
   snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" PRIu64 ")",
     tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, usecs, v
@@ -123,7 +123,7 @@ void proto_register_ieee1609dot2(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-ieee1609dot2-ettarr.c"
         &ett_ieee1609dot2_ssp,
   };

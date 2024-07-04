@@ -16,7 +16,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
   VAL_PTR = &value
 
 #.FN_BODY AlgorithmID-ShortForm
-  guint32 value;
+  uint32_t value;
 
   %(DEFAULT_BODY)s
   proto_item_append_text (cdt_item, ", %%s",

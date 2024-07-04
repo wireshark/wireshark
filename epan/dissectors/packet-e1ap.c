@@ -1147,13 +1147,13 @@ static int hf_e1ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
 static int hf_e1ap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static gint ett_e1ap;
-static gint ett_e1ap_PLMN_Identity;
-static gint ett_e1ap_TransportLayerAddress;
-static gint ett_e1ap_InterfacesToTrace;
-static gint ett_e1ap_MeasurementsToActivate;
-static gint ett_e1ap_ReportCharacteristics;
-static gint ett_e1ap_BurstArrivalTime;
+static int ett_e1ap;
+static int ett_e1ap_PLMN_Identity;
+static int ett_e1ap_TransportLayerAddress;
+static int ett_e1ap_InterfacesToTrace;
+static int ett_e1ap_MeasurementsToActivate;
+static int ett_e1ap_ReportCharacteristics;
+static int ett_e1ap_BurstArrivalTime;
 static int ett_e1ap_PrivateIE_ID;
 static int ett_e1ap_ProtocolIE_Container;
 static int ett_e1ap_ProtocolIE_Field;
@@ -1595,9 +1595,9 @@ enum{
 };
 
 typedef struct {
-  guint32 message_type;
-  guint32 procedure_code;
-  guint32 protocol_ie_id;
+  uint32_t message_type;
+  uint32_t procedure_code;
+  uint32_t protocol_ie_id;
   const char *obj_id;
   e212_number_type_t number_type;
 } e1ap_private_data_t;
@@ -1620,19 +1620,19 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 static void
-e1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
+e1ap_MaxPacketLossRate_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
 }
 
 static void
-e1ap_PacketDelayBudget_uL_D1_Result_fmt(gchar *s, guint32 v)
+e1ap_PacketDelayBudget_uL_D1_Result_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
-e1ap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
+e1ap_ExtendedPacketDelayBudget_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
 }
@@ -2525,7 +2525,7 @@ dissect_e1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   if (param_tvb) {
     proto_tree *subtree;
-    gint tvb_len;
+    int tvb_len;
 
     tvb_len = tvb_reported_length(param_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_TransportLayerAddress);
@@ -6627,7 +6627,7 @@ dissect_e1ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_PLMN_Identity);
-    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, number_type, false);
   }
 
 
@@ -14128,7 +14128,7 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
   e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
 
-  return (dissector_try_uint_new(e1ap_ies_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e1ap_ies_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, false, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -14140,28 +14140,28 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
   e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
   e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
 
-  return (dissector_try_uint_new(e1ap_extension_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e1ap_extension_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, false, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e1ap_proc_imsg_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, FALSE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e1ap_proc_imsg_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e1ap_proc_sout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, FALSE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e1ap_proc_sout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e1ap_proc_uout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, FALSE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e1ap_proc_uout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -14183,7 +14183,7 @@ dissect_e1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_e1ap_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
@@ -14204,7 +14204,7 @@ dissect_e1ap_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
 static int
 dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, 4,
                    get_e1ap_tcp_pdu_len, dissect_e1ap_tcp_pdu, data);
   return tvb_captured_length(tvb);
 }
@@ -17449,7 +17449,7 @@ void proto_register_e1ap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_e1ap,
     &ett_e1ap_PLMN_Identity,
     &ett_e1ap_TransportLayerAddress,

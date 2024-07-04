@@ -259,11 +259,11 @@ enum{
 };
 
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-/*static guint32 ProtocolExtensionID; */
+static uint32_t ProcedureCode;
+static uint32_t ProtocolIE_ID;
+/*static uint32_t ProtocolExtensionID; */
 static int global_m3ap_port = M3AP_PORT;
-static guint32 message_type;
+static uint32_t message_type;
 
 /* Dissector tables */
 static dissector_table_t m3ap_ies_dissector_table;
@@ -850,11 +850,11 @@ dissect_m3ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   e212_number_type_t number_type = m3ap_data->number_type;
   m3ap_data->number_type = E212_NONE;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
 
   if (!parameter_tvb)
     return offset;
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, false);
 
   return offset;
 }
@@ -957,7 +957,7 @@ dissect_m3ap_GTP_TEID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_m3ap_IPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb=NULL;
-  gint tvb_len;
+  int tvb_len;
   proto_tree *subtree;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1075,7 +1075,7 @@ dissect_m3ap_MBMSServiceArea1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_m3ap_MBMS_Service_Area(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb=NULL;
-  guint16 tvb_len;
+  uint16_t tvb_len;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
@@ -1096,10 +1096,10 @@ dissect_m3ap_MBMS_Service_Area(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_m3ap_MBMS_Session_Duration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb=NULL;
-  guint16 tvb_len;
+  uint16_t tvb_len;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
 
   if (!parameter_tvb)
     return offset;
@@ -1138,7 +1138,7 @@ dissect_m3ap_MCEname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_m3ap_MinimumTimeToMBMSDataTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb=NULL;
-  guint16 tvb_len;
+  uint16_t tvb_len;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 1, false, &parameter_tvb);
@@ -2025,27 +2025,27 @@ static int dissect_M3AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint_new(m3ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(m3ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint_new(m3ap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(m3ap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint_new(m3ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(m3ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint_new(m3ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(m3ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint_new(m3ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(m3ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -2487,7 +2487,7 @@ void proto_register_m3ap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_m3ap,
     &ett_m3ap_IPAddress,
     &ett_m3ap_PrivateIE_ID,
@@ -2567,12 +2567,12 @@ void proto_register_m3ap(void) {
 void
 proto_reg_handoff_m3ap(void)
 {
-  static gboolean inited = FALSE;
-  static guint SctpPort;
+  static bool inited = false;
+  static unsigned SctpPort;
 
   if( !inited ) {
     dissector_add_uint("sctp.ppi", PROTO_3GPP_M3AP_PROTOCOL_ID, m3ap_handle);
-    inited = TRUE;
+    inited = true;
   dissector_add_uint("m3ap.ies", id_MME_MBMS_M3AP_ID, create_dissector_handle(dissect_MME_MBMS_M3AP_ID_PDU, proto_m3ap));
   dissector_add_uint("m3ap.ies", id_MCE_MBMS_M3AP_ID, create_dissector_handle(dissect_MCE_MBMS_M3AP_ID_PDU, proto_m3ap));
   dissector_add_uint("m3ap.ies", id_TMGI, create_dissector_handle(dissect_TMGI_PDU, proto_m3ap));

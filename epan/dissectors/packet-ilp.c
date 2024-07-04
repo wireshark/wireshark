@@ -496,8 +496,8 @@ static int hf_ilp_T_addPosMode_setAssisted;
 static int hf_ilp_mobile_directory_number;
 
 /* Initialize the subtree pointers */
-static gint ett_ilp;
-static gint ett_ilp_setid;
+static int ett_ilp;
+static int ett_ilp_setid;
 static int ett_ilp_ILP_PDU;
 static int ett_ilp_IlpMessage;
 static int ett_ilp_PREQ;
@@ -850,7 +850,7 @@ dissect_ilp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
-    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
+    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, false);
   }
 
 
@@ -4624,7 +4624,7 @@ static const per_choice_t IlpMessage_choice[] = {
 static int
 dissect_ilp_IlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-guint32 IlpMessage;
+uint32_t IlpMessage;
 
     offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ilp_IlpMessage, IlpMessage_choice,
@@ -4676,7 +4676,7 @@ static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 
-static guint
+static unsigned
 get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* PDU length = Message length */
@@ -6458,7 +6458,7 @@ void proto_register_ilp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ilp,
     &ett_ilp_setid,
     &ett_ilp_ILP_PDU,

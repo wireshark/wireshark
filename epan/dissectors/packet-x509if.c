@@ -273,9 +273,9 @@ static int ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString;
 static proto_tree *top_of_dn;
 static proto_tree *top_of_rdn;
 
-static gboolean rdn_one_value; /* have we seen one value in an RDN yet */
-static gboolean dn_one_rdn; /* have we seen one RDN in a DN yet */
-static gboolean doing_attr;
+static bool rdn_one_value; /* have we seen one value in an RDN yet */
+static bool dn_one_rdn; /* have we seen one RDN in a DN yet */
+static bool doing_attr;
 
 static wmem_strbuf_t *last_dn_buf;
 static wmem_strbuf_t *last_rdn_buf;
@@ -292,9 +292,9 @@ x509if_frame_end(void)
   top_of_dn = NULL;
   top_of_rdn = NULL;
 
-  rdn_one_value = FALSE;
-  dn_one_rdn = FALSE;
-  doing_attr = FALSE;
+  rdn_one_value = false;
+  dn_one_rdn = false;
+  doing_attr = false;
 
   last_dn_buf = NULL;
   last_rdn_buf = NULL;
@@ -466,7 +466,7 @@ static const ber_sequence_t Attribute_sequence[] = {
 
 int
 dissect_x509if_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	doing_attr = TRUE;
+	doing_attr = true;
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -727,7 +727,7 @@ dissect_x509if_T_atadv_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   actx->external.direct_reference = orig_oid;
 
   /* try and dissect as a string */
-  dissect_ber_octet_string(FALSE, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  dissect_ber_octet_string(false, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
 
   /* should also try and dissect as an OID and integer */
   /* of course, if I can look up the syntax .... */
@@ -835,7 +835,7 @@ dissect_x509if_RelativeDistinguishedName_item(bool implicit_tag _U_, tvbuff_t *t
     offset = dissect_x509if_AttributeTypeAndDistinguishedValue(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 
-  rdn_one_value = TRUE;
+  rdn_one_value = true;
 
 
   return offset;
@@ -848,7 +848,7 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  rdn_one_value = FALSE;
+  rdn_one_value = false;
   top_of_rdn = tree;
   last_rdn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
@@ -893,7 +893,7 @@ dissect_x509if_RDNSequence_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
     offset = dissect_x509if_RelativeDistinguishedName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 
-  dn_one_rdn = TRUE;
+  dn_one_rdn = true;
 
 
   return offset;
@@ -908,7 +908,7 @@ int
 dissect_x509if_RDNSequence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   const char *fmt;
 
-  dn_one_rdn = FALSE; /* reset */
+  dn_one_rdn = false; /* reset */
   last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
@@ -2050,7 +2050,7 @@ const char * x509if_get_last_dn(void)
   return last_dn_buf ? wmem_strbuf_get_str(last_dn_buf) : NULL;
 }
 
-gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
+bool x509if_register_fmt(int hf_index, const char *fmt)
 {
   static int idx = 0;
 
@@ -2064,10 +2064,10 @@ gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
     fmt_vals[idx].value = 0;
     fmt_vals[idx].strptr = NULL;
 
-    return TRUE;
+    return true;
 
   } else
-    return FALSE; /* couldn't register it */
+    return false; /* couldn't register it */
 
 }
 
@@ -2707,7 +2707,7 @@ void proto_register_x509if(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_x509if_Attribute,
     &ett_x509if_T_values,
     &ett_x509if_T_valuesWithContext,

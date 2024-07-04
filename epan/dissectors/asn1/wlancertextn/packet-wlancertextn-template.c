@@ -47,7 +47,7 @@ void proto_register_wlancertextn(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-wlancertextn-ettarr.c"
   };
 

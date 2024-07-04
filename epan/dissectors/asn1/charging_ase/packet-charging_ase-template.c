@@ -65,7 +65,7 @@ proto_register_charging_ase(void)
   };
 
   /* List of subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
     &ett_charging_ase,
 #include "packet-charging_ase-ettarr.c"
         };

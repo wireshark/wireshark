@@ -1440,7 +1440,7 @@ dissect_x509sat_SyntaxGeneralizedTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_x509sat_SyntaxUTCTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   char *outstr, *newstr;
-  guint32 tvblen;
+  uint32_t tvblen;
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
@@ -1600,17 +1600,17 @@ dissect_x509sat_SyntaxGeneralString(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_GUID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   e_guid_t uuid;
 
   if(!implicit_tag){
     offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
   } else {
-    gint32 remaining=tvb_reported_length_remaining(tvb, offset);
+    int32_t remaining=tvb_reported_length_remaining(tvb, offset);
     len=remaining>0 ? remaining : 0;
   }
 
@@ -2555,7 +2555,7 @@ void proto_register_x509sat(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_x509sat_DirectoryString,
     &ett_x509sat_Guide,
     &ett_x509sat_Criteria,

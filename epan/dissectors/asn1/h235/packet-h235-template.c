@@ -60,7 +60,7 @@ void proto_register_h235(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-h235-ettarr.c"
   };
 

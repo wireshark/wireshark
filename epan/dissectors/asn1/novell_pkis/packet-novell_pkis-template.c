@@ -38,7 +38,7 @@ void proto_register_novell_pkis (void)
   static hf_register_info hf[] = {
 #include "packet-novell_pkis-hfarr.c"
   };
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-novell_pkis-ettarr.c"
   };
 

@@ -41,7 +41,7 @@ void proto_register_ns_cert_exts(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-ns_cert_exts-ettarr.c"
   };
 

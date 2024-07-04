@@ -40,8 +40,8 @@ static dissector_handle_t xml_handle;
 #include "packet-lppe-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_lppe;
-static gint ett_lppe_civicLocation;
+static int ett_lppe;
+static int ett_lppe_civicLocation;
 #include "packet-lppe-ett.c"
 
 /* Include constants */
@@ -61,7 +61,7 @@ void proto_register_lppe(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_lppe,
       &ett_lppe_civicLocation,
 #include "packet-lppe-ettarr.c"

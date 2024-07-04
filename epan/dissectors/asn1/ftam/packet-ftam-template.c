@@ -43,7 +43,7 @@ static int hf_ftam_unstructured_binary;            /* ISO FTAM unstructured bina
 #include "packet-ftam-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_ftam;
+static int ett_ftam;
 #include "packet-ftam-ett.c"
 
 static expert_field ei_ftam_zero_pdu;
@@ -82,7 +82,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_ftam, tvb, 0, -1, ENC_NA);
@@ -93,7 +93,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=dissect_ftam_PDU(FALSE, tvb, offset, &asn1_ctx, tree, -1);
+		offset=dissect_ftam_PDU(false, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset){
 			proto_tree_add_expert(tree, pinfo, &ei_ftam_zero_pdu, tvb, offset, -1);
 			break;
@@ -119,7 +119,7 @@ void proto_register_ftam(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ftam,
 #include "packet-ftam-ettarr.c"
   };

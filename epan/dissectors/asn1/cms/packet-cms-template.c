@@ -40,7 +40,7 @@ static int hf_cms_ci_contentType;
 #include "packet-cms-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_cms;
+static int ett_cms;
 #include "packet-cms-ett.c"
 
 static dissector_handle_t cms_handle;
@@ -78,7 +78,7 @@ dissect_cms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_cms, tvb, 0, -1, ENC_NA);
@@ -88,7 +88,7 @@ dissect_cms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
-		offset=dissect_cms_ContentInfo(FALSE, tvb, offset, &asn1_ctx , tree, -1);
+		offset=dissect_cms_ContentInfo(false, tvb, offset, &asn1_ctx , tree, -1);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -155,7 +155,7 @@ void proto_register_cms(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_cms,
 #include "packet-cms-ettarr.c"
   };

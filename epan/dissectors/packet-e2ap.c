@@ -1079,7 +1079,7 @@ static int hf_e2ap_timestamp_string;
 
 
 /* Initialize the subtree pointers */
-static gint ett_e2ap;
+static int ett_e2ap;
 
 static expert_field ei_e2ap_ran_function_names_no_match;
 static expert_field ei_e2ap_ran_function_id_not_mapped;
@@ -1634,15 +1634,15 @@ enum {
 
 static void set_stats_message_type(packet_info *pinfo, int type);
 
-static const guint8 *st_str_packets        = "Total Packets";
-static const guint8 *st_str_packet_types   = "E2AP Packet Types";
+static const uint8_t *st_str_packets        = "Total Packets";
+static const uint8_t *st_str_packet_types   = "E2AP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
 static int e2ap_tap;
 
 struct e2ap_tap_t {
-    gint e2ap_mtype;
+    int e2ap_mtype;
 };
 
 #define MTYPE_E2_CONNECTION_UPDATE             1
@@ -1719,14 +1719,14 @@ static void set_message_label(asn1_ctx_t *actx, int type)
 
 /* Temporary private info to remember while dissecting frame */
 struct e2ap_private_data {
-  guint32 procedure_code;
-  guint32 protocol_ie_id;
-  guint32 message_type;
+  uint32_t procedure_code;
+  uint32_t protocol_ie_id;
+  uint32_t message_type;
 
-  guint32 ran_function_id;
-  guint32 gnb_id_len;
+  uint32_t ran_function_id;
+  uint32_t gnb_id_len;
 #define MAX_GNB_ID_BYTES 6
-  guint8  gnb_id_bytes[MAX_GNB_ID_BYTES];
+  uint8_t gnb_id_bytes[MAX_GNB_ID_BYTES];
   dissector_handle_t component_configuration_dissector;
   struct e2ap_tap_t *stats_tap;
 };
@@ -1758,8 +1758,8 @@ static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
 
 /* Per-conversation mapping: ranFunctionId -> ran_function+dissector */
 typedef struct {
-    guint32                  setup_frame;
-    guint32                  ran_function_id;
+    uint32_t                 setup_frame;
+    uint32_t                 ran_function_id;
     ran_function_t           ran_function;
     char                     oid[MAX_OID_LEN];       // i.e., OID from setupRequest
     ran_function_dissector_t *dissector;
@@ -1767,7 +1767,7 @@ typedef struct {
 
 typedef struct  {
 #define MAX_RANFUNCTION_ENTRIES 8
-    guint32                   num_entries;
+    uint32_t                  num_entries;
     ran_function_id_mapping_t entries[MAX_RANFUNCTION_ENTRIES];
 } ran_functionid_table_t;
 
@@ -1791,10 +1791,10 @@ static const char *ran_function_to_str(ran_function_t ran_function)
 /* Table of RAN Function tables, indexed by gnbId (bytes) */
 typedef struct {
 #define MAX_GNBS 6
-    guint32 num_gnbs;
+    uint32_t num_gnbs;
     struct {
-        guint8  id_value[MAX_GNB_ID_BYTES];
-        guint32 id_len;
+        uint8_t id_value[MAX_GNB_ID_BYTES];
+        uint32_t id_len;
         ran_functionid_table_t *ran_function_table;
     } gnb[MAX_GNBS];
 } gnb_ran_functions_t;
@@ -1804,7 +1804,7 @@ static gnb_ran_functions_t s_gnb_ran_functions_table;
 
 /* Table of available dissectors for each RAN function */
 typedef struct {
-    guint32                  num_available_dissectors;
+    uint32_t                 num_available_dissectors;
 #define MAX_DISSECTORS_PER_RAN_FUNCTION 3
     ran_function_dissector_t* ran_function_dissectors[MAX_DISSECTORS_PER_RAN_FUNCTION];
 } ran_function_available_dissectors_t;
@@ -1871,7 +1871,7 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
         return;
     }
 
-    guint32 ran_function_id = e2ap_data->ran_function_id;
+    uint32_t ran_function_id = e2ap_data->ran_function_id;
 
     ran_function_t           ran_function = MAX_RANFUNCTIONS;  /* i.e. invalid */
     ran_function_dissector_t *ran_function_dissector = NULL;
@@ -1896,14 +1896,14 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
     }
 
     /* If ID already mapped, can stop here */
-    for (guint n=0; n < table->num_entries; n++) {
+    for (unsigned n=0; n < table->num_entries; n++) {
         if (table->entries[n].ran_function_id == ran_function_id) {
             return;
         }
     }
 
     /* OK, store this new entry */
-    guint idx = table->num_entries++;
+    unsigned idx = table->num_entries++;
     table->entries[idx].setup_frame = pinfo->num;
     table->entries[idx].ran_function_id = ran_function_id;
     table->entries[idx].ran_function = ran_function;
@@ -1911,22 +1911,22 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
 
     /* When add first entry, also want to set up table from gnbId -> table */
     if (idx == 0) {
-        guint id_len = e2ap_data->gnb_id_len;
-        guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
+        unsigned id_len = e2ap_data->gnb_id_len;
+        uint8_t *id_value = &e2ap_data->gnb_id_bytes[0];
 
-        gboolean found = FALSE;
-        for (guint n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
+        bool found = false;
+        for (unsigned n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
             if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
                 (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
                 /* Already have an entry for this gnb. */
-                found = TRUE;
+                found = true;
                 break;
             }
         }
 
         if (!found) {
             /* Add entry (if room for 1 more) */
-            guint32 new_idx = s_gnb_ran_functions_table.num_gnbs;
+            uint32_t new_idx = s_gnb_ran_functions_table.num_gnbs;
             if (new_idx < MAX_GNBS-1) {
                 s_gnb_ran_functions_table.gnb[new_idx].id_len = id_len;
                 memcpy(s_gnb_ran_functions_table.gnb[new_idx].id_value, id_value, id_len);
@@ -1943,7 +1943,7 @@ static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo
 {
     /* Get ranFunctionID from this frame */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
-    guint ran_function_id = e2ap_data->ran_function_id;
+    unsigned ran_function_id = e2ap_data->ran_function_id;
 
     /* Get ranFunction table corresponding to this frame's conversation */
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
@@ -1953,7 +1953,7 @@ static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo
     }
 
     /* Find the entry in this table corresponding to ran_function_id */
-    for (guint n=0; n < table->num_entries; n++) {
+    for (unsigned n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
             if (tree) {
                 /* Point back at the setup frame where this ranfunction was mapped */
@@ -2000,7 +2000,7 @@ static char* lookup_ranfunction_oid(packet_info *pinfo)
 {
     /* Get ranFunctionID from this frame */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
-    guint ran_function_id = e2ap_data->ran_function_id;
+    unsigned ran_function_id = e2ap_data->ran_function_id;
 
     /* Get ranFunction table corresponding to this frame's conversation */
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
@@ -2010,7 +2010,7 @@ static char* lookup_ranfunction_oid(packet_info *pinfo)
     }
 
     /* Find the entry in this table corresponding to ran_function_id */
-    for (guint n=0; n < table->num_entries; n++) {
+    for (unsigned n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
             return (char*)(table->entries[n].oid);
         }
@@ -2030,7 +2030,7 @@ static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_fu
         return;
     }
 
-    gboolean found = FALSE;
+    bool found = false;
 
     /* Look at available dissectors for this RAN function */
     ran_function_available_dissectors_t *available = &g_ran_functions_available_dissectors[ran_function];
@@ -2041,7 +2041,7 @@ static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_fu
 
     // Get mapping in use
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
-    guint ran_function_id = e2ap_data->ran_function_id;
+    unsigned ran_function_id = e2ap_data->ran_function_id;
     ran_function_id_mapping_t *mapping = NULL;
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
     if (!table) {
@@ -2049,7 +2049,7 @@ static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_fu
     }
 
     /* Find the entry in this table corresponding to ran_function_id */
-    for (guint n=0; n < table->num_entries; n++) {
+    for (unsigned n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
             mapping = &(table->entries[n]);
         }
@@ -2060,11 +2060,11 @@ static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_fu
     }
 
     /* Set dissector pointer in ran_function_id_mapping_t */
-    for (guint32 n=0; n < available->num_available_dissectors; n++) {
+    for (uint32_t n=0; n < available->num_available_dissectors; n++) {
         /* If exact match, set it */
         if (strcmp(frame_oid, available->ran_function_dissectors[n]->oid) == 0) {
             mapping->dissector = available->ran_function_dissectors[n];
-            found = TRUE;
+            found = true;
             break;
         }
     }
@@ -2087,7 +2087,7 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
         return;
     }
     ran_function_t ran_function = MAX_RANFUNCTIONS;
-    for (guint n=0; n < table->num_entries; n++) {
+    for (unsigned n=0; n < table->num_entries; n++) {
         if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
             ran_function = table->entries[n].ran_function;
             g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
@@ -2131,10 +2131,10 @@ static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
         conversation_add_proto_data(p_conv, proto_e2ap, p_conv_data);
 
         /* Look to see if we already know about the mappings in effect on this gNB */
-        guint id_len = e2ap_data->gnb_id_len;
-        guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
+        unsigned id_len = e2ap_data->gnb_id_len;
+        uint8_t *id_value = &e2ap_data->gnb_id_bytes[0];
 
-        for (guint n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
+        for (unsigned n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
             if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
                 (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
 
@@ -3421,12 +3421,12 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
   /* Looking for shortName string near beginning of tvb */
-  gboolean found = FALSE;
+  bool found = false;
   /* For each RAN function name.. */
   int n, found_index;
   for (n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
-    guint32 tvb_len = tvb_captured_length(parameter_tvb);
-    guint name_len = (gint)strlen(g_ran_function_name_table[n]);
+    uint32_t tvb_len = tvb_captured_length(parameter_tvb);
+    unsigned name_len = (int)strlen(g_ran_function_name_table[n]);
     /* For each of several byte positions.. */
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
       /* Have we found a match on the name? */
@@ -3435,7 +3435,7 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
            so for now just call with the first/only available dissector for this RAN Function name */
         if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
           g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
-          found = TRUE;
+          found = true;
           found_index = n;
           break;
         }
@@ -3465,7 +3465,7 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_e2ap_RANfunctionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4095U, &value, false);
 
@@ -14527,7 +14527,7 @@ static int dissect_E2SM_NI_RANfunction_Description_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
-  return (dissector_try_uint_new(e2ap_ies_dissector_table, e2ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e2ap_ies_dissector_table, e2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -14553,21 +14553,21 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e2ap_proc_imsg_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e2ap_proc_imsg_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e2ap_proc_sout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e2ap_proc_sout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e2ap_proc_uout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(e2ap_proc_uout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -18323,7 +18323,7 @@ void proto_register_e2ap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_e2ap,
     &ett_e2ap_ProtocolIE_Container,
     &ett_e2ap_ProtocolIE_Field,

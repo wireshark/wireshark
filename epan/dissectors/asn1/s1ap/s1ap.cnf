@@ -253,15 +253,15 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   s1ap_data->number_type = E212_NONE;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
   if(tvb_reported_length(tvb)==0)
     return offset;
 
   if (!parameter_tvb)
     return offset;
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, false);
   if (s1ap_data->supported_ta) {
-    guint32 plmn = tvb_get_ntoh24(parameter_tvb, 0);
+    uint32_t plmn = tvb_get_ntoh24(parameter_tvb, 0);
     wmem_array_append_one(s1ap_data->supported_ta->plmn, plmn);
   } else if (s1ap_data->tai) {
     s1ap_data->tai->plmn = tvb_get_ntoh24(parameter_tvb, 0);
@@ -271,7 +271,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_BODY ENBname VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;
-  gboolean is_ascii;
+  bool is_ascii;
 
 %(DEFAULT_BODY)s
 
@@ -287,7 +287,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_BODY MMEname VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;
-  gboolean is_ascii;
+  bool is_ascii;
 
 %(DEFAULT_BODY)s
 
@@ -324,7 +324,7 @@ tvbuff_t *parameter_tvb=NULL;
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
-  gint tvb_len;
+  int tvb_len;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -376,17 +376,17 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 %(DEFAULT_BODY)s
 
 #.FN_BODY SRVCCHOIndication VAL_PTR = &srvcc_ho_ind
-  guint32 srvcc_ho_ind;
+  uint32_t srvcc_ho_ind;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (srvcc_ho_ind == cSonly)
-    s1ap_data->srvcc_ho_cs_only = TRUE;
+    s1ap_data->srvcc_ho_cs_only = true;
 
 #Undef the value before use
 #.FN_HDR HandoverRequired
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->handover_type_value = 0xff;
-  s1ap_data->srvcc_ho_cs_only = FALSE;
+  s1ap_data->srvcc_ho_cs_only = false;
 #.FN_HDR HandoverCommand
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->handover_type_value = 0xff;
@@ -399,7 +399,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
 #.FN_BODY SourceeNB-ToTargeteNB-TransparentContainer
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-  volatile guint32 _offset;
+  volatile uint32_t _offset;
 
   s1ap_data->transparent_container_type = SOURCE_TO_TARGET_TRANSPARENT_CONTAINER;
   _offset = offset;
@@ -492,7 +492,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
 #.FN_BODY TargeteNB-ToSourceeNB-TransparentContainer
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-  volatile guint32 _offset;
+  volatile uint32_t _offset;
 
   s1ap_data->transparent_container_type = TARGET_TO_SOURCE_TRANSPARENT_CONTAINER;
   _offset = offset;
@@ -957,7 +957,7 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS 
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_E_UTRAN_Trace_ID);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
   proto_tree_add_item(subtree, hf_s1ap_E_UTRAN_Trace_ID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_s1ap_E_UTRAN_Trace_ID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
@@ -1423,7 +1423,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_IMSI);
-    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), FALSE);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
   }
 
 #.FN_BODY NASSecurityParametersfromE-UTRAN VAL_PTR = &parameter_tvb
@@ -1450,29 +1450,29 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
       ((s1ap_data->procedure_code == id_S1Setup) ||
        (s1ap_data->procedure_code == id_ENBConfigurationUpdate))) {
     s1ap_data->supported_ta = wmem_new0(actx->pinfo->pool, struct s1ap_supported_ta);
-    s1ap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(guint32));
+    s1ap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(uint32_t));
   }
 
 #.FN_FTR SupportedTAs-Item
   s1ap_data->supported_ta = NULL;
 
 #.FN_BODY RAT-Type VAL_PTR = &rat_type
-  guint32 rat_type = 0xffffffff;
+  uint32_t rat_type = 0xffffffff;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (s1ap_data->s1ap_conv && s1ap_data->supported_ta && rat_type <= nbiot_othersat) {
-    guint64 *key;
-    guint i;
+    uint64_t *key;
+    unsigned i;
 
     for (i = 0; i < wmem_array_get_count(s1ap_data->supported_ta->plmn); i++) {
-      key = wmem_new(wmem_file_scope(), guint64);
-      *key = ((*(guint32*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
+      key = wmem_new(wmem_file_scope(), uint64_t);
+      *key = ((*(uint32_t*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
       wmem_map_insert(s1ap_data->s1ap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
 
 #.FN_BODY ENB-UE-S1AP-ID VAL_PTR = &enb_ue_s1ap_id
-  guint32 enb_ue_s1ap_id;
+  uint32_t enb_ue_s1ap_id;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (hf_index == hf_s1ap_eNB_UE_S1AP_ID) {
@@ -1481,10 +1481,10 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
     proto_item_set_hidden(item);
   }
 
-  s1ap_data->enb_ue_s1ap_id = (guint16)enb_ue_s1ap_id;
+  s1ap_data->enb_ue_s1ap_id = (uint16_t)enb_ue_s1ap_id;
 
 #.FN_BODY MME-UE-S1AP-ID VAL_PTR = &mme_ue_s1ap_id
-  guint32 mme_ue_s1ap_id;
+  uint32_t mme_ue_s1ap_id;
 %(DEFAULT_BODY)s
   if (hf_index == hf_s1ap_mME_UE_S1AP_ID) {
     proto_item *item;
@@ -1500,11 +1500,11 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
   if (!PINFO_FD_VISITED(actx->pinfo) && s1ap_data->s1ap_conv &&
       (s1ap_data->message_type == INITIATING_MESSAGE) &&
       (s1ap_data->procedure_code == id_initialUEMessage)) {
-    guint64 key = (s1ap_data->tai->plmn << 16) | s1ap_data->tai->tac;
+    uint64_t key = (s1ap_data->tai->plmn << 16) | s1ap_data->tai->tac;
 
     if (wmem_map_lookup(s1ap_data->s1ap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
-      guint32 *id = wmem_new(wmem_file_scope(), guint32);
+      uint32_t *id = wmem_new(wmem_file_scope(), uint32_t);
 
       *id = s1ap_data->enb_ue_s1ap_id;
       tree_key[0].length = 1;
@@ -2667,27 +2667,27 @@ MMEEarlyStatusTransfer                  N s1ap.proc.imsg id-MMEEarlyStatusTransf
 # Whenever a Cause appears, look up the reason and show it in the Info column
 
 #.FN_BODY CauseRadioNetwork VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%%s]", val_to_str_const(value, s1ap_CauseRadioNetwork_vals, "Unknown"));
 
 #.FN_BODY CauseTransport VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Transport-cause=%%s]", val_to_str_const(value, s1ap_CauseTransport_vals, "Unknown"));
 
 #.FN_BODY CauseNas VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [NAS-cause=%%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
 
 #.FN_BODY CauseProtocol VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));
 
 #.FN_BODY CauseMisc VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Misc-cause=%%s]", val_to_str_const(value, s1ap_CauseMisc_vals, "Unknown"));
 

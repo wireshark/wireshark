@@ -79,21 +79,21 @@ enum rrc_sib_segment_type {
 
 typedef struct umts_rrc_private_data_t
 {
-  guint32 s_rnc_id; /* The S-RNC ID part of a U-RNTI */
-  guint32 s_rnti; /* The S-RNTI part of a U-RNTI */
-  guint32 new_u_rnti;
-  guint32 current_u_rnti;
-  guint32 scrambling_code;
+  uint32_t s_rnc_id; /* The S-RNC ID part of a U-RNTI */
+  uint32_t s_rnti; /* The S-RNTI part of a U-RNTI */
+  uint32_t new_u_rnti;
+  uint32_t current_u_rnti;
+  uint32_t scrambling_code;
   enum nas_sys_info_gsm_map cn_domain;
   wmem_strbuf_t* digits_strbuf; /* A collection of digits in a string. Used for reconstructing IMSIs or MCC-MNC pairs */
   wmem_strbuf_t* last_mcc_strbuf; /* Last seen MCC digits string */
-  gboolean digits_strbuf_parsing_failed_flag; /* Whether an error occurred when creating the IMSI/MCC-MNC pair string */
-  guint32 rbid;
-  guint32 rlc_ciphering_sqn; /* Sequence number where ciphering starts in a given bearer */
+  bool digits_strbuf_parsing_failed_flag; /* Whether an error occurred when creating the IMSI/MCC-MNC pair string */
+  uint32_t rbid;
+  uint32_t rlc_ciphering_sqn; /* Sequence number where ciphering starts in a given bearer */
   rrc_ciphering_info* ciphering_info;
   enum rrc_ue_state rrc_state_indicator;
   enum rrc_sib_segment_type curr_sib_segment_type;
-  guint32 curr_sib_type;
+  uint32_t curr_sib_type;
 } umts_rrc_private_data_t;
 
 
@@ -106,61 +106,61 @@ static umts_rrc_private_data_t* umts_rrc_get_private_data(asn1_ctx_t *actx)
   return (umts_rrc_private_data_t*)actx->private_data;
 }
 
-static guint32 private_data_get_s_rnc_id(asn1_ctx_t *actx)
+static uint32_t private_data_get_s_rnc_id(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->s_rnc_id;
 }
 
-static void private_data_set_s_rnc_id(asn1_ctx_t *actx, guint32 s_rnc_id)
+static void private_data_set_s_rnc_id(asn1_ctx_t *actx, uint32_t s_rnc_id)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->s_rnc_id = s_rnc_id;
 }
 
-static guint32 private_data_get_s_rnti(asn1_ctx_t *actx)
+static uint32_t private_data_get_s_rnti(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->s_rnti;
 }
 
-static void private_data_set_s_rnti(asn1_ctx_t *actx, guint32 s_rnti)
+static void private_data_set_s_rnti(asn1_ctx_t *actx, uint32_t s_rnti)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->s_rnti = s_rnti;
 }
 
-static guint32 private_data_get_new_u_rnti(asn1_ctx_t *actx)
+static uint32_t private_data_get_new_u_rnti(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->new_u_rnti;
 }
 
-static void private_data_set_new_u_rnti(asn1_ctx_t *actx, guint32 new_u_rnti)
+static void private_data_set_new_u_rnti(asn1_ctx_t *actx, uint32_t new_u_rnti)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->new_u_rnti = new_u_rnti;
 }
 
-static guint32 private_data_get_current_u_rnti(asn1_ctx_t *actx)
+static uint32_t private_data_get_current_u_rnti(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->current_u_rnti;
 }
 
-static void private_data_set_current_u_rnti(asn1_ctx_t *actx, guint32 current_u_rnti)
+static void private_data_set_current_u_rnti(asn1_ctx_t *actx, uint32_t current_u_rnti)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->current_u_rnti = current_u_rnti;
 }
 
-static guint32 private_data_get_scrambling_code(asn1_ctx_t *actx)
+static uint32_t private_data_get_scrambling_code(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->scrambling_code;
 }
 
-static void private_data_set_scrambling_code(asn1_ctx_t *actx, guint32 scrambling_code)
+static void private_data_set_scrambling_code(asn1_ctx_t *actx, uint32_t scrambling_code)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->scrambling_code = scrambling_code;
@@ -190,13 +190,13 @@ static void private_data_set_digits_strbuf(asn1_ctx_t *actx, wmem_strbuf_t* digi
   private_data->digits_strbuf = digits_strbuf;
 }
 
-static gboolean private_data_get_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx)
+static bool private_data_get_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->digits_strbuf_parsing_failed_flag;
 }
 
-static void private_data_set_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx, gboolean digits_strbuf_parsing_failed_flag)
+static void private_data_set_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx, bool digits_strbuf_parsing_failed_flag)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->digits_strbuf_parsing_failed_flag = digits_strbuf_parsing_failed_flag;
@@ -214,25 +214,25 @@ static void private_data_set_last_mcc_strbuf(asn1_ctx_t *actx, wmem_strbuf_t* la
   private_data->last_mcc_strbuf = last_mcc_strbuf;
 }
 
-static guint32 private_data_get_rbid(asn1_ctx_t *actx)
+static uint32_t private_data_get_rbid(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->rbid;
 }
 
-static void private_data_set_rbid(asn1_ctx_t *actx, guint32 rbid)
+static void private_data_set_rbid(asn1_ctx_t *actx, uint32_t rbid)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->rbid = rbid;
 }
 
-static guint32 private_data_get_rlc_ciphering_sqn(asn1_ctx_t *actx)
+static uint32_t private_data_get_rlc_ciphering_sqn(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->rlc_ciphering_sqn;
 }
 
-static void private_data_set_rlc_ciphering_sqn(asn1_ctx_t *actx, guint32 rlc_ciphering_sqn)
+static void private_data_set_rlc_ciphering_sqn(asn1_ctx_t *actx, uint32_t rlc_ciphering_sqn)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->rlc_ciphering_sqn = rlc_ciphering_sqn;
@@ -274,13 +274,13 @@ static void private_data_set_curr_sib_segment_type(asn1_ctx_t *actx, enum rrc_si
   private_data->curr_sib_segment_type = curr_sib_segment_type;
 }
 
-static guint32 private_data_get_curr_sib_type(asn1_ctx_t *actx)
+static uint32_t private_data_get_curr_sib_type(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   return private_data->curr_sib_type;
 }
 
-static void private_data_set_curr_sib_type(asn1_ctx_t *actx, guint32 curr_sib_type)
+static void private_data_set_curr_sib_type(asn1_ctx_t *actx, uint32_t curr_sib_type)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->curr_sib_type = curr_sib_type;
@@ -324,11 +324,11 @@ static int ett_rrc;
 
 #include "packet-rrc-ett.c"
 
-static gint ett_rrc_eutraFeatureGroupIndicators;
-static gint ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo;
-static gint ett_rrc_ims_info;
-static gint ett_rrc_cellIdentity;
-static gint ett_rrc_sib_data_var;
+static int ett_rrc_eutraFeatureGroupIndicators;
+static int ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo;
+static int ett_rrc_ims_info;
+static int ett_rrc_cellIdentity;
+static int ett_rrc_sib_data_var;
 
 static expert_field ei_rrc_no_hrnti;
 
@@ -372,7 +372,7 @@ static int flowd,type;
 
 /*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
 #define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
-static guint8 num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
+static uint8_t num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
 
 /**
  * Return the maximum counter, useful for initiating counters
@@ -380,10 +380,10 @@ static guint8 num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
 #if 0
 static int get_max_counter(int com_context){
     int i;
-    guint32 max = 0;
+    uint32_t max = 0;
     rrc_ciphering_info * ciphering_info;
 
-    if( (ciphering_info = g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((gint)com_context))) == NULL ){
+    if( (ciphering_info = g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((int)com_context))) == NULL ){
         return 0;
     }
     for(i = 0; i<31; i++){
@@ -394,28 +394,28 @@ static int get_max_counter(int com_context){
 }
 #endif
 /** Utility functions used for various comparisons/cleanups in tree **/
-static gint rrc_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
+static int rrc_key_cmp(const void *b_ptr, const void *a_ptr, void *ignore _U_){
     if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
         return  -1;
     }
     return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
 }
 
-static void rrc_free_value(gpointer value ){
+static void rrc_free_value(void *value ){
             g_free(value);
 }
 
 static rrc_ciphering_info*
 get_or_create_cipher_info(fp_info *fpinf, rlc_info *rlcinf) {
   rrc_ciphering_info *cipher_info = NULL;
-  guint32 ueid;
+  uint32_t ueid;
   int i;
 
   if (!fpinf || !rlcinf)
     return NULL;
 
   ueid = rlcinf->ueid[fpinf->cur_tb];
-  cipher_info = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((gint)ueid));
+  cipher_info = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((int)ueid));
 
   if( cipher_info == NULL ){
     cipher_info = g_new0(rrc_ciphering_info,1);
@@ -435,16 +435,16 @@ get_or_create_cipher_info(fp_info *fpinf, rlc_info *rlcinf) {
     cipher_info->ciphering_algorithm = -1;
     cipher_info->integrity_algorithm = -1;
 
-    g_tree_insert(rrc_ciph_info_tree, GINT_TO_POINTER((gint)rlcinf->ueid[fpinf->cur_tb]), cipher_info);
+    g_tree_insert(rrc_ciph_info_tree, GINT_TO_POINTER((int)rlcinf->ueid[fpinf->cur_tb]), cipher_info);
   }
   return cipher_info;
 }
 
 /* Try to find the NBAP C-RNC Context and, if found, pair it with a given U-RNTI */
 static void
-rrc_try_map_urnti_to_crncc(guint32 u_rnti, asn1_ctx_t *actx)
+rrc_try_map_urnti_to_crncc(uint32_t u_rnti, asn1_ctx_t *actx)
 {
-  guint32 scrambling_code, crnc_context;
+  uint32_t scrambling_code, crnc_context;
   /* Getting the user's Uplink Scrambling Code*/
   scrambling_code = private_data_get_scrambling_code(actx);
   if (u_rnti != 0 && scrambling_code != 0) {
@@ -479,7 +479,7 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
 
     /*Clear memory*/
-    memset(num_chans_per_flow,0,sizeof(guint8)*RRC_MAX_NUM_HSDHSCH_MACDFLOW);
+    memset(num_chans_per_flow,0,sizeof(uint8_t)*RRC_MAX_NUM_HSDHSCH_MACDFLOW);
 
     /* create the rrc protocol tree */
     rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);
@@ -599,7 +599,7 @@ void proto_register_rrc(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rrc,
 #include "packet-rrc-ettarr.c"
     &ett_rrc_eutraFeatureGroupIndicators,

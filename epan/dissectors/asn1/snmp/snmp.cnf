@@ -31,7 +31,7 @@ BulkPDU/request-id bulkPDU_request-id
 	VAL_PTR = &pdu_type
 
 #.FN_BODY PDUs
-	gint pdu_type=-1;
+	int pdu_type=-1;
 
 	snmp_request_response_t *srrp;
 	snmp_conv_info_t *snmp_info = (snmp_conv_info_t *)actx->private_data;
@@ -75,12 +75,12 @@ BulkPDU/request-id bulkPDU_request-id
 #.FN_PARS Trap-PDU/_untag/generic-trap    VAL_PTR = &generic_trap
 
 #.FN_BODY Trap-PDU/_untag/specific-trap   VAL_PTR = &specific_trap
-  guint specific_trap;
+  unsigned specific_trap;
 
 %(DEFAULT_BODY)s
 
 	if (generic_trap == 6) { /* enterprise specific */
-		const gchar *specific_str = snmp_lookup_specific_trap (specific_trap);
+		const char *specific_str = snmp_lookup_specific_trap (specific_trap);
 		if (specific_str) {
 		proto_item_append_text(actx->created_item, " (%%s)", specific_str);
 		}
@@ -91,7 +91,7 @@ BulkPDU/request-id bulkPDU_request-id
 #.FN_PARS EnterpriseOID  FN_VARIANT = _str  VAL_PTR = &enterprise_oid
 
 #.FN_BODY EnterpriseOID
-	const gchar* name;
+	const char* name;
 
 %(DEFAULT_BODY)s
 
@@ -137,7 +137,7 @@ BulkPDU/request-id bulkPDU_request-id
 	VAL_PTR = &usm_p.user_tvb
 
 #.FN_BODY UsmSecurityParameters/msgAuthenticationParameters
-	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
+	offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = %(ACTX)s->created_item;
 		usm_p.auth_offset = tvb_offset_from_real_beginning(usm_p.auth_tvb);
@@ -147,13 +147,13 @@ BulkPDU/request-id bulkPDU_request-id
 
 #.FN_BODY ScopedPduData/encryptedPDU
 	tvbuff_t* crypt_tvb;
-	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
+	offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
 
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
 
-		const gchar* error = NULL;
+		const char* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, actx->pinfo, &error );
 
@@ -181,7 +181,7 @@ BulkPDU/request-id bulkPDU_request-id
 
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,ENC_NA);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
-			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
+			dissect_snmp_ScopedPDU(false, cleartext_tvb, 0, actx, decrypted_tree, -1);
 			}
 	} else {
 			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
@@ -193,7 +193,7 @@ BulkPDU/request-id bulkPDU_request-id
 		case SNMP_SEC_USM:	/* 3 */
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
 			offset = get_ber_length(tvb, offset, NULL, NULL);
-			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset, actx, tree, -1);
+			offset = dissect_snmp_UsmSecurityParameters(false, tvb, offset, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb, actx->pinfo);
 			break;
 		case SNMP_SEC_ANY:	/* 0 */
@@ -208,11 +208,11 @@ BulkPDU/request-id bulkPDU_request-id
 
 	if( usm_p.authenticated
 		&& usm_p.user_assoc ) {
-		const gchar* error = NULL;
+		const char* error = NULL;
 		proto_item* authen_item;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
-		guint8* calc_auth = NULL;
-		guint calc_auth_len = 0;
+		uint8_t* calc_auth = NULL;
+		unsigned calc_auth_len = 0;
 
 		usm_p.authOK = snmp_usm_auth(actx->pinfo, usm_p.user_assoc->user.authModel, &usm_p, &calc_auth, &calc_auth_len, &error );
 
@@ -227,7 +227,7 @@ BulkPDU/request-id bulkPDU_request-id
 			if (usm_p.authOK) {
 				expert = &ei_snmp_authentication_ok;
 			} else {
-				const gchar* calc_auth_str = bytes_to_str_punct(actx->pinfo->pool, calc_auth,calc_auth_len,' ');
+				const char* calc_auth_str = bytes_to_str_punct(actx->pinfo->pool, calc_auth,calc_auth_len,' ');
 				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
 				expert = &ei_snmp_authentication_error;
 			}
@@ -245,15 +245,15 @@ BulkPDU/request-id bulkPDU_request-id
 
  %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
+		uint8_t v3_flags = tvb_get_guint8(parameter_tvb, 0);
 		proto_tree* flags_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_msgFlags);
 
 		proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(flags_tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 
-		usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
-		usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;
+		usm_p.encrypted = v3_flags & TH_CRYPT ? true : false;
+		usm_p.authenticated = v3_flags & TH_AUTH ? true : false;
 	}
 
 

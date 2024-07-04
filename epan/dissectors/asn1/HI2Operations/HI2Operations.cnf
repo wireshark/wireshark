@@ -33,12 +33,12 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 #.FN_HDR UUS1-Content
 
 /* Heuristic test to see if it's our content */
-    gint8    tmp_class;
+    int8_t   tmp_class;
     bool tmp_pc;
-    gint32   tmp_tag;
+    int32_t  tmp_tag;
     int      tmp_offset;
-    guint    length = tvb_captured_length(tvb);
-    guint32  tmp_length;
+    unsigned length = tvb_captured_length(tvb);
+    uint32_t tmp_length;
     bool tmp_ind;
 
     /* Check for min length */

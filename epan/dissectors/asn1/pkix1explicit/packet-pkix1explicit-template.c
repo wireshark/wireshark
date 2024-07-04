@@ -108,7 +108,7 @@ void proto_register_pkix1explicit(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_pkix1explicit_addressFamily,
 #include "packet-pkix1explicit-ettarr.c"
   };

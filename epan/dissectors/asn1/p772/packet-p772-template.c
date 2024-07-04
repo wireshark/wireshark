@@ -38,7 +38,7 @@ static int proto_p772;
 #include "packet-p772-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_p772;
+static int ett_p772;
 #include "packet-p772-ett.c"
 
 #include "packet-p772-fn.c"
@@ -54,7 +54,7 @@ dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_p772, tvb, 0, -1, ENC_NA);
@@ -64,7 +64,7 @@ dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P772");
 	col_set_str(pinfo->cinfo, COL_INFO, "Military");
 
-	dissect_p772_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
+	dissect_p772_InformationObject(true, tvb, offset, &asn1_ctx , tree, -1);
 	return tvb_captured_length(tvb);
 }
 
@@ -80,7 +80,7 @@ void proto_register_p772(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p772,
 #include "packet-p772-ettarr.c"
   };

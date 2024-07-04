@@ -36,18 +36,18 @@ static int hf_id3v1;
 
 static int ett_mpeg_audio;
 
-static gboolean
+static bool
 test_mpeg_audio(tvbuff_t *tvb, int offset)
 {
-	guint32 hdr;
+	uint32_t hdr;
 	struct mpa mpa;
 
 	if (!tvb_bytes_exist(tvb, offset, 4))
-		return FALSE;
+		return false;
 	if (tvb_strneql(tvb, offset, "TAG", 3) == 0)
-		return TRUE;
+		return true;
 	if (tvb_strneql(tvb, offset, "ID3", 3) == 0)
-		return TRUE;
+		return true;
 
 	hdr = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
 	MPA_UNMARSHAL(&mpa, hdr);
@@ -57,7 +57,7 @@ test_mpeg_audio(tvbuff_t *tvb, int offset)
 static int
 mpeg_resync(tvbuff_t *tvb, int offset)
 {
-	guint32 hdr;
+	uint32_t hdr;
 	struct mpa mpa;
 
 	/* This only looks to resync on another frame; it doesn't
@@ -78,7 +78,7 @@ mpeg_resync(tvbuff_t *tvb, int offset)
 static int
 dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 h;
+	uint32_t h;
 	struct mpa mpa;
 	int data_size = 0;
 	asn1_ctx_t asn1_ctx;
@@ -106,7 +106,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						mpa_frequency(&mpa) / (float)1000);
 	}
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 	offset = dissect_mpeg_audio_Audio(tvb, offset, &asn1_ctx,
 			tree, hf_mpeg_audio_header);
 	if (data_size > 0) {
@@ -132,7 +132,7 @@ dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
 	col_clear(pinfo->cinfo, COL_INFO);
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 	return dissect_mpeg_audio_ID3v1(tvb, 0, &asn1_ctx,
 			tree, hf_id3v1);
 }
@@ -144,7 +144,7 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	proto_tree *mpeg_audio_tree;
 
 	int magic, offset = 0;
-	guint32 frame_len;
+	uint32_t frame_len;
 	tvbuff_t *next_tvb;
 
 	ti = proto_tree_add_item(tree, proto_mpeg_audio, tvb, offset, -1, ENC_NA);
@@ -200,7 +200,7 @@ proto_register_mpeg_audio(void)
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mpeg_audio,
 #include "packet-mpeg-audio-ettarr.c"
 	};

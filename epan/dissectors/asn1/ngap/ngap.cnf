@@ -228,9 +228,9 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 
 #.FN_HDR QosFlowNotifyItem
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
-  ngap_data->is_qos_flow_notify = TRUE;
+  ngap_data->is_qos_flow_notify = true;
 #.FN_FTR QosFlowNotifyItem
-  ngap_data->is_qos_flow_notify = FALSE;
+  ngap_data->is_qos_flow_notify = false;
 
 #.FN_HDR AlternativeQoSParaSetIndex
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
@@ -239,7 +239,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
   }
 
 #.FN_BODY RAN-UE-NGAP-ID VAL_PTR = &ran_ue_ngap_id
-  guint32 ran_ue_ngap_id;
+  uint32_t ran_ue_ngap_id;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   ngap_data->ran_ue_ngap_id = ran_ue_ngap_id;
@@ -247,7 +247,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 #.FN_BODY NAS-PDU VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb=NULL;
-  guint tvb_len;
+  unsigned tvb_len;
 
 %(DEFAULT_BODY)s
 
@@ -301,42 +301,42 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 # Whenever a Cause appears, look up the reason and show it in the Info column
 
 #.FN_BODY CauseRadioNetwork VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: RadioNetwork=%%s]", val_to_str_const(value, ngap_CauseRadioNetwork_vals, "Unknown"));
 
 #.FN_BODY CauseTransport VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Transport=%%s]", val_to_str_const(value, ngap_CauseTransport_vals, "Unknown"));
 
 #.FN_BODY CauseNas VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Nas=%%s]", val_to_str_const(value, ngap_CauseNas_vals, "Unknown"));
 
 #.FN_BODY CauseProtocol VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Protocol=%%s]", val_to_str_const(value, ngap_CauseProtocol_vals, "Unknown"));
 
 #.FN_BODY CauseMisc VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Misc=%%s]", val_to_str_const(value, ngap_CauseMisc_vals, "Unknown"));
 
 #.FN_BODY RRCEstablishmentCause VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RRCEstablishmentCause=%%s]", val_to_str_const(value, ngap_RRCEstablishmentCause_vals, "Unknown"));
 
 #.FN_BODY PagingCause VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCause=%%s]", val_to_str_const(value, ngap_PagingCause_vals, "Unknown"));
 
 #.FN_BODY PagingCauseIndicationForVoiceService VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCauseIndicationForVoiceService=%%s]", val_to_str_const(value, ngap_PagingCauseIndicationForVoiceService_vals, "Unknown"));
 
@@ -346,7 +346,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 %(DEFAULT_BODY)s
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
-    guint32 handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
+    uint32_t handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, false);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_SourceToTarget_TransparentContainer);
@@ -518,11 +518,11 @@ EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
       (ngap_data->message_type == INITIATING_MESSAGE) &&
       (ngap_data->procedure_code == id_InitialUEMessage)) {
-    guint64 key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
+    uint64_t key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
 
     if (wmem_map_lookup(ngap_data->ngap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
-      guint32 *id = wmem_new(wmem_file_scope(), guint32);
+      uint32_t *id = wmem_new(wmem_file_scope(), uint32_t);
 
       *id = ngap_data->ran_ue_ngap_id;
       tree_key[0].length = 1;
@@ -568,9 +568,9 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, false);
     if (ngap_data->supported_ta) {
-      guint32 plmn = tvb_get_ntoh24(parameter_tvb, 0);
+      uint32_t plmn = tvb_get_ntoh24(parameter_tvb, 0);
       wmem_array_append_one(ngap_data->supported_ta->plmn, plmn);
     } else if (ngap_data->tai) {
       ngap_data->tai->plmn = tvb_get_ntoh24(parameter_tvb, 0);
@@ -590,23 +590,23 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
       ((ngap_data->procedure_code == id_NGSetup) ||
        (ngap_data->procedure_code == id_RANConfigurationUpdate))) {
     ngap_data->supported_ta = wmem_new0(actx->pinfo->pool, struct ngap_supported_ta);
-    ngap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(guint32));
+    ngap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(uint32_t));
   }
 
 #.FN_FTR SupportedTAItem
   ngap_data->supported_ta = NULL;
 
 #.FN_BODY RAT-Information VAL_PTR = &rat_info
-  guint32 rat_info = 0xffffffff;
+  uint32_t rat_info = 0xffffffff;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (ngap_data->ngap_conv && ngap_data->supported_ta && (rat_info == nb_IoT)) {
-    guint64 *key;
-    guint i;
+    uint64_t *key;
+    unsigned i;
 
     for (i = 0; i < wmem_array_get_count(ngap_data->supported_ta->plmn); i++) {
-      key = wmem_new(wmem_file_scope(), guint64);
-      *key = ((*(guint32*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
+      key = wmem_new(wmem_file_scope(), uint64_t);
+      *key = ((*(uint32_t*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
       wmem_map_insert(ngap_data->ngap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
@@ -651,7 +651,7 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NGRANTraceID);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
   proto_tree_add_item(subtree, hf_ngap_NGRANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_ngap_NGRANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
@@ -725,7 +725,7 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   }
 
 #.FN_BODY GlobalRANNodeID VAL_PTR = &value
-  gint value;
+  int value;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
 %(DEFAULT_BODY)s
@@ -989,7 +989,7 @@ TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_
   tvbuff_t *val_tvb = NULL;
 %(DEFAULT_BODY)s
   if (val_tvb) {
-    guint32 val = tvb_get_guint8(val_tvb, 0);
+    uint32_t val = tvb_get_guint8(val_tvb, 0);
     actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, 1, val);
   }
 
@@ -1279,7 +1279,7 @@ QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
   }
 
 #.FN_BODY PDUSessionResourceSetupRequestTransfer
-  volatile guint32 _offset;
+  volatile uint32_t _offset;
 
   _offset = offset;
   TRY {

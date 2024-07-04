@@ -49,7 +49,7 @@ static int proto_dap;
 #include "packet-dap-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_dap;
+static int ett_dap;
 #include "packet-dap-ett.c"
 
 static expert_field ei_dap_anonymous;
@@ -84,7 +84,7 @@ void proto_register_dap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_dap,
 #include "packet-dap-ettarr.c"
   };
@@ -129,7 +129,7 @@ void proto_reg_handoff_dap(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register DAP with ROS (with no use of RTSE) */
-  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE);
+  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", false);
 
   register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 

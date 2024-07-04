@@ -46,7 +46,7 @@ void proto_reg_handoff_cdt(void);
 static proto_tree *top_tree;
 static proto_item *cdt_item;
 
-static guint32 content_type;
+static uint32_t content_type;
 
 /* Initialize the protocol and registered fields */
 static int proto_cdt;
@@ -78,7 +78,7 @@ static const value_string cdt_AlgorithmID_ShortForm_vals[] = {
 
 static int
 dissect_cdt_AlgorithmID_ShortForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -364,7 +364,7 @@ void proto_register_cdt (void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cdt_CompressedData,
     &ett_cdt_CompressionAlgorithmIdentifier,
     &ett_cdt_CompressedContentInfo,

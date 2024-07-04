@@ -200,8 +200,8 @@ static int hf_camssp_noPassingForTrucks;
 static int hf_camssp_speedLimit;
 static int hf_camssp_reserved;
 
-static gint ett_denmssp_flags;
-static gint ett_camssp_flags;
+static int ett_denmssp_flags;
+static int ett_camssp_flags;
 
 // Subdissectors
 static dissector_table_t its_version_subdissector_table;
@@ -212,12 +212,12 @@ static dissector_table_t cam_pt_activation_table;
 
 typedef struct its_private_data {
     enum regext_type_enum type;
-    guint32 region_id;
-    guint32 cause_code;
+    uint32_t region_id;
+    uint32_t cause_code;
 } its_private_data_t;
 
 typedef struct its_pt_activation_data {
-    guint32 type;
+    uint32_t type;
     tvbuff_t *data;
 } its_pt_activation_data_t;
 
@@ -237,7 +237,7 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     its_private_data_t *re = (its_private_data_t*)data;
     // XXX What to do when region_id = noRegion? Test length is zero?
-    if (!dissector_try_uint_new(regionid_subdissector_table, ((guint32) re->region_id<<16) + (guint32) re->type, tvb, pinfo, tree, FALSE, NULL))
+    if (!dissector_try_uint_new(regionid_subdissector_table, ((uint32_t) re->region_id<<16) + (uint32_t) re->type, tvb, pinfo, tree, false, NULL))
         call_data_dissector(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
 }
@@ -246,7 +246,7 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int dissect_cpmcontainers_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     // XXX What to do when region_id = noRegion? Test length is zero?
-    if (!dissector_try_uint_new(cpmcontainer_subdissector_table, its_get_private_data(pinfo)->CpmContainerId, tvb, pinfo, tree, FALSE, NULL))
+    if (!dissector_try_uint_new(cpmcontainer_subdissector_table, its_get_private_data(pinfo)->CpmContainerId, tvb, pinfo, tree, false, NULL))
         call_data_dissector(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
 }
@@ -284,7 +284,7 @@ static int dissect_denmssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         NULL
     };
 
-    guint32 version;
+    uint32_t version;
 
     proto_tree_add_item_ret_uint(tree, hf_denmssp_version, tvb, 0, 1, ENC_BIG_ENDIAN, &version);
     if (version == 1) {
@@ -314,7 +314,7 @@ static int dissect_camssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         NULL
     };
 
-    guint32 version;
+    uint32_t version;
 
     proto_tree_add_item_ret_uint(tree, hf_camssp_version, tvb, 0, 1, ENC_BIG_ENDIAN, &version);
     if (version == 1) {
@@ -2276,7 +2276,7 @@ static int hf_imzm_basicContainer;                /* BasicContainer */
 static int hf_imzm_imzmContainer;                 /* ImzmContainer */
 static int hf_imzm_interferenceManagementZones;   /* InterferenceManagementZones */
 
-static gint ett_its;
+static int ett_its;
 
 
 /* --- Module ETSI-ITS-CDD --- --- ---                                        */
@@ -2972,10 +2972,10 @@ static unsigned char ita2_ascii[32] = {
 static void
 append_country_code_fmt(proto_item *item, tvbuff_t *val_tvb)
 {
-  guint16 v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
+  uint16_t v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
   v >>= 6;  /* 10 bits */
-  guint16 v1 = (v >> 5) & 0x1F;
-  guint16 v2 = v & 0x1F;
+  uint16_t v1 = (v >> 5) & 0x1F;
+  uint16_t v2 = v & 0x1F;
   proto_item_append_text(item, " - %c%c", ita2_ascii[v1], ita2_ascii[v2]);
 }
 
@@ -4509,7 +4509,7 @@ static const value_string its_MessageId_vals[] = {
 
 static int
 dissect_its_MessageId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    guint32 msgId;
+    uint32_t msgId;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &msgId, false);
 
@@ -5270,7 +5270,7 @@ dissect_its_StationaryVehicleSubCauseCode(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_its_StationId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    guint32 stationId;
+    uint32_t stationId;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4294967295U, &stationId, false);
 
@@ -7522,7 +7522,7 @@ dissect_its_ItineraryPath(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_ProtocolVersion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    guint32 version;
+    uint32_t version;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &version, false);
 
@@ -7543,7 +7543,7 @@ static const per_sequence_t its_ItsPduHeader_sequence[] = {
 
 static int
 dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint8 version = tvb_get_guint8(tvb, 0);
+  uint8_t version = tvb_get_guint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
     return test_offset;
@@ -8092,7 +8092,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
 
-  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
   actx->private_data = priv_data;
   return offset;
 }
@@ -8697,7 +8697,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
 
-  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
   actx->private_data = priv_data;
   return offset;
 }
@@ -14749,7 +14749,7 @@ static const value_string gdd_Code_Units_vals[] = {
 static int
 dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           2U, 8U, NULL, FALSE);
+                                           2U, 8U, NULL, false);
 
   return offset;
 }
@@ -14774,7 +14774,7 @@ dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           10U, 12U, NULL, FALSE);
+                                           10U, 12U, NULL, false);
 
   return offset;
 }
@@ -14826,7 +14826,7 @@ dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           0U, 1U, NULL, FALSE);
+                                           0U, 1U, NULL, false);
 
   return offset;
 }
@@ -15123,7 +15123,7 @@ dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           2U, 9U, NULL, FALSE);
+                                           2U, 9U, NULL, false);
 
   return offset;
 }
@@ -20626,7 +20626,7 @@ static const value_string cpm_CpmContainerId_vals[] = {
 
 static int
 dissect_cpm_CpmContainerId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    guint32 CpmContainerId;
+    uint32_t CpmContainerId;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 16U, &CpmContainerId, false);
 
@@ -21099,9 +21099,9 @@ static int dissect_imzm_InterferenceManagementZoneMessage_PDU(tvbuff_t *tvb _U_,
 
 
 static void
-its_latitude_fmt(gchar *s, guint32 v)
+its_latitude_fmt(char *s, uint32_t v)
 {
-  gint32 lat = (gint32)v;
+  int32_t lat = (int32_t)v;
   if (lat == 900000001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
   } else {
@@ -21115,9 +21115,9 @@ its_latitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_longitude_fmt(gchar *s, guint32 v)
+its_longitude_fmt(char *s, uint32_t v)
 {
-  gint32 lng = (gint32)v;
+  int32_t lng = (int32_t)v;
   if (lng == 1800000001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
   } else {
@@ -21131,9 +21131,9 @@ its_longitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_altitude_fmt(gchar *s, guint32 v)
+its_altitude_fmt(char *s, uint32_t v)
 {
-  gint32 alt = (gint32)v;
+  int32_t alt = (int32_t)v;
   if (alt == 800001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
   } else {
@@ -21142,9 +21142,9 @@ its_altitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_delta_latitude_fmt(gchar *s, guint32 v)
+its_delta_latitude_fmt(char *s, uint32_t v)
 {
-  gint32 lat = (gint32)v;
+  int32_t lat = (int32_t)v;
   if (lat == 131072) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
   } else {
@@ -21158,9 +21158,9 @@ its_delta_latitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_delta_longitude_fmt(gchar *s, guint32 v)
+its_delta_longitude_fmt(char *s, uint32_t v)
 {
-  gint32 lng = (gint32)v;
+  int32_t lng = (int32_t)v;
   if (lng == 131072) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
   } else {
@@ -21174,9 +21174,9 @@ its_delta_longitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_delta_altitude_fmt(gchar *s, guint32 v)
+its_delta_altitude_fmt(char *s, uint32_t v)
 {
-  gint32 alt = (gint32)v;
+  int32_t alt = (int32_t)v;
   if (alt == 12800) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
   } else {
@@ -21185,15 +21185,15 @@ its_delta_altitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_path_delta_time_fmt(gchar *s, guint32 v)
+its_path_delta_time_fmt(char *s, uint32_t v)
 {
-  gint32 dt = (gint32)v;
+  int32_t dt = (int32_t)v;
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%d)", dt * 0.01, dt);
 }
 
 
 static void
-its_sax_length_fmt(gchar *s, guint32 v)
+its_sax_length_fmt(char *s, uint32_t v)
 {
   if (v == 4095) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21205,9 +21205,9 @@ its_sax_length_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_heading_value_fmt(gchar *s, guint32 v)
+its_heading_value_fmt(char *s, uint32_t v)
 {
-  const gchar *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
+  const char *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
   if (p) {
     snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", p, v);
   } else {
@@ -21216,7 +21216,7 @@ its_heading_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_heading_confidence_fmt(gchar *s, guint32 v)
+its_heading_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 127) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21228,7 +21228,7 @@ its_heading_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_speed_value_fmt(gchar *s, guint32 v)
+its_speed_value_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", v);
@@ -21242,7 +21242,7 @@ its_speed_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_speed_confidence_fmt(gchar *s, guint32 v)
+its_speed_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 127) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21254,13 +21254,13 @@ its_speed_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_speed_limit_fmt(gchar *s, guint32 v)
+its_speed_limit_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%dkm/h (%d)", v, v);
 }
 
 static void
-its_vehicle_length_value_fmt(gchar *s, guint32 v)
+its_vehicle_length_value_fmt(char *s, uint32_t v)
 {
   if (v == 1023) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21272,7 +21272,7 @@ its_vehicle_length_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_vehicle_width_fmt(gchar *s, guint32 v)
+its_vehicle_width_fmt(char *s, uint32_t v)
 {
   if (v == 62) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21284,9 +21284,9 @@ its_vehicle_width_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_acceleration_value_fmt(gchar *s, guint32 v)
+its_acceleration_value_fmt(char *s, uint32_t v)
 {
-  gint32 acc = (gint32)v;
+  int32_t acc = (int32_t)v;
   if (acc == 161) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
@@ -21295,7 +21295,7 @@ its_acceleration_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_acceleration_confidence_fmt(gchar *s, guint32 v)
+its_acceleration_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 102) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21307,9 +21307,9 @@ its_acceleration_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_curvature_value_fmt(gchar *s, guint32 v)
+its_curvature_value_fmt(char *s, uint32_t v)
 {
-  gint32 curv = (gint32)v;
+  int32_t curv = (int32_t)v;
   if (curv == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (curv == 30001) {
@@ -21323,9 +21323,9 @@ its_curvature_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_yaw_rate_value_fmt(gchar *s, guint32 v)
+its_yaw_rate_value_fmt(char *s, uint32_t v)
 {
-  gint32 yaw = (gint32)v;
+  int32_t yaw = (int32_t)v;
   if (yaw == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (yaw == 32767) {
@@ -21339,9 +21339,9 @@ its_yaw_rate_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_swa_value_fmt(gchar *s, guint32 v)
+its_swa_value_fmt(char *s, uint32_t v)
 {
-  gint32 swa = (gint32)v;
+  int32_t swa = (int32_t)v;
   if (swa == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (swa == 512) {
@@ -21355,7 +21355,7 @@ its_swa_value_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_swa_confidence_fmt(gchar *s, guint32 v)
+its_swa_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 127) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21367,7 +21367,7 @@ its_swa_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
-dsrc_moi_fmt(gchar *s, guint32 v)
+dsrc_moi_fmt(char *s, uint32_t v)
 {
   if (v == 527040) {
     snprintf(s, ITEM_LABEL_LENGTH, "invalid (%d)", v);
@@ -21378,7 +21378,7 @@ dsrc_moi_fmt(gchar *s, guint32 v)
 }
 
 static void
-dsrc_dsecond_fmt(gchar *s, guint32 v)
+dsrc_dsecond_fmt(char *s, uint32_t v)
 {
   if (v == 65535) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21391,7 +21391,7 @@ dsrc_dsecond_fmt(gchar *s, guint32 v)
 }
 
 static void
-dsrc_time_mark_fmt(gchar *s, guint32 v)
+dsrc_time_mark_fmt(char *s, uint32_t v)
 {
   if (v == 36001) {
     snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", v);
@@ -21404,17 +21404,17 @@ dsrc_time_mark_fmt(gchar *s, guint32 v)
 }
 
 static void
-its_timestamp_fmt(gchar *s, guint64 v)
+its_timestamp_fmt(char *s, uint64_t v)
 {
   time_t secs = v / 1000 + 1072915200 - 5;
   struct tm *tm = gmtime(&secs);
   snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%03u (%" PRIu64 ")",
-    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, (guint32)(v % 1000), v
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, (uint32_t)(v % 1000), v
   );
 }
 
 static void
-its_validity_duration_fmt(gchar *s, guint32 v)
+its_validity_duration_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u:%02u (%d)",
           v / 3600, v % 3600 / 60, v % 60, v);
@@ -21441,7 +21441,7 @@ static const value_string dsrc_TimeIntervalConfidence_vals[] = {
 };
 
 static void
-dsrc_velocity_fmt(gchar *s, guint32 v)
+dsrc_velocity_fmt(char *s, uint32_t v)
 {
   if (v == 8191) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21453,15 +21453,15 @@ dsrc_velocity_fmt(gchar *s, guint32 v)
 }
 
 static void
-dsrc_angle_fmt(gchar *s, guint32 v)
+dsrc_angle_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%d)", v * 0.0125, v);
 }
 
 static void
-dsrc_delta_time_fmt(gchar *s, guint32 v)
+dsrc_delta_time_fmt(char *s, uint32_t v)
 {
-  gint32 dt = (gint32)v;
+  int32_t dt = (int32_t)v;
   if (dt == -122) {
     snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", dt);
   } else if (dt == -121) {
@@ -21476,13 +21476,13 @@ dsrc_delta_time_fmt(gchar *s, guint32 v)
 
 
 static void
-cpm_object_dimension_value_fmt(gchar *s, guint32 v)
+cpm_object_dimension_value_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
 }
 
 //static void
-//cpm_object_dimension_confidence_fmt(gchar *s, guint32 v)
+//cpm_object_dimension_confidence_fmt(char *s, uint32_t v)
 //{
 //  if (v == 102) {
 //    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -21510,14 +21510,14 @@ dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 // Decode As...
 static void
-its_msgid_prompt(packet_info *pinfo, gchar *result)
+its_msgid_prompt(packet_info *pinfo, char *result)
 {
-    guint32 msgid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_its_messageId, pinfo->curr_layer_num));
+    uint32_t msgid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_its_messageId, pinfo->curr_layer_num));
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "MsgId (%s%u)", UTF8_RIGHTWARDS_ARROW, msgid);
 }
 
-static gpointer
+static void *
 its_msgid_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_its_messageId, pinfo->curr_layer_num);
@@ -29212,7 +29212,7 @@ void proto_register_its(void)
     { &hf_camssp_reserved, { "reserved", "its.ssp.cam.reserved", FT_UINT16, BASE_DEC, NULL, 0x0003, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_its,
         &ett_denmssp_flags,
         &ett_camssp_flags,
@@ -29947,7 +29947,7 @@ void proto_register_its(void)
 void proto_reg_handoff_its(void)
 {
     static const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
-    static const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS, ITS_WKP_VA };
+    static const uint16_t ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS, ITS_WKP_VA };
     int sdIdx, pIdx;
 
     // Register well known ports to btp subdissector table (BTP A and B)

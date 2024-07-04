@@ -42,7 +42,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
 
 #.FN_BODY RequestShadowUpdateArgumentData/requestedStrategy/standard  VAL_PTR=&update
-  guint32 update;
+  uint32_t update;
 
   %(DEFAULT_BODY)s
 
@@ -52,7 +52,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &update
 
 #.FN_BODY RefreshInformation
-  guint32 update;
+  uint32_t update;
 
   %(DEFAULT_BODY)s
 
@@ -62,7 +62,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
 
 #.FN_BODY CoordinateShadowUpdateArgumentData/updateStrategy/standard  VAL_PTR = &update
-  guint32 update;
+  uint32_t update;
 
   %(DEFAULT_BODY)s
 
@@ -72,7 +72,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &update
 
 #.FN_BODY CoordinateShadowUpdateResult
-  guint32 update;
+  uint32_t update;
 
   %(DEFAULT_BODY)s
 
@@ -82,7 +82,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &update
 
 #.FN_BODY RequestShadowUpdateResult
-  guint32 update;
+  uint32_t update;
 
   %(DEFAULT_BODY)s
 
@@ -92,7 +92,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &update
 
 #.FN_BODY UpdateShadowResult
-  guint32 update;
+  uint32_t update;
 
   %(DEFAULT_BODY)s
 
@@ -102,7 +102,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &problem
 
 #.FN_BODY ShadowProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 

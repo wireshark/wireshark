@@ -12,14 +12,14 @@ GOOSEpdu
 
 #.FN_BODY IECGoosePdu/simulation VAL_PTR = &value
 	bool value;
-	guint32 len = tvb_reported_length_remaining(tvb, offset);
+	uint32_t len = tvb_reported_length_remaining(tvb, offset);
 	int origin_offset = offset;
 %(DEFAULT_BODY)s
 	if((actx->private_data) && (actx->created_item)){
 		goose_chk_data_t *data_chk = (goose_chk_data_t *)actx->private_data;
 		proto_tree *expert_inf_tree = NULL;
 		/* S bit set and Simulation attribute clear: reject as invalid GOOSE */
-		if((data_chk->s_bit == TRUE) && (value == FALSE)){
+		if((data_chk->s_bit == true) && (value == false)){
 			/* It really looks better showed as a new subtree */
 			expert_inf_tree = proto_item_add_subtree(actx->created_item, ett_expert_inf_sim);
 			proto_tree_add_expert(expert_inf_tree, actx->pinfo, &ei_goose_invalid_sim, tvb, origin_offset, len);
@@ -29,12 +29,12 @@ GOOSEpdu
 
 #.FN_BODY UtcTime
 
-	guint32 len;
-	guint32 seconds;
-	guint32	fraction;
-	guint32 nanoseconds;
+	uint32_t len;
+	uint32_t seconds;
+	uint32_t	fraction;
+	uint32_t nanoseconds;
 	nstime_t ts;
-	gchar *	ptime;
+	char *	ptime;
 
 	len = tvb_reported_length_remaining(tvb, offset);
 
@@ -50,12 +50,12 @@ GOOSEpdu
 
 	seconds = tvb_get_ntohl(tvb, offset);
 	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
-	nanoseconds = (guint32)( ((guint64)fraction * G_GUINT64_CONSTANT(1000000000)) / G_GUINT64_CONSTANT(0x100000000) ) ;
+	nanoseconds = (uint32_t)( ((uint64_t)fraction * UINT64_C(1000000000)) / UINT64_C(0x100000000) ) ;
 
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
+	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, true);
 
 	if(hf_index > 0)
 	{

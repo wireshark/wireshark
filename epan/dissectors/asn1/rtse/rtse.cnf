@@ -42,9 +42,9 @@ RTSE-apdus
 
   if(session != NULL)
         session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
-  open_request=TRUE;
+  open_request=true;
   %(DEFAULT_BODY)s
-  open_request=FALSE;
+  open_request=false;
 
 #.FN_BODY RTOACapdu
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
@@ -86,7 +86,7 @@ RTSE-apdus
         tvbuff_t *next_tvb = NULL;
     struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-        offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+        offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &next_tvb);
 
         if(next_tvb) {
 
@@ -96,13 +96,13 @@ RTSE-apdus
                 if(session)
                         session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 
-                offset = dissect_ber_external_type(FALSE, tree, next_tvb, 0, actx,  -1, call_rtse_external_type_callback);
+                offset = dissect_ber_external_type(false, tree, next_tvb, 0, actx,  -1, call_rtse_external_type_callback);
         }
 
 
 #.FN_BODY RTORQapdu/applicationProtocol
 
-  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
+  offset = dissect_ber_integer(true, actx, tree, tvb, offset, hf_index, &app_proto);
 
 #.FN_BODY SessionConnectionIdentifier
   if(open_request){

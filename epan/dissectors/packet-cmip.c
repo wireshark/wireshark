@@ -323,7 +323,7 @@ static int hf_cmip_T_daysOfWeek_friday;
 static int hf_cmip_T_daysOfWeek_saturday;
 
 /* Initialize the subtree pointers */
-static gint ett_cmip;
+static int ett_cmip;
 static int ett_cmip_PAR_missingAttributeValue;
 static int ett_cmip_ActionArgument;
 static int ett_cmip_ActionError;
@@ -448,7 +448,7 @@ static int ett_cmip_T_modificationList_item;
 
 static expert_field ei_wrong_spdu_type;
 
-static guint32 opcode;
+static uint32_t opcode;
 
 static dissector_handle_t cmip_handle;
 
@@ -608,7 +608,7 @@ static int
 dissect_cmip_T_attributeId_globalForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 
   return offset;
@@ -621,7 +621,7 @@ dissect_cmip_T_attributeIdlocalForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &actx->external.indirect_reference);
 
-  actx->external.indirect_ref_present = TRUE;
+  actx->external.indirect_ref_present = true;
 
 
   return offset;
@@ -718,7 +718,7 @@ static int
 dissect_cmip_T_id(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
   return offset;
 }
@@ -2078,7 +2078,7 @@ static const value_string cmip_CMIPAbortSource_vals[] = {
 
 static int
 dissect_cmip_CMIPAbortSource(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &value);
@@ -3571,37 +3571,37 @@ static int
 dissect_cmip_InvokeArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     switch(opcode){
     case 0: /* M-eventreport */
-      offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_EventReportArgument(false, tvb, offset, actx, tree, -1);
       break;
     case 1: /* M-eventreport-confirmed */
-      offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_EventReportArgument(false, tvb, offset, actx, tree, -1);
       break;
     case 2: /* M-linkedreply */
-      offset = dissect_cmip_LinkedReplyArgument(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_LinkedReplyArgument(false, tvb, offset, actx, tree, -1);
       break;
     case 3: /* M-get */
-      offset = dissect_cmip_GetArgument(FALSE, tvb, offset,actx, tree, -1);
+      offset = dissect_cmip_GetArgument(false, tvb, offset,actx, tree, -1);
       break;
     case 4: /* M-set */
-      offset = dissect_cmip_SetArgument(FALSE, tvb, offset,actx, tree, -1);
+      offset = dissect_cmip_SetArgument(false, tvb, offset,actx, tree, -1);
       break;
     case 5: /* M-set-confirmed */
-      offset = dissect_cmip_SetArgument(FALSE, tvb, offset,actx, tree, -1);
+      offset = dissect_cmip_SetArgument(false, tvb, offset,actx, tree, -1);
       break;
     case 6: /* M-action*/
-      offset = dissect_cmip_ActionArgument(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_ActionArgument(false, tvb,  offset, actx, tree, -1);
       break;
     case 7: /* M-action-confirmed*/
-      offset = dissect_cmip_ActionArgument(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_ActionArgument(false, tvb,  offset, actx, tree, -1);
       break;
     case 8: /* M-create*/
-      offset = dissect_cmip_CreateArgument(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_CreateArgument(false, tvb,  offset, actx, tree, -1);
       break;
     case 9: /* M-delete*/
-      offset = dissect_cmip_DeleteArgument(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_DeleteArgument(false, tvb,  offset, actx, tree, -1);
       break;
     case 10: /* M-cancelget */
-      offset = dissect_cmip_InvokeIDType(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_InvokeIDType(false, tvb,  offset, actx, tree, -1);
       break;
     }
 
@@ -3638,28 +3638,28 @@ dissect_cmip_ResultArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
     case 0: /* M-eventreport*/
       break;  /* No return data */
     case 1: /* M-eventreport-confirmed */
-      offset = dissect_cmip_EventReportResult(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_EventReportResult(false, tvb, offset, actx, tree, -1);
       break;
     case 2: /* M-linkedreply*/
       break;  /* No return data */
     case 3: /* M-get */
-      offset = dissect_cmip_GetResult(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_GetResult(false, tvb, offset, actx, tree, -1);
       break;
     case 4: /* M-set */
       break;  /* No return data */
     case 5: /* M-set-confirmed*/
-      offset = dissect_cmip_SetResult(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_SetResult(false, tvb, offset, actx, tree, -1);
       break;
     case 6: /* M-action*/
       break;  /* No return data */
     case 7: /* M-action-confirmed*/
-      offset = dissect_cmip_ActionResult(FALSE, tvb, offset, actx, tree, -1);
+      offset = dissect_cmip_ActionResult(false, tvb, offset, actx, tree, -1);
       break;
     case 8: /* M-create*/
-      offset = dissect_cmip_CreateResult(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_CreateResult(false, tvb,  offset, actx, tree, -1);
       break;
     case 9: /* M-delete*/
-      offset = dissect_cmip_DeleteResult(FALSE, tvb,  offset, actx, tree, -1);
+      offset = dissect_cmip_DeleteResult(false, tvb,  offset, actx, tree, -1);
       break;
     case 10: /* M-cancelget */
       break; /* doe this one return any data? */
@@ -3709,68 +3709,68 @@ dissect_cmip_T_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
     switch(opcode){
 	case 19: /* classInstanceConflict */
-		dissect_cmip_BaseManagedObjectId(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_BaseManagedObjectId(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 20:  /* complexityLimitation */
-		dissect_cmip_ComplexityLimitation(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_ComplexityLimitation(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 11: /* duplicateManagedObjectInstance */
-		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_ObjectInstance(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 7: /*  getListError */
-		dissect_cmip_GetListError(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_GetListError(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 15: /* invalidArgumentValue */
-		dissect_cmip_InvalidArgumentValue(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_InvalidArgumentValue(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 6: /* invalidAttributeValue */
-		dissect_cmip_Attribute(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_Attribute(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 4: /* invalidFilter */
-		dissect_cmip_CMISFilter(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_CMISFilter(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 17: /* invalidObjectInstance */
-		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_ObjectInstance(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 16: /* invalidScope */
-		dissect_cmip_Scope(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_Scope(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 18: /* missingAttributeValue */
 		/* Hmmm  SET OF AttributeId */
-		dissect_cmip_PAR_missingAttributeValue(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_PAR_missingAttributeValue(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 9: /* noSuchAction */
-		dissect_cmip_NoSuchAction(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_NoSuchAction(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 14: /* noSuchArgument */
-		dissect_cmip_NoSuchArgument(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_NoSuchArgument(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 5: /* noSuchAttribute */
-		dissect_cmip_AttributeId(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_AttributeId(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 13: /* noSuchEventType */
-		dissect_cmip_NoSuchEventType(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_NoSuchEventType(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 22: /* noSuchInvokeId */
-		dissect_cmip_InvokeIDType(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_InvokeIDType(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 0: /* noSuchObjectClass */
-		dissect_cmip_ObjectClass(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_ObjectClass(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 1:/* noSuchObjectInstance */
-		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_ObjectInstance(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 12: /* noSuchReferenceObject */
-		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_ObjectInstance(false, tvb,  offset, actx, tree, -1);
 		break;
-	case 10: /* processingFailure OPTIONAL   TRUE*/
-		dissect_cmip_ProcessingFailure(FALSE, tvb,  offset, actx, tree, -1);
+	case 10: /* processingFailure OPTIONAL   true*/
+		dissect_cmip_ProcessingFailure(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 8: /* setListError */
-		dissect_cmip_SetListError(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_SetListError(false, tvb,  offset, actx, tree, -1);
 		break;
 	case 3:/* syncNotSupported */
-		dissect_cmip_CMISSync(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_CMISSync(false, tvb,  offset, actx, tree, -1);
 		break;
 	}
 
@@ -4382,7 +4382,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_item *item;
 	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	/* Reject the packet if data is NULL */
 	if (data == NULL)
@@ -4408,13 +4408,13 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		case SES_DISCONNECT:
 		case SES_FINISH:
 		case SES_REFUSE:
-			dissect_cmip_CMIPUserInfo(FALSE,tvb,0,&asn1_ctx,tree,-1);
+			dissect_cmip_CMIPUserInfo(false,tvb,0,&asn1_ctx,tree,-1);
 			break;
 		case SES_ABORT:
-			dissect_cmip_CMIPAbortInfo(FALSE,tvb,0,&asn1_ctx,tree,-1);
+			dissect_cmip_CMIPAbortInfo(false,tvb,0,&asn1_ctx,tree,-1);
 			break;
 		case SES_DATA_TRANSFER:
-			dissect_cmip_ROS(FALSE,tvb,0,&asn1_ctx,tree,-1);
+			dissect_cmip_ROS(false,tvb,0,&asn1_ctx,tree,-1);
 			break;
 		default:
 			;
@@ -5548,7 +5548,7 @@ void proto_register_cmip(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cmip,
     &ett_cmip_PAR_missingAttributeValue,
     &ett_cmip_ActionArgument,

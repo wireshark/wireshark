@@ -4,7 +4,7 @@
 
 #.FN_HDR Invoke
   dissector_handle_t arg_handle = NULL;
-  const gchar *descr = "";
+  const char *descr = "";
 
   arg_next_tvb = NULL;
 #.FN_FTR Invoke

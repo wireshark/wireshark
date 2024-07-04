@@ -402,7 +402,7 @@ dissect_x509ce_T_uniformResourceIdentifier(bool implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_x509ce_T_iPAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 len = tvb_reported_length(tvb);
+  uint32_t len = tvb_reported_length(tvb);
   switch (len) {
   case 4: /* IPv4 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2105,17 +2105,17 @@ static int
 dissect_x509ce_invalidityDate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-  return dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_invalidityDate);
+  return dissect_x509ce_GeneralizedTime(false, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_invalidityDate);
 }
 
 static int
 dissect_x509ce_baseUpdateTime_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  return dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_baseUpdateTime);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  return dissect_x509ce_GeneralizedTime(false, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_baseUpdateTime);
 }
 
 /*--- proto_register_x509ce ----------------------------------------------*/
@@ -2969,7 +2969,7 @@ void proto_register_x509ce(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_x509ce_AuthorityKeyIdentifier,
     &ett_x509ce_KeyUsage,
     &ett_x509ce_KeyPurposeIDs,

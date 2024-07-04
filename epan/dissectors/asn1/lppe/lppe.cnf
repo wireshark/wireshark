@@ -35,7 +35,7 @@ OMA-LPPe-WLAN-LocationDataLCI/altitude          ABBREV=oMA-LPPe-WLAN-LocationDat
 
 #.FN_BODY OMA-LPPe-Uri
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      NO_BOUND, NO_BOUND, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%%", 85,
+                                                      NO_BOUND, NO_BOUND, false, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%%", 85,
                                                       NULL);
 
 #.FN_BODY OMA-LPPe-CivicLocation-pidf-lo/civicLocation VAL_PTR = &xml_tvb

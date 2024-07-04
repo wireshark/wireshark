@@ -2716,9 +2716,9 @@ enum{
 };
 
 struct x2ap_private_data {
-  guint32 procedure_code;
-  guint32 protocol_ie_id;
-  guint32 message_type;
+  uint32_t procedure_code;
+  uint32_t protocol_ie_id;
+  uint32_t message_type;
   rrc_container_type_e rrc_container_type;
   e212_number_type_t number_type;
 };
@@ -2735,7 +2735,7 @@ static const enum_val_t x2ap_rrc_context_vals[] = {
 };
 
 /* Global variables */
-static gint g_x2ap_dissect_rrc_context_as = X2AP_RRC_CONTEXT_LTE;
+static int g_x2ap_dissect_rrc_context_as = X2AP_RRC_CONTEXT_LTE;
 
 /* Dissector tables */
 static dissector_table_t x2ap_ies_dissector_table;
@@ -2760,31 +2760,31 @@ static const true_false_string x2ap_tfs_failed_succeeded = {
 };
 
 static void
-x2ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(gchar *s, guint32 v)
+x2ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 static void
-x2ap_handoverTriggerChange_fmt(gchar *s, guint32 v)
+x2ap_handoverTriggerChange_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (int32_t)v);
 }
 
 static void
-x2ap_Threshold_RSRP_fmt(gchar *s, guint32 v)
+x2ap_Threshold_RSRP_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-140, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (int32_t)v-140, v);
 }
 
 static void
-x2ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
+x2ap_Threshold_RSRQ_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
 }
 
 static void
-x2ap_Packet_LossRate_fmt(gchar *s, guint32 v)
+x2ap_Packet_LossRate_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
 }
@@ -2833,7 +2833,7 @@ static int
 dissect_x2ap_T_global(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
 
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 
   return offset;
@@ -3826,7 +3826,7 @@ dissect_x2ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_PLMN_Identity);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, false);
 
 
   return offset;
@@ -7897,7 +7897,7 @@ dissect_x2ap_EUTRANTraceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_EUTRANTraceID);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
   proto_tree_add_item(subtree, hf_x2ap_eUTRANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
@@ -14758,7 +14758,7 @@ dissect_x2ap_T_measurementFailedReportCharacteristics(tvbuff_t *tvb _U_, int off
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     32, 32, false, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
     static int * const fields[] = {
@@ -23198,14 +23198,14 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(x2ap_ies_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(x2ap_ies_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(x2ap_extension_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(x2ap_extension_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -23213,7 +23213,7 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
   x2ap_data->message_type = INITIATING_MESSAGE;
-  return (dissector_try_uint_new(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -23221,7 +23221,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
   x2ap_data->message_type = SUCCESSFUL_OUTCOME;
-  return (dissector_try_uint_new(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -23229,7 +23229,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
   x2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
-  return (dissector_try_uint_new(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int
@@ -28719,7 +28719,7 @@ void proto_register_x2ap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_x2ap,
     &ett_x2ap_TransportLayerAddress,
     &ett_x2ap_PLMN_Identity,
@@ -29429,7 +29429,7 @@ void proto_register_x2ap(void) {
 
   prefs_register_enum_preference(x2ap_module, "dissect_rrc_context_as", "Dissect RRC Context as",
                                  "Select whether RRC Context should be dissected as legacy LTE or NB-IOT",
-                                 &g_x2ap_dissect_rrc_context_as, x2ap_rrc_context_vals, FALSE);
+                                 &g_x2ap_dissect_rrc_context_as, x2ap_rrc_context_vals, false);
 }
 
 

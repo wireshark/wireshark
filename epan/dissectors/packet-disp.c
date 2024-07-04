@@ -160,7 +160,7 @@ static int hf_disp_signedShadowError;             /* T_signedShadowError */
 static int hf_disp_shadowError;                   /* ShadowErrorData */
 
 /* Initialize the subtree pointers */
-static gint ett_disp;
+static int ett_disp;
 static int ett_disp_ModificationParameter;
 static int ett_disp_SET_OF_SupplierAndConsumers;
 static int ett_disp_ShadowingAgreementInfo;
@@ -628,7 +628,7 @@ static const value_string disp_StandardUpdate_vals[] = {
 
 static int
 dissect_disp_StandardUpdate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 update;
+  uint32_t update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &update);
@@ -816,7 +816,7 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 update;
+  uint32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CoordinateShadowUpdateResult_choice, hf_index, ett_disp_CoordinateShadowUpdateResult,
@@ -839,7 +839,7 @@ static const value_string disp_T_standard_vals[] = {
 
 static int
 dissect_disp_T_standard(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 update;
+  uint32_t update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &update);
@@ -937,7 +937,7 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 update;
+  uint32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RequestShadowUpdateResult_choice, hf_index, ett_disp_RequestShadowUpdateResult,
@@ -1247,7 +1247,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 update;
+  uint32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RefreshInformation_choice, hf_index, ett_disp_RefreshInformation,
@@ -1325,7 +1325,7 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 update;
+  uint32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  UpdateShadowResult_choice, hf_index, ett_disp_UpdateShadowResult,
@@ -1357,7 +1357,7 @@ static const value_string disp_ShadowProblem_vals[] = {
 
 static int
 dissect_disp_ShadowProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 problem;
+  uint32_t problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
@@ -1465,7 +1465,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		return 0;
 	session  = (struct SESSION_DATA_STRUCTURE*)data;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	asn1_ctx.private_data = session;
 
@@ -1550,7 +1550,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
-	    offset=(*disp_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
+	    offset=(*disp_dissector)(false, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
 	      proto_tree_add_expert(tree, pinfo, &ei_disp_zero_pdu, tvb, offset, -1);
 	      break;
@@ -1999,7 +1999,7 @@ void proto_register_disp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_disp,
     &ett_disp_ModificationParameter,
     &ett_disp_SET_OF_SupplierAndConsumers,
@@ -2107,9 +2107,9 @@ void proto_reg_handoff_disp(void) {
   oid_add_from_string("id-ac-reliable-shadow-supplier-initiated","2.5.3.7");
 
   /* ABSTRACT SYNTAXES */
-  register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE);
-  register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE);
-  register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE);
+  register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", false);
+  register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", false);
+  register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", false);
 
   /* OPERATIONAL BINDING */
   oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");

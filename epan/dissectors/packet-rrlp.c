@@ -867,7 +867,7 @@ static int hf_rrlp_GANSSModelID_model7;
 static int hf_rrlp_GANSSModelID_model8;
 
 /* Initialize the subtree pointers */
-static gint ett_rrlp;
+static int ett_rrlp;
 static int ett_rrlp_ExtensionContainer;
 static int ett_rrlp_PrivateExtensionList;
 static int ett_rrlp_PrivateExtension;
@@ -10469,7 +10469,7 @@ void proto_register_rrlp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_rrlp,
     &ett_rrlp_ExtensionContainer,
     &ett_rrlp_PrivateExtensionList,

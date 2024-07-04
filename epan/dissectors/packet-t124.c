@@ -274,7 +274,7 @@ static int hf_t124_ConnectData;
 static int hf_t124_connectGCCPDU;
 static int hf_t124_DomainMCSPDU_PDU;
 
-static guint32 channelId = -1;
+static uint32_t channelId = -1;
 
 static dissector_table_t t124_ns_dissector_table;
 static dissector_table_t t124_sd_dissector_table;
@@ -539,7 +539,7 @@ static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     tvbuff_t *next_tvb = NULL;
     tvbuff_t *t124NSIdentifier = (tvbuff_t*)actx->private_data;
-    guint8   *ns = NULL;
+    uint8_t  *ns = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &next_tvb);
@@ -549,7 +549,7 @@ dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 	ns = tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
-		dissector_try_string_new(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, FALSE, NULL);
+		dissector_try_string_new(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, false, NULL);
 	}
 	}
 
@@ -2394,7 +2394,7 @@ dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 	if(next_tvb) {
 
-	     dissector_try_uint_new(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, FALSE, NULL);
+	     dissector_try_uint_new(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, false, NULL);
 
 	}
 
@@ -2813,7 +2813,7 @@ static const per_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  	gint domainmcs_value;
+	int domainmcs_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_t124_DomainMCSPDU, DomainMCSPDU_choice,
@@ -2851,7 +2851,7 @@ register_t124_ns_dissector(const char *nsKey, dissector_t dissector, int proto)
   dissector_add_string("t124.ns", nsKey, dissector_handle);
 }
 
-void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId_param, dissector_t dissector, int proto)
+void register_t124_sd_dissector(packet_info *pinfo _U_, uint32_t channelId_param, dissector_t dissector, int proto)
 {
   /* XXX: we should keep the sub-dissectors list per conversation
      as the same channels may be used.
@@ -2865,7 +2865,7 @@ void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId_param,
 
 }
 
-guint32 t124_get_last_channelId(void)
+uint32_t t124_get_last_channelId(void)
 {
   return channelId;
 }
@@ -2878,7 +2878,7 @@ void t124_set_top_tree(proto_tree *tree)
 int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 
   offset = dissect_t124_DomainMCSPDU(tvb, offset, &asn1_ctx, tree, hf_t124_DomainMCSPDU_PDU);
   offset += 7; offset >>= 3;
@@ -2900,7 +2900,7 @@ dissect_t124(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   item = proto_tree_add_item(parent_tree, proto_t124, tvb, 0, tvb_captured_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_t124);
 
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   dissect_t124_ConnectData(tvb, 0, &asn1_ctx, tree, hf_t124_ConnectData);
 
   return tvb_captured_length(tvb);
@@ -2910,13 +2910,13 @@ static bool
 dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
   asn1_ctx_t asn1_ctx;
-  volatile bool failed = FALSE;
+  volatile bool failed = false;
 
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 
   /*
    * We must catch all the "ran past the end of the packet" exceptions
-   * here and, if we catch one, just return FALSE.  It's too painful
+   * here and, if we catch one, just return false.  It's too painful
    * to have a version of dissect_per_sequence() that checks all
    * references to the tvbuff before making them and returning "no"
    * if they would fail.
@@ -3847,7 +3847,7 @@ void proto_register_t124(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_t124,
 	  &ett_t124_connectGCCPDU,
     &ett_t124_Key,

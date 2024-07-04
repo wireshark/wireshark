@@ -61,10 +61,10 @@ static int hf_ulp_ganssTimeModels_bit4;
 static int hf_ulp_ganssTimeModels_spare;
 
 /* Initialize the subtree pointers */
-static gint ett_ulp;
-static gint ett_ulp_setid;
-static gint ett_ulp_thirdPartyId;
-static gint ett_ulp_ganssTimeModels;
+static int ett_ulp;
+static int ett_ulp_setid;
+static int ett_ulp_thirdPartyId;
+static int ett_ulp_ganssTimeModels;
 #include "packet-ulp-ett.c"
 
 static dissector_handle_t ulp_tcp_handle;
@@ -89,7 +89,7 @@ static const value_string ulp_ganss_sbas_id_vals[] = {
 };
 
 static void
-ulp_ganssDataBitInterval_fmt(gchar *s, guint32 v)
+ulp_ganssDataBitInterval_fmt(char *s, uint32_t v)
 {
   if (v == 15) {
     snprintf(s, ITEM_LABEL_LENGTH, "Time interval is not specified (15)");
@@ -101,13 +101,13 @@ ulp_ganssDataBitInterval_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_ExtendedEphemeris_validity_fmt(gchar *s, guint32 v)
+ulp_ExtendedEphemeris_validity_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%uh (%u)", 4*v, v);
 }
 
 static void
-ulp_PositionEstimate_latitude_fmt(gchar *s, guint32 v)
+ulp_PositionEstimate_latitude_fmt(char *s, uint32_t v)
 {
   double latitude = ((double)v*90)/pow(2,23);
 
@@ -115,15 +115,15 @@ ulp_PositionEstimate_latitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_PositionEstimate_longitude_fmt(gchar *s, guint32 v)
+ulp_PositionEstimate_longitude_fmt(char *s, uint32_t v)
 {
-  double longitude = ((double)(gint32)v*360)/pow(2,24);
+  double longitude = ((double)(int32_t)v*360)/pow(2,24);
 
   snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", longitude, v);
 }
 
 static void
-ulp_NMRelement_rxLev_fmt(gchar *s, guint32 v)
+ulp_NMRelement_rxLev_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RxLev < -110dBm (0)");
@@ -135,7 +135,7 @@ ulp_NMRelement_rxLev_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_UTRA_CarrierRSSI_fmt(gchar *s, guint32 v)
+ulp_UTRA_CarrierRSSI_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSSI < -100dBm (0)");
@@ -149,7 +149,7 @@ ulp_UTRA_CarrierRSSI_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_PrimaryCCPCH_RSCP_fmt(gchar *s, guint32 v)
+ulp_PrimaryCCPCH_RSCP_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSCP < -115dBm (0)");
@@ -163,7 +163,7 @@ ulp_PrimaryCCPCH_RSCP_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_CPICH_Ec_N0_fmt(gchar *s, guint32 v)
+ulp_CPICH_Ec_N0_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 < -24dB (0)");
@@ -177,7 +177,7 @@ ulp_CPICH_Ec_N0_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_CPICH_RSCP_fmt(gchar *s, guint32 v)
+ulp_CPICH_RSCP_fmt(char *s, uint32_t v)
 {
   if (v == 123) {
     snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP < -120dBm (123)");
@@ -193,7 +193,7 @@ ulp_CPICH_RSCP_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_QoP_horacc_fmt(gchar *s, guint32 v)
+ulp_QoP_horacc_fmt(char *s, uint32_t v)
 {
   double uncertainty = 10*(pow(1.1, (double)v)-1);
 
@@ -205,7 +205,7 @@ ulp_QoP_horacc_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_QoP_veracc_fmt(gchar *s, guint32 v)
+ulp_QoP_veracc_fmt(char *s, uint32_t v)
 {
   double uncertainty = 45*(pow(1.025, (double)v)-1);
 
@@ -213,7 +213,7 @@ ulp_QoP_veracc_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_QoP_delay_fmt(gchar *s, guint32 v)
+ulp_QoP_delay_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", pow(2, (double)v), v);
 }
@@ -224,13 +224,13 @@ static const true_false_string ulp_vertical_dir_val = {
 };
 
 static void
-ulp_RelativeTime_fmt(gchar *s, guint32 v)
+ulp_RelativeTime_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%u)", 0.01*v, v);
 }
 
 static void
-ulp_RSRP_Range_fmt(gchar *s, guint32 v)
+ulp_RSRP_Range_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
@@ -242,7 +242,7 @@ ulp_RSRP_Range_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_RSRQ_Range_fmt(gchar *s, guint32 v)
+ulp_RSRQ_Range_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
@@ -254,31 +254,31 @@ ulp_RSRQ_Range_fmt(gchar *s, guint32 v)
 }
 
 static void
-ulp_SignalDelta_fmt(gchar *s, guint32 v)
+ulp_SignalDelta_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%sdB (%u)", v ? "0.5" : "0", v);
 }
 
 static void
-ulp_locationAccuracy_fmt(gchar *s, guint32 v)
+ulp_locationAccuracy_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%u)", 0.1*v, v);
 }
 
 static void
-ulp_WimaxRTD_fmt(gchar *s, guint32 v)
+ulp_WimaxRTD_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fus (%u)", 0.01*v, v);
 }
 
 static void
-ulp_WimaxNMR_rssi_fmt(gchar *s, guint32 v)
+ulp_WimaxNMR_rssi_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fdBm (%u)", -103.75+(0.25*v), v);
 }
 
 static void
-ulp_UTRAN_gpsReferenceTimeUncertainty_fmt(gchar *s, guint32 v)
+ulp_UTRAN_gpsReferenceTimeUncertainty_fmt(char *s, uint32_t v)
 {
   double uncertainty = 0.0022*(pow(1.18, (double)v)-1);
 
@@ -294,22 +294,22 @@ static const value_string ulp_ganss_time_id_vals[] = {
 };
 
 static void
-ulp_utran_GANSSTimingOfCell_fmt(gchar *s, guint32 v)
+ulp_utran_GANSSTimingOfCell_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fus (%u)", 0.25*v, v);
 }
 
 static void
-ulp_Coordinate_latitude_fmt(gchar *s, guint32 v)
+ulp_Coordinate_latitude_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%u)",
              ((float)v/8388607.0)*90, v);
 }
 
 static void
-ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
+ulp_Coordinate_longitude_fmt(char *s, uint32_t v)
 {
-  gint32 longitude = (gint32) v;
+  int32_t longitude = (int32_t) v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%d)",
              ((float)longitude/8388608.0)*180, longitude);
@@ -320,8 +320,8 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 
 typedef struct
 {
-  guint8 notif_enc_type;
-  guint8 ganss_req_gen_data_ganss_id;
+  uint8_t notif_enc_type;
+  uint8_t ganss_req_gen_data_ganss_id;
 } ulp_private_data_t;
 
 static ulp_private_data_t* ulp_get_private_data(asn1_ctx_t *actx)
@@ -335,7 +335,7 @@ static ulp_private_data_t* ulp_get_private_data(asn1_ctx_t *actx)
 #include "packet-ulp-fn.c"
 
 
-static guint
+static unsigned
 get_ulp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* PDU length = Message length */
@@ -390,7 +390,7 @@ void proto_register_ulp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ulp,
     &ett_ulp_setid,
     &ett_ulp_thirdPartyId,

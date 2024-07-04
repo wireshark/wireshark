@@ -27,7 +27,7 @@ void proto_register_h323(void);
 void proto_reg_handoff_h323(void);
 
 /* Generic Extensible Framework */
-gef_ctx_t* gef_ctx_alloc(wmem_allocator_t *pool, gef_ctx_t *parent, const gchar *type) {
+gef_ctx_t* gef_ctx_alloc(wmem_allocator_t *pool, gef_ctx_t *parent, const char *type) {
   gef_ctx_t *gefx;
 
   gefx = wmem_new0(pool, gef_ctx_t);
@@ -37,7 +37,7 @@ gef_ctx_t* gef_ctx_alloc(wmem_allocator_t *pool, gef_ctx_t *parent, const gchar 
   return gefx;
 }
 
-gboolean gef_ctx_check_signature(gef_ctx_t *gefx) {
+bool gef_ctx_check_signature(gef_ctx_t *gefx) {
   return gefx && (gefx->signature == GEF_CTX_SIGNATURE);
 }
 
@@ -58,7 +58,7 @@ gef_ctx_t* gef_ctx_get(void *ptr) {
 }
 
 void gef_ctx_update_key(wmem_allocator_t *pool, gef_ctx_t *gefx) {
-  const gchar *parent_key;
+  const char *parent_key;
 
   if (!gefx) return;
   parent_key = (gefx->parent) ? gefx->parent->key : NULL;
@@ -90,7 +90,7 @@ void proto_register_h323(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-h323-ettarr.c"
   };
 

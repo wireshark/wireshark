@@ -12,10 +12,10 @@
 #define PACKET_LPPA_H
 
 typedef struct _lppa_ctx_t {
-  guint32 message_type;
-  guint32 ProcedureCode;
-  guint32 ProtocolIE_ID;
-  guint32 ProtocolExtensionID;
+  uint32_t message_type;
+  uint32_t ProcedureCode;
+  uint32_t ProtocolIE_ID;
+  uint32_t ProtocolExtensionID;
 } lppa_ctx_t;
 
 

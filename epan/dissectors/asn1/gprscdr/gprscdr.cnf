@@ -107,7 +107,7 @@ GPRSRecord
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
  */
   tvbuff_t *parameter_tvb;
-  guint8 data, data2;
+  uint8_t data, data2;
   char sign;
 
 %(DEFAULT_BODY)s
@@ -138,7 +138,7 @@ GPRSRecord
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, true);
 
 #.FN_BODY QoSInformation
 
@@ -154,7 +154,7 @@ GPRSRecord
 
 #.FN_BODY EPCQoSInformation/aRP
   proto_tree *ext_tree_arp;
-  guint length;
+  unsigned length;
 
   /*
    * 8.86 Allocation/Retention Priority (ARP)
@@ -227,7 +227,7 @@ GPRSRecord
 
 #.FN_BODY PDPType
   proto_tree *ext_tree_pdp_pdn_type;
-  guint length;
+  unsigned length;
 
   length = tvb_reported_length(tvb);
 
@@ -254,8 +254,8 @@ GPRSRecord
 
 #.FN_BODY GPRSRecord VAL_PTR = &branch_taken
 proto_item *item;
-gint branch_taken, t_offset = offset;
-gint32   tag;
+int branch_taken, t_offset = offset;
+int32_t  tag;
 
   %(DEFAULT_BODY)s
 

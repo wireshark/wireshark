@@ -72,8 +72,8 @@ static expert_field ei_ros_undecoded;
 static dissector_handle_t data_handle;
 
 /* Global variables */
-static gint32 problem_val;
-static gchar problem_str[64];
+static int32_t problem_val;
+static char problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 
 static int
@@ -149,7 +149,7 @@ dissect_h450_ros_InvokeId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_h450_ros_T_invokeIdConstrained(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           0U, 65535U, NULL, TRUE);
+                                           0U, 65535U, NULL, true);
 
   return offset;
 }
@@ -175,7 +175,7 @@ static const per_sequence_t Invoke_sequence[] = {
 static int
 dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   dissector_handle_t arg_handle = NULL;
-  const gchar *descr = "";
+  const char *descr = "";
 
   arg_next_tvb = NULL;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -253,7 +253,7 @@ static const per_sequence_t ReturnResult_sequence[] = {
 static int
 dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   dissector_handle_t res_handle = NULL;
-  const gchar *descr = "";
+  const char *descr = "";
 
   actx->rose_ctx->d.code = -1;
   res_next_tvb = NULL;
@@ -320,7 +320,7 @@ static const per_sequence_t ReturnError_sequence[] = {
 static int
 dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   dissector_handle_t err_handle = NULL;
-  const gchar *descr = "";
+  const char *descr = "";
 
   err_next_tvb = NULL;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -478,7 +478,7 @@ static const per_sequence_t Reject_sequence[] = {
 
 static int
 dissect_h450_ros_Reject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const gchar *descr;
+  const char *descr;
 
   problem_str[0] = '\0';
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -612,7 +612,7 @@ void proto_register_h450_ros(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_h450_ros_Code,
     &ett_h450_ros_ROS,
     &ett_h450_ros_Invoke,

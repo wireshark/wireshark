@@ -12,16 +12,16 @@
 #define PACKET_S1AP_H
 
 typedef struct _s1ap_ctx_t {
-  guint32 message_type;
-  guint32 ProcedureCode;
-  guint32 ProtocolIE_ID;
-  guint32 ProtocolExtensionID;
+  uint32_t message_type;
+  uint32_t ProcedureCode;
+  uint32_t ProtocolIE_ID;
+  uint32_t ProtocolExtensionID;
 } s1ap_ctx_t;
 
 extern const value_string s1ap_warningType_vals[];
 extern const value_string s1ap_serialNumber_gs_vals[];
 
-void dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page);
+void dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, uint8_t dcs, int hf_nb_pages, int hf_decoded_page);
 
 #include "packet-s1ap-exp.h"
 

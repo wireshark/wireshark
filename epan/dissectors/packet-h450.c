@@ -4445,7 +4445,7 @@ static int dissect_h450_12_CmnArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 typedef struct _h450_op_t {
-  gint32 opcode;
+  int32_t opcode;
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } h450_op_t;
@@ -4549,7 +4549,7 @@ static const h450_op_t h450_op_tab[] = {
 };
 
 typedef struct _h450_err_t {
-  gint32 errcode;
+  int32_t errcode;
   dissector_t err_pdu;
 } h450_err_t;
 
@@ -4634,7 +4634,7 @@ static const h450_err_t h450_err_tab[] = {
 /* Unknown or empty loop list ERROR */
 };
 
-static const h450_op_t *get_op(gint32 opcode) {
+static const h450_op_t *get_op(int32_t opcode) {
   int i;
 
   /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
@@ -4644,7 +4644,7 @@ static const h450_op_t *get_op(gint32 opcode) {
   return NULL;
 }
 
-static const h450_err_t *get_err(gint32 errcode) {
+static const h450_err_t *get_err(int32_t errcode) {
   int i;
 
   /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
@@ -4660,9 +4660,9 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_item *hidden_item;
   int offset = 0;
   rose_ctx_t *rctx;
-  gint32 opcode;
+  int32_t opcode;
   const h450_op_t *op_ptr;
-  const gchar *p;
+  const char *p;
 
   /* Reject the packet if data is NULL */
   if (data == NULL)
@@ -4705,9 +4705,9 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_item *hidden_item;
   int offset = 0;
   rose_ctx_t *rctx;
-  gint32 opcode;
+  int32_t opcode;
   const h450_op_t *op_ptr;
-  const gchar *p;
+  const char *p;
 
   /* Reject the packet if data is NULL */
   if (data == NULL)
@@ -4750,9 +4750,9 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_item *hidden_item;
   int offset = 0;
   rose_ctx_t *rctx;
-  gint32 errcode;
+  int32_t errcode;
   const h450_err_t *err_ptr;
-  const gchar *p;
+  const char *p;
 
   /* Reject the packet if data is NULL */
   if (data == NULL)
@@ -6231,7 +6231,7 @@ void proto_register_h450(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 

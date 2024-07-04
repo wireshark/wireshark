@@ -93,11 +93,11 @@ SspRange/opaque                      ABBREV=srRange.opaque
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &my_private_data->unsecured_data);
+                                       NO_BOUND, NO_BOUND, false, &my_private_data->unsecured_data);
 
   if (my_private_data->unsecured_data) {
     // psid may also be provided in HeaderInfo
-    guint32 psid = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0));
+    uint32_t psid = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0));
     if (psid) {
       /* Call next dissector here */
       dissector_try_uint(unsecured_data_subdissector_table, psid, my_private_data->unsecured_data, actx->pinfo, tree);
@@ -109,15 +109,15 @@ SspRange/opaque                      ABBREV=srRange.opaque
 #.END
 
 #.FN_BODY HeaderInfo/psid
-  guint64 psid;
+  uint64_t psid;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
-                                                            0U, NO_BOUND, &psid, FALSE);
+                                                            0U, NO_BOUND, &psid, false);
   if ((my_private_data != NULL) && (my_private_data->unsecured_data != NULL)) {
     /* Call next dissector here */
-    ieee1609dot2_set_next_default_psid(actx->pinfo, (guint32)psid);
-    dissector_try_uint(unsecured_data_subdissector_table, (guint32) psid, my_private_data->unsecured_data, actx->pinfo, tree);
+    ieee1609dot2_set_next_default_psid(actx->pinfo, (uint32_t)psid);
+    dissector_try_uint(unsecured_data_subdissector_table, (uint32_t) psid, my_private_data->unsecured_data, actx->pinfo, tree);
     my_private_data->unsecured_data = NULL;
   }
 
@@ -125,19 +125,19 @@ SspRange/opaque                      ABBREV=srRange.opaque
 
 #.FN_BODY PsidSsp/psid
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
-                                               0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
+                                               0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, false);
 
 #.FN_BODY ServiceSpecificPermissions/opaque
   tvbuff_t *ssp;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
-                                       0, NO_BOUND, FALSE, &ssp);
+                                       0, NO_BOUND, false, &ssp);
   if (ssp) {
     // Create subtree
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ieee1609dot2_ssp);
     /* Call next dissector here */
-    dissector_try_uint(ssp_subdissector_table, (guint32) my_private_data->psidssp, ssp, actx->pinfo, subtree);
+    dissector_try_uint(ssp_subdissector_table, (uint32_t) my_private_data->psidssp, ssp, actx->pinfo, subtree);
   }
 #.END
 

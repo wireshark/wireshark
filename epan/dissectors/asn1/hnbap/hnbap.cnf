@@ -160,7 +160,7 @@ AccessResult
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_hnbap_imsi);
-    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), FALSE);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
   }
 
 #.FN_BODY PLMNidentity VAL_PTR = &parameter_tvb
@@ -170,7 +170,7 @@ AccessResult
   hnbap_data->number_type = E212_NONE;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, false);
   }
 #.END
 

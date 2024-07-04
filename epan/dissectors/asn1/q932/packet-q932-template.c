@@ -36,8 +36,8 @@ static int hf_q932_nd;
 #include "packet-q932-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_q932;
-static gint ett_q932_ie;
+static int ett_q932;
+static int ett_q932_ie;
 #include "packet-q932-ett.c"
 
 static expert_field ei_q932_dse_not_supported;
@@ -61,7 +61,7 @@ dissector_table_t etsi_err_local_dissector_table;
 
 #define FACILITY_QSIG	0
 #define FACILITY_ETSI	1
-static gint g_facility_encoding = FACILITY_QSIG;
+static int g_facility_encoding = FACILITY_QSIG;
 
 void proto_reg_handoff_q932(void);
 
@@ -135,10 +135,10 @@ static const value_string str_nd[] = {
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 static void
 dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
-  gint8 appclass;
+  int8_t appclass;
   bool pc;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   int hoffset, eoffset;
   int ie_end;
   tvbuff_t *next_tvb;
@@ -218,8 +218,8 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static void
 dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
   int remain = length;
-  guint8 octet = 0;
-  guint32 value = 0;
+  uint8_t octet = 0;
+  uint32_t value = 0;
   proto_item* ti;
 
   while ((remain > 0) && !(octet & 0x80)) {
@@ -238,10 +238,10 @@ dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 /*--- dissect_q932_ie -------------------------------------------------------*/
 static int
 dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  gint offset;
+  int offset;
   proto_item *ti;
   proto_tree *ie_tree;
-  guint8 ie_type, ie_len;
+  uint8_t ie_type, ie_len;
 
   offset = 0;
 
@@ -304,7 +304,7 @@ void proto_register_q932(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_q932,
     &ett_q932_ie,
 #include "packet-q932-ettarr.c"
@@ -357,12 +357,12 @@ void proto_register_q932(void) {
   prefs_register_enum_preference(q932_module, "facility_encoding",
                        "Type of Facility encoding",
                        "Type of Facility encoding",
-                       &g_facility_encoding, facility_encoding, FALSE);
+                       &g_facility_encoding, facility_encoding, false);
 }
 
 /*--- proto_reg_handoff_q932 ------------------------------------------------*/
 void proto_reg_handoff_q932(void) {
-  static gboolean q931_prefs_initialized = FALSE;
+  static bool q931_prefs_initialized = false;
 
   if (!q931_prefs_initialized) {
     /* Facility */
@@ -371,7 +371,7 @@ void proto_reg_handoff_q932(void) {
     dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle);
     q932_ros_handle = find_dissector_add_dependency("q932.ros", proto_q932);
 
-    q931_prefs_initialized = TRUE;
+    q931_prefs_initialized = true;
   }
 
   if(g_facility_encoding == FACILITY_QSIG){

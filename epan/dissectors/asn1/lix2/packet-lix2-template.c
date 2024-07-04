@@ -45,7 +45,7 @@ void proto_register_lix2(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-lix2-ettarr.c"
   };
 

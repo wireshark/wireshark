@@ -64,7 +64,7 @@ FreeFormField/bitSetAttributes  informativeAttributeFlags
   VAL_PTR = &attribute
 
 #.FN_BODY SecurityAttribute
-  guint32 attribute;
+  uint32_t attribute;
 
   %(DEFAULT_BODY)s
   ess_dissect_attribute (attribute, actx);

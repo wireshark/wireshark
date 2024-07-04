@@ -262,7 +262,7 @@ OPERATION.&ResultType
 
 #.FN_BODY 	DirectoryBindArgument
 
-	guint32 len;
+	uint32_t len;
 
 	/* check and see if this is an empty set */
 	dissect_ber_length(actx->pinfo, tree, tvb, offset+1, &len, NULL);
@@ -312,7 +312,7 @@ OPERATION.&ResultType
 	VAL_PTR = &problem
 
 #.FN_BODY SecurityProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -322,7 +322,7 @@ OPERATION.&ResultType
 	VAL_PTR = &problem
 
 #.FN_BODY ServiceProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -332,7 +332,7 @@ OPERATION.&ResultType
 	VAL_PTR = &problem
 
 #.FN_BODY UpdateProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -342,7 +342,7 @@ OPERATION.&ResultType
 	VAL_PTR = &problem
 
 #.FN_BODY LimitProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -352,7 +352,7 @@ OPERATION.&ResultType
 
 
 #.FN_BODY SearchArgumentData/subset  VAL_PTR=&subset
-  guint32 subset;
+  uint32_t subset;
 
   %(DEFAULT_BODY)s
 

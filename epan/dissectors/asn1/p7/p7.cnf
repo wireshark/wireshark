@@ -407,16 +407,16 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
 
 #.FN_BODY	MSMessageSubmissionArgument
-	p1_initialize_content_globals (actx, tree, TRUE);
+	p1_initialize_content_globals (actx, tree, true);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 
 #.FN_BODY	EntryInformation
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 
 #.FN_BODY	EntryModification
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);

@@ -2332,8 +2332,8 @@ static const per_choice_t MessageBody_choice[] = {
 
 static int
 dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h501_MessageBody, MessageBody_choice,
                                  &msg_type);
@@ -2503,7 +2503,7 @@ dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_h501_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  dissect_tpkt_encap(tvb, pinfo, tree, FALSE, h501_pdu_handle);
+  dissect_tpkt_encap(tvb, pinfo, tree, false, h501_pdu_handle);
   return tvb_captured_length(tvb);
 }
 
@@ -3531,7 +3531,7 @@ void proto_register_h501(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_h501,
     &ett_h501_Message,
     &ett_h501_MessageBody,

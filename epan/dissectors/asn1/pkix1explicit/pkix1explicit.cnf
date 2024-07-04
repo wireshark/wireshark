@@ -57,13 +57,13 @@ Extensions      B "1.2.840.113549.1.9.14" "pkcs-9-at-extensionRequest"
 
 #.FN_BODY Extension/extnId
 %(DEFAULT_BODY)s
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY Extension/extnValue
-  gint8 appclass;
+  int8_t appclass;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);

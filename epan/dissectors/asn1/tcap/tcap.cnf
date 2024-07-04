@@ -60,7 +60,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY DialogueOC
 
-  offset = dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
+  offset = dissect_tcap_ExternalPDU(false /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY ExternalPDU
@@ -70,7 +70,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY Dialog1
 
-  offset = dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
+  offset = dissect_tcap_DialoguePDU(true, tvb, offset, actx, tree, -1);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY Parameter
@@ -80,11 +80,11 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY Component
   tvbuff_t *next_tvb;
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint tag;
-  guint32 len, comp_offset;
-  volatile guint32 _offset;
+  int tag;
+  uint32_t len, comp_offset;
+  volatile uint32_t _offset;
   bool ind_field;
 
   comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
@@ -118,7 +118,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 %(DEFAULT_BODY)s
   if (p_tcap_private) {
     p_tcap_private->oid= (const void*) cur_oid;
-    p_tcap_private->acv=TRUE;
+    p_tcap_private->acv=true;
   }
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARQ-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
@@ -126,7 +126,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 %(DEFAULT_BODY)s
   if (p_tcap_private) {
     p_tcap_private->oid= (const void*) cur_oid;
-    p_tcap_private->acv=TRUE;
+    p_tcap_private->acv=true;
   }
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARE-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
@@ -134,12 +134,12 @@ ABRT-apdu/_untag/user-information abrt_user_information
 %(DEFAULT_BODY)s
   if (p_tcap_private) {
     p_tcap_private->oid= (const void*) cur_oid;
-    p_tcap_private->acv=TRUE;
+    p_tcap_private->acv=true;
   }
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
   tvbuff_t *parameter_tvb;
-  guint8 len, i;
+  uint8_t len, i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
@@ -188,7 +188,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY DestTransactionID
   tvbuff_t *parameter_tvb;
-  guint8 len , i;
+  uint8_t len , i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;

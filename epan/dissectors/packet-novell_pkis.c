@@ -674,7 +674,7 @@ void proto_register_novell_pkis (void)
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_novell_pkis_SecurityAttributes,
     &ett_novell_pkis_GLBExtensions,
     &ett_novell_pkis_Quality,

@@ -43,7 +43,7 @@ static int hf_x509af_extension_id;
 #include "packet-x509af-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pkix_crl;
+static int ett_pkix_crl;
 #include "packet-x509af-ett.c"
 static const char *algorithm_id;
 static void
@@ -59,7 +59,7 @@ x509af_export_publickey(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, int offset _U_,
 #if defined(HAVE_LIBGNUTLS)
   gnutls_datum_t *subjectPublicKeyInfo = (gnutls_datum_t *)actx->private_data;
   if (subjectPublicKeyInfo) {
-    subjectPublicKeyInfo->data = (guchar *) tvb_get_ptr(tvb, offset, len);
+    subjectPublicKeyInfo->data = (unsigned char *) tvb_get_ptr(tvb, offset, len);
     subjectPublicKeyInfo->size = len;
     actx->private_data = NULL;
   }
@@ -76,7 +76,7 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 {
 	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIX-CRL");
 
@@ -85,7 +85,7 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
 	tree=proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_pkix_crl, NULL, "Certificate Revocation List");
 
-	return dissect_x509af_CertificateList(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+	return dissect_x509af_CertificateList(false, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void
@@ -111,7 +111,7 @@ void proto_register_x509af(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pkix_crl,
 #include "packet-x509af-ettarr.c"
   };

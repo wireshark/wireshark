@@ -280,7 +280,7 @@ VideotexData DISPLAY = BASE_NONE
   VAL_PTR=&crs
 
 #.FN_BODY CharacterSetRegistration
-  guint32 crs;
+  uint32_t crs;
   %(DEFAULT_BODY)s
 
   if(actx->created_item)

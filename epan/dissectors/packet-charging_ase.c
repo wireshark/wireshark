@@ -1077,7 +1077,7 @@ proto_register_charging_ase(void)
   };
 
   /* List of subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
     &ett_charging_ase,
     &ett_charging_ase_ChargingMessageType,
     &ett_charging_ase_ChargingAcknowledgementInformation,

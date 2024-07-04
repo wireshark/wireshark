@@ -20,10 +20,10 @@
 
 /*Array are indexed on logical channel id, meaning they need to be defined for 1-15*/
 /* Mapping from logical channel id to MAC content type ie. DCCH or DTCH*/
-extern guint8 lchId_type_table[];
+extern uint8_t lchId_type_table[];
 
 /* Mapping logicalchannel id to RLC_MODE */
-extern guint8 lchId_rlc_map[];
+extern uint8_t lchId_rlc_map[];
 
 /* Mapping Scrambling Codes to C-RNC Contexts */
 extern wmem_tree_t *nbap_scrambling_code_crncc_map;

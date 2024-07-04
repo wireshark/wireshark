@@ -244,8 +244,8 @@ static int hf_dop_GrantsAndDenials_grantInvoke;
 static int hf_dop_GrantsAndDenials_denyInvoke;
 
 /* Initialize the subtree pointers */
-static gint ett_dop;
-static gint ett_dop_unknown;
+static int ett_dop;
+static int ett_dop_unknown;
 static int ett_dop_DSEType;
 static int ett_dop_SupplierOrConsumer;
 static int ett_dop_SET_OF_ProtocolInformation;
@@ -384,7 +384,7 @@ dissect_dop_SET_OF_ProtocolInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_dop_T_identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	guint32	value;
+	uint32_t	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -402,7 +402,7 @@ dissect_dop_T_identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_dop_T_version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	guint32	value;
+	uint32_t	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -1464,7 +1464,7 @@ dissect_dop_NHOBSubordinateToSuperior(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_dop_Precedence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 precedence = 0;
+  uint32_t precedence = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
@@ -2016,7 +2016,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		return 0;
 	session = (struct SESSION_DATA_STRUCTURE*)data;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	item = proto_tree_add_item(parent_tree, proto_dop, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_dop);
@@ -2101,7 +2101,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
-	    offset=(*dop_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
+	    offset=(*dop_dissector)(false, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
 	      proto_tree_add_expert(tree, pinfo, &ei_dop_zero_pdu, tvb, offset, -1);
 	      break;
@@ -2887,7 +2887,7 @@ void proto_register_dop(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_dop,
     &ett_dop_unknown,
     &ett_dop_DSEType,
@@ -3024,7 +3024,7 @@ void proto_reg_handoff_dop(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register DOP with ROS (with no use of RTSE) */
-  register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE);
+  register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", false);
 
   /* BINDING TYPES */
 

@@ -3,7 +3,7 @@
 # Copyright 2007 Tomas Kukosa
 
 #.FN_HDR Reject
-  const gchar *descr;
+  const char *descr;
 
   problem_str[0] = '\0';
 #.FN_FTR Reject

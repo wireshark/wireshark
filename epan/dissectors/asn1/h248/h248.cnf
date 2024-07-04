@@ -119,32 +119,32 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_BODY TransactionRequest/transactionId
-    guint32 trx_id = 0;
+    uint32_t trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REQUEST, actx->pinfo, keep_persistent_data);
     error_code = 0;
 #.END
 
 #.FN_BODY TransactionPending/transactionId
-    guint32 trx_id = 0;
+    uint32_t trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_PENDING, actx->pinfo, keep_persistent_data);
     error_code = 0;
 
 #.FN_BODY TransactionReply/transactionId
-    guint32 trx_id = 0;
+    uint32_t trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REPLY, actx->pinfo, keep_persistent_data);
     error_code = 0;
 
 #.FN_BODY SegmentReply/transactionId
-    guint32 trx_id = 0;
+    uint32_t trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_ACK, actx->pinfo, keep_persistent_data);
     error_code = 0;
 
 #.FN_BODY ActionRequest/contextId
-    guint32 ctx_id = 0;
+    uint32_t ctx_id = 0;
 	offset = dissect_h248_ctx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &ctx_id);
     curr_info.ctx = gcp_ctx(curr_info.msg,curr_info.trx,ctx_id,actx->pinfo,keep_persistent_data);
     curr_info.cmd = NULL;
@@ -357,7 +357,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 		}
 
 		if (curr_info.term->len) {
-			curr_info.term->buffer = (guint8 *)tvb_memdup(actx->pinfo->pool,new_tvb,0,curr_info.term->len);
+			curr_info.term->buffer = (uint8_t *)tvb_memdup(actx->pinfo->pool,new_tvb,0,curr_info.term->len);
 			if(term_info.str){
 				curr_info.term->str = wmem_strdup_printf(actx->pinfo->pool, "%s %s",
 											bytes_to_str_punct(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0),
@@ -372,7 +372,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 
 	} else {
 		curr_info.term->len = 0;
-		curr_info.term->buffer = (guint8*)wmem_strdup(actx->pinfo->pool, "");
+		curr_info.term->buffer = (uint8_t*)wmem_strdup(actx->pinfo->pool, "");
 		curr_info.term->str = wmem_strdup(actx->pinfo->pool, "?");
 	}
 #.END
@@ -384,7 +384,7 @@ SigParameterV1/value                ABBREV=sig_param_value
  if (!parameter_tvb)
 	return offset;
 
- dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, actx, tree, hf_h248_serviceChangeReasonStr);
+ dissect_h248_ServiceChangeReasonStr(false, parameter_tvb, 0, actx, tree, hf_h248_serviceChangeReasonStr);
 #.END
 
 #.FN_BODY EventParameter

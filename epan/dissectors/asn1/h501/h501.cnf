@@ -27,8 +27,8 @@ DescriptorInfo/descriptorID                    ABBREV=descriptorInfo_descriptorI
 #.FN_PARS MessageBody
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h501_MessageBody_vals));
   if (p )

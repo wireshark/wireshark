@@ -38,13 +38,13 @@ Version
 
 #.FN_BODY ResponseBytes/responseType FN_VARIANT = _str HF_INDEX = hf_ocsp_responseType_id VAL_PTR = &actx->external.direct_reference
 %(DEFAULT_BODY)s
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY ResponseBytes/response
-  gint8 appclass;
+  int8_t appclass;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);

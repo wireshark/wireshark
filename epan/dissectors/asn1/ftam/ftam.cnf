@@ -114,7 +114,7 @@ Legal-Qualification-Attribute/actual-values      ABBREV=actual_values9
   /* XXX have no idea about this one */
 
 #.FN_BODY FTAM-Regime-PDU VAL_PTR = &branch_taken
-  gint branch_taken;
+  int branch_taken;
 
   %(DEFAULT_BODY)s
 
@@ -123,7 +123,7 @@ Legal-Qualification-Attribute/actual-values      ABBREV=actual_values9
   }
 
 #.FN_BODY File-PDU VAL_PTR = &branch_taken
-  gint branch_taken;
+  int branch_taken;
 
   %(DEFAULT_BODY)s
 
@@ -132,7 +132,7 @@ Legal-Qualification-Attribute/actual-values      ABBREV=actual_values9
   }
 
 #.FN_BODY Bulk-Data-PDU VAL_PTR = &branch_taken
-  gint branch_taken;
+  int branch_taken;
 
   %(DEFAULT_BODY)s
 
@@ -141,7 +141,7 @@ Legal-Qualification-Attribute/actual-values      ABBREV=actual_values9
   }
 
 #.FN_BODY FSM-PDU VAL_PTR = &branch_taken
-  gint branch_taken;
+  int branch_taken;
 
   %(DEFAULT_BODY)s
 

@@ -1891,7 +1891,7 @@ void proto_register_glow(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
                   &ett_glow,
     &ett_glow_Template_U,
     &ett_glow_QualifiedTemplate_U,

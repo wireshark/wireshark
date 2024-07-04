@@ -3325,7 +3325,7 @@ void proto_register_kpm_v2(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_kpm_v2_MeasurementType,
     &ett_kpm_v2_MeasurementLabel,
     &ett_kpm_v2_TestCondInfo,

@@ -668,14 +668,14 @@ static int hf_p1_G3FacsimileNonBasicParameters_spare_bit70;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26;
 
 /* Initialize the subtree pointers */
-static gint ett_p1;
-static gint ett_p3;
-static gint ett_p1_content_unknown;
-static gint ett_p1_bilateral_information;
-static gint ett_p1_additional_information;
-static gint ett_p1_unknown_standard_extension;
-static gint ett_p1_unknown_extension_attribute_type;
-static gint ett_p1_unknown_tokendata_type;
+static int ett_p1;
+static int ett_p3;
+static int ett_p1_content_unknown;
+static int ett_p1_bilateral_information;
+static int ett_p1_additional_information;
+static int ett_p1_unknown_standard_extension;
+static int ett_p1_unknown_extension_attribute_type;
+static int ett_p1_unknown_tokendata_type;
 static int ett_p1_MTABindArgument;
 static int ett_p1_AuthenticatedArgument;
 static int ett_p1_MTABindResult;
@@ -911,13 +911,13 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 typedef struct p1_address_ctx {
-    gboolean do_address;
+    bool do_address;
     const char *content_type_id;
-    gboolean report_unknown_content_type;
+    bool report_unknown_content_type;
     wmem_strbuf_t* oraddress;
 } p1_address_ctx_t;
 
-static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
+static void set_do_address(asn1_ctx_t* actx, bool do_address)
 {
     p1_address_ctx_t* ctx;
 
@@ -1180,7 +1180,7 @@ static const ber_choice_t Credentials_choice[] = {
 
 int
 dissect_p1_Credentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint credentials = -1;
+  int credentials = -1;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Credentials_choice, hf_index, ett_p1_Credentials,
@@ -1739,13 +1739,13 @@ dissect_p1_MTSIdentifier_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_p1_MTSIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 4, true, dissect_p1_MTSIdentifier_U);
 
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 
   return offset;
@@ -2241,7 +2241,7 @@ dissect_p1_ORName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = NULL;
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 0, true, dissect_p1_ORName_U);
@@ -2250,7 +2250,7 @@ dissect_p1_ORName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 	if (ctx->oraddress && (wmem_strbuf_get_len(ctx->oraddress) > 0) && actx->subtree.tree)
 		proto_item_append_text(actx->subtree.tree, " (%s/)", wmem_strbuf_get_str(ctx->oraddress));
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
   return offset;
 }
@@ -2494,7 +2494,7 @@ static const value_string p1_BuiltInContentType_U_vals[] = {
 
 static int
 dissect_p1_BuiltInContentType_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	static guint32	ict = -1;
+	static uint32_t	ict = -1;
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL)
@@ -2731,7 +2731,7 @@ static int
 dissect_p1_T_bilateral_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	proto_item *item = NULL;
 	int	    loffset = 0;
-	guint32	    len = 0;
+	uint32_t	    len = 0;
 
 	/* work out the length */
 	loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
@@ -2855,13 +2855,13 @@ static const ber_sequence_t DomainSuppliedInformation_set[] = {
 static int
 dissect_p1_DomainSuppliedInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               DomainSuppliedInformation_set, hf_index, ett_p1_DomainSuppliedInformation);
 
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 	proto_item_append_text(tree, ")");
 
 
@@ -2878,13 +2878,13 @@ static const ber_sequence_t TraceInformationElement_sequence[] = {
 static int
 dissect_p1_TraceInformationElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TraceInformationElement_sequence, hf_index, ett_p1_TraceInformationElement);
 
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 
   return offset;
@@ -2966,8 +2966,8 @@ static const value_string p1_StandardExtension_vals[] = {
 
 static int
 dissect_p1_StandardExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	actx->external.indirect_ref_present = TRUE;
-	actx->external.direct_ref_present = FALSE;
+	actx->external.indirect_ref_present = true;
+	actx->external.direct_ref_present = false;
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &actx->external.indirect_reference);
 
@@ -2980,11 +2980,11 @@ dissect_p1_StandardExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p1_T_private_extension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	actx->external.indirect_ref_present = FALSE;
+	actx->external.indirect_ref_present = false;
 	actx->external.direct_reference = NULL;
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
-	actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+	actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 
   return offset;
@@ -3408,7 +3408,7 @@ static int
 dissect_p1_AdditionalInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
    proto_item *item = NULL;
    int         loffset = 0;
-   guint32     len = 0;
+   uint32_t    len = 0;
 
    /* work out the length */
    loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
@@ -3624,7 +3624,7 @@ static const ber_choice_t ReportType_choice[] = {
 
 static int
 dissect_p1_ReportType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	gint report = -1;
+	int report = -1;
 
 	  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ReportType_choice, hf_index, ett_p1_ReportType,
@@ -3762,7 +3762,7 @@ static const ber_choice_t MTS_APDU_choice[] = {
 
 static int
 dissect_p1_MTS_APDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	gint apdu = -1;
+	int apdu = -1;
 
 	  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MTS_APDU_choice, hf_index, ett_p1_MTS_APDU,
@@ -3818,13 +3818,13 @@ static const ber_sequence_t MTASuppliedInformation_set[] = {
 static int
 dissect_p1_MTASuppliedInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MTASuppliedInformation_set, hf_index, ett_p1_MTASuppliedInformation);
 
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 	proto_item_append_text(tree, ")");
 
 
@@ -3842,13 +3842,13 @@ static const ber_sequence_t InternalTraceInformationElement_sequence[] = {
 static int
 dissect_p1_InternalTraceInformationElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    InternalTraceInformationElement_sequence, hf_index, ett_p1_InternalTraceInformationElement);
 
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 
   return offset;
@@ -4108,11 +4108,11 @@ static const ber_sequence_t MessageSubmissionArgument_sequence[] = {
 
 static int
 dissect_p1_MessageSubmissionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals(actx, tree, TRUE);
+	p1_initialize_content_globals(actx, tree, true);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MessageSubmissionArgument_sequence, hf_index, ett_p1_MessageSubmissionArgument);
 
-	p1_initialize_content_globals(actx, NULL, FALSE);
+	p1_initialize_content_globals(actx, NULL, false);
 
 
   return offset;
@@ -4681,11 +4681,11 @@ static const ber_sequence_t MessageDeliveryArgument_sequence[] = {
 
 static int
 dissect_p1_MessageDeliveryArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals(actx, tree, TRUE);
+	p1_initialize_content_globals(actx, tree, true);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MessageDeliveryArgument_sequence, hf_index, ett_p1_MessageDeliveryArgument);
 
-	p1_initialize_content_globals(actx, NULL, FALSE);
+	p1_initialize_content_globals(actx, NULL, false);
 
 
   return offset;
@@ -4789,11 +4789,11 @@ static const ber_sequence_t ReportDeliveryArgument_set[] = {
 
 static int
 dissect_p1_ReportDeliveryArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals(actx, tree, TRUE);
+	p1_initialize_content_globals(actx, tree, true);
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ReportDeliveryArgument_set, hf_index, ett_p1_ReportDeliveryArgument);
 
-	p1_initialize_content_globals(actx, NULL, FALSE);
+	p1_initialize_content_globals(actx, NULL, false);
 
 
   return offset;
@@ -5709,7 +5709,7 @@ dissect_p1_ORAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = NULL;
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ORAddress_sequence, hf_index, ett_p1_ORAddress);
@@ -5719,7 +5719,7 @@ dissect_p1_ORAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 	if (ctx->oraddress && (wmem_strbuf_get_len(ctx->oraddress) > 0) && actx->subtree.tree)
 		proto_item_append_text(actx->subtree.tree, " (%s/)", wmem_strbuf_get_str(ctx->oraddress));
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 
   return offset;
@@ -7023,13 +7023,13 @@ static const ber_sequence_t MTANameAndOptionalGDI_sequence[] = {
 static int
 dissect_p1_MTANameAndOptionalGDI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MTANameAndOptionalGDI_sequence, hf_index, ett_p1_MTANameAndOptionalGDI);
 
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 	proto_item_append_text(tree, ")");
 
 
@@ -8377,7 +8377,7 @@ static const ros_info_t p3_ros_info = {
   p3_err_tab
 };
 
-void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean report_unknown_cont_type)
+void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, bool report_unknown_cont_type)
 {
     p1_address_ctx_t* ctx;
 
@@ -8416,10 +8416,10 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     /* save parent_tree so subdissectors can create new top nodes */
-    p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
+    p1_initialize_content_globals (&asn1_ctx, parent_tree, true);
 
     if (parent_tree) {
         item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
@@ -8429,8 +8429,8 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
       col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
-    dissect_p1_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
-    p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+    dissect_p1_MTS_APDU (false, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
+    p1_initialize_content_globals (&asn1_ctx, NULL, false);
     return tvb_captured_length(tvb);
 }
 
@@ -8449,7 +8449,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
     const char *p1_op_name;
     int hf_p1_index = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     /* do we have operation information from the ROS dissector? */
     if (data == NULL)
@@ -8457,7 +8457,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
     session  = (struct SESSION_DATA_STRUCTURE*)data;
 
     /* save parent_tree so subdissectors can create new top nodes */
-    p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
+    p1_initialize_content_globals (&asn1_ctx, parent_tree, true);
 
     asn1_ctx.private_data = session;
 
@@ -8497,13 +8497,13 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         old_offset=offset;
-        offset=(*p1_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_p1_index);
+        offset=(*p1_dissector)(false, tvb, offset, &asn1_ctx , tree, hf_p1_index);
         if (offset == old_offset) {
             proto_tree_add_expert(tree, pinfo, &ei_p1_zero_pdu, tvb, offset, -1);
             break;
         }
     }
-    p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+    p1_initialize_content_globals (&asn1_ctx, NULL, false);
     return tvb_captured_length(tvb);
 }
 
@@ -11001,7 +11001,7 @@ void proto_register_p1(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p1,
     &ett_p3,
     &ett_p1_content_unknown,
@@ -11399,16 +11399,16 @@ void proto_reg_handoff_p1(void) {
   oid_add_from_string("id-ac-mts-transfer","2.6.0.1.6");
 
   /* ABSTRACT SYNTAXES */
-  register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", TRUE);
-  register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", FALSE);
+  register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", true);
+  register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", false);
 
 
-  register_rtse_oid_dissector_handle("applicationProtocol.1", p1_handle, 0, "mts-transfer-protocol-1984", FALSE);
-  register_rtse_oid_dissector_handle("applicationProtocol.12", p1_handle, 0, "mta-transfer-protocol", FALSE);
+  register_rtse_oid_dissector_handle("applicationProtocol.1", p1_handle, 0, "mts-transfer-protocol-1984", false);
+  register_rtse_oid_dissector_handle("applicationProtocol.12", p1_handle, 0, "mta-transfer-protocol", false);
 
   /* the ROS dissector will use the registered P3 ros info */
-  register_rtse_oid_dissector_handle(id_as_mts_rtse, NULL, 0, "id-as-mts-rtse", TRUE);
-  register_rtse_oid_dissector_handle(id_as_msse, NULL, 0, "id-as-msse", TRUE);
+  register_rtse_oid_dissector_handle(id_as_mts_rtse, NULL, 0, "id-as-mts-rtse", true);
+  register_rtse_oid_dissector_handle(id_as_msse, NULL, 0, "id-as-msse", true);
 
   /* APPLICATION CONTEXT */
 
@@ -11420,16 +11420,16 @@ void proto_reg_handoff_p1(void) {
 
   /* Register P3 with ROS */
 
-  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", FALSE);
+  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", false);
 
-  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", FALSE);
-  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", FALSE);
+  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", false);
+  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", false);
 
-  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", FALSE);
-  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", FALSE);
+  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", false);
+  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", false);
 
-  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE);
-  register_ros_protocol_info(id_as_mts_rtse, &p3_ros_info, 0, "id-as-mts-rtse", TRUE);
+  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", false);
+  register_ros_protocol_info(id_as_mts_rtse, &p3_ros_info, 0, "id-as-mts-rtse", true);
 
 }
 

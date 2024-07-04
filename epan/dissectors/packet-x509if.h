@@ -64,7 +64,7 @@ int dissect_x509if_MRSubstitution(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 extern const char * x509if_get_last_dn(void);
 
-extern gboolean x509if_register_fmt(int hf_index, const gchar *fmt);
+extern bool x509if_register_fmt(int hf_index, const char *fmt);
 extern const char * x509if_get_last_ava(void);
 
 #endif  /* PACKET_X509IF_H */

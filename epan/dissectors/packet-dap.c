@@ -458,7 +458,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers;
 static int hf_dap_SearchControlOptions_searchFamily;
 
 /* Initialize the subtree pointers */
-static gint ett_dap;
+static int ett_dap;
 static int ett_dap_ServiceControls;
 static int ett_dap_T_manageDSAITPlaneRef;
 static int ett_dap_ServiceControlOptions;
@@ -2020,7 +2020,7 @@ static const ber_sequence_t DirectoryBindArgument_set[] = {
 int
 dissect_dap_DirectoryBindArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	guint32 len;
+	uint32_t len;
 
 	/* check and see if this is an empty set */
 	dissect_ber_length(actx->pinfo, tree, tvb, offset+1, &len, NULL);
@@ -2076,7 +2076,7 @@ static const value_string dap_ServiceProblem_vals[] = {
 
 static int
 dissect_dap_ServiceProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 problem;
+  uint32_t problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
@@ -2105,7 +2105,7 @@ const value_string dap_SecurityProblem_vals[] = {
 
 int
 dissect_dap_SecurityProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 problem;
+  uint32_t problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
@@ -2759,7 +2759,7 @@ static const value_string dap_LimitProblem_vals[] = {
 
 static int
 dissect_dap_LimitProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 problem;
+  uint32_t problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
@@ -2952,7 +2952,7 @@ static const value_string dap_T_subset_vals[] = {
 
 static int
 dissect_dap_T_subset(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 subset;
+  uint32_t subset;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &subset);
@@ -4433,7 +4433,7 @@ static const value_string dap_UpdateProblem_vals[] = {
 
 static int
 dissect_dap_UpdateProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 problem;
+  uint32_t problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
@@ -6429,7 +6429,7 @@ void proto_register_dap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_dap,
     &ett_dap_ServiceControls,
     &ett_dap_T_manageDSAITPlaneRef,
@@ -6643,7 +6643,7 @@ void proto_reg_handoff_dap(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register DAP with ROS (with no use of RTSE) */
-  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE);
+  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", false);
 
   register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 

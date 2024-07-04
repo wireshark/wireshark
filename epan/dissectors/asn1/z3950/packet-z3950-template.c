@@ -42,13 +42,13 @@
 #include "packet-tcp.h"
 
 typedef struct z3950_atinfo_t {
-    gint     atsetidx;
-    gint     attype;
+    int      atsetidx;
+    int      attype;
 } z3950_atinfo_t;
 
 typedef struct z3950_diaginfo_t {
-    gint     diagsetidx;
-    gint     diagcondition;
+    int      diagsetidx;
+    int      diagcondition;
 } z3950_diaginfo_t;
 
 #define PNAME  "Z39.50 Protocol"
@@ -94,9 +94,9 @@ typedef struct z3950_diaginfo_t {
 #define marc_char_to_int(x)        ((x) - '0')
 
 typedef struct marc_directory_entry {
-    guint32 tag;
-    guint32 length;
-    guint32 starting_character;
+    uint32_t tag;
+    uint32_t length;
+    uint32_t starting_character;
 } marc_directory_entry;
 
 static dissector_handle_t z3950_handle;
@@ -885,7 +885,7 @@ static int
 dissect_z3950_printable_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     tvbuff_t *next_tvb = NULL;
     int hf_alternate = 0;
-    guint old_offset = offset;
+    unsigned old_offset = offset;
 
     if (hf_index == hf_z3950_referenceId) {
         hf_alternate = hf_z3950_referenceId_printable;
@@ -926,7 +926,7 @@ dissect_z3950(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree      *z3950_tree = NULL;
     int                     offset = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 
     /* make entry in the Protocol column on summary display */
@@ -936,14 +936,14 @@ dissect_z3950(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     z3950_item = proto_tree_add_item(tree, proto_z3950, tvb, 0, -1, ENC_NA);
     z3950_tree = proto_item_add_subtree(z3950_item, ett_z3950);
 
-    return dissect_z3950_PDU(FALSE, tvb, offset, &asn1_ctx, z3950_tree, -1);
+    return dissect_z3950_PDU(false, tvb, offset, &asn1_ctx, z3950_tree, -1);
 }
 
-static guint
+static unsigned
 get_z3950_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint plen;
-    guint ber_offset;
+    unsigned plen;
+    unsigned ber_offset;
     TRY {
         /* Skip past identifier */
         ber_offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
@@ -1121,7 +1121,7 @@ void proto_register_z3950(void) {
     };
 
     /* List of subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
 		  &ett_z3950,
 /* MARC etts */
                   &ett_marc_record,
@@ -1276,9 +1276,9 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                *directory_tree,
                *fields_tree;
     marc_directory_entry *marc_directory;
-    guint len = tvb_reported_length(tvb);
-    const guint8 *marc_value_str;
-    guint record_length = 0,
+    unsigned len = tvb_reported_length(tvb);
+    const uint8_t *marc_value_str;
+    unsigned record_length = 0,
           data_offset = 0,
           length_of_field_size,
           starting_character_position_size,
@@ -1286,7 +1286,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
           directory_entry_count,
           dir_index,
           offset = 0;
-    guint32 marc_value_char;
+    uint32_t marc_value_char;
 
     record_item = proto_tree_add_item(tree, hf_marc_record,
                            tvb, 0, len, ENC_NA);
@@ -1308,7 +1308,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
     if (marc_value_str) {
         if (isdigit_string(marc_value_str)) {
-            record_length = (guint)strtoul(marc_value_str, NULL, 10);
+            record_length = (unsigned)strtoul(marc_value_str, NULL, 10);
         }
         else {
             expert_add_info_format(pinfo, item,
@@ -1376,7 +1376,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     offset += 5;
     if (marc_value_str) {
         if (isdigit_string(marc_value_str)) {
-            data_offset = (guint)strtoul(marc_value_str, NULL, 10);
+            data_offset = (unsigned)strtoul(marc_value_str, NULL, 10);
         }
         else {
             expert_add_info_format(pinfo, item,
@@ -1459,7 +1459,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     dir_index = 0;
     /* Minus one for the terminator character */
     while (offset < (data_offset - 1)) {
-        guint32 tag_value = 0,
+        uint32_t tag_value = 0,
                 length_value = 0,
                 starting_char_value = 0;
         proto_item *length_item;
@@ -1477,7 +1477,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         offset += 3;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
-                tag_value = (guint)strtoul(marc_value_str, NULL, 10);
+                tag_value = (unsigned)strtoul(marc_value_str, NULL, 10);
             }
             else {
                 expert_add_info_format(pinfo, item,
@@ -1494,7 +1494,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         offset += length_of_field_size;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
-                length_value = (guint)strtoul(marc_value_str, NULL, 10);
+                length_value = (unsigned)strtoul(marc_value_str, NULL, 10);
             }
             else {
                 expert_add_info_format(pinfo, length_item,
@@ -1510,7 +1510,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         offset += starting_character_position_size;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
-                starting_char_value = (guint)strtoul(marc_value_str, NULL, 10);
+                starting_char_value = (unsigned)strtoul(marc_value_str, NULL, 10);
             }
             else {
                 expert_add_info_format(pinfo, item,
@@ -1546,7 +1546,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     fields_tree = proto_item_add_subtree(fields_item, ett_marc_fields);
 
     for (dir_index = 0; dir_index < directory_entry_count; dir_index++) {
-        const gchar *tag_str;
+        const char *tag_str;
         proto_item *field_item;
         proto_tree *field_tree;
 
@@ -1573,7 +1573,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
             offset += 1;
         }
         else {
-            guint next_offset = offset + marc_directory[dir_index].length - 1;
+            unsigned next_offset = offset + marc_directory[dir_index].length - 1;
             proto_tree_add_item(field_tree, hf_marc_field_indicator1,
                     tvb, offset, 1, ENC_ASCII);
             offset += 1;
@@ -1581,7 +1581,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                     tvb, offset, 1, ENC_ASCII);
             offset += 1;
             do {
-                gint next_subfield;
+                int next_subfield;
                 proto_tree_add_item(field_tree, hf_marc_field_subfield_indicator,
                         tvb, offset, 1, ENC_ASCII);
                 offset += 1;

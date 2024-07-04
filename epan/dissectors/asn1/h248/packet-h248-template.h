@@ -33,10 +33,10 @@ typedef struct _gcp_hf_ett_t {
 	} hf;
 
 	struct {
-		gint ctx;
-		gint ctx_cmds;
-		gint ctx_terms;
-		gint ctx_term;
+		int ctx;
+		int ctx_cmds;
+		int ctx_terms;
+		int ctx_term;
 	} ett;
 } gcp_hf_ett_t;
 
@@ -80,12 +80,12 @@ typedef enum {
 
 
 typedef struct _gcp_msg_t {
-	guint32 lo_addr;
-	guint32 hi_addr;
-	guint32 framenum;
+	uint32_t lo_addr;
+	uint32_t hi_addr;
+	uint32_t framenum;
 	nstime_t frametime;
 	struct _gcp_trx_msg_t* trxs;
-	gboolean committed;
+	bool committed;
 } gcp_msg_t;
 
 typedef struct _gcp_trx_msg_t {
@@ -102,12 +102,12 @@ typedef struct _gcp_cmd_msg_t {
 
 typedef struct _gcp_trx_t {
 	gcp_msg_t* initial;
-	guint32 id;
+	uint32_t id;
 	gcp_trx_type_t type;
-	guint pendings;
+	unsigned pendings;
 	struct _gcp_cmd_msg_t* cmds;
 	struct _gcp_trx_ctx_t* ctxs;
-	guint error;
+	unsigned error;
 } gcp_trx_t;
 
 #define GCP_TERM_TYPE_UNKNOWN 0
@@ -124,14 +124,14 @@ typedef enum _gcp_wildcard_t {
 } gcp_wildcard_t;
 
 typedef struct _gcp_term_t {
-	const gchar* str;
+	const char* str;
 
-	const guint8* buffer;
-	guint len;
+	const uint8_t* buffer;
+	unsigned len;
 
-	guint type;
-	gchar* bir;
-	gchar* nsap;
+	unsigned type;
+	char* bir;
+	char* nsap;
 
 	gcp_msg_t* start;
 
@@ -144,30 +144,30 @@ typedef struct _gcp_terms_t {
 } gcp_terms_t;
 
 typedef struct _gcp_cmd_t {
-	guint offset;
-	const gchar* str;
+	unsigned offset;
+	const char* str;
 	gcp_cmd_type_t type;
 	gcp_terms_t terms;
 	struct _gcp_msg_t* msg;
 	struct _gcp_trx_t* trx;
 	struct _gcp_ctx_t* ctx;
-	guint error;
+	unsigned error;
 } gcp_cmd_t;
 
 
 typedef struct _gcp_ctx_t {
 	gcp_msg_t* initial;
-	guint32 id;
+	uint32_t id;
 	struct _gcp_cmd_msg_t* cmds;
 	struct _gcp_ctx_t* prev;
 	gcp_terms_t terms;
 } gcp_ctx_t;
 
-extern gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean persistent);
-extern gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, packet_info *pinfo, gboolean persistent);
-extern gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, packet_info *pinfo, gboolean persistent);
-extern gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type, guint offset, packet_info *pinfo, gboolean persistent);
-extern gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term_t* t, gcp_wildcard_t wildcard, packet_info *pinfo, gboolean persistent);
+extern gcp_msg_t* gcp_msg(packet_info* pinfo, int o, bool persistent);
+extern gcp_trx_t* gcp_trx(gcp_msg_t* m ,uint32_t t_id , gcp_trx_type_t type, packet_info *pinfo, bool persistent);
+extern gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, uint32_t c_id, packet_info *pinfo, bool persistent);
+extern gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type, unsigned offset, packet_info *pinfo, bool persistent);
+extern gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term_t* t, gcp_wildcard_t wildcard, packet_info *pinfo, bool persistent);
 extern void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_hf_ett_t* ids, expert_field* command_err);
 
 #define GCP_ETT_ARR_ELEMS(gi)     &(gi.ett.ctx),&(gi.ett.ctx_cmds),&(gi.ett.ctx_terms),&(gi.ett.ctx_term)
@@ -183,7 +183,7 @@ extern void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* 
 WS_DLL_PUBLIC const value_string gcp_cmd_type[];
 WS_DLL_PUBLIC const value_string gcp_term_types[];
 
-extern const gchar* gcp_msg_to_str(gcp_msg_t* m, wmem_allocator_t *scope, gboolean persistent);
+extern const char* gcp_msg_to_str(gcp_msg_t* m, wmem_allocator_t *scope, bool persistent);
 
 #define gcp_cmd_set_error(c,e) (c->error = e)
 #define gcp_trx_set_error(t,e) (t->error = e)
@@ -211,40 +211,40 @@ typedef enum {
 } pkg_reg_action;
 
 typedef struct _h248_pkg_param_t {
-	guint32 id;
+	uint32_t id;
 	int* hfid;
 	h248_pkg_param_dissector_t dissector;
 	void* data;
 } h248_pkg_param_t;
 
 typedef struct _h248_pkg_sig_t {
-	guint32 id;
+	uint32_t id;
 	int* hfid;
-	gint* ett;
+	int* ett;
 	const h248_pkg_param_t* parameters;
 	const value_string* param_names;
 } h248_pkg_sig_t;
 
 typedef struct _h248_pkg_evt_t {
-	guint32 id;
+	uint32_t id;
 	int* hfid;
-	gint* ett;
+	int* ett;
 	const h248_pkg_param_t* parameters;
 	const value_string* param_names;
 } h248_pkg_evt_t;
 
 typedef struct _h248_pkg_stat_t {
-	guint32 id;
+	uint32_t id;
 	int* hfid;
-	gint* ett;
+	int* ett;
 	const h248_pkg_param_t* parameters;
 	const value_string* param_names;
 } h248_pkg_stat_t;
 
 typedef struct _h248_package_t {
-	guint32 id;                            /**< Package ID */
+	uint32_t id;                            /**< Package ID */
 	int* hfid;                             /**< hfid that will display the package name */
-	gint* ett;                             /**< The ett for this item */
+	int* ett;                             /**< The ett for this item */
 	const value_string* param_names;       /**< The parameter names, Value 00000 should be the package name */
 	const value_string* signal_names;
 	const value_string* event_names;
@@ -257,7 +257,7 @@ typedef struct _h248_package_t {
 
 typedef struct _save_h248_package_t {
 	h248_package_t *pkg;
-	gboolean is_default;
+	bool is_default;
 } s_h248_package_t;
 
 struct _h248_curr_info_t {
@@ -274,8 +274,8 @@ struct _h248_curr_info_t {
 };
 
 typedef struct h248_term_info {
-	guint8 wild_card;
-	gchar *str;
+	uint8_t wild_card;
+	char *str;
 } h248_term_info_t;
 
 WS_DLL_PUBLIC

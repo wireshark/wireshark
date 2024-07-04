@@ -23,10 +23,10 @@ AP-invocation-id TYPE=FT_UINT32
 AE-qualifier TYPE=FT_UINT32
 
 #.FN_BODY User-information
-  gint8 end_device_class;
+  int8_t end_device_class;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   proto_item *tf = NULL;
   proto_tree *epsem_tree = NULL;
   FILL_START;

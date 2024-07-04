@@ -465,7 +465,7 @@ static int hf_p7_T_entry_class_problem_entry_class_not_subscribed;
 static int hf_p7_T_entry_class_problem_inappropriate_entry_class;
 
 /* Initialize the subtree pointers */
-static gint ett_p7;
+static int ett_p7;
 static int ett_p7_Attribute;
 static int ett_p7_AttributeValues;
 static int ett_p7_AutoActionRegistration;
@@ -1715,11 +1715,11 @@ static const ber_sequence_t EntryInformation_sequence[] = {
 
 static int
 dissect_p7_EntryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EntryInformation_sequence, hf_index, ett_p7_EntryInformation);
 
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 
 
   return offset;
@@ -2646,11 +2646,11 @@ static const ber_sequence_t EntryModification_set[] = {
 
 static int
 dissect_p7_EntryModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               EntryModification_set, hf_index, ett_p7_EntryModification);
 
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 
   return offset;
 }
@@ -2710,11 +2710,11 @@ static const ber_sequence_t MSMessageSubmissionArgument_sequence[] = {
 
 static int
 dissect_p7_MSMessageSubmissionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals (actx, tree, TRUE);
+	p1_initialize_content_globals (actx, tree, true);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MSMessageSubmissionArgument_sequence, hf_index, ett_p7_MSMessageSubmissionArgument);
 
-	p1_initialize_content_globals (actx, NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, false);
 
 
   return offset;
@@ -5616,7 +5616,7 @@ void proto_register_p7(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p7,
     &ett_p7_Attribute,
     &ett_p7_AttributeValues,
@@ -5813,7 +5813,7 @@ void proto_reg_handoff_p7(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register P7 with ROS (with no use of RTSE) */
-  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", FALSE);
-  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", FALSE);
-  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", FALSE);
+  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", false);
+  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", false);
+  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", false);
 }

@@ -1007,10 +1007,10 @@ static range_t *global_ssn_range;
 static dissector_handle_t	inap_handle;
 
 /* Global variables */
-static guint32 opcode=0;
-static guint32 errorCode=0;
+static uint32_t opcode=0;
+static uint32_t errorCode=0;
 static const char *obj_id;
-static gboolean is_ExtensionField;
+static bool is_ExtensionField;
 
 static int inap_opcode_type;
 #define INAP_OPCODE_INVOKE        1
@@ -1021,27 +1021,27 @@ static int inap_opcode_type;
 static int hf_inap_cause_indicator;
 
 /* Initialize the subtree pointers */
-static gint ett_inap;
-static gint ett_inapisup_parameter;
-static gint ett_inap_RedirectionInformation;
-static gint ett_inap_HighLayerCompatibility;
-static gint ett_inap_extension_data;
-static gint ett_inap_cause;
-static gint ett_inap_calledAddressValue;
-static gint ett_inap_callingAddressValue;
-static gint ett_inap_additionalCallingPartyNumber;
-static gint ett_inap_assistingSSPIPRoutingAddress;
-static gint ett_inap_correlationID;
-static gint ett_inap_number;
-static gint ett_inap_dialledNumber;
-static gint ett_inap_callingLineID;
-static gint ett_inap_iNServiceControlCode;
-static gint ett_inap_iNServiceControlCodeLow;
-static gint ett_inap_iNServiceControlCodeHigh;
-static gint ett_inap_lineID;
-static gint ett_inap_prefix;
-static gint ett_inap_iPAddressValue;
-static gint ett_inap_digitsResponse;
+static int ett_inap;
+static int ett_inapisup_parameter;
+static int ett_inap_RedirectionInformation;
+static int ett_inap_HighLayerCompatibility;
+static int ett_inap_extension_data;
+static int ett_inap_cause;
+static int ett_inap_calledAddressValue;
+static int ett_inap_callingAddressValue;
+static int ett_inap_additionalCallingPartyNumber;
+static int ett_inap_assistingSSPIPRoutingAddress;
+static int ett_inap_correlationID;
+static int ett_inap_number;
+static int ett_inap_dialledNumber;
+static int ett_inap_callingLineID;
+static int ett_inap_iNServiceControlCode;
+static int ett_inap_iNServiceControlCodeLow;
+static int ett_inap_iNServiceControlCodeHigh;
+static int ett_inap_lineID;
+static int ett_inap_prefix;
+static int ett_inap_iPAddressValue;
+static int ett_inap_digitsResponse;
 
 static int ett_inap_Extensions;
 static int ett_inap_ExtensionField;
@@ -1441,7 +1441,7 @@ dissect_inap_T_code_local(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
-  if (is_ExtensionField == FALSE){
+  if (is_ExtensionField == false){
     if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
       errorCode = opcode;
       col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%u)"));
@@ -1501,7 +1501,7 @@ dissect_inap_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
     call_data_dissector(tvb, actx->pinfo, ext_tree);
     offset = tvb_reported_length_remaining(tvb,offset);
   }
-  is_ExtensionField = FALSE;
+  is_ExtensionField = false;
 
 
 
@@ -1520,7 +1520,7 @@ static const ber_sequence_t ExtensionField_sequence[] = {
 static int
 dissect_inap_ExtensionField(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   obj_id = NULL;
-  is_ExtensionField =TRUE;
+  is_ExtensionField =true;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ExtensionField_sequence, hf_index, ett_inap_ExtensionField);
@@ -1704,8 +1704,8 @@ dissect_inap_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
    */
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  gint ett = -1;
-  gboolean digits = FALSE;
+  int ett = -1;
+  bool digits = false;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -1720,7 +1720,7 @@ dissect_inap_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
     ett = ett_inap_assistingSSPIPRoutingAddress;
   } else if (hf_index == hf_inap_correlationID) {
     ett = ett_inap_correlationID;
-    digits = (opcode != opcode_assistRequestInstructions) ? TRUE : FALSE;
+    digits = (opcode != opcode_assistRequestInstructions) ? true : false;
   } else if (hf_index == hf_inap_calledAddressValue) {
     ett = ett_inap_calledAddressValue;
   } else if (hf_index == hf_inap_callingAddressValue) {
@@ -1729,30 +1729,30 @@ dissect_inap_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
     ett = ett_inap_number;
   } else if (hf_index == hf_inap_dialledNumber) {
     ett = ett_inap_dialledNumber;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_callingLineID) {
     ett = ett_inap_callingLineID;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iNServiceControlCode) {
     ett = ett_inap_iNServiceControlCode;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iNServiceControlCodeLow) {
     ett = ett_inap_iNServiceControlCodeLow;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iNServiceControlCodeHigh) {
     ett = ett_inap_iNServiceControlCodeHigh;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_lineID) {
     ett = ett_inap_lineID;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_prefix) {
     ett = ett_inap_prefix;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iPAddressValue) {
     ett = ett_inap_iPAddressValue;
   } else if (hf_index == hf_inap_digitsResponse) {
     ett = ett_inap_digitsResponse;
-    digits = TRUE;
+    digits = true;
   }
 
   subtree = proto_item_add_subtree(actx->created_item, ett);
@@ -2551,7 +2551,7 @@ dissect_inap_Cause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
    * -- For the use of cause and location values refer to Q.850.
    */
   tvbuff_t *parameter_tvb;
-  guint8 Cause_value;
+  uint8_t Cause_value;
   proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -9362,8 +9362,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 
-static guint8 inap_pdu_type;
-static guint8 inap_pdu_size;
+static uint8_t inap_pdu_type;
+static uint8_t inap_pdu_size;
 
 
 static int
@@ -9373,7 +9373,7 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   proto_tree		*tree=NULL;
   int				offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "INAP");
 
@@ -9386,21 +9386,21 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   /* Get the length and add 2 */
   inap_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
   opcode = 0;
-  is_ExtensionField =FALSE;
-  dissect_inap_ROS(TRUE, tvb, offset, &asn1_ctx, tree, -1);
+  is_ExtensionField =false;
+  dissect_inap_ROS(true, tvb, offset, &asn1_ctx, tree, -1);
 
   return inap_pdu_size;
 }
 
 /*--- proto_reg_handoff_inap ---------------------------------------*/
-static void range_delete_callback(guint32 ssn, gpointer ptr _U_)
+static void range_delete_callback(uint32_t ssn, void *ptr _U_)
 {
   if (ssn) {
     delete_itu_tcap_subdissector(ssn, inap_handle);
   }
 }
 
-static void range_add_callback(guint32 ssn, gpointer ptr _U_)
+static void range_add_callback(uint32_t ssn, void *ptr _U_)
 {
   if (ssn) {
   add_itu_tcap_subdissector(ssn, inap_handle);
@@ -9409,11 +9409,11 @@ static void range_add_callback(guint32 ssn, gpointer ptr _U_)
 
 void proto_reg_handoff_inap(void) {
 
-  static gboolean inap_prefs_initialized = FALSE;
+  static bool inap_prefs_initialized = false;
   static range_t *ssn_range;
 
   if (!inap_prefs_initialized) {
-    inap_prefs_initialized = TRUE;
+    inap_prefs_initialized = true;
     oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
     oid_add_from_string("alcatel(1006)","1.3.12.2.1006.64");
@@ -11691,7 +11691,7 @@ void proto_register_inap(void) {
 
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_inap,
     &ett_inapisup_parameter,
     &ett_inap_RedirectionInformation,

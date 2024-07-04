@@ -148,7 +148,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 #.FN_BODY UserData/_item/value VAL_PTR = &next_tvb
     tvbuff_t *next_tvb = NULL;
     tvbuff_t *t124NSIdentifier = (tvbuff_t*)actx->private_data;
-    guint8   *ns = NULL;
+    uint8_t  *ns = NULL;
 
 %(DEFAULT_BODY)s
 
@@ -156,7 +156,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
 	ns = tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
-		dissector_try_string_new(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, FALSE, NULL);
+		dissector_try_string_new(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, false, NULL);
 	}
 	}
 
@@ -169,7 +169,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
 	if(next_tvb) {
 
-	     dissector_try_uint_new(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, FALSE, NULL);
+	     dissector_try_uint_new(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, false, NULL);
 
 	}
 
@@ -190,7 +190,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
 
 #.FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
-  	gint domainmcs_value;
+	int domainmcs_value;
 
 %(DEFAULT_BODY)s
 	switch(domainmcs_value) {

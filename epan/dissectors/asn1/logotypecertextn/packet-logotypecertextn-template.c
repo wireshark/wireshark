@@ -44,7 +44,7 @@ void proto_register_logotypecertextn(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-logotypecertextn-ettarr.c"
   };
 

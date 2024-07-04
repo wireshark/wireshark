@@ -35,7 +35,7 @@ static int proto_pkixtsp;
 #include "packet-pkixtsp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pkixtsp;
+static int ett_pkixtsp;
 #include "packet-pkixtsp-ett.c"
 
 
@@ -48,7 +48,7 @@ dissect_timestamp_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
 
@@ -60,7 +60,7 @@ dissect_timestamp_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		tree = proto_item_add_subtree(item, ett_pkixtsp);
 	}
 
-	return dissect_pkixtsp_TimeStampResp(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+	return dissect_pkixtsp_TimeStampResp(false, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static int
@@ -69,7 +69,7 @@ dissect_timestamp_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
 
@@ -81,7 +81,7 @@ dissect_timestamp_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		tree = proto_item_add_subtree(item, ett_pkixtsp);
 	}
 
-	return dissect_pkixtsp_TimeStampReq(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+	return dissect_pkixtsp_TimeStampReq(false, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 
@@ -94,7 +94,7 @@ void proto_register_pkixtsp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	&ett_pkixtsp,
 #include "packet-pkixtsp-ettarr.c"
   };

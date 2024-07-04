@@ -142,43 +142,43 @@ static int ett_c1222_crypto;
 static int ett_c1222_cmd;
 
 /* these pointers are for the header elements that may be needed to verify the crypto */
-static guint8 *aSO_context;
-static guint8 *called_AP_title;
-static guint8 *called_AP_invocation_id;
-static guint8 *calling_AE_qualifier;
-static guint8 *calling_AP_invocation_id;
-static guint8 *mechanism_name;
-static guint8 *calling_authentication_value;
-static guint8 *user_information;
-static guint8 *calling_AP_title;
-static guint8 *key_id_element;
-static guint8 *iv_element;
+static uint8_t *aSO_context;
+static uint8_t *called_AP_title;
+static uint8_t *called_AP_invocation_id;
+static uint8_t *calling_AE_qualifier;
+static uint8_t *calling_AP_invocation_id;
+static uint8_t *mechanism_name;
+static uint8_t *calling_authentication_value;
+static uint8_t *user_information;
+static uint8_t *calling_AP_title;
+static uint8_t *key_id_element;
+static uint8_t *iv_element;
 
 /* these are the related lengths */
-static guint32 aSO_context_len;
-static guint32 called_AP_title_len;
-static guint32 called_AP_invocation_id_len;
-static guint32 calling_AE_qualifier_len;
-static guint32 calling_AP_invocation_id_len;
-static guint32 mechanism_name_len;
-static guint32 calling_authentication_value_len;
-static guint32 user_information_len;
-static guint32 calling_AP_title_len;
-static guint32 key_id_element_len;
-static guint32 iv_element_len;
+static uint32_t aSO_context_len;
+static uint32_t called_AP_title_len;
+static uint32_t called_AP_invocation_id_len;
+static uint32_t calling_AE_qualifier_len;
+static uint32_t calling_AP_invocation_id_len;
+static uint32_t mechanism_name_len;
+static uint32_t calling_authentication_value_len;
+static uint32_t user_information_len;
+static uint32_t calling_AP_title_len;
+static uint32_t key_id_element_len;
+static uint32_t iv_element_len;
 
 /* these are the related allocation sizes (which might be different from the lengths) */
-static guint32 aSO_context_allocated;
-static guint32 called_AP_title_allocated;
-static guint32 called_AP_invocation_id_allocated;
-static guint32 calling_AE_qualifier_allocated;
-static guint32 calling_AP_invocation_id_allocated;
-static guint32 mechanism_name_allocated;
-static guint32 calling_authentication_value_allocated;
-static guint32 user_information_allocated;
-static guint32 calling_AP_title_allocated;
-static guint32 key_id_element_allocated;
-static guint32 iv_element_allocated;
+static uint32_t aSO_context_allocated;
+static uint32_t called_AP_title_allocated;
+static uint32_t called_AP_invocation_id_allocated;
+static uint32_t calling_AE_qualifier_allocated;
+static uint32_t calling_AP_invocation_id_allocated;
+static uint32_t mechanism_name_allocated;
+static uint32_t calling_authentication_value_allocated;
+static uint32_t user_information_allocated;
+static uint32_t calling_AP_title_allocated;
+static uint32_t key_id_element_allocated;
+static uint32_t iv_element_allocated;
 
 #include "packet-c1222-ett.c"
 
@@ -196,9 +196,9 @@ static expert_field ei_c1222_mac_missing;
 static bool c1222_desegment = true;
 static bool c1222_decrypt = true;
 static bool c1222_big_endian;
-static const gchar *c1222_baseoid_str;
-static guint8 *c1222_baseoid;
-static guint c1222_baseoid_len;
+static const char *c1222_baseoid_str;
+static uint8_t *c1222_baseoid;
+static unsigned c1222_baseoid_len;
 
 /*------------------------------
  * Data Structures
@@ -296,28 +296,28 @@ static const value_string commandnames[] = {
 
 /* these are for the key tables */
 typedef struct _c1222_uat_data {
-  guint keynum;
-  guchar *key;
-  guint  keylen;
+  unsigned keynum;
+  unsigned char *key;
+  unsigned  keylen;
 } c1222_uat_data_t;
 
 UAT_HEX_CB_DEF(c1222_users, keynum, c1222_uat_data_t)
 UAT_BUFFER_CB_DEF(c1222_users, key, c1222_uat_data_t, key, keylen)
 
 static c1222_uat_data_t *c1222_uat_data;
-static guint num_c1222_uat_data;
+static unsigned num_c1222_uat_data;
 static uat_t *c1222_uat;
 
 /* these macros ares used to populate fields needed to verify crypto */
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
-  fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
+  fieldname = (uint8_t *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
   fieldname##_len = length; \
   fieldname##_allocated = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
-  fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
+  fieldname = (uint8_t *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
   fieldname##_len = len; \
   fieldname##_allocated = length;
 #define FILL_TABLE_APTITLE(fieldname) \
@@ -326,7 +326,7 @@ static uat_t *c1222_uat;
     case 0x80: /* relative OID */ \
       tvb_ensure_bytes_exist(tvb, start_offset, length); \
       fieldname##_len = length + c1222_baseoid_len; \
-      fieldname = (guint8 *)wmem_alloc(actx->pinfo->pool, fieldname##_len); \
+      fieldname = (uint8_t *)wmem_alloc(actx->pinfo->pool, fieldname##_len); \
       fieldname##_allocated = fieldname##_len; \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
       fieldname[1] = (fieldname##_len - 2) & 0xff;  \
@@ -335,7 +335,7 @@ static uat_t *c1222_uat;
       break; \
     case 0x06:  /* absolute OID */ \
     default: \
-      fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
+      fieldname = (uint8_t *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
       fieldname##_len = length; \
       fieldname##_allocated = length; \
       break; \
@@ -361,10 +361,10 @@ void proto_reg_handoff_c1222(void);
  * \param len length of data to be checksummed
  * \returns calculated checksum
  */
-static guint8
-c1222_cksum(tvbuff_t *tvb, gint offset, int len)
+static uint8_t
+c1222_cksum(tvbuff_t *tvb, int offset, int len)
 {
-  guint8 sum;
+  uint8_t sum;
   for (sum = 0; len; offset++, len--)
     sum += tvb_get_guint8(tvb, offset);
   return ~sum + 1;
@@ -379,27 +379,27 @@ c1222_cksum(tvbuff_t *tvb, gint offset, int len)
  * \param offset the offset in the tvb
  */
 static void
-parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cmd, guint32 *length, int *offset)
+parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cmd, uint32_t *length, int *offset)
 {
-  guint16 user_id = 0;
-  const guint8 *user_name = NULL;
-  const guint8 *password = NULL;
-  guint8 auth_len = 0;
-  gchar *auth_req = NULL;
-  guint16 table = 0;
-  guint16 tblsize = 0;
-  guint16 calcsum = 0;
-  guint8 wait_seconds = 0;
-  guint8 proc_seq = 0;
+  uint16_t user_id = 0;
+  const uint8_t *user_name = NULL;
+  const uint8_t *password = NULL;
+  uint8_t auth_len = 0;
+  char *auth_req = NULL;
+  uint16_t table = 0;
+  uint16_t tblsize = 0;
+  uint16_t calcsum = 0;
+  uint8_t wait_seconds = 0;
+  uint8_t proc_seq = 0;
   int numrates = 0;
-  guint16 packet_size;
-  guint16 procedure_num = 0;
-  guint8 nbr_packet;
+  uint16_t packet_size;
+  uint16_t procedure_num = 0;
+  uint8_t nbr_packet;
   /* timing setup parameters */
-  guint8 traffic;
-  guint8 inter_char;
-  guint8 resp_to;
-  guint8 nbr_retries;
+  uint8_t traffic;
+  uint8_t inter_char;
+  uint8_t resp_to;
+  uint8_t nbr_retries;
 
   /* special case to simplify handling of Negotiate service */
   if ((cmd & 0xF0) == C1222_CMD_NEGOTIATE) {
@@ -646,35 +646,35 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 
 typedef struct tagTOP_ELEMENT_CONTROL
 {
-  /* TRUE if this tag is required */
-  gboolean required;
-  /* TRUE if we must truncate this tag */
-  gboolean truncate;
+  /* true if this tag is required */
+  bool required;
+  /* true if we must truncate this tag */
+  bool truncate;
   /* actual hex value of the tag we're seeking */
-  guint8 tag;
-  /* if TRUE, add tag and length before copying */
-  gboolean addtag;
+  uint8_t tag;
+  /* if true, add tag and length before copying */
+  bool addtag;
   /* pointer to pointer to memory copy of element */
-  guint8 **element;
+  uint8_t **element;
   /* pointer to element length */
-  guint32 *length;
+  uint32_t *length;
   /* pointer to element allocated size */
-  guint32 *allocated;
+  uint32_t *allocated;
 } TOP_ELEMENT_CONTROL;
 
 static const TOP_ELEMENT_CONTROL canonifyTable[] = {
-  { FALSE, FALSE, 0xA1, TRUE, &aSO_context, &aSO_context_len, &aSO_context_allocated },
-  { TRUE , FALSE, 0xA2, TRUE, &called_AP_title, &called_AP_title_len, &called_AP_title_allocated },
-  { FALSE, FALSE, 0xA4, TRUE, &called_AP_invocation_id, &called_AP_invocation_id_len, &called_AP_invocation_id_allocated },
-  { FALSE, FALSE, 0xA7, TRUE, &calling_AE_qualifier, &calling_AE_qualifier_len, &calling_AE_qualifier_allocated },
-  { TRUE,  FALSE, 0xA8, TRUE, &calling_AP_invocation_id, &calling_AP_invocation_id_len, &calling_AP_invocation_id_allocated },
-  { FALSE, FALSE, 0x8B, TRUE, &mechanism_name, &mechanism_name_len, &mechanism_name_allocated },
-  { FALSE, FALSE, 0xAC, TRUE, &calling_authentication_value, &calling_authentication_value_len, &calling_authentication_value_allocated },
-  { TRUE , TRUE , 0xBE, TRUE, &user_information, &user_information_len, &user_information_allocated },
-  { FALSE, FALSE, 0xA6, TRUE, &calling_AP_title, &calling_AP_title_len, &calling_AP_title_allocated },
-  { FALSE, FALSE, 0xAC, FALSE, &key_id_element, &key_id_element_len, &key_id_element_allocated },
-  { FALSE, FALSE, 0xAC, FALSE, &iv_element, &iv_element_len, &iv_element_allocated },
-  { FALSE, FALSE, 0x0,  TRUE, NULL, NULL, NULL }
+  { false, false, 0xA1, true, &aSO_context, &aSO_context_len, &aSO_context_allocated },
+  { true , false, 0xA2, true, &called_AP_title, &called_AP_title_len, &called_AP_title_allocated },
+  { false, false, 0xA4, true, &called_AP_invocation_id, &called_AP_invocation_id_len, &called_AP_invocation_id_allocated },
+  { false, false, 0xA7, true, &calling_AE_qualifier, &calling_AE_qualifier_len, &calling_AE_qualifier_allocated },
+  { true,  false, 0xA8, true, &calling_AP_invocation_id, &calling_AP_invocation_id_len, &calling_AP_invocation_id_allocated },
+  { false, false, 0x8B, true, &mechanism_name, &mechanism_name_len, &mechanism_name_allocated },
+  { false, false, 0xAC, true, &calling_authentication_value, &calling_authentication_value_len, &calling_authentication_value_allocated },
+  { true , true , 0xBE, true, &user_information, &user_information_len, &user_information_allocated },
+  { false, false, 0xA6, true, &calling_AP_title, &calling_AP_title_len, &calling_AP_title_allocated },
+  { false, false, 0xAC, false, &key_id_element, &key_id_element_len, &key_id_element_allocated },
+  { false, false, 0xAC, false, &iv_element, &iv_element_len, &iv_element_allocated },
+  { false, false, 0x0,  true, NULL, NULL, NULL }
 };
 
 static void
@@ -694,10 +694,10 @@ clear_canon(void)
  * \param n is the length value to be BER encoded
  * \returns the sized of the encoding
  */
-static guint32
-get_ber_len_size(guint32 n)
+static uint32_t
+get_ber_len_size(uint32_t n)
 {
-  guint32 len = 1;
+  uint32_t len = 1;
   if (n > 0x7f) len++;
   if (n > 0xff) len++;
   if (n > 0xffff) len++;
@@ -713,7 +713,7 @@ get_ber_len_size(guint32 n)
  * \returns length of encoded value in bytes
  */
 static int
-encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
+encode_ber_len(uint8_t *ptr, uint32_t n, int maxsize)
 {
   int len = get_ber_len_size(n);
   if (len > maxsize) return 0;
@@ -736,7 +736,7 @@ c1222_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
 
     d->keynum = o->keynum;
     d->keylen = o->keylen;
-    d->key = (guchar *)g_memdup2(o->key, o->keylen);
+    d->key = (unsigned char *)g_memdup2(o->key, o->keylen);
 
     return dest;
 }
@@ -746,7 +746,7 @@ c1222_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
  *
  * \param n points to the new record
  * \param err is updated to point to an error string if needed
- * \return FALSE if error; TRUE otherwise
+ * \return false if error; true otherwise
  */
 static bool
 c1222_uat_data_update_cb(void* n, char** err)
@@ -755,13 +755,13 @@ c1222_uat_data_update_cb(void* n, char** err)
 
   if (new_rec->keynum > 0xff) {
     *err = g_strdup("Invalid key number; must be less than 256");
-    return FALSE;
+    return false;
   }
   if (new_rec->keylen != EAX_SIZEOF_KEY) {
     *err = g_strdup("Invalid key size; must be 16 bytes");
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 static void
@@ -778,20 +778,20 @@ c1222_uat_data_free_cb(void *r)
  * \param offset points to start of unallocated space in buffer and
       is updated as we put bytes into buffer
  * \param buffsize total size of allocated buffer
- * \return FALSE if element is required and not present; otherwise TRUE
+ * \return false if element is required and not present; otherwise true
  */
-static gboolean
-canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
+static bool
+canonify_unencrypted_header(unsigned char *buff, uint32_t *offset, uint32_t buffsize)
 {
   const TOP_ELEMENT_CONTROL *t = canonifyTable;
-  guint32 len, allocated;
+  uint32_t len, allocated;
 
   for (t = canonifyTable; t->element != NULL; t++)
   {
     len = *(t->length);
     allocated = *(t->allocated);
     if (t->required && *(t->element) == NULL)
-      return FALSE;
+      return false;
     if (*(t->element) != NULL) {
       if (t->addtag) {
         /* recreate original tag and length */
@@ -804,12 +804,12 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       /* bail out if the cannonization buffer is too small */
       /* this should never happen! */
       if (buffsize < *offset + len) {
-        return FALSE;
+        return false;
       }
       /* bail out if our we're trying to read past the end of our element */
       /* the network is always hostile */
       if (allocated < len) {
-        return FALSE;
+        return false;
       }
       memcpy(&buff[*offset], *(t->element), len);
       (*offset) += len;
@@ -818,7 +818,7 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       }
     }
   }
-  return TRUE;
+  return true;
 }
 
 /**
@@ -826,22 +826,22 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
  *
  * \param keybuff is updated with a copy of the key data if successful lookup.
  * \param keyid is the ID number of the desired key
- * \returns TRUE if key was found; otherwise FALSE
+ * \returns true if key was found; otherwise false
  */
-static gboolean
-keylookup(guint8 *keybuff, guint8 keyid)
+static bool
+keylookup(uint8_t *keybuff, uint8_t keyid)
 {
-  guint i;
+  unsigned i;
 
   if (c1222_uat_data == NULL)
-    return FALSE;
+    return false;
   for (i = 0; i < num_c1222_uat_data; i++) {
     if (c1222_uat_data[i].keynum == keyid) {
       memcpy(keybuff, c1222_uat_data[i].key, EAX_SIZEOF_KEY);
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 /**
@@ -850,18 +850,18 @@ keylookup(guint8 *keybuff, guint8 keyid)
  * \param buffer points to a memory copy of the packet to be authenticated/decrypted
  *        and contains the decrypted value on successful return.
  * \param length lenth of input packet
- * \param decrypt TRUE if packet is to be authenticated and decrypted; FALSE if authentication only is requested
- * \returns TRUE if the requested operation was successful; otherwise FALSE
+ * \param decrypt true if packet is to be authenticated and decrypted; false if authentication only is requested
+ * \returns true if the requested operation was successful; otherwise false
  */
-static gboolean
-decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
+static bool
+decrypt_packet(unsigned char *buffer, uint32_t length, bool decrypt)
 {
 #define CANONBUFFSIZE 300U
-  guchar canonbuff[CANONBUFFSIZE];
-  guint8 c1222_key[EAX_SIZEOF_KEY];
-  guchar key_id = 0;
-  guint32 offset = 0;
-  gboolean status = FALSE;
+  unsigned char canonbuff[CANONBUFFSIZE];
+  uint8_t c1222_key[EAX_SIZEOF_KEY];
+  unsigned char key_id = 0;
+  uint32_t offset = 0;
+  bool status = false;
 
   /* must be at least 4 bytes long to include the MAC */
   if (length < 4)
@@ -880,11 +880,11 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
 /*                 SizeC  : Byte length of CipherText buffer.                 */
 /*                 pMac   : Four byte Message Authentication Code.            */
 /*                 Mode   : Operating mode (See EAX_MODE_xxx).                */
-/* RETURNS:        TRUE if message has been authenticated.                    */
-/*                 FALSE if not authenticated, invalid Mode, or error.        */
+/* RETURNS:        true if message has been authenticated.                    */
+/*                 false if not authenticated, invalid Mode, or error.        */
   if (offset) {
-    if (!keylookup((guint8 *)&c1222_key, key_id))
-      return FALSE;
+    if (!keylookup((uint8_t *)&c1222_key, key_id))
+      return false;
     status = Eax_Decrypt(canonbuff, c1222_key, buffer,
                   offset, EAX_SIZEOF_KEY, length-4,
                   (MAC_T *)&buffer[length-4],
@@ -898,39 +898,39 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
  *
  * \param tvb contains the buffer to be examined
  * \param offset is the offset within the buffer at which the BER-encoded length begins
- * \returns TRUE if a complete, valid BER-encoded length is in the buffer; otherwise FALSE
+ * \returns true if a complete, valid BER-encoded length is in the buffer; otherwise false
  */
-static gboolean
+static bool
 ber_len_ok(tvbuff_t *tvb, int offset)
 {
-  guint8 ch;
+  uint8_t ch;
 
   if (tvb_offset_exists(tvb, offset)) {
     ch = tvb_get_guint8(tvb, offset);
     offset++;
     if (!(ch & 0x80)) {
-      return TRUE;
+      return true;
     } else if (tvb_offset_exists(tvb, offset)) {
       ch = tvb_get_guint8(tvb, offset);
       offset++;
       if (!(ch & 0x80)) {
-        return TRUE;
+        return true;
       } else if (tvb_offset_exists(tvb, offset)) {
         ch = tvb_get_guint8(tvb, offset);
         offset++;
         if (!(ch & 0x80)) {
-          return TRUE;
+          return true;
         } else if (tvb_offset_exists(tvb, offset)) {
           ch = tvb_get_guint8(tvb, offset);
           /*offset++;*/
           if (!(ch & 0x80)) {
-            return TRUE;
+            return true;
           }
         }
       }
     }
   }
-  return FALSE;
+  return false;
 }
 
 /**
@@ -943,24 +943,24 @@ ber_len_ok(tvbuff_t *tvb, int offset)
  * \param tree the tree to append this item to
  */
 static int
-dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_tree *tree)
+dissect_epsem(tvbuff_t *tvb, int offset, uint32_t len, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cmd_tree = NULL;
   proto_tree *ct = NULL;
   proto_tree *crypto_tree = NULL;
   proto_tree *yt = NULL;
   proto_item *item = NULL;
-  guint8 flags;
+  uint8_t flags;
   int local_offset;
-  gint len2;
+  int len2;
   int cmd_err;
   bool ind;
-  guchar *buffer;
+  unsigned char *buffer;
   tvbuff_t *epsem_buffer = NULL;
-  gboolean crypto_good = FALSE;
-  gboolean crypto_bad = FALSE;
-  gboolean hasmac = FALSE;
-  gboolean encrypted = FALSE;
+  bool crypto_good = false;
+  bool crypto_bad = false;
+  bool hasmac = false;
+  bool encrypted = false;
 
   if ((tvb == NULL) && (len == 0)) {
     expert_add_info(pinfo, tree, &ei_c1222_epsem_missing);
@@ -973,38 +973,38 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   switch ((flags & C1222_EPSEM_FLAG_SECURITY_MODE) >> 2) {
     case EAX_MODE_CIPHERTEXT_AUTH:
       /* mode is ciphertext with authentication */
-      hasmac = TRUE;
+      hasmac = true;
       len2 = tvb_reported_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      encrypted = TRUE;
+      encrypted = true;
       if (c1222_decrypt) {
-        buffer = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, len2);
-        if (!decrypt_packet(buffer, len2, TRUE)) {
-          crypto_bad = TRUE;
+        buffer = (unsigned char *)tvb_memdup(pinfo->pool, tvb, offset, len2);
+        if (!decrypt_packet(buffer, len2, true)) {
+          crypto_bad = true;
         } else {
           epsem_buffer = tvb_new_real_data(buffer, len2, len2);
           tvb_set_child_real_data_tvbuff(tvb, epsem_buffer);
           add_new_data_source(pinfo, epsem_buffer, "Decrypted EPSEM Data");
-          crypto_good = TRUE;
-          encrypted = FALSE;
+          crypto_good = true;
+          encrypted = false;
         }
       }
       break;
     case EAX_MODE_CLEARTEXT_AUTH:
       /* mode is cleartext with authentication */
-      hasmac = TRUE;
+      hasmac = true;
       len2 = tvb_reported_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
-      buffer = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, len2);
+      buffer = (unsigned char *)tvb_memdup(pinfo->pool, tvb, offset, len2);
       if (c1222_decrypt) {
-        if (!decrypt_packet(buffer, len2, FALSE)) {
-          crypto_bad = TRUE;
+        if (!decrypt_packet(buffer, len2, false)) {
+          crypto_bad = true;
           expert_add_info(pinfo, tree, &ei_c1222_epsem_failed_authentication);
         } else {
-          crypto_good = TRUE;
+          crypto_good = true;
         }
       }
       break;
@@ -1036,7 +1036,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
      */
     while (tvb_offset_exists(epsem_buffer, local_offset+(hasmac?5:1))) {
       if (ber_len_ok(epsem_buffer, local_offset)) {
-        local_offset = dissect_ber_length(pinfo, tree, epsem_buffer, local_offset, (guint32 *)&len2, &ind);
+        local_offset = dissect_ber_length(pinfo, tree, epsem_buffer, local_offset, (uint32_t *)&len2, &ind);
       } else {
         expert_add_info(pinfo, tree, &ei_c1222_epsem_ber_length_error);
         return offset+len;
@@ -1045,7 +1045,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
         cmd_err = tvb_get_guint8(epsem_buffer, local_offset);
         ct = proto_tree_add_item(tree, hf_c1222_epsem_total, epsem_buffer, local_offset, len2, ENC_NA);
         cmd_tree = proto_item_add_subtree(ct, ett_c1222_cmd);
-        parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, (guint32 *)&len2, &local_offset);
+        parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, (uint32_t *)&len2, &local_offset);
         local_offset += len2;
       } else {
         expert_add_info(pinfo, tree, &ei_c1222_epsem_field_length_error);
@@ -1102,11 +1102,11 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
  * \param offset the offset in the tvb
  * \returns length of entire C12.22 message
  */
-static guint
+static unsigned
 get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
   int orig_offset;
-  guint length;
+  unsigned length;
   bool ind;
 
   orig_offset = offset;
@@ -1379,7 +1379,7 @@ void proto_register_c1222(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
                   &ett_c1222,
                   &ett_c1222_epsem,
                   &ett_c1222_flags,
@@ -1440,7 +1440,7 @@ void proto_register_c1222(void) {
   c1222_uat = uat_new("Decryption Table",
       sizeof(c1222_uat_data_t),         /* record size */
       "c1222_decryption_table",         /* filename */
-      TRUE,                             /* from_profile */
+      true,                             /* from_profile */
       &c1222_uat_data,                  /* data_ptr */
       &num_c1222_uat_data,              /* numitems_ptr */
       UAT_AFFECTS_DISSECTION,           /* affects dissection of packets, but not set of named fields */
@@ -1463,17 +1463,17 @@ void proto_register_c1222(void) {
 void
 proto_reg_handoff_c1222(void)
 {
-  static gboolean initialized = FALSE;
-  guint8 *temp = NULL;
+  static bool initialized = false;
+  uint8_t *temp = NULL;
 
   if( !initialized ) {
     dissector_add_uint_with_preference("tcp.port", C1222_PORT, c1222_handle);
     dissector_add_uint_with_preference("udp.port", C1222_PORT, c1222_udp_handle);
-    initialized = TRUE;
+    initialized = true;
   }
   if (c1222_baseoid_str && (c1222_baseoid_str[0] != '\0') &&
       ((c1222_baseoid_len = oid_string2encoded(NULL, c1222_baseoid_str, &temp)) != 0)) {
-    c1222_baseoid = (guint8 *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
+    c1222_baseoid = (uint8_t *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
     memcpy(c1222_baseoid, temp, c1222_baseoid_len);
     wmem_free(NULL, temp);
   } else if (c1222_baseoid) {

@@ -47,14 +47,14 @@ static int hf_p1_MTABindError_PDU;
 #include "packet-p1-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_p1;
-static gint ett_p3;
-static gint ett_p1_content_unknown;
-static gint ett_p1_bilateral_information;
-static gint ett_p1_additional_information;
-static gint ett_p1_unknown_standard_extension;
-static gint ett_p1_unknown_extension_attribute_type;
-static gint ett_p1_unknown_tokendata_type;
+static int ett_p1;
+static int ett_p3;
+static int ett_p1_content_unknown;
+static int ett_p1_bilateral_information;
+static int ett_p1_additional_information;
+static int ett_p1_unknown_standard_extension;
+static int ett_p1_unknown_extension_attribute_type;
+static int ett_p1_unknown_tokendata_type;
 #include "packet-p1-ett.c"
 
 static expert_field ei_p1_unknown_extension_attribute_type;
@@ -74,13 +74,13 @@ static dissector_handle_t p1_handle;
 #include "packet-p1-table.c"   /* operation and error codes */
 
 typedef struct p1_address_ctx {
-    gboolean do_address;
+    bool do_address;
     const char *content_type_id;
-    gboolean report_unknown_content_type;
+    bool report_unknown_content_type;
     wmem_strbuf_t* oraddress;
 } p1_address_ctx_t;
 
-static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
+static void set_do_address(asn1_ctx_t* actx, bool do_address)
 {
     p1_address_ctx_t* ctx;
 
@@ -160,7 +160,7 @@ static const ros_info_t p3_ros_info = {
   p3_err_tab
 };
 
-void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean report_unknown_cont_type)
+void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, bool report_unknown_cont_type)
 {
     p1_address_ctx_t* ctx;
 
@@ -199,10 +199,10 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     /* save parent_tree so subdissectors can create new top nodes */
-    p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
+    p1_initialize_content_globals (&asn1_ctx, parent_tree, true);
 
     if (parent_tree) {
         item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
@@ -212,8 +212,8 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
       col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
-    dissect_p1_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
-    p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+    dissect_p1_MTS_APDU (false, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
+    p1_initialize_content_globals (&asn1_ctx, NULL, false);
     return tvb_captured_length(tvb);
 }
 
@@ -232,7 +232,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
     const char *p1_op_name;
     int hf_p1_index = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     /* do we have operation information from the ROS dissector? */
     if (data == NULL)
@@ -240,7 +240,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
     session  = (struct SESSION_DATA_STRUCTURE*)data;
 
     /* save parent_tree so subdissectors can create new top nodes */
-    p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
+    p1_initialize_content_globals (&asn1_ctx, parent_tree, true);
 
     asn1_ctx.private_data = session;
 
@@ -280,13 +280,13 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         old_offset=offset;
-        offset=(*p1_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_p1_index);
+        offset=(*p1_dissector)(false, tvb, offset, &asn1_ctx , tree, hf_p1_index);
         if (offset == old_offset) {
             proto_tree_add_expert(tree, pinfo, &ei_p1_zero_pdu, tvb, offset, -1);
             break;
         }
     }
-    p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+    p1_initialize_content_globals (&asn1_ctx, NULL, false);
     return tvb_captured_length(tvb);
 }
 
@@ -321,7 +321,7 @@ void proto_register_p1(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p1,
     &ett_p3,
     &ett_p1_content_unknown,
@@ -387,16 +387,16 @@ void proto_reg_handoff_p1(void) {
   oid_add_from_string("id-ac-mts-transfer","2.6.0.1.6");
 
   /* ABSTRACT SYNTAXES */
-  register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", TRUE);
-  register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", FALSE);
+  register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", true);
+  register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", false);
 
 
-  register_rtse_oid_dissector_handle("applicationProtocol.1", p1_handle, 0, "mts-transfer-protocol-1984", FALSE);
-  register_rtse_oid_dissector_handle("applicationProtocol.12", p1_handle, 0, "mta-transfer-protocol", FALSE);
+  register_rtse_oid_dissector_handle("applicationProtocol.1", p1_handle, 0, "mts-transfer-protocol-1984", false);
+  register_rtse_oid_dissector_handle("applicationProtocol.12", p1_handle, 0, "mta-transfer-protocol", false);
 
   /* the ROS dissector will use the registered P3 ros info */
-  register_rtse_oid_dissector_handle(id_as_mts_rtse, NULL, 0, "id-as-mts-rtse", TRUE);
-  register_rtse_oid_dissector_handle(id_as_msse, NULL, 0, "id-as-msse", TRUE);
+  register_rtse_oid_dissector_handle(id_as_mts_rtse, NULL, 0, "id-as-mts-rtse", true);
+  register_rtse_oid_dissector_handle(id_as_msse, NULL, 0, "id-as-msse", true);
 
   /* APPLICATION CONTEXT */
 
@@ -408,16 +408,16 @@ void proto_reg_handoff_p1(void) {
 
   /* Register P3 with ROS */
 
-  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", FALSE);
+  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", false);
 
-  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", FALSE);
-  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", FALSE);
+  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", false);
+  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", false);
 
-  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", FALSE);
-  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", FALSE);
+  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", false);
+  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", false);
 
-  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE);
-  register_ros_protocol_info(id_as_mts_rtse, &p3_ros_info, 0, "id-as-mts-rtse", TRUE);
+  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", false);
+  register_ros_protocol_info(id_as_mts_rtse, &p3_ros_info, 0, "id-as-mts-rtse", true);
 
 }
 

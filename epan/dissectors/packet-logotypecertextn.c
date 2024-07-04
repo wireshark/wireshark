@@ -656,7 +656,7 @@ void proto_register_logotypecertextn(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_logotypecertextn_LogotypeExtn,
     &ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo,
     &ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo,

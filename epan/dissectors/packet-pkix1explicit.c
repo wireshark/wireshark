@@ -242,7 +242,7 @@ static int
 dissect_pkix1explicit_T_extnId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_pkix1explicit_object_identifier_id, &actx->external.direct_reference);
 
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 
   return offset;
@@ -261,10 +261,10 @@ dissect_pkix1explicit_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_pkix1explicit_T_extnValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint8 appclass;
+  int8_t appclass;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -1029,7 +1029,7 @@ void proto_register_pkix1explicit(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_pkix1explicit_addressFamily,
     &ett_pkix1explicit_Time,
     &ett_pkix1explicit_Extensions,

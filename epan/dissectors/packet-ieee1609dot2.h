@@ -101,7 +101,7 @@ typedef enum _Psid_enum {
  * structure.
  */
 WS_DLL_PUBLIC
-void ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid);
+void ieee1609dot2_set_next_default_psid(packet_info *pinfo, uint32_t psid);
 
 WS_DLL_PUBLIC const val64_string ieee1609dot2_Psid_vals[];
 

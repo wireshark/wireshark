@@ -12,10 +12,10 @@
 #define PACKET_E1AP_H
 
 typedef struct {
-    guint32 message_type;
-    guint32 ProcedureCode;
-    guint32 ProtocolIE_ID;
-    guint32 ProtocolExtensionID;
+    uint32_t message_type;
+    uint32_t ProcedureCode;
+    uint32_t ProtocolIE_ID;
+    uint32_t ProtocolExtensionID;
 } e1ap_ctx_t;
 
 

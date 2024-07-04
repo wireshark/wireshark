@@ -319,41 +319,41 @@ static const value_string h245_AudioCapability_short_vals[] = {
 /* To put the codec type only in COL_INFO when
    an OLC is read */
 const char* codec_type;
-static guint32 rfc_number;
+static uint32_t rfc_number;
 
 typedef struct _unicast_addr_t {
   address addr;
-  guint8 addr_buf[16];
-  guint32 port;
+  uint8_t addr_buf[16];
+  uint32_t port;
 } unicast_addr_t;
 
 typedef struct _channel_info_t {
-  gchar data_type_str[32];
+  char data_type_str[32];
   unicast_addr_t *upcoming_addr;
   unicast_addr_t media_addr;
   unicast_addr_t media_control_addr;
   unsigned int rfc2198;
-  gboolean srtp_flag;
-  gboolean is_video;
+  bool srtp_flag;
+  bool is_video;
 } channel_info_t;
 
 typedef struct _olc_info_t {
-  guint16 fwd_lc_num;
+  uint16_t fwd_lc_num;
   channel_info_t fwd_lc;
   channel_info_t rev_lc;
 } olc_info_t;
 
 static wmem_map_t* h245_pending_olc_reqs;
-static gboolean fast_start;
+static bool fast_start;
 static olc_info_t *upcoming_olc;
 static channel_info_t *upcoming_channel;
 
 /* NonStandardParameter */
 static const char *nsiOID;
-static guint32 h221NonStandard;
-static guint32 t35CountryCode;
-static guint32 t35Extension;
-static guint32 manufacturerCode;
+static uint32_t h221NonStandard;
+static uint32_t t35CountryCode;
+static uint32_t t35Extension;
+static uint32_t manufacturerCode;
 
 static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
@@ -380,7 +380,7 @@ static const value_string h245_h239subMessageIdentifier_vals[] = {
 /* h223 multiplex codes */
 static h223_set_mc_handle_t h223_set_mc_handle;
 h223_mux_element *h223_me=NULL;
-guint8 h223_mc=0;
+uint8_t h223_mc=0;
 void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle )
 {
 	h223_set_mc_handle = handle;
@@ -394,9 +394,9 @@ typedef struct {
 
 static wmem_map_t*          h223_pending_olc_reqs[2];
 static dissector_handle_t   h245_lc_dissector;
-static guint16              h245_lc_temp;
-static guint16              h223_fw_lc_num;
-static guint16              h223_rev_lc_num;
+static uint16_t             h245_lc_temp;
+static uint16_t             h223_fw_lc_num;
+static uint16_t             h223_rev_lc_num;
 static h223_lc_params      *h223_lc_params_temp;
 static h223_lc_params      *h223_fw_lc_params;
 static h223_lc_params      *h223_rev_lc_params;
@@ -414,7 +414,7 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 	h223_add_lc_handle = handle;
 }
 
-static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr, wmem_allocator_t *scope)
+static const char *gen_olc_key(uint16_t lc_num, address *dst_addr, address *src_addr, wmem_allocator_t *scope)
 {
   return wmem_strdup_printf(scope, "%s/%s/%u",
           address_to_str(scope, dst_addr),
@@ -474,18 +474,18 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 /* Prints formated information column of h245 messages. Note that global variables
  * "h245_shorttypes" and "info_col_fmt_prepend" are used to decide formating preferences */
-static void print_info_column(column_info *cinfo, const gint32 *value,
+static void print_info_column(column_info *cinfo, const int32_t *value,
     const value_string *msg_vals, const value_string *short_msg_vals)
 {
   const value_string *vals;
 
-  if (h245_shorttypes == FALSE || short_msg_vals == NULL) {
+  if (h245_shorttypes == false || short_msg_vals == NULL) {
     vals = msg_vals;
   } else {
     vals = short_msg_vals;
   }
 
-  if (info_col_fmt_prepend == FALSE) {
+  if (info_col_fmt_prepend == false) {
     col_append_fstr(cinfo, COL_INFO, "%s ", val_to_str_const(*value, vals, "<unknown>"));
   } else {
     col_prepend_fstr(cinfo, COL_INFO, "%s ", val_to_str_const(*value, vals, "<unknown>"));
@@ -2501,7 +2501,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	gint32 value;
+	int32_t value;
 
 	nsiOID = "";
 	h221NonStandard = 0;
@@ -3499,7 +3499,7 @@ dissect_h245_T_t38fax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_h245_T_standardOid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const gchar *standard_oid_str = NULL;
+  const char *standard_oid_str = NULL;
   gef_ctx_t *gefx;
 
   offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &standard_oid_str);
@@ -3509,7 +3509,7 @@ dissect_h245_T_standardOid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   if(strcmp(standard_oid_str,"0.0.8.235.0.3.76") == 0) {  /* MIKEY */
     if (upcoming_channel)
-	  upcoming_channel->srtp_flag = TRUE;
+	  upcoming_channel->srtp_flag = true;
   }
 
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
@@ -3590,7 +3590,7 @@ dissect_h245_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value_int = (guint32)-1;
+  uint32_t value_int = (uint32_t)-1;
   gef_ctx_t *gefx;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -3632,7 +3632,7 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, FALSE, actx);
+    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, false, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
   return offset;
@@ -3642,8 +3642,8 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -3653,13 +3653,13 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = wmem_new(actx->pinfo->pool, guint8);
+    buf = wmem_new(actx->pinfo->pool, uint8_t);
     buf[0] = value;
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint8), sizeof(guint8));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint8_t), sizeof(uint8_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "booleanArray");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, FALSE, actx);
+    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, false, actx);
   }
 
   return offset;
@@ -3669,8 +3669,8 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -3680,9 +3680,9 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint16_t);
     phton16(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint16_t), sizeof(uint16_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsignedMin");
@@ -3696,8 +3696,8 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -3707,9 +3707,9 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint16_t);
     phton16(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint16_t), sizeof(uint16_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsignedMax");
@@ -3723,8 +3723,8 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -3734,9 +3734,9 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint32_t);
     phton32(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint32_t), sizeof(uint32_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsigned32Min");
@@ -3750,8 +3750,8 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -3761,9 +3761,9 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint32_t);
     phton32(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint32_t), sizeof(uint32_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsigned32Max");
@@ -4015,7 +4015,7 @@ static const per_choice_t Application_choice[] = {
 
 static int
 dissect_h245_Application(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_Application, Application_choice,
@@ -5667,7 +5667,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   // VideoCapability -> ExtendedVideoCapability -> ExtendedVideoCapability/videoCapability -> VideoCapability
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_VideoCapability, VideoCapability_choice,
@@ -5988,7 +5988,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   // AudioCapability -> VBDCapability -> AudioCapability
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_AudioCapability, AudioCapability_choice,
@@ -6567,7 +6567,7 @@ dissect_h245_SET_SIZE_1_256_OF_CapabilityDescriptor(tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 subMessageIdentifier;
+  uint32_t subMessageIdentifier;
   gef_ctx_t *gefx;
 
   gefx = gef_ctx_get(actx->private_data);
@@ -6700,7 +6700,7 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_LogicalChannelNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 65535U, &value, false);
 
@@ -7151,7 +7151,7 @@ dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   // DataType -> H235Media -> H235Media/mediaType -> RedundancyEncoding -> DataType
   actx->pinfo->dissection_depth += 4;
   increment_dissection_depth(actx->pinfo);
-gint choice_index;
+int choice_index;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_DataType, DataType_choice,
@@ -7160,9 +7160,9 @@ gint choice_index;
 
 if (upcoming_channel){
 	if (choice_index==2){
-		upcoming_channel->is_video=TRUE;
+		upcoming_channel->is_video=true;
 	}else{
-		upcoming_channel->is_video=FALSE;
+		upcoming_channel->is_video=false;
 	}
 }
 
@@ -7248,7 +7248,7 @@ dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_h245_T_controlFieldOctets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 2U, &value, false);
 
@@ -7262,7 +7262,7 @@ dissect_h245_T_controlFieldOctets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_h245_T_al3_sendBufferSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 16777215U, &value, false);
 
@@ -7883,7 +7883,7 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_TsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 tsapIdentifier;
+  uint32_t tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &tsapIdentifier, false);
@@ -7979,7 +7979,7 @@ dissect_h245_T_ip6_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_ipv6_tsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 tsapIdentifier;
+  uint32_t tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &tsapIdentifier, false);
@@ -8596,7 +8596,7 @@ static const per_sequence_t OpenLogicalChannel_sequence[] = {
 
 int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 temp;
+  int32_t temp;
 
   upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(wmem_file_scope(), olc_info_t) : NULL;
 
@@ -8748,7 +8748,7 @@ dissect_h245_RequestChannelClose(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 15U, &value, false);
 
@@ -8762,7 +8762,7 @@ dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_h245_T_logicalChannelNum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   /*MultiplexElement/type/logicalChannelNumber*/
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &value, false);
 
@@ -8819,7 +8819,7 @@ dissect_h245_Me_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_h245_ME_finiteRepeatCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 65535U, &value, false);
 
@@ -9179,7 +9179,7 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_VideoMode, VideoMode_choice,
@@ -9506,7 +9506,7 @@ dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   // AudioMode -> VBDMode -> AudioMode
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_AudioMode, AudioMode_choice,
@@ -9573,7 +9573,7 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_DataModeApplication, DataModeApplication_choice,
@@ -10565,7 +10565,7 @@ static const per_choice_t RequestMessage_choice[] = {
 
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_RequestMessage, RequestMessage_choice,
@@ -10906,10 +10906,10 @@ static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
 
 static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 temp;
+  uint32_t temp;
   int p2p_dir;
   h223_pending_olc *pend;
-  const gchar *olc_key;
+  const char *olc_key;
   olc_info_t *olc_req;
 
   upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(actx->pinfo->pool, olc_info_t) : NULL;
@@ -12167,7 +12167,7 @@ static const per_choice_t ResponseMessage_choice[] = {
 
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ResponseMessage, ResponseMessage_choice,
@@ -13197,7 +13197,7 @@ static const per_choice_t CommandMessage_choice[] = {
 
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_CommandMessage, CommandMessage_choice,
@@ -14248,7 +14248,7 @@ static const per_choice_t IndicationMessage_choice[] = {
 
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint32 value;
+  int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_IndicationMessage, IndicationMessage_choice,
@@ -14325,10 +14325,10 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 {
 	proto_item *it;
 	proto_tree *tr;
-	guint32 offset=0;
+	uint32_t offset=0;
 	asn1_ctx_t asn1_ctx;
 
-	fast_start = FALSE;
+	fast_start = false;
 	/* Clean up from any previous packet dissection */
 	upcoming_olc = NULL;
 	upcoming_channel = NULL;
@@ -14344,7 +14344,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=wmem_new(pinfo->pool, h245_packet_info);
 		init_h245_packet_info(h245_pi);
-		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
@@ -14356,7 +14356,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 void
 dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
 
-  fast_start = TRUE;
+  fast_start = true;
   /* Clean up from any previous packet dissection */
   upcoming_olc = NULL;
   upcoming_channel = NULL;
@@ -20003,7 +20003,7 @@ void proto_register_h245(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_h245,
 	  &ett_h245_returnedFunction,
     &ett_h245_MultimediaSystemControlMessage,

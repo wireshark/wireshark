@@ -48,11 +48,11 @@ typedef struct _kerberos_callbacks {
 
 /* Function prototypes */
 
-gboolean
+bool
 kerberos_is_win2k_pkinit(asn1_ctx_t *actx);
 
-gint
-dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean do_col_info, kerberos_callbacks *cb);
+int
+dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool do_col_info, kerberos_callbacks *cb);
 
 int
 dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
@@ -62,14 +62,14 @@ dissect_krb5_ctime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 
 int dissect_krb5_cname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 int dissect_krb5_realm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
-guint32 kerberos_output_keytype(void);
+uint32_t kerberos_output_keytype(void);
 
-guint get_krb_pdu_len(packet_info *, tvbuff_t *tvb, int offset, void *data _U_);
+unsigned get_krb_pdu_len(packet_info *, tvbuff_t *tvb, int offset, void *data _U_);
 
-gint kerberos_rm_to_reclen(guint krb_rm);
+int kerberos_rm_to_reclen(unsigned krb_rm);
 
 void
-show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm);
+show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, int start, uint32_t krb_rm);
 
 int
 dissect_kerberos_KERB_TICKET_LOGON(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
@@ -89,10 +89,10 @@ typedef struct _enc_key_t {
 	struct _enc_key_t	*next;
 	int keytype;
 	int keylength;
-	guint8 keyvalue[KRB_MAX_KEY_LENGTH];
+	uint8_t keyvalue[KRB_MAX_KEY_LENGTH];
 	char key_origin[KRB_MAX_ORIG_LEN+1];
 	int fd_num; /* remember where we learned a key */
-	guint id; /* a unique id of the key, relative to fd_num */
+	unsigned id; /* a unique id of the key, relative to fd_num */
 	char id_str[KRB_MAX_ID_STR_LEN+1];
 	/* EncTicketPart_key */
 	bool is_ticket_key;
@@ -123,14 +123,14 @@ typedef struct _enc_key_t {
 		const char *device_sid;
 	} pac_names;
 	struct _enc_key_t	*same_list;
-	guint num_same;
+	unsigned num_same;
 	struct _enc_key_t	*src1;
 	struct _enc_key_t	*src2;
 } enc_key_t;
 extern enc_key_t *enc_key_list;
 extern wmem_map_t *kerberos_longterm_keys;
 
-guint8 *
+uint8_t *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			tvbuff_t *crypototvb,

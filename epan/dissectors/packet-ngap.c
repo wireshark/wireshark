@@ -2116,49 +2116,49 @@ static int hf_ngap_successfulOutcome_value;       /* SuccessfulOutcome_value */
 static int hf_ngap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static gint ett_ngap;
-static gint ett_ngap_TransportLayerAddress;
-static gint ett_ngap_DataCodingScheme;
-static gint ett_ngap_SerialNumber;
-static gint ett_ngap_WarningType;
-static gint ett_ngap_WarningMessageContents;
-static gint ett_ngap_PLMNIdentity;
-static gint ett_ngap_NGAP_Message;
-static gint ett_ngap_NGRANTraceID;
-static gint ett_ngap_InterfacesToTrace;
-static gint ett_ngap_SourceToTarget_TransparentContainer;
-static gint ett_ngap_TargetToSource_TransparentContainer;
-static gint ett_ngap_RRCContainer;
-static gint ett_ngap_RATRestrictionInformation;
-static gint ett_ngap_primaryRATRestriction;
-static gint ett_ngap_secondaryRATRestriction;
-static gint ett_ngap_NrencryptionAlgorithms;
-static gint ett_ngap_NrintegrityProtectionAlgorithms;
-static gint ett_ngap_EUTRAencryptionAlgorithms;
-static gint ett_ngap_EUTRAintegrityProtectionAlgorithms;
-static gint ett_ngap_UERadioCapabilityForPagingOfNR;
-static gint ett_ngap_UERadioCapabilityForPagingOfEUTRA;
-static gint ett_ngap_UERadioCapability;
-static gint ett_ngap_LastVisitedEUTRANCellInformation;
-static gint ett_ngap_LastVisitedUTRANCellInformation;
-static gint ett_ngap_LastVisitedGERANCellInformation;
-static gint ett_ngap_NASSecurityParametersFromNGRAN;
-static gint ett_ngap_NASC;
-static gint ett_ngap_NAS_PDU;
-static gint ett_ngap_EN_DCSONConfigurationTransfer;
-static gint ett_ngap_BurstArrivalTime;
-static gint ett_ngap_CoverageEnhancementLevel;
-static gint ett_ngap_MDTModeEutra;
-static gint ett_ngap_MeasurementsToActivate;
-static gint ett_ngap_MDT_Location_Information;
-static gint ett_ngap_NRMobilityHistoryReport;
-static gint ett_ngap_LTEUERLFReportContainer;
-static gint ett_ngap_NRUERLFReportContainer;
-static gint ett_ngap_TargettoSource_Failure_TransparentContainer;
-static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT;
-static gint ett_ngap_GlobalCable_ID;
-static gint ett_ngap_UpdateFeedback;
-static gint ett_ngap_successfulHOReportContainer;
+static int ett_ngap;
+static int ett_ngap_TransportLayerAddress;
+static int ett_ngap_DataCodingScheme;
+static int ett_ngap_SerialNumber;
+static int ett_ngap_WarningType;
+static int ett_ngap_WarningMessageContents;
+static int ett_ngap_PLMNIdentity;
+static int ett_ngap_NGAP_Message;
+static int ett_ngap_NGRANTraceID;
+static int ett_ngap_InterfacesToTrace;
+static int ett_ngap_SourceToTarget_TransparentContainer;
+static int ett_ngap_TargetToSource_TransparentContainer;
+static int ett_ngap_RRCContainer;
+static int ett_ngap_RATRestrictionInformation;
+static int ett_ngap_primaryRATRestriction;
+static int ett_ngap_secondaryRATRestriction;
+static int ett_ngap_NrencryptionAlgorithms;
+static int ett_ngap_NrintegrityProtectionAlgorithms;
+static int ett_ngap_EUTRAencryptionAlgorithms;
+static int ett_ngap_EUTRAintegrityProtectionAlgorithms;
+static int ett_ngap_UERadioCapabilityForPagingOfNR;
+static int ett_ngap_UERadioCapabilityForPagingOfEUTRA;
+static int ett_ngap_UERadioCapability;
+static int ett_ngap_LastVisitedEUTRANCellInformation;
+static int ett_ngap_LastVisitedUTRANCellInformation;
+static int ett_ngap_LastVisitedGERANCellInformation;
+static int ett_ngap_NASSecurityParametersFromNGRAN;
+static int ett_ngap_NASC;
+static int ett_ngap_NAS_PDU;
+static int ett_ngap_EN_DCSONConfigurationTransfer;
+static int ett_ngap_BurstArrivalTime;
+static int ett_ngap_CoverageEnhancementLevel;
+static int ett_ngap_MDTModeEutra;
+static int ett_ngap_MeasurementsToActivate;
+static int ett_ngap_MDT_Location_Information;
+static int ett_ngap_NRMobilityHistoryReport;
+static int ett_ngap_LTEUERLFReportContainer;
+static int ett_ngap_NRUERLFReportContainer;
+static int ett_ngap_TargettoSource_Failure_TransparentContainer;
+static int ett_ngap_UERadioCapabilityForPagingOfNB_IoT;
+static int ett_ngap_GlobalCable_ID;
+static int ett_ngap_UpdateFeedback;
+static int ett_ngap_successfulHOReportContainer;
 static int ett_ngap_PrivateIE_ID;
 static int ett_ngap_ProtocolIE_Container;
 static int ett_ngap_ProtocolIE_Field;
@@ -2944,15 +2944,15 @@ enum{
 
 static void set_stats_message_type(packet_info *pinfo, int type);
 
-static const guint8 *st_str_packets        = "Total Packets";
-static const guint8 *st_str_packet_types   = "NGAP Packet Types";
+static const uint8_t *st_str_packets        = "Total Packets";
+static const uint8_t *st_str_packet_types   = "NGAP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
 static int ngap_tap;
 
 struct ngap_tap_t {
-    gint ngap_mtype;
+    int ngap_mtype;
 };
 
 #define MTYPE_AMF_CONFIGURATION_UPDATE                    1
@@ -3204,18 +3204,18 @@ static const value_string mtype_names[] = {
 
 
 typedef struct _ngap_ctx_t {
-    guint32 message_type;
-    guint32 ProcedureCode;
-    guint32 ProtocolIE_ID;
-    guint32 ProtocolExtensionID;
+    uint32_t message_type;
+    uint32_t ProcedureCode;
+    uint32_t ProtocolIE_ID;
+    uint32_t ProtocolExtensionID;
 } ngap_ctx_t;
 
 struct ngap_conv_info {
   address addr_a;
-  guint32 port_a;
+  uint32_t port_a;
   GlobalRANNodeID_enum ranmode_id_a;
   address addr_b;
-  guint32 port_b;
+  uint32_t port_b;
   GlobalRANNodeID_enum ranmode_id_b;
   wmem_map_t *nbiot_ta;
   wmem_tree_t *nbiot_ran_ue_ngap_id;
@@ -3227,28 +3227,28 @@ enum {
 };
 
 struct ngap_supported_ta {
-  guint32 tac;
+  uint32_t tac;
   wmem_array_t *plmn;
 };
 
 struct ngap_tai {
-  guint32 plmn;
-  guint32 tac;
+  uint32_t plmn;
+  uint32_t tac;
 };
 
 struct ngap_private_data {
   struct ngap_conv_info *ngap_conv;
-  guint32 procedure_code;
-  guint32 protocol_ie_id;
-  guint32 protocol_extension_id;
-  guint32 message_type;
-  guint32 handover_type_value;
-  guint8 data_coding_scheme;
-  guint8 transparent_container_type;
-  gboolean is_qos_flow_notify;
+  uint32_t procedure_code;
+  uint32_t protocol_ie_id;
+  uint32_t protocol_extension_id;
+  uint32_t message_type;
+  uint32_t handover_type_value;
+  uint8_t data_coding_scheme;
+  uint8_t transparent_container_type;
+  bool is_qos_flow_notify;
   struct ngap_supported_ta *supported_ta;
   struct ngap_tai *tai;
-  guint32 ran_ue_ngap_id;
+  uint32_t ran_ue_ngap_id;
   e212_number_type_t number_type;
   struct ngap_tap_t *stats_tap;
 };
@@ -3282,8 +3282,8 @@ static const enum_val_t ngap_lte_container_vals[] = {
 /* Global variables */
 static range_t *gbl_ngapSctpRange;
 static bool ngap_dissect_container = true;
-static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
-static gint ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
+static int ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
+static int ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
 
 /* Dissector tables */
 static dissector_table_t ngap_ies_dissector_table;
@@ -3368,10 +3368,10 @@ static const value_string ngap_warningType_vals[] = {
 };
 
 static void
-dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page)
+dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, uint8_t dcs, int hf_nb_pages, int hf_decoded_page)
 {
-  guint32 offset;
-  guint8 nb_of_pages, length, *str;
+  uint32_t offset;
+  uint8_t nb_of_pages, length, *str;
   proto_item *ti;
   tvbuff_t *cb_data_page_tvb, *cb_data_tvb;
   int i;
@@ -3397,27 +3397,27 @@ dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
 }
 
 static void
-ngap_PacketLossRate_fmt(gchar *s, guint32 v)
+ngap_PacketLossRate_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
 }
 
 static void
-ngap_PacketDelayBudget_fmt(gchar *s, guint32 v)
+ngap_PacketDelayBudget_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
-ngap_TimeUEStayedInCellEnhancedGranularity_fmt(gchar *s, guint32 v)
+ngap_TimeUEStayedInCellEnhancedGranularity_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 static void
-ngap_PeriodicRegistrationUpdateTimer_fmt(gchar *s, guint32 v)
+ngap_PeriodicRegistrationUpdateTimer_fmt(char *s, uint32_t v)
 {
-  guint32 val = v & 0x1f;
+  uint32_t val = v & 0x1f;
 
   switch (v>>5) {
     case 0:
@@ -3446,25 +3446,25 @@ ngap_PeriodicRegistrationUpdateTimer_fmt(gchar *s, guint32 v)
 }
 
 static void
-ngap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
+ngap_ExtendedPacketDelayBudget_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
 }
 
 static void
-ngap_Threshold_RSRP_fmt(gchar *s, guint32 v)
+ngap_Threshold_RSRP_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (int32_t)v-156, v);
 }
 
 static void
-ngap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
+ngap_Threshold_RSRQ_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
 }
 
 static void
-ngap_Threshold_SINR_fmt(gchar *s, guint32 v)
+ngap_Threshold_SINR_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
 }
@@ -3482,7 +3482,7 @@ ngap_get_private_data(packet_info *pinfo)
 }
 
 static GlobalRANNodeID_enum
-ngap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
+ngap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
   GlobalRANNodeID_enum ranmode_id = (GlobalRANNodeID_enum)-1;
@@ -3497,14 +3497,14 @@ ngap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
   return ranmode_id;
 }
 
-static gboolean
+static bool
 ngap_is_nbiot_ue(packet_info *pinfo)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
   if (ngap_data->ngap_conv) {
     wmem_tree_key_t tree_key[3];
-    guint32 *id;
+    uint32_t *id;
 
     tree_key[0].length = 1;
     tree_key[0].key = &ngap_data->ran_ue_ngap_id;
@@ -3512,12 +3512,12 @@ ngap_is_nbiot_ue(packet_info *pinfo)
     tree_key[1].key = &pinfo->num;
     tree_key[2].length = 0;
     tree_key[2].key = NULL;
-    id = (guint32*)wmem_tree_lookup32_array_le(ngap_data->ngap_conv->nbiot_ran_ue_ngap_id, tree_key);
+    id = (uint32_t*)wmem_tree_lookup32_array_le(ngap_data->ngap_conv->nbiot_ran_ue_ngap_id, tree_key);
     if (id && (*id == ngap_data->ran_ue_ngap_id)) {
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 static const true_false_string ngap_not_updated_updated = {
@@ -4575,9 +4575,9 @@ dissect_ngap_PLMNIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, false);
     if (ngap_data->supported_ta) {
-      guint32 plmn = tvb_get_ntoh24(parameter_tvb, 0);
+      uint32_t plmn = tvb_get_ntoh24(parameter_tvb, 0);
       wmem_array_append_one(ngap_data->supported_ta->plmn, plmn);
     } else if (ngap_data->tai) {
       ngap_data->tai->plmn = tvb_get_ntoh24(parameter_tvb, 0);
@@ -4994,7 +4994,7 @@ static const per_choice_t GlobalRANNodeID_choice[] = {
 
 static int
 dissect_ngap_GlobalRANNodeID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint value;
+  int value;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5034,11 +5034,11 @@ dissect_ngap_TAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
   if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
       (ngap_data->message_type == INITIATING_MESSAGE) &&
       (ngap_data->procedure_code == id_InitialUEMessage)) {
-    guint64 key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
+    uint64_t key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
 
     if (wmem_map_lookup(ngap_data->ngap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
-      guint32 *id = wmem_new(wmem_file_scope(), guint32);
+      uint32_t *id = wmem_new(wmem_file_scope(), uint32_t);
 
       *id = ngap_data->ran_ue_ngap_id;
       tree_key[0].length = 1;
@@ -7405,7 +7405,7 @@ static value_string_ext ngap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(
 
 static int
 dissect_ngap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      45, &value, true, 12, NULL);
 
@@ -7425,7 +7425,7 @@ static const value_string ngap_CauseTransport_vals[] = {
 
 static int
 dissect_ngap_CauseTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, &value, true, 0, NULL);
 
@@ -7448,7 +7448,7 @@ static const value_string ngap_CauseNas_vals[] = {
 
 static int
 dissect_ngap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      4, &value, true, 1, NULL);
 
@@ -7473,7 +7473,7 @@ static const value_string ngap_CauseProtocol_vals[] = {
 
 static int
 dissect_ngap_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      7, &value, true, 0, NULL);
 
@@ -7497,7 +7497,7 @@ static const value_string ngap_CauseMisc_vals[] = {
 
 static int
 dissect_ngap_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      6, &value, true, 0, NULL);
 
@@ -8039,7 +8039,7 @@ dissect_ngap_PeriodicRegistrationUpdateTimer(tvbuff_t *tvb _U_, int offset _U_, 
                                      8, 8, false, NULL, 0, &val_tvb, NULL);
 
   if (val_tvb) {
-    guint32 val = tvb_get_guint8(val_tvb, 0);
+    uint32_t val = tvb_get_guint8(val_tvb, 0);
     actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, 1, val);
   }
 
@@ -13998,7 +13998,7 @@ dissect_ngap_NGRANTraceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NGRANTraceID);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
   proto_tree_add_item(subtree, hf_ngap_NGRANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_ngap_NGRANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
@@ -14408,7 +14408,7 @@ static int
 dissect_ngap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   tvbuff_t *parameter_tvb=NULL;
-  guint tvb_len;
+  unsigned tvb_len;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
@@ -15317,7 +15317,7 @@ static const value_string ngap_PagingCause_vals[] = {
 
 static int
 dissect_ngap_PagingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, &value, true, 0, NULL);
 
@@ -15336,7 +15336,7 @@ static const value_string ngap_PagingCauseIndicationForVoiceService_vals[] = {
 
 static int
 dissect_ngap_PagingCauseIndicationForVoiceService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, &value, true, 0, NULL);
 
@@ -16750,11 +16750,11 @@ static const per_sequence_t QosFlowNotifyItem_sequence[] = {
 static int
 dissect_ngap_QosFlowNotifyItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
-  ngap_data->is_qos_flow_notify = TRUE;
+  ngap_data->is_qos_flow_notify = true;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_QosFlowNotifyItem, QosFlowNotifyItem_sequence);
 
-  ngap_data->is_qos_flow_notify = FALSE;
+  ngap_data->is_qos_flow_notify = false;
 
   return offset;
 }
@@ -17327,7 +17327,7 @@ dissect_ngap_PDUSessionResourceSetupRequestTransfer(tvbuff_t *tvb _U_, int offse
   if (json_tvb)
     col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupRequestTransfer");
 
-  volatile guint32 _offset;
+  volatile uint32_t _offset;
 
   _offset = offset;
   TRY {
@@ -18251,7 +18251,7 @@ dissect_ngap_RANStatusTransfer_TransparentContainer(tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_ngap_RAN_UE_NGAP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 ran_ue_ngap_id;
+  uint32_t ran_ue_ngap_id;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4294967295U, &ran_ue_ngap_id, false);
@@ -18276,18 +18276,18 @@ static const value_string ngap_RAT_Information_vals[] = {
 
 static int
 dissect_ngap_RAT_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 rat_info = 0xffffffff;
+  uint32_t rat_info = 0xffffffff;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, &rat_info, true, 4, NULL);
 
   if (ngap_data->ngap_conv && ngap_data->supported_ta && (rat_info == nb_IoT)) {
-    guint64 *key;
-    guint i;
+    uint64_t *key;
+    unsigned i;
 
     for (i = 0; i < wmem_array_get_count(ngap_data->supported_ta->plmn); i++) {
-      key = wmem_new(wmem_file_scope(), guint64);
-      *key = ((*(guint32*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
+      key = wmem_new(wmem_file_scope(), uint64_t);
+      *key = ((*(uint32_t*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
       wmem_map_insert(ngap_data->ngap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
@@ -18576,7 +18576,7 @@ static const value_string ngap_RRCEstablishmentCause_vals[] = {
 
 static int
 dissect_ngap_RRCEstablishmentCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      10, &value, true, 2, NULL);
 
@@ -19193,7 +19193,7 @@ dissect_ngap_SourceToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _
 
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
-    guint32 handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
+    uint32_t handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, false);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_SourceToTarget_TransparentContainer);
@@ -19306,7 +19306,7 @@ dissect_ngap_SupportedTAItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
       ((ngap_data->procedure_code == id_NGSetup) ||
        (ngap_data->procedure_code == id_RANConfigurationUpdate))) {
     ngap_data->supported_ta = wmem_new0(actx->pinfo->pool, struct ngap_supported_ta);
-    ngap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(guint32));
+    ngap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(uint32_t));
   }
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -27068,7 +27068,7 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   ngap_ctx.ProtocolIE_ID       = ngap_data->protocol_ie_id;
   ngap_ctx.ProtocolExtensionID = ngap_data->protocol_extension_id;
 
-  return (dissector_try_uint_new(ngap_ies_dissector_table, ngap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(ngap_ies_dissector_table, ngap_data->protocol_ie_id, tvb, pinfo, tree, false, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 /* Currently not used
 static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -27096,28 +27096,28 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
   ngap_ctx.ProtocolIE_ID       = ngap_data->protocol_ie_id;
   ngap_ctx.ProtocolExtensionID = ngap_data->protocol_extension_id;
 
-  return (dissector_try_uint_new(ngap_extension_dissector_table, ngap_data->protocol_extension_id, tvb, pinfo, tree, TRUE, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(ngap_extension_dissector_table, ngap_data->protocol_extension_id, tvb, pinfo, tree, true, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(ngap_proc_imsg_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(ngap_proc_imsg_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(ngap_proc_sout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(ngap_proc_sout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(ngap_proc_uout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(ngap_proc_uout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -27197,23 +27197,23 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 find_n2_info_content(char *json_data, jsmntok_t *token, const char *n2_info_content,
                      const char *content_id, dissector_handle_t *subdissector)
 {
   jsmntok_t *n2_info_content_token, *ngap_data_token;
   char *str;
-  gdouble ngap_msg_type;
+  double ngap_msg_type;
 
   n2_info_content_token = json_get_object(json_data, token, n2_info_content);
   if (!n2_info_content_token)
-    return FALSE;
+    return false;
   ngap_data_token = json_get_object(json_data, n2_info_content_token, "ngapData");
   if (!ngap_data_token)
-    return FALSE;
+    return false;
   str = json_get_string(json_data, ngap_data_token, "contentId");
   if (!str || strcmp(str, content_id))
-    return FALSE;
+    return false;
   str = json_get_string(json_data, n2_info_content_token, "ngapIeType");
   if (str)
     *subdissector = dissector_get_string_handle(ngap_n2_ie_type_dissector_table, str);
@@ -27221,7 +27221,7 @@ find_n2_info_content(char *json_data, jsmntok_t *token, const char *n2_info_cont
     *subdissector = ngap_handle;
   else
     *subdissector = NULL;
-  return TRUE;
+  return true;
 }
 
 /* 3GPP TS 29.502 chapter 6.1.6.4.3 and 29.518 chapter 6.1.6.4.3 */
@@ -27325,7 +27325,7 @@ found:
   if (subdissector) {
     proto_item *ngap_item;
     proto_tree *ngap_tree;
-    gboolean save_writable;
+    bool save_writable;
 
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NGAP");
     if (subdissector != ngap_handle) {
@@ -33838,7 +33838,7 @@ void proto_register_ngap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ngap,
     &ett_ngap_TransportLayerAddress,
     &ett_ngap_DataCodingScheme,
@@ -34696,10 +34696,10 @@ void proto_register_ngap(void) {
                                  "Dissect target NG-RAN container as",
                                  "Select whether target NG-RAN container should be decoded automatically"
                                  " (based on NG Setup procedure) or manually",
-                                 &ngap_dissect_target_ng_ran_container_as, ngap_target_ng_ran_container_vals, FALSE);
+                                 &ngap_dissect_target_ng_ran_container_as, ngap_target_ng_ran_container_vals, false);
   prefs_register_enum_preference(ngap_module, "dissect_lte_container_as", "Dissect LTE container as",
                                  "Select whether LTE container should be dissected as NB-IOT or legacy LTE",
-                                 &ngap_dissect_lte_container_as, ngap_lte_container_vals, FALSE);
+                                 &ngap_dissect_lte_container_as, ngap_lte_container_vals, false);
 
   ngap_tap = register_tap("ngap");
 }

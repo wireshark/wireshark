@@ -1263,9 +1263,9 @@ void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
 typedef struct {
-    guint32     ProcedureCode;
-    guint32     ProtocolIE_ID;
-    guint32     ddMode;
+    uint32_t    ProcedureCode;
+    uint32_t    ProtocolIE_ID;
+    uint32_t    ddMode;
     const char *ProcedureID;
     const char *obj_id;
 } rnsap_private_data_t;
@@ -7788,7 +7788,7 @@ dissect_rnsap_EDCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb=NULL;
-  guint16 binding_id_port;
+  uint16_t binding_id_port;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 4, true, &parameter_tvb);
@@ -7813,9 +7813,9 @@ dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   tvbuff_t *parameter_tvb = NULL;
   proto_item *item;
   proto_tree *subtree, *nsap_tree;
-  guint8 *padded_nsap_bytes;
+  uint8_t *padded_nsap_bytes;
   tvbuff_t *nsap_tvb;
-  gint tvb_len;
+  int tvb_len;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, true, NULL, 0, &parameter_tvb, NULL);
@@ -7839,7 +7839,7 @@ dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     if (tvb_len == 7){
       /* Unpadded IPv4 NSAP */
       /* Creating a new TVB with padding */
-      padded_nsap_bytes = (guint8*) wmem_alloc0(actx->pinfo->pool, 20);
+      padded_nsap_bytes = (uint8_t*) wmem_alloc0(actx->pinfo->pool, 20);
       tvb_memcpy(parameter_tvb, padded_nsap_bytes, 0, tvb_len);
       nsap_tvb = tvb_new_child_real_data(tvb, padded_nsap_bytes, 20, 20);
       add_new_data_source(actx->pinfo, nsap_tvb, "Padded NSAP Data");
@@ -25055,7 +25055,7 @@ dissect_rnsap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_rnsap_IMSI);
-    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), FALSE);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
   }
 
 
@@ -49170,12 +49170,12 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static bool
 dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  guint8 pdu_type;
-  guint8 procedure_id;
-  guint8 dd_mode;
-  guint8 criticality;
-  guint8 transaction_id_type;
-  guint length;
+  uint8_t pdu_type;
+  uint8_t procedure_id;
+  uint8_t dd_mode;
+  uint8_t criticality;
+  uint8_t transaction_id_type;
+  unsigned length;
   int length_field_offset;
 
   #define PDU_TYPE_OFFSET 0
@@ -61678,7 +61678,7 @@ void proto_register_rnsap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rnsap,
     &ett_rnsap_transportLayerAddress,
     &ett_rnsap_transportLayerAddress_nsap,

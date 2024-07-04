@@ -15,18 +15,18 @@ SampledValues
 #.FIELD_RENAME
 
 #.FN_BODY ASDU/smpCnt VAL_PTR = &value
-	guint32 value;
+	uint32_t value;
 %(DEFAULT_BODY)s
 	sv_data.smpCnt = value;
 #.END
 
 #.FN_BODY UtcTime
-	guint32 len;
-	guint32 seconds;
-	guint32	fraction;
-	guint32 nanoseconds;
+	uint32_t len;
+	uint32_t seconds;
+	uint32_t	fraction;
+	uint32_t nanoseconds;
 	nstime_t ts;
-	gchar *	ptime;
+	char *	ptime;
 
 	len = tvb_reported_length_remaining(tvb, offset);
 
@@ -43,12 +43,12 @@ SampledValues
 
 	seconds = tvb_get_ntohl(tvb, offset);
 	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
-	nanoseconds = (guint32)( ((guint64)fraction * G_GUINT64_CONSTANT(1000000000)) / G_GUINT64_CONSTANT(0x100000000) ) ;
+	nanoseconds = (uint32_t)( ((uint64_t)fraction * UINT64_C(1000000000)) / UINT64_C(0x100000000) ) ;
 
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
+	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, true);
 
 	if(hf_index > 0)
 	{
@@ -61,13 +61,13 @@ SampledValues
 UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 
 #.FN_BODY ASDU/smpSynch VAL_PTR = &value
-	guint32 value;
+	uint32_t value;
 %(DEFAULT_BODY)s
 	sv_data.smpSynch = value;
 #.END
 
 #.FN_BODY ASDU/smpMod  VAL_PTR = &value
-	guint32 value;
+	uint32_t value;
 %(DEFAULT_BODY)s
 	sv_data.smpMod = value;
 #.END
@@ -81,10 +81,10 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 #.END
 
 #.FN_BODY GmidData
-	guint32 len;
+	uint32_t len;
 	proto_item  *gmidentity_ti;
 	proto_tree  *gmidentity_tree;
-	const gchar *manuf_name;
+	const char *manuf_name;
 
 	len = tvb_reported_length_remaining(tvb, offset);
 

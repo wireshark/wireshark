@@ -70,14 +70,14 @@ enum{
 };
 
 struct sbc_ap_private_data {
-  guint8 data_coding_scheme;
+  uint8_t data_coding_scheme;
   e212_number_type_t number_type;
 };
 
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ProtocolExtensionID;
+static uint32_t ProcedureCode;
+static uint32_t ProtocolIE_ID;
+static uint32_t ProtocolExtensionID;
 static int global_sbc_ap_port = SBC_AP_PORT;
 
 /* Dissector tables */
@@ -203,7 +203,7 @@ void proto_register_sbc_ap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
                   &ett_sbc_ap,
                   &ett_sbc_ap_Serial_Number,
                   &ett_sbc_ap_Warning_Type,
@@ -237,12 +237,12 @@ void proto_register_sbc_ap(void) {
 void
 proto_reg_handoff_sbc_ap(void)
 {
-    static gboolean inited = FALSE;
-	static guint SctpPort;
+    static bool inited = false;
+	static unsigned SctpPort;
 
     if( !inited ) {
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
-        inited = TRUE;
+        inited = true;
 #include "packet-sbc-ap-dis-tab.c"
 	} else {
 		if (SctpPort != 0) {

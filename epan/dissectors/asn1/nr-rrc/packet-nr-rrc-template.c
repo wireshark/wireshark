@@ -104,62 +104,62 @@ static int hf_nr_rrc_local_time;
 static int hf_nr_rrc_absolute_time;
 
 /* Initialize the subtree pointers */
-static gint ett_nr_rrc;
+static int ett_nr_rrc;
 #include "packet-nr-rrc-ett.c"
-static gint ett_nr_rrc_DedicatedNAS_Message;
-static gint ett_nr_rrc_targetRAT_MessageContainer;
-static gint ett_nr_rrc_nas_Container;
-static gint ett_nr_rrc_serialNumber;
-static gint ett_nr_rrc_warningType;
-static gint ett_nr_rrc_dataCodingScheme;
-static gint ett_nr_rrc_sib7_fragment;
-static gint ett_nr_rrc_sib7_fragments;
-static gint ett_nr_rrc_sib8_fragment;
-static gint ett_nr_rrc_sib8_fragments;
-static gint ett_nr_rrc_warningMessageSegment;
-static gint ett_nr_rrc_timeInfo;
-static gint ett_nr_rrc_capabilityRequestFilter;
-static gint ett_nr_rrc_sourceSCG_EUTRA_Config;
-static gint ett_nr_rrc_scg_CellGroupConfigEUTRA;
-static gint ett_nr_rrc_candidateCellInfoListSN_EUTRA;
-static gint ett_nr_rrc_candidateCellInfoListMN_EUTRA;
-static gint ett_nr_rrc_sourceConfigSCG_EUTRA;
-static gint ett_nr_rrc_eutra_SCG;
-static gint ett_nr_rrc_nr_SCG_Response;
-static gint ett_nr_rrc_eutra_SCG_Response;
-static gint ett_nr_rrc_measResultSCG_FailureMRDC;
-static gint ett_nr_rrc_ul_DCCH_MessageNR;
-static gint ett_nr_rrc_ul_DCCH_MessageEUTRA;
-static gint ett_rr_rrc_nas_SecurityParamFromNR;
-static gint ett_nr_rrc_sidelinkUEInformationNR;
-static gint ett_nr_rrc_sidelinkUEInformationEUTRA;
-static gint ett_nr_rrc_ueAssistanceInformationEUTRA;
-static gint ett_nr_rrc_dl_DCCH_MessageNR;
-static gint ett_nr_rrc_dl_DCCH_MessageEUTRA;
-static gint ett_nr_rrc_sl_ConfigDedicatedEUTRA;
-static gint ett_nr_rrc_sl_CapabilityInformationSidelink;
-static gint ett_nr_rrc_measResult_RLF_Report_EUTRA;
-static gint ett_nr_rrc_measResult_RLF_Report_EUTRA_v1690;
-static gint ett_nr_rrc_locationTimestamp_r16;
-static gint ett_nr_rrc_locationCoordinate_r16;
-static gint ett_nr_rrc_locationError_r16;
-static gint ett_nr_rrc_locationSource_r16;
-static gint ett_nr_rrc_velocityEstimate_r16;
-static gint ett_nr_rrc_sensor_MeasurementInformation_r16;
-static gint ett_nr_rrc_sensor_MotionInformation_r16;
-static gint ett_nr_rrc_bandParametersSidelinkEUTRA1_r16;
-static gint ett_nr_rrc_bandParametersSidelinkEUTRA2_r16;
-static gint ett_nr_rrc_sl_ParametersEUTRA1_r16;
-static gint ett_nr_rrc_sl_ParametersEUTRA2_r16;
-static gint ett_nr_rrc_sl_ParametersEUTRA3_r16;
-static gint ett_nr_rrc_absTimeInfo;
-static gint ett_nr_rrc_assistanceDataSIB_Element_r16;
-static gint ett_nr_sl_V2X_ConfigCommon_r16;
-static gint ett_nr_tdd_Config_r16;
-static gint ett_nr_coarseLocationInfo_r17;
-static gint ett_nr_sl_MeasResultsCandRelay_r17;
-static gint ett_nr_sl_MeasResultServingRelay_r17;
-static gint ett_nr_ReferenceLocation_r17;
+static int ett_nr_rrc_DedicatedNAS_Message;
+static int ett_nr_rrc_targetRAT_MessageContainer;
+static int ett_nr_rrc_nas_Container;
+static int ett_nr_rrc_serialNumber;
+static int ett_nr_rrc_warningType;
+static int ett_nr_rrc_dataCodingScheme;
+static int ett_nr_rrc_sib7_fragment;
+static int ett_nr_rrc_sib7_fragments;
+static int ett_nr_rrc_sib8_fragment;
+static int ett_nr_rrc_sib8_fragments;
+static int ett_nr_rrc_warningMessageSegment;
+static int ett_nr_rrc_timeInfo;
+static int ett_nr_rrc_capabilityRequestFilter;
+static int ett_nr_rrc_sourceSCG_EUTRA_Config;
+static int ett_nr_rrc_scg_CellGroupConfigEUTRA;
+static int ett_nr_rrc_candidateCellInfoListSN_EUTRA;
+static int ett_nr_rrc_candidateCellInfoListMN_EUTRA;
+static int ett_nr_rrc_sourceConfigSCG_EUTRA;
+static int ett_nr_rrc_eutra_SCG;
+static int ett_nr_rrc_nr_SCG_Response;
+static int ett_nr_rrc_eutra_SCG_Response;
+static int ett_nr_rrc_measResultSCG_FailureMRDC;
+static int ett_nr_rrc_ul_DCCH_MessageNR;
+static int ett_nr_rrc_ul_DCCH_MessageEUTRA;
+static int ett_rr_rrc_nas_SecurityParamFromNR;
+static int ett_nr_rrc_sidelinkUEInformationNR;
+static int ett_nr_rrc_sidelinkUEInformationEUTRA;
+static int ett_nr_rrc_ueAssistanceInformationEUTRA;
+static int ett_nr_rrc_dl_DCCH_MessageNR;
+static int ett_nr_rrc_dl_DCCH_MessageEUTRA;
+static int ett_nr_rrc_sl_ConfigDedicatedEUTRA;
+static int ett_nr_rrc_sl_CapabilityInformationSidelink;
+static int ett_nr_rrc_measResult_RLF_Report_EUTRA;
+static int ett_nr_rrc_measResult_RLF_Report_EUTRA_v1690;
+static int ett_nr_rrc_locationTimestamp_r16;
+static int ett_nr_rrc_locationCoordinate_r16;
+static int ett_nr_rrc_locationError_r16;
+static int ett_nr_rrc_locationSource_r16;
+static int ett_nr_rrc_velocityEstimate_r16;
+static int ett_nr_rrc_sensor_MeasurementInformation_r16;
+static int ett_nr_rrc_sensor_MotionInformation_r16;
+static int ett_nr_rrc_bandParametersSidelinkEUTRA1_r16;
+static int ett_nr_rrc_bandParametersSidelinkEUTRA2_r16;
+static int ett_nr_rrc_sl_ParametersEUTRA1_r16;
+static int ett_nr_rrc_sl_ParametersEUTRA2_r16;
+static int ett_nr_rrc_sl_ParametersEUTRA3_r16;
+static int ett_nr_rrc_absTimeInfo;
+static int ett_nr_rrc_assistanceDataSIB_Element_r16;
+static int ett_nr_sl_V2X_ConfigCommon_r16;
+static int ett_nr_tdd_Config_r16;
+static int ett_nr_coarseLocationInfo_r17;
+static int ett_nr_sl_MeasResultsCandRelay_r17;
+static int ett_nr_sl_MeasResultServingRelay_r17;
+static int ett_nr_ReferenceLocation_r17;
 
 static expert_field ei_nr_rrc_number_pages_le15;
 
@@ -177,11 +177,11 @@ static const unit_name_string units_prbs = { " PRB", " PRBs" };
 static const unit_name_string units_slots = { " slot", " slots" };
 
 typedef struct {
-  guint8 rat_type;
-  guint8 target_rat_type;
-  guint16 message_identifier;
-  guint8 warning_message_segment_type;
-  guint8 warning_message_segment_number;
+  uint8_t rat_type;
+  uint8_t target_rat_type;
+  uint16_t message_identifier;
+  uint8_t warning_message_segment_type;
+  uint8_t warning_message_segment_number;
   nr_drb_mac_rlc_mapping_t drb_rlc_mapping;
   nr_drb_rlc_pdcp_mapping_t drb_pdcp_mapping;
   lpp_pos_sib_type_t pos_sib_type;
@@ -189,7 +189,7 @@ typedef struct {
 } nr_rrc_private_data_t;
 
 /* Helper function to get UE identifier from lower layers (in order MAC, RLC, PDCP) */
-static guint16*
+static uint16_t*
 nr_rrc_get_ueid_from_lower_layers(wmem_allocator_t *scope, struct _packet_info* pinfo)
 {
   /* Try MAC first */
@@ -235,9 +235,9 @@ nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pin
 }
 
 static void
-nr_rrc_q_RxLevMin_fmt(gchar *s, guint32 v)
+nr_rrc_q_RxLevMin_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%d)", 2*d, d);
 }
@@ -294,10 +294,10 @@ static const fragment_items nr_rrc_sib8_frag_items = {
 };
 
 static void
-dissect_nr_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dataCodingScheme)
+dissect_nr_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree *tree, packet_info *pinfo, uint8_t dataCodingScheme)
 {
-  guint32 offset;
-  guint8 nb_of_pages, length, *str;
+  uint32_t offset;
+  uint8_t nb_of_pages, length, *str;
   proto_item *ti;
   tvbuff_t *cb_data_page_tvb, *cb_data_tvb;
   int i;
@@ -331,9 +331,9 @@ static const value_string nr_rrc_daylightSavingTime_vals[] = {
 };
 
 static void
-nr_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
+nr_rrc_localTimeOffset_fmt(char *s, uint32_t v)
 {
-  gint32 time_offset = (gint32) v;
+  int32_t time_offset = (int32_t) v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "UTC time %c %dhr %dmin (%d)",
              (time_offset < 0) ? '-':'+', abs(time_offset) >> 2,
@@ -341,35 +341,35 @@ nr_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_drx_SlotOffset_fmt(gchar *s, guint32 v)
+nr_rrc_drx_SlotOffset_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%g ms (%u)", 1./32 * v, v);
 }
 
 static void
-nr_rrc_Hysteresis_fmt(gchar *s, guint32 v)
+nr_rrc_Hysteresis_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%gdB (%u)", 0.5 * v, v);
 }
 
 static void
-nr_rrc_msg3_DeltaPreamble_fmt(gchar *s, guint32 v)
+nr_rrc_msg3_DeltaPreamble_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%ddB (%d)", 2 * d, d);
 }
 
 static void
-nr_rrc_Q_RxLevMin_fmt(gchar *s, guint32 v)
+nr_rrc_Q_RxLevMin_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%d)", 2 * d, d);
 }
 
 static void
-nr_rrc_RSRP_RangeEUTRA_fmt(gchar *s, guint32 v)
+nr_rrc_RSRP_RangeEUTRA_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
@@ -381,7 +381,7 @@ nr_rrc_RSRP_RangeEUTRA_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_RSRQ_RangeEUTRA_fmt(gchar *s, guint32 v)
+nr_rrc_RSRQ_RangeEUTRA_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
@@ -393,7 +393,7 @@ nr_rrc_RSRQ_RangeEUTRA_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_SINR_RangeEUTRA_fmt(gchar *s, guint32 v)
+nr_rrc_SINR_RangeEUTRA_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "SINR < -23dB (0)");
@@ -405,13 +405,13 @@ nr_rrc_SINR_RangeEUTRA_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_ReselectionThreshold_fmt(gchar *s, guint32 v)
+nr_rrc_ReselectionThreshold_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%udB (%u)", 2 * v, v);
 }
 
 static void
-nr_rrc_RSRP_Range_fmt(gchar *s, guint32 v)
+nr_rrc_RSRP_Range_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "SS-RSRP < -156dBm (0)");
@@ -425,7 +425,7 @@ nr_rrc_RSRP_Range_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_RSRQ_Range_fmt(gchar *s, guint32 v)
+nr_rrc_RSRQ_Range_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "SS-RSRQ < -43dB (0)");
@@ -437,7 +437,7 @@ nr_rrc_RSRQ_Range_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_SINR_Range_fmt(gchar *s, guint32 v)
+nr_rrc_SINR_Range_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "SS-SINR < -23dB (0)");
@@ -449,19 +449,19 @@ nr_rrc_SINR_Range_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt(gchar *s, guint32 v)
+nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 10+(2*v), v);
 }
 
 static void
-nr_rrc_timeConnFailure_r16_fmt(gchar *s, guint32 v)
+nr_rrc_timeConnFailure_r16_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%ums (%u)", 100*v, v);
 }
 
 static void
-nr_rrc_RSSI_Range_r16_fmt(gchar *s, guint32 v)
+nr_rrc_RSSI_Range_r16_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSSI < -100dBm (0)");
@@ -473,9 +473,9 @@ nr_rrc_RSSI_Range_r16_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_RSRQ_RangeEUTRA_r16_fmt(gchar *s, guint32 v)
+nr_rrc_RSRQ_RangeEUTRA_r16_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   if (d == -34) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -36dB (-34)");
@@ -495,9 +495,9 @@ nr_rrc_RSRQ_RangeEUTRA_r16_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_utra_FDD_RSCP_r16_fmt(gchar *s, guint32 v)
+nr_rrc_utra_FDD_RSCP_r16_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   if (d == -5) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSCP < -120dBm (-5)");
@@ -509,7 +509,7 @@ nr_rrc_utra_FDD_RSCP_r16_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_utra_FDD_EcN0_r16_fmt(gchar *s, guint32 v)
+nr_rrc_utra_FDD_EcN0_r16_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "Ec/No < -24dB (0)");
@@ -521,27 +521,27 @@ nr_rrc_utra_FDD_EcN0_r16_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_averageDelay_r16_fmt(gchar *s, guint32 v)
+nr_rrc_averageDelay_r16_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/10, v);
 }
 
 static void
-nr_rrc_measTriggerQuantity_utra_FDD_RSCP_r16_fmt(gchar *s, guint32 v)
+nr_rrc_measTriggerQuantity_utra_FDD_RSCP_r16_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%d)", d-115, d);
 }
 
 static void
-nr_rrc_measTriggerQuantity_utra_FDD_EcN0_r16_fmt(gchar *s, guint32 v)
+nr_rrc_measTriggerQuantity_utra_FDD_EcN0_r16_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", (float)v/2-24.5, v);
 }
 
 static void
-nr_rrc_SRS_RSRP_r16_fmt(gchar *s, guint32 v)
+nr_rrc_SRS_RSRP_r16_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "SRS-RSRP < -140dBm (0)");
@@ -555,15 +555,15 @@ nr_rrc_SRS_RSRP_r16_fmt(gchar *s, guint32 v)
 }
 
 static void
-nr_rrc_MeasTriggerQuantityOffset_fmt(gchar *s, guint32 v)
+nr_rrc_MeasTriggerQuantityOffset_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", (float)d/2, d);
 }
 
 static void
-nr_rrc_TimeSinceCHO_Reconfig_r17_fmt(gchar *s, guint32 v)
+nr_rrc_TimeSinceCHO_Reconfig_r17_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fs (%u)", (float)v/10, v);
 }
@@ -820,7 +820,7 @@ dissect_nr_rrc_nr_RLF_Report_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   proto_item_set_hidden(prot_ti);
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   offset = dissect_nr_rrc_T_nr_RLF_Report_r16(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_BCCH_DL_SCH_Message_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -832,7 +832,7 @@ dissect_nr_rrc_subCarrierSpacingCommon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   proto_item_set_hidden(prot_ti);
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   offset = dissect_nr_rrc_T_subCarrierSpacingCommon(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_BCCH_DL_SCH_Message_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -844,7 +844,7 @@ dissect_nr_rrc_rach_ConfigCommonIAB_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   proto_item_set_hidden(prot_ti);
   int offset = 0;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   offset = dissect_nr_rrc_T_rach_ConfigCommonIAB_r16(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_BCCH_DL_SCH_Message_PDU);
   offset += 7; offset >>= 3;
   return offset;
@@ -992,7 +992,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_nr_rrc,
 #include "packet-nr-rrc-ettarr.c"
     &ett_nr_rrc_DedicatedNAS_Message,

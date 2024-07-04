@@ -674,7 +674,7 @@ static const value_string gprscdr_rat_type_vals[] = {
 static int
 dissect_gprscdr_uli(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int type) {
   proto_tree *ext_tree_uli;
-  guint       length;
+  unsigned    length;
 
   length = tvb_reported_length(tvb);
   ext_tree_uli = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_userlocationinformation, NULL, "UserLocationInformation");
@@ -1036,7 +1036,7 @@ dissect_gprscdr_PLMN_Id(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, true);
 
 
   return offset;
@@ -1606,7 +1606,7 @@ dissect_gprscdr_MSTimeZone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
  */
   tvbuff_t *parameter_tvb;
-  guint8 data, data2;
+  uint8_t data, data2;
   char sign;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2041,7 +2041,7 @@ dissect_gprscdr_AccessPointNameNI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_gprscdr_PDPType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   proto_tree *ext_tree_pdp_pdn_type;
-  guint length;
+  unsigned length;
 
   length = tvb_reported_length(tvb);
 
@@ -3293,7 +3293,7 @@ dissect_gprscdr_T_userLocationInformation_08(bool implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_gprscdr_T_aRP(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   proto_tree *ext_tree_arp;
-  guint length;
+  unsigned length;
 
   /*
    * 8.86 Allocation/Retention Priority (ARP)
@@ -5049,8 +5049,8 @@ static const ber_choice_t GPRSRecord_choice[] = {
 int
 dissect_gprscdr_GPRSRecord(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 proto_item *item;
-gint branch_taken, t_offset = offset;
-gint32   tag;
+int branch_taken, t_offset = offset;
+int32_t  tag;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GPRSRecord_choice, hf_index, ett_gprscdr_GPRSRecord,
@@ -7040,7 +7040,7 @@ proto_register_gprscdr(void)
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_gprscdr,
     &ett_gprscdr_timestamp,
     &ett_gprscdr_plmn_id,

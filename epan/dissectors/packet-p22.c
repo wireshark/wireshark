@@ -697,7 +697,7 @@ static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation;
 static int hf_p22_RecipientSecurityRequest_ipn_proof;
 
 /* Initialize the subtree pointers */
-static gint ett_p22;
+static int ett_p22;
 static int ett_p22_InformationObject;
 static int ett_p22_IPM;
 static int ett_p22_IPMSExtension;
@@ -2658,7 +2658,7 @@ dissect_p22_Precedence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_p22_CharacterSetRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 crs;
+  uint32_t crs;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, 32767U, hf_index, &crs);
 
@@ -4643,7 +4643,7 @@ dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_p22, tvb, 0, -1, ENC_NA);
@@ -4653,7 +4653,7 @@ dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	col_set_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
-	dissect_p22_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
+	dissect_p22_InformationObject(true, tvb, offset, &asn1_ctx , tree, -1);
 	return tvb_captured_length(tvb);
 }
 
@@ -6175,7 +6175,7 @@ void proto_register_p22(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p22,
     &ett_p22_InformationObject,
     &ett_p22_IPM,

@@ -57,7 +57,7 @@ PasswordPolicyResponseValue     B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
 #.FN_HDR LDAPOID
 
   tvbuff_t  *parameter_tvb;
-  const gchar *name;
+  const char *name;
   ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)actx->private_data;
 
 #.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
@@ -85,7 +85,7 @@ PasswordPolicyResponseValue     B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
   if (ldap_info && hf_index == hf_ldap_requestName &&
     !strcmp(object_identifier_id, "1.3.6.1.4.1.1466.20037")) {
     /* remember we have asked to start_tls */
-    ldap_info->start_tls_pending = TRUE;
+    ldap_info->start_tls_pending = true;
   }
 
 #.FN_BODY MessageID VAL_PTR = &MessageID
@@ -100,7 +100,7 @@ PasswordPolicyResponseValue     B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
 
   ldap_call_response_t *lcrp;
   ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)actx->private_data;
-  do_protocolop = TRUE;
+  do_protocolop = true;
 
 #.FN_FTR ProtocolOp
 
@@ -191,9 +191,9 @@ char *mechanism = NULL;
 
 tvbuff_t *parameter_tvb;
 ldap_conv_info_t *ldap_info;
-gint8 ber_class;
+int8_t ber_class;
 bool pc;
-gint32 tag;
+int32_t tag;
 
 %(DEFAULT_BODY)s
 
@@ -277,7 +277,7 @@ ldap_conv_info_t *ldap_info;
        * NTLMSSP blob
        */
       if ( (tvb_reported_length(parameter_tvb)>=7)
-        &&   (!tvb_memeql(parameter_tvb, 0, (const guint8*)"NTLMSSP", 7))){
+        &&   (!tvb_memeql(parameter_tvb, 0, (const uint8_t*)"NTLMSSP", 7))){
         call_dissector(ntlmssp_handle, parameter_tvb, actx->pinfo, tree);
         break;
       }
@@ -301,7 +301,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY LDAPString VAL_PTR = &parameter_tvb
   tvbuff_t  *parameter_tvb = NULL;
   const char *ldapstring = NULL;
-  gchar *sc = NULL; /* semi-colon pointer */
+  char *sc = NULL; /* semi-colon pointer */
 
   offset = dissect_ber_octet_string_with_encoding(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb, ENC_UTF_8|ENC_NA);
@@ -377,10 +377,10 @@ ldap_conv_info_t *ldap_info;
         if((sc = strchr(attr_type, ';')) != NULL) {
           if(!strcmp(sc, ";binary")) {
             *sc = '\0'; /* terminate the string */
-            is_binary_attr_type = TRUE;
+            is_binary_attr_type = true;
           }
         } else {
-          is_binary_attr_type = FALSE;
+          is_binary_attr_type = false;
         }
     }
 
@@ -388,8 +388,8 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY SearchRequest/_untag/scope VAL_PTR = &scope
 
-  guint32 scope = 0xffff;
-  const gchar *valstr;
+  uint32_t scope = 0xffff;
+  const char *valstr;
 
 %(DEFAULT_BODY)s
 
@@ -404,7 +404,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY LDAPResult/resultCode VAL_PTR = &result
 
-  const gchar *valstr;
+  const char *valstr;
 
 %(DEFAULT_BODY)s
 
@@ -420,7 +420,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY BindResponse/_untag/resultCode  VAL_PTR = &result
 
-  const gchar *valstr;
+  const char *valstr;
 
 %(DEFAULT_BODY)s
 
@@ -434,7 +434,7 @@ ldap_conv_info_t *ldap_info;
     proto_item_append_text(ldm_tree, " %%s", valstr);
 
 #.FN_BODY ExtendedResponse/_untag/resultCode
-  guint32  resultCode;
+  uint32_t resultCode;
   ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)actx->private_data;
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -444,28 +444,28 @@ ldap_conv_info_t *ldap_info;
       hf_index == hf_ldap_extendedResponse_resultCode && resultCode == 0) {
     /* The conversation will continue using SSL */
     ssl_starttls_ack(find_dissector("tls"), actx->pinfo, ldap_handle);
-    ldap_info->start_tls_pending = FALSE;
+    ldap_info->start_tls_pending = false;
   }
 
 
 #.FN_BODY AttributeValue
 
   tvbuff_t  *next_tvb = NULL;
-  gchar *string;
+  char *string;
   int old_offset = offset;
-  gint *hf_id;
+  int *hf_id;
 
   /* attr_type, should be set before calling this function */
 
   /* extract the value of the octetstring */
-  offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(false, actx, NULL, tvb, offset, hf_index, &next_tvb);
 
   /* first check if we have a custom attribute type configured */
   if ((hf_id = get_hf_for_header (attr_type)) != NULL)
     proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
-  else if(!attr_type || !next_tvb || !dissector_try_string_new(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, FALSE, NULL)) {
+  else if(!attr_type || !next_tvb || !dissector_try_string_new(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, false, NULL)) {
     offset = old_offset;
 
     /* do the default thing */
@@ -478,15 +478,15 @@ ldap_conv_info_t *ldap_info;
   }
 
 #.FN_BODY AuthenticationChoice VAL_PTR = &branch
-  gint branch = -1;
-  gint auth = -1;
-  const gchar *valstr;
+  int branch = -1;
+  int auth = -1;
+  const char *valstr;
 
 %(DEFAULT_BODY)s
 
   ldap_do_protocolop(actx->pinfo);
 
-  if((branch > -1) && (branch < (gint)array_length(AuthenticationChoice_choice)))
+  if((branch > -1) && (branch < (int)array_length(AuthenticationChoice_choice)))
     auth = AuthenticationChoice_choice[branch].value;
 
   valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
@@ -501,7 +501,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY UnbindRequest
 
-  implicit_tag = TRUE; /* correct problem with asn2wrs */
+  implicit_tag = true; /* correct problem with asn2wrs */
 
 %(DEFAULT_BODY)s
 
@@ -613,7 +613,7 @@ ldap_conv_info_t *ldap_info;
   attr_type=NULL;
   matching_rule_string=NULL;
   ldapvalue_string=NULL;
-  matching_rule_dnattr=FALSE;
+  matching_rule_dnattr=false;
 
 #.FN_FTR Filter/extensibleMatch
   Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s:%s%s%s=%s)",
@@ -697,11 +697,11 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY BindResponse/_untag/matchedDN
   tvbuff_t *new_tvb=NULL;
 
-  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
+  offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
 
   if(  new_tvb
   &&  (tvb_reported_length(new_tvb)>=7)
-  &&  (!tvb_memeql(new_tvb, 0, (const guint8*)"NTLMSSP", 7))){
+  &&  (!tvb_memeql(new_tvb, 0, (const uint8_t*)"NTLMSSP", 7))){
 
     /* make sure the protocol op comes first */
     ldap_do_protocolop(actx->pinfo);
@@ -710,10 +710,10 @@ ldap_conv_info_t *ldap_info;
   }
 
 #.FN_BODY Control/controlValue
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
 
   if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
     /* remove the OCTET STRING encoding */
@@ -738,7 +738,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_HDR IntermediateResponse/_untag/responseValue
 
-  const gchar *name;
+  const char *name;
 
 #.FN_BODY IntermediateResponse/_untag/responseValue
   if(ldm_tree && object_identifier_id) {
@@ -754,18 +754,18 @@ ldap_conv_info_t *ldap_info;
   }
 
 #.FN_BODY DirSyncFlags
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint32 tag;
-  guint32 len;
-  gint32 val;
+  int32_t tag;
+  uint32_t len;
+  int32_t val;
 
   int otheroffset = offset;
   if(!implicit_tag){
     dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
     otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
   } else {
-    gint32 remaining=tvb_reported_length_remaining(tvb, offset);
+    int32_t remaining=tvb_reported_length_remaining(tvb, offset);
     len=remaining>0 ? remaining : 0;
   }
 

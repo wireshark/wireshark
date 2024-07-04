@@ -88,56 +88,56 @@ static int hf_xnap_ReportCharacteristics_Reserved;
 #include "packet-xnap-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_xnap;
-static gint ett_xnap_RRC_Context;
-static gint ett_xnap_container;
-static gint ett_xnap_PLMN_Identity;
-static gint ett_xnap_measurementTimingConfiguration;
-static gint ett_xnap_TransportLayerAddress;
-static gint ett_xnap_NG_RANTraceID;
-static gint ett_xnap_LastVisitedEUTRANCellInformation;
-static gint ett_xnap_LastVisitedNGRANCellInformation;
-static gint ett_xnap_LastVisitedUTRANCellInformation;
-static gint ett_xnap_LastVisitedGERANCellInformation;
-static gint ett_xnap_UERadioCapabilityForPagingOfNR;
-static gint ett_xnap_UERadioCapabilityForPagingOfEUTRA;
-static gint ett_xnap_FiveGCMobilityRestrictionListContainer;
-static gint ett_xnap_primaryRATRestriction;
-static gint ett_xnap_secondaryRATRestriction;
-static gint ett_xnap_ImmediateMDT_EUTRA;
-static gint ett_xnap_MDT_Location_Info;
-static gint ett_xnap_MeasurementsToActivate;
-static gint ett_xnap_NRMobilityHistoryReport;
-static gint ett_xnap_RACHReportContainer;
-static gint ett_xnap_TargetCellinEUTRAN;
-static gint ett_xnap_TDDULDLConfigurationCommonNR;
-static gint ett_xnap_UERLFReportContainerLTE;
-static gint ett_xnap_UERLFReportContainerNR;
-static gint ett_xnap_burstArrivalTime;
-static gint ett_xnap_ReportCharacteristics;
-static gint ett_xnap_NRCellPRACHConfig;
-static gint ett_xnap_anchorCarrier_NPRACHConfig;
-static gint ett_xnap_anchorCarrier_EDT_NPRACHConfig;
-static gint ett_xnap_anchorCarrier_Format2_NPRACHConfig;
-static gint ett_xnap_anchorCarrier_Format2_EDT_NPRACHConfig;
-static gint ett_xnap_non_anchorCarrier_NPRACHConfig;
-static gint ett_xnap_non_anchorCarrier_Format2_NPRACHConfig;
-static gint ett_xnap_anchorCarrier_NPRACHConfigTDD;
-static gint ett_xnap_non_anchorCarrier_NPRACHConfigTDD;
-static gint ett_xnap_non_anchorCarrierFrequency;
-static gint ett_xnap_cSI_RS_Configuration;
-static gint ett_xnap_sR_Configuration;
-static gint ett_xnap_pDCCH_ConfigSIB1;
-static gint ett_xnap_sCS_Common;
-static gint ett_xnap_LastVisitedPSCellInformation;
-static gint ett_xnap_MeasObjectContainer;
-static gint ett_xnap_RACH_Config_Common;
-static gint ett_xnap_RACH_Config_Common_IAB;
-static gint ett_xnap_ReportConfigContainer;
-static gint ett_xnap_RLC_Bearer_Configuration;
-static gint ett_xnap_SuccessfulHOReportContainer;
-static gint ett_xnap_UERLFReportContainerLTEExtendBand;
-static gint ett_xnap_MDTMode_EUTRA;
+static int ett_xnap;
+static int ett_xnap_RRC_Context;
+static int ett_xnap_container;
+static int ett_xnap_PLMN_Identity;
+static int ett_xnap_measurementTimingConfiguration;
+static int ett_xnap_TransportLayerAddress;
+static int ett_xnap_NG_RANTraceID;
+static int ett_xnap_LastVisitedEUTRANCellInformation;
+static int ett_xnap_LastVisitedNGRANCellInformation;
+static int ett_xnap_LastVisitedUTRANCellInformation;
+static int ett_xnap_LastVisitedGERANCellInformation;
+static int ett_xnap_UERadioCapabilityForPagingOfNR;
+static int ett_xnap_UERadioCapabilityForPagingOfEUTRA;
+static int ett_xnap_FiveGCMobilityRestrictionListContainer;
+static int ett_xnap_primaryRATRestriction;
+static int ett_xnap_secondaryRATRestriction;
+static int ett_xnap_ImmediateMDT_EUTRA;
+static int ett_xnap_MDT_Location_Info;
+static int ett_xnap_MeasurementsToActivate;
+static int ett_xnap_NRMobilityHistoryReport;
+static int ett_xnap_RACHReportContainer;
+static int ett_xnap_TargetCellinEUTRAN;
+static int ett_xnap_TDDULDLConfigurationCommonNR;
+static int ett_xnap_UERLFReportContainerLTE;
+static int ett_xnap_UERLFReportContainerNR;
+static int ett_xnap_burstArrivalTime;
+static int ett_xnap_ReportCharacteristics;
+static int ett_xnap_NRCellPRACHConfig;
+static int ett_xnap_anchorCarrier_NPRACHConfig;
+static int ett_xnap_anchorCarrier_EDT_NPRACHConfig;
+static int ett_xnap_anchorCarrier_Format2_NPRACHConfig;
+static int ett_xnap_anchorCarrier_Format2_EDT_NPRACHConfig;
+static int ett_xnap_non_anchorCarrier_NPRACHConfig;
+static int ett_xnap_non_anchorCarrier_Format2_NPRACHConfig;
+static int ett_xnap_anchorCarrier_NPRACHConfigTDD;
+static int ett_xnap_non_anchorCarrier_NPRACHConfigTDD;
+static int ett_xnap_non_anchorCarrierFrequency;
+static int ett_xnap_cSI_RS_Configuration;
+static int ett_xnap_sR_Configuration;
+static int ett_xnap_pDCCH_ConfigSIB1;
+static int ett_xnap_sCS_Common;
+static int ett_xnap_LastVisitedPSCellInformation;
+static int ett_xnap_MeasObjectContainer;
+static int ett_xnap_RACH_Config_Common;
+static int ett_xnap_RACH_Config_Common_IAB;
+static int ett_xnap_ReportConfigContainer;
+static int ett_xnap_RLC_Bearer_Configuration;
+static int ett_xnap_SuccessfulHOReportContainer;
+static int ett_xnap_UERLFReportContainerLTEExtendBand;
+static int ett_xnap_MDTMode_EUTRA;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -165,8 +165,8 @@ static const enum_val_t xnap_lte_rrc_context_vals[] = {
 };
 
 /* Global variables */
-static gint xnap_dissect_target_ng_ran_container_as = XNAP_NG_RAN_CONTAINER_AUTOMATIC;
-static gint xnap_dissect_lte_rrc_context_as = XNAP_LTE_RRC_CONTEXT_LTE;
+static int xnap_dissect_target_ng_ran_container_as = XNAP_NG_RAN_CONTAINER_AUTOMATIC;
+static int xnap_dissect_lte_rrc_context_as = XNAP_LTE_RRC_CONTEXT_LTE;
 
 /* Dissector tables */
 static dissector_table_t xnap_ies_dissector_table;
@@ -187,43 +187,43 @@ static int dissect_XnAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static dissector_handle_t xnap_handle;
 
 static void
-xnap_PacketLossRate_fmt(gchar *s, guint32 v)
+xnap_PacketLossRate_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
 }
 
 static void
-xnap_PacketDelayBudget_fmt(gchar *s, guint32 v)
+xnap_PacketDelayBudget_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
-xnap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
+xnap_ExtendedPacketDelayBudget_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
 }
 
 static void
-xnap_handoverTriggerChange_fmt(gchar *s, guint32 v)
+xnap_handoverTriggerChange_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (int32_t)v);
 }
 
 static void
-xnap_Threshold_RSRP_fmt(gchar *s, guint32 v)
+xnap_Threshold_RSRP_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (int32_t)v-156, v);
 }
 
 static void
-xnap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
+xnap_Threshold_RSRQ_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
 }
 
 static void
-xnap_Threshold_SINR_fmt(gchar *s, guint32 v)
+xnap_Threshold_SINR_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
 }
@@ -236,18 +236,18 @@ typedef enum {
 
 struct xnap_conv_info {
   address addr_a;
-  guint32 port_a;
+  uint32_t port_a;
   GlobalNG_RANNode_ID_enum ranmode_id_a;
   address addr_b;
-  guint32 port_b;
+  uint32_t port_b;
   GlobalNG_RANNode_ID_enum ranmode_id_b;
 };
 
 struct xnap_private_data {
   struct xnap_conv_info *xnap_conv;
   xnap_message_type message_type;
-  guint32 procedure_code;
-  guint32 protocol_ie_id;
+  uint32_t procedure_code;
+  uint32_t protocol_ie_id;
   e212_number_type_t number_type;
 };
 
@@ -263,7 +263,7 @@ xnap_get_private_data(packet_info *pinfo)
 }
 
 static GlobalNG_RANNode_ID_enum
-xnap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
+xnap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
   GlobalNG_RANNode_ID_enum ranmode_id = (GlobalNG_RANNode_ID_enum)-1;
@@ -284,35 +284,35 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_ies_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(xnap_ies_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_extension_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(xnap_extension_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_proc_imsg_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(xnap_proc_imsg_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_proc_sout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(xnap_proc_sout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_proc_uout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(xnap_proc_uout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int
@@ -500,7 +500,7 @@ void proto_register_xnap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_xnap,
     &ett_xnap_RRC_Context,
     &ett_xnap_container,
@@ -573,10 +573,10 @@ void proto_register_xnap(void) {
   prefs_register_enum_preference(xnap_module, "dissect_target_ng_ran_container_as", "Dissect target NG-RAN container as",
                                  "Select whether target NG-RAN container should be decoded automatically"
                                  " (based on Xn Setup procedure) or manually",
-                                 &xnap_dissect_target_ng_ran_container_as, xnap_target_ng_ran_container_vals, FALSE);
+                                 &xnap_dissect_target_ng_ran_container_as, xnap_target_ng_ran_container_vals, false);
   prefs_register_enum_preference(xnap_module, "dissect_lte_rrc_context_as", "Dissect LTE RRC Context as",
                                  "Select whether LTE RRC Context should be dissected as legacy LTE or NB-IOT",
-                                 &xnap_dissect_lte_rrc_context_as, xnap_lte_rrc_context_vals, FALSE);
+                                 &xnap_dissect_lte_rrc_context_as, xnap_lte_rrc_context_vals, false);
 }
 
 

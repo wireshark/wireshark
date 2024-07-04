@@ -18,10 +18,10 @@
 #include "packet-its-val.h"
 
 typedef struct its_header {
-    guint32 version;
-    guint32 msgId;
-    guint32 stationId;
-    guint32 CpmContainerId;
+    uint32_t version;
+    uint32_t msgId;
+    uint32_t stationId;
+    uint32_t CpmContainerId;
 } its_header_t;
 
 

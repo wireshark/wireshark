@@ -1420,7 +1420,7 @@ void proto_register_h235(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_h235_NonStandardParameter,
     &ett_h235_DHset,
     &ett_h235_ECpoint,

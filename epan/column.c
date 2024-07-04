@@ -1012,7 +1012,7 @@ get_column_tooltip(const int col)
 
     g_strfreev(fields);
 
-    return g_string_free (column_tooltip, false);
+    return g_string_free (column_tooltip, FALSE);
 }
 
 const char*

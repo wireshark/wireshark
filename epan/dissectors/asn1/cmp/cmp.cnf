@@ -59,7 +59,7 @@ RevRepContent/status    ABBREV=rvrpcnt_status
   VAL_PTR = &branch_taken
 
 #.FN_BODY PKIBody
-  gint branch_taken;
+  int branch_taken;
 
   %(DEFAULT_BODY)s
 
@@ -69,7 +69,7 @@ RevRepContent/status    ABBREV=rvrpcnt_status
   VAL_PTR = &value
 
 #.FN_BODY PKIStatus
-  guint32 value;
+  uint32_t value;
 
   %(DEFAULT_BODY)s
 

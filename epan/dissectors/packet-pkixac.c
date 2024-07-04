@@ -89,7 +89,7 @@ static int hf_pkixac_ClassList_secret;
 static int hf_pkixac_ClassList_topSecret;
 
 /* Initialize the subtree pointers */
-static gint ett_pkixac;
+static int ett_pkixac;
 static int ett_pkixac_ObjectDigestInfo;
 static int ett_pkixac_IssuerSerial;
 static int ett_pkixac_Targets;
@@ -771,7 +771,7 @@ void proto_register_pkixac(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	&ett_pkixac,
     &ett_pkixac_ObjectDigestInfo,
     &ett_pkixac_IssuerSerial,

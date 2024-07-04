@@ -164,7 +164,7 @@ dbg(unsigned level, const char* fmt, ...)
 #endif
 
 static int
-tcaphash_context_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_context_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_context_key_t *key1 = (const struct tcaphash_context_key_t *) k1;
   const struct tcaphash_context_key_t *key2 = (const struct tcaphash_context_key_t *) k2;
@@ -174,7 +174,7 @@ tcaphash_context_equal(gconstpointer k1, gconstpointer k2)
 
 /* calculate a hash key */
 static unsigned
-tcaphash_context_calchash(gconstpointer k)
+tcaphash_context_calchash(const void *k)
 {
   const struct tcaphash_context_key_t *key = (const struct tcaphash_context_key_t *) k;
   return key->session_id;
@@ -182,21 +182,21 @@ tcaphash_context_calchash(gconstpointer k)
 
 
 static int
-tcaphash_begin_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_begin_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_begin_info_key_t *key1 = (const struct tcaphash_begin_info_key_t *) k1;
   const struct tcaphash_begin_info_key_t *key2 = (const struct tcaphash_begin_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
     if ( (key1->pc_hash == key2->pc_hash) && (key1->tid == key2->tid) )
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_begin_calchash(gconstpointer k)
+tcaphash_begin_calchash(const void *k)
 {
   const struct tcaphash_begin_info_key_t *key = (const struct tcaphash_begin_info_key_t *) k;
   unsigned hashkey;
@@ -206,7 +206,7 @@ tcaphash_begin_calchash(gconstpointer k)
 }
 
 static int
-tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_cont_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_cont_info_key_t *key1 = (const struct tcaphash_cont_info_key_t *) k1;
   const struct tcaphash_cont_info_key_t *key2 = (const struct tcaphash_cont_info_key_t *) k2;
@@ -217,21 +217,21 @@ tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
          (key1->dpc_hash == key2->dpc_hash) &&
          (key1->src_tid == key2->src_tid) &&
          (key1->dst_tid == key2->dst_tid) ) {
-      return TRUE;
+      return true;
     }
     else if ( (key1->opc_hash == key2->dpc_hash) &&
               (key1->dpc_hash == key2->opc_hash) &&
               (key1->src_tid == key2->dst_tid) &&
               (key1->dst_tid == key2->src_tid) ) {
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_cont_calchash(gconstpointer k)
+tcaphash_cont_calchash(const void *k)
 {
   const struct tcaphash_cont_info_key_t *key = (const struct tcaphash_cont_info_key_t *) k;
   unsigned hashkey;
@@ -241,7 +241,7 @@ tcaphash_cont_calchash(gconstpointer k)
 
 
 static int
-tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_end_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_end_info_key_t *key1 = (const struct tcaphash_end_info_key_t *) k1;
   const struct tcaphash_end_info_key_t *key2 = (const struct tcaphash_end_info_key_t *) k2;
@@ -250,14 +250,14 @@ tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
     if ( (key1->opc_hash == key2->opc_hash) &&
          (key1->dpc_hash == key2->dpc_hash) &&
          (key1->tid == key2->tid) )
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_end_calchash(gconstpointer k)
+tcaphash_end_calchash(const void *k)
 {
   const struct tcaphash_end_info_key_t *key = (const struct tcaphash_end_info_key_t *) k;
   unsigned hashkey;
@@ -266,7 +266,7 @@ tcaphash_end_calchash(gconstpointer k)
 }
 
 static int
-tcaphash_ansi_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_ansi_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_ansi_info_key_t *key1 = (const struct tcaphash_ansi_info_key_t *) k1;
   const struct tcaphash_ansi_info_key_t *key2 = (const struct tcaphash_ansi_info_key_t *) k2;
@@ -281,14 +281,14 @@ tcaphash_ansi_equal(gconstpointer k1, gconstpointer k2)
            (key1->dpc_hash == key2->opc_hash) &&
            (key1->tid == key2->tid) )
          )
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_ansi_calchash(gconstpointer k)
+tcaphash_ansi_calchash(const void *k)
 {
   const struct tcaphash_ansi_info_key_t *key = (const struct tcaphash_ansi_info_key_t *) k;
   unsigned hashkey;
@@ -2077,14 +2077,14 @@ proto_register_tcap(void)
 }
 
 
-static void range_delete_callback(uint32_t ssn, gpointer ptr _U_)
+static void range_delete_callback(uint32_t ssn, void *ptr _U_)
 {
   if ( ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
     dissector_delete_uint("sccp.ssn", ssn, tcap_handle);
   }
 }
 
-static void range_add_callback(uint32_t ssn, gpointer ptr _U_)
+static void range_add_callback(uint32_t ssn, void *ptr _U_)
 {
   if (ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
     dissector_add_uint("sccp.ssn", ssn, tcap_handle);

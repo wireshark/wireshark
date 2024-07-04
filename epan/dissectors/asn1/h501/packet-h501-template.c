@@ -65,7 +65,7 @@ dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_h501_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  dissect_tpkt_encap(tvb, pinfo, tree, FALSE, h501_pdu_handle);
+  dissect_tpkt_encap(tvb, pinfo, tree, false, h501_pdu_handle);
   return tvb_captured_length(tvb);
 }
 
@@ -86,7 +86,7 @@ void proto_register_h501(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_h501,
 #include "packet-h501-ettarr.c"
   };

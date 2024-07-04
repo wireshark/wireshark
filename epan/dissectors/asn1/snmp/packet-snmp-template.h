@@ -24,14 +24,14 @@
 #define SNMP_REPORT                 8
 
 typedef struct _snmp_usm_key {
-	guint8* data;
-	guint len;
+	uint8_t* data;
+	unsigned len;
 } snmp_usm_key_t;
 
 typedef struct _snmp_ue_assoc_t snmp_ue_assoc_t;
 typedef struct _snmp_usm_params_t snmp_usm_params_t;
 
-typedef tvbuff_t* (*snmp_usm_decoder_t)(snmp_usm_params_t*, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error);
+typedef tvbuff_t* (*snmp_usm_decoder_t)(snmp_usm_params_t*, tvbuff_t* encryptedData, packet_info *pinfo, char const** error);
 
 typedef enum _snmp_usm_auth_model_t {
 	SNMP_USM_AUTH_MD5 = 0,
@@ -55,26 +55,26 @@ typedef struct _snmp_user_t {
 } snmp_user_t;
 
 typedef struct {
-	guint8* data;
-	guint len;
+	uint8_t* data;
+	unsigned len;
 } snmp_engine_id_t;
 
 struct _snmp_ue_assoc_t {
 	snmp_user_t user;
 	snmp_engine_id_t engine;
-	guint	auth_model;
-	guint	priv_proto;
+	unsigned	auth_model;
+	unsigned	priv_proto;
 	struct _snmp_ue_assoc_t* next;
 };
 
 struct _snmp_usm_params_t {
-	gboolean authenticated;
-	gboolean encrypted;
-	guint start_offset;
-	guint auth_offset;
+	bool authenticated;
+	bool encrypted;
+	unsigned start_offset;
+	unsigned auth_offset;
 
-	guint32 boots;
-	guint32 snmp_time;
+	uint32_t boots;
+	uint32_t snmp_time;
 	tvbuff_t* engine_tvb;
 	tvbuff_t* user_tvb;
 	proto_item* auth_item;
@@ -83,23 +83,23 @@ struct _snmp_usm_params_t {
 	tvbuff_t* msg_tvb;
 	snmp_ue_assoc_t* user_assoc;
 
-	gboolean authOK;
+	bool authOK;
 };
 
 typedef struct snmp_request_response {
-	guint32 request_frame_id;
-	guint32 response_frame_id;
+	uint32_t request_frame_id;
+	uint32_t response_frame_id;
 	nstime_t request_time;
-	guint requestId;
-	guint request_procedure_id;
+	unsigned requestId;
+	unsigned request_procedure_id;
 } snmp_request_response_t;
 
 /*
  * Guts of the SNMP dissector - exported for use by protocols such as
  * ILMI.
  */
-extern guint dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
-    int, gint, gboolean);
+extern unsigned dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
+    int, int, bool);
 extern int dissect_snmp_engineid(proto_tree *, packet_info *, tvbuff_t *, int, int);
 
 /*#include "packet-snmp-exp.h"*/

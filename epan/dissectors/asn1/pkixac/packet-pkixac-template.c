@@ -34,7 +34,7 @@ static int proto_pkixac;
 #include "packet-pkixac-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pkixac;
+static int ett_pkixac;
 #include "packet-pkixac-ett.c"
 
 static const char *object_identifier_id;
@@ -50,7 +50,7 @@ void proto_register_pkixac(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	&ett_pkixac,
 #include "packet-pkixac-ettarr.c"
   };

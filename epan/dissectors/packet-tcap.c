@@ -255,7 +255,7 @@ dissect_tcap_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_tcap_Dialog1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  offset = dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
+  offset = dissect_tcap_DialoguePDU(true, tvb, offset, actx, tree, -1);
 
 
   return offset;
@@ -294,7 +294,7 @@ dissect_tcap_ExternalPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_tcap_DialogueOC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  offset = dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
+  offset = dissect_tcap_ExternalPDU(false /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
 
   return offset;
@@ -627,11 +627,11 @@ static const ber_choice_t Component_choice[] = {
 static int
 dissect_tcap_Component(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *next_tvb;
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint tag;
-  guint32 len, comp_offset;
-  volatile guint32 _offset;
+  int tag;
+  uint32_t len, comp_offset;
+  volatile uint32_t _offset;
   bool ind_field;
 
   comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
@@ -716,7 +716,7 @@ dissect_tcap_OCTET_STRING_SIZE_1_4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_tcap_OrigTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
-  guint8 len, i;
+  uint8_t len, i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
@@ -799,7 +799,7 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 static int
 dissect_tcap_DestTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
-  guint8 len , i;
+  uint8_t len , i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
@@ -1001,7 +1001,7 @@ dissect_tcap_AUDT_application_context_name(bool implicit_tag _U_, tvbuff_t *tvb 
 
   if (p_tcap_private) {
     p_tcap_private->oid= (const void*) cur_oid;
-    p_tcap_private->acv=TRUE;
+    p_tcap_private->acv=true;
   }
 
   return offset;
@@ -1099,7 +1099,7 @@ dissect_tcap_AARQ_application_context_name(bool implicit_tag _U_, tvbuff_t *tvb 
 
   if (p_tcap_private) {
     p_tcap_private->oid= (const void*) cur_oid;
-    p_tcap_private->acv=TRUE;
+    p_tcap_private->acv=true;
   }
 
   return offset;
@@ -1168,7 +1168,7 @@ dissect_tcap_AARE_application_context_name(bool implicit_tag _U_, tvbuff_t *tvb 
 
   if (p_tcap_private) {
     p_tcap_private->oid= (const void*) cur_oid;
-    p_tcap_private->acv=TRUE;
+    p_tcap_private->acv=true;
   }
 
   return offset;
@@ -1407,7 +1407,7 @@ dbg(unsigned level, const char* fmt, ...)
 #endif
 
 static int
-tcaphash_context_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_context_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_context_key_t *key1 = (const struct tcaphash_context_key_t *) k1;
   const struct tcaphash_context_key_t *key2 = (const struct tcaphash_context_key_t *) k2;
@@ -1417,7 +1417,7 @@ tcaphash_context_equal(gconstpointer k1, gconstpointer k2)
 
 /* calculate a hash key */
 static unsigned
-tcaphash_context_calchash(gconstpointer k)
+tcaphash_context_calchash(const void *k)
 {
   const struct tcaphash_context_key_t *key = (const struct tcaphash_context_key_t *) k;
   return key->session_id;
@@ -1425,21 +1425,21 @@ tcaphash_context_calchash(gconstpointer k)
 
 
 static int
-tcaphash_begin_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_begin_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_begin_info_key_t *key1 = (const struct tcaphash_begin_info_key_t *) k1;
   const struct tcaphash_begin_info_key_t *key2 = (const struct tcaphash_begin_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
     if ( (key1->pc_hash == key2->pc_hash) && (key1->tid == key2->tid) )
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_begin_calchash(gconstpointer k)
+tcaphash_begin_calchash(const void *k)
 {
   const struct tcaphash_begin_info_key_t *key = (const struct tcaphash_begin_info_key_t *) k;
   unsigned hashkey;
@@ -1449,7 +1449,7 @@ tcaphash_begin_calchash(gconstpointer k)
 }
 
 static int
-tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_cont_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_cont_info_key_t *key1 = (const struct tcaphash_cont_info_key_t *) k1;
   const struct tcaphash_cont_info_key_t *key2 = (const struct tcaphash_cont_info_key_t *) k2;
@@ -1460,21 +1460,21 @@ tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
          (key1->dpc_hash == key2->dpc_hash) &&
          (key1->src_tid == key2->src_tid) &&
          (key1->dst_tid == key2->dst_tid) ) {
-      return TRUE;
+      return true;
     }
     else if ( (key1->opc_hash == key2->dpc_hash) &&
               (key1->dpc_hash == key2->opc_hash) &&
               (key1->src_tid == key2->dst_tid) &&
               (key1->dst_tid == key2->src_tid) ) {
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_cont_calchash(gconstpointer k)
+tcaphash_cont_calchash(const void *k)
 {
   const struct tcaphash_cont_info_key_t *key = (const struct tcaphash_cont_info_key_t *) k;
   unsigned hashkey;
@@ -1484,7 +1484,7 @@ tcaphash_cont_calchash(gconstpointer k)
 
 
 static int
-tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_end_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_end_info_key_t *key1 = (const struct tcaphash_end_info_key_t *) k1;
   const struct tcaphash_end_info_key_t *key2 = (const struct tcaphash_end_info_key_t *) k2;
@@ -1493,14 +1493,14 @@ tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
     if ( (key1->opc_hash == key2->opc_hash) &&
          (key1->dpc_hash == key2->dpc_hash) &&
          (key1->tid == key2->tid) )
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_end_calchash(gconstpointer k)
+tcaphash_end_calchash(const void *k)
 {
   const struct tcaphash_end_info_key_t *key = (const struct tcaphash_end_info_key_t *) k;
   unsigned hashkey;
@@ -1509,7 +1509,7 @@ tcaphash_end_calchash(gconstpointer k)
 }
 
 static int
-tcaphash_ansi_equal(gconstpointer k1, gconstpointer k2)
+tcaphash_ansi_equal(const void *k1, const void *k2)
 {
   const struct tcaphash_ansi_info_key_t *key1 = (const struct tcaphash_ansi_info_key_t *) k1;
   const struct tcaphash_ansi_info_key_t *key2 = (const struct tcaphash_ansi_info_key_t *) k2;
@@ -1524,14 +1524,14 @@ tcaphash_ansi_equal(gconstpointer k1, gconstpointer k2)
            (key1->dpc_hash == key2->opc_hash) &&
            (key1->tid == key2->tid) )
          )
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* calculate a hash key */
 static unsigned
-tcaphash_ansi_calchash(gconstpointer k)
+tcaphash_ansi_calchash(const void *k)
 {
   const struct tcaphash_ansi_info_key_t *key = (const struct tcaphash_ansi_info_key_t *) k;
   unsigned hashkey;
@@ -3617,14 +3617,14 @@ proto_register_tcap(void)
 }
 
 
-static void range_delete_callback(uint32_t ssn, gpointer ptr _U_)
+static void range_delete_callback(uint32_t ssn, void *ptr _U_)
 {
   if ( ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
     dissector_delete_uint("sccp.ssn", ssn, tcap_handle);
   }
 }
 
-static void range_add_callback(uint32_t ssn, gpointer ptr _U_)
+static void range_add_callback(uint32_t ssn, void *ptr _U_)
 {
   if (ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
     dissector_add_uint("sccp.ssn", ssn, tcap_handle);

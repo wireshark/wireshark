@@ -41,7 +41,7 @@ void proto_reg_handoff_cdt(void);
 static proto_tree *top_tree;
 static proto_item *cdt_item;
 
-static guint32 content_type;
+static uint32_t content_type;
 
 /* Initialize the protocol and registered fields */
 static int proto_cdt;
@@ -89,7 +89,7 @@ void proto_register_cdt (void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-cdt-ettarr.c"
   };
 

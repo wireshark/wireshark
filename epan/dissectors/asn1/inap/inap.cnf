@@ -141,7 +141,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 # Create a table of opcode and corresponding args and res
 #.TABLE11_HDR
 typedef struct _inap_op_t {
-  gint32 opcode;
+  int32_t opcode;
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } inap_op_t;
@@ -155,7 +155,7 @@ static const inap_op_t inap_op_tab[] = {
 
 #.TABLE11_HDR
 typedef struct _inap_err_t {
-  gint32 errcode;
+  int32_t errcode;
   dissector_t err_pdu;
 } inap_err_t;
 
@@ -170,7 +170,7 @@ static const inap_err_t inap_err_tab[] = {
 
 #.FN_BODY Code/local  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
-  if (is_ExtensionField == FALSE){
+  if (is_ExtensionField == false){
     if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
       errorCode = opcode;
       col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
@@ -230,7 +230,7 @@ static const inap_err_t inap_err_tab[] = {
 
 #.FN_HDR ExtensionField
   obj_id = NULL;
-  is_ExtensionField =TRUE;
+  is_ExtensionField =true;
 
 #.FN_PARS Code/global FN_VARIANT = _str  VAL_PTR = &obj_id
 
@@ -243,7 +243,7 @@ static const inap_err_t inap_err_tab[] = {
     call_data_dissector(tvb, actx->pinfo, ext_tree);
     offset = tvb_reported_length_remaining(tvb,offset);
   }
-  is_ExtensionField = FALSE;
+  is_ExtensionField = false;
 
 
 
@@ -334,7 +334,7 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
    * -- For the use of cause and location values refer to Q.850.
    */
   tvbuff_t *parameter_tvb;
-  guint8 Cause_value;
+  uint8_t Cause_value;
   proto_tree *subtree;
 
 %(DEFAULT_BODY)s
@@ -362,8 +362,8 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
    */
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  gint ett = -1;
-  gboolean digits = FALSE;
+  int ett = -1;
+  bool digits = false;
 
   %(DEFAULT_BODY)s
 
@@ -376,7 +376,7 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
     ett = ett_inap_assistingSSPIPRoutingAddress;
   } else if (hf_index == hf_inap_correlationID) {
     ett = ett_inap_correlationID;
-    digits = (opcode != opcode_assistRequestInstructions) ? TRUE : FALSE;
+    digits = (opcode != opcode_assistRequestInstructions) ? true : false;
   } else if (hf_index == hf_inap_calledAddressValue) {
     ett = ett_inap_calledAddressValue;
   } else if (hf_index == hf_inap_callingAddressValue) {
@@ -385,30 +385,30 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
     ett = ett_inap_number;
   } else if (hf_index == hf_inap_dialledNumber) {
     ett = ett_inap_dialledNumber;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_callingLineID) {
     ett = ett_inap_callingLineID;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iNServiceControlCode) {
     ett = ett_inap_iNServiceControlCode;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iNServiceControlCodeLow) {
     ett = ett_inap_iNServiceControlCodeLow;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iNServiceControlCodeHigh) {
     ett = ett_inap_iNServiceControlCodeHigh;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_lineID) {
     ett = ett_inap_lineID;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_prefix) {
     ett = ett_inap_prefix;
-    digits = TRUE;
+    digits = true;
   } else if (hf_index == hf_inap_iPAddressValue) {
     ett = ett_inap_iPAddressValue;
   } else if (hf_index == hf_inap_digitsResponse) {
     ett = ett_inap_digitsResponse;
-    digits = TRUE;
+    digits = true;
   }
 
   subtree = proto_item_add_subtree(actx->created_item, ett);

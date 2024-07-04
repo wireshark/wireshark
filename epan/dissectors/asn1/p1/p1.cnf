@@ -541,7 +541,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY AdditionalInformation
    proto_item *item = NULL;
    int         loffset = 0;
-   guint32     len = 0;
+   uint32_t    len = 0;
 
    /* work out the length */
    loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
@@ -630,15 +630,15 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_PARS StandardExtension VAL_PTR = &actx->external.indirect_reference
 
 #.FN_BODY StandardExtension
-	actx->external.indirect_ref_present = TRUE;
-	actx->external.direct_ref_present = FALSE;
+	actx->external.indirect_ref_present = true;
+	actx->external.direct_ref_present = false;
 	%(DEFAULT_BODY)s
 
 #.FN_BODY ExtensionType/private-extension  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
-	actx->external.indirect_ref_present = FALSE;
+	actx->external.indirect_ref_present = false;
 	actx->external.direct_reference = NULL;
 	%(DEFAULT_BODY)s
-	actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+	actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_PARS ExtendedContentType
 	FN_VARIANT = _str  VAL_PTR = &ctx->content_type_id
@@ -665,7 +665,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_PARS BuiltInContentType/_untag VAL_PTR = &ict
 
 #.FN_BODY BuiltInContentType/_untag
-	static guint32	ict = -1;
+	static uint32_t	ict = -1;
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL)
@@ -1011,7 +1011,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = NULL;
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	%(DEFAULT_BODY)s
 
@@ -1019,7 +1019,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	if (ctx->oraddress && (wmem_strbuf_get_len(ctx->oraddress) > 0) && actx->subtree.tree)
 		proto_item_append_text(actx->subtree.tree, " (%%s/)", wmem_strbuf_get_str(ctx->oraddress));
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 #.FN_BODY ORName
 	p1_address_ctx_t* ctx;
@@ -1032,14 +1032,14 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = NULL;
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	%(DEFAULT_BODY)s
 
 	if (ctx->oraddress && (wmem_strbuf_get_len(ctx->oraddress) > 0) && actx->subtree.tree)
 		proto_item_append_text(actx->subtree.tree, " (%%s/)", wmem_strbuf_get_str(ctx->oraddress));
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 #.FN_BODY MessageIdentifier
 	actx->subtree.tree = NULL;
 
@@ -1087,19 +1087,19 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.FN_BODY MTSIdentifier
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	%(DEFAULT_BODY)s
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 #.FN_BODY MTANameAndOptionalGDI
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	%(DEFAULT_BODY)s
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 	proto_item_append_text(tree, ")");
 
 #.FN_BODY BuiltInStandardAttributes
@@ -1109,36 +1109,36 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.FN_BODY TraceInformationElement
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	%(DEFAULT_BODY)s
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 #.FN_BODY InternalTraceInformationElement
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 
 	%(DEFAULT_BODY)s
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 #.FN_BODY DomainSuppliedInformation
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 	%(DEFAULT_BODY)s
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 	proto_item_append_text(tree, ")");
 
 #.FN_BODY MTASuppliedInformation
 
-	set_do_address(actx, FALSE);
+	set_do_address(actx, false);
 
 	%(DEFAULT_BODY)s
 
-	set_do_address(actx, TRUE);
+	set_do_address(actx, true);
 	proto_item_append_text(tree, ")");
 
 #.FN_PARS Time
@@ -1184,7 +1184,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	VAL_PTR = &credentials
 
 #.FN_BODY Credentials
-  gint credentials = -1;
+  int credentials = -1;
 
   %(DEFAULT_BODY)s
 
@@ -1213,7 +1213,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY PerDomainBilateralInformation/bilateral-information
 	proto_item *item = NULL;
 	int	    loffset = 0;
-	guint32	    len = 0;
+	uint32_t	    len = 0;
 
 	/* work out the length */
 	loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
@@ -1229,7 +1229,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	VAL_PTR = &apdu
 
 #.FN_BODY MTS-APDU
-	gint apdu = -1;
+	int apdu = -1;
 
 	%(DEFAULT_BODY)s
 
@@ -1243,7 +1243,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	VAL_PTR = &report
 
 #.FN_BODY ReportType
-	gint report = -1;
+	int report = -1;
 
 	%(DEFAULT_BODY)s
 
@@ -1252,19 +1252,19 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	}
 
 #.FN_BODY MessageSubmissionArgument
-	p1_initialize_content_globals(actx, tree, TRUE);
+	p1_initialize_content_globals(actx, tree, true);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals(actx, NULL, FALSE);
+	p1_initialize_content_globals(actx, NULL, false);
 
 #.FN_BODY MessageDeliveryArgument
-	p1_initialize_content_globals(actx, tree, TRUE);
+	p1_initialize_content_globals(actx, tree, true);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals(actx, NULL, FALSE);
+	p1_initialize_content_globals(actx, NULL, false);
 
 #.FN_BODY ReportDeliveryArgument
-	p1_initialize_content_globals(actx, tree, TRUE);
+	p1_initialize_content_globals(actx, tree, true);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals(actx, NULL, FALSE);
+	p1_initialize_content_globals(actx, NULL, false);
 
 #.FN_HDR MTSBindResult
 	/* TODO: there may be other entry points where this global should be initialized... */

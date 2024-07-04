@@ -1942,9 +1942,9 @@ static int ett_pcap_UnsuccessfulOutcome;
 static int ett_pcap_Outcome;
 
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-/*static guint32 ProtocolExtensionID;*/
+static uint32_t ProcedureCode;
+static uint32_t ProtocolIE_ID;
+/*static uint32_t ProtocolExtensionID;*/
 
 /* Dissector tables */
 static dissector_table_t pcap_ies_dissector_table;
@@ -19825,7 +19825,7 @@ void proto_register_pcap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 		  &ett_pcap,
     &ett_pcap_PrivateIE_ID,
     &ett_pcap_TransactionID,

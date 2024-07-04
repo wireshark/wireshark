@@ -851,7 +851,7 @@ RAT-Type TYPE_PREFIX
 
   if (!PINFO_FD_VISITED(actx->pinfo)) {
     /* Look for UE identifier */
-    guint16 *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+    uint16_t *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
 
     if (p_ueid != NULL) {
       /* Inform PDCP about the RRCreestablishmentRequest */
@@ -884,7 +884,7 @@ RAT-Type TYPE_PREFIX
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Complete");
 
 #.FN_BODY SecurityModeFailure
-  guint16 *p_ueid;
+  uint16_t *p_ueid;
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Failure");
 %(DEFAULT_BODY)s
@@ -1030,10 +1030,10 @@ RAT-Type TYPE_PREFIX
   }
 
 #.FN_BODY MobilityFromNRCommand-IEs/targetRAT-Type VAL_PTR = &target_rat_type
-  guint32 target_rat_type;
+  uint32_t target_rat_type;
   nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
 %(DEFAULT_BODY)s
-  nr_priv->target_rat_type = (guint8)target_rat_type;
+  nr_priv->target_rat_type = (uint8_t)target_rat_type;
 
 #.FN_BODY MobilityFromNRCommand-IEs/targetRAT-MessageContainer VAL_PTR = &target_rat_msg_cont_tvb
   tvbuff_t *target_rat_msg_cont_tvb = NULL;
@@ -1278,15 +1278,15 @@ SIB7/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&
 
 #.FN_BODY SIB7/warningMessageSegmentType VAL_PTR=&segment_type
   nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
-  guint32 segment_type;
+  uint32_t segment_type;
 %(DEFAULT_BODY)s
-  nr_priv->warning_message_segment_type = (guint8)segment_type;
+  nr_priv->warning_message_segment_type = (uint8_t)segment_type;
 
 #.FN_BODY SIB7/warningMessageSegmentNumber VAL_PTR=&segment_number
   nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
-  guint32 segment_number;
+  uint32_t segment_number;
 %(DEFAULT_BODY)s
-  nr_priv->warning_message_segment_number = (guint8)segment_number;
+  nr_priv->warning_message_segment_number = (uint8_t)segment_number;
 
 #.FN_BODY SIB7/dataCodingScheme VAL_PTR=&data_coding_scheme_tvb
   tvbuff_t *data_coding_scheme_tvb = NULL;
@@ -1296,10 +1296,10 @@ SIB7/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&
   if (data_coding_scheme_tvb) {
     nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
     proto_tree *subtree;
-    guint32 dataCodingScheme;
+    uint32_t dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    wmem_map_insert(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier),
+    wmem_map_insert(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((unsigned)nr_priv->message_identifier),
                     GUINT_TO_POINTER(dataCodingScheme));
   }
 
@@ -1312,16 +1312,16 @@ SIB7/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&
     nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
     proto_tree *subtree;
     tvbuff_t *frag_tvb;
-    gpointer p_dcs;
+    void *p_dcs;
     fragment_head *frag_data = fragment_add_seq_check(&nr_rrc_sib7_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
                                                       nr_priv->message_identifier, NULL,
                                                       nr_priv->warning_message_segment_number,
                                                       tvb_reported_length(warning_msg_seg_tvb),
-                                                      nr_priv->warning_message_segment_type ? FALSE : TRUE);
+                                                      nr_priv->warning_message_segment_type ? false : true);
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_warningMessageSegment);
     frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB7 warning message",
                                         frag_data, &nr_rrc_sib7_frag_items, NULL, subtree);
-    p_dcs = wmem_map_lookup(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier));
+    p_dcs = wmem_map_lookup(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((unsigned)nr_priv->message_identifier));
     if (frag_tvb && p_dcs) {
       dissect_nr_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
     }
@@ -1358,15 +1358,15 @@ SIB8/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&
 
 #.FN_BODY SIB8/warningMessageSegmentType VAL_PTR=&segment_type
   nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
-  guint32 segment_type;
+  uint32_t segment_type;
 %(DEFAULT_BODY)s
-  nr_priv->warning_message_segment_type = (guint8)segment_type;
+  nr_priv->warning_message_segment_type = (uint8_t)segment_type;
 
 #.FN_BODY SIB8/warningMessageSegmentNumber VAL_PTR=&segment_number
   nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
-  guint32 segment_number;
+  uint32_t segment_number;
 %(DEFAULT_BODY)s
-  nr_priv->warning_message_segment_number = (guint8)segment_number;
+  nr_priv->warning_message_segment_number = (uint8_t)segment_number;
 
 #.FN_BODY SIB8/dataCodingScheme VAL_PTR=&data_coding_scheme_tvb
   tvbuff_t *data_coding_scheme_tvb = NULL;
@@ -1376,10 +1376,10 @@ SIB8/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&
   if (data_coding_scheme_tvb) {
     nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
     proto_tree *subtree;
-    guint32 dataCodingScheme;
+    uint32_t dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    wmem_map_insert(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier),
+    wmem_map_insert(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((unsigned)nr_priv->message_identifier),
                     GUINT_TO_POINTER(dataCodingScheme));
   }
 
@@ -1392,26 +1392,26 @@ SIB8/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&
     nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
     proto_tree *subtree;
     tvbuff_t *frag_tvb;
-    gpointer p_dcs;
+    void *p_dcs;
     fragment_head *frag_data = fragment_add_seq_check(&nr_rrc_sib8_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
                                                       nr_priv->message_identifier, NULL,
                                                       nr_priv->warning_message_segment_number,
                                                       tvb_reported_length(warning_msg_seg_tvb),
-                                                      nr_priv->warning_message_segment_type ? FALSE : TRUE);
+                                                      nr_priv->warning_message_segment_type ? false : true);
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_warningMessageSegment);
     frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB8 warning message",
                                         frag_data, &nr_rrc_sib8_frag_items, NULL, subtree);
-    p_dcs = wmem_map_lookup(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier));
+    p_dcs = wmem_map_lookup(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((unsigned)nr_priv->message_identifier));
     if (frag_tvb && p_dcs) {
       dissect_nr_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
     }
   }
 
 #.FN_BODY SIB9/timeInfo/timeInfoUTC VAL_PTR=&timeInfo
-  guint64 timeInfo;
+  uint64_t timeInfo;
   proto_tree *subtree;
   nstime_t ts;
-  guint32 old_offset = offset;
+  uint32_t old_offset = offset;
 %(DEFAULT_BODY)s
 
 #.FN_FTR SIB9/timeInfo/timeInfoUTC
@@ -1430,7 +1430,7 @@ SIB9/timeInfo/dayLightSavingTime TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(nr_
 
 #.FN_FTR SIB9/timeInfo/dayLightSavingTime
   if (daylight_saving_time_tvb) {
-    guint bitvalue = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
+    unsigned bitvalue = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, bitvalue);
   }
 
@@ -1705,10 +1705,10 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 %(DEFAULT_BODY)s
 
 #.FN_BODY RAT-Type VAL_PTR = &rat_type
-  guint32 rat_type;
+  uint32_t rat_type;
   nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
 %(DEFAULT_BODY)s
-  nr_priv->rat_type = (guint8)rat_type;
+  nr_priv->rat_type = (uint8_t)rat_type;
 
 #.FN_BODY UE-CapabilityRAT-Container/ue-CapabilityRAT-Container VAL_PTR = &ue_cap_tvb
   tvbuff_t *ue_cap_tvb = NULL;
@@ -1772,10 +1772,10 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 %(DEFAULT_BODY)s
 #.FN_FTR AbsoluteTimeInfo-r16
   if (abs_time_info_tvb) {
-    const gchar *str, *hf_str;
+    const char *str, *hf_str;
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_absTimeInfo);
-    str = tvb_bcd_dig_to_str(actx->pinfo->pool, abs_time_info_tvb, 0, 6, NULL, FALSE);
+    str = tvb_bcd_dig_to_str(actx->pinfo->pool, abs_time_info_tvb, 0, 6, NULL, false);
     hf_str = wmem_strdup_printf(actx->pinfo->pool, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
                         str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
     proto_tree_add_string(subtree, hf_nr_rrc_absolute_time, abs_time_info_tvb, 0, 6, hf_str);
@@ -1960,11 +1960,11 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.FN_BODY RLC-BearerConfig
-  guint16 *p_ueid;
+  uint16_t *p_ueid;
   /* Get the struct and clear it out */
   nr_drb_mac_rlc_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
   memset(drb_mapping, 0, sizeof(nr_drb_mac_rlc_mapping_t));
-  drb_mapping->active = TRUE;
+  drb_mapping->active = true;
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
@@ -1983,54 +1983,54 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
       set_mac_nr_srb4_in_use(drb_mapping->ueid);
     }
   }
-  drb_mapping->active = FALSE;
+  drb_mapping->active = false;
 
 #.FN_BODY DRB-Identity VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (guint8)value;
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = TRUE;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (uint8_t)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = true;
   }
   else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (uint8_t)value;
   }
 
 #.FN_BODY SRB-Identity VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (guint8)value;
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = FALSE;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (uint8_t)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = false;
   }
   else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (uint8_t)value;
   }
 
 #.FN_BODY SRB-Identity-v1700 VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (guint8)value;
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = FALSE;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (uint8_t)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = false;
   }
   else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (uint8_t)value;
   }
 
 #.FN_BODY RLC-Config VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
 %(DEFAULT_BODY)s
   mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
-  mapping->rlcMode_present = TRUE;
+  mapping->rlcMode_present = true;
 
 #.FN_BODY LogicalChannelIdentity VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
 %(DEFAULT_BODY)s
-  mapping->lcid = (guint8)value;
-  mapping->lcid_present = TRUE;
+  mapping->lcid = (uint8_t)value;
+  mapping->lcid_present = true;
 
 #.FN_BODY UL-UM-RLC
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
@@ -2054,28 +2054,28 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 
 
 #.FN_BODY SN-FieldLengthUM  VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
   if (mapping->tempDirection == DIRECTION_UPLINK) {
-    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength_present = true;
     mapping->rlcUlSnLength = (value==0) ? 6 : 12;
   }
   else {
-    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength_present = true;
     mapping->rlcDlSnLength = (value==0) ? 6 : 12;
   }
 
 #.FN_BODY SN-FieldLengthAM  VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
   if (mapping->tempDirection == DIRECTION_UPLINK) {
-    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength_present = true;
     mapping->rlcUlSnLength = (value==0) ? 12 : 18;
   }
   else {
-    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength_present = true;
     mapping->rlcDlSnLength = (value==0) ? 12 : 18;
   }
 
@@ -2083,10 +2083,10 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 #.FN_BODY DRB-ToAddMod
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
   memset(mapping, 0, sizeof(*mapping));
-  mapping->active = TRUE;
+  mapping->active = true;
 %(DEFAULT_BODY)s
   /* Need UE identifier. */
-  guint16 *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+  uint16_t *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
   if (p_ueid != NULL) {
     /* Configure PDCP SN length(s) for this DRB */
     if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
@@ -2094,16 +2094,16 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
       set_rlc_nr_drb_pdcp_mapping(actx->pinfo, mapping);
     }
   }
-  mapping->active = FALSE;
+  mapping->active = false;
 
 #.FN_BODY SDAP-Config/sdap-HeaderDL VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
   mapping->pdcpDlSdap = !value;
 
 #.FN_BODY SDAP-Config/sdap-HeaderUL VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
   mapping->pdcpUlSdap = !value;
@@ -2111,24 +2111,24 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 #.FN_BODY PDCP-Config/drb/integrityProtection
 %(DEFAULT_BODY)s
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
-  mapping->pdcpIntegrityProtection = TRUE;
+  mapping->pdcpIntegrityProtection = true;
 
 #.FN_HDR PDCP-Config/eag_1/cipheringDisabled
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
-  mapping->pdcpCipheringDisabled = TRUE;
+  mapping->pdcpCipheringDisabled = true;
 
 #.FN_BODY PDCP-Config/drb/pdcp-SN-SizeUL VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
 %(DEFAULT_BODY)s
-  mapping->pdcpUlSnLength_present = TRUE;
+  mapping->pdcpUlSnLength_present = true;
   mapping->pdcpUlSnLength = (value) ? 18 : 12;
 
 #.FN_BODY PDCP-Config/drb/pdcp-SN-SizeDL VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
 %(DEFAULT_BODY)s
-  mapping->pdcpDlSnLength_present = TRUE;
+  mapping->pdcpDlSnLength_present = true;
   mapping->pdcpDlSnLength = (value) ? 18 : 12;
 
 
@@ -2226,7 +2226,7 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   }
 
 #.FN_BODY SecurityConfigSMC/securityAlgorithmConfig
-  guint16 *p_ueid;
+  uint16_t *p_ueid;
   pdcp_nr_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
@@ -2243,14 +2243,14 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   }
 
 #.FN_BODY CipheringAlgorithm VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
   pdcp_nr_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
   p_security_algorithms->ciphering = (enum nr_security_ciphering_algorithm_e)value;
 
 #.FN_BODY IntegrityProtAlgorithm VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
   pdcp_nr_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);

@@ -57,10 +57,10 @@ WS_DLL_PUBLIC const value_string  camelSRTtype_naming[];
    the frames numbers are stored in this structure */
 
 struct camelsrt_category_t {
-  guint32 req_num;		/**< frame number request seen */
-  guint32 rsp_num;		/**< frame number response seen */
+  uint32_t req_num;		/**< frame number request seen */
+  uint32_t rsp_num;		/**< frame number response seen */
   nstime_t req_time;	/**< arrival time of request */
-  gboolean responded;	/**< true, if request has been responded */
+  bool responded;	/**< true, if request has been responded */
 };
 
 /** List of stored parameters for a Camel dialogue
@@ -69,7 +69,7 @@ struct camelsrt_category_t {
    The right dialogue will be identified with the arrival time of the InitialDP */
 
 struct camelsrt_call_t {
-  guint32 session_id;    /**< Identify the session, with an internal number */
+  uint32_t session_id;    /**< Identify the session, with an internal number */
   struct tcaphash_context_t * tcap_context;
   struct camelsrt_category_t category[NB_CAMELSRT_CATEGORY];
 };
@@ -79,7 +79,7 @@ struct camelsrt_call_t {
    of the TC_BEGIN containing the InitialDP */
 
 struct camelsrt_call_info_key_t {
-  guint32 SessionIdKey;
+  uint32_t SessionIdKey;
 };
 
 /** Info for a couple of messages (or category)
@@ -88,9 +88,9 @@ struct camelsrt_call_info_key_t {
    we can deduce the Delta Time between Request/response */
 
 struct camelsrt_msginfo_t {
-  gboolean request_available;
-  gboolean is_duplicate;
-  gboolean is_delta_time;
+  bool request_available;
+  bool is_duplicate;
+  bool is_delta_time;
   nstime_t req_time;
   nstime_t delta_time;
 };
@@ -98,10 +98,10 @@ struct camelsrt_msginfo_t {
 /** List of infos to store for the analyse */
 
 struct camelsrt_info_t {
-  guint32 tcap_session_id;
+  uint32_t tcap_session_id;
   void * tcap_context;
-  guint8 opcode; /**< operation code of message received */
-  guint8 bool_msginfo[NB_CAMELSRT_CATEGORY]; /**< category for the received message */
+  uint8_t opcode; /**< operation code of message received */
+  uint8_t bool_msginfo[NB_CAMELSRT_CATEGORY]; /**< category for the received message */
   struct camelsrt_msginfo_t msginfo[NB_CAMELSRT_CATEGORY];
 };
 
@@ -122,6 +122,6 @@ void camelsrt_call_matching(tvbuff_t *tvb,
 			    proto_tree *tree,
 			    struct camelsrt_info_t * p_camel_info);
 
-WS_DLL_PUBLIC gboolean gcamel_StatSRT;
+WS_DLL_PUBLIC bool gcamel_StatSRT;
 
 #endif  /* PACKET_camel_H */

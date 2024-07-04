@@ -53,7 +53,7 @@ CellGlobalIdEUTRA/cellIdentity ABBREV=cellglobalideutra.cellIdentity
 
 #.FN_BODY IlpMessage  VAL_PTR = &IlpMessage
 
-guint32 IlpMessage;
+uint32_t IlpMessage;
 
   %(DEFAULT_BODY)s
 
@@ -106,7 +106,7 @@ guint32 IlpMessage;
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
-    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
+    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, false);
   }
 
 #.TYPE_ATTR

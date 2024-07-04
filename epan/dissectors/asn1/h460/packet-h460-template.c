@@ -66,15 +66,15 @@ dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 typedef struct _h460_feature_t {
-  guint32 opt;
-  const gchar *id;
-  const gchar *name;
+  uint32_t opt;
+  const char *id;
+  const char *name;
   dissector_t content_pdu;
   /*---*/
-  const gchar *key_gd;
-  const gchar *key_fd;
-  const gchar *key_gm;
-  const gchar *key_gi;
+  const char *key_gd;
+  const char *key_fd;
+  const char *key_gm;
+  const char *key_gi;
   dissector_handle_t content_hnd;
 } h460_feature_t;
 
@@ -190,7 +190,7 @@ static h460_feature_t h460_feature_tab[] = {
   { 0, NULL, NULL, NULL, FFILL },
 };
 
-static h460_feature_t *find_ftr(const gchar *key) {
+static h460_feature_t *find_ftr(const char *key) {
   h460_feature_t *ftr = NULL;
   h460_feature_t *f;
 
@@ -239,7 +239,7 @@ void proto_register_h460(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-h460-ettarr.c"
   };
 

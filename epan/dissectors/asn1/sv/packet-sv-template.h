@@ -15,16 +15,16 @@
 #define IEC61850_SV_MAX_PHSMEAS_ENTRIES 20
 
 typedef struct _sv_phs_meas {
-	gint32 value;
-	guint32 qual;
+	int32_t value;
+	uint32_t qual;
 } sv_phs_meas;
 
 typedef struct _sv_frame_data {
-	guint16 smpCnt;
-	guint8 smpSynch;
-	guint8 num_phsMeas;
+	uint16_t smpCnt;
+	uint8_t smpSynch;
+	uint8_t num_phsMeas;
 	sv_phs_meas phsMeas[IEC61850_SV_MAX_PHSMEAS_ENTRIES];
-	guint16 smpMod;
+	uint16_t smpMod;
 } sv_frame_data;
 
 #endif /*__PACKET_SV_H__*/

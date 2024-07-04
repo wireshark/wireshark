@@ -96,7 +96,7 @@ void proto_register_kpm_v2(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-kpm-v2-ettarr.c"
   };
 

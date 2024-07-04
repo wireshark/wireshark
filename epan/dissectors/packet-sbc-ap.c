@@ -388,14 +388,14 @@ enum{
 };
 
 struct sbc_ap_private_data {
-  guint8 data_coding_scheme;
+  uint8_t data_coding_scheme;
   e212_number_type_t number_type;
 };
 
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ProtocolExtensionID;
+static uint32_t ProcedureCode;
+static uint32_t ProtocolIE_ID;
+static uint32_t ProtocolExtensionID;
 static int global_sbc_ap_port = SBC_AP_PORT;
 
 /* Dissector tables */
@@ -642,13 +642,13 @@ dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   sbc_ap_data->number_type = E212_NONE;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, &parameter_tvb);
+                                       3, 3, false, &parameter_tvb);
     if(tvb_reported_length(tvb)==0)
         return offset;
 
     if (!parameter_tvb)
         return offset;
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, false);
 
   return offset;
 }
@@ -3474,7 +3474,7 @@ void proto_register_sbc_ap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
                   &ett_sbc_ap,
                   &ett_sbc_ap_Serial_Number,
                   &ett_sbc_ap_Warning_Type,
@@ -3593,12 +3593,12 @@ void proto_register_sbc_ap(void) {
 void
 proto_reg_handoff_sbc_ap(void)
 {
-    static gboolean inited = FALSE;
-	static guint SctpPort;
+    static bool inited = false;
+	static unsigned SctpPort;
 
     if( !inited ) {
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
-        inited = TRUE;
+        inited = true;
   dissector_add_uint("sbc_ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Criticality_Diagnostics, create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Data_Coding_Scheme, create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sbc_ap));

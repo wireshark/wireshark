@@ -19,7 +19,7 @@ TSRequest
 	decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
 
 	if(decr_tvb != NULL)
-		dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
+		dissect_credssp_TSCredentials(false, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
 
 #.FN_BODY TSRequest/pubKeyAuth VAL_PTR = &auth_tvb
 	tvbuff_t *auth_tvb = NULL;
@@ -64,13 +64,13 @@ TSRequest
 
 	switch(creds_type) {
 	case TS_PASSWORD_CREDS:
-		dissect_credssp_TSPasswordCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
+		dissect_credssp_TSPasswordCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
 		break;
 	case TS_SMARTCARD_CREDS:
-		dissect_credssp_TSSmartCardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
+		dissect_credssp_TSSmartCardCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
 		break;
 	case TS_REMOTEGUARD_CREDS:
-		dissect_credssp_TSRemoteGuardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
+		dissect_credssp_TSRemoteGuardCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
 		break;
 	}
 
@@ -95,7 +95,7 @@ TSRemoteGuardPackageCred/packageName TYPE = FT_STRING DISPLAY = BASE_NONE STRING
 	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
 
 	if(pname != NULL) {
-		gint nlen = tvb_captured_length(pname);
+		int nlen = tvb_captured_length(pname);
 
 		if (nlen == sizeof(kerberos_pname) && memcmp(tvb_get_ptr(pname, 0, nlen), kerberos_pname, nlen) == 0) {
 			credssp_TS_RGC_package = TS_RGC_KERBEROS;

@@ -51,7 +51,7 @@ NegotiationToken
   if (!saw_mechanism) {
     if (value)
       next_level_value = value;
-    saw_mechanism = TRUE;
+    saw_mechanism = true;
   }
 
 #.FN_BODY InnerContextToken
@@ -101,7 +101,7 @@ NegotiationToken
 
   conversation_t *conversation;
 
-  saw_mechanism = FALSE;
+  saw_mechanism = false;
 
 %(DEFAULT_BODY)s
 
@@ -135,7 +135,7 @@ NegotiationToken
 
   conversation_t *conversation;
 
-  saw_mechanism = FALSE;
+  saw_mechanism = false;
 
 %(DEFAULT_BODY)s
 
@@ -202,9 +202,9 @@ NegotiationToken
 
 #.FN_BODY IAKERB-HEADER/target-realm
 
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint32 tag;
+  int32_t tag;
 
   /*
    * MIT Kerberos sends an IAKERB-HEADER like this:

@@ -2006,7 +2006,7 @@ PosSystemInformationDeliveryCommand      N f1ap.proc.imsg id-PosSystemInformatio
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_PLMN_Identity);
-    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, number_type, false);
   }
 
 #.FN_BODY NRCGI
@@ -2330,7 +2330,7 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree;
-    gint tvb_len;
+    int tvb_len;
 
     tvb_len = tvb_reported_length(param_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_TransportLayerAddress);
@@ -2899,7 +2899,7 @@ SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   }
 
 #.FN_BODY GNB-CU-UE-F1AP-ID VAL_PTR=&id
-  guint32 id;
+  uint32_t id;
 %(DEFAULT_BODY)s
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   f1ap_data->gdb_cu_ue_f1ap_id = id;

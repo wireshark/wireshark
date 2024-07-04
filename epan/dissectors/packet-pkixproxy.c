@@ -141,7 +141,7 @@ void proto_register_pkixproxy(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pkixproxy_ProxyCertInfoExtension,
     &ett_pkixproxy_ProxyPolicy,
   };

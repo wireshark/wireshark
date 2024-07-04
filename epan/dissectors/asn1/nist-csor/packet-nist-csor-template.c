@@ -43,7 +43,7 @@ void proto_register_nist_csor(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-nist-csor-ettarr.c"
   };
 

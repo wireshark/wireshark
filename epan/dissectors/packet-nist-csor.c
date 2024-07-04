@@ -139,7 +139,7 @@ void proto_register_nist_csor(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_nist_csor_CFBParameters,
   };
 

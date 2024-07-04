@@ -124,12 +124,12 @@ SearchInfoReport B "1.2.840.10003.10.1" "SearchResult-1"
 OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
 
 #.FN_HDR PDU
-  gint choice;
+  int choice;
 #.FN_PARS PDU VAL_PTR=&choice
 #.FN_FTR PDU
   if (choice >= 0) {
     packet_info *pinfo = actx->pinfo;
-    gint32 tag = PDU_choice[choice].tag;
+    int32_t tag = PDU_choice[choice].tag;
 
     col_set_str(pinfo->cinfo, COL_INFO,
       val_to_str_const(tag, z3950_PDU_vals, "Unknown Z39.50 PDU"));
@@ -140,12 +140,12 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
 
 #.FN_BODY ReferenceId
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-              hf_index, BER_CLASS_CON, 2, TRUE,
+              hf_index, BER_CLASS_CON, 2, true,
               dissect_z3950_printable_OCTET_STRING);
 
 #.FN_BODY Term/general
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-              hf_index, BER_CLASS_CON, 2, TRUE,
+              hf_index, BER_CLASS_CON, 2, true,
               dissect_z3950_printable_OCTET_STRING);
 
 #.FN_HDR AttributeSetId
@@ -155,10 +155,10 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
 #.FN_FTR AttributeSetId
   if (oid_tvb) {
     packet_info *pinfo = actx->pinfo;
-    guint len = tvb_reported_length_remaining(oid_tvb, 0);
-    gchar *oid_str = oid_encoded2string(pinfo->pool,
+    unsigned len = tvb_reported_length_remaining(oid_tvb, 0);
+    char *oid_str = oid_encoded2string(pinfo->pool,
                                         tvb_get_ptr(oid_tvb, 0, len), len);
-    gint attribute_set_idx = Z3950_ATSET_UNKNOWN;
+    int attribute_set_idx = Z3950_ATSET_UNKNOWN;
     z3950_atinfo_t *atinfo_data;
 
     if (g_strcmp0(oid_str, Z3950_ATSET_BIB1_OID) == 0) {
@@ -177,7 +177,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
   }
 
 #.FN_HDR AttributeElement/attributeType
-  gint att_type=0;
+  int att_type=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
 #.FN_PARS AttributeElement/attributeType VAL_PTR=&att_type
@@ -189,7 +189,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
     atinfo_data->attype = att_type;
   }
 #.FN_HDR AttributeElement/attributeValue/numeric
-  gint att_value=0;
+  int att_value=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
   const value_string *att_value_string = NULL;
@@ -231,10 +231,10 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
 #.FN_FTR DefaultDiagFormat/diagnosticSetId
   if (oid_tvb) {
     packet_info *pinfo = actx->pinfo;
-    guint len = tvb_reported_length_remaining(oid_tvb, 0);
-    gchar *oid_str = oid_encoded2string(pinfo->pool,
+    unsigned len = tvb_reported_length_remaining(oid_tvb, 0);
+    char *oid_str = oid_encoded2string(pinfo->pool,
                                         tvb_get_ptr(oid_tvb, 0, len), len);
-    gint diagset_idx = Z3950_DIAGSET_UNKNOWN;
+    int diagset_idx = Z3950_DIAGSET_UNKNOWN;
     z3950_diaginfo_t *diaginfo_data;
 
     if (g_strcmp0(oid_str, Z3950_DIAGSET_BIB1_OID) == 0) {
@@ -253,7 +253,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
   }
 
 #.FN_HDR DefaultDiagFormat/condition
-  gint diag_condition=0;
+  int diag_condition=0;
   packet_info *pinfo = actx->pinfo;
   z3950_diaginfo_t *diaginfo_data;
 #.FN_PARS DefaultDiagFormat/condition VAL_PTR=&diag_condition

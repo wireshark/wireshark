@@ -4355,12 +4355,12 @@ static int
 dissect_HI2Operations_UUS1_Content(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
 /* Heuristic test to see if it's our content */
-    gint8    tmp_class;
+    int8_t   tmp_class;
     bool tmp_pc;
-    gint32   tmp_tag;
+    int32_t  tmp_tag;
     int      tmp_offset;
-    guint    length = tvb_captured_length(tvb);
-    guint32  tmp_length;
+    unsigned length = tvb_captured_length(tvb);
+    uint32_t tmp_length;
     bool tmp_ind;
 
     /* Check for min length */
@@ -6449,7 +6449,7 @@ void proto_register_HI2Operations(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_HI2Operations_CommunicationIdentifier,
     &ett_HI2Operations_Network_Identifier,
     &ett_HI2Operations_Network_Element_Identifier,

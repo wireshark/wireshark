@@ -45,19 +45,19 @@ enum rrc_ue_state {
 typedef struct rrc_info
 {
   enum rrc_message_type msgtype[MAX_RRC_FRAMES];
-  guint16 hrnti[MAX_RRC_FRAMES];
+  uint16_t hrnti[MAX_RRC_FRAMES];
 } rrc_info;
 
 /*Struct for storing ciphering information*/
 typedef struct rrc_ciphering_info
 {
   int seq_no[31][2];    /*Indicates for each Rbid when ciphering starts - Indexers are [BearerID][Direction]*/
-  GTree * /*guint32*/ start_cs;    /*Start value for CS counter*/
-  GTree * /*guint32*/ start_ps;    /*Start value for PS counter*/
-  gint32 ciphering_algorithm;    /*Indicates which type of ciphering algorithm used*/
-  gint32 integrity_algorithm;    /*Indicates which type of integrity algorithm used*/
-  guint32 setup_frame[2];    /*Store which frame contained this information - Indexer is [Direction]*/
-  guint32 ps_conf_counters[31][2];    /*This should also be made for CS*/
+  GTree * /*uint32_t*/ start_cs;    /*Start value for CS counter*/
+  GTree * /*uint32_t*/ start_ps;    /*Start value for PS counter*/
+  int32_t ciphering_algorithm;    /*Indicates which type of ciphering algorithm used*/
+  int32_t integrity_algorithm;    /*Indicates which type of integrity algorithm used*/
+  uint32_t setup_frame[2];    /*Store which frame contained this information - Indexer is [Direction]*/
+  uint32_t ps_conf_counters[31][2];    /*This should also be made for CS*/
 
 } rrc_ciphering_info;
 

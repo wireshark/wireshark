@@ -94,7 +94,7 @@ static int hf_ocsp_crlNum;                        /* INTEGER */
 static int hf_ocsp_crlTime;                       /* GeneralizedTime */
 
 /* Initialize the subtree pointers */
-static gint ett_ocsp;
+static int ett_ocsp;
 static int ett_ocsp_OCSPRequest;
 static int ett_ocsp_TBSRequest;
 static int ett_ocsp_SEQUENCE_OF_Request;
@@ -278,7 +278,7 @@ static int
 dissect_ocsp_T_responseType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_ocsp_responseType_id, &actx->external.direct_reference);
 
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 
   return offset;
@@ -288,10 +288,10 @@ dissect_ocsp_T_responseType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ocsp_T_response(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint8 appclass;
+  int8_t appclass;
   bool pc, ind;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -650,7 +650,7 @@ dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OCSP");
 
@@ -662,7 +662,7 @@ dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		tree = proto_item_add_subtree(item, ett_ocsp);
 	}
 
-	return dissect_ocsp_OCSPRequest(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+	return dissect_ocsp_OCSPRequest(false, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 
@@ -672,7 +672,7 @@ dissect_ocsp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OCSP");
 
@@ -684,7 +684,7 @@ dissect_ocsp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 		tree = proto_item_add_subtree(item, ett_ocsp);
 	}
 
-	return dissect_ocsp_OCSPResponse(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+	return dissect_ocsp_OCSPResponse(false, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 /*--- proto_register_ocsp ----------------------------------------------*/
@@ -907,7 +907,7 @@ void proto_register_ocsp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ocsp,
     &ett_ocsp_OCSPRequest,
     &ett_ocsp_TBSRequest,

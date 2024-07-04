@@ -51,7 +51,7 @@ void proto_register_HI2Operations(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-HI2Operations-ettarr.c"
   };
 

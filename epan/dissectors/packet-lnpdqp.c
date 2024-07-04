@@ -175,7 +175,7 @@ static const value_string lnpdqp_OriginatingStationType_vals[]  = {
 static void
 dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 
-    guint8 octet , no_of_digits;
+    uint8_t octet , no_of_digits;
     int    offset = 0;
     char *digit_str;
 
@@ -229,7 +229,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_lnpdqp_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     tvbuff_t *parameter_tvb = NULL;
-    guint8 type_of_dgt;
+    uint8_t type_of_dgt;
     proto_tree *subtree;
 
     type_of_dgt = tvb_get_guint8(tvb,offset);
@@ -381,7 +381,7 @@ dissect_lnpdqp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     proto_tree *tree=NULL;
     asn1_ctx_t asn1_ctx;
 
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
     col_set_str(pinfo->cinfo, COL_INFO, "ConnectionControl");
@@ -401,7 +401,7 @@ dissect_lnpdqp_pi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     proto_tree *tree=NULL;
     asn1_ctx_t asn1_ctx;
 
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
     col_set_str(pinfo->cinfo, COL_INFO, "ProvideInstruction");
@@ -497,7 +497,7 @@ void proto_register_lnpdqp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_lnpdqp,
     &ett_lnpdqp_digitstype,
     &ett_lnpdqp_digits,

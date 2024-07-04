@@ -197,41 +197,41 @@ static const value_string h245_AudioCapability_short_vals[] = {
 /* To put the codec type only in COL_INFO when
    an OLC is read */
 const char* codec_type;
-static guint32 rfc_number;
+static uint32_t rfc_number;
 
 typedef struct _unicast_addr_t {
   address addr;
-  guint8 addr_buf[16];
-  guint32 port;
+  uint8_t addr_buf[16];
+  uint32_t port;
 } unicast_addr_t;
 
 typedef struct _channel_info_t {
-  gchar data_type_str[32];
+  char data_type_str[32];
   unicast_addr_t *upcoming_addr;
   unicast_addr_t media_addr;
   unicast_addr_t media_control_addr;
   unsigned int rfc2198;
-  gboolean srtp_flag;
-  gboolean is_video;
+  bool srtp_flag;
+  bool is_video;
 } channel_info_t;
 
 typedef struct _olc_info_t {
-  guint16 fwd_lc_num;
+  uint16_t fwd_lc_num;
   channel_info_t fwd_lc;
   channel_info_t rev_lc;
 } olc_info_t;
 
 static wmem_map_t* h245_pending_olc_reqs;
-static gboolean fast_start;
+static bool fast_start;
 static olc_info_t *upcoming_olc;
 static channel_info_t *upcoming_channel;
 
 /* NonStandardParameter */
 static const char *nsiOID;
-static guint32 h221NonStandard;
-static guint32 t35CountryCode;
-static guint32 t35Extension;
-static guint32 manufacturerCode;
+static uint32_t h221NonStandard;
+static uint32_t t35CountryCode;
+static uint32_t t35Extension;
+static uint32_t manufacturerCode;
 
 static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
@@ -258,7 +258,7 @@ static const value_string h245_h239subMessageIdentifier_vals[] = {
 /* h223 multiplex codes */
 static h223_set_mc_handle_t h223_set_mc_handle;
 h223_mux_element *h223_me=NULL;
-guint8 h223_mc=0;
+uint8_t h223_mc=0;
 void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle )
 {
 	h223_set_mc_handle = handle;
@@ -272,9 +272,9 @@ typedef struct {
 
 static wmem_map_t*          h223_pending_olc_reqs[2];
 static dissector_handle_t   h245_lc_dissector;
-static guint16              h245_lc_temp;
-static guint16              h223_fw_lc_num;
-static guint16              h223_rev_lc_num;
+static uint16_t             h245_lc_temp;
+static uint16_t             h223_fw_lc_num;
+static uint16_t             h223_rev_lc_num;
 static h223_lc_params      *h223_lc_params_temp;
 static h223_lc_params      *h223_fw_lc_params;
 static h223_lc_params      *h223_rev_lc_params;
@@ -292,7 +292,7 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 	h223_add_lc_handle = handle;
 }
 
-static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr, wmem_allocator_t *scope)
+static const char *gen_olc_key(uint16_t lc_num, address *dst_addr, address *src_addr, wmem_allocator_t *scope)
 {
   return wmem_strdup_printf(scope, "%s/%s/%u",
           address_to_str(scope, dst_addr),
@@ -352,18 +352,18 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 /* Prints formated information column of h245 messages. Note that global variables
  * "h245_shorttypes" and "info_col_fmt_prepend" are used to decide formating preferences */
-static void print_info_column(column_info *cinfo, const gint32 *value,
+static void print_info_column(column_info *cinfo, const int32_t *value,
     const value_string *msg_vals, const value_string *short_msg_vals)
 {
   const value_string *vals;
 
-  if (h245_shorttypes == FALSE || short_msg_vals == NULL) {
+  if (h245_shorttypes == false || short_msg_vals == NULL) {
     vals = msg_vals;
   } else {
     vals = short_msg_vals;
   }
 
-  if (info_col_fmt_prepend == FALSE) {
+  if (info_col_fmt_prepend == false) {
     col_append_fstr(cinfo, COL_INFO, "%s ", val_to_str_const(*value, vals, "<unknown>"));
   } else {
     col_prepend_fstr(cinfo, COL_INFO, "%s ", val_to_str_const(*value, vals, "<unknown>"));
@@ -405,10 +405,10 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 {
 	proto_item *it;
 	proto_tree *tr;
-	guint32 offset=0;
+	uint32_t offset=0;
 	asn1_ctx_t asn1_ctx;
 
-	fast_start = FALSE;
+	fast_start = false;
 	/* Clean up from any previous packet dissection */
 	upcoming_olc = NULL;
 	upcoming_channel = NULL;
@@ -424,7 +424,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=wmem_new(pinfo->pool, h245_packet_info);
 		init_h245_packet_info(h245_pi);
-		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
@@ -436,7 +436,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 void
 dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
 
-  fast_start = TRUE;
+  fast_start = true;
   /* Clean up from any previous packet dissection */
   upcoming_olc = NULL;
   upcoming_channel = NULL;
@@ -476,7 +476,7 @@ void proto_register_h245(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_h245,
 	  &ett_h245_returnedFunction,
 #include "packet-h245-ettarr.c"

@@ -62,7 +62,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.FN_PARS MultiplexTableEntryNumber
   VAL_PTR = &value
 #.FN_BODY MultiplexTableEntryNumber
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   h223_mc = value & 0xf;
 #.END
@@ -90,7 +90,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   VAL_PTR = &value
 #.FN_BODY MultiplexElement/type/logicalChannelNumber
   /*MultiplexElement/type/logicalChannelNumber*/
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   h223_me->sublist = NULL;
   h223_me->vc = value & 0xffff;
@@ -113,20 +113,20 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.FN_PARS MultiplexElement/repeatCount/finite
   VAL_PTR = &value
 #.FN_BODY MultiplexElement/repeatCount/finite
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   h223_me->repeat_count = value & 0xffff;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY LogicalChannelNumber  VAL_PTR = &value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   h245_lc_temp = value & 0xfff;
 #.END
 
 #=== OpenLogicalChannel =================================================================
 #.FN_BODY OpenLogicalChannel
-  gint32 temp;
+  int32_t temp;
 
   upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(wmem_file_scope(), olc_info_t) : NULL;
 
@@ -215,10 +215,10 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 #=== OpenLogicalChannelAck ==============================================================
 #.FN_BODY OpenLogicalChannelAck
-  guint32 temp;
+  uint32_t temp;
   int p2p_dir;
   h223_pending_olc *pend;
-  const gchar *olc_key;
+  const char *olc_key;
   olc_info_t *olc_req;
 
   upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(actx->pinfo->pool, olc_info_t) : NULL;
@@ -320,7 +320,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.FN_PARS Al3/controlFieldOctets
   VAL_PTR = &value
 #.FN_BODY Al3/controlFieldOctets
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   if(h223_lc_params_temp && h223_lc_params_temp->al_params)
 	((h223_al3_params*)h223_lc_params_temp->al_params)->control_field_octets = value & 3 ;
@@ -329,7 +329,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.FN_PARS Al3/sendBufferSize
   VAL_PTR = &value
 #.FN_BODY Al3/sendBufferSize
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   if(h223_lc_params_temp && h223_lc_params_temp->al_params)
 	((h223_al3_params*)h223_lc_params_temp->al_params)->send_buffer_size = value & 0xfffff;
@@ -364,7 +364,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RequestMessage  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   print_info_column(%(ACTX)s->pinfo->cinfo, &value, h245_RequestMessage_vals, h245_RequestMessage_short_vals);
@@ -395,7 +395,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ResponseMessage  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   print_info_column(%(ACTX)s->pinfo->cinfo, &value, h245_ResponseMessage_vals, h245_ResponseMessage_short_vals);
@@ -412,7 +412,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY IndicationMessage  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   print_info_column(%(ACTX)s->pinfo->cinfo, &value, h245_IndicationMessage_vals, h245_IndicationMessage_short_vals);
@@ -430,7 +430,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CommandMessage  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   print_info_column(%(ACTX)s->pinfo->cinfo, &value, h245_CommandMessage_vals, h245_CommandMessage_short_vals);
@@ -447,14 +447,14 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioCapability  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str_const(value, h245_AudioCapability_short_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoCapability  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str_const(value, h245_VideoCapability_vals, "<unknown>");
@@ -462,28 +462,28 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY Application  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str_const(value, h245_Application_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioMode  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str_const(value, h245_AudioMode_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoMode  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str_const(value, h245_VideoMode_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DataMode/application  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str_const(value, h245_DataModeApplication_vals, "<unknown>");
@@ -579,7 +579,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 
 #.FN_BODY GenericMessage/subMessageIdentifier  VAL_PTR = &subMessageIdentifier
-  guint32 subMessageIdentifier;
+  uint32_t subMessageIdentifier;
   gef_ctx_t *gefx;
 
   gefx = gef_ctx_get(actx->private_data);
@@ -690,7 +690,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 
 #.FN_BODY CapabilityIdentifier/standard  FN_VARIANT = _str  VAL_PTR = &standard_oid_str
-  const gchar *standard_oid_str = NULL;
+  const char *standard_oid_str = NULL;
   gef_ctx_t *gefx;
 
 %(DEFAULT_BODY)s
@@ -699,7 +699,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
   if(strcmp(standard_oid_str,"0.0.8.235.0.3.76") == 0) {  /* MIKEY */
     if (upcoming_channel)
-	  upcoming_channel->srtp_flag = TRUE;
+	  upcoming_channel->srtp_flag = true;
   }
 
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
@@ -715,13 +715,13 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, FALSE, actx);
+    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, false, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
 #.END
 
 #.FN_BODY ParameterIdentifier/standard  VAL_PTR = &value_int
-  guint32 value_int = (guint32)-1;
+  uint32_t value_int = (uint32_t)-1;
   gef_ctx_t *gefx;
 
 %(DEFAULT_BODY)s
@@ -730,8 +730,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ParameterValue/booleanArray  VAL_PTR = &value
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -739,18 +739,18 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = wmem_new(actx->pinfo->pool, guint8);
+    buf = wmem_new(actx->pinfo->pool, uint8_t);
     buf[0] = value;
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint8), sizeof(guint8));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint8_t), sizeof(uint8_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(%(ACTX)s->pinfo, value_tvb, "booleanArray");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s, FALSE, %(ACTX)s);
+    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s, false, %(ACTX)s);
   }
 #.END
 #.FN_BODY ParameterValue/unsignedMin  VAL_PTR = &value
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -758,9 +758,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint16_t);
     phton16(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint16_t), sizeof(uint16_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsignedMin");
@@ -768,8 +768,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   }
 #.END
 #.FN_BODY ParameterValue/unsignedMax  VAL_PTR = &value
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -777,9 +777,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint16_t);
     phton16(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint16_t), sizeof(uint16_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsignedMax");
@@ -787,8 +787,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   }
 #.END
 #.FN_BODY ParameterValue/unsigned32Min  VAL_PTR = &value
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -796,9 +796,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint32_t);
     phton32(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint32_t), sizeof(uint32_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsigned32Min");
@@ -806,8 +806,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   }
 #.END
 #.FN_BODY ParameterValue/unsigned32Max  VAL_PTR = &value
-  guint32 value;
-  guint8 *buf;
+  uint32_t value;
+  uint8_t *buf;
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -815,9 +815,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
+    buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint32_t);
     phton32(buf, value);
-    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
+    value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint32_t), sizeof(uint32_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsigned32Max");
@@ -853,7 +853,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnicastAddress/iPAddress/tsapIdentifier  VAL_PTR = &tsapIdentifier
-  guint32 tsapIdentifier;
+  uint32_t tsapIdentifier;
 
 %(DEFAULT_BODY)s
 
@@ -874,7 +874,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnicastAddress/iP6Address/tsapIdentifier  VAL_PTR = &tsapIdentifier
-  guint32 tsapIdentifier;
+  uint32_t tsapIdentifier;
 
 %(DEFAULT_BODY)s
 
@@ -944,7 +944,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.END
 #.FN_BODY NonStandardIdentifier  VAL_PTR = &value
-	gint32 value;
+	int32_t value;
 
 	nsiOID = "";
 	h221NonStandard = 0;
@@ -1004,15 +1004,15 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
  }
 
 #.FN_BODY DataType VAL_PTR = &choice_index
-gint choice_index;
+int choice_index;
 
 %(DEFAULT_BODY)s
 
 if (upcoming_channel){
 	if (choice_index==2){
-		upcoming_channel->is_video=TRUE;
+		upcoming_channel->is_video=true;
 	}else{
-		upcoming_channel->is_video=FALSE;
+		upcoming_channel->is_video=false;
 	}
 }
 

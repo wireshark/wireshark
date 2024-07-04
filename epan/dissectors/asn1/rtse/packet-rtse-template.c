@@ -36,8 +36,8 @@ void proto_reg_handoff_rtse(void);
 /* Initialize the protocol and registered fields */
 static int proto_rtse;
 
-static gboolean open_request=FALSE;
-static guint32 app_proto=0;
+static bool open_request=false;
+static uint32_t app_proto=0;
 
 static proto_tree *top_tree;
 
@@ -47,7 +47,7 @@ static bool rtse_reassemble = true;
 #include "packet-rtse-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_rtse;
+static int ett_rtse;
 #include "packet-rtse-ett.c"
 
 static expert_field ei_rtse_dissector_oid_not_implemented;
@@ -56,7 +56,7 @@ static expert_field ei_rtse_abstract_syntax;
 
 static dissector_table_t rtse_oid_dissector_table;
 static dissector_handle_t rtse_handle;
-static gint ett_rtse_unknown;
+static int ett_rtse_unknown;
 
 static reassembly_table rtse_reassembly_table;
 
@@ -72,8 +72,8 @@ static int hf_rtse_fragment_count;
 static int hf_rtse_reassembled_in;
 static int hf_rtse_reassembled_length;
 
-static gint ett_rtse_fragment;
-static gint ett_rtse_fragments;
+static int ett_rtse_fragment;
+static int ett_rtse_fragments;
 
 static const fragment_items rtse_frag_items = {
     /* Fragment subtrees */
@@ -99,7 +99,7 @@ static const fragment_items rtse_frag_items = {
 };
 
 void
-register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name, gboolean uses_ros)
+register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name, bool uses_ros)
 {
 /* XXX: Note that this fcn is called from proto_reg_handoff in *other* dissectors ... */
 
@@ -117,7 +117,7 @@ register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector
 
     /* and then tell ROS how to dissect the AS*/
     if (dissector != NULL)
-      register_ros_oid_dissector_handle(oid, dissector, proto, name, TRUE);
+      register_ros_oid_dissector_handle(oid, dissector, proto, name, true);
 
   } else {
     /* otherwise we just remember how to dissect the AS */
@@ -188,13 +188,13 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     tvbuff_t *next_tvb = NULL;
     tvbuff_t *data_tvb = NULL;
     fragment_head *frag_msg = NULL;
-    guint32 fragment_length;
-    guint32 rtse_id = 0;
-    gboolean data_handled = FALSE;
+    uint32_t fragment_length;
+    uint32_t rtse_id = 0;
+    bool data_handled = false;
     struct SESSION_DATA_STRUCTURE* session;
     conversation_t *conversation = NULL;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     /* do we have application context from the acse dissector? */
     if (data == NULL)
@@ -232,7 +232,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
     if (rtse_reassemble && session->spdu_type == SES_DATA_TRANSFER) {
         /* strip off the OCTET STRING encoding - including any CONSTRUCTED OCTET STRING */
-        dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, offset, hf_rtse_segment_data, &data_tvb);
+        dissect_ber_octet_string(false, &asn1_ctx, tree, tvb, offset, hf_rtse_segment_data, &data_tvb);
 
         if (data_tvb) {
             fragment_length = tvb_captured_length_remaining (data_tvb, 0);
@@ -241,14 +241,14 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
             frag_msg = fragment_add_seq_next (&rtse_reassembly_table,
                               data_tvb, 0, pinfo,
                               rtse_id, NULL,
-                              fragment_length, TRUE);
+                              fragment_length, true);
             if (frag_msg && pinfo->num != frag_msg->reassembled_in) {
                 /* Add a "Reassembled in" link if not reassembled in this frame */
                 proto_tree_add_uint (tree, *(rtse_frag_items.hf_reassembled_in),
                              data_tvb, 0, 0, frag_msg->reassembled_in);
             }
-            pinfo->fragmented = TRUE;
-            data_handled = TRUE;
+            pinfo->fragmented = true;
+            data_handled = true;
         } else {
             fragment_length = tvb_captured_length_remaining (tvb, offset);
         }
@@ -259,21 +259,21 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         if (next_tvb) {
             /* ROS won't do this for us */
             session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
-            /*offset=*/dissect_ber_external_type(FALSE, tree, next_tvb, 0, &asn1_ctx, -1, call_rtse_external_type_callback);
+            /*offset=*/dissect_ber_external_type(false, tree, next_tvb, 0, &asn1_ctx, -1, call_rtse_external_type_callback);
             top_tree = NULL;
             /* Return other than 0 to indicate that we handled this packet */
             return 1;
         } else {
             offset = tvb_captured_length (tvb);
         }
-        pinfo->fragmented = FALSE;
-        data_handled = TRUE;
+        pinfo->fragmented = false;
+        data_handled = true;
     }
 
     if (!data_handled) {
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             old_offset=offset;
-            offset=dissect_rtse_RTSE_apdus(TRUE, tvb, offset, &asn1_ctx, tree, -1);
+            offset=dissect_rtse_RTSE_apdus(true, tvb, offset, &asn1_ctx, tree, -1);
             if (offset == old_offset) {
                 next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
                                 ett_rtse_unknown, &item, "Unknown RTSE PDU");
@@ -335,7 +335,7 @@ void proto_register_rtse(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rtse,
     &ett_rtse_unknown,
     &ett_rtse_fragment,

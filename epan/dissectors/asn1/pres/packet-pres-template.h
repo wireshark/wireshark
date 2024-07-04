@@ -13,6 +13,6 @@
 
 /*#include "packet-pres-exp.h"*/
 
-extern char *find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx);
+extern char *find_oid_by_pres_ctx_id(packet_info *pinfo, uint32_t idx);
 
 #endif  /* PACKET_PRES_H */

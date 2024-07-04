@@ -783,31 +783,31 @@ CauseCodeType
 #.FN_PARS RegionId VAL_PTR = &((its_private_data_t*)actx->private_data)->region_id
 
 #.FN_BODY ProtocolVersion VAL_PTR = &version
-    guint32 version;
+    uint32_t version;
 %(DEFAULT_BODY)s
     its_header_t *its_hdr = its_get_private_data(actx->pinfo);
     its_hdr->version = version;
 
 #.FN_BODY MessageId VAL_PTR = &msgId
-    guint32 msgId;
+    uint32_t msgId;
 %(DEFAULT_BODY)s
     its_header_t *its_hdr = its_get_private_data(actx->pinfo);
     its_hdr->msgId = msgId;
 
 #.FN_BODY StationId VAL_PTR = &stationId
-    guint32 stationId;
+    uint32_t stationId;
 %(DEFAULT_BODY)s
     its_header_t *its_hdr = its_get_private_data(actx->pinfo);
     its_hdr->stationId = stationId;
 
 #.FN_BODY CpmContainerId VAL_PTR = &CpmContainerId
-    guint32 CpmContainerId;
+    uint32_t CpmContainerId;
 %(DEFAULT_BODY)s
     its_header_t *its_hdr = its_get_private_data(actx->pinfo);
     its_hdr->CpmContainerId = CpmContainerId;
 
 #.FN_BODY ItsPduHeader
-  guint8 version = tvb_get_guint8(tvb, 0);
+  uint8_t version = tvb_get_guint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
     return test_offset;
@@ -944,22 +944,22 @@ GenerationDeltaTime
 
 #.FN_BODY InternationalSign-speedLimits/unit
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           0U, 1U, %(VAL_PTR)s, FALSE);
+                                           0U, 1U, %(VAL_PTR)s, false);
 #.END
 
 #.FN_BODY Weight/unit
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           10U, 12U, %(VAL_PTR)s, FALSE);
+                                           10U, 12U, %(VAL_PTR)s, false);
 #.END
 
 #.FN_BODY DistOrDuration-Units
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           2U, 9U, %(VAL_PTR)s, FALSE);
+                                           2U, 9U, %(VAL_PTR)s, false);
 #.END
 
 #.FN_BODY Distance/unit
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           2U, 8U, %(VAL_PTR)s, FALSE);
+                                           2U, 8U, %(VAL_PTR)s, false);
 #.END
 
 #=== PtActivation =======================================================
@@ -971,7 +971,7 @@ GenerationDeltaTime
   pta = wmem_new0(actx->pinfo->pool, its_pt_activation_data_t);
   actx->private_data = pta;
 #.FN_FTR
-  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
   actx->private_data = priv_data;
 #.END
 

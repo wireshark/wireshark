@@ -165,7 +165,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
 #.FN_BODY EncapsulatedContentInfo/eContent
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->content_tvb = NULL;
-  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &cms_data->content_tvb);
+  offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &cms_data->content_tvb);
 
   if(cms_data->content_tvb) {
     proto_item_set_text(actx->created_item, "eContent (%%u bytes)", tvb_reported_length(cms_data->content_tvb));
@@ -267,7 +267,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
   VAL_PTR = &length
 
 #.FN_BODY RC2ParameterVersion
-  guint32 length = 0;
+  uint32_t length = 0;
 
   %(DEFAULT_BODY)s
 

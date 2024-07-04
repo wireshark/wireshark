@@ -178,7 +178,7 @@ EnhancedCertificateAssertion/pathToName                 enhancedPathToName
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY GeneralName/iPAddress
-  guint32 len = tvb_reported_length(tvb);
+  uint32_t len = tvb_reported_length(tvb);
   switch (len) {
   case 4: /* IPv4 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);

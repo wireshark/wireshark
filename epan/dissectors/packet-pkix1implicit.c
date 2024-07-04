@@ -343,7 +343,7 @@ void proto_register_pkix1implicit(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pkix1implicit_AuthorityInfoAccessSyntax,
     &ett_pkix1implicit_AccessDescription,
     &ett_pkix1implicit_UserNotice,

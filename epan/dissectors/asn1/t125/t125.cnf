@@ -77,7 +77,7 @@ ConnectMCSPDU
 
 # dissected in t124
 # FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
-#  	gint domainmcs_value;
+#  	int domainmcs_value;
 #
 #%(DEFAULT_BODY)s
 #	switch(domainmcs_value) {

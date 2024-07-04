@@ -51,7 +51,7 @@ void proto_register_crmf(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-crmf-ettarr.c"
   };
 

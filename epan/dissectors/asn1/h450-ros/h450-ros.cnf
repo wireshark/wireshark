@@ -65,7 +65,7 @@ ReturnErrorProblem   VAL_PTR = &problem_val
 # body is implemented manually as asn2wrs is not able to handle subtype constraint event passed through parameter
 #.FN_BODY Invoke/invokeId
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           0U, 65535U, %(VAL_PTR)s, TRUE);
+                                           0U, 65535U, %(VAL_PTR)s, true);
 #.END
 
 #.FIELD_ATTR

@@ -43,22 +43,22 @@ typedef enum _h225_cs_type {
 typedef struct _h225_packet_info {
   h225_msg_type msg_type;          /* ras or cs message */
   h225_cs_type  cs_type;           /* cs message type */
-  gint          msg_tag;           /* message tag*/
-  gint          reason;            /* reason tag, if available */
-  guint         requestSeqNum;     /* request sequence number of ras-message, if available */
+  int           msg_tag;           /* message tag*/
+  int           reason;            /* reason tag, if available */
+  unsigned      requestSeqNum;     /* request sequence number of ras-message, if available */
   e_guid_t      guid;              /* globally unique call id */
-  gboolean      is_duplicate;      /* true, if this is a repeated message */
-  gboolean      request_available; /* true, if response matches to a request */
+  bool          is_duplicate;      /* true, if this is a repeated message */
+  bool          request_available; /* true, if response matches to a request */
   nstime_t      delta_time;        /* this is the RAS response time delay */
   /* added for h225 conversations analysis */
-  gboolean      is_faststart;      /* true, if faststart field is included */
-  gboolean      is_h245;
+  bool          is_faststart;      /* true, if faststart field is included */
+  bool          is_h245;
   bool          is_h245Tunneling;
-  guint32       h245_address;
-  guint16       h245_port;
-  gchar         dialedDigits[129]; /* Dialed Digits in the LRQ and LCF used for voip analysis */
-  gboolean      is_destinationInfo;
-  gchar         frame_label[50];   /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
+  uint32_t      h245_address;
+  uint16_t      h245_port;
+  char          dialedDigits[129]; /* Dialed Digits in the LRQ and LCF used for voip analysis */
+  bool          is_destinationInfo;
+  char          frame_label[50];   /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
 } h225_packet_info;
 
 /*

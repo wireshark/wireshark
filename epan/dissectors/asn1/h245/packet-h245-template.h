@@ -34,8 +34,8 @@ typedef enum _h245_msg_type {
 
 typedef struct _h245_packet_info {
         h245_msg_type msg_type;         /* type of message */
-        gchar frame_label[50];          /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
-        gchar comment[50];                      /* the Frame Comment used by graph_analysis, what is a message desc */
+        char frame_label[50];          /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
+        char comment[50];                      /* the Frame Comment used by graph_analysis, what is a message desc */
 } h245_packet_info;
 
 /*
@@ -57,14 +57,14 @@ typedef enum {
 } h223_al_type;
 
 typedef struct {
-	guint8 control_field_octets;
-	guint32 send_buffer_size;
+	uint8_t control_field_octets;
+	uint32_t send_buffer_size;
 } h223_al3_params;
 
 typedef struct {
 	h223_al_type al_type;
-	gpointer al_params;
-	gboolean segmentable;
+	void *al_params;
+	bool segmentable;
 	dissector_handle_t subdissector;
 } h223_lc_params;
 
@@ -86,7 +86,7 @@ typedef enum {
 
 typedef struct {
 	h245_lc_data_type_enum data_type;
-	gpointer               params;
+	void *                 params;
 } h245_lc_data_type;
 
 /*
@@ -96,18 +96,18 @@ typedef struct {
 typedef struct _h223_mux_element h223_mux_element;
 struct _h223_mux_element {
     h223_mux_element* sublist; /* if NULL, use vc instead */
-    guint16 vc;
-    guint16 repeat_count; /* 0 == untilClosingFlag */
+    uint16_t vc;
+    uint16_t repeat_count; /* 0 == untilClosingFlag */
     h223_mux_element* next;
 };
 
 #include <epan/packet_info.h>
 #include "packet-per.h"
 
-typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, guint8 mc, h223_mux_element* me);
+typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, uint8_t mc, h223_mux_element* me);
 WS_DLL_PUBLIC void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
 
-typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, guint16 lc, h223_lc_params* params);
+typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, uint16_t lc, h223_lc_params* params);
 WS_DLL_PUBLIC void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
 #include "packet-h245-exp.h"

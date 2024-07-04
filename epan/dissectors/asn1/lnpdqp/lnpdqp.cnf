@@ -11,7 +11,7 @@ ProvideInstructionArg
 
 #.FN_BODY Digits VAL_PTR = &parameter_tvb
     tvbuff_t *parameter_tvb = NULL;
-    guint8 type_of_dgt;
+    uint8_t type_of_dgt;
     proto_tree *subtree;
 
     type_of_dgt = tvb_get_guint8(tvb,offset);

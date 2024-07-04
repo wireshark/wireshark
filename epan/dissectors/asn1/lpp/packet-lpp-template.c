@@ -48,15 +48,15 @@ static int hf_lpp_AssistanceDataSIBelement_r15_PDU;
 
 static dissector_handle_t lppe_handle;
 
-static guint32 lpp_epdu_id = -1;
+static uint32_t lpp_epdu_id = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_lpp;
-static gint ett_lpp_svHealthExt_v1240;
-static gint ett_kepSV_StatusINAV;
-static gint ett_kepSV_StatusFNAV;
-static gint ett_lpp_bdsSvHealth_r12;
-static gint ett_lpp_assistanceDataElement_r15;
+static int ett_lpp;
+static int ett_lpp_svHealthExt_v1240;
+static int ett_kepSV_StatusINAV;
+static int ett_kepSV_StatusFNAV;
+static int ett_lpp_bdsSvHealth_r12;
+static int ett_lpp_assistanceDataElement_r15;
 #include "packet-lpp-ett.c"
 
 /* Include constants */
@@ -69,8 +69,8 @@ static const value_string lpp_ePDU_ID_vals[] = {
 
 struct lpp_private_data {
   lpp_pos_sib_type_t pos_sib_type;
-  gboolean is_ciphered;
-  gboolean is_segmented;
+  bool is_ciphered;
+  bool is_segmented;
 };
 
 static struct lpp_private_data*
@@ -134,23 +134,23 @@ static int dissect_GNSS_SSR_ClockCorrectionsSet2_r17_PDU(tvbuff_t *tvb _U_, pack
 static int dissect_GNSS_SSR_URA_Set2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static void
-lpp_degreesLatitude_fmt(gchar *s, guint32 v)
+lpp_degreesLatitude_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%u)",
              ((float)v/8388607.0)*90, v);
 }
 
 static void
-lpp_degreesLongitude_fmt(gchar *s, guint32 v)
+lpp_degreesLongitude_fmt(char *s, uint32_t v)
 {
-  gint32 longitude = (gint32) v;
+  int32_t longitude = (int32_t) v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%d)",
              ((float)longitude/8388608.0)*180, longitude);
 }
 
 static void
-lpp_uncertainty_fmt(gchar *s, guint32 v)
+lpp_uncertainty_fmt(char *s, uint32_t v)
 {
   double uncertainty = 10*(pow(1.1, (double)v)-1);
 
@@ -162,13 +162,13 @@ lpp_uncertainty_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_angle_fmt(gchar *s, guint32 v)
+lpp_angle_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%u degrees (%u)", 2*v, v);
 }
 
 static void
-lpp_confidence_fmt(gchar *s, guint32 v)
+lpp_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "no information (0)");
@@ -178,7 +178,7 @@ lpp_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_1_10_degrees_fmt(gchar *s, guint32 v)
+lpp_1_10_degrees_fmt(char *s, uint32_t v)
 {
   double val = (double)v/10;
 
@@ -186,7 +186,7 @@ lpp_1_10_degrees_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_1_100_m_fmt(gchar *s, guint32 v)
+lpp_1_100_m_fmt(char *s, uint32_t v)
 {
   double val = (double)v/100;
 
@@ -194,19 +194,19 @@ lpp_1_100_m_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_measurementLimit_fmt(gchar *s, guint32 v)
+lpp_measurementLimit_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%u octets (%u)", 100*v, v);
 }
 
 static void
-lpp_altitude_fmt(gchar *s, guint32 v)
+lpp_altitude_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%um", v);
 }
 
 static void
-lpp_uncertaintyAltitude_fmt(gchar *s, guint32 v)
+lpp_uncertaintyAltitude_fmt(char *s, uint32_t v)
 {
   double uncertainty = 45*(pow(1.025, (double)v)-1);
 
@@ -214,33 +214,33 @@ lpp_uncertaintyAltitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_radius_fmt(gchar *s, guint32 v)
+lpp_radius_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", 5*v, v);
 }
 
 static void
-lpp_nr_LTE_fineTiming_Offset_fmt(gchar *s, guint32 v)
+lpp_nr_LTE_fineTiming_Offset_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
-lpp_expectedRSTD_fmt(gchar *s, guint32 v)
+lpp_expectedRSTD_fmt(char *s, uint32_t v)
 {
-  gint32 rstd = 3*((gint32)v-8192);
+  int32_t rstd = 3*((int32_t)v-8192);
 
   snprintf(s, ITEM_LABEL_LENGTH, "%dTs (%u)", rstd, v);
 }
 
 static void
-lpp_expectedRSTD_Uncertainty_fmt(gchar *s, guint32 v)
+lpp_expectedRSTD_Uncertainty_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%uTs (%u)", 3*v, v);
 }
 
 static void
-lpp_rstd_fmt(gchar *s, guint32 v)
+lpp_rstd_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSTD < -15391Ts (0)");
@@ -317,15 +317,15 @@ static const value_string lpp_error_NumSamples_vals[] = {
 };
 
 static void
-lpp_relativeTimeDifference_fmt(gchar *s, guint32 v)
+lpp_relativeTimeDifference_fmt(char *s, uint32_t v)
 {
-  double rtd = (double)((gint32)v)*0.5;
+  double rtd = (double)((int32_t)v)*0.5;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%.1f Ts (%d)", rtd, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1f Ts (%d)", rtd, (int32_t)v);
 }
 
 static void
-lpp_referenceTimeUnc_fmt(gchar *s, guint32 v)
+lpp_referenceTimeUnc_fmt(char *s, uint32_t v)
 {
   double referenceTimeUnc = 0.5*(pow(1.14, (double)v)-1);
 
@@ -340,7 +340,7 @@ static const value_string lpp_kp_vals[] = {
 };
 
 static void
-lpp_fractionalSecondsFromFrameStructureStart_fmt(gchar *s, guint32 v)
+lpp_fractionalSecondsFromFrameStructureStart_fmt(char *s, uint32_t v)
 {
   float frac = ((float)v)/4;
 
@@ -348,11 +348,11 @@ lpp_fractionalSecondsFromFrameStructureStart_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_frameDrift_fmt(gchar *s, guint32 v)
+lpp_frameDrift_fmt(char *s, uint32_t v)
 {
-  double drift = (double)((gint32)v)*pow(2, -30);
+  double drift = (double)((int32_t)v)*pow(2, -30);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", drift, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", drift, (int32_t)v);
 }
 
 static const value_string lpp_dataID_vals[] = {
@@ -363,55 +363,55 @@ static const value_string lpp_dataID_vals[] = {
 };
 
 static void
-lpp_alpha0_fmt(gchar *s, guint32 v)
+lpp_alpha0_fmt(char *s, uint32_t v)
 {
-  double alpha = (double)((gint32)v)*pow(2, -30);
+  double alpha = (double)((int32_t)v)*pow(2, -30);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", alpha, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", alpha, (int32_t)v);
 }
 
 static void
-lpp_alpha1_fmt(gchar *s, guint32 v)
+lpp_alpha1_fmt(char *s, uint32_t v)
 {
-  double alpha = (double)((gint32)v)*pow(2, -27);
+  double alpha = (double)((int32_t)v)*pow(2, -27);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", alpha, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", alpha, (int32_t)v);
 }
 
 static void
-lpp_alpha2_3_fmt(gchar *s, guint32 v)
+lpp_alpha2_3_fmt(char *s, uint32_t v)
 {
-  double alpha = (double)((gint32)v)*pow(2, -24);
+  double alpha = (double)((int32_t)v)*pow(2, -24);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", alpha, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", alpha, (int32_t)v);
 }
 
 static void
-lpp_beta0_fmt(gchar *s, guint32 v)
+lpp_beta0_fmt(char *s, uint32_t v)
 {
-  double beta = (double)((gint32)v)*pow(2, 11);
+  double beta = (double)((int32_t)v)*pow(2, 11);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", beta, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", beta, (int32_t)v);
 }
 
 static void
-lpp_beta1_fmt(gchar *s, guint32 v)
+lpp_beta1_fmt(char *s, uint32_t v)
 {
-  double beta = (double)((gint32)v)*pow(2, 14);
+  double beta = (double)((int32_t)v)*pow(2, 14);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", beta, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", beta, (int32_t)v);
 }
 
 static void
-lpp_beta2_3_fmt(gchar *s, guint32 v)
+lpp_beta2_3_fmt(char *s, uint32_t v)
 {
-  double beta = (double)((gint32)v)*pow(2, 16);
+  double beta = (double)((int32_t)v)*pow(2, 16);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", beta, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/semi-circle (%d)", beta, (int32_t)v);
 }
 
 static void
-lpp_ai0_fmt(gchar *s, guint32 v)
+lpp_ai0_fmt(char *s, uint32_t v)
 {
   double ai = (double)v*pow(2, -2);
 
@@ -419,7 +419,7 @@ lpp_ai0_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_ai1_fmt(gchar *s, guint32 v)
+lpp_ai1_fmt(char *s, uint32_t v)
 {
   double ai = (double)v*pow(2, -8);
 
@@ -427,7 +427,7 @@ lpp_ai1_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_ai2_fmt(gchar *s, guint32 v)
+lpp_ai2_fmt(char *s, uint32_t v)
 {
   double ai = (double)v*pow(2, -15);
 
@@ -435,53 +435,53 @@ lpp_ai2_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_teop_fmt(gchar *s, guint32 v)
+lpp_teop_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", 16*v, v);
 }
 
 static void
-lpp_pmX_Y_fmt(gchar *s, guint32 v)
+lpp_pmX_Y_fmt(char *s, uint32_t v)
 {
-  double pm = (double)((gint32)v)*pow(2, -20);
+  double pm = (double)((int32_t)v)*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g arc-seconds (%d)", pm, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g arc-seconds (%d)", pm, (int32_t)v);
 }
 
 static void
-lpp_pmX_Ydot_fmt(gchar *s, guint32 v)
+lpp_pmX_Ydot_fmt(char *s, uint32_t v)
 {
-  double pmDot = (double)((gint32)v)*pow(2, -21);
+  double pmDot = (double)((int32_t)v)*pow(2, -21);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g arc-seconds/day (%d)", pmDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g arc-seconds/day (%d)", pmDot, (int32_t)v);
 }
 
 static void
-lpp_deltaUT1_fmt(gchar *s, guint32 v)
+lpp_deltaUT1_fmt(char *s, uint32_t v)
 {
-  double deltaUT1 = (double)((gint32)v)*pow(2, -24);
+  double deltaUT1 = (double)((int32_t)v)*pow(2, -24);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", deltaUT1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", deltaUT1, (int32_t)v);
 }
 
 static void
-lpp_deltaUT1dot_fmt(gchar *s, guint32 v)
+lpp_deltaUT1dot_fmt(char *s, uint32_t v)
 {
-  double deltaUT1dot = (double)((gint32)v)*pow(2, -25);
+  double deltaUT1dot = (double)((int32_t)v)*pow(2, -25);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/day (%d)", deltaUT1dot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/day (%d)", deltaUT1dot, (int32_t)v);
 }
 
 static void
-lpp_1_1000m_64_fmt(gchar *s, uint64_t v)
+lpp_1_1000m_64_fmt(char *s, uint64_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%gm (%"PRId64")", (double)v/1000, (int64_t)v);
 }
 
 static void
-lpp_1_1000m_32_fmt(gchar *s, guint32 v)
+lpp_1_1000m_32_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (double)v/1000, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (double)v/1000, (int32_t)v);
 }
 
 static const value_string lpp_clockSteeringIndicator_vals[] = {
@@ -519,40 +519,40 @@ static const value_string lpp_smoothingInterval_r15_vals[] = {
 };
 
 static void
-lpp_aux_master_delta_fmt(gchar *s, guint32 v)
+lpp_aux_master_delta_fmt(char *s, uint32_t v)
 {
-  double delta = (double)((gint32)v)*25*pow(10, -6);
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", delta, (gint32)v);
+  double delta = (double)((int32_t)v)*25*pow(10, -6);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", delta, (int32_t)v);
 }
 
 static void
-lpp_gnss_TimeModelRefTime_fmt(gchar *s, guint32 v)
+lpp_gnss_TimeModelRefTime_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", v*16, v);
 }
 
 static void
-lpp_tA0_fmt(gchar *s, guint32 v)
+lpp_tA0_fmt(char *s, uint32_t v)
 {
-  double tA0 = (double)((gint32)v)*pow(2, -35);
+  double tA0 = (double)((int32_t)v)*pow(2, -35);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", tA0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", tA0, (int32_t)v);
 }
 
 static void
-lpp_tA1_fmt(gchar *s, guint32 v)
+lpp_tA1_fmt(char *s, uint32_t v)
 {
-  double tA1 = (double)((gint32)v)*pow(2, -51);
+  double tA1 = (double)((int32_t)v)*pow(2, -51);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", tA1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", tA1, (int32_t)v);
 }
 
 static void
-lpp_tA2_fmt(gchar *s, guint32 v)
+lpp_tA2_fmt(char *s, uint32_t v)
 {
-  double tA2 = (double)((gint32)v)*pow(2, -68);
+  double tA2 = (double)((int32_t)v)*pow(2, -68);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", tA2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", tA2, (int32_t)v);
 }
 
 static const value_string lpp_gnss_TO_ID_vals[] = {
@@ -584,19 +584,19 @@ static const value_string lpp_udre_vals[] = {
 };
 
 static void
-lpp_pseudoRangeCor_fmt(gchar *s, guint32 v)
+lpp_pseudoRangeCor_fmt(char *s, uint32_t v)
 {
-  double pseudoRangeCor = ((double)(gint32)v)*0.32;
+  double pseudoRangeCor = ((double)(int32_t)v)*0.32;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%d)", pseudoRangeCor, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%d)", pseudoRangeCor, (int32_t)v);
 }
 
 static void
-lpp_rangeRateCor_fmt(gchar *s, guint32 v)
+lpp_rangeRateCor_fmt(char *s, uint32_t v)
 {
-  double rangeRateCor = ((double)(gint32)v)*0.032;
+  double rangeRateCor = ((double)(int32_t)v)*0.032;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", rangeRateCor, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", rangeRateCor, (int32_t)v);
 }
 
 static const value_string lpp_udreGrowthRate_vals[] = {
@@ -631,45 +631,45 @@ static const value_string lpp_signal_health_status_vals[] = {
   { 0, NULL}
 };
 static void
-lpp_stanClockToc_fmt(gchar *s, guint32 v)
+lpp_stanClockToc_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%um/s (%u)", 60*v, v);
 }
 
 static void
-lpp_stanClockAF2_fmt(gchar *s, guint32 v)
+lpp_stanClockAF2_fmt(char *s, uint32_t v)
 {
-  double stanClockAF2 = (double)((gint32)v)*pow(2, -59);
+  double stanClockAF2 = (double)((int32_t)v)*pow(2, -59);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", stanClockAF2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", stanClockAF2, (int32_t)v);
 }
 
 static void
-lpp_stanClockAF1_fmt(gchar *s, guint32 v)
+lpp_stanClockAF1_fmt(char *s, uint32_t v)
 {
-  double stanClockAF1 = (double)((gint32)v)*pow(2, -46);
+  double stanClockAF1 = (double)((int32_t)v)*pow(2, -46);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", stanClockAF1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", stanClockAF1, (int32_t)v);
 }
 
 static void
-lpp_stanClockAF0_fmt(gchar *s, guint32 v)
+lpp_stanClockAF0_fmt(char *s, uint32_t v)
 {
-  double stanClockAF0 = (double)((gint32)v)*pow(2, -34);
+  double stanClockAF0 = (double)((int32_t)v)*pow(2, -34);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", stanClockAF0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", stanClockAF0, (int32_t)v);
 }
 
 static void
-lpp_stanClockTgd_fmt(gchar *s, guint32 v)
+lpp_stanClockTgd_fmt(char *s, uint32_t v)
 {
-  double stanClockTgd = (double)((gint32)v)*pow(2, -32);
+  double stanClockTgd = (double)((int32_t)v)*pow(2, -32);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", stanClockTgd, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", stanClockTgd, (int32_t)v);
 }
 
 static void
-lpp_sisa_fmt(gchar *s, guint32 v)
+lpp_sisa_fmt(char *s, uint32_t v)
 {
   if (v < 50) {
     snprintf(s, ITEM_LABEL_LENGTH, "%ucm (%u)", v, v);
@@ -693,105 +693,105 @@ static const value_string lpp_stanModelID_vals[] = {
 };
 
 static void
-lpp_navToc_fmt(gchar *s, guint32 v)
+lpp_navToc_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", 16*v, v);
 }
 
 static void
-lpp_navaf2_fmt(gchar *s, guint32 v)
+lpp_navaf2_fmt(char *s, uint32_t v)
 {
-  double navaf2 = (double)((gint32)v)*pow(2, -55);
+  double navaf2 = (double)((int32_t)v)*pow(2, -55);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", navaf2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", navaf2, (int32_t)v);
 }
 
 static void
-lpp_navaf1_fmt(gchar *s, guint32 v)
+lpp_navaf1_fmt(char *s, uint32_t v)
 {
-  double navaf1 = (double)((gint32)v)*pow(2, -43);
+  double navaf1 = (double)((int32_t)v)*pow(2, -43);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", navaf1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", navaf1, (int32_t)v);
 }
 
 static void
-lpp_navaf0_navTgd_fmt(gchar *s, guint32 v)
+lpp_navaf0_navTgd_fmt(char *s, uint32_t v)
 {
-  double navaf0_navTgd = (double)((gint32)v)*pow(2, -31);
+  double navaf0_navTgd = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", navaf0_navTgd, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", navaf0_navTgd, (int32_t)v);
 }
 
 static void
-lpp_cnavToc_cnavTop_fmt(gchar *s, guint32 v)
+lpp_cnavToc_cnavTop_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", 300*v, v);
 }
 
 static void
-lpp_cnavAf2_fmt(gchar *s, guint32 v)
+lpp_cnavAf2_fmt(char *s, uint32_t v)
 {
-  double cnavAf2 = (double)((gint32)v)*pow(2, -60);
+  double cnavAf2 = (double)((int32_t)v)*pow(2, -60);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", cnavAf2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", cnavAf2, (int32_t)v);
 }
 
 static void
-lpp_cnavAf1_fmt(gchar *s, guint32 v)
+lpp_cnavAf1_fmt(char *s, uint32_t v)
 {
-  double cnavAf1 = (double)((gint32)v)*pow(2, -48);
+  double cnavAf1 = (double)((int32_t)v)*pow(2, -48);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", cnavAf1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", cnavAf1, (int32_t)v);
 }
 
 static void
-lpp_cnavX_fmt(gchar *s, guint32 v)
+lpp_cnavX_fmt(char *s, uint32_t v)
 {
-  double cnavX = (double)((gint32)v)*pow(2, -35);
+  double cnavX = (double)((int32_t)v)*pow(2, -35);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", cnavX, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", cnavX, (int32_t)v);
 }
 
 static void
-lpp_gloTau_gloDeltaTau_fmt(gchar *s, guint32 v)
+lpp_gloTau_gloDeltaTau_fmt(char *s, uint32_t v)
 {
-  double gloTau_gloDeltaTau = (double)((gint32)v)*pow(2, -30);
+  double gloTau_gloDeltaTau = (double)((int32_t)v)*pow(2, -30);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", gloTau_gloDeltaTau, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", gloTau_gloDeltaTau, (int32_t)v);
 }
 
 static void
-lpp_gloGamma_fmt(gchar *s, guint32 v)
+lpp_gloGamma_fmt(char *s, uint32_t v)
 {
-  double gloGamma = (double)((gint32)v)*pow(2, -40);
+  double gloGamma = (double)((int32_t)v)*pow(2, -40);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g (%d)", gloGamma, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g (%d)", gloGamma, (int32_t)v);
 }
 
 static void
-lpp_sbasTo_fmt(gchar *s, guint32 v)
+lpp_sbasTo_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", 16*v, v);
 }
 
 static void
-lpp_sbasAgfo_fmt(gchar *s, guint32 v)
+lpp_sbasAgfo_fmt(char *s, uint32_t v)
 {
-  double sbasAgfo = (double)((gint32)v)*pow(2, -31);
+  double sbasAgfo = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", sbasAgfo, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", sbasAgfo, (int32_t)v);
 }
 
 static void
-lpp_sbasAgf1_fmt(gchar *s, guint32 v)
+lpp_sbasAgf1_fmt(char *s, uint32_t v)
 {
-  double sbasAgf1 = (double)((gint32)v)*pow(2, -40);
+  double sbasAgf1 = (double)((int32_t)v)*pow(2, -40);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", sbasAgf1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", sbasAgf1, (int32_t)v);
 }
 
 static void
-lpp_bdsAODC_AODE_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAODC_AODE_r12_fmt(char *s, uint32_t v)
 {
   if (v < 25) {
     snprintf(s, ITEM_LABEL_LENGTH, "Age of the satellite clock correction parameters is %u hours (%u)", v, v);
@@ -804,67 +804,67 @@ lpp_bdsAODC_AODE_r12_fmt(gchar *s, guint32 v)
 
 
 static void
-lpp_bdsToc_Toe_r12_fmt(gchar *s, guint32 v)
+lpp_bdsToc_Toe_r12_fmt(char *s, uint32_t v)
 {
-  double bdsToc = (double)((gint32)v)*pow(2, 3);
+  double bdsToc = (double)((int32_t)v)*pow(2, 3);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", bdsToc, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", bdsToc, (int32_t)v);
 }
 
 static void
-lpp_bdsA0_r12_fmt(gchar *s, guint32 v)
+lpp_bdsA0_r12_fmt(char *s, uint32_t v)
 {
-  double bdsA0 = (double)((gint32)v)*pow(2, -33);
+  double bdsA0 = (double)((int32_t)v)*pow(2, -33);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", bdsA0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", bdsA0, (int32_t)v);
 }
 
 static void
-lpp_bdsA1_r12_fmt(gchar *s, guint32 v)
+lpp_bdsA1_r12_fmt(char *s, uint32_t v)
 {
-  double bdsA1 = (double)((gint32)v)*pow(2, -50);
+  double bdsA1 = (double)((int32_t)v)*pow(2, -50);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", bdsA1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", bdsA1, (int32_t)v);
 }
 
 static void
-lpp_bdsA2_r12_fmt(gchar *s, guint32 v)
+lpp_bdsA2_r12_fmt(char *s, uint32_t v)
 {
-  double bdsA2 = (double)((gint32)v)*pow(2, -66);
+  double bdsA2 = (double)((int32_t)v)*pow(2, -66);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", bdsA2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s2 (%d)", bdsA2, (int32_t)v);
 }
 
 static void
-lpp_bdsTgd1_r12_fmt(gchar *s, guint32 v)
+lpp_bdsTgd1_r12_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%gns (%d)", (float)((gint32)v)*0.1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gns (%d)", (float)((int32_t)v)*0.1, (int32_t)v);
 }
 
 static void
-lpp_keplerToe_fmt(gchar *s, guint32 v)
+lpp_keplerToe_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", 60*v, v);
 }
 
 static void
-lpp_keplerW_M0_I0_Omega0_fmt(gchar *s, guint32 v)
+lpp_keplerW_M0_I0_Omega0_fmt(char *s, uint32_t v)
 {
-  double keplerW_M0_I0_Omega0 = (double)((gint32)v)*pow(2, -31);
+  double keplerW_M0_I0_Omega0 = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", keplerW_M0_I0_Omega0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", keplerW_M0_I0_Omega0, (int32_t)v);
 }
 
 static void
-lpp_keplerDeltaN_OmegaDot_IDot_fmt(gchar *s, guint32 v)
+lpp_keplerDeltaN_OmegaDot_IDot_fmt(char *s, uint32_t v)
 {
-  double keplerDeltaN_OmegaDot_IDot = (double)((gint32)v)*pow(2, -43);
+  double keplerDeltaN_OmegaDot_IDot = (double)((int32_t)v)*pow(2, -43);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", keplerDeltaN_OmegaDot_IDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", keplerDeltaN_OmegaDot_IDot, (int32_t)v);
 }
 
 static void
-lpp_keplerE_fmt(gchar *s, guint32 v)
+lpp_keplerE_fmt(char *s, uint32_t v)
 {
   double keplerE = (double)v*pow(2, -33);
 
@@ -872,7 +872,7 @@ lpp_keplerE_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_keplerAPowerHalf_fmt(gchar *s, guint32 v)
+lpp_keplerAPowerHalf_fmt(char *s, uint32_t v)
 {
   double keplerAPowerHalf = (double)v*pow(2, -19);
 
@@ -880,45 +880,45 @@ lpp_keplerAPowerHalf_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_keplerCrs_Crc_fmt(gchar *s, guint32 v)
+lpp_keplerCrs_Crc_fmt(char *s, uint32_t v)
 {
-  double keplerCrs_Crc = (double)((gint32)v)*pow(2, -5);
+  double keplerCrs_Crc = (double)((int32_t)v)*pow(2, -5);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", keplerCrs_Crc, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", keplerCrs_Crc, (int32_t)v);
 }
 
 static void
-lpp_keplerCx_fmt(gchar *s, guint32 v)
+lpp_keplerCx_fmt(char *s, uint32_t v)
 {
-  double keplerCx = (double)((gint32)v)*pow(2, -29);
+  double keplerCx = (double)((int32_t)v)*pow(2, -29);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", keplerCx, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", keplerCx, (int32_t)v);
 }
 
 static void
-lpp_navToe_fmt(gchar *s, guint32 v)
+lpp_navToe_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", 16*v, v);
 }
 
 static void
-lpp_navOmega_M0_I0_OmegaA0_fmt(gchar *s, guint32 v)
+lpp_navOmega_M0_I0_OmegaA0_fmt(char *s, uint32_t v)
 {
-  double navOmega_M0_I0_OmegaA0 = (double)((gint32)v)*pow(2, -31);
+  double navOmega_M0_I0_OmegaA0 = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", navOmega_M0_I0_OmegaA0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", navOmega_M0_I0_OmegaA0, (int32_t)v);
 }
 
 static void
-lpp_navDeltaN_OmegaADot_IDot_fmt(gchar *s, guint32 v)
+lpp_navDeltaN_OmegaADot_IDot_fmt(char *s, uint32_t v)
 {
-  double navDeltaN_OmegaADot_IDot = (double)((gint32)v)*pow(2, -43);
+  double navDeltaN_OmegaADot_IDot = (double)((int32_t)v)*pow(2, -43);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", navDeltaN_OmegaADot_IDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", navDeltaN_OmegaADot_IDot, (int32_t)v);
 }
 
 static void
-lpp_navE_fmt(gchar *s, guint32 v)
+lpp_navE_fmt(char *s, uint32_t v)
 {
   double navE = (double)v*pow(2, -33);
 
@@ -926,7 +926,7 @@ lpp_navE_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_navAPowerHalf_fmt(gchar *s, guint32 v)
+lpp_navAPowerHalf_fmt(char *s, uint32_t v)
 {
   double navAPowerHalf = (double)v*pow(2, -19);
 
@@ -934,151 +934,151 @@ lpp_navAPowerHalf_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_navCrs_Crc_fmt(gchar *s, guint32 v)
+lpp_navCrs_Crc_fmt(char *s, uint32_t v)
 {
-  double navCrs_Crc = (double)((gint32)v)*pow(2, -5);
+  double navCrs_Crc = (double)((int32_t)v)*pow(2, -5);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", navCrs_Crc, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", navCrs_Crc, (int32_t)v);
 }
 
 static void
-lpp_navCx_fmt(gchar *s, guint32 v)
+lpp_navCx_fmt(char *s, uint32_t v)
 {
-  double navCx = (double)((gint32)v)*pow(2, -29);
+  double navCx = (double)((int32_t)v)*pow(2, -29);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", navCx, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", navCx, (int32_t)v);
 }
 
 static void
-lpp_cnavDeltaA_fmt(gchar *s, guint32 v)
+lpp_cnavDeltaA_fmt(char *s, uint32_t v)
 {
-  double cnavDeltaA = (double)((gint32)v)*pow(2, -9);
+  double cnavDeltaA = (double)((int32_t)v)*pow(2, -9);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", cnavDeltaA, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", cnavDeltaA, (int32_t)v);
 }
 
 static void
-lpp_cnavAdot_fmt(gchar *s, guint32 v)
+lpp_cnavAdot_fmt(char *s, uint32_t v)
 {
-  double cnavAdot = (double)((gint32)v)*pow(2, -21);
+  double cnavAdot = (double)((int32_t)v)*pow(2, -21);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", cnavAdot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", cnavAdot, (int32_t)v);
 }
 
 static void
-lpp_cnavDeltaNo_fmt(gchar *s, guint32 v)
+lpp_cnavDeltaNo_fmt(char *s, uint32_t v)
 {
-  double cnavDeltaNo = (double)((gint32)v)*pow(2, -44);
+  double cnavDeltaNo = (double)((int32_t)v)*pow(2, -44);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", cnavDeltaNo, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", cnavDeltaNo, (int32_t)v);
 }
 
 static void
-lpp_cnavDeltaNoDot_fmt(gchar *s, guint32 v)
+lpp_cnavDeltaNoDot_fmt(char *s, uint32_t v)
 {
-  double cnavDeltaNoDot = (double)((gint32)v)*pow(2, -57);
+  double cnavDeltaNoDot = (double)((int32_t)v)*pow(2, -57);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s2 (%d)", cnavDeltaNoDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s2 (%d)", cnavDeltaNoDot, (int32_t)v);
 }
 
 static void
-lpp_cnavDeltaOmegaDot_IoDot_fmt(gchar *s, guint32 v)
+lpp_cnavDeltaOmegaDot_IoDot_fmt(char *s, uint32_t v)
 {
-  double cnavDeltaOmegaDot_IoDot = (double)((gint32)v)*pow(2, -44);
+  double cnavDeltaOmegaDot_IoDot = (double)((int32_t)v)*pow(2, -44);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", cnavDeltaOmegaDot_IoDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", cnavDeltaOmegaDot_IoDot, (int32_t)v);
 }
 
 static void
-lpp_cnavCx_fmt(gchar *s, guint32 v)
+lpp_cnavCx_fmt(char *s, uint32_t v)
 {
-  double cnavCx = (double)((gint32)v)*pow(2, -30);
+  double cnavCx = (double)((int32_t)v)*pow(2, -30);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", cnavCx, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", cnavCx, (int32_t)v);
 }
 
 static void
-lpp_cnavCrs_Crc_fmt(gchar *s, guint32 v)
+lpp_cnavCrs_Crc_fmt(char *s, uint32_t v)
 {
-  double cnavCrs_Crc = (double)((gint32)v)*pow(2, -8);
+  double cnavCrs_Crc = (double)((int32_t)v)*pow(2, -8);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", cnavCrs_Crc, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", cnavCrs_Crc, (int32_t)v);
 }
 
 static void
-lpp_gloX_Y_Z_fmt(gchar *s, guint32 v)
+lpp_gloX_Y_Z_fmt(char *s, uint32_t v)
 {
-  double gloX_Y_Z = (double)((gint32)v)*pow(2, -11);
+  double gloX_Y_Z = (double)((int32_t)v)*pow(2, -11);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gkm (%d)", gloX_Y_Z, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gkm (%d)", gloX_Y_Z, (int32_t)v);
 }
 
 static void
-lpp_gloXdot_Ydot_Zdot_fmt(gchar *s, guint32 v)
+lpp_gloXdot_Ydot_Zdot_fmt(char *s, uint32_t v)
 {
-  double gloXdot_Ydot_Zdot = (double)((gint32)v)*pow(2, -20);
+  double gloXdot_Ydot_Zdot = (double)((int32_t)v)*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gkm/s (%d)", gloXdot_Ydot_Zdot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gkm/s (%d)", gloXdot_Ydot_Zdot, (int32_t)v);
 }
 
 static void
-lpp_gloXdotdot_Ydotdot_Zdotdot_fmt(gchar *s, guint32 v)
+lpp_gloXdotdot_Ydotdot_Zdotdot_fmt(char *s, uint32_t v)
 {
-  double gloXdotdot_Ydotdot_Zdotdot = (double)((gint32)v)*pow(2, -30);
+  double gloXdotdot_Ydotdot_Zdotdot = (double)((int32_t)v)*pow(2, -30);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gkm/s2 (%d)", gloXdotdot_Ydotdot_Zdotdot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gkm/s2 (%d)", gloXdotdot_Ydotdot_Zdotdot, (int32_t)v);
 }
 
 static void
-lpp_sbasXg_Yg_fmt(gchar *s, guint32 v)
+lpp_sbasXg_Yg_fmt(char *s, uint32_t v)
 {
-  double sbasXg_Yg = (double)((gint32)v)*0.08;
+  double sbasXg_Yg = (double)((int32_t)v)*0.08;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%d)", sbasXg_Yg, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%d)", sbasXg_Yg, (int32_t)v);
 }
 
 static void
-lpp_sbasZg_fmt(gchar *s, guint32 v)
+lpp_sbasZg_fmt(char *s, uint32_t v)
 {
-  double sbasZg = (double)((gint32)v)*0.4;
+  double sbasZg = (double)((int32_t)v)*0.4;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%d)", sbasZg, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%d)", sbasZg, (int32_t)v);
 }
 
 static void
-lpp_sbasXgDot_YgDot_fmt(gchar *s, guint32 v)
+lpp_sbasXgDot_YgDot_fmt(char *s, uint32_t v)
 {
-  double sbasXgDot_YgDot = (double)((gint32)v)*0.000625;
+  double sbasXgDot_YgDot = (double)((int32_t)v)*0.000625;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", sbasXgDot_YgDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", sbasXgDot_YgDot, (int32_t)v);
 }
 
 static void
-lpp_sbasZgDot_fmt(gchar *s, guint32 v)
+lpp_sbasZgDot_fmt(char *s, uint32_t v)
 {
-  double sbasZgDot = (double)((gint32)v)*0.004;
+  double sbasZgDot = (double)((int32_t)v)*0.004;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", sbasZgDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", sbasZgDot, (int32_t)v);
 }
 
 static void
-lpp_sbasXgDotDot_YgDotDot_fmt(gchar *s, guint32 v)
+lpp_sbasXgDotDot_YgDotDot_fmt(char *s, uint32_t v)
 {
-  double sbasXgDotDot_YgDotDot = (double)((gint32)v)*0.0000125;
+  double sbasXgDotDot_YgDotDot = (double)((int32_t)v)*0.0000125;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", sbasXgDotDot_YgDotDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", sbasXgDotDot_YgDotDot, (int32_t)v);
 }
 
 static void
-lpp_sbasZgDotDot_fmt(gchar *s, guint32 v)
+lpp_sbasZgDotDot_fmt(char *s, uint32_t v)
 {
-  double sbasZgDotDot = (double)((gint32)v)*0.0000625;
+  double sbasZgDotDot = (double)((int32_t)v)*0.0000625;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", sbasZgDotDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", sbasZgDotDot, (int32_t)v);
 }
 
 static void
-lpp_bdsAPowerHalf_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAPowerHalf_r12_fmt(char *s, uint32_t v)
 {
   double bdsAPowerHalf = (double)v*pow(2, -19);
 
@@ -1086,7 +1086,7 @@ lpp_bdsAPowerHalf_r12_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_bdsE_r12_fmt(gchar *s, guint32 v)
+lpp_bdsE_r12_fmt(char *s, uint32_t v)
 {
   double bdsE = (double)v*pow(2, -33);
 
@@ -1094,49 +1094,49 @@ lpp_bdsE_r12_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_bdsW_M0_Omega0_I0_r12_fmt(gchar *s, guint32 v)
+lpp_bdsW_M0_Omega0_I0_r12_fmt(char *s, uint32_t v)
 {
-  double bdsW_M0_Omega0_I0 = (double)((gint32)v)*pow(2, -31);
+  double bdsW_M0_Omega0_I0 = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", bdsW_M0_Omega0_I0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", bdsW_M0_Omega0_I0, (int32_t)v);
 }
 
 static void
-lpp_bdsDeltaN_OmegaDot_IDot_r12_fmt(gchar *s, guint32 v)
+lpp_bdsDeltaN_OmegaDot_IDot_r12_fmt(char *s, uint32_t v)
 {
-  double bdsDeltaN_OmegaDot_IDot = (double)((gint32)v)*pow(2, -43);
+  double bdsDeltaN_OmegaDot_IDot = (double)((int32_t)v)*pow(2, -43);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", bdsDeltaN_OmegaDot_IDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", bdsDeltaN_OmegaDot_IDot, (int32_t)v);
 }
 
 static void
-lpp_bdsCuc_Cus_Cic_Cis_r12_fmt(gchar *s, guint32 v)
+lpp_bdsCuc_Cus_Cic_Cis_r12_fmt(char *s, uint32_t v)
 {
-  double bdsCuc_Cus_Cic_Cis = (double)((gint32)v)*pow(2, -31);
+  double bdsCuc_Cus_Cic_Cis = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", bdsCuc_Cus_Cic_Cis, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", bdsCuc_Cus_Cic_Cis, (int32_t)v);
 }
 
 static void
-lpp_bdsCrc_Crs_r12_fmt(gchar *s, guint32 v)
+lpp_bdsCrc_Crs_r12_fmt(char *s, uint32_t v)
 {
-  double bdsCrc_Crs = (double)((gint32)v)*pow(2, -6);
+  double bdsCrc_Crs = (double)((int32_t)v)*pow(2, -6);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", bdsCrc_Crs, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%grad (%d)", bdsCrc_Crs, (int32_t)v);
 }
 
 static void
-lpp_doppler0_fmt(gchar *s, guint32 v)
+lpp_doppler0_fmt(char *s, uint32_t v)
 {
-  double doppler0 = (double)((gint32)v)*0.5;
+  double doppler0 = (double)((int32_t)v)*0.5;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", doppler0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", doppler0, (int32_t)v);
 }
 
 static void
-lpp_doppler1_fmt(gchar *s, guint32 v)
+lpp_doppler1_fmt(char *s, uint32_t v)
 {
-  double doppler1 = (double)((gint32)(v-42))/210;
+  double doppler1 = (double)((int32_t)(v-42))/210;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%fm/s2 (%u)", doppler1, v);
 }
@@ -1151,7 +1151,7 @@ static const value_string lpp_dopplerUncertainty_vals[] = {
 };
 
 static void
-lpp_codePhase_fmt(gchar *s, guint32 v)
+lpp_codePhase_fmt(char *s, uint32_t v)
 {
   double codePhase = (double)v*pow(2, -10);
 
@@ -1196,13 +1196,13 @@ static const value_string lpp_codePhaseSearchWindow_vals[] = {
 static value_string_ext lpp_codePhaseSearchWindow_vals_ext = VALUE_STRING_EXT_INIT(lpp_codePhaseSearchWindow_vals);
 
 static void
-lpp_azimuth_elevation_fmt(gchar *s, guint32 v)
+lpp_azimuth_elevation_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%u)", (float)v*0.703125, v);
 }
 
 static void
-lpp_kepAlmanacE_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacE_fmt(char *s, uint32_t v)
 {
   double kepAlmanacE = (double)v*pow(2, -16);
 
@@ -1210,55 +1210,55 @@ lpp_kepAlmanacE_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_kepAlmanacDeltaI_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacDeltaI_fmt(char *s, uint32_t v)
 {
-  double kepAlmanacDeltaI = (double)((gint32)v)*pow(2, -14);
+  double kepAlmanacDeltaI = (double)((int32_t)v)*pow(2, -14);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", kepAlmanacDeltaI, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", kepAlmanacDeltaI, (int32_t)v);
 }
 
 static void
-lpp_kepAlmanacOmegaDot_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacOmegaDot_fmt(char *s, uint32_t v)
 {
-  double kepAlmanacOmegaDot = (double)((gint32)v)*pow(2, -33);
+  double kepAlmanacOmegaDot = (double)((int32_t)v)*pow(2, -33);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", kepAlmanacOmegaDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", kepAlmanacOmegaDot, (int32_t)v);
 }
 
 static void
-lpp_kepAlmanacAPowerHalf_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacAPowerHalf_fmt(char *s, uint32_t v)
 {
-  double kepAlmanacAPowerHalf = (double)((gint32)v)*pow(2, -9);
+  double kepAlmanacAPowerHalf = (double)((int32_t)v)*pow(2, -9);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm1/2 (%d)", kepAlmanacAPowerHalf, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm1/2 (%d)", kepAlmanacAPowerHalf, (int32_t)v);
 }
 
 static void
-lpp_kepAlmanacOmega0_W_M0_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacOmega0_W_M0_fmt(char *s, uint32_t v)
 {
-  double kepAlmanacOmega0_W_M0 = (double)((gint32)v)*pow(2, -15);
+  double kepAlmanacOmega0_W_M0 = (double)((int32_t)v)*pow(2, -15);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", kepAlmanacOmega0_W_M0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", kepAlmanacOmega0_W_M0, (int32_t)v);
 }
 
 static void
-lpp_kepAlmanacAF0_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacAF0_fmt(char *s, uint32_t v)
 {
-  double kepAlmanacAF0 = (double)((gint32)v)*pow(2, -19);
+  double kepAlmanacAF0 = (double)((int32_t)v)*pow(2, -19);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", kepAlmanacAF0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", kepAlmanacAF0, (int32_t)v);
 }
 
 static void
-lpp_kepAlmanacAF1_fmt(gchar *s, guint32 v)
+lpp_kepAlmanacAF1_fmt(char *s, uint32_t v)
 {
-  double kepAlmanacAF1 = (double)((gint32)v)*pow(2, -38);
+  double kepAlmanacAF1 = (double)((int32_t)v)*pow(2, -38);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", kepAlmanacAF1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", kepAlmanacAF1, (int32_t)v);
 }
 
 static void
-lpp_navAlmE_fmt(gchar *s, guint32 v)
+lpp_navAlmE_fmt(char *s, uint32_t v)
 {
   double navAlmE = (double)v*pow(2, -21);
 
@@ -1266,23 +1266,23 @@ lpp_navAlmE_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_navAlmDeltaI_fmt(gchar *s, guint32 v)
+lpp_navAlmDeltaI_fmt(char *s, uint32_t v)
 {
-  double navAlmDeltaI = (double)((gint32)v)*pow(2, -19);
+  double navAlmDeltaI = (double)((int32_t)v)*pow(2, -19);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", navAlmDeltaI, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", navAlmDeltaI, (int32_t)v);
 }
 
 static void
-lpp_navAlmOMEGADOT_fmt(gchar *s, guint32 v)
+lpp_navAlmOMEGADOT_fmt(char *s, uint32_t v)
 {
-  double navAlmOMEGADOT = (double)((gint32)v)*pow(2, -38);
+  double navAlmOMEGADOT = (double)((int32_t)v)*pow(2, -38);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", navAlmOMEGADOT, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", navAlmOMEGADOT, (int32_t)v);
 }
 
 static void
-lpp_navAlmSqrtA_fmt(gchar *s, guint32 v)
+lpp_navAlmSqrtA_fmt(char *s, uint32_t v)
 {
   double navAlmSqrtA = (double)v*pow(2, -11);
 
@@ -1290,45 +1290,45 @@ lpp_navAlmSqrtA_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_navAlmOMEGAo_Omega_Mo_fmt(gchar *s, guint32 v)
+lpp_navAlmOMEGAo_Omega_Mo_fmt(char *s, uint32_t v)
 {
-  double navAlmOMEGAo_Omega_Mo = (double)((gint32)v)*pow(2, -23);
+  double navAlmOMEGAo_Omega_Mo = (double)((int32_t)v)*pow(2, -23);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", navAlmOMEGAo_Omega_Mo, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", navAlmOMEGAo_Omega_Mo, (int32_t)v);
 }
 
 static void
-lpp_navAlmaf0_fmt(gchar *s, guint32 v)
+lpp_navAlmaf0_fmt(char *s, uint32_t v)
 {
-  double navAlmaf0 = (double)((gint32)v)*pow(2, -20);
+  double navAlmaf0 = (double)((int32_t)v)*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", navAlmaf0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", navAlmaf0, (int32_t)v);
 }
 
 static void
-lpp_navAlmaf1_fmt(gchar *s, guint32 v)
+lpp_navAlmaf1_fmt(char *s, uint32_t v)
 {
-  double navAlmaf1 = (double)((gint32)v)*pow(2, -38);
+  double navAlmaf1 = (double)((int32_t)v)*pow(2, -38);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", navAlmaf1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", navAlmaf1, (int32_t)v);
 }
 
 static void
-lpp_redAlmDeltaA_fmt(gchar *s, guint32 v)
+lpp_redAlmDeltaA_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", 512*(gint)v, (gint)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", 512*(int)v, (int)v);
 }
 
 static void
-lpp_redAlmOmega0_Phi0_fmt(gchar *s, guint32 v)
+lpp_redAlmOmega0_Phi0_fmt(char *s, uint32_t v)
 {
-  double redAlmOmega0_Phi0 = (double)((gint32)v)*pow(2, -6);
+  double redAlmOmega0_Phi0 = (double)((int32_t)v)*pow(2, -6);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", redAlmOmega0_Phi0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", redAlmOmega0_Phi0, (int32_t)v);
 }
 
 static void
-lpp_midiAlmE_fmt(gchar *s, guint32 v)
+lpp_midiAlmE_fmt(char *s, uint32_t v)
 {
   double midiAlmE = (double)v*pow(2, -16);
 
@@ -1336,143 +1336,143 @@ lpp_midiAlmE_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_midiAlmDeltaI_fmt(gchar *s, guint32 v)
+lpp_midiAlmDeltaI_fmt(char *s, uint32_t v)
 {
-  double midiAlmDeltaI = (double)((gint32)v)*pow(2, -14);
+  double midiAlmDeltaI = (double)((int32_t)v)*pow(2, -14);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", midiAlmDeltaI, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", midiAlmDeltaI, (int32_t)v);
 }
 
 static void
-lpp_midiAlmOmegaDot_fmt(gchar *s, guint32 v)
+lpp_midiAlmOmegaDot_fmt(char *s, uint32_t v)
 {
-  double midiAlmOmegaDot = (double)((gint32)v)*pow(2, -33);
+  double midiAlmOmegaDot = (double)((int32_t)v)*pow(2, -33);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", midiAlmOmegaDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", midiAlmOmegaDot, (int32_t)v);
 }
 
 static void
-lpp_midiAlmSqrtA_fmt(gchar *s, guint32 v)
+lpp_midiAlmSqrtA_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%fm1/2 (%u)", (float)v*0.0625, v);
 }
 
 static void
-lpp_midiAlmOmega0_Omega_Mo_fmt(gchar *s, guint32 v)
+lpp_midiAlmOmega0_Omega_Mo_fmt(char *s, uint32_t v)
 {
-  double midiAlmOmega0_Omega_Mo = (double)((gint32)v)*pow(2, -15);
+  double midiAlmOmega0_Omega_Mo = (double)((int32_t)v)*pow(2, -15);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", midiAlmOmega0_Omega_Mo, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", midiAlmOmega0_Omega_Mo, (int32_t)v);
 }
 
 static void
-lpp_midiAlmaf0_fmt(gchar *s, guint32 v)
+lpp_midiAlmaf0_fmt(char *s, uint32_t v)
 {
-  double midiAlmaf0 = (double)((gint32)v)*pow(2, -20);
+  double midiAlmaf0 = (double)((int32_t)v)*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", midiAlmaf0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", midiAlmaf0, (int32_t)v);
 }
 
 static void
-lpp_midiAlmaf1_fmt(gchar *s, guint32 v)
+lpp_midiAlmaf1_fmt(char *s, uint32_t v)
 {
-  double midiAlmaf1 = (double)((gint32)v)*pow(2, -37);
+  double midiAlmaf1 = (double)((int32_t)v)*pow(2, -37);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", midiAlmaf1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", midiAlmaf1, (int32_t)v);
 }
 
 static void
-lpp_gloAlmLambdaA_DeltaIa_fmt(gchar *s, guint32 v)
+lpp_gloAlmLambdaA_DeltaIa_fmt(char *s, uint32_t v)
 {
-  double gloAlmLambdaA_DeltaIa = (double)((gint32)v)*pow(2, -20);
+  double gloAlmLambdaA_DeltaIa = (double)((int32_t)v)*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", gloAlmLambdaA_DeltaIa, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", gloAlmLambdaA_DeltaIa, (int32_t)v);
 }
 
 static void
-lpp_gloAlmtlambdaA_fmt(gchar *s, guint32 v)
+lpp_gloAlmtlambdaA_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%fs (%u)", (float)v*0.03125, v);
 }
 
 static void
-lpp_gloAlmDeltaTA_fmt(gchar *s, guint32 v)
+lpp_gloAlmDeltaTA_fmt(char *s, uint32_t v)
 {
-  double gloAlmDeltaTA = (double)((gint32)v)*pow(2, -9);
+  double gloAlmDeltaTA = (double)((int32_t)v)*pow(2, -9);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/orbit period (%d)", gloAlmDeltaTA, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/orbit period (%d)", gloAlmDeltaTA, (int32_t)v);
 }
 
 static void
-lpp_gloAlmDeltaTdotA_fmt(gchar *s, guint32 v)
+lpp_gloAlmDeltaTdotA_fmt(char *s, uint32_t v)
 {
-  double gloAlmDeltaTdotA = (double)((gint32)v)*pow(2, -14);
+  double gloAlmDeltaTdotA = (double)((int32_t)v)*pow(2, -14);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/orbit period (%d)", gloAlmDeltaTdotA, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/orbit period (%d)", gloAlmDeltaTdotA, (int32_t)v);
 }
 
 static void
-lpp_gloAlmEpsilonA_fmt(gchar *s, guint32 v)
+lpp_gloAlmEpsilonA_fmt(char *s, uint32_t v)
 {
   double gloAlmEpsilonA = (double)v*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g (%u)", gloAlmEpsilonA, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g (%u)", gloAlmEpsilonA, (int32_t)v);
 }
 
 static void
-lpp_gloAlmOmegaA_fmt(gchar *s, guint32 v)
+lpp_gloAlmOmegaA_fmt(char *s, uint32_t v)
 {
-  double gloAlmOmegaA = (double)((gint32)v)*pow(2, -15);
+  double gloAlmOmegaA = (double)((int32_t)v)*pow(2, -15);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", gloAlmOmegaA, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", gloAlmOmegaA, (int32_t)v);
 }
 
 static void
-lpp_gloAlmTauA_fmt(gchar *s, guint32 v)
+lpp_gloAlmTauA_fmt(char *s, uint32_t v)
 {
-  double gloAlmTauA = (double)((gint32)v)*pow(2, -18);
+  double gloAlmTauA = (double)((int32_t)v)*pow(2, -18);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", gloAlmTauA, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", gloAlmTauA, (int32_t)v);
 }
 
 static void
-lpp_sbasAlmXg_Yg_fmt(gchar *s, guint32 v)
+lpp_sbasAlmXg_Yg_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%fkm (%d)", (gint32)v*2.6, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fkm (%d)", (int32_t)v*2.6, (int32_t)v);
 }
 
 static void
-lpp_sbasAlmZg_fmt(gchar *s, guint32 v)
+lpp_sbasAlmZg_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%dkm (%d)", (gint32)v*26, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%dkm (%d)", (int32_t)v*26, (int32_t)v);
 }
 
 static void
-lpp_sbasAlmXgdot_YgDot_fmt(gchar *s, guint32 v)
+lpp_sbasAlmXgdot_YgDot_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%dm/s (%d)", (gint32)v*10, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%dm/s (%d)", (int32_t)v*10, (int32_t)v);
 }
 
 static void
-lpp_sbasAlmZgDot_fmt(gchar *s, guint32 v)
+lpp_sbasAlmZgDot_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", (gint32)v*40.96, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm/s (%d)", (int32_t)v*40.96, (int32_t)v);
 }
 
 static void
-lpp_sbasAlmTo_fmt(gchar *s, guint32 v)
+lpp_sbasAlmTo_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%um/s (%u)", v*64, v);
 }
 
 static void
-lpp_bdsAlmToa_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmToa_r12_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", v*4096, v);
 }
 
 static void
-lpp_bdsAlmSqrtA_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmSqrtA_r12_fmt(char *s, uint32_t v)
 {
   double bdsAlmSqrtA = (double)v*pow(2, -11);
 
@@ -1480,7 +1480,7 @@ lpp_bdsAlmSqrtA_r12_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_bdsAlmE_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmE_r12_fmt(char *s, uint32_t v)
 {
   double bdsAlmE = (double)v*pow(2, -21);
 
@@ -1488,43 +1488,43 @@ lpp_bdsAlmE_r12_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_bdsAlmW_M0_Omega0_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmW_M0_Omega0_r12_fmt(char *s, uint32_t v)
 {
-  double bdsAlmW_M0_Omega0 = (double)((gint32)v)*pow(2, -23);
+  double bdsAlmW_M0_Omega0 = (double)((int32_t)v)*pow(2, -23);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", bdsAlmW_M0_Omega0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", bdsAlmW_M0_Omega0, (int32_t)v);
 }
 
 static void
-lpp_bdsAlmOmegaDot_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmOmegaDot_r12_fmt(char *s, uint32_t v)
 {
-  double bdsAlmOmegaDot = (double)((gint32)v)*pow(2, -38);
+  double bdsAlmOmegaDot = (double)((int32_t)v)*pow(2, -38);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", bdsAlmOmegaDot, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles/s (%d)", bdsAlmOmegaDot, (int32_t)v);
 }
 
 static void
-lpp_bdsAlmDeltaI_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmDeltaI_r12_fmt(char *s, uint32_t v)
 {
-  double bdsAlmDeltaI = (double)((gint32)v)*pow(2, -19);
+  double bdsAlmDeltaI = (double)((int32_t)v)*pow(2, -19);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", bdsAlmDeltaI, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g semi-circles (%d)", bdsAlmDeltaI, (int32_t)v);
 }
 
 static void
-lpp_bdsAlmA0_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmA0_r12_fmt(char *s, uint32_t v)
 {
-  double bdsAlmA0 = (double)((gint32)v)*pow(2, -20);
+  double bdsAlmA0 = (double)((int32_t)v)*pow(2, -20);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", bdsAlmA0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", bdsAlmA0, (int32_t)v);
 }
 
 static void
-lpp_bdsAlmA1_r12_fmt(gchar *s, guint32 v)
+lpp_bdsAlmA1_r12_fmt(char *s, uint32_t v)
 {
-  double bdsAlmA1 = (double)((gint32)v)*pow(2, -38);
+  double bdsAlmA1 = (double)((int32_t)v)*pow(2, -38);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", bdsAlmA1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", bdsAlmA1, (int32_t)v);
 }
 
 static const true_false_string lpp_bdsSvHealth_r12_b1i_b2i_value = {
@@ -1538,23 +1538,23 @@ static const true_false_string lpp_bdsSvHealth_r12_nav_value = {
 };
 
 static void
-lpp_gnss_Utc_A1_fmt(gchar *s, guint32 v)
+lpp_gnss_Utc_A1_fmt(char *s, uint32_t v)
 {
-  double gnss_Utc_A1 = (double)((gint32)v)*pow(2, -50);
+  double gnss_Utc_A1 = (double)((int32_t)v)*pow(2, -50);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", gnss_Utc_A1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/s (%d)", gnss_Utc_A1, (int32_t)v);
 }
 
 static void
-lpp_gnss_Utc_A0_fmt(gchar *s, guint32 v)
+lpp_gnss_Utc_A0_fmt(char *s, uint32_t v)
 {
-  double gnss_Utc_A0 = (double)((gint32)v)*pow(2, -30);
+  double gnss_Utc_A0 = (double)((int32_t)v)*pow(2, -30);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", gnss_Utc_A0, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", gnss_Utc_A0, (int32_t)v);
 }
 
 static void
-lpp_gnss_Utc_Tot_fmt(gchar *s, guint32 v)
+lpp_gnss_Utc_Tot_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%us (%u)", v*4096, v);
 }
@@ -1602,19 +1602,19 @@ static const value_string lpp_bds_RURAI_vals[] = {
 static value_string_ext lpp_bds_RURAI_vals_ext = VALUE_STRING_EXT_INIT(lpp_bds_RURAI_vals);
 
 static void
-lpp_bds_ECC_DeltaT_r12_fmt(gchar *s, guint32 v)
+lpp_bds_ECC_DeltaT_r12_fmt(char *s, uint32_t v)
 {
-  if ((gint32)v == -4096) {
-    snprintf(s, ITEM_LABEL_LENGTH, "Not available (%d)", (gint32)v);
+  if ((int32_t)v == -4096) {
+    snprintf(s, ITEM_LABEL_LENGTH, "Not available (%d)", (int32_t)v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (float)((gint32)v)*0.1, (gint32)v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (float)((int32_t)v)*0.1, (int32_t)v);
   }
 }
 
 static void
-lpp_bds_GridIonElement_dt_r12_fmt(gchar *s, guint32 v)
+lpp_bds_GridIonElement_dt_r12_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (float)((gint32)v)*0.125, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (float)((int32_t)v)*0.125, (int32_t)v);
 }
 
 static const value_string lpp_bds_givei_vals[] = {
@@ -1639,23 +1639,23 @@ static const value_string lpp_bds_givei_vals[] = {
 static value_string_ext lpp_bds_givei_vals_ext = VALUE_STRING_EXT_INIT(lpp_bds_givei_vals);
 
 static void
-lpp_fine_PseudoRange_r15_fmt(gchar *s, guint32 v)
+lpp_fine_PseudoRange_r15_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)*pow(2, -29);
+  double val = (double)((int32_t)v)*pow(2, -29);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_fine_PhaseRange_r15_fmt(gchar *s, guint32 v)
+lpp_fine_PhaseRange_r15_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)*pow(2, -31);
+  double val = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_carrier_to_noise_ratio_r15_fmt(gchar *s, guint32 v)
+lpp_carrier_to_noise_ratio_r15_fmt(char *s, uint32_t v)
 {
   double val = (double)v*pow(2, -4);
 
@@ -1663,19 +1663,19 @@ lpp_carrier_to_noise_ratio_r15_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_fine_PhaseRangeRate_r15_fmt(gchar *s, guint32 v)
+lpp_fine_PhaseRangeRate_r15_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/1000;
+  double val = (double)((int32_t)v)/1000;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_cpBias_r15_fmt(gchar *s, guint32 v)
+lpp_cpBias_r15_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/50;
+  double val = (double)((int32_t)v)/50;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (int32_t)v);
 }
 
 static const value_string lpp_ambiguityStatusFlag_r15_vals[] = {
@@ -1687,27 +1687,27 @@ static const value_string lpp_ambiguityStatusFlag_r15_vals[] = {
 };
 
 static void
-lpp_1_2000m_fmt(gchar *s, guint32 v)
+lpp_1_2000m_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/2000;
+  double val = (double)((int32_t)v)/2000;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_1_100ppm_fmt(gchar *s, guint32 v)
+lpp_1_100ppm_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/100;
+  double val = (double)((int32_t)v)/100;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gppm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gppm (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_1_10ppm_fmt(gchar *s, guint32 v)
+lpp_1_10ppm_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/10;
+  double val = (double)((int32_t)v)/10;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gppm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gppm (%d)", val, (int32_t)v);
 }
 
 static const value_string lpp_ssrUpdateInterval_r15_vals[] = {
@@ -1731,75 +1731,75 @@ static const value_string lpp_ssrUpdateInterval_r15_vals[] = {
 };
 
 static void
-lpp_1_10000m_fmt(gchar *s, guint32 v)
+lpp_1_10000m_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/10000;
+  double val = (double)((int32_t)v)/10000;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_4_10000m_fmt(gchar *s, guint32 v)
+lpp_4_10000m_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/10000*4;
+  double val = (double)((int32_t)v)/10000*4;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_1_1000000m_s_fmt(gchar *s, guint32 v)
+lpp_1_1000000m_s_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/1000000;
+  double val = (double)((int32_t)v)/1000000;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_4_1000000m_s_fmt(gchar *s, guint32 v)
+lpp_4_1000000m_s_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/1000000*4;
+  double val = (double)((int32_t)v)/1000000*4;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_2_100000000m_s2_fmt(gchar *s, guint32 v)
+lpp_2_100000000m_s2_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/100000000*2;
+  double val = (double)((int32_t)v)/100000000*2;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_1_100000m_fmt(gchar *s, guint32 v)
+lpp_1_100000m_fmt(char *s, uint32_t v)
 {
-  double val = (double)((gint32)v)/100000;
+  double val = (double)((int32_t)v)/100000;
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (int32_t)v);
 }
 
 static void
-lpp_tauC_fmt(gchar *s, guint32 v)
+lpp_tauC_fmt(char *s, uint32_t v)
 {
-  double tauC = (double)((gint32)v)*pow(2, -31);
+  double tauC = (double)((int32_t)v)*pow(2, -31);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", tauC, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", tauC, (int32_t)v);
 }
 
 static void
-lpp_b1_fmt(gchar *s, guint32 v)
+lpp_b1_fmt(char *s, uint32_t v)
 {
-  double b1 = (double)((gint32)v)*pow(2, -10);
+  double b1 = (double)((int32_t)v)*pow(2, -10);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", b1, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%d)", b1, (int32_t)v);
 }
 
 static void
-lpp_b2_fmt(gchar *s, guint32 v)
+lpp_b2_fmt(char *s, uint32_t v)
 {
-  double b2 = (double)((gint32)v)*pow(2, -16);
+  double b2 = (double)((int32_t)v)*pow(2, -16);
 
-  snprintf(s, ITEM_LABEL_LENGTH, "%gs/msd (%d)", b2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs/msd (%d)", b2, (int32_t)v);
 }
 
 static const value_string lpp_utcStandardID_vals[] = {
@@ -1840,7 +1840,7 @@ static const value_string lpp_carrierQualityInd_vals[] = {
 };
 
 static void
-lpp_GNSS_SatMeas_codePhase_fmt(gchar *s, guint32 v)
+lpp_GNSS_SatMeas_codePhase_fmt(char *s, uint32_t v)
 {
   double codePhase = (double)v*pow(2, -21);
 
@@ -1848,12 +1848,12 @@ lpp_GNSS_SatMeas_codePhase_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_codePhaseRMSError_fmt(gchar *s, guint32 v)
+lpp_codePhaseRMSError_fmt(char *s, uint32_t v)
 {
-  guint8 mantissa = v & 0x07;
-  guint8 exponent = (v & 0x38) >> 3;
-  guint8 mantissa_1 = (v - 1) & 0x07;
-  guint8 exponent_1 = ((v - 1) & 0x38) >> 3;
+  uint8_t mantissa = v & 0x07;
+  uint8_t exponent = (v & 0x38) >> 3;
+  uint8_t mantissa_1 = (v - 1) & 0x07;
+  uint8_t exponent_1 = ((v - 1) & 0x38) >> 3;
 
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "P < 0.5 (0)");
@@ -1866,7 +1866,7 @@ lpp_codePhaseRMSError_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_transmitterLatitude_fmt(gchar *s, guint32 v)
+lpp_transmitterLatitude_fmt(char *s, uint32_t v)
 {
   double lat = ((double)v*4.0/pow(2, 20))-90.0;
 
@@ -1874,7 +1874,7 @@ lpp_transmitterLatitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_transmitterLongitude_fmt(gchar *s, guint32 v)
+lpp_transmitterLongitude_fmt(char *s, uint32_t v)
 {
   double longitude = ((double)v*4.0/pow(2, 20))-180.0;
 
@@ -1882,7 +1882,7 @@ lpp_transmitterLongitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_transmitterAltitude_fmt(gchar *s, guint32 v)
+lpp_transmitterAltitude_fmt(char *s, uint32_t v)
 {
   double alt = ((double)v*0.29)-500.0;
 
@@ -1890,43 +1890,43 @@ lpp_transmitterAltitude_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_refPressure_fmt(gchar *s, guint32 v)
+lpp_refPressure_fmt(char *s, uint32_t v)
 {
-  gint32 pressure = (gint32)v;
+  int32_t pressure = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%dPa (%d)", 101325+pressure, pressure);
 }
 
 static void
-lpp_refTemperature_fmt(gchar *s, guint32 v)
+lpp_refTemperature_fmt(char *s, uint32_t v)
 {
-  gint32 temp = (gint32)v;
+  int32_t temp = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%dK (%d)", 273+temp, temp);
 }
 
 static void
-lpp_referencePressureRate_v1520_fmt(gchar *s, guint32 v)
+lpp_referencePressureRate_v1520_fmt(char *s, uint32_t v)
 {
-  gint32 rate = (gint32)v;
+  int32_t rate = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%dPa/hour (%d)", 10*rate, rate);
 }
 
 static void
-lpp_PressureValidityPeriod_v1520_fmt(gchar *s, guint32 v)
+lpp_PressureValidityPeriod_v1520_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%umin (%u)", 15*v, v);
 }
 
 static void
-lpp_doppler_fmt(gchar *s, guint32 v)
+lpp_doppler_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", (gint32)v*0.04, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", (int32_t)v*0.04, (int32_t)v);
 }
 
 static void
-lpp_adr_fmt(gchar *s, guint32 v)
+lpp_adr_fmt(char *s, uint32_t v)
 {
   double adr = (double)v*pow(2, -10);
 
@@ -1934,13 +1934,13 @@ lpp_adr_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_adrMSB_r15_fmt(gchar *s, guint32 v)
+lpp_adrMSB_r15_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", v*32768, v);
 }
 
 static void
-lpp_GNSS_SatMeas_delta_codePhase_r15_fmt(gchar *s, guint32 v)
+lpp_GNSS_SatMeas_delta_codePhase_r15_fmt(char *s, uint32_t v)
 {
   double codePhase = (double)v*pow(2, -24);
 
@@ -1948,13 +1948,13 @@ lpp_GNSS_SatMeas_delta_codePhase_r15_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_deliveryAmount_r15_fmt(gchar *s, guint32 v)
+lpp_deliveryAmount_r15_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%g (%u)", pow(2, v), v);
 }
 
 static void
-lpp_rsrp_Result_fmt(gchar *s, guint32 v)
+lpp_rsrp_Result_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
@@ -1966,7 +1966,7 @@ lpp_rsrp_Result_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_rsrq_Result_fmt(gchar *s, guint32 v)
+lpp_rsrq_Result_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
@@ -1978,7 +1978,7 @@ lpp_rsrq_Result_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_nrsrp_Result_fmt(gchar *s, guint32 v)
+lpp_nrsrp_Result_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "NRSRP < -156dBm (0)");
@@ -1990,7 +1990,7 @@ lpp_nrsrp_Result_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
+lpp_nrsrq_Result_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "NRSRQ < -34dB (0)");
@@ -2002,9 +2002,9 @@ lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_rsrp_Result_v1470_fmt(gchar *s, guint32 v)
+lpp_rsrp_Result_v1470_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   if (d == -17) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -157dBm (-17)");
@@ -2014,9 +2014,9 @@ lpp_rsrp_Result_v1470_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_rsrq_Result_v1470_fmt(gchar *s, guint32 v)
+lpp_rsrq_Result_v1470_fmt(char *s, uint32_t v)
 {
-  gint32 d = (gint32)v;
+  int32_t d = (int32_t)v;
 
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -34.5dB (-30)");
@@ -2028,7 +2028,7 @@ lpp_rsrq_Result_v1470_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_ue_RxTxTimeDiff_fmt(gchar *s, guint32 v)
+lpp_ue_RxTxTimeDiff_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "T < 2Ts (0)");
@@ -2042,7 +2042,7 @@ lpp_ue_RxTxTimeDiff_fmt(gchar *s, guint32 v)
 }
 
 static void
-lpp_mbs_beaconMeasElt_codePhase_fmt(gchar *s, guint32 v)
+lpp_mbs_beaconMeasElt_codePhase_fmt(char *s, uint32_t v)
 {
   double codePhase = (double)v*pow(2, -21);
 
@@ -2058,7 +2058,7 @@ int dissect_lpp_AssistanceDataSIBelement_r15_PDU(tvbuff_t *tvb, packet_info *pin
   asn1_ctx_t asn1_ctx;
   struct lpp_private_data *lpp_data = lpp_get_private_data(pinfo);
 
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   lpp_data->pos_sib_type = pos_sib_type;
   offset = dissect_lpp_AssistanceDataSIBelement_r15(tvb, offset, &asn1_ctx, tree, hf_lpp_AssistanceDataSIBelement_r15_PDU);
   offset += 7; offset >>= 3;
@@ -2126,7 +2126,7 @@ void proto_register_lpp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_lpp,
     &ett_lpp_svHealthExt_v1240,
     &ett_kepSV_StatusINAV,

@@ -61,7 +61,7 @@ void proto_register_glow(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
                   &ett_glow,
 #include "packet-glow-ettarr.c"
   };

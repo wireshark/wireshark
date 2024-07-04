@@ -43,7 +43,7 @@ static int proto_p7;
 #include "packet-p7-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_p7;
+static int ett_p7;
 #include "packet-p7-ett.c"
 
 #include "packet-p7-table.c"   /* operation and error codes */
@@ -74,7 +74,7 @@ void proto_register_p7(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p7,
 #include "packet-p7-ettarr.c"
   };
@@ -112,7 +112,7 @@ void proto_reg_handoff_p7(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register P7 with ROS (with no use of RTSE) */
-  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", FALSE);
-  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", FALSE);
-  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", FALSE);
+  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", false);
+  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", false);
+  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", false);
 }

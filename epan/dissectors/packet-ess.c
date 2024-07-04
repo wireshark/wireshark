@@ -38,19 +38,19 @@ void proto_reg_handoff_ess(void);
 
 typedef struct _ess_category_attributes_t {
    char *oid;
-   guint lacv;
+   unsigned lacv;
    char *name;
 } ess_category_attributes_t;
 
 static ess_category_attributes_t *ess_category_attributes;
-static guint num_ess_category_attributes;
+static unsigned num_ess_category_attributes;
 
 /* Initialize the protocol and registered fields */
 static int proto_ess;
 static int hf_ess_SecurityCategory_type_OID;
 static int hf_ess_Category_attribute;
 
-static gint ett_Category_attributes;
+static int ett_Category_attributes;
 
 static int hf_ess_ReceiptRequest_PDU;             /* ReceiptRequest */
 static int hf_ess_ContentIdentifier_PDU;          /* ContentIdentifier */
@@ -203,9 +203,9 @@ ess_free_cb(void *r)
 }
 
 static void
-ess_dissect_attribute (guint32 value, asn1_ctx_t *actx)
+ess_dissect_attribute (uint32_t value, asn1_ctx_t *actx)
 {
-  guint i;
+  unsigned i;
 
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
@@ -223,11 +223,11 @@ static void
 ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
 {
   proto_tree *tree;
-  guint8 *value;
-  guint i;
+  uint8_t *value;
+  unsigned i;
 
   tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
-  value = (guint8 *)tvb_memdup (actx->pinfo->pool, tvb, 0, tvb_captured_length (tvb));
+  value = (uint8_t *)tvb_memdup (actx->pinfo->pool, tvb, 0, tvb_captured_length (tvb));
 
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
@@ -610,7 +610,7 @@ dissect_ess_T_tagName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_ess_SecurityAttribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 attribute;
+  uint32_t attribute;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &attribute);
@@ -1398,7 +1398,7 @@ void proto_register_ess(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
      &ett_Category_attributes,
     &ett_ess_ReceiptRequest,
     &ett_ess_SEQUENCE_SIZE_1_ub_receiptsTo_OF_GeneralNames,
@@ -1443,7 +1443,7 @@ void proto_register_ess(void) {
   uat_t *attributes_uat = uat_new("ESS Category Attributes",
                                   sizeof(ess_category_attributes_t),
                                   "ess_category_attributes",
-                                  TRUE,
+                                  true,
                                   &ess_category_attributes,
                                   &num_ess_category_attributes,
                                   UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */

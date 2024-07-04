@@ -181,7 +181,7 @@ OpBindingErrorParam/bindingType  BindingType
 
 
 #.FN_BODY OperationalBindingID/identifier  VAL_PTR	= &value
-	guint32	value;
+	uint32_t	value;
 
 	%(DEFAULT_BODY)s
 
@@ -190,7 +190,7 @@ OpBindingErrorParam/bindingType  BindingType
 
 
 #.FN_BODY OperationalBindingID/version	VAL_PTR	= &value
-	guint32	value;
+	uint32_t	value;
 
 	%(DEFAULT_BODY)s
 
@@ -199,7 +199,7 @@ OpBindingErrorParam/bindingType  BindingType
 #.FN_PARS Precedence VAL_PTR = &precedence
 
 #.FN_BODY Precedence
-  guint32 precedence = 0;
+  uint32_t precedence = 0;
 
   %(DEFAULT_BODY)s
 

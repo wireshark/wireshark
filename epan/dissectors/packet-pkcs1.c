@@ -602,7 +602,7 @@ void proto_register_pkcs1(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pkcs1_RSAPublicKey,
     &ett_pkcs1_DigestInfo,
     &ett_pkcs1_DSA_Params,

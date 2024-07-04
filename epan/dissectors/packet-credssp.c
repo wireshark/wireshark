@@ -35,8 +35,8 @@
 #define TS_SMARTCARD_CREDS  2
 #define TS_REMOTEGUARD_CREDS  6
 
-static gint creds_type;
-static gint credssp_ver;
+static int creds_type;
+static int credssp_ver;
 
 static char kerberos_pname[] = "K\0e\0r\0b\0e\0r\0o\0s";
 static char ntlm_pname[] = "N\0T\0L\0M";
@@ -45,9 +45,9 @@ static char ntlm_pname[] = "N\0T\0L\0M";
 #define TS_RGC_KERBEROS	1
 #define TS_RGC_NTLM	2
 
-static gint credssp_TS_RGC_package;
+static int credssp_TS_RGC_package;
 
-static gint exported_pdu_tap = -1;
+static int exported_pdu_tap = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_credssp;
@@ -93,8 +93,8 @@ static int hf_credssp_errorCode;                  /* T_errorCode */
 static int hf_credssp_clientNonce;                /* T_clientNonce */
 
 /* Initialize the subtree pointers */
-static gint ett_credssp;
-static gint ett_credssp_RGC_CredBuffer;
+static int ett_credssp;
+static int ett_credssp_RGC_CredBuffer;
 
 static int ett_credssp_NegoData;
 static int ett_credssp_NegoData_item;
@@ -232,7 +232,7 @@ dissect_credssp_T_packageName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
 
 	if(pname != NULL) {
-		gint nlen = tvb_captured_length(pname);
+		int nlen = tvb_captured_length(pname);
 
 		if (nlen == sizeof(kerberos_pname) && memcmp(tvb_get_ptr(pname, 0, nlen), kerberos_pname, nlen) == 0) {
 			credssp_TS_RGC_package = TS_RGC_KERBEROS;
@@ -340,13 +340,13 @@ dissect_credssp_T_credentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 	switch(creds_type) {
 	case TS_PASSWORD_CREDS:
-		dissect_credssp_TSPasswordCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
+		dissect_credssp_TSPasswordCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
 		break;
 	case TS_SMARTCARD_CREDS:
-		dissect_credssp_TSSmartCardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
+		dissect_credssp_TSSmartCardCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
 		break;
 	case TS_REMOTEGUARD_CREDS:
-		dissect_credssp_TSRemoteGuardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
+		dissect_credssp_TSRemoteGuardCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
 		break;
 	}
 
@@ -398,7 +398,7 @@ dissect_credssp_T_authInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 	decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
 
 	if(decr_tvb != NULL)
-		dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
+		dissect_credssp_TSCredentials(false, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
 
 
   return offset;
@@ -521,18 +521,18 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 {
   asn1_ctx_t asn1_ctx;
   int offset = 0;
-  gint8 ber_class;
+  int8_t ber_class;
   bool pc;
-  gint32 tag;
-  guint32 length;
-  gint8 ver;
+  int32_t tag;
+  uint32_t length;
+  int8_t ver;
 
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
   /* Look for SEQUENCE, CONTEXT 0, and INTEGER 2 */
   if(tvb_captured_length(tvb) > 7) {
     offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-    if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == TRUE)) {
+    if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == true)) {
       offset = get_ber_length(tvb, offset, NULL, NULL);
       offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
       if((ber_class == BER_CLASS_CON) && (tag == 0)) {
@@ -703,7 +703,7 @@ void proto_register_credssp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_credssp,
     &ett_credssp_RGC_CredBuffer,
     &ett_credssp_NegoData,

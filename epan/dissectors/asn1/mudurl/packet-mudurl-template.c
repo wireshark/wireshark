@@ -47,7 +47,7 @@ void proto_register_mudurl(void) {
   };
 
   /* List of subtrees */
-  /*  static gint *ett[] = {
+  /*  static int *ett[] = {
 #include "packet-mudurl-ettarr.c"
   }; */
 

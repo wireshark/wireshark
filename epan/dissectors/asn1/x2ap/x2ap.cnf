@@ -86,7 +86,7 @@ PrivateIE-Field/value privateIE_Field_value
 
 #.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
 %(DEFAULT_BODY)s
-  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY PrivateIE-Field/value
   if (actx->external.direct_ref_present){
@@ -216,7 +216,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
+                                     32, 32, false, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
     static int * const fields[] = {
@@ -355,7 +355,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_EUTRANTraceID);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
   proto_tree_add_item(subtree, hf_x2ap_eUTRANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
@@ -466,7 +466,7 @@ FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_PLMN_Identity);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, false);
 
 #.TYPE_ATTR
 BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec

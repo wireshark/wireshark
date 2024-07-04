@@ -29,7 +29,7 @@
 void proto_register_mms(void);
 void proto_reg_handoff_mms(void);
 
-static bool use_iec61850_mapping = TRUE;
+static bool use_iec61850_mapping = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_mms;
@@ -258,7 +258,7 @@ typedef struct mms_actx_private_data_t
     iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
     int listOfAccessResult_cnt;                     /* Position in the list, 1 count */
     int data_cnt;                                   /* Number of times data occurred(depth)*/
-    guint16 reported_optflds;                       /* Bitmap over included fields */
+    uint16_t reported_optflds;                       /* Bitmap over included fields */
     proto_item* pdu_item;                           /* The item to append PDU info to */
     int confirmedservice_type;                      /* Requested service */
     int objectclass;
@@ -375,7 +375,7 @@ mms_private_data_t* mms_get_private_data(asn1_ctx_t* actx)
 }
 
 /* Helper function to test presence of private data struct */
-static gboolean
+static bool
 mms_has_private_data(asn1_ctx_t* actx)
 {
     packet_info* pinfo = actx->pinfo;
@@ -383,7 +383,7 @@ mms_has_private_data(asn1_ctx_t* actx)
 }
 
 static void
-private_data_add_preCinfo(asn1_ctx_t* actx, guint32 val)
+private_data_add_preCinfo(asn1_ctx_t* actx, uint32_t val)
 {
     mms_private_data_t* private_data = (mms_private_data_t*)mms_get_private_data(actx);
     snprintf(private_data->preCinfo, BUFFER_SIZE_PRE, "%02d ", val);
@@ -436,7 +436,7 @@ dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
     proto_item* item = NULL;
     proto_tree* tree = NULL;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
     if (parent_tree) {
         item = proto_tree_add_item(parent_tree, proto_mms, tvb, 0, -1, ENC_NA);
@@ -456,7 +456,7 @@ dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
         if (use_iec61850_mapping) {
             asn1_ctx.private_data = (void*)wmem_new0(pinfo->pool, mms_actx_private_data_t);
         }
-        offset = dissect_mms_MMSpdu(FALSE, tvb, offset, &asn1_ctx, tree, -1);
+        offset = dissect_mms_MMSpdu(false, tvb, offset, &asn1_ctx, tree, -1);
         if (asn1_ctx.private_data) {
             wmem_free(pinfo->pool, asn1_ctx.private_data);
         }
@@ -654,7 +654,7 @@ void proto_register_mms(void) {
     };
 
     /* List of subtrees */
-    static gint* ett[] = {
+    static int* ett[] = {
             &ett_mms,
             &ett_mms_iec61850_quality_bitstring,
             &ett_mms_iec61850_check_bitstring,
@@ -693,19 +693,19 @@ dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, voi
 {
     /* must check that this really is an mms packet */
     int offset = 0;
-    guint32 length = 0;
-    guint32 oct;
-    gint idx = 0;
+    uint32_t length = 0;
+    uint32_t oct;
+    int idx = 0;
 
-    gint8 tmp_class;
+    int8_t tmp_class;
     bool tmp_pc;
-    gint32 tmp_tag;
+    int32_t tmp_tag;
 
     /* first, check do we have at least 2 bytes (pdu) */
     if (!tvb_bytes_exist(tvb, 0, 2))
         return false;	/* no */
 
-    /* can we recognize MMS PDU ? Return FALSE if  not */
+    /* can we recognize MMS PDU ? Return false if  not */
     /*   get MMS PDU type */
     offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
 

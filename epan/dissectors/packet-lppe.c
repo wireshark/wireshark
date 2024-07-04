@@ -1663,8 +1663,8 @@ static int hf_lppe_T_srnMeasurements_rssi;
 static int hf_lppe_T_srnMeasurements_rtd;
 
 /* Initialize the subtree pointers */
-static gint ett_lppe;
-static gint ett_lppe_civicLocation;
+static int ett_lppe;
+static int ett_lppe_civicLocation;
 static int ett_lppe_OMA_LPPe_MessageExtension;
 static int ett_lppe_OMA_LPPe_LPPeVersion;
 static int ett_lppe_OMA_LPPe_MessageExtensionBody;
@@ -6459,7 +6459,7 @@ dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship(tvbuff_t *
 static int
 dissect_lppe_OMA_LPPe_Uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      NO_BOUND, NO_BOUND, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%", 85,
+                                                      NO_BOUND, NO_BOUND, false, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%", 85,
                                                       NULL);
 
 
@@ -22355,7 +22355,7 @@ void proto_register_lppe(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_lppe,
       &ett_lppe_civicLocation,
     &ett_lppe_OMA_LPPe_MessageExtension,

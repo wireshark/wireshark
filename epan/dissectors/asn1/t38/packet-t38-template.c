@@ -14,12 +14,12 @@
 
 /* Depending on what ASN.1 specification is used you may have to change
  * the preference setting regarding Pre-Corrigendum ASN.1 specification:
- * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/1998/T38.html  (Pre-Corrigendum=TRUE)
- * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2003/T38(1998).html (Pre-Corrigendum=TRUE)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/1998/T38.html  (Pre-Corrigendum=true)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2003/T38(1998).html (Pre-Corrigendum=true)
  *
- * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2003/T38(2002).html (Pre-Corrigendum=FALSE)
- * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002/t38.html  (Pre-Corrigendum=FALSE)
- * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002-Amd1/T38.html (Pre-Corrigendum=FALSE)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2003/T38(2002).html (Pre-Corrigendum=false)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002/t38.html  (Pre-Corrigendum=false)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002-Amd1/T38.html (Pre-Corrigendum=false)
  */
 
 /* TO DO:
@@ -74,7 +74,7 @@ static bool t38_tpkt_reassembly = true;
 #define T38_TPKT_NEVER 0   /* Assume that there is never a TPKT header    */
 #define T38_TPKT_ALWAYS 1  /* Assume that there is always a TPKT header   */
 #define T38_TPKT_MAYBE 2   /* Assume TPKT if first octets are 03-00-xx-xx */
-static gint t38_tpkt_usage = T38_TPKT_MAYBE;
+static int t38_tpkt_usage = T38_TPKT_MAYBE;
 
 static const enum_val_t t38_tpkt_options[] = {
   {"never", "Never", T38_TPKT_NEVER},
@@ -93,11 +93,11 @@ static dissector_handle_t rtp_handle;
 static dissector_handle_t t30_hdlc_handle;
 static dissector_handle_t data_handle;
 
-static gint32 Type_of_msg_value;
-static guint32 Data_Field_field_type_value;
-static guint32 Data_value;
-static guint32 T30ind_value;
-static guint32 Data_Field_item_num;
+static int32_t Type_of_msg_value;
+static uint32_t Data_Field_field_type_value;
+static uint32_t Data_value;
+static uint32_t T30ind_value;
+static uint32_t Data_Field_item_num;
 
 static int proto_t38;
 static int proto_acdr;
@@ -120,17 +120,17 @@ static int hf_t38_fragment_count;
 static int hf_t38_reassembled_in;
 static int hf_t38_reassembled_length;
 
-static gint ett_t38;
+static int ett_t38;
 #include "packet-t38-ett.c"
-static gint ett_t38_setup;
+static int ett_t38_setup;
 
-static gint ett_data_fragment;
-static gint ett_data_fragments;
+static int ett_data_fragment;
+static int ett_data_fragments;
 
 static expert_field ei_t38_malformed;
 
-static gboolean primary_part = TRUE;
-static guint32 seq_number;
+static bool primary_part = true;
+static uint32_t seq_number;
 
 /* Tables for reassembly of Data fragments. */
 static reassembly_table data_reassembly_table;
@@ -161,7 +161,7 @@ static const fragment_items data_frag_items = {
 typedef struct _fragment_key {
 	address src;
 	address dst;
-	guint32	id;
+	uint32_t	id;
 } fragment_key;
 
 static conversation_t *p_conv;
@@ -191,7 +191,7 @@ static t38_packet_info *t38_info;
 void t38_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number)
+                     const char *setup_method, uint32_t setup_frame_number)
 {
         address null_addr;
         conversation_t* p_conversation;
@@ -221,7 +221,7 @@ void t38_add_address(packet_info *pinfo,
          */
         if ( !p_conversation || p_conversation->setup_frame != setup_frame_number) {
                 p_conversation = conversation_new( setup_frame_number, addr, &null_addr, CONVERSATION_UDP,
-                                           (guint32)port, (guint32)other_port,
+                                           (uint32_t)port, (uint32_t)other_port,
                                                                    NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
         }
 
@@ -275,13 +275,13 @@ void t38_add_address(packet_info *pinfo,
 
 
 static fragment_head *
-force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
+force_reassemble_seq(reassembly_table *table, packet_info *pinfo, uint32_t id)
 {
 	fragment_head *fd_head;
 	fragment_item *fd_i;
 	fragment_item *last_fd;
-	guint32 dfpos, size, packet_lost, burst_lost, seq_num;
-	guint8 *data;
+	uint32_t dfpos, size, packet_lost, burst_lost, seq_num;
+	uint8_t *data;
 
 	fd_head = fragment_get(table, pinfo, id, NULL);
 
@@ -325,7 +325,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	  last_fd=fd_i;
 	}
 
-	data = (guint8 *) g_malloc(size);
+	data = (uint8_t *) g_malloc(size);
 	fd_head->tvb_data = tvb_new_real_data(data, size, size);
         tvb_set_free_cb(fd_head->tvb_data, g_free);
 	fd_head->len = size;		/* record size for caller	*/
@@ -488,10 +488,10 @@ init_t38_info_conv(packet_info *pinfo)
 static int
 dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8 octet1;
+	uint8_t octet1;
 	proto_item *it;
 	proto_tree *tr;
-	guint32 offset=0;
+	uint32_t offset=0;
 
 	/*
 	 * XXX - heuristic to check for misidentified packets.
@@ -506,7 +506,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	primary_part = TRUE;
+	primary_part = true;
 
 	/* This indicate the item number in the primary part of the T38 message, it is used for the reassemble of T30 packets */
 	Data_Field_item_num = 0;
@@ -539,14 +539,14 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
 	proto_item *it;
 	proto_tree *tr;
-	guint32 offset=0;
+	uint32_t offset=0;
         tvbuff_t *next_tvb;
-	guint16 ifp_packet_number=1;
+	uint16_t ifp_packet_number=1;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	primary_part = TRUE;
+	primary_part = true;
 
 	/* This indicate the item number in the primary part of the T38 message, it is used for the reassemble of T30 packets */
 	Data_Field_item_num = 0;
@@ -588,7 +588,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static int
 dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	primary_part = TRUE;
+	primary_part = true;
 
 	if(t38_tpkt_usage == T38_TPKT_ALWAYS){
 		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
@@ -637,7 +637,7 @@ show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
 static bool
 dissect_t38_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
+	unsigned acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
 	if (acdr_prot == ACDR_T38)
 		return dissect_t38_udp(tvb, pinfo, tree, data);
 	return false;
@@ -694,7 +694,7 @@ proto_register_t38(void)
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	};
 
-	static gint *ett[] =
+	static int *ett[] =
 	{
 		&ett_t38,
 #include "packet-t38-ettarr.c"
@@ -747,7 +747,7 @@ proto_register_t38(void)
 	prefs_register_enum_preference(t38_module, "tpkt_usage",
 		"TPKT used over TCP",
 		"Whether T.38 is used with TPKT for TCP",
-		(gint *)&t38_tpkt_usage,t38_tpkt_options,FALSE);
+		(int *)&t38_tpkt_usage,t38_tpkt_options,false);
 
 	prefs_register_bool_preference(t38_module, "show_setup_info",
                 "Show stream setup information",

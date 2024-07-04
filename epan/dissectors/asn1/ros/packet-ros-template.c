@@ -31,8 +31,8 @@ void proto_reg_handoff_ros(void);
 static int proto_ros;
 
 static proto_tree *top_tree;
-static guint32 opcode;
-static guint32 invokeid;
+static uint32_t opcode;
+static uint32_t invokeid;
 
 static  dissector_handle_t ros_handle;
 
@@ -42,11 +42,11 @@ typedef struct ros_conv_info_t {
 } ros_conv_info_t;
 
 typedef struct ros_call_response {
-  gboolean is_request;
-  guint32 req_frame;
+  bool is_request;
+  uint32_t req_frame;
   nstime_t req_time;
-  guint32 rep_frame;
-  guint invokeId;
+  uint32_t rep_frame;
+  unsigned invokeId;
 } ros_call_response_t;
 
 static int hf_ros_response_in;
@@ -57,16 +57,16 @@ static int hf_ros_time;
 #include "packet-ros-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_ros;
-static gint ett_ros_unknown;
-static gint ett_ros_invoke_argument;
-static gint ett_ros_return_result;
-static gint ett_ros_bind_invoke;
-static gint ett_ros_bind_result;
-static gint ett_ros_bind_error;
-static gint ett_ros_unbind_invoke;
-static gint ett_ros_unbind_result;
-static gint ett_ros_unbind_error;
+static int ett_ros;
+static int ett_ros_unknown;
+static int ett_ros_invoke_argument;
+static int ett_ros_return_result;
+static int ett_ros_bind_invoke;
+static int ett_ros_bind_result;
+static int ett_ros_bind_error;
+static int ett_ros_unbind_invoke;
+static int ett_ros_unbind_result;
+static int ett_ros_unbind_error;
 #include "packet-ros-ett.c"
 
 static expert_field ei_ros_dissector_oid_not_implemented;
@@ -77,7 +77,7 @@ static dissector_table_t ros_oid_dissector_table;
 static wmem_map_t *protocol_table;
 
 void
-register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_rtse)
+register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, bool uses_rtse)
 {
 	dissector_add_string("ros.oid", oid, dissector);
 
@@ -87,16 +87,16 @@ register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 }
 
 void
-register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name, gboolean uses_rtse)
+register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name, bool uses_rtse)
 {
-	wmem_map_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);
+	wmem_map_insert(protocol_table, (void *)oid, (void *)rinfo);
 
 	if(!uses_rtse)
 	  /* if we are not using RTSE, then we must register ROS with BER (ACSE) */
 	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
 }
 
-static dissector_t ros_lookup_opr_dissector(gint32 opcode_lcl, const ros_opr_t *operations, gboolean argument)
+static dissector_t ros_lookup_opr_dissector(int32_t opcode_lcl, const ros_opr_t *operations, bool argument)
 {
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(operations) {
@@ -108,7 +108,7 @@ static dissector_t ros_lookup_opr_dissector(gint32 opcode_lcl, const ros_opr_t *
 	return NULL;
 }
 
-static dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t *errors)
+static dissector_t ros_lookup_err_dissector(int32_t errcode, const ros_err_t *errors)
 {
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(errors) {
@@ -125,9 +125,9 @@ static int
 ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* session)
 {
 	ros_info_t *rinfo;
-	gint32     opcode_lcl = 0;
-	const gchar *opname = NULL;
-	const gchar *suffix = NULL;
+	int32_t    opcode_lcl = 0;
+	const char *opname = NULL;
+	const char *suffix = NULL;
 	dissector_t opdissector = NULL;
 	const value_string *lookup;
 	proto_item *item=NULL;
@@ -158,11 +158,11 @@ ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		switch(session->ros_op & ROS_OP_PDU_MASK) {
 		case ROS_OP_ARGUMENT:
-			opdissector = ros_lookup_opr_dissector(opcode_lcl, rinfo->opr_code_dissectors, TRUE);
+			opdissector = ros_lookup_opr_dissector(opcode_lcl, rinfo->opr_code_dissectors, true);
 			suffix = "_argument";
 			break;
 		case ROS_OP_RESULT:
-			opdissector = ros_lookup_opr_dissector(opcode_lcl, rinfo->opr_code_dissectors, FALSE);
+			opdissector = ros_lookup_opr_dissector(opcode_lcl, rinfo->opr_code_dissectors, false);
 			suffix = "_result";
 			break;
 		case ROS_OP_ERROR:
@@ -215,16 +215,16 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static guint
-ros_info_hash_matched(gconstpointer k)
+static unsigned
+ros_info_hash_matched(const void *k)
 {
   const ros_call_response_t *key = (const ros_call_response_t *)k;
 
   return key->invokeId;
 }
 
-static gint
-ros_info_equal_matched(gconstpointer k1, gconstpointer k2)
+static int
+ros_info_equal_matched(const void *k1, const void *k2)
 {
   const ros_call_response_t *key1 = (const ros_call_response_t *)k1;
   const ros_call_response_t *key2 = (const ros_call_response_t *)k2;
@@ -241,16 +241,16 @@ ros_info_equal_matched(gconstpointer k1, gconstpointer k2)
   return key1->invokeId==key2->invokeId;
 }
 
-static guint
-ros_info_hash_unmatched(gconstpointer k)
+static unsigned
+ros_info_hash_unmatched(const void *k)
 {
   const ros_call_response_t *key = (const ros_call_response_t *)k;
 
   return key->invokeId;
 }
 
-static gint
-ros_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
+static int
+ros_info_equal_unmatched(const void *k1, const void *k2)
 {
   const ros_call_response_t *key1 = (const ros_call_response_t *)k1;
   const ros_call_response_t *key2 = (const ros_call_response_t *)k2;
@@ -259,7 +259,7 @@ ros_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 }
 
 static ros_call_response_t *
-ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint invokeId, gboolean isInvoke)
+ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned invokeId, bool isInvoke)
 {
   ros_call_response_t rcr, *rcrp=NULL;
   ros_conv_info_t *ros_info;
@@ -317,7 +317,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       rcrp->req_frame=pinfo->num;
       rcrp->req_time=pinfo->abs_ts;
       rcrp->rep_frame=0;
-      rcrp->is_request=TRUE;
+      rcrp->is_request=true;
       wmem_map_insert(ros_info->unmatched, rcrp, rcrp);
       return NULL;
 
@@ -333,7 +333,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	if(!rcrp->rep_frame){
 	  wmem_map_remove(ros_info->unmatched, rcrp);
 	  rcrp->rep_frame=pinfo->num;
-	  rcrp->is_request=FALSE;
+	  rcrp->is_request=false;
 	  wmem_map_insert(ros_info->matched, rcrp, rcrp);
 	}
       }
@@ -375,7 +375,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	conversation_t *conversation;
 	ros_conv_info_t *ros_info = NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	/* do we have application context from the acse dissector? */
 	if (data == NULL)
@@ -410,7 +410,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=dissect_ros_ROS(FALSE, tvb, offset, &asn1_ctx , tree, -1);
+		offset=dissect_ros_ROS(false, tvb, offset, &asn1_ctx , tree, -1);
 		if(offset == old_offset){
 			next_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ros_unknown, &item, "Unknown ROS PDU");
 
@@ -446,7 +446,7 @@ void proto_register_ros(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ros,
     &ett_ros_unknown,
     &ett_ros_invoke_argument,

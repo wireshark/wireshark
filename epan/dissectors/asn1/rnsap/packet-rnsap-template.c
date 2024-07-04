@@ -42,9 +42,9 @@ void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
 typedef struct {
-    guint32     ProcedureCode;
-    guint32     ProtocolIE_ID;
-    guint32     ddMode;
+    uint32_t    ProcedureCode;
+    uint32_t    ProtocolIE_ID;
+    uint32_t    ddMode;
     const char *ProcedureID;
     const char *obj_id;
 } rnsap_private_data_t;
@@ -166,12 +166,12 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static bool
 dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  guint8 pdu_type;
-  guint8 procedure_id;
-  guint8 dd_mode;
-  guint8 criticality;
-  guint8 transaction_id_type;
-  guint length;
+  uint8_t pdu_type;
+  uint8_t procedure_id;
+  uint8_t dd_mode;
+  uint8_t criticality;
+  uint8_t transaction_id_type;
+  unsigned length;
   int length_field_offset;
 
   #define PDU_TYPE_OFFSET 0
@@ -259,7 +259,7 @@ void proto_register_rnsap(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rnsap,
     &ett_rnsap_transportLayerAddress,
     &ett_rnsap_transportLayerAddress_nsap,

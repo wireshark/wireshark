@@ -39,7 +39,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t h283_udp_handle;
 
 
-static gboolean info_is_set;
+static bool info_is_set;
 
 #include "packet-h283-fn.c"
 
@@ -51,7 +51,7 @@ dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-  info_is_set = FALSE;
+  info_is_set = false;
 
   ti = proto_tree_add_item(tree, proto_h283, tvb, 0, -1, ENC_NA);
   h283_tree = proto_item_add_subtree(ti, ett_h283);
@@ -68,7 +68,7 @@ void proto_register_h283(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_h283,
 #include "packet-h283-ettarr.c"
   };

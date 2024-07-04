@@ -23962,7 +23962,7 @@ void proto_register_lix2(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_lix2_XIRIPayload,
     &ett_lix2_XIRIEvent,
     &ett_lix2_IRIPayload,

@@ -87,7 +87,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
   VAL_PTR = &reason
 
 #.FN_BODY Abort-reason
-  guint32 reason;
+  uint32_t reason;
 
   %(DEFAULT_BODY)s
 

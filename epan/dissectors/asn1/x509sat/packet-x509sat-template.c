@@ -48,7 +48,7 @@ void proto_register_x509sat(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-x509sat-ettarr.c"
   };
 

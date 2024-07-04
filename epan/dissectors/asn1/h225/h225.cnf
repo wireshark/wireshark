@@ -260,10 +260,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h323-message-body  VAL_PTR = &message_body_val
-  gint32 message_body_val;
+  int32_t message_body_val;
   h225_packet_info* h225_pi;
 
-  contains_faststart = FALSE;
+  contains_faststart = false;
   call_id_guid = NULL;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "CS: %%s ",
@@ -281,7 +281,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     }
   }
 
-  if (contains_faststart == TRUE )
+  if (contains_faststart == true )
   {
     col_append_str(actx->pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
   }
@@ -307,13 +307,13 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     char temp[50];
     snprintf(temp, 50, "%%s %%s", h225_pi->frame_label, codec_str);
     (void) g_strlcpy(h225_pi->frame_label, temp, 50);
-    h225_pi->is_faststart = TRUE;
+    h225_pi->is_faststart = true;
   }
-  contains_faststart = TRUE;
+  contains_faststart = true;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RasMessage  VAL_PTR = &rasmessage_value
-    gint32 rasmessage_value;
+    int32_t rasmessage_value;
     h225_packet_info* h225_pi;
 
   call_id_guid = NULL;
@@ -335,27 +335,27 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
-    h225_pi->is_destinationInfo = TRUE;
+    h225_pi->is_destinationInfo = true;
   }
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DialedDigits  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb = NULL;
-  guint len = 0;
+  unsigned len = 0;
   h225_packet_info* h225_pi;
 
 %(DEFAULT_BODY)s
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  if (h225_pi && h225_pi->is_destinationInfo == TRUE) {
+  if (h225_pi && h225_pi->is_destinationInfo == true) {
     if (value_tvb) {
       len = tvb_reported_length(value_tvb);
       /* XXX - should this be allocated as an ephemeral string? */
       if (len > sizeof h225_pi->dialedDigits - 1)
         len = sizeof h225_pi->dialedDigits - 1;
-      tvb_memcpy(value_tvb, (guint8*)h225_pi->dialedDigits, 0, len);
+      tvb_memcpy(value_tvb, (uint8_t*)h225_pi->dialedDigits, 0, len);
     }
     h225_pi->dialedDigits[len] = '\0';
-    h225_pi->is_destinationInfo = FALSE;
+    h225_pi->is_destinationInfo = false;
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -490,7 +490,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #----------------------------------------------------------------------------------------
 #.FN_HDR Setup-UUIE
   h225_packet_info* h225_pi;
-  contains_faststart = FALSE;
+  contains_faststart = false;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR Setup-UUIE
@@ -587,7 +587,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
   if (h225_pi) {
-    h225_pi->is_h245 = TRUE;
+    h225_pi->is_h245 = true;
     h225_pi->h245_address = ipv4_address;
     h225_pi->h245_port = ip_port;
   }
@@ -612,7 +612,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY FacilityReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -623,7 +623,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY GatekeeperRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -634,7 +634,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRequestReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -645,7 +645,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -656,7 +656,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY BandRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -667,7 +667,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -677,7 +677,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   }
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -688,7 +688,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AdmissionRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -699,7 +699,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY LocationRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -710,7 +710,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RegistrationRejectReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -721,7 +721,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY InfoRequestNakReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -732,7 +732,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReleaseCompleteReason  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
   h225_packet_info* h225_pi;
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
 
@@ -802,7 +802,7 @@ NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.END
 
 #.FN_BODY NonStandardIdentifier  VAL_PTR = &value
-  gint32 value;
+  int32_t value;
 
   nsiOID = "";
   h221NonStandard = 0;
@@ -887,13 +887,13 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
   proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, FALSE, actx);
+    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, false, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
 #.END
 
 #.FN_BODY GenericIdentifier/standard  VAL_PTR = &value_int
-  guint32 value_int = (guint32)-1;
+  uint32_t value_int = (uint32_t)-1;
   gef_ctx_t *gefx;
 
 %(DEFAULT_BODY)s
@@ -902,7 +902,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 #.END
 
 #.FN_BODY GenericIdentifier/oid  FN_VARIANT = _str  VAL_PTR = &oid_str
-  const gchar *oid_str = NULL;
+  const char *oid_str = NULL;
   gef_ctx_t *gefx;
 
 %(DEFAULT_BODY)s

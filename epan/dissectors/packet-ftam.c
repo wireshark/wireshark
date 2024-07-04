@@ -465,7 +465,7 @@ static int hf_ftam_Attribute_Names_spare_bit22;
 static int hf_ftam_Attribute_Names_read_Child_objects;
 
 /* Initialize the subtree pointers */
-static gint ett_ftam;
+static int ett_ftam;
 static int ett_ftam_PDU;
 static int ett_ftam_FTAM_Regime_PDU;
 static int ett_ftam_F_INITIALIZE_request;
@@ -1283,7 +1283,7 @@ static const ber_choice_t FTAM_Regime_PDU_choice[] = {
 
 static int
 dissect_ftam_FTAM_Regime_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint branch_taken;
+  int branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU,
@@ -3105,7 +3105,7 @@ static const ber_choice_t File_PDU_choice[] = {
 
 static int
 dissect_ftam_File_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint branch_taken;
+  int branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  File_PDU_choice, hf_index, ett_ftam_File_PDU,
@@ -3407,7 +3407,7 @@ static const ber_choice_t Bulk_Data_PDU_choice[] = {
 
 static int
 dissect_ftam_Bulk_Data_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint branch_taken;
+  int branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU,
@@ -4667,7 +4667,7 @@ static const ber_choice_t FSM_PDU_choice[] = {
 
 static int
 dissect_ftam_FSM_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  gint branch_taken;
+  int branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU,
@@ -4734,7 +4734,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_ftam, tvb, 0, -1, ENC_NA);
@@ -4745,7 +4745,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=dissect_ftam_PDU(FALSE, tvb, offset, &asn1_ctx, tree, -1);
+		offset=dissect_ftam_PDU(false, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset){
 			proto_tree_add_expert(tree, pinfo, &ei_ftam_zero_pdu, tvb, offset, -1);
 			break;
@@ -6438,7 +6438,7 @@ void proto_register_ftam(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ftam,
     &ett_ftam_PDU,
     &ett_ftam_FTAM_Regime_PDU,

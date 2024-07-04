@@ -74,7 +74,7 @@ ProtocolIE-Field/value ie_field_value
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_m2ap_PLMN_Identity);
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, false);
   }
 #.END
 
@@ -87,7 +87,7 @@ ProtocolIE-Field/value ie_field_value
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    gint tvb_len = tvb_reported_length(parameter_tvb);
+    int tvb_len = tvb_reported_length(parameter_tvb);
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_m2ap_IPAddress);
 
     switch (tvb_len) {

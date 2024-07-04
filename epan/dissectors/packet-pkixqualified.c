@@ -447,7 +447,7 @@ void proto_register_pkixqualified(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pkixqualified_BiometricSyntax,
     &ett_pkixqualified_BiometricData,
     &ett_pkixqualified_TypeOfBiometricData,

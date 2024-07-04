@@ -282,7 +282,7 @@ void proto_register_ns_cert_exts(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ns_cert_exts_CertType,
   };
 

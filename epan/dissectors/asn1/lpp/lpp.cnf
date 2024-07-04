@@ -297,8 +297,8 @@ PolygonPoints/degreesLatitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLat
 PolygonPoints/degreesLongitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLongitude_fmt)
 
 #.FN_BODY PeriodicalReportingCriteria/reportingInterval VAL_PTR=&idx
-  guint32 idx;
-  const gchar *interval[10] = {"", ": 1s", ": 2s", ": 4s", ": 8s", ": 10s",
+  uint32_t idx;
+  const char *interval[10] = {"", ": 1s", ": 2s", ": 4s", ": 8s", ": 10s",
                                ": 16s", ": 20s", ": 32s", ": 64s"};
 
 %(DEFAULT_BODY)s
@@ -309,7 +309,7 @@ PolygonPoints/degreesLongitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLo
   }
 
 #.FN_BODY ReportingDuration VAL_PTR = &duration
-  guint32 duration;
+  uint32_t duration;
 
 %(DEFAULT_BODY)s
   if (duration == 0) {
@@ -367,7 +367,7 @@ NeighbourMeasurementElement/rstd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rstd_fm
 
 #.FN_FTR OTDOA-MeasQuality/error-Resolution
   if (error_Resolution_tvb) {
-    guint bitvalue = tvb_get_bits8(error_Resolution_tvb, 0, 2);
+    unsigned bitvalue = tvb_get_bits8(error_Resolution_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, error_Resolution_tvb, 0, 1, bitvalue);
   }
 
@@ -380,7 +380,7 @@ OTDOA-MeasQuality/error-Resolution TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(l
 
 #.FN_FTR OTDOA-MeasQuality/error-Value
   if (error_Value_tvb) {
-    guint bitvalue = tvb_get_bits8(error_Value_tvb, 0, 5);
+    unsigned bitvalue = tvb_get_bits8(error_Value_tvb, 0, 5);
     actx->created_item = proto_tree_add_uint(tree, hf_index, error_Value_tvb, 0, 1, bitvalue);
   }
 
@@ -393,7 +393,7 @@ OTDOA-MeasQuality/error-Value TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT_STRING STR
 
 #.FN_FTR OTDOA-MeasQuality/error-NumSamples
   if (error_NumSamples_tvb) {
-    guint bitvalue = tvb_get_bits8(error_NumSamples_tvb, 0, 3);
+    unsigned bitvalue = tvb_get_bits8(error_NumSamples_tvb, 0, 3);
     actx->created_item = proto_tree_add_uint(tree, hf_index, error_NumSamples_tvb, 0, 1, bitvalue);
   }
 
@@ -415,7 +415,7 @@ GNSS-ReferenceTimeForOneCell/referenceTimeUnc DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
 
 #.FN_FTR GNSS-SystemTime/notificationOfLeapSecond
   if (notificationOfLeapSecond_tvb) {
-    guint bitvalue = tvb_get_bits8(notificationOfLeapSecond_tvb, 0, 2);
+    unsigned bitvalue = tvb_get_bits8(notificationOfLeapSecond_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, notificationOfLeapSecond_tvb, 0, 1, bitvalue);
   }
 
@@ -434,7 +434,7 @@ NetworkTime/frameDrift DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_frameDrift_fmt)
 
 #.FN_FTR KlobucharModelParameter/dataID
   if (dataID_tvb) {
-    guint bitvalue = tvb_get_bits8(dataID_tvb, 0, 2);
+    unsigned bitvalue = tvb_get_bits8(dataID_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, dataID_tvb, 0, 1, bitvalue);
   }
 
@@ -540,7 +540,7 @@ GNSS-RTK-CommonObservationInfo-r15/smoothingIndicator-r15 TYPE=FT_UINT8 DISPLAY=
 
 #.FN_FTR GNSS-RTK-CommonObservationInfo-r15/smoothingIndicator-r15
   if (param_tvb) {
-    guint bitvalue = tvb_get_bits8(param_tvb, 0, 1);
+    unsigned bitvalue = tvb_get_bits8(param_tvb, 0, 1);
     actx->created_item = proto_tree_add_uint(tree, hf_index, param_tvb, 0, 1, bitvalue);
   }
 
@@ -553,7 +553,7 @@ GNSS-RTK-CommonObservationInfo-r15/smoothingInterval-r15 TYPE=FT_UINT8 DISPLAY=B
 
 #.FN_FTR GNSS-RTK-CommonObservationInfo-r15/smoothingInterval-r15
   if (param_tvb) {
-    guint bitvalue = tvb_get_bits8(param_tvb, 0, 3);
+    unsigned bitvalue = tvb_get_bits8(param_tvb, 0, 3);
     actx->created_item = proto_tree_add_uint(tree, hf_index, param_tvb, 0, 1, bitvalue);
   }
 
@@ -930,7 +930,7 @@ NavModel-GLONASS-ECEF/gloEn DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day
 
 #.FN_FTR NavModel-GLONASS-ECEF/gloP1
   if (gloP1_tvb) {
-    guint bitvalue = tvb_get_bits8(gloP1_tvb, 0, 2);
+    unsigned bitvalue = tvb_get_bits8(gloP1_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, gloP1_tvb, 0, 1, bitvalue);
   }
 
@@ -1082,7 +1082,7 @@ GNSS-AcquisitionAssistElement/azimuth DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_az
 GNSS-AcquisitionAssistElement/elevation DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_azimuth_elevation_fmt)
 
 #.FN_BODY GNSS-Almanac/toa VAL_PTR = &toa
-  guint32 toa, val;
+  uint32_t toa, val;
   int len, old_offset = offset;
   T_GNSS_ID_enum gnss_id = (T_GNSS_ID_enum)GPOINTER_TO_UINT(actx->private_data);
 %(DEFAULT_BODY)s
@@ -1094,7 +1094,7 @@ GNSS-AcquisitionAssistElement/elevation DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_
                                                         toa, "%u s (%u)", val, toa);
 
 #.FN_BODY GNSS-Almanac/eag_1/toa-ext-v1240 VAL_PTR = &toa_ext
-  guint32 toa_ext, val;
+  uint32_t toa_ext, val;
   int len, old_offset = offset;
   T_GNSS_ID_enum gnss_id = (T_GNSS_ID_enum)GPOINTER_TO_UINT(actx->private_data);
 %(DEFAULT_BODY)s
@@ -1300,7 +1300,7 @@ AlmanacBDS-AlmanacSet-r12/bdsAlmA1-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_b
 
 #.FN_FTR AlmanacBDS-AlmanacSet-r12/bdsSvHealth-r12
   if (bdsSvHealth_tvb) {
-    guint16 bits;
+    uint16_t bits;
     subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bdsSvHealth_r12);
     bits = tvb_get_bits16(bdsSvHealth_tvb, 0, 9,ENC_BIG_ENDIAN);
     if (bits == 0x1ff) {
@@ -1368,7 +1368,7 @@ UTC-ModelSet2/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_wee
 
 #.FN_FTR UTC-ModelSet2/utcDN
   if (utcDN_tvb) {
-    guint bitvalue = tvb_get_bits8(utcDN_tvb, 0, 4);
+    unsigned bitvalue = tvb_get_bits8(utcDN_tvb, 0, 4);
     actx->created_item = proto_tree_add_uint(tree, hf_index, utcDN_tvb, 0, 1, bitvalue);
   }
 
@@ -1396,7 +1396,7 @@ UTC-ModelSet3/b2 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_b2_fmt)
 
 #.FN_FTR UTC-ModelSet3/kp
   if (kp_tvb) {
-    guint bitvalue = tvb_get_bits8(kp_tvb, 0, 2);
+    unsigned bitvalue = tvb_get_bits8(kp_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, kp_tvb, 0, 1, bitvalue);
   }
 
@@ -1638,7 +1638,7 @@ GNSS-SatMeasElement/eag_1/adrRMSerror-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lp
 GNSS-SatMeasElement/eag_1/delta-codePhase-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_GNSS_SatMeas_delta_codePhase_r15_fmt)
 
 #.FN_BODY GNSS-ID/gnss-id VAL_PTR = &gnss_id
-  guint32 gnss_id;
+  uint32_t gnss_id;
 %(DEFAULT_BODY)s
   actx->private_data = GUINT_TO_POINTER(gnss_id);
 
@@ -1710,7 +1710,7 @@ UTC-Time-r15/utcTime-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_mil
 
 #.FN_BODY MBS-AlmanacAssistance-r14/transmitterLatitude-r14 VAL_PTR = &transmitterLatitude_tvb HF_INDEX=-1
   tvbuff_t *transmitterLatitude_tvb = NULL;
-  guint32 val;
+  uint32_t val;
 
 %(DEFAULT_BODY)s
   val = tvb_get_bits32(transmitterLatitude_tvb, 0, 26, ENC_BIG_ENDIAN);
@@ -1721,7 +1721,7 @@ MBS-AlmanacAssistance-r14/transmitterLatitude-r14 TYPE=FT_UINT32 DISPLAY=BASE_CU
 
 #.FN_BODY MBS-AlmanacAssistance-r14/transmitterLongitude-r14 VAL_PTR = &transmitterLongitude_tvb HF_INDEX=-1
   tvbuff_t *transmitterLongitude_tvb = NULL;
-  guint32 val;
+  uint32_t val;
 
 %(DEFAULT_BODY)s
   val = tvb_get_bits32(transmitterLongitude_tvb, 0, 27, ENC_BIG_ENDIAN);
@@ -1732,7 +1732,7 @@ MBS-AlmanacAssistance-r14/transmitterLongitude-r14 TYPE=FT_UINT32 DISPLAY=BASE_C
 
 #.FN_BODY MBS-AlmanacAssistance-r14/transmitterAltitude-r14 VAL_PTR = &transmitterAltitude_tvb HF_INDEX=-1
   tvbuff_t *transmitterAltitude_tvb = NULL;
-  guint32 val;
+  uint32_t val;
 
 %(DEFAULT_BODY)s
   val = tvb_get_bits16(transmitterAltitude_tvb, 0, 15, ENC_BIG_ENDIAN);
@@ -1802,10 +1802,10 @@ BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
 BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.FN_HDR CipheringKeyData-r15
-  lpp_get_private_data(actx->pinfo)->is_ciphered = TRUE;
+  lpp_get_private_data(actx->pinfo)->is_ciphered = true;
 
 #.FN_HDR SegmentationInfo-r15
-  lpp_get_private_data(actx->pinfo)->is_segmented = TRUE;
+  lpp_get_private_data(actx->pinfo)->is_segmented = true;
 
 #.FN_BODY AssistanceDataSIBelement-r15/assistanceDataElement-r15 VAL_PTR = &assist_data_sib_elem_tvb
   tvbuff_t *assist_data_sib_elem_tvb = NULL;

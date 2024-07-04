@@ -228,7 +228,7 @@ static int hf_cms_config_item;                    /* CurrentFWConfig */
 static int hf_cms_msgDigest;                      /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_cms;
+static int ett_cms;
 static int ett_cms_ContentInfo;
 static int ett_cms_SignedData;
 static int ett_cms_DigestAlgorithmIdentifiers;
@@ -344,7 +344,7 @@ dissect_cms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_cms, tvb, 0, -1, ENC_NA);
@@ -354,7 +354,7 @@ dissect_cms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
-		offset=dissect_cms_ContentInfo(FALSE, tvb, offset, &asn1_ctx , tree, -1);
+		offset=dissect_cms_ContentInfo(false, tvb, offset, &asn1_ctx , tree, -1);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -505,7 +505,7 @@ static int
 dissect_cms_T_eContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->content_tvb = NULL;
-  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &cms_data->content_tvb);
+  offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &cms_data->content_tvb);
 
   if(cms_data->content_tvb) {
     proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_reported_length(cms_data->content_tvb));
@@ -1671,7 +1671,7 @@ dissect_cms_KeyWrapAlgorithm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_RC2ParameterVersion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 length = 0;
+  uint32_t length = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &length);
@@ -3415,7 +3415,7 @@ void proto_register_cms(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 	  &ett_cms,
     &ett_cms_ContentInfo,
     &ett_cms_SignedData,

@@ -14,78 +14,78 @@ LCTPDU
 #.FN_PARS LCTPDU/pduType
   VAL_PTR = &pdu_type
 #.FN_HDR
-  gint32 pdu_type = -1;
-  const gchar *p = NULL;
+  int32_t pdu_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(pdu_type, VALS(h283_T_pduType_vals));
   if (!info_is_set && p ) {
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
-    info_is_set = TRUE;
+    info_is_set = true;
   }
 #.END
 
 #.FN_PARS RDCData/dataType
   VAL_PTR = &data_type
 #.FN_HDR
-  gint32 data_type = -1;
-  const gchar *p = NULL;
+  int32_t data_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(data_type, VALS(h283_T_dataType_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RDCData/%s", p);
-    info_is_set = TRUE;
+    info_is_set = true;
   }
 #.END
 
 #.FN_PARS LCTMessage
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h283_LCTMessage_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTMessage/%s", p);
-    info_is_set = TRUE;
+    info_is_set = true;
   }
 #.END
 
 #.FN_PARS LCTRequest
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h283_LCTRequest_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTRequest/%s", p);
-    info_is_set = TRUE;
+    info_is_set = true;
   }
 #.END
 
 #.FN_PARS LCTResponse
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h283_LCTResponse_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTResponse/%s", p);
-    info_is_set = TRUE;
+    info_is_set = true;
   }
 #.END
 
 #.FN_PARS LCTIndication
   VAL_PTR = &msg_type
 #.FN_HDR
-  gint32 msg_type = -1;
-  const gchar *p = NULL;
+  int32_t msg_type = -1;
+  const char *p = NULL;
 #.FN_FTR
   p = try_val_to_str(msg_type, VALS(h283_LCTIndication_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTIndication/%s", p);
-    info_is_set = TRUE;
+    info_is_set = true;
   }
 #.END
 
@@ -96,7 +96,7 @@ LCTPDU
   if (next_tvb && tvb_reported_length(next_tvb)) {
     call_dissector((rdc_pdu_handle)?rdc_pdu_handle:data_handle, next_tvb, %(ACTX)s->pinfo, proto_tree_get_root(tree));
   }
-  info_is_set = TRUE;
+  info_is_set = true;
 #.END
 
 #.FN_BODY LCTResponse/deviceListResp  VAL_PTR = &next_tvb

@@ -43,7 +43,7 @@ Coordinate/longitude coordinateLongitude
 
 #.FN_BODY UlpMessage  VAL_PTR = &UlpMessage
 
-guint32 UlpMessage;
+uint32_t UlpMessage;
 
   %(DEFAULT_BODY)s
 
@@ -58,11 +58,11 @@ guint32 UlpMessage;
 %(DEFAULT_BODY)s
 
 #.FN_BODY EncodingType VAL_PTR=&val
-  guint32 val;
+  uint32_t val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
 %(DEFAULT_BODY)s
-  ulp_priv->notif_enc_type = (guint8) val;
+  ulp_priv->notif_enc_type = (uint8_t) val;
 
 #.FN_BODY Notification/requestorId VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -199,11 +199,11 @@ GANSSPositionMethod/ganssId STRINGS=VALS(ulp_ganss_id_vals)
 GANSSPositionMethod/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_ganss_sbas_id_vals)
 
 #.FN_BODY GanssReqGenericData/ganssId VAL_PTR=&val
-  guint32 val;
+  uint32_t val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
 %(DEFAULT_BODY)s
-  ulp_priv->ganss_req_gen_data_ganss_id = (guint8) val;
+  ulp_priv->ganss_req_gen_data_ganss_id = (uint8_t) val;
 
 #.TYPE_ATTR
 GanssReqGenericData/ganssId STRINGS=VALS(ulp_ganss_id_vals)
@@ -244,7 +244,7 @@ GanssReqGenericData/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_
   }
 
 #.FN_BODY GanssNavigationModelData/ganssToe VAL_PTR=&val
-  guint32 val;
+  uint32_t val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
 %(DEFAULT_BODY)s
@@ -258,7 +258,7 @@ GanssReqGenericData/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_
   }
 
 #.FN_BODY GanssNavigationModelData/t-toeLimit VAL_PTR=&val
-  guint32 val;
+  uint32_t val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
 %(DEFAULT_BODY)s
@@ -316,7 +316,7 @@ ExtendedEphemeris/validity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_ExtendedEphem
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
-    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
+    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, false);
   }
 
 #.TYPE_ATTR
@@ -698,12 +698,12 @@ SET-GANSSReferenceTime/ganss-TODUncertainty ulp_UTRAN_gpsReferenceTimeUncertaint
 #.FN_BODY ThirdPartyID/sip-uri
 # asn2wrs does not handle '%' in the restricted string ( Has to be there twice)
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%%#@?", 72,
+                                                      1, 255, false, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%%#@?", 72,
                                                       NULL);
 #.FN_BODY ThirdPartyID/ims-public-identity
 # asn2wrs does not handle '%' in the restricted string ( Has to be there twice)
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%%#@?", 72,
+                                                      1, 255, false, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%%#@?", 72,
                                                       NULL);
 #.FN_BODY ThirdPartyID/mdn VAL_PTR=&mdn_tvb
   tvbuff_t *mdn_tvb;
@@ -712,13 +712,13 @@ SET-GANSSReferenceTime/ganss-TODUncertainty ulp_UTRAN_gpsReferenceTimeUncertaint
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_thirdPartyId);
-    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_str(actx->pinfo->pool, mdn_tvb, 0, 8, NULL, FALSE));
+    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_str(actx->pinfo->pool, mdn_tvb, 0, 8, NULL, false));
   }
 
 #.FN_BODY ThirdPartyID/uri
 # asn2wrs does not handle '%' in the restricted string ( Has to be there twice)
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%%#", 69,
+                                                      1, 255, false, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%%#", 69,
                                                       NULL);
 
 #.TYPE_ATTR

@@ -163,7 +163,7 @@ struct tcapsrt_info_t {
   uint32_t tcap_session_id;
   uint32_t src_tid;
   uint32_t dst_tid;
-  guint8 ope;
+  uint8_t ope;
 };
 
 /**
@@ -197,7 +197,7 @@ struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
 
 WS_DLL_PUBLIC bool gtcap_StatSRT;
 
-extern gint tcap_standard;
+extern int tcap_standard;
 
 extern const value_string tcap_component_type_str[];
 void proto_reg_handoff_tcap(void);

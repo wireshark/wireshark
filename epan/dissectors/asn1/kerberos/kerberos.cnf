@@ -106,7 +106,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  guint32 msgtype;
+  uint32_t msgtype;
 
 %(DEFAULT_BODY)s
 
@@ -116,7 +116,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
       val_to_str(msgtype, krb5_msg_types,
       "Unknown msg type %#x"));
   }
-  gbl_do_col_info=FALSE;
+  gbl_do_col_info=false;
 
 ##if 0
   /* append the application type to the tree */
@@ -150,8 +150,8 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     /* ms windows kdc sends e-data of this type containing a "salt"
      * that contains the nt_status code for these error codes.
      */
-    private_data->try_nt_status = TRUE;
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
+    private_data->try_nt_status = true;
+    offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
     break;
   case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
   case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
@@ -161,10 +161,10 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   case KRB5_ET_KDC_ERR_MORE_PREAUTH_DATA_REQUIRED:
   case KRB5_ET_KDC_ERR_PREAUTH_BAD_AUTHENTICATION_SET:
   case KRB5_ET_KDC_ERR_UNKNOWN_CRITICAL_FAST_OPTIONS:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA);
+    offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA);
     break;
   default:
-    offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
+    offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
     break;
   }
 
@@ -187,18 +187,18 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
    * we need to defer calling dissect_kerberos_PA_FX_FAST_REQUEST,
    * see dissect_kerberos_defer_PA_FX_FAST_REQUEST()
    */
-  private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = TRUE, };
+  private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = true, };
 %(DEFAULT_BODY)s
   if (private_data->PA_FX_FAST_REQUEST.tvb != NULL) {
     struct _kerberos_PA_FX_FAST_REQUEST used_stack = private_data->PA_FX_FAST_REQUEST;
-    private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = FALSE, };
+    private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = false, };
 
     /*
      * dissect_kerberos_defer_PA_FX_FAST_REQUEST() remembered
      * a tvb, so replay dissect_kerberos_PA_FX_FAST_REQUEST()
      * here.
      */
-    dissect_kerberos_PA_FX_FAST_REQUEST(FALSE,
+    dissect_kerberos_PA_FX_FAST_REQUEST(false,
                                         used_stack.tvb,
                                         0,
                                         actx,
@@ -221,100 +221,100 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   switch(private_data->padata_type){
   case KERBEROS_PA_TGS_REQ:
     private_data->within_PA_TGS_REQ++;
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
     private_data->within_PA_TGS_REQ--;
     break;
   case KERBEROS_PA_PK_AS_REP_19:
-    private_data->is_win2k_pkinit = TRUE;
+    private_data->is_win2k_pkinit = true;
     if (kerberos_private_is_kdc_req(private_data)) {
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ_Win2k);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ_Win2k);
     } else {
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP_Win2k);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP_Win2k);
     }
     break;
   case KERBEROS_PA_PK_AS_REQ:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
     break;
   case KERBEROS_PA_PK_AS_REP:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
     break;
   case KERBEROS_PA_PAC_REQUEST:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_PAC_REQUEST);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_PAC_REQUEST);
     break;
   case KERBEROS_PA_FOR_USER: /* S4U2SELF */
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
     break;
   case KERBEROS_PA_FOR_X509_USER:
     if(private_data->msg_type == KRB5_MSG_AS_REQ){
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_x509af_Certificate);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_x509af_Certificate);
     }else if(private_data->is_enc_padata){
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, NULL);
     }else{
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
     }
     break;
   case KERBEROS_PA_PROV_SRV_LOCATION:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
     break;
   case KERBEROS_PA_ENC_TIMESTAMP:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_ENC_TIMESTAMP);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_ENC_TIMESTAMP);
     break;
   case KERBEROS_PA_ETYPE_INFO:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO);
     break;
   case KERBEROS_PA_ETYPE_INFO2:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
     break;
   case KERBEROS_PA_PW_SALT:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
     break;
   case KERBEROS_PA_AUTH_SET_SELECTED:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_AUTHENTICATION_SET_ELEM);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_AUTHENTICATION_SET_ELEM);
     break;
   case KERBEROS_PA_FX_FAST:
     if (kerberos_private_is_kdc_req(private_data)) {
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_defer_PA_FX_FAST_REQUEST);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_defer_PA_FX_FAST_REQUEST);
     }else{
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
+      offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
     }
     break;
   case KERBEROS_PA_FX_ERROR:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
     break;
   case KERBEROS_PA_ENCRYPTED_CHALLENGE:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
     break;
   case KERBEROS_PA_KERB_KEY_LIST_REQ:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_KERB_KEY_LIST_REQ);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_KERB_KEY_LIST_REQ);
     break;
   case KERBEROS_PA_KERB_KEY_LIST_REP:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_KERB_KEY_LIST_REP);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_KERB_KEY_LIST_REP);
     break;
   case KERBEROS_PA_SUPPORTED_ETYPES:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SUPPORTED_ENCTYPES);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SUPPORTED_ENCTYPES);
     break;
   case KERBEROS_PA_PAC_OPTIONS:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
     break;
   case KERBEROS_PA_REQ_ENC_PA_REP:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Checksum);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Checksum);
     break;
   case KERBEROS_PA_SPAKE:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SPAKE);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SPAKE);
     break;
   case KERBEROS_PA_SRP:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_KRB5_SRP_PA_APPLICATIONS);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_KRB5_SRP_PA_APPLICATIONS);
     break;
   default:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, NULL);
     break;
   }
 
 #.FN_BODY HostAddress/address
-  gint8 appclass;
+  int8_t appclass;
   bool pc;
-  gint32 tag;
-  guint32 len;
+  int32_t tag;
+  uint32_t len;
   const char *address_str;
   proto_item *it=NULL;
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
@@ -367,56 +367,56 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY EncryptedTicketData/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_ticket_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_ticket_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedAuthorizationData/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authorization_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authorization_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedAuthenticator/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authenticator_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authenticator_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedKDCREPData/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KDC_REP_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KDC_REP_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY PA-ENC-TIMESTAMP/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedAPREPData/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_AP_REP_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_AP_REP_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedKrbPrivData/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PRIV_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PRIV_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedKrbCredData/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_CRED_data);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_CRED_data);
 ##else
 %(DEFAULT_BODY)s
 ##endif
@@ -431,11 +431,11 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
   switch(private_data->checksum_type){
   case KRB5_CHKSUM_GSSAPI:
-    offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+    offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &next_tvb);
     dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
     break;
   default:
-    offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, NULL);
+    offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, NULL);
     break;
   }
 
@@ -484,7 +484,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY Authenticator/_untag/subkey
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  int save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_authenticator;
 ##ifdef HAVE_KERBEROS
@@ -496,7 +496,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY EncAPRepPart/_untag/subkey
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  int save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_encAPRepPart;
 ##ifdef HAVE_KERBEROS
@@ -508,7 +508,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY EncKDCRepPart/key
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  int save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   switch (private_data->msg_type) {
   case KERBEROS_APPLICATIONS_AS_REP:
@@ -529,7 +529,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY EncTicketPart/_untag/key
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  int save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_encTicketPart;
 ##ifdef HAVE_KERBEROS
@@ -541,7 +541,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY KrbCredInfo/key
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  int save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_ticket_info_item;
 ##ifdef HAVE_KERBEROS
@@ -553,7 +553,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY PA-KERB-KEY-LIST-REP/_item
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  int save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_kerbKeyListRep_key;
 ##ifdef HAVE_KERBEROS
@@ -630,7 +630,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 #.FN_BODY KRB-SAFE-BODY/user-data
   kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
   tvbuff_t *new_tvb;
-  offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
+  offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &new_tvb);
   if (new_tvb) {
     call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA, private_data->callbacks);
   }
@@ -638,35 +638,35 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 #.FN_BODY EncKrbPrivPart/user-data
   kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
   tvbuff_t *new_tvb;
-  offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
+  offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &new_tvb);
   if (new_tvb) {
     call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA, private_data->callbacks);
   }
 
 #.FN_HDR EncKDCRepPart/encrypted-pa-data
   kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-  private_data->is_enc_padata = TRUE;
+  private_data->is_enc_padata = true;
 
 #.FN_FTR EncKDCRepPart/encrypted-pa-data
-  private_data->is_enc_padata = FALSE;
+  private_data->is_enc_padata = false;
 
 #.FN_BODY EncryptedKrbFastReq/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KrbFastReq);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KrbFastReq);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedKrbFastResponse/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KrbFastResponse);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KrbFastResponse);
 ##else
 %(DEFAULT_BODY)s
 ##endif
 
 #.FN_BODY EncryptedChallenge/cipher
 ##ifdef HAVE_KERBEROS
-  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_EncryptedChallenge);
+  offset=dissect_ber_octet_string_wcb(false, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_EncryptedChallenge);
 ##else
 %(DEFAULT_BODY)s
 ##endif

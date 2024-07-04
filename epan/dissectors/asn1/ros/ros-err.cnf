@@ -4,7 +4,7 @@
 
 #.FN_HDR ReturnError
   dissector_handle_t err_handle = NULL;
-  const gchar *descr = "";
+  const char *descr = "";
 
   err_next_tvb = NULL;
 #.FN_FTR ReturnError

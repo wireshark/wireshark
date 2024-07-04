@@ -234,7 +234,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY CellUpdateConfirm-CCCH
   fp_info  *fpinf = NULL;
   rlc_info *rlcinf = NULL;
-  guint32 u_rnti;
+  uint32_t u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm-CCCH");
 %(DEFAULT_BODY)s
   if(PINFO_FD_VISITED(actx->pinfo)) {
@@ -258,7 +258,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY CellUpdateConfirm
   fp_info  *fpinf = NULL;
   rlc_info *rlcinf = NULL;
-  guint32 u_rnti;
+  uint32_t u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm");
 %(DEFAULT_BODY)s
   if(PINFO_FD_VISITED(actx->pinfo)) {
@@ -386,7 +386,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY PhysicalChannelReconfiguration
   fp_info  *fpinf = NULL;
   rlc_info *rlcinf = NULL;
-  guint32 u_rnti;
+  uint32_t u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfiguration");
 %(DEFAULT_BODY)s
   if(PINFO_FD_VISITED(actx->pinfo)) {
@@ -427,7 +427,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY RadioBearerReconfiguration
   fp_info  *fpinf = NULL;
   rlc_info *rlcinf = NULL;
-  guint32 u_rnti;
+  uint32_t u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfiguration");
 %(DEFAULT_BODY)s
   if(PINFO_FD_VISITED(actx->pinfo)) {
@@ -502,7 +502,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionSetup
-  guint32 new_u_rnti;
+  uint32_t new_u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
   if (PINFO_FD_VISITED(actx->pinfo)) {
@@ -525,7 +525,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   fp_info            *fpinf;
   rlc_info           *rlcinf;
   rrc_ciphering_info *ciphering_info = NULL;
-  guint8              direction;
+  uint8_t             direction;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
@@ -546,7 +546,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   fp_info            *fpinf;
   rlc_info           *rlcinf;
   rrc_ciphering_info *ciphering_info = NULL;
-  guint8              direction;
+  uint8_t             direction;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
@@ -592,7 +592,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY TransportChannelReconfiguration
   fp_info  *fpinf = NULL;
   rlc_info *rlcinf = NULL;
-  guint32 u_rnti;
+  uint32_t u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfiguration");
 %(DEFAULT_BODY)s
   if(PINFO_FD_VISITED(actx->pinfo)) {
@@ -700,7 +700,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY HandoverFromUTRANCommand-GSM-r3-IEs/gsm-message/single-GSM-Message single-GSM-Message-r3
   tvbuff_t *gsm_message_tvb=NULL;
-  guint bits_remaining, whole_octets_remaining;
+  unsigned bits_remaining, whole_octets_remaining;
 
 %(DEFAULT_BODY)s
 
@@ -715,7 +715,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 #.FN_BODY HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Message-r6
   tvbuff_t *gsm_message_tvb=NULL;
-  guint bits_remaining, whole_octets_remaining;
+  unsigned bits_remaining, whole_octets_remaining;
 
 %(DEFAULT_BODY)s
 
@@ -734,7 +734,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 %(DEFAULT_BODY)s
   if (parameter_tvb){
-    guint8 byte = tvb_get_guint8(parameter_tvb, 0);
+    uint8_t byte = tvb_get_guint8(parameter_tvb, 0);
     if (byte == 0x06) {
       if (gsm_a_dtap_handle) {
         call_dissector(gsm_a_dtap_handle, parameter_tvb, actx->pinfo, tree);
@@ -808,7 +808,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   if(eutraFeatureGroupIndicators_tvb){
     /* Dissect eutraFeatureGroupIndicators */
     proto_tree *subtree;
-    gint curr_bit_offset = 0;
+    int curr_bit_offset = 0;
     subtree = proto_item_add_subtree(actx->created_item, ett_rrc_eutraFeatureGroupIndicators);
     proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_1, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
@@ -822,8 +822,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY PLMN-Identity
   wmem_strbuf_t* mcc_mnc_strbuf;
   wmem_strbuf_t* mcc_strbuf;
-  guint32 string_len;
-  gchar* mcc_mnc_string;
+  uint32_t string_len;
+  char* mcc_mnc_string;
   tvbuff_t* mcc_mnc_tvb;
 
   /* Reset the digits string in the private data struct */
@@ -831,7 +831,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   mcc_mnc_strbuf = wmem_strbuf_new_sized(actx->pinfo->pool,7);
   private_data_set_digits_strbuf(actx, mcc_mnc_strbuf);
   /* Reset parsing failure flag*/
-  private_data_set_digits_strbuf_parsing_failed_flag(actx, FALSE);
+  private_data_set_digits_strbuf_parsing_failed_flag(actx, false);
 %(DEFAULT_BODY)s
   private_data_set_digits_strbuf(actx, NULL);
   /* Check for parsing errors */
@@ -840,7 +840,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 
   /* Extracting the string collected in the strbuf */
-  string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
+  string_len = (uint32_t)wmem_strbuf_get_len(mcc_mnc_strbuf);
   mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
 
   if(string_len >= 3)
@@ -855,7 +855,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 
   /* Creating TVB from extracted string*/
-  mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
+  mcc_mnc_tvb = tvb_new_child_real_data(tvb, (uint8_t*)mcc_mnc_string, string_len, string_len);
   add_new_data_source(actx->pinfo, mcc_mnc_tvb, "MCC-MNC");
 
   /* Calling E.212 */
@@ -865,8 +865,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   wmem_strbuf_t* mcc_mnc_strbuf;
   wmem_strbuf_t* temp_strbuf;
   wmem_strbuf_t* last_mcc_strbuf;
-  guint32 string_len;
-  gchar* mcc_mnc_string;
+  uint32_t string_len;
+  char* mcc_mnc_string;
   tvbuff_t* mcc_mnc_tvb;
 
   /* Reset the digits string in the private data struct */
@@ -874,7 +874,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   mcc_mnc_strbuf = wmem_strbuf_new_sized(actx->pinfo->pool,7);
   private_data_set_digits_strbuf(actx, mcc_mnc_strbuf);
   /* Reset parsing failure flag*/
-  private_data_set_digits_strbuf_parsing_failed_flag(actx, FALSE);
+  private_data_set_digits_strbuf_parsing_failed_flag(actx, false);
 %(DEFAULT_BODY)s
   private_data_set_digits_strbuf(actx, NULL);
   /* Check for parsing errors */
@@ -883,7 +883,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 
   /* Extracting the string collected in the strbuf */
-  string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
+  string_len = (uint32_t)wmem_strbuf_get_len(mcc_mnc_strbuf);
   mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
   if (string_len > 3) {
       /* 3 MCC digits and at least 1 MNC digit were found, keep MCC for later
@@ -906,7 +906,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
         wmem_strbuf_append_printf(temp_strbuf,"%%s",wmem_strbuf_get_str(last_mcc_strbuf));
         wmem_strbuf_append_printf(temp_strbuf,"%%s",mcc_mnc_string);
         /* Update length of recovered MCC-MNC pair */
-        string_len = (guint32)wmem_strbuf_get_len(temp_strbuf);
+        string_len = (uint32_t)wmem_strbuf_get_len(temp_strbuf);
         mcc_mnc_string = wmem_strbuf_finalize(temp_strbuf);
       }
   }
@@ -915,7 +915,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
     /* optional MCC was present (or restored above), we can call E.212 dissector */
 
     /* Creating TVB from extracted string*/
-    mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
+    mcc_mnc_tvb = tvb_new_child_real_data(tvb, (uint8_t*)mcc_mnc_string, string_len, string_len);
     add_new_data_source(actx->pinfo, mcc_mnc_tvb, "MCC-MNC");
 
     /* Calling E.212 */
@@ -924,15 +924,15 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY IMSI-GSM-MAP
   wmem_strbuf_t* imsi_strbuf;
-  guint32 string_len;
-  gchar* imsi_string;
+  uint32_t string_len;
+  char* imsi_string;
   tvbuff_t* imsi_tvb;
 
   /* Reset the digits string in the private data struct */
   imsi_strbuf = wmem_strbuf_new_sized(actx->pinfo->pool,16);
   private_data_set_digits_strbuf(actx, imsi_strbuf);
   /* Reset parsing failure flag*/
-  private_data_set_digits_strbuf_parsing_failed_flag(actx, FALSE);
+  private_data_set_digits_strbuf_parsing_failed_flag(actx, false);
 %(DEFAULT_BODY)s
   private_data_set_digits_strbuf(actx, NULL);
   /* Check for parsing errors */
@@ -941,18 +941,18 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 
   /* Extracting the string collected in the strbuf */
-  string_len = (guint32)wmem_strbuf_get_len(imsi_strbuf);
+  string_len = (uint32_t)wmem_strbuf_get_len(imsi_strbuf);
   imsi_string = wmem_strbuf_finalize(imsi_strbuf);
 
   /* Creating TVB from extracted string*/
-  imsi_tvb = tvb_new_child_real_data(tvb, (guint8*)imsi_string, string_len, string_len);
+  imsi_tvb = tvb_new_child_real_data(tvb, (uint8_t*)imsi_string, string_len, string_len);
   add_new_data_source(actx->pinfo, imsi_tvb, "IMSI");
 
   /* Calling E.212 */
   dissect_e212_utf8_imsi(imsi_tvb,actx->pinfo,tree,0,string_len);
 
 #.FN_BODY Digit VAL_PTR = &digit
-  guint32 digit;
+  uint32_t digit;
   wmem_strbuf_t* digits_strbuf; /* The string of either an IMSI or a MCC-MNC pair */
 %(DEFAULT_BODY)s
 
@@ -962,15 +962,15 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   digits_strbuf = private_data_get_digits_strbuf(actx);
   if (digits_strbuf) {
-    gchar digit_char;
+    char digit_char;
 
     if(digit > 9) {
-      private_data_set_digits_strbuf_parsing_failed_flag(actx, TRUE);
+      private_data_set_digits_strbuf_parsing_failed_flag(actx, true);
       return offset;
     }
 
-    /* Converting to the matching gchar */
-    digit_char = (gchar)(digit + '0');
+    /* Converting to the matching char */
+    digit_char = (char)(digit + '0');
 
     /* Appending to the digits string */
     wmem_strbuf_append_c(digits_strbuf, digit_char);
@@ -982,19 +982,19 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   private_data_set_curr_sib_segment_type(actx,RRC_SIB_SEG_NO_SEGMENT); /* Resetting value */
 
 #.FN_BODY SIB-Type VAL_PTR = &sib_type
-  guint32 sib_type;
+  uint32_t sib_type;
 %(DEFAULT_BODY)s
   private_data_set_curr_sib_type(actx,sib_type);
 
 #.FN_BODY SIB-Data-variable VAL_PTR = &sib_data_tvb
   tvbuff_t *sib_data_tvb;
-  guint32 sib_type;
+  uint32_t sib_type;
   proto_tree *subtree;
-  guint32 seg_type;
+  uint32_t seg_type;
 
 %(DEFAULT_BODY)s
 
-  seg_type = (guint32)private_data_get_curr_sib_segment_type(actx);
+  seg_type = (uint32_t)private_data_get_curr_sib_segment_type(actx);
   if(seg_type != RRC_SIB_SEG_COMP) {
       /* TODO: The Dissector only handles 'complete SIBs' right now.
        * Reassembly logic should be implemented, taking into acocunt that
@@ -1118,8 +1118,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
        Decoding specified in TS 124 237 V11.4.0 Annex D.5.3.3 ATGW transfer details
      */
     proto_tree *subtree;
-    gint curr_offset = 0;
-    guint32 atgw_trans_det_cont;
+    int curr_offset = 0;
+    uint32_t atgw_trans_det_cont;
     subtree = proto_item_add_subtree(actx->created_item, ett_rrc_ims_info);
     proto_tree_add_item_ret_uint(subtree, hf_rrc_ims_info_atgw_trans_det_cont_type, imsInformation_tvb, curr_offset, 1, ENC_BIG_ENDIAN, &atgw_trans_det_cont);
     curr_offset++;
@@ -1149,7 +1149,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   actx->created_item = proto_tree_add_item(tree, hf_index, hnbname_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
 #.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info
-  guint32 nas_sys_info;
+  uint32_t nas_sys_info;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s)",
                   val_to_str_const(nas_sys_info,rrc_CN_DomainIdentity_vals, "Unknown"));
@@ -1174,7 +1174,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY NAS-SystemInformationGSM-MAP VAL_PTR = &nas_sys_info_gsm_map_tvb
   tvbuff_t *nas_sys_info_gsm_map_tvb = NULL;
-  guint32 length;
+  uint32_t length;
   enum nas_sys_info_gsm_map cn_domain;
   proto_tree *subtree;
 
@@ -1221,14 +1221,14 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 #.FN_BODY U-RNTI
   private_data_set_s_rnc_id(actx, 0);
   private_data_set_s_rnti(actx, 0);
-  guint32 s_rnc_id;
-  guint32 s_rnti;
-  guint32 u_rnti_value;
-  guint32 original_offset;
+  uint32_t s_rnc_id;
+  uint32_t s_rnti;
+  uint32_t u_rnti_value;
+  uint32_t original_offset;
   proto_item *ti;
-  guint32 item_len;
+  uint32_t item_len;
   proto_tree *sub_tree;
-  gboolean is_new_urnti;
+  bool is_new_urnti;
   int generated_field_hf;
   original_offset = offset;
 %(DEFAULT_BODY)s
@@ -1269,8 +1269,8 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
   fp_fach_channel_info_t *fp_fach_channel_info = NULL;
   tvbuff_t * c_rnti_tvb = NULL;
-  guint16 c_rnti = 0;
-  guint32 u_rnti = 0;
+  uint16_t c_rnti = 0;
+  uint32_t u_rnti = 0;
   fp_crnti_allocation_info_t *fp_crnti_allocation_info = NULL;
 %(DEFAULT_BODY)s
   if (!c_rnti_tvb)
@@ -1332,12 +1332,12 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   wmem_tree_insert32(rrc_global_urnti_crnti_map, c_rnti, (void *)fp_crnti_allocation_info);
 
 #.FN_BODY UL-ScramblingCode VAL_PTR = &scrambling_code
-guint32 scrambling_code;
+uint32_t scrambling_code;
 %(DEFAULT_BODY)s
 private_data_set_scrambling_code(actx,scrambling_code);
 
 #.FN_BODY RRC-StateIndicator VAL_PTR = &state_dec
-gint32 state_dec = -1;
+int32_t state_dec = -1;
 %(DEFAULT_BODY)s
 if(state_dec >= 0 && state_dec <= 3) {
   state_dec++; /* Encoded values are 0-based, Values in the enum are 1-based*/
@@ -1360,8 +1360,8 @@ if(state_dec >= 0 && state_dec <= 3) {
 
 #.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
 /*Here we try to figure out which HS-DSCH channels are multiplexed*/
-    guint *flowd_p;
-    guint *cur_val=NULL;
+    unsigned *flowd_p;
+    unsigned *cur_val=NULL;
     struct rrc_info *rrcinf;
     fp_info *fpinf;
 
@@ -1379,11 +1379,11 @@ if(state_dec >= 0 && state_dec <= 3) {
             }
             else{
                 /*If it doesn't exists, insert it*/
-                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]))) == NULL ){
+                if( (cur_val=(int *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((unsigned)rrcinf->hrnti[fpinf->cur_tb]))) == NULL ){
 
-                    flowd_p = g_new0(guint, 1);
+                    flowd_p = g_new0(unsigned, 1);
                     *flowd_p = (1U<<flowd);    /*Set the bit to mark it as true*/
-                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]), flowd_p);
+                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((unsigned)rrcinf->hrnti[fpinf->cur_tb]), flowd_p);
 
                 }else{
                     *cur_val = (1U<<flowd) | *cur_val;
@@ -1397,8 +1397,8 @@ if(state_dec >= 0 && state_dec <= 3) {
 
 #.FN_BODY DL-TransportChannelType-r7 VAL_PTR = &type
 /*Here we try to figure out which HS-DSCH channels are multiplexed*/
-    guint *flowd_p;
-    guint *cur_val=NULL;
+    unsigned *flowd_p;
+    unsigned *cur_val=NULL;
     struct rrc_info *rrcinf;
     fp_info *fpinf;
 
@@ -1417,11 +1417,11 @@ if(state_dec >= 0 && state_dec <= 3) {
             }
             else{
                 /*If it doesn't exists, insert it*/
-                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]))) == NULL ){
+                if( (cur_val=(int *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((unsigned)rrcinf->hrnti[fpinf->cur_tb]))) == NULL ){
 
-                    flowd_p = g_new0(guint, 1);
+                    flowd_p = g_new0(unsigned, 1);
                     *flowd_p = (1U<<flowd);    /* Set the bit to mark it as true*/
-                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]), flowd_p);
+                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((unsigned)rrcinf->hrnti[fpinf->cur_tb]), flowd_p);
 
                 }else{
                     *cur_val = (1U<<flowd) | *cur_val;
@@ -1458,7 +1458,7 @@ if(state_dec >= 0 && state_dec <= 3) {
   fp_info       *fpinf;
   rlc_info      *rlcinf;
   rrc_ciphering_info * ciphering_info;
-  guint32 * start;
+  uint32_t * start;
   enum nas_sys_info_gsm_map cn_domain;
 
 %(DEFAULT_BODY)s
@@ -1487,7 +1487,7 @@ if(state_dec >= 0 && state_dec <= 3) {
 
       /*Retrieve and store the value*/
       if(ciphering_info && ciphering_info->start_ps) {
-        start = g_new(guint32,1);
+        start = g_new(uint32_t,1);
         *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
         /*Insert the value based on current frame num since this might vary over time*/
         g_tree_insert(ciphering_info->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
@@ -1502,9 +1502,9 @@ if(state_dec >= 0 && state_dec <= 3) {
   fp_info            *fpinf;
   rlc_info           *rlcinf;
   rrc_ciphering_info *ciphering_info;
-  guint32 rbid;
-  guint32 rlc_ciphering_sqn;
-  guint32 direction;
+  uint32_t rbid;
+  uint32_t rlc_ciphering_sqn;
+  uint32_t direction;
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
   rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
@@ -1529,19 +1529,19 @@ if(state_dec >= 0 && state_dec <= 3) {
 
 
 #.FN_BODY RB-Identity VAL_PTR = &rbid
-guint32 rbid;
+uint32_t rbid;
 %(DEFAULT_BODY)s
 private_data_set_rbid(actx, rbid);
 
 
 #.FN_BODY RLC-SequenceNumber VAL_PTR = &rlc_ciphering_sqn
-guint32 rlc_ciphering_sqn;
+uint32_t rlc_ciphering_sqn;
 %(DEFAULT_BODY)s
 private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 
 #.FN_BODY CipheringAlgorithm VAL_PTR = &ciphering_algo
   rrc_ciphering_info *ciphering_info;
-  gint32 ciphering_algo;
+  int32_t ciphering_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1553,7 +1553,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 
 #.FN_BODY CipheringAlgorithm-r7 VAL_PTR = &ciphering_algo
   rrc_ciphering_info *ciphering_info;
-  gint32 ciphering_algo;
+  int32_t ciphering_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1565,7 +1565,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 
 #.FN_BODY IntegrityProtectionAlgorithm VAL_PTR = &integrity_algo
   rrc_ciphering_info *ciphering_info;
-  gint32 integrity_algo;
+  int32_t integrity_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1577,7 +1577,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 
 #.FN_BODY IntegrityProtectionAlgorithm-r7 VAL_PTR = &integrity_algo
   rrc_ciphering_info *ciphering_info;
-  gint32 integrity_algo;
+  int32_t integrity_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1605,7 +1605,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 %(DEFAULT_BODY)s
 
 #.FN_BODY ReleaseCause VAL_PTR=&value
-  guint32 value;
+  uint32_t value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
                   val_to_str_const(value, rrc_ReleaseCause_vals, "Unknown"));

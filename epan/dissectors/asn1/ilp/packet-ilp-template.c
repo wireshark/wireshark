@@ -53,8 +53,8 @@ static bool ilp_desegment = true;
 static int hf_ilp_mobile_directory_number;
 
 /* Initialize the subtree pointers */
-static gint ett_ilp;
-static gint ett_ilp_setid;
+static int ett_ilp;
+static int ett_ilp_setid;
 #include "packet-ilp-ett.c"
 
 /* Include constants */
@@ -64,7 +64,7 @@ static gint ett_ilp_setid;
 #include "packet-ilp-fn.c"
 
 
-static guint
+static unsigned
 get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* PDU length = Message length */
@@ -95,7 +95,7 @@ void proto_register_ilp(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ilp,
     &ett_ilp_setid,
 #include "packet-ilp-ettarr.c"

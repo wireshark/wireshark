@@ -34,7 +34,7 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ros_invoke_argument, NULL, "invoke argument");
 
-  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, TRUE);
+  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, true);
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -52,7 +52,7 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   subtree = proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_return_result, NULL, "return result");
 
-  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, FALSE);
+  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, false);
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -70,7 +70,7 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   subtree = proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_return_result, NULL, "return result");
 
-  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, FALSE);
+  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, false);
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -168,7 +168,7 @@ Reject/problem/returnResult	rejectResult
 	VAL_PTR = &problem
 
 #.FN_BODY GeneralProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -178,7 +178,7 @@ Reject/problem/returnResult	rejectResult
 	VAL_PTR = &problem
 
 #.FN_BODY InvokeProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -188,7 +188,7 @@ Reject/problem/returnResult	rejectResult
 	VAL_PTR = &problem
 
 #.FN_BODY ReturnResultProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 
@@ -198,7 +198,7 @@ Reject/problem/returnResult	rejectResult
 	VAL_PTR = &problem
 
 #.FN_BODY ReturnErrorProblem
-  guint32 problem;
+  uint32_t problem;
 
   %(DEFAULT_BODY)s
 

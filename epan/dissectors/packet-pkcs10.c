@@ -266,7 +266,7 @@ void proto_register_pkcs10(void) {
 	};
 
 	/* List of subtrees */
-	static gint *ett[] = {
+	static int *ett[] = {
     &ett_pkcs10_CertificationRequestInfo,
     &ett_pkcs10_Attributes,
     &ett_pkcs10_Attribute,

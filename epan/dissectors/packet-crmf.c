@@ -1213,7 +1213,7 @@ void proto_register_crmf(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_crmf_CertReqMessages,
     &ett_crmf_CertReqMsg,
     &ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue,
