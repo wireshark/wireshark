@@ -17537,7 +17537,7 @@ proto_reg_handoff_btatt(void)
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
-    g_string_free(uuid_str, true);
+    g_string_free(uuid_str, TRUE);
 }
 
 void
