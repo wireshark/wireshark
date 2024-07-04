@@ -394,8 +394,7 @@ tvb_get_protobuf_time(tvbuff_t* tvb, guint offset, guint maxlen, nstime_t* times
      *    int32 nanos = 2;
      * }
      */
-    timestamp->secs = 0;
-    timestamp->nsecs = 0;
+    nstime_set_zero(timestamp);
 
     while (len > 0) {
         field_length = tvb_get_protobuf_field_uint(tvb, off, len, &field_number, &wire_type, &value);
@@ -404,13 +403,17 @@ tvb_get_protobuf_time(tvbuff_t* tvb, guint offset, guint maxlen, nstime_t* times
         }
 
         if (field_number == 1) {
-            timestamp->secs = (gint64)value;
+            timestamp->secs = (time_t)value;
         } else if (field_number == 2) {
-            timestamp->nsecs = (gint32)value;
+            timestamp->nsecs = (int)value;
         }
 
         off += field_length;
         len -= field_length;
+    }
+
+    if (timestamp->nsecs < 0 || timestamp->nsecs > 999999999) {
+        nstime_set_unset(timestamp);
     }
 
     return maxlen - len;
@@ -551,6 +554,7 @@ abs_time_to_rfc3339(wmem_allocator_t *scope, const nstime_t *nstime, bool use_ut
     struct tm *tm;
     char datetime_format[128];
     int nsecs;
+    int width;
     char nsecs_buf[32];
 
     if (use_utc) {
@@ -571,10 +575,12 @@ abs_time_to_rfc3339(wmem_allocator_t *scope, const nstime_t *nstime, bool use_ut
         return wmem_strdup_printf(scope, datetime_format, "");
 
     nsecs = nstime->nsecs;
-    while (nsecs > 0 && (nsecs % 10) == 0) {
-        nsecs /= 10;
+    width = 9;
+    while (width > 0 && (nsecs % 1000) == 0) {
+        nsecs /= 1000;
+        width -= 3;
     }
-    snprintf(nsecs_buf, sizeof(nsecs_buf), ".%d", nsecs);
+    snprintf(nsecs_buf, sizeof(nsecs_buf), ".%0*d", width, nsecs);
 
     return wmem_strdup_printf(scope, datetime_format, nsecs_buf);
 }
@@ -1454,14 +1460,18 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
         if (strcmp(message_name, "google.protobuf.Timestamp") == 0) {
             /* parse this message as timestamp */
             tvb_get_protobuf_time(tvb, offset, length, &timestamp);
-            value_label = abs_time_to_rfc3339(scope ? scope : pinfo->pool, &timestamp, use_utc_fmt);
-            if (hf_msg > 0) {
-                ti = proto_tree_add_time_format_value(protobuf_tree, hf_msg, tvb, offset, length, &timestamp, "%s", value_label);
-                protobuf_tree = proto_item_add_subtree(ti, ett_protobuf_message);
-            }
-            if (dumper) {
-                json_dumper_value_string(dumper, value_label);
-                dumper = NULL; /* this message will not dump as JSON object */
+            if (!nstime_is_unset(&timestamp)) {
+                value_label = abs_time_to_rfc3339(scope ? scope : pinfo->pool, &timestamp, use_utc_fmt);
+                if (hf_msg > 0) {
+                    ti = proto_tree_add_time_format_value(protobuf_tree, hf_msg, tvb, offset, length, &timestamp, "%s", value_label);
+                    protobuf_tree = proto_item_add_subtree(ti, ett_protobuf_message);
+                }
+                if (dumper) {
+                    json_dumper_value_string(dumper, value_label);
+                    dumper = NULL; /* this message will not dump as JSON object */
+                }
+            } else {
+                expert_add_info(pinfo, proto_tree_get_parent(protobuf_tree), &ei_protobuf_failed_parse_field);
             }
         } else if (hf_msg > 0) {
             ti = proto_tree_add_bytes_format_value(protobuf_tree, hf_msg, tvb, offset, length, NULL, "(%u bytes)", length);
