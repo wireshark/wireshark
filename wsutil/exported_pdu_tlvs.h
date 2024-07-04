@@ -180,6 +180,17 @@
 
 #define EXP_PDU_TAG_USER_DATA_PDU  37 /**< Raw user data PDU which can be dissected as any protocol. */
 
+/* 3GPP identity types for EXP_PDU_TAG_3GPP_ID */
+#define EXP_PDU_3GPP_ID_CGI     0 /**< 56-bit 2G/3G Cell Global Identifier (MNC big-endian encoding) */
+#define EXP_PDU_3GPP_ID_ECGI    1 /**< 52-bit 4G E-UTRAN Cell Global Identifier (MNC big-endian encoding) */
+#define EXP_PDU_3GPP_ID_NCGI    2 /**< 60-bit NR Cell Global Identifier (MNC big-endian encoding) */
+
+/**< Stores a 3GPP identifier.
+    The value begins with a 1-byte identity type (EXP_PDU_3GPP_ID_*),
+    followed by the identity itself.
+*/
+#define EXP_PDU_TAG_3GPP_ID   38
+
 #define EXP_PDU_TAG_IPV4_LEN            4
 #define EXP_PDU_TAG_IPV6_LEN            16
 

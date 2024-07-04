@@ -17,6 +17,7 @@
 #include <epan/address_types.h>
 #include <epan/exported_pdu.h>
 #include <epan/expert.h>
+#include "packet-e212.h"
 #include "packet-mtp3.h"
 #include "packet-dvbci.h"
 #include "packet-tcp.h"
@@ -63,10 +64,19 @@ static int hf_exported_pdu_exported_pdu;
 static int hf_exported_pdu_dis_table_val;
 static int hf_exported_pdu_col_proto_str;
 static int hf_exported_pdu_col_info_str;
+static int hf_exported_pdu_3gpp_id_type;
+static int hf_exported_pdu_3gpp_lac;
+static int hf_exported_pdu_3gpp_ci;
+static int hf_exported_pdu_3gpp_eci;
+static int hf_exported_pdu_3gpp_nci;
+static int hf_exported_pdu_3gpp_cgi;
+static int hf_exported_pdu_3gpp_ecgi;
+static int hf_exported_pdu_3gpp_ncgi;
 
 /* Initialize the subtree pointers */
 static int ett_exported_pdu;
 static int ett_exported_pdu_tag;
+static int ett_exported_pdu_3gpp_cgi;
 
 static int ss7pc_address_type = -1;
 
@@ -74,6 +84,7 @@ static dissector_handle_t exported_pdu_handle;
 
 static expert_field ei_exported_pdu_unsupported_version;
 static expert_field ei_exported_pdu_unknown_tag;
+static expert_field ei_exported_pdu_unexpected_tag_length;
 
 static const gchar *user_data_pdu = "data";
 
@@ -112,6 +123,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_P2P_DIRECTION,         "P2P direction" },
    { EXP_PDU_TAG_COL_INFO_TEXT,         "Column Information String" },
    { EXP_PDU_TAG_USER_DATA_PDU,         "User Data PDU" },
+   { EXP_PDU_TAG_3GPP_ID,               "3GPP Identity" },
 
    { 0,        NULL   }
 };
@@ -144,6 +156,13 @@ static const value_string exported_pdu_p2p_dir_vals[] = {
     { P2P_DIR_RECV, "Received" },
     { P2P_DIR_UNKNOWN, "Unknown" },
     { 0, NULL }
+};
+
+static const value_string exported_pdu_3gpp_id_type_vals[] = {
+   { EXP_PDU_3GPP_ID_CGI,  "CGI" },
+   { EXP_PDU_3GPP_ID_ECGI, "ECGI" },
+   { EXP_PDU_3GPP_ID_NCGI, "NCGI" },
+   { 0, NULL }
 };
 
 static port_type exp_pdu_port_type_to_ws_port_type(uint32_t type)
@@ -185,6 +204,60 @@ static port_type exp_pdu_port_type_to_ws_port_type(uint32_t type)
 
     DISSECTOR_ASSERT(FALSE);
     return PT_NONE;
+}
+
+static void
+dissect_3gpp_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tag_tree, int offset, int tag_len)
+{
+    proto_item *cgi_item;
+    proto_tree *cgi_tree;
+    uint32_t ci_type;
+    int bit_offset = offset * 8;
+    if (tag_len == 0){
+        proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unexpected_tag_length, tvb, offset, 0);
+        return;
+    }
+    proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_3gpp_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &ci_type);
+    offset += 1;
+    bit_offset += 8;
+    switch (ci_type) {
+        case EXP_PDU_3GPP_ID_CGI:
+            if (tag_len < 8) {
+                proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unexpected_tag_length, tvb, offset, tag_len);
+            } else {
+                cgi_item = proto_tree_add_bits_item(tag_tree, hf_exported_pdu_3gpp_cgi, tvb, bit_offset, 56, ENC_BIG_ENDIAN);
+                cgi_tree = proto_item_add_subtree(cgi_item, ett_exported_pdu_3gpp_cgi);
+                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_CGI, FALSE);
+                proto_tree_add_item(cgi_tree, hf_exported_pdu_3gpp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(cgi_tree, hf_exported_pdu_3gpp_ci, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            }
+            break;
+        case EXP_PDU_3GPP_ID_ECGI:
+            if (tag_len < 8) {
+                proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unexpected_tag_length, tvb, offset, tag_len);
+            } else {
+                cgi_item = proto_tree_add_bits_item(tag_tree, hf_exported_pdu_3gpp_ecgi, tvb, bit_offset, 52, ENC_BIG_ENDIAN);
+                cgi_tree = proto_item_add_subtree(cgi_item, ett_exported_pdu_3gpp_cgi);
+                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_ECGI, FALSE);
+                bit_offset = offset * 8;
+                proto_tree_add_bits_item(cgi_tree, hf_exported_pdu_3gpp_eci, tvb, bit_offset, 28, ENC_BIG_ENDIAN);
+            }
+            break;
+        case EXP_PDU_3GPP_ID_NCGI:
+            if (tag_len < 9) {
+                proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unexpected_tag_length, tvb, offset, tag_len);
+            } else {
+                cgi_item = proto_tree_add_bits_item(tag_tree, hf_exported_pdu_3gpp_ncgi, tvb, bit_offset, 60, ENC_BIG_ENDIAN);
+                cgi_tree = proto_item_add_subtree(cgi_item, ett_exported_pdu_3gpp_cgi);
+                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_NRCGI, FALSE);
+                bit_offset = offset * 8;
+                proto_tree_add_bits_item(cgi_tree, hf_exported_pdu_3gpp_nci, tvb, bit_offset, 36, ENC_BIG_ENDIAN);
+            }
+            break;
+        default:
+            proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unknown_tag, tvb, offset, tag_len);
+            break;
+    }
 }
 
 /* Code to actually dissect the packets */
@@ -358,6 +431,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_USER_DATA_PDU:
                 next_proto_type = EXPORTED_PDU_NEXT_DISSECTOR_STR;
                 proto_name = user_data_pdu;
+                break;
+            case EXP_PDU_TAG_3GPP_ID:
+                dissect_3gpp_id(tvb, pinfo, tag_tree, offset, tag_len);
                 break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
@@ -598,12 +674,53 @@ proto_register_exported_pdu(void)
                FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_exported_pdu_3gpp_id_type,
+            { "3GPP Identity Type", "exported_pdu.3gpp.id_type",
+               FT_UINT8, BASE_DEC, VALS(exported_pdu_3gpp_id_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_lac,
+            { "LAC", "exported_pdu.3gpp.lac",
+               FT_UINT16, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_ci,
+            { "CI", "exported_pdu.3gpp.ci",
+               FT_UINT16, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_eci,
+            { "E-UTRAN CI", "exported_pdu.3gpp.eci",
+               FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_nci,
+            { "NR CI", "exported_pdu.3gpp.nci",
+               FT_UINT64, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_cgi,
+            { "Cell Global Identifier", "exported_pdu.3gpp.cgi",
+               FT_UINT64, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_ecgi,
+            { "E-UTRAN Cell Global Identifier", "exported_pdu.3gpp.ecgi",
+               FT_UINT64, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_ncgi,
+            { "NR Cell Global Identifier", "exported_pdu.3gpp.ncgi",
+               FT_UINT64, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_exported_pdu,
-        &ett_exported_pdu_tag
+        &ett_exported_pdu_tag,
+        &ett_exported_pdu_3gpp_cgi,
     };
 
     /* Setup expert information */
@@ -615,6 +732,10 @@ proto_register_exported_pdu(void)
         { &ei_exported_pdu_unknown_tag,
             { "exported_pdu.tag.unknown",
                 PI_PROTOCOL, PI_WARN, "Unrecognized tag", EXPFILL }
+        },
+        { &ei_exported_pdu_unexpected_tag_length,
+            { "exported_pdu.tag_len.unexpected",
+                PI_PROTOCOL, PI_WARN, "Unexpected tag length", EXPFILL }
         },
     };
     expert_module_t *expert_exported_pdu;
