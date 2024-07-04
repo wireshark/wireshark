@@ -564,34 +564,34 @@ static dissector_handle_t ieee8023_handle;
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_bsfc_handle;
 
-static gint ett_capwap;
-static gint ett_capwap_control;
-static gint ett_capwap_data;
-static gint ett_capwap_preamble;
-static gint ett_capwap_header;
-static gint ett_capwap_header_flags;
-static gint ett_capwap_control_header;
-static gint ett_capwap_control_header_msg;
-static gint ett_capwap_data_keep_alive;
-static gint ett_capwap_message_element;
-static gint ett_capwap_data_message_bindings_ieee80211;
-static gint ett_capwap_encryption_capabilities;
-static gint ett_capwap_encryption_capability;
-static gint ett_capwap_ac_information;
-static gint ett_capwap_wtp_descriptor;
-static gint ett_capwap_board_data;
-static gint ett_capwap_message_element_type;
-static gint ett_capwap_ac_descriptor_security_flags;
-static gint ett_capwap_ac_descriptor_dtls_flags;
-static gint ett_capwap_wtp_frame_tunnel_mode;
-static gint ett_capwap_ieee80211_add_wlan_capability;
-static gint ett_capwap_ieee80211_ie_flags;
-static gint ett_capwap_ieee80211_update_wlan_capability;
-static gint ett_capwap_ieee80211_station_capabilities;
-static gint ett_capwap_ieee80211_ofdm_control_band_support;
+static int ett_capwap;
+static int ett_capwap_control;
+static int ett_capwap_data;
+static int ett_capwap_preamble;
+static int ett_capwap_header;
+static int ett_capwap_header_flags;
+static int ett_capwap_control_header;
+static int ett_capwap_control_header_msg;
+static int ett_capwap_data_keep_alive;
+static int ett_capwap_message_element;
+static int ett_capwap_data_message_bindings_ieee80211;
+static int ett_capwap_encryption_capabilities;
+static int ett_capwap_encryption_capability;
+static int ett_capwap_ac_information;
+static int ett_capwap_wtp_descriptor;
+static int ett_capwap_board_data;
+static int ett_capwap_message_element_type;
+static int ett_capwap_ac_descriptor_security_flags;
+static int ett_capwap_ac_descriptor_dtls_flags;
+static int ett_capwap_wtp_frame_tunnel_mode;
+static int ett_capwap_ieee80211_add_wlan_capability;
+static int ett_capwap_ieee80211_ie_flags;
+static int ett_capwap_ieee80211_update_wlan_capability;
+static int ett_capwap_ieee80211_station_capabilities;
+static int ett_capwap_ieee80211_ofdm_control_band_support;
 
-static gint ett_msg_fragment;
-static gint ett_msg_fragments;
+static int ett_msg_fragment;
+static int ett_msg_fragments;
 
 static expert_field ei_capwap_header_length_bad;
 static expert_field ei_capwap_data_keep_alive_length;
@@ -1246,14 +1246,14 @@ static const value_string ieee80211_mac_profile_vals[] = {
 };
 
 static void
-dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_message_binding_tree, guint offset, packet_info *pinfo)
+dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_message_binding_tree, unsigned offset, packet_info *pinfo)
 {
     proto_item *data_message_binding_item, *ti;
     proto_tree *sub_data_message_binding_tree;
 
     if (value_is_in_range(global_capwap_data_udp_ports, pinfo->destport))
     {
-        guint16 data_rate;
+        uint16_t data_rate;
         /* (WTP -> AC) IEEE 802.11 Frame Info */
         data_message_binding_item = proto_tree_add_item(data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi, tvb, offset, 4, ENC_NA);
         sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap_data_message_bindings_ieee80211);
@@ -1279,7 +1279,7 @@ dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_m
 }
 
 static void
-dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_capabilities_tree, guint offset)
+dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_capabilities_tree, unsigned offset)
 {
     proto_item *encryption_capabilities_item;
     proto_tree *sub_encryption_capabilities_tree;
@@ -1300,9 +1300,9 @@ dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_cap
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tree, guint offset)
+dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tree, unsigned offset)
 {
-    guint optlen,ac_information_type = 0;
+    unsigned optlen,ac_information_type = 0;
     proto_item *ac_information_type_item;
     proto_tree *sub_ac_information_type_tree;
 
@@ -1340,9 +1340,9 @@ dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tre
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tree, guint offset)
+dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tree, unsigned offset)
 {
-    guint optlen,wtp_descriptor_type = 0;
+    unsigned optlen,wtp_descriptor_type = 0;
     proto_item *wtp_descriptor_type_item;
     proto_tree *sub_wtp_descriptor_type_tree;
 
@@ -1389,9 +1389,9 @@ dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tre
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, guint offset)
+dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, unsigned offset)
 {
-    guint optlen,board_data_type = 0;
+    unsigned optlen,board_data_type = 0;
     proto_item *board_data_type_item;
     proto_tree *sub_board_data_type_tree;
 
@@ -1524,9 +1524,9 @@ static const value_string fortinet_element_id_vals[] = {
 
 
 static int
-dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo, guint optlen,  proto_item *msg_element_type_item)
+dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, unsigned offset, packet_info *pinfo, unsigned optlen,  proto_item *msg_element_type_item)
 {
-    guint element_id, i;
+    unsigned element_id, i;
 
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     element_id = tvb_get_ntohs(tvb, offset);
@@ -1561,7 +1561,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 1;
         break;
         case VSP_FORTINET_MAC:{ /* 33 */
-            guint mac_length;
+            unsigned mac_length;
             proto_item *ti;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1588,7 +1588,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 1;
         break;
         case VSP_FORTINET_WBH_STA:{ /* 36 */
-            guint mac_length;
+            unsigned mac_length;
             proto_item *ti;
 
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1622,7 +1622,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 1;
         break;
         case VSP_FORTINET_MGMT_VAP:{ /* 50 */
-            guint16 sn_length;
+            uint16_t sn_length;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn_length, tvb, offset, 2, ENC_NA);
             sn_length = tvb_get_ntohs(tvb, offset);
             offset += 2;
@@ -2032,9 +2032,9 @@ static const value_string cisco_ap_mode_and_type_mode_vals[] = {
 
 
 static int
-dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo, guint optlen,  proto_item *msg_element_type_item)
+dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, unsigned offset, packet_info *pinfo, unsigned optlen,  proto_item *msg_element_type_item)
 {
-    guint element_id;
+    unsigned element_id;
 
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     element_id = tvb_get_ntohs(tvb, offset);
@@ -2139,9 +2139,9 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
 }
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_tree, guint offset, packet_info *pinfo)
+dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_tree, unsigned offset, packet_info *pinfo)
 {
-    guint optlen, offset_end, number_encrypt, i, msg_element_type = 0;
+    unsigned optlen, offset_end, number_encrypt, i, msg_element_type = 0;
     proto_item *msg_element_type_item, *msg_element_type_item_flag, *ti_len, *ti_type;
     proto_tree *sub_msg_element_type_tree, *sub_msg_element_type_flag_tree;
 
@@ -2254,7 +2254,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         break;
 
     case TYPE_ADD_STATION:{ /* Add Station (8) */
-        guint8 maclength;
+        uint8_t maclength;
         if (optlen < 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Add Station length %u wrong, must be >= 8", optlen);
@@ -2322,7 +2322,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         break;
 
     case TYPE_DELETE_STATION:{ /* Delete Station (18) */
-        guint8 maclength;
+        uint8_t maclength;
         if (optlen < 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Delete Station length %u wrong, must be >= 8", optlen);
@@ -2442,7 +2442,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         break;
 
     case TYPE_VENDOR_SPECIFIC_PAYLOAD:{ /* Vendor Specific Payload (37) */
-        guint32 vendor_id;
+        uint32_t vendor_id;
         if (optlen < 7) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Vendor Specific Payload length %u wrong, must be >= 7", optlen);
@@ -2602,7 +2602,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         break;
 
     case IEEE80211_ADD_WLAN:{ /* ieee80211 Add WLAN (1024) */
-        guint16 key_length;
+        uint16_t key_length;
         if (optlen < 20) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Add Wlan length %u wrong, must be >= 20", optlen);
@@ -2628,7 +2628,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         break;
 
     case IEEE80211_ANTENNA:{ /* ieee80211 Antenna (1025) */
-        guint8 antenna_count, antenna = 0;
+        uint8_t antenna_count, antenna = 0;
         if (optlen < 5) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Antenna length %u wrong, must be >= 5", optlen);
@@ -2846,7 +2846,7 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         break;
 
     case IEEE80211_TX_POWER_LEVEL:{ /* ieee80211 Tx Power Level (1042) */
-        guint8 num_levels, level = 0;
+        uint8_t num_levels, level = 0;
         if (optlen < 3) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Antenna length %u wrong, must be >= 3", optlen);
@@ -2863,7 +2863,7 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         break;
 
     case IEEE80211_UPDATE_WLAN:{ /* ieee80211 Update WLAN (1044) */
-        guint16 key_length;
+        uint16_t key_length;
         if (optlen < 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Update Wlan length %u wrong, must be >= 8", optlen);
@@ -2913,7 +2913,7 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
 
 
     case IEEE80211_SUPPORTED_MAC_PROFILES:{ /* ieee80211 Supported MAC Profiles (1060) */
-        guint8 num_profiles;
+        uint8_t num_profiles;
         if (optlen < 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Supported MAC Profiles length %u wrong, must be >= 2", optlen);
@@ -2953,9 +2953,9 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_message_element(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offset, packet_info *pinfo)
+dissect_capwap_message_element(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned offset, packet_info *pinfo)
 {
-    guint plen = 0, offset_end;
+    unsigned plen = 0, offset_end;
     proto_item *ti;
     proto_tree *capwap_message_element_tree;
 
@@ -2973,10 +2973,10 @@ dissect_capwap_message_element(tvbuff_t *tvb, proto_tree *capwap_control_tree, g
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_data_keep_alive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *capwap_data_tree, guint offset)
+dissect_capwap_data_keep_alive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *capwap_data_tree, unsigned offset)
 {
-    guint16 len;
-    guint plen = 0, offset_end;
+    uint16_t len;
+    unsigned plen = 0, offset_end;
     proto_item *ti;
     proto_tree *capwap_data_keep_alive_tree;
 
@@ -3001,9 +3001,9 @@ dissect_capwap_data_keep_alive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ca
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offset, packet_info *pinfo)
+dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned offset, packet_info *pinfo)
 {
-    guint plen = 0;
+    unsigned plen = 0;
     proto_item *ti, *ti_flag;
     proto_tree *capwap_control_header_tree;
     proto_tree *capwap_control_msg_type_tree;
@@ -3036,15 +3036,15 @@ dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, gu
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offset, packet_info *pinfo, guint8 *payload_type, guint8 *payload_wbid, gboolean *fragment_is, gboolean *fragment_more, guint32 *fragment_id, guint32 *fragment_offset)
+dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned offset, packet_info *pinfo, uint8_t *payload_type, uint8_t *payload_wbid, bool *fragment_is, bool *fragment_more, uint32_t *fragment_id, uint32_t *fragment_offset)
 {
-    guint plen = 0, hlen = 0;
+    unsigned plen = 0, hlen = 0;
     proto_item *ti, *ti_flag, *ti_len;
     proto_tree *capwap_header_tree;
     proto_tree *capwap_header_flags_tree;
-    guint flags = 0;
-    guint8 maclength, wirelesslength;
-    guint align = 0;
+    unsigned flags = 0;
+    uint8_t maclength, wirelesslength;
+    unsigned align = 0;
 
     /* RFC 5415  HLEN:  A 5-bit field containing the length of the CAPWAP transport header in 4-byte words */
     /* As we display the preamble separately reduce the length by 1 */
@@ -3078,8 +3078,8 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
     proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_r, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
 
     /* Fragment ??*/
-    *fragment_is = ((flags & 0x80) == 0x80) ? TRUE : FALSE;
-    *fragment_more = ((flags &0x40) == 0x40) ? FALSE : TRUE;
+    *fragment_is = ((flags & 0x80) == 0x80) ? true : false;
+    *fragment_more = ((flags &0x40) == 0x40) ? false : true;
 
     /* Type of Payload (for CAPWAP Data Packet), use 0xff for Keep-Alive */
     if (flags &0x08 /* data channel Keep-Alive packet */) {
@@ -3092,12 +3092,12 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 
     /* Fragment ID : 16 Bits */
     proto_tree_add_item(capwap_header_tree, hf_capwap_header_fragment_id, tvb, offset+plen, 2, ENC_BIG_ENDIAN);
-    *fragment_id = (guint32)tvb_get_ntohs(tvb, offset+plen);
+    *fragment_id = (uint32_t)tvb_get_ntohs(tvb, offset+plen);
     plen += 2;
 
     /* Fragment offset : 13 Bits */
     proto_tree_add_item(capwap_header_tree, hf_capwap_header_fragment_offset, tvb, offset+plen, 2, ENC_BIG_ENDIAN);
-    *fragment_offset = 8 * (guint32)tvb_get_bits16(tvb, (offset+plen)*8, 13, ENC_BIG_ENDIAN);
+    *fragment_offset = 8 * (uint32_t)tvb_get_bits16(tvb, (offset+plen)*8, 13, ENC_BIG_ENDIAN);
 
     /* Reserved 3 Bits */
     proto_tree_add_item(capwap_header_tree, hf_capwap_header_reserved, tvb, offset+plen+1, 1, ENC_BIG_ENDIAN);
@@ -3161,9 +3161,9 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offset, guint8 *type_header)
+dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned offset, uint8_t *type_header)
 {
-    guint plen = 0;
+    unsigned plen = 0;
     proto_item *ti;
     proto_tree *capwap_preamble_tree;
 
@@ -3189,17 +3189,17 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
     proto_item *ti;
     proto_tree *capwap_control_tree;
-    guint offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb = NULL;
-    guint8 type_header;
-    guint8 payload_type;
-    guint8 payload_wbid;
-    gboolean fragment_is;
-    gboolean fragment_more;
-    guint32 fragment_id;
-    guint32 fragment_offset;
+    uint8_t type_header;
+    uint8_t payload_type;
+    uint8_t payload_wbid;
+    bool fragment_is;
+    bool fragment_more;
+    uint32_t fragment_id;
+    uint32_t fragment_offset;
     fragment_head *frag_msg = NULL;
-    gboolean save_fragmented;
+    bool save_fragmented;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP-Control");
     col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Control");
@@ -3228,7 +3228,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (len_rem <= 0)
             return offset;
 
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
 
         frag_msg = fragment_add_check(&capwap_reassembly_table,
                                       tvb, offset, pinfo, fragment_id, NULL,
@@ -3273,17 +3273,17 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
     proto_item *ti;
     proto_tree *capwap_data_tree;
-    guint offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
-    guint8 type_header;
-    guint8 payload_type;
-    guint8 payload_wbid;
-    gboolean fragment_is;
-    gboolean fragment_more;
-    guint32 fragment_id;
-    guint32 fragment_offset;
+    uint8_t type_header;
+    uint8_t payload_type;
+    uint8_t payload_wbid;
+    bool fragment_is;
+    bool fragment_more;
+    uint32_t fragment_id;
+    uint32_t fragment_offset;
     fragment_head *frag_msg = NULL;
-    gboolean save_fragmented;
+    bool save_fragmented;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP-Data");
@@ -3309,11 +3309,11 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     if (global_capwap_reassemble && fragment_is)
     {
-        gint len_rem = tvb_reported_length_remaining(tvb, offset);
+        int len_rem = tvb_reported_length_remaining(tvb, offset);
         if (len_rem <= 0)
             return offset;
 
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
 
         frag_msg = fragment_add_check(&capwap_reassembly_table,
                                       tvb, offset, pinfo, fragment_id, NULL,
@@ -5693,7 +5693,7 @@ proto_register_capwap_control(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_capwap,
         &ett_capwap_control,
         &ett_capwap_data,

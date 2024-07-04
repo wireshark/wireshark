@@ -522,250 +522,250 @@ static const value_string pcmm_gate_state_reason[] = {
 
 
 /* Initialize the protocol and registered fields */
-static gint proto_cops;
-static gint hf_cops_ver_flags;
-static gint hf_cops_version;
-static gint hf_cops_flags;
+static int proto_cops;
+static int hf_cops_ver_flags;
+static int hf_cops_version;
+static int hf_cops_flags;
 
-static gint hf_cops_response_in;
-static gint hf_cops_response_to;
-static gint hf_cops_response_time;
+static int hf_cops_response_in;
+static int hf_cops_response_to;
+static int hf_cops_response_time;
 
-static gint hf_cops_op_code;
-static gint hf_cops_client_type;
-static gint hf_cops_msg_len;
+static int hf_cops_op_code;
+static int hf_cops_client_type;
+static int hf_cops_msg_len;
 
-static gint hf_cops_obj_len;
-static gint hf_cops_obj_c_num;
-static gint hf_cops_obj_c_type;
+static int hf_cops_obj_len;
+static int hf_cops_obj_c_num;
+static int hf_cops_obj_c_type;
 
-static gint hf_cops_obj_s_num;
-static gint hf_cops_obj_s_type;
+static int hf_cops_obj_s_num;
+static int hf_cops_obj_s_type;
 
-static gint hf_cops_handle;
+static int hf_cops_handle;
 
-static gint hf_cops_r_type_flags;
-static gint hf_cops_m_type_flags;
+static int hf_cops_r_type_flags;
+static int hf_cops_m_type_flags;
 
-static gint hf_cops_in_int_ipv4;
-static gint hf_cops_in_int_ipv6;
-static gint hf_cops_out_int_ipv4;
-static gint hf_cops_out_int_ipv6;
-static gint hf_cops_int_ifindex;
+static int hf_cops_in_int_ipv4;
+static int hf_cops_in_int_ipv6;
+static int hf_cops_out_int_ipv4;
+static int hf_cops_out_int_ipv6;
+static int hf_cops_int_ifindex;
 
-static gint hf_cops_reason;
-static gint hf_cops_reason_sub;
+static int hf_cops_reason;
+static int hf_cops_reason_sub;
 
-static gint hf_cops_dec_cmd_code;
-static gint hf_cops_dec_flags;
+static int hf_cops_dec_cmd_code;
+static int hf_cops_dec_flags;
 
-static gint hf_cops_error;
-static gint hf_cops_error_sub;
+static int hf_cops_error;
+static int hf_cops_error_sub;
 
-static gint hf_cops_gperror;
-static gint hf_cops_gperror_sub;
+static int hf_cops_gperror;
+static int hf_cops_gperror_sub;
 
-static gint hf_cops_cperror;
-static gint hf_cops_cperror_sub;
+static int hf_cops_cperror;
+static int hf_cops_cperror_sub;
 
-static gint hf_cops_katimer;
+static int hf_cops_katimer;
 
-static gint hf_cops_pepid;
+static int hf_cops_pepid;
 
-static gint hf_cops_report_type;
+static int hf_cops_report_type;
 
-static gint hf_cops_pdprediraddr_ipv4;
-static gint hf_cops_pdprediraddr_ipv6;
-static gint hf_cops_lastpdpaddr_ipv4;
-static gint hf_cops_lastpdpaddr_ipv6;
-static gint hf_cops_pdp_tcp_port;
+static int hf_cops_pdprediraddr_ipv4;
+static int hf_cops_pdprediraddr_ipv6;
+static int hf_cops_lastpdpaddr_ipv4;
+static int hf_cops_lastpdpaddr_ipv6;
+static int hf_cops_pdp_tcp_port;
 
-static gint hf_cops_accttimer;
+static int hf_cops_accttimer;
 
-static gint hf_cops_key_id;
-static gint hf_cops_seq_num;
+static int hf_cops_key_id;
+static int hf_cops_seq_num;
 
-static gint hf_cops_prid_oid;
-static gint hf_cops_pprid_oid;
-static gint hf_cops_errprid_oid;
-static gint hf_cops_epd_null;
-static gint hf_cops_epd_int;
-static gint hf_cops_epd_octets;
-static gint hf_cops_epd_oid;
-static gint hf_cops_epd_ipv4;
-static gint hf_cops_epd_u32;
-static gint hf_cops_epd_ticks;
-static gint hf_cops_epd_opaque;
-static gint hf_cops_epd_i64;
-static gint hf_cops_epd_u64;
-static gint hf_cops_epd_unknown;
-static gint hf_cops_reserved8;
-static gint hf_cops_reserved16;
-static gint hf_cops_reserved24;
-static gint hf_cops_keyed_message_digest;
-static gint hf_cops_integrity_contents;
-static gint hf_cops_opaque_data;
+static int hf_cops_prid_oid;
+static int hf_cops_pprid_oid;
+static int hf_cops_errprid_oid;
+static int hf_cops_epd_null;
+static int hf_cops_epd_int;
+static int hf_cops_epd_octets;
+static int hf_cops_epd_oid;
+static int hf_cops_epd_ipv4;
+static int hf_cops_epd_u32;
+static int hf_cops_epd_ticks;
+static int hf_cops_epd_opaque;
+static int hf_cops_epd_i64;
+static int hf_cops_epd_u64;
+static int hf_cops_epd_unknown;
+static int hf_cops_reserved8;
+static int hf_cops_reserved16;
+static int hf_cops_reserved24;
+static int hf_cops_keyed_message_digest;
+static int hf_cops_integrity_contents;
+static int hf_cops_opaque_data;
 
 /* For PacketCable D-QoS */
-static gint hf_cops_subtree;
-static gint hf_cops_pc_activity_count;
-static gint hf_cops_pc_algorithm;
-static gint hf_cops_pc_close_subcode;
-static gint hf_cops_pc_cmts_ip;
-static gint hf_cops_pc_cmts_ip_port;
-static gint hf_cops_pc_prks_ip;
-static gint hf_cops_pc_prks_ip_port;
-static gint hf_cops_pc_srks_ip;
-static gint hf_cops_pc_srks_ip_port;
-static gint hf_cops_pc_delete_subcode;
-static gint hf_cops_pc_dest_ip;
-static gint hf_cops_pc_dest_port;
-static gint hf_cops_pc_direction;
-static gint hf_cops_pc_ds_field;
-static gint hf_cops_pc_gate_id;
-static gint hf_cops_pc_gate_spec_flags;
-static gint hf_cops_pc_gate_command_type;
-static gint hf_cops_pc_key;
-static gint hf_cops_pc_max_packet_size;
-static gint hf_cops_pc_min_policed_unit;
-static gint hf_cops_pc_packetcable_err_code;
-static gint hf_cops_pc_packetcable_sub_code;
-static gint hf_cops_pc_peak_data_rate;
-static gint hf_cops_pc_protocol_id;
-static gint hf_cops_pc_reason_code;
-static gint hf_cops_pc_remote_flags;
-static gint hf_cops_pc_remote_gate_id;
-static gint hf_cops_pc_reserved;
-static gint hf_cops_pc_session_class;
-static gint hf_cops_pc_slack_term;
-static gint hf_cops_pc_spec_rate;
-static gint hf_cops_pc_src_ip;
-static gint hf_cops_pc_src_port;
-static gint hf_cops_pc_subscriber_id_ipv4;
-static gint hf_cops_pc_subscriber_id_ipv6;
-static gint hf_cops_pc_t1_value;
-static gint hf_cops_pc_t7_value;
-static gint hf_cops_pc_t8_value;
-static gint hf_cops_pc_token_bucket_rate;
-static gint hf_cops_pc_token_bucket_size;
-static gint hf_cops_pc_transaction_id;
-static gint hf_cops_pc_bcid_ts;
-static gint hf_cops_pc_bcid_id;
-static gint hf_cops_pc_bcid_tz;
-static gint hf_cops_pc_bcid_ev;
-static gint hf_cops_pc_dfcdc_ip;
-static gint hf_cops_pc_dfccc_ip;
-static gint hf_cops_pc_dfcdc_ip_port;
-static gint hf_cops_pc_dfccc_ip_port;
-static gint hf_cops_pc_dfccc_id;
+static int hf_cops_subtree;
+static int hf_cops_pc_activity_count;
+static int hf_cops_pc_algorithm;
+static int hf_cops_pc_close_subcode;
+static int hf_cops_pc_cmts_ip;
+static int hf_cops_pc_cmts_ip_port;
+static int hf_cops_pc_prks_ip;
+static int hf_cops_pc_prks_ip_port;
+static int hf_cops_pc_srks_ip;
+static int hf_cops_pc_srks_ip_port;
+static int hf_cops_pc_delete_subcode;
+static int hf_cops_pc_dest_ip;
+static int hf_cops_pc_dest_port;
+static int hf_cops_pc_direction;
+static int hf_cops_pc_ds_field;
+static int hf_cops_pc_gate_id;
+static int hf_cops_pc_gate_spec_flags;
+static int hf_cops_pc_gate_command_type;
+static int hf_cops_pc_key;
+static int hf_cops_pc_max_packet_size;
+static int hf_cops_pc_min_policed_unit;
+static int hf_cops_pc_packetcable_err_code;
+static int hf_cops_pc_packetcable_sub_code;
+static int hf_cops_pc_peak_data_rate;
+static int hf_cops_pc_protocol_id;
+static int hf_cops_pc_reason_code;
+static int hf_cops_pc_remote_flags;
+static int hf_cops_pc_remote_gate_id;
+static int hf_cops_pc_reserved;
+static int hf_cops_pc_session_class;
+static int hf_cops_pc_slack_term;
+static int hf_cops_pc_spec_rate;
+static int hf_cops_pc_src_ip;
+static int hf_cops_pc_src_port;
+static int hf_cops_pc_subscriber_id_ipv4;
+static int hf_cops_pc_subscriber_id_ipv6;
+static int hf_cops_pc_t1_value;
+static int hf_cops_pc_t7_value;
+static int hf_cops_pc_t8_value;
+static int hf_cops_pc_token_bucket_rate;
+static int hf_cops_pc_token_bucket_size;
+static int hf_cops_pc_transaction_id;
+static int hf_cops_pc_bcid_ts;
+static int hf_cops_pc_bcid_id;
+static int hf_cops_pc_bcid_tz;
+static int hf_cops_pc_bcid_ev;
+static int hf_cops_pc_dfcdc_ip;
+static int hf_cops_pc_dfccc_ip;
+static int hf_cops_pc_dfcdc_ip_port;
+static int hf_cops_pc_dfccc_ip_port;
+static int hf_cops_pc_dfccc_id;
 
 /* PacketCable Multimedia */
-static gint hf_cops_pcmm_amid_app_type;
-static gint hf_cops_pcmm_amid_am_tag;
-static gint hf_cops_pcmm_gate_spec_flags;
-static gint hf_cops_pcmm_gate_spec_flags_gate;
-static gint hf_cops_pcmm_gate_spec_flags_dscp_overwrite;
-static gint hf_cops_pcmm_gate_spec_dscp_tos_field;
-static gint hf_cops_pcmm_gate_spec_dscp_tos_mask;
-static gint hf_cops_pcmm_gate_spec_session_class_id;
-static gint hf_cops_pcmm_gate_spec_session_class_id_priority;
-static gint hf_cops_pcmm_gate_spec_session_class_id_preemption;
-static gint hf_cops_pcmm_gate_spec_session_class_id_configurable;
-static gint hf_cops_pcmm_gate_spec_timer_t1;
-static gint hf_cops_pcmm_gate_spec_timer_t2;
-static gint hf_cops_pcmm_gate_spec_timer_t3;
-static gint hf_cops_pcmm_gate_spec_timer_t4;
-static gint hf_cops_pcmm_classifier_protocol_id;
-static gint hf_cops_pcmm_classifier_dscp_tos_field;
-static gint hf_cops_pcmm_classifier_dscp_tos_mask;
-static gint hf_cops_pcmm_classifier_src_addr;
-static gint hf_cops_pcmm_classifier_src_mask;
-static gint hf_cops_pcmm_classifier_dst_addr;
-static gint hf_cops_pcmm_classifier_dst_mask;
-static gint hf_cops_pcmm_classifier_src_port;
-static gint hf_cops_pcmm_classifier_src_port_end;
-static gint hf_cops_pcmm_classifier_dst_port;
-static gint hf_cops_pcmm_classifier_dst_port_end;
-static gint hf_cops_pcmm_classifier_priority;
-static gint hf_cops_pcmm_classifier_classifier_id;
-static gint hf_cops_pcmm_classifier_activation_state;
-static gint hf_cops_pcmm_classifier_action;
-static gint hf_cops_pcmm_classifier_flags;
-static gint hf_cops_pcmm_classifier_tc_low;
-static gint hf_cops_pcmm_classifier_tc_high;
-static gint hf_cops_pcmm_classifier_tc_mask;
-static gint hf_cops_pcmm_classifier_flow_label;
-static gint hf_cops_pcmm_classifier_next_header_type;
-static gint hf_cops_pcmm_classifier_source_prefix_length;
-static gint hf_cops_pcmm_classifier_destination_prefix_length;
-static gint hf_cops_pcmm_classifier_src_addr_v6;
-static gint hf_cops_pcmm_classifier_dst_addr_v6;
-static gint hf_cops_pcmm_flow_spec_envelope;
-static gint hf_cops_pcmm_flow_spec_service_number;
-static gint hf_cops_pcmm_docsis_scn;
-static gint hf_cops_pcmm_envelope;
-static gint hf_cops_pcmm_traffic_priority;
-static gint hf_cops_pcmm_request_transmission_policy;
-static gint hf_cops_pcmm_request_transmission_policy_sf_all_cm;
-static gint hf_cops_pcmm_request_transmission_policy_sf_priority;
-static gint hf_cops_pcmm_request_transmission_policy_sf_request_for_request;
-static gint hf_cops_pcmm_request_transmission_policy_sf_data_for_data;
-static gint hf_cops_pcmm_request_transmission_policy_sf_piggyback;
-static gint hf_cops_pcmm_request_transmission_policy_sf_concatenate;
-static gint hf_cops_pcmm_request_transmission_policy_sf_fragment;
-static gint hf_cops_pcmm_request_transmission_policy_sf_suppress;
-static gint hf_cops_pcmm_request_transmission_policy_sf_drop_packets;
-static gint hf_cops_pcmm_max_sustained_traffic_rate;
-static gint hf_cops_pcmm_max_traffic_burst;
-static gint hf_cops_pcmm_min_reserved_traffic_rate;
-static gint hf_cops_pcmm_ass_min_rtr_packet_size;
-static gint hf_cops_pcmm_max_concat_burst;
-static gint hf_cops_pcmm_req_att_mask;
-static gint hf_cops_pcmm_forbid_att_mask;
-static gint hf_cops_pcmm_att_aggr_rule_mask;
-static gint hf_cops_pcmm_nominal_polling_interval;
-static gint hf_cops_pcmm_tolerated_poll_jitter;
-static gint hf_cops_pcmm_unsolicited_grant_size;
-static gint hf_cops_pcmm_grants_per_interval;
-static gint hf_cops_pcmm_nominal_grant_interval;
-static gint hf_cops_pcmm_tolerated_grant_jitter;
-static gint hf_cops_pcmm_down_resequencing;
-static gint hf_cops_pcmm_down_peak_traffic_rate;
-static gint hf_cops_pcmm_max_downstream_latency;
-static gint hf_cops_pcmm_volume_based_usage_limit;
-static gint hf_cops_pcmm_time_based_usage_limit;
-static gint hf_cops_pcmm_gate_time_info;
-static gint hf_cops_pcmm_gate_usage_info;
-static gint hf_cops_pcmm_packetcable_error_code;
-static gint hf_cops_pcmm_packetcable_error_subcode;
-static gint hf_cops_pcmm_packetcable_gate_state;
-static gint hf_cops_pcmm_packetcable_gate_state_reason;
-static gint hf_cops_pcmm_packetcable_version_info_major;
-static gint hf_cops_pcmm_packetcable_version_info_minor;
-static gint hf_cops_pcmm_psid;
-static gint hf_cops_pcmm_synch_options_report_type;
-static gint hf_cops_pcmm_synch_options_synch_type;
-static gint hf_cops_pcmm_msg_receipt_key;
-static gint hf_cops_pcmm_userid;
-static gint hf_cops_pcmm_sharedresourceid;
+static int hf_cops_pcmm_amid_app_type;
+static int hf_cops_pcmm_amid_am_tag;
+static int hf_cops_pcmm_gate_spec_flags;
+static int hf_cops_pcmm_gate_spec_flags_gate;
+static int hf_cops_pcmm_gate_spec_flags_dscp_overwrite;
+static int hf_cops_pcmm_gate_spec_dscp_tos_field;
+static int hf_cops_pcmm_gate_spec_dscp_tos_mask;
+static int hf_cops_pcmm_gate_spec_session_class_id;
+static int hf_cops_pcmm_gate_spec_session_class_id_priority;
+static int hf_cops_pcmm_gate_spec_session_class_id_preemption;
+static int hf_cops_pcmm_gate_spec_session_class_id_configurable;
+static int hf_cops_pcmm_gate_spec_timer_t1;
+static int hf_cops_pcmm_gate_spec_timer_t2;
+static int hf_cops_pcmm_gate_spec_timer_t3;
+static int hf_cops_pcmm_gate_spec_timer_t4;
+static int hf_cops_pcmm_classifier_protocol_id;
+static int hf_cops_pcmm_classifier_dscp_tos_field;
+static int hf_cops_pcmm_classifier_dscp_tos_mask;
+static int hf_cops_pcmm_classifier_src_addr;
+static int hf_cops_pcmm_classifier_src_mask;
+static int hf_cops_pcmm_classifier_dst_addr;
+static int hf_cops_pcmm_classifier_dst_mask;
+static int hf_cops_pcmm_classifier_src_port;
+static int hf_cops_pcmm_classifier_src_port_end;
+static int hf_cops_pcmm_classifier_dst_port;
+static int hf_cops_pcmm_classifier_dst_port_end;
+static int hf_cops_pcmm_classifier_priority;
+static int hf_cops_pcmm_classifier_classifier_id;
+static int hf_cops_pcmm_classifier_activation_state;
+static int hf_cops_pcmm_classifier_action;
+static int hf_cops_pcmm_classifier_flags;
+static int hf_cops_pcmm_classifier_tc_low;
+static int hf_cops_pcmm_classifier_tc_high;
+static int hf_cops_pcmm_classifier_tc_mask;
+static int hf_cops_pcmm_classifier_flow_label;
+static int hf_cops_pcmm_classifier_next_header_type;
+static int hf_cops_pcmm_classifier_source_prefix_length;
+static int hf_cops_pcmm_classifier_destination_prefix_length;
+static int hf_cops_pcmm_classifier_src_addr_v6;
+static int hf_cops_pcmm_classifier_dst_addr_v6;
+static int hf_cops_pcmm_flow_spec_envelope;
+static int hf_cops_pcmm_flow_spec_service_number;
+static int hf_cops_pcmm_docsis_scn;
+static int hf_cops_pcmm_envelope;
+static int hf_cops_pcmm_traffic_priority;
+static int hf_cops_pcmm_request_transmission_policy;
+static int hf_cops_pcmm_request_transmission_policy_sf_all_cm;
+static int hf_cops_pcmm_request_transmission_policy_sf_priority;
+static int hf_cops_pcmm_request_transmission_policy_sf_request_for_request;
+static int hf_cops_pcmm_request_transmission_policy_sf_data_for_data;
+static int hf_cops_pcmm_request_transmission_policy_sf_piggyback;
+static int hf_cops_pcmm_request_transmission_policy_sf_concatenate;
+static int hf_cops_pcmm_request_transmission_policy_sf_fragment;
+static int hf_cops_pcmm_request_transmission_policy_sf_suppress;
+static int hf_cops_pcmm_request_transmission_policy_sf_drop_packets;
+static int hf_cops_pcmm_max_sustained_traffic_rate;
+static int hf_cops_pcmm_max_traffic_burst;
+static int hf_cops_pcmm_min_reserved_traffic_rate;
+static int hf_cops_pcmm_ass_min_rtr_packet_size;
+static int hf_cops_pcmm_max_concat_burst;
+static int hf_cops_pcmm_req_att_mask;
+static int hf_cops_pcmm_forbid_att_mask;
+static int hf_cops_pcmm_att_aggr_rule_mask;
+static int hf_cops_pcmm_nominal_polling_interval;
+static int hf_cops_pcmm_tolerated_poll_jitter;
+static int hf_cops_pcmm_unsolicited_grant_size;
+static int hf_cops_pcmm_grants_per_interval;
+static int hf_cops_pcmm_nominal_grant_interval;
+static int hf_cops_pcmm_tolerated_grant_jitter;
+static int hf_cops_pcmm_down_resequencing;
+static int hf_cops_pcmm_down_peak_traffic_rate;
+static int hf_cops_pcmm_max_downstream_latency;
+static int hf_cops_pcmm_volume_based_usage_limit;
+static int hf_cops_pcmm_time_based_usage_limit;
+static int hf_cops_pcmm_gate_time_info;
+static int hf_cops_pcmm_gate_usage_info;
+static int hf_cops_pcmm_packetcable_error_code;
+static int hf_cops_pcmm_packetcable_error_subcode;
+static int hf_cops_pcmm_packetcable_gate_state;
+static int hf_cops_pcmm_packetcable_gate_state_reason;
+static int hf_cops_pcmm_packetcable_version_info_major;
+static int hf_cops_pcmm_packetcable_version_info_minor;
+static int hf_cops_pcmm_psid;
+static int hf_cops_pcmm_synch_options_report_type;
+static int hf_cops_pcmm_synch_options_synch_type;
+static int hf_cops_pcmm_msg_receipt_key;
+static int hf_cops_pcmm_userid;
+static int hf_cops_pcmm_sharedresourceid;
 
 
 /* Initialize the subtree pointers */
-static gint ett_cops;
-static gint ett_cops_ver_flags;
-static gint ett_cops_obj;
-static gint ett_cops_pr_obj;
-static gint ett_cops_obj_data;
-static gint ett_cops_r_type_flags;
-static gint ett_cops_itf;
-static gint ett_cops_reason;
-static gint ett_cops_decision;
-static gint ett_cops_error;
-static gint ett_cops_clientsi;
-static gint ett_cops_asn1;
-static gint ett_cops_gperror;
-static gint ett_cops_cperror;
-static gint ett_cops_pdp;
+static int ett_cops;
+static int ett_cops_ver_flags;
+static int ett_cops_obj;
+static int ett_cops_pr_obj;
+static int ett_cops_obj_data;
+static int ett_cops_r_type_flags;
+static int ett_cops_itf;
+static int ett_cops_reason;
+static int ett_cops_decision;
+static int ett_cops_error;
+static int ett_cops_clientsi;
+static int ett_cops_asn1;
+static int ett_cops_gperror;
+static int ett_cops_cperror;
+static int ett_cops_pdp;
 
 static expert_field ei_cops_pepid_not_null;
 static expert_field ei_cops_trailing_garbage;
@@ -775,9 +775,9 @@ static expert_field ei_cops_unknown_c_num;
 /* static expert_field ei_cops_unknown_s_num; */
 
 /* For PacketCable */
-static gint ett_cops_subtree;
+static int ett_cops_subtree;
 
-static gint ett_docsis_request_transmission_policy;
+static int ett_docsis_request_transmission_policy;
 
 static dissector_handle_t cops_handle;
 
@@ -788,46 +788,46 @@ typedef struct _cops_conv_info_t {
 
 typedef struct _cops_call_t
 {
-    guint8 op_code;
-    gboolean solicited;
-    guint32 req_num;
-    guint32 rsp_num;
+    uint8_t op_code;
+    bool solicited;
+    uint32_t req_num;
+    uint32_t rsp_num;
     nstime_t req_time;
 } cops_call_t;
 
 void proto_reg_handoff_cops(void);
-static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type, guint32* handle_value);
-static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len, guint32* handle_value);
+static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, uint8_t op_code, uint32_t offset, proto_tree *tree, uint16_t client_type, uint32_t* handle_value);
+static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, proto_tree *tree,
+                                     uint8_t op_code, uint16_t client_type, uint8_t c_num, uint8_t c_type, int len, uint32_t* handle_value);
 
-static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len,
-                                                                        oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p);
-static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                                                           guint8 s_num, guint8 s_type, int len,
-                                                                           oid_info_t** oid_info_p, guint32** pprid_subids, guint* pprid_subids_len);
+static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, proto_tree *tree, int pr_len,
+                                                                        oid_info_t** oid_info_p, uint32_t** pprid_subids_p, unsigned* pprid_subids_len_p);
+static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, proto_tree *tree,
+                                                                           uint8_t s_num, uint8_t s_type, int len,
+                                                                           oid_info_t** oid_info_p, uint32_t** pprid_subids, unsigned* pprid_subids_len);
 
 /* Added for PacketCable */
 static proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, const char *);
-static proto_item *info_to_display(tvbuff_t *, proto_item *, int, int, const char *, const value_string *, int, gint *);
+static proto_item *info_to_display(tvbuff_t *, proto_item *, int, int, const char *, const value_string *, int, int *);
 
-static void cops_transaction_id(tvbuff_t *, packet_info *, proto_tree *, guint8, guint, guint32);
-static void cops_subscriber_id_v4(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_subscriber_id_v6(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_gate_id(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_activity_count(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_gate_specs(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_remote_gate_info(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_packetcable_reason(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_packetcable_error(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_event_generation_info(tvbuff_t *, proto_tree *, guint, guint32);
-static void cops_surveillance_parameters(tvbuff_t *, proto_tree *, guint, guint32);
+static void cops_transaction_id(tvbuff_t *, packet_info *, proto_tree *, uint8_t, unsigned, uint32_t);
+static void cops_subscriber_id_v4(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_subscriber_id_v6(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_gate_id(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_activity_count(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_gate_specs(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_remote_gate_info(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_packetcable_reason(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_packetcable_error(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_event_generation_info(tvbuff_t *, proto_tree *, unsigned, uint32_t);
+static void cops_surveillance_parameters(tvbuff_t *, proto_tree *, unsigned, uint32_t);
 
-static void cops_amid(tvbuff_t *, proto_tree *, guint, guint32);
+static void cops_amid(tvbuff_t *, proto_tree *, unsigned, uint32_t);
 
-static void decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_tree *tree);
+static void decode_docsis_request_transmission_policy(tvbuff_t *tvb, uint32_t offset, proto_tree *tree);
 
-static void cops_analyze_packetcable_dqos_obj(tvbuff_t *, packet_info *, proto_tree *, guint8, guint32);
-static void cops_analyze_packetcable_mm_obj(tvbuff_t *, packet_info *, proto_tree *, guint8, guint32);
+static void cops_analyze_packetcable_dqos_obj(tvbuff_t *, packet_info *, proto_tree *, uint8_t, uint32_t);
+static void cops_analyze_packetcable_mm_obj(tvbuff_t *, packet_info *, proto_tree *, uint8_t, uint32_t);
 
 static bool cops_packetcable = true;
 
@@ -859,10 +859,10 @@ typedef struct _COPS_CNV COPS_CNV;
 
 struct _COPS_CNV
 {
-  guint ber_class;
-  guint tag;
-  gint  syntax;
-  const gchar *name;
+  unsigned ber_class;
+  unsigned tag;
+  int   syntax;
+  const char *name;
   int* hfidp;
 };
 
@@ -883,7 +883,7 @@ static COPS_CNV CopsCnv [] =
     {BER_CLASS_ANY, 0,                          -1,              NULL, NULL}
 };
 
-static int cops_tag_cls2syntax ( guint tag, guint cls ) {
+static int cops_tag_cls2syntax ( unsigned tag, unsigned cls ) {
     COPS_CNV *cnv;
 
 
@@ -899,7 +899,7 @@ static int cops_tag_cls2syntax ( guint tag, guint cls ) {
     return hf_cops_epd_unknown;
 }
 
-static guint
+static unsigned
 get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /*
@@ -911,20 +911,20 @@ get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8 op_code;
-    guint16 client_type;
+    uint8_t op_code;
+    uint16_t client_type;
     int object_len;
     proto_item *ti, *tv;
     proto_tree *cops_tree, *ver_flags_tree;
-    guint32 msg_len;
-    guint32 offset = 0;
-    guint8 ver_flags;
-    gint garbage;
-    guint32 handle_value = 0;
+    uint32_t msg_len;
+    uint32_t offset = 0;
+    uint8_t ver_flags;
+    int garbage;
+    uint32_t handle_value = 0;
 
     /* variables for Request/Response tracking */
-    guint i;
-    gboolean is_solicited, is_request, is_response;
+    unsigned i;
+    bool is_solicited, is_request, is_response;
     conversation_t *conversation;
     cops_conv_info_t *cops_conv_info;
     cops_call_t *cops_call;
@@ -1141,7 +1141,7 @@ dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     return tvb_reported_length(tvb);
 }
 
-static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
+static const char *cops_c_type_to_str(uint8_t c_num, uint8_t c_type)
 {
     switch (c_num) {
     case COPS_OBJ_HANDLE:
@@ -1198,10 +1198,10 @@ static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
     return "";
 }
 
-static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type, guint32* handle_value)
+static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, uint8_t op_code, uint32_t offset, proto_tree *tree, uint16_t client_type, uint32_t* handle_value)
 {
     int object_len, contents_len;
-    guint8 c_num, c_type;
+    uint8_t c_num, c_type;
     proto_item *ti;
     proto_tree *obj_tree;
     const char *type_str;
@@ -1242,17 +1242,17 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
     dissect_cops_object_data(tvb, pinfo, offset, obj_tree, op_code, client_type, c_num, c_type, contents_len, handle_value);
 
     /* Pad to 32bit boundary */
-    if (object_len % sizeof (guint32))
-        object_len += ((int)sizeof (guint32) - object_len % (int)sizeof (guint32));
+    if (object_len % sizeof (uint32_t))
+        object_len += ((int)sizeof (uint32_t) - object_len % (int)sizeof (uint32_t));
 
     return object_len;
 }
 
-static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len,
-                                    oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p)
+static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, proto_tree *tree, int pr_len,
+                                    oid_info_t** oid_info_p, uint32_t** pprid_subids_p, unsigned* pprid_subids_len_p)
 {
     int object_len, contents_len;
-    guint8 s_num, s_type;
+    uint8_t s_num, s_type;
     const char *type_str;
     int ret;
     proto_tree *cops_pr_tree, *obj_tree;
@@ -1302,26 +1302,26 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
             break;
 
         /* Pad to 32bit boundary */
-        if (object_len % sizeof (guint32))
-            object_len += ((int)sizeof (guint32) - object_len % (int)sizeof (guint32));
+        if (object_len % sizeof (uint32_t))
+            object_len += ((int)sizeof (uint32_t) - object_len % (int)sizeof (uint32_t));
 
         pr_len -= object_len - COPS_OBJECT_HDR_SIZE;
         offset += object_len - COPS_OBJECT_HDR_SIZE;
     }
 }
 
-static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len, guint32* handle_value)
+static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, proto_tree *tree,
+                                     uint8_t op_code, uint16_t client_type, uint8_t c_num, uint8_t c_type, int len, uint32_t* handle_value)
 {
     proto_item *ti;
     proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
-    guint16 r_type, m_type, reason, reason_sub, cmd_code, cmd_flags, error, error_sub,
+    uint16_t r_type, m_type, reason, reason_sub, cmd_code, cmd_flags, error, error_sub,
             tcp_port, katimer, accttimer;
-    guint32 ifindex;
+    uint32_t ifindex;
     ws_in6_addr ipv6addr;
     oid_info_t* oid_info = NULL;
-    guint32* pprid_subids = NULL;
-    guint pprid_subids_len = 0;
+    uint32_t* pprid_subids = NULL;
+    unsigned pprid_subids_len = 0;
 
     switch (c_num) {
     case COPS_OBJ_HANDLE:       /* handle is a variable-length field, however 32bit seems enough for most of the applications */
@@ -1532,16 +1532,16 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     }
 }
 
-static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8* encoded_subids, guint encoded_len, guint32** subids_p) {
-    guint i;
-    guint n = 0;
-    guint32 subid = 0;
-    guint32* subids;
-    guint32* subid_overflow;
+static unsigned redecode_oid(uint32_t* pprid_subids, unsigned pprid_subids_len, uint8_t* encoded_subids, unsigned encoded_len, uint32_t** subids_p) {
+    unsigned i;
+    unsigned n = 0;
+    uint32_t subid = 0;
+    uint32_t* subids;
+    uint32_t* subid_overflow;
 
     for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
 
-    *subids_p = subids = (guint32 *)wmem_alloc(wmem_packet_scope(), sizeof(guint32)*(n+pprid_subids_len));
+    *subids_p = subids = (uint32_t *)wmem_alloc(wmem_packet_scope(), sizeof(uint32_t)*(n+pprid_subids_len));
     subid_overflow = subids+n+pprid_subids_len;
     for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
 
@@ -1549,7 +1549,7 @@ static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8*
 
 
     for (i=0; i<encoded_len; i++){
-        guint8 byte = encoded_subids[i];
+        uint8_t byte = encoded_subids[i];
 
         subid <<= 7;
         subid |= byte & 0x7F;
@@ -1567,11 +1567,11 @@ static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8*
 }
 
 
-static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                       guint8 s_num, guint8 s_type, int len,
-                                       oid_info_t** oid_info_p, guint32** pprid_subids, guint* pprid_subids_len) {
+static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, proto_tree *tree,
+                                       uint8_t s_num, uint8_t s_type, int len,
+                                       oid_info_t** oid_info_p, uint32_t** pprid_subids, unsigned* pprid_subids_len) {
     proto_tree *asn_tree, *gperror_tree, *cperror_tree;
-    guint16 gperror=0, gperror_sub=0, cperror=0, cperror_sub=0;
+    uint16_t gperror=0, gperror_sub=0, cperror=0, cperror_sub=0;
     asn1_ctx_t actx;
 
     memset(&actx,0,sizeof(actx));
@@ -1586,30 +1586,30 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         /* Never tested this branch */
         asn_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_cops_asn1, NULL, "Contents:");
 
-        dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
+        dissect_ber_object_identifier(false, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
 
         if (oid_tvb) {
-            gint encoid_len;
-            guint8* encoid;
+            int encoid_len;
+            uint8_t* encoid;
 
             encoid_len = tvb_reported_length_remaining(oid_tvb,0);
             if (encoid_len > 0) {
-                encoid = (guint8*)tvb_memdup(pinfo->pool,oid_tvb,0,encoid_len);
+                encoid = (uint8_t*)tvb_memdup(pinfo->pool,oid_tvb,0,encoid_len);
                 (*pprid_subids_len) = oid_encoded2subid(pinfo->pool, encoid, encoid_len, pprid_subids);
             }
         }
         break;
     }
     case COPS_OBJ_PRID: {
-        guint32* subids;
-        guint subids_len;
-        guint matched;
-        guint left;
-        gint8 ber_class;
+        uint32_t* subids;
+        unsigned subids_len;
+        unsigned matched;
+        unsigned left;
+        int8_t ber_class;
         bool ber_pc;
-        gint32 ber_tag;
-        guint encoid_len;
-        guint8* encoid;
+        int32_t ber_tag;
+        unsigned encoid_len;
+        uint8_t* encoid;
         oid_info_t* oid_info;
 
         if (s_type != 1) break; /* Not Provisioning Instance Identifier (PRID) */
@@ -1621,7 +1621,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         /* TODO: check pc, class and tag */
 
-        encoid = (guint8*)tvb_memdup(pinfo->pool,tvb,offset,encoid_len);
+        encoid = (uint8_t*)tvb_memdup(pinfo->pool,tvb,offset,encoid_len);
 
         if (*pprid_subids) {
             /* Never tested this branch */
@@ -1651,7 +1651,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
     }
     case COPS_OBJ_EPD: {
         oid_info_t* oid_info;
-        guint end_offset = offset + len;
+        unsigned end_offset = offset + len;
 
         if (s_type != 1) break;/* Not Encoded Provisioning Instance Data (EPD) */
 
@@ -1678,10 +1678,10 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
 
         while(offset < end_offset) {
-            gint8 ber_class;
+            int8_t ber_class;
             bool ber_pc;
-            gint32 ber_tag;
-            guint32 ber_length;
+            int32_t ber_tag;
+            uint32_t ber_length;
             bool ber_ind;
             int hfid;
 
@@ -1743,7 +1743,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         asn_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_cops_asn1, NULL, "Contents:");
 
-        dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
+        dissect_ber_object_identifier(false, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
 
         break;
     }
@@ -2780,7 +2780,7 @@ void proto_register_cops(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cops,
         &ett_cops_ver_flags,
         &ett_cops_obj,
@@ -2888,15 +2888,15 @@ void proto_reg_handoff_cops(void)
  */
 
 static proto_item *
-info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
+info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const char *str, const value_string *vsp, int mode,int *hf_proto_parameter)
 {
     proto_item *pi = NULL;
-    guint8   *codestr;
-    guint8   code8  = 0;
-    guint16  code16 = 0;
-    guint32  codeipv4 = 0;
-    guint32  code32 = 0;
-    guint64  code64 = 0;
+    uint8_t  *codestr;
+    uint8_t  code8  = 0;
+    uint16_t code16 = 0;
+    uint32_t codeipv4 = 0;
+    uint32_t code32 = 0;
+    uint64_t code64 = 0;
     float    codefl = 0.0f;
 
     /* Special section for printing strings */
@@ -3041,10 +3041,10 @@ info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, const cha
 
 /* Cops - Section : D-QoS Transaction ID */
 static void
-cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op_code, guint n, guint32 offset) {
+cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, uint8_t op_code, unsigned n, uint32_t offset) {
 
     proto_tree *stt;
-    guint16  code16;
+    uint16_t code16;
     char info[50];
 
     /* Create a subtree */
@@ -3070,7 +3070,7 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
 
 /* Cops - Section : Subscriber IDv4 */
 static void
-cops_subscriber_id_v4(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_subscriber_id_v4(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
     proto_item *tv;
 
@@ -3084,7 +3084,7 @@ cops_subscriber_id_v4(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Subscriber IDv6 */
 static void
-cops_subscriber_id_v6(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_subscriber_id_v6(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
     proto_item *tv;
 
@@ -3098,7 +3098,7 @@ cops_subscriber_id_v6(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Gate ID */
 static void
-cops_gate_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_gate_id(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
     proto_tree *stt;
 
@@ -3112,7 +3112,7 @@ cops_gate_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Activity Count */
 static void
-cops_activity_count(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_activity_count(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
     proto_tree *stt;
 
@@ -3126,7 +3126,7 @@ cops_activity_count(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Gate Specifications */
 static void
-cops_gate_specs(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_gate_specs(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -3219,7 +3219,7 @@ cops_gate_specs(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Electronic Surveillance Parameters  */
 static void
-cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -3273,7 +3273,7 @@ cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
 
 /* Cops - Section : Event Gereration-Info */
 static void
-cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -3331,7 +3331,7 @@ cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offse
 
 /* Cops - Section : Remote Gate */
 static void
-cops_remote_gate_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_remote_gate_info(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -3381,10 +3381,10 @@ cops_remote_gate_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : PacketCable reason */
 static void
-cops_packetcable_reason(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_packetcable_reason(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
-     guint16  code16;
+     uint16_t code16;
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Reason");
@@ -3408,7 +3408,7 @@ cops_packetcable_reason(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
 
 /* Cops - Section : PacketCable error */
 static void
-cops_packetcable_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_packetcable_error(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -3427,10 +3427,10 @@ cops_packetcable_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Multimedia Transaction ID */
 static void
-cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op_code, guint n, guint32 offset) {
+cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, uint8_t op_code, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
-     guint16  code16;
+     uint16_t code16;
      char info[50];
 
      /* Create a subtree */
@@ -3456,7 +3456,7 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
 
 /* Cops - Section : AMID */
 static void
-cops_amid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_amid(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -3476,7 +3476,7 @@ cops_amid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Multimedia Gate Specifications */
 static int
-cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3528,7 +3528,7 @@ cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Classifier */
 static int
-cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean extended) {
+cops_classifier(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool extended) {
 
     proto_tree *stt;
 
@@ -3617,7 +3617,7 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
 
 /* Cops - Section : IPv6 Classifier */
 static int
-cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
     proto_tree *stt;
 
@@ -3705,7 +3705,7 @@ cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Gate Specifications */
 static int
-cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_flow_spec(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -3826,7 +3826,7 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : DOCSIS Service Class Name */
 static int
-cops_docsis_service_class_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint object_len, guint32 offset) {
+cops_docsis_service_class_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, unsigned object_len, uint32_t offset) {
 
     proto_tree *stt;
 
@@ -3860,7 +3860,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st
 
 /* Cops - Section : Best Effort Service */
 static int
-cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
+cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool i05) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -4027,7 +4027,7 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
 
 /* Cops - Section : Non-Real-Time Polling Service */
 static int
-cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
+cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool i05) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -4206,7 +4206,7 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
 
 /* Cops - Section : Real-Time Polling Service */
 static int
-cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
+cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool i05) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -4376,7 +4376,7 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
 
 /* Cops - Section : Unsolicited Grant Service */
 static int
-cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
+cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool i05) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -4519,7 +4519,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
 
 /* Cops - Section : Unsolicited Grant Service with Activity Detection */
 static int
-cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
+cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool i05) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -4686,7 +4686,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
 
 /* Cops - Section : Downstream Service */
 static int
-cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
+cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset, bool i05) {
     proto_tree *stt, *object_tree;
 
     /* Create a subtree */
@@ -4877,7 +4877,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
 
 /* Cops - Section : Upstream Drop */
 static int
-cops_upstream_drop_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_upstream_drop_i04(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt;
 
      /* Create a subtree */
@@ -4898,7 +4898,7 @@ cops_upstream_drop_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Best Effort Service */
 static int
-cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -5023,7 +5023,7 @@ cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset)
 
 /* Cops - Section : Non-Real-Time Polling Service */
 static int
-cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -5160,7 +5160,7 @@ cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint
 
 /* Cops - Section : Real-Time Polling Service */
 static int
-cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -5288,7 +5288,7 @@ cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
 
 /* Cops - Section : Unsolicited Grant Service */
 static int
-cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -5389,7 +5389,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
 
 /* Cops - Section : Unsolicited Grant Service with Activity Detection */
 static int
-cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -5514,7 +5514,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
 
 /* Cops - Section : Downstream Service */
 static int
-cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_downstream_service(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
      proto_tree *stt, *object_tree;
 
      /* Create a subtree */
@@ -5639,7 +5639,7 @@ cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
 
 /* Cops - Section : PacketCable Multimedia Event Gereration-Info */
 static void
-cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5689,7 +5689,7 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
 
 /* Cops - Section : Volume-Based Usage Limit */
 static int
-cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
+cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, unsigned object_len, uint32_t offset) {
 
     proto_tree *stt;
 
@@ -5707,7 +5707,7 @@ cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, g
 
 /* Cops - Section : Time-Based Usage Limit */
 static int
-cops_time_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_time_based_usage_limit(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5724,7 +5724,7 @@ cops_time_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
 
 /* Cops - Section : Opaque Data */
 static void
-cops_opaque_data(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
+cops_opaque_data(tvbuff_t *tvb, proto_tree *st, unsigned object_len, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5738,7 +5738,7 @@ cops_opaque_data(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset
 
 /* Cops - Section : Gate Time Info */
 static int
-cops_gate_time_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_gate_time_info(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5755,7 +5755,7 @@ cops_gate_time_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Gate Usage Info */
 static void
-cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5769,10 +5769,10 @@ cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : PacketCable error */
 static int
-cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
     proto_tree *stt;
-    guint16 code, subcode;
+    uint16_t code, subcode;
 
     /* Create a subtree */
     stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Error");
@@ -5799,7 +5799,7 @@ cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset
 
 /* Cops - Section : Gate State */
 static int
-cops_gate_state(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_gate_state(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5820,7 +5820,7 @@ cops_gate_state(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Version Info */
 static int
-cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_version_info(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5841,7 +5841,7 @@ cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : PSID */
 static void
-cops_psid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_psid(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5855,7 +5855,7 @@ cops_psid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Synch Options */
 static int
-cops_synch_options(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_synch_options(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5879,7 +5879,7 @@ cops_synch_options(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Msg Receipt Key */
 static void
-cops_msg_receipt_key(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_msg_receipt_key(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5893,7 +5893,7 @@ cops_msg_receipt_key(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : UserID */
 static void
-cops_userid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_userid(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5907,7 +5907,7 @@ cops_userid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : SharedResourceID */
 static void
-cops_sharedresourceid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_sharedresourceid(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
 
@@ -5936,15 +5936,15 @@ cops_sharedresourceid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Analyze the PacketCable objects */
 static void
-cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 op_code, guint32 offset) {
+cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t op_code, uint32_t offset) {
 
-    gint remdata;
-    guint16 object_len;
-    guint8 s_num, s_type;
-    guint16 num_type_glob;
+    int remdata;
+    uint16_t object_len;
+    uint8_t s_num, s_type;
+    uint16_t num_type_glob;
 
     /* Only if this option is enabled by the Gui */
-    if ( cops_packetcable == FALSE ) {
+    if ( cops_packetcable == false ) {
         return;
     }
 
@@ -6013,7 +6013,7 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 /* XXX - This duplicates code in the DOCSIS dissector. */
 static void
-decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_tree *tree) {
+decode_docsis_request_transmission_policy(tvbuff_t *tvb, uint32_t offset, proto_tree *tree) {
 
     static int * const policies[] = {
       &hf_cops_pcmm_request_transmission_policy_sf_all_cm,
@@ -6070,14 +6070,14 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 
 
 static void
-cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 op_code, guint32 offset) {
+cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t op_code, uint32_t offset) {
 
-    guint16 object_len;
-    guint8 s_num, s_type;
-    guint16 num_type_glob;
+    uint16_t object_len;
+    uint8_t s_num, s_type;
+    uint16_t num_type_glob;
 
     /* Only if this option is enabled by the Gui */
-    if ( cops_packetcable == FALSE ) {
+    if ( cops_packetcable == false ) {
         return;
     }
 
@@ -6119,10 +6119,10 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             cops_mm_gate_spec(tvb, tree, object_len, offset);
             break;
         case PCMM_CLASSIFIER:
-            cops_classifier(tvb, tree, object_len, offset, FALSE);
+            cops_classifier(tvb, tree, object_len, offset, false);
             break;
         case PCMM_EXTENDED_CLASSIFIER:
-            cops_classifier(tvb, tree, object_len, offset, TRUE);
+            cops_classifier(tvb, tree, object_len, offset, true);
             break;
         case PCMM_IPV6_CLASSIFIER:
             cops_ipv6_classifier(tvb, tree, object_len, offset);
@@ -6135,49 +6135,49 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             break;
         case PCMM_BEST_EFFORT_SERVICE:
             if (object_len == 44 || object_len == 80 || object_len == 116)
-                cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+                cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, true);
             else if (object_len == 40 || object_len == 72 || object_len == 104)
-                cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+                cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, false);
             else
                 cops_best_effort_service(tvb, tree, object_len, offset);
             break;
         case PCMM_NON_REAL_TIME_POLLING_SERVICE:
             if (object_len == 48 || object_len == 88 || object_len == 128)
-                cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+                cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, true);
             else if (object_len == 44 || object_len == 80 || object_len == 116)
-                cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+                cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, false);
             else
                 cops_non_real_time_polling_service(tvb, tree, object_len, offset);
             break;
         case PCMM_REAL_TIME_POLLING_SERVICE:
             if (object_len == 48 || object_len == 88 || object_len == 128)
-                cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+                cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, true);
             else if (object_len == 44 || object_len == 80 || object_len == 116)
-                cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+                cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, false);
             else
                 cops_real_time_polling_service(tvb, tree, object_len, offset);
             break;
         case PCMM_UNSOLICITED_GRANT_SERVICE:
             if (object_len == 36 || object_len == 64 || object_len == 92)
-                cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+                cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, true);
             else if (object_len == 32 || object_len == 56 || object_len == 80)
-                cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+                cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, false);
             else
                 cops_unsolicited_grant_service(tvb, tree, object_len, offset);
             break;
         case PCMM_UGS_WITH_ACTIVITY_DETECTION:
             if (object_len == 44 || object_len == 80 || object_len == 116)
-                cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, TRUE);
+                cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, true);
             else if (object_len == 40 || object_len == 72 || object_len == 104)
-                cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, FALSE);
+                cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, false);
             else
                 cops_ugs_with_activity_detection(tvb, tree, object_len, offset);
             break;
         case PCMM_DOWNSTREAM_SERVICE:
             if (object_len == 48 || object_len == 88 || object_len == 128)
-                cops_downstream_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+                cops_downstream_service_i04_i05(tvb, tree, object_len, offset, true);
             else if (object_len == 40 || object_len == 72 || object_len == 104)
-                cops_downstream_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+                cops_downstream_service_i04_i05(tvb, tree, object_len, offset, false);
             else
                 cops_downstream_service(tvb, tree, object_len, offset);
             break;

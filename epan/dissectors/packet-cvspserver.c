@@ -24,16 +24,16 @@ static int proto_cvspserver;
 
 static int hf_cvspserver_data;
 
-static gint ett_cvspserver;
+static int ett_cvspserver;
 
 static int
 dissect_cvspserver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	proto_tree* cvspserver_tree;
 	proto_item* ti;
-	gint length;
-	gint next_offset, offset;
-	guint lines = 0;
+	int length;
+	int next_offset, offset;
+	unsigned lines = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CVSPSERVER");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -67,7 +67,7 @@ proto_register_cvspserver(void)
 			NULL, 0, NULL, HFILL }}
 		};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cvspserver
 	};
 

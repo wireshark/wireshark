@@ -38,16 +38,16 @@ static int hf_cmd_sgt;
 static int hf_eth_type;
 static int hf_cmd_trailer;
 
-static gint ett_cmd;
+static int ett_cmd;
 
 static int
 dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint16 encap_proto;
+    uint16_t encap_proto;
     ethertype_data_t ethertype_data;
 
     proto_tree *cmd_tree = NULL;
-    gint offset = 0;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMD");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -73,12 +73,12 @@ dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
  */
 #if 0
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
-        gboolean is_802_2 = TRUE;
+        bool is_802_2 = true;
 
         /* Don't throw an exception for this check (even a BoundsError) */
         if (tvb_captured_length_remaining(tvb, 4) >= 2) {
             if (tvb_get_ntohs(tvb, 4) == 0xffff)
-                is_802_2 = FALSE;
+                is_802_2 = false;
         }
 
         dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, cmd_tree, hf_eth_type, hf_cmd_trailer, 0);
@@ -102,9 +102,9 @@ dissect_cmd_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 {
     proto_item *ti = NULL;
     proto_tree *cmd_tree = NULL;
-    guint16 encap_proto;
+    uint16_t encap_proto;
     tvbuff_t *next_tvb;
-    gint offset = 0;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMD");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -156,7 +156,7 @@ proto_register_cmd(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cmd
     };
 

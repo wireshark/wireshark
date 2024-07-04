@@ -25,7 +25,7 @@ static dissector_handle_t cl3dcw_handle;
 
 /* persistent handles for this dissector */
 static int           proto_cl3dcw;
-static gint          ett_cl3dcw;
+static int           ett_cl3dcw;
 static int           hf_cl3dcw_type;
 static int           hf_cl3dcw_dccount;
 static int           hf_cl3dcw_datamacaddrcount;
@@ -33,7 +33,7 @@ static int           hf_cl3dcw_datassidcount;
 static int           hf_cl3dcw_dcmacaddr;
 static int           hf_cl3dcw_dcssid;
 static int           hf_cl3dcw_dcbond;
-static gint          ett_cl3dcw_dcbond;
+static int           ett_cl3dcw_dcbond;
 static expert_field  ei_cl3dcw_unknown_type;
 static expert_field  ei_cl3dcw_nodc;
 static expert_field  ei_cl3dcw_ssid_too_big;
@@ -63,10 +63,10 @@ static const value_string cl3dcw_msg_types[] = {
 };
 
 
-static gint
+static int
 dissect_sta_join(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * const tree _U_, proto_item * const ti) {
-  guint32 data_macaddr_count;
-  gint    offset;
+  uint32_t data_macaddr_count;
+  int     offset;
 
   proto_tree_add_item_ret_uint(tree, hf_cl3dcw_datamacaddrcount, tvb, 0, 1, ENC_NA, &data_macaddr_count);
   if (data_macaddr_count < 1) {
@@ -82,10 +82,10 @@ dissect_sta_join(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * c
   return offset;
 }
 
-static gint
+static int
 dissect_sta_unjoin(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * const tree _U_, proto_item * const ti) {
-  guint32 data_macaddr_count;
-  gint    offset;
+  uint32_t data_macaddr_count;
+  int     offset;
 
   proto_tree_add_item_ret_uint(tree, hf_cl3dcw_datamacaddrcount, tvb, 0, 1, ENC_NA, &data_macaddr_count);
   if (data_macaddr_count < 1) {
@@ -101,17 +101,17 @@ dissect_sta_unjoin(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree *
   return offset;
 }
 
-static gint
+static int
 dissect_sta_ack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * const tree _U_, proto_item * const ti) {
 
   proto_item *bond_item;
   proto_tree *bond_tree;
 
-  guint32  data_channel_count;
-  guint8   ssid_len;
-  guint8  *ssidbuf;
+  uint32_t data_channel_count;
+  uint8_t  ssid_len;
+  uint8_t *ssidbuf;
 
-  gint     offset;
+  int      offset;
 
   proto_tree_add_item_ret_uint(tree, hf_cl3dcw_dccount, tvb, 0, 1, ENC_NA, &data_channel_count);
   if (data_channel_count < 1) {
@@ -151,10 +151,10 @@ dissect_sta_ack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * co
   return offset;
 }
 
-static gint
+static int
 dissect_sta_nack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * const tree _U_, proto_item * const ti) {
-  guint32  data_macaddr_count;
-  gint     offset;
+  uint32_t data_macaddr_count;
+  int      offset;
 
   proto_tree_add_item_ret_uint(tree, hf_cl3dcw_datamacaddrcount, tvb, 0, 1, ENC_NA, &data_macaddr_count);
   if (data_macaddr_count < 1) {
@@ -170,14 +170,14 @@ dissect_sta_nack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * c
   return offset;
 }
 
-static gint
+static int
 dissect_ap_accept_sta(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * const tree _U_, proto_item * const ti) {
 
-  guint32  data_ssid_count;
-  guint8   ssid_len;
-  guint8  *ssidbuf;
+  uint32_t data_ssid_count;
+  uint8_t  ssid_len;
+  uint8_t *ssidbuf;
 
-  gint     offset;
+  int      offset;
 
   proto_tree_add_item_ret_uint(tree, hf_cl3dcw_datassidcount, tvb, 0, 1, ENC_NA, &data_ssid_count);
   if (data_ssid_count < 1) {
@@ -204,10 +204,10 @@ dissect_ap_accept_sta(tvbuff_t * const tvb, packet_info * const pinfo, proto_tre
   return offset;
 }
 
-static gint
+static int
 dissect_ap_reject_sta(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * const tree _U_, proto_item * const ti) {
-  guint32 data_macaddr_count;
-  gint    offset;
+  uint32_t data_macaddr_count;
+  int     offset;
 
   proto_tree_add_item_ret_uint(tree, hf_cl3dcw_datamacaddrcount, tvb, 0, 1, ENC_NA, &data_macaddr_count);
   if (data_macaddr_count < 1) {
@@ -230,9 +230,9 @@ dissect_cl3dcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
   proto_item   *ti;
   proto_tree   *cl3dcw_tree;
   tvbuff_t     *tvb_msg;
-  gint          total_dcw_message_len;
+  int           total_dcw_message_len;
 
-  guint8 type;
+  uint8_t type;
 
   /* parse the header fields */
   total_dcw_message_len = 1;
@@ -241,7 +241,7 @@ dissect_cl3dcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
   /* setup the "packet summary view" fields */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL3-DCW");
   col_clear(pinfo->cinfo, COL_INFO);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "Dual-Channel Wi-Fi %s [Type 0x%02X]", val_to_str_const(type, cl3dcw_msg_types, "Unknown"), (guint)type);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Dual-Channel Wi-Fi %s [Type 0x%02X]", val_to_str_const(type, cl3dcw_msg_types, "Unknown"), (unsigned)type);
 
   /* create a tree node for us... */
   ti = proto_tree_add_protocol_format(tree, proto_cl3dcw, tvb, 0, tvb_captured_length(tvb), "Dual-Channel Wi-Fi Control Message");
@@ -306,7 +306,7 @@ proto_register_cl3dcw(void) {
         FT_BYTES,      SEP_COLON,          NULL, 0x0,
         NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cl3dcw,
     &ett_cl3dcw_dcbond,
   };

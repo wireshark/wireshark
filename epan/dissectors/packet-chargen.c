@@ -27,7 +27,7 @@ static int proto_chargen;
 
 static int hf_chargen_data;
 
-static gint ett_chargen;
+static int ett_chargen;
 
 /* dissect_chargen - dissects chargen packet data
  * tvb - tvbuff for packet data (IN)
@@ -39,8 +39,8 @@ dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* disse
 {
 	proto_tree* chargen_tree;
 	proto_item* ti;
-	guint8* data;
-	guint32 len;
+	uint8_t* data;
+	uint32_t len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Chargen");
 	col_set_str(pinfo->cinfo, COL_INFO, "Chargen");
@@ -67,7 +67,7 @@ proto_register_chargen(void)
 			NULL, 0, NULL, HFILL }}
 		};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_chargen,
 	};
 

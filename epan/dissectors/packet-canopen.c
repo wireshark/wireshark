@@ -286,11 +286,11 @@ static int * const *_sdo_cmd_fields_scs6[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_canopen;
-static gint ett_canopen_cob;
-static gint ett_canopen_type;
-static gint ett_canopen_sdo_cmd;
-static gint ett_canopen_em_er;
+static int ett_canopen;
+static int ett_canopen_cob;
+static int ett_canopen_type;
+static int ett_canopen_sdo_cmd;
+static int ett_canopen_em_er;
 
 /* broadcast messages */
 #define FC_NMT                  0x0
@@ -718,8 +718,8 @@ static const value_string lss_inquire_id[] = {
     { 0, NULL}
 };
 
-static guint
-canopen_detect_msg_type(guint function_code, guint node_id)
+static unsigned
+canopen_detect_msg_type(unsigned function_code, unsigned node_id)
 {
     switch (function_code) {
         case FC_NMT:
@@ -784,7 +784,7 @@ canopen_detect_msg_type(guint function_code, guint node_id)
 
 
 static inline int * const *
-sdo_cmd_fields_scs(guint cs, guint subcommand)
+sdo_cmd_fields_scs(unsigned cs, unsigned subcommand)
 {
     if (cs < array_length(_sdo_cmd_fields_scs))
         return _sdo_cmd_fields_scs[cs];
@@ -796,7 +796,7 @@ sdo_cmd_fields_scs(guint cs, guint subcommand)
 }
 
 static inline int * const *
-sdo_cmd_fields_ccs(guint cs, guint subcommand)
+sdo_cmd_fields_ccs(unsigned cs, unsigned subcommand)
 {
     if (cs < array_length(_sdo_cmd_fields_ccs))
         return _sdo_cmd_fields_ccs[cs];
@@ -808,15 +808,15 @@ sdo_cmd_fields_ccs(guint cs, guint subcommand)
 }
 
 static void
-dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, guint function_code)
+dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, unsigned function_code)
 {
     int offset = 0;
     /*number of data bytes*/
-    guint8 sdo_data = 0;
+    uint8_t sdo_data = 0;
     /*Field existence*/
-    guint8 sdo_mux = 0, sdo_pst = 0;
+    uint8_t sdo_mux = 0, sdo_pst = 0;
     /*sdo values used to choose dissector*/
-    guint8 sdo_cs = 0, sdo_subcommand = 0;
+    uint8_t sdo_cs = 0, sdo_subcommand = 0;
     int * const *sdo_cmd_fields;
 
     /* get SDO command specifier */
@@ -1021,13 +1021,13 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
 }
 
 static void
-dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, guint msg_type_id)
+dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, unsigned msg_type_id)
 {
     int offset = 0;
     int reserved = 0;
-    guint8 lss_cs;
-    guint8 lss_bc_mask;
-    guint16 lss_abt_delay;
+    uint8_t lss_cs;
+    uint8_t lss_bc_mask;
+    uint16_t lss_abt_delay;
 
     proto_tree_add_item(canopen_type_tree,
             hf_canopen_lss_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1244,17 +1244,17 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
 static int
 dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    guint        function_code;
-    guint        node_id;
-    guint32      time_stamp_msec;
-    guint32      time_stamp_days;
+    unsigned     function_code;
+    unsigned     node_id;
+    uint32_t     time_stamp_msec;
+    uint32_t     time_stamp_days;
     struct can_info can_info;
-    guint        msg_type_id;
+    unsigned     msg_type_id;
     nstime_t     time_stamp;
-    gint         can_data_len = tvb_reported_length(tvb);
-    const gchar *function_code_str;
+    int          can_data_len = tvb_reported_length(tvb);
+    const char *function_code_str;
     int offset = 0;
-    guint8 nmt_node_id;
+    uint8_t nmt_node_id;
 
     proto_item *ti, *cob_ti;
     proto_tree *canopen_tree;
@@ -1772,7 +1772,7 @@ proto_register_canopen(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_canopen,
         &ett_canopen_cob,
         &ett_canopen_type,

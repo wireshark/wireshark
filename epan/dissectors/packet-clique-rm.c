@@ -44,14 +44,14 @@ static int hf_clique_rm_repair_request_sender_id;
 static int hf_clique_rm_repair_request_packet_id;
 
 /* Initialize the subtree pointers */
-static gint ett_clique_rm;
-static gint ett_clique_rm_data;
-static gint ett_clique_rm_depends;
-static gint ett_clique_rm_depends_item;
-static gint ett_clique_rm_failures;
-static gint ett_clique_rm_join_failures;
-static gint ett_clique_rm_attempt_join;
-static gint ett_clique_rm_join;
+static int ett_clique_rm;
+static int ett_clique_rm_data;
+static int ett_clique_rm_depends;
+static int ett_clique_rm_depends_item;
+static int ett_clique_rm_failures;
+static int ett_clique_rm_join_failures;
+static int ett_clique_rm_attempt_join;
+static int ett_clique_rm_join;
 
 /* Packet types */
 typedef enum {
@@ -99,10 +99,10 @@ static const value_string packet_type_vals[] = {
 };
 
 static void
-dissect_sender_array(proto_tree *clique_rm_tree, int hf_header, gint ett_header,
+dissect_sender_array(proto_tree *clique_rm_tree, int hf_header, int ett_header,
     int hf_header_sender, tvbuff_t *tvb, int offset)
 {
-  guint       i, count;
+  unsigned    i, count;
   int         len;
   proto_item *ti;
   proto_tree *tree;
@@ -145,7 +145,7 @@ dissect_depends(proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
   proto_tree *tree, *depend_tree;
-  guint       ii, count;
+  unsigned    ii, count;
   int         len;
 
   count = tvb_get_guint8(tvb, offset);
@@ -174,7 +174,7 @@ dissect_depends(proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
 
 /* Code to actually dissect the packets */
 static void
-dissect_reliable_packet(proto_tree *clique_rm_tree, guint8 type, tvbuff_t *tvb, int offset)
+dissect_reliable_packet(proto_tree *clique_rm_tree, uint8_t type, tvbuff_t *tvb, int offset)
 {
   if (!clique_rm_tree)
     return; /* no col_..() or expert...() calls in following */
@@ -212,9 +212,9 @@ dissect_reliable_packet(proto_tree *clique_rm_tree, guint8 type, tvbuff_t *tvb, 
 }
 
 static void
-dissect_unreliable_packet(proto_tree *clique_rm_tree, guint8 type, tvbuff_t *tvb, int offset)
+dissect_unreliable_packet(proto_tree *clique_rm_tree, uint8_t type, tvbuff_t *tvb, int offset)
 {
-  guint len;
+  unsigned len;
 
   if (!clique_rm_tree)
     return; /* no col_..() or expert...() calls in following */
@@ -255,17 +255,17 @@ dissect_clique_rm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
   proto_item *ti;
   proto_tree *clique_rm_tree;
-  guint8      version;
-  guint8      type;
+  uint8_t     version;
+  uint8_t     type;
   int         offset = 0;
-  guint64     qword;
+  uint64_t    qword;
 
   if (tvb_captured_length(tvb) < 12)
     return false;
 
   qword = tvb_get_ntoh48(tvb,0);
   /* ASCII str for 'Clique' = 0x436c69717565 */
-  if(qword != G_GUINT64_CONSTANT (0x436c69717565))
+  if(qword != UINT64_C (0x436c69717565))
     return false;
   offset += 6;
 
@@ -438,7 +438,7 @@ proto_register_clique_rm(void)
   };
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_clique_rm,
     &ett_clique_rm_depends,
     &ett_clique_rm_depends_item,

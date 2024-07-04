@@ -86,10 +86,10 @@ static int hf_block_count;
 static int hf_block_reassembled_in;
 static int hf_block_reassembled_length;
 
-static gint ett_coap;
+static int ett_coap;
 
-static gint ett_block;
-static gint ett_blocks;
+static int ett_block;
+static int ett_blocks;
 
 static expert_field ei_retransmitted;
 
@@ -268,9 +268,9 @@ static const value_string vals_opt_type[] = {
 };
 
 struct coap_option_range_t {
-	guint type;
-	gint min;
-	gint max;
+	unsigned type;
+	int min;
+	int max;
 } coi[] = {
 	{ COAP_OPT_IF_MATCH,        0,   8 },
 	{ COAP_OPT_URI_HOST,        1, 255 },
@@ -401,13 +401,13 @@ static const fragment_items coap_block_frag_items = {
 void proto_reg_handoff_coap(void);
 
 static conversation_t *
-find_or_create_conversation_noaddrb(packet_info *pinfo, gboolean request)
+find_or_create_conversation_noaddrb(packet_info *pinfo, bool request)
 {
 	conversation_t *conv=NULL;
 	address *addr_a;
 	address *addr_b;
-	guint32 port_a;
-	guint32 port_b;
+	uint32_t port_a;
+	uint32_t port_b;
 
 	if (pinfo->ptype != PT_TCP) {
 		if (request) {
@@ -442,27 +442,27 @@ find_or_create_conversation_noaddrb(packet_info *pinfo, gboolean request)
 	return conv;
 }
 
-static gint
-coap_get_opt_uint(tvbuff_t *tvb, gint offset, gint length)
+static int
+coap_get_opt_uint(tvbuff_t *tvb, int offset, int length)
 {
 	switch (length) {
 	case 0:
 		return 0;
 	case 1:
-		return (guint)tvb_get_guint8(tvb, offset);
+		return (unsigned)tvb_get_guint8(tvb, offset);
 	case 2:
-		return (guint)tvb_get_ntohs(tvb, offset);
+		return (unsigned)tvb_get_ntohs(tvb, offset);
 	case 3:
-		return (guint)tvb_get_ntoh24(tvb, offset);
+		return (unsigned)tvb_get_ntoh24(tvb, offset);
 	case 4:
-		return (guint)tvb_get_ntohl(tvb, offset);
+		return (unsigned)tvb_get_ntohl(tvb, offset);
 	default:
 		return -1;
 	}
 }
 
-static gint
-coap_opt_check(packet_info *pinfo, proto_tree *subtree, guint opt_num, gint opt_length, coap_common_dissect_t *dissect_hf)
+static int
+coap_opt_check(packet_info *pinfo, proto_tree *subtree, unsigned opt_num, int opt_length, coap_common_dissect_t *dissect_hf)
 {
 	int i;
 
@@ -490,9 +490,9 @@ coap_opt_check(packet_info *pinfo, proto_tree *subtree, guint opt_num, gint opt_
 }
 
 static void
-dissect_coap_opt_hex_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_hex_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const guint8 *str;
+	const uint8_t *str;
 
 	if (opt_length == 0)
 		str = nullstr;
@@ -506,9 +506,9 @@ dissect_coap_opt_hex_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item,
 }
 
 static void
-dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	guint i = 0;
+	unsigned i = 0;
 
 	if (opt_length != 0) {
 		i = coap_get_opt_uint(tvb, offset, opt_length);
@@ -521,9 +521,9 @@ dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree,
 }
 
 static void
-dissect_coap_opt_uri_host(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, int hf)
+dissect_coap_opt_uri_host(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	const guint8 *str;
+	const uint8_t *str;
 
 	proto_tree_add_item_ret_string(subtree, hf, tvb, offset, opt_length, ENC_ASCII, pinfo->pool, &str);
 
@@ -542,9 +542,9 @@ dissect_coap_opt_uri_host(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_it
 }
 
 static void
-dissect_coap_opt_uri_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, int hf)
+dissect_coap_opt_uri_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	wmem_strbuf_append_c(coinfo->uri_str_strbuf, '/');
 
@@ -562,9 +562,9 @@ dissect_coap_opt_uri_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_it
 }
 
 static void
-dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, int hf)
+dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	wmem_strbuf_append_c(coinfo->uri_query_strbuf,
 			     (wmem_strbuf_get_len(coinfo->uri_query_strbuf) == 0) ? '?' : '&');
@@ -583,9 +583,9 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 }
 
 static void
-dissect_coap_opt_location_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_location_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
@@ -600,9 +600,9 @@ dissect_coap_opt_location_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *he
 }
 
 static void
-dissect_coap_opt_location_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_location_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
@@ -618,17 +618,17 @@ dissect_coap_opt_location_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *h
 
 /* rfc8613 */
 static void
-dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, packet_info *pinfo, coap_info *coinfo, coap_common_dissect_t *dissect_hf, guint8 code_class)
+dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, packet_info *pinfo, coap_info *coinfo, coap_common_dissect_t *dissect_hf, uint8_t code_class)
 {
-	guint8 flag_byte = 0;
-	gboolean reserved = FALSE;
-	gboolean kid_context_present = FALSE;
-	gboolean kid_present = FALSE;
-	guint8 piv_len = 0;
-	guint8 kid_context_len = 0;
-	guint8 kid_len = 0;
+	uint8_t flag_byte = 0;
+	bool reserved = false;
+	bool kid_context_present = false;
+	bool kid_present = false;
+	uint8_t piv_len = 0;
+	uint8_t kid_context_len = 0;
+	uint8_t kid_len = 0;
 
-	coinfo->object_security = TRUE;
+	coinfo->object_security = true;
 
 	coinfo->oscore_info->piv = NULL;
 	coinfo->oscore_info->piv_len = 0;
@@ -638,7 +638,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 	coinfo->oscore_info->kid_context_len = 0;
 	coinfo->oscore_info->kid = NULL;
 	coinfo->oscore_info->kid_len = 0;
-	coinfo->oscore_info->response = FALSE;
+	coinfo->oscore_info->response = false;
 
 	if (opt_length == 0) { /* option length is zero, means flag byte is 0x00*/
 		/* add info to the head of the packet detail */
@@ -672,12 +672,12 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 
 		if (piv_len > 0) {
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_piv, tvb, offset, piv_len, ENC_NA);
-			coinfo->oscore_info->piv = (guint8 *) tvb_memdup(pinfo->pool, tvb, offset, piv_len);
+			coinfo->oscore_info->piv = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, piv_len);
 			coinfo->oscore_info->piv_len = piv_len;
 
 			if (code_class == 0) {
 				/* If this is a request, copy PIV to request_piv */
-				coinfo->oscore_info->request_piv = (guint8 *) tvb_memdup(pinfo->pool, tvb, offset, piv_len);
+				coinfo->oscore_info->request_piv = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, piv_len);
 				coinfo->oscore_info->request_piv_len = piv_len;
 			}
 
@@ -693,7 +693,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 			kid_len -= 1;
 
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid_context, tvb, offset, kid_context_len, ENC_NA);
-			coinfo->oscore_info->kid_context = (guint8 *) tvb_memdup(pinfo->pool, tvb, offset, kid_context_len);
+			coinfo->oscore_info->kid_context = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, kid_context_len);
 			coinfo->oscore_info->kid_context_len = kid_context_len;
 
 			offset += kid_context_len;
@@ -702,7 +702,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 
 		if (kid_present) {
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid, tvb, offset, kid_len, ENC_NA);
-			coinfo->oscore_info->kid = (guint8 *) tvb_memdup(pinfo->pool, tvb, offset, kid_len);
+			coinfo->oscore_info->kid = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, kid_len);
 			coinfo->oscore_info->kid_len = kid_len;
 
 		}
@@ -715,9 +715,9 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 }
 
 static void
-dissect_coap_opt_proxy_uri(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_proxy_uri(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
@@ -732,9 +732,9 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 }
 
 static void
-dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
@@ -749,7 +749,7 @@ dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, packet_info *pinfo, proto_item *hea
 }
 
 static void
-dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf, coap_info *coinfo)
+dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf, coap_info *coinfo)
 {
 	if (opt_length == 0) {
 		coinfo->ctype_value = 0;
@@ -766,14 +766,14 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 }
 
 static void
-dissect_coap_opt_accept(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+dissect_coap_opt_accept(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const guint8 *str = NULL;
+	const uint8_t *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		guint value = coap_get_opt_uint(tvb, offset, opt_length);
+		unsigned value = coap_get_opt_uint(tvb, offset, opt_length);
 		str = val_to_str(value, vals_ctype, "Unknown Type %u");
 	}
 
@@ -784,11 +784,11 @@ dissect_coap_opt_accept(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtre
 }
 
 static void
-dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
+dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
 {
-	guint8      val = 0;
-	guint       encoded_block_size;
-	guint       block_esize;
+	uint8_t     val = 0;
+	unsigned    encoded_block_size;
+	unsigned    block_esize;
 
 	if (opt_length == 0) {
 		coinfo->block_number = 0;
@@ -818,13 +818,13 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 }
 
 static void
-dissect_coap_opt_ocf_version(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hfindex)
+dissect_coap_opt_ocf_version(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hfindex)
 {
-	guint option_value = coap_get_opt_uint(tvb, offset, opt_length);
+	unsigned option_value = coap_get_opt_uint(tvb, offset, opt_length);
 
-	guint sub_version = option_value & COAP_OCF_VERSION_SUB_MASK;
-	guint minor_version = (option_value & COAP_OCF_VERSION_MINOR_MASK) >> COAP_OCF_VERSION_MINOR_OFFSET;
-	guint major_version = (option_value & COAP_OCF_VERSION_MAJOR_MASK) >> COAP_OCF_VERSION_MAJOR_OFFSET;
+	unsigned sub_version = option_value & COAP_OCF_VERSION_SUB_MASK;
+	unsigned minor_version = (option_value & COAP_OCF_VERSION_MINOR_MASK) >> COAP_OCF_VERSION_MINOR_OFFSET;
+	unsigned major_version = (option_value & COAP_OCF_VERSION_MAJOR_MASK) >> COAP_OCF_VERSION_MAJOR_OFFSET;
 
 	proto_tree_add_uint(subtree, hfindex, tvb, offset, opt_length, option_value);
 
@@ -834,9 +834,9 @@ dissect_coap_opt_ocf_version(tvbuff_t *tvb, proto_item *head_item, proto_tree *s
 }
 
 static void
-dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, int hf)
+dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	guint port = 0;
+	unsigned port = 0;
 
 	if (opt_length != 0) {
 		port = coap_get_opt_uint(tvb, offset, opt_length);
@@ -855,15 +855,15 @@ dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subt
  * return the total length of the option including the header (e.g. delta and length).
  */
 static int
-dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, guint8 opt_count, guint *opt_num, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
+dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, int offset, uint8_t opt_count, unsigned *opt_num, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
 {
-	guint8      opt_jump;
-	gint        opt_length, opt_length_ext, opt_delta, opt_delta_ext;
-	gint        opt_length_ext_off = 0;
-	gint8       opt_length_ext_len = 0;
-	gint        opt_delta_ext_off  = 0;
-	gint8       opt_delta_ext_len  = 0;
-	gint        orig_offset	       = offset;
+	uint8_t     opt_jump;
+	int         opt_length, opt_length_ext, opt_delta, opt_delta_ext;
+	int         opt_length_ext_off = 0;
+	int8_t      opt_length_ext_len = 0;
+	int         opt_delta_ext_off  = 0;
+	int8_t      opt_delta_ext_len  = 0;
+	int         orig_offset	       = offset;
 	proto_tree *subtree;
 	proto_item *item;
 	char	    strbuf[56];
@@ -1132,11 +1132,11 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
  * or the end of the data.
  */
 int
-dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
+dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
 {
-	guint  opt_num = 0;
+	unsigned  opt_num = 0;
 	int    i;
-	guint8 endmarker;
+	uint8_t endmarker;
 
 	/* loop for dissecting options */
 	for (i = 1; offset < offset_end; i++) {
@@ -1161,10 +1161,10 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
  * CoAP code dissector.
  * return code value and updates the offset
  * */
-guint8
-dissect_coap_code(tvbuff_t *tvb, proto_tree *tree, gint *offset, coap_common_dissect_t *dissect_hf, guint8 *code_class)
+uint8_t
+dissect_coap_code(tvbuff_t *tvb, proto_tree *tree, int *offset, coap_common_dissect_t *dissect_hf, uint8_t *code_class)
 {
-	guint8 code;
+	uint8_t code;
 
 	proto_tree_add_item(tree, dissect_hf->hf.code, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	code = tvb_get_guint8(tvb, *offset);
@@ -1175,12 +1175,12 @@ dissect_coap_code(tvbuff_t *tvb, proto_tree *tree, gint *offset, coap_common_dis
 }
 
 void
-dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, gboolean oscore)
+dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, bool oscore)
 {
 	proto_tree *payload_tree;
 	proto_item *payload_item, *length_item;
 	tvbuff_t   *payload_tvb;
-	guint	    payload_length = offset_end - offset;
+	unsigned	    payload_length = offset_end - offset;
 	const char *coap_ctype_str_dis;
 	media_content_info_t content_info = {0};
 	char	    str_payload[80];
@@ -1264,14 +1264,14 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 	}
 }
 
-static guint32
-coap_frame_length(tvbuff_t *tvb, guint offset, gint *size)
+static uint32_t
+coap_frame_length(tvbuff_t *tvb, unsigned offset, int *size)
 {
 	/*
 	 * Decode Len and Extended Length according to
 	 * https://tools.ietf.org/html/rfc8323#page-10
 	 */
-	guint8 len = tvb_get_guint8(tvb, offset) >> 4;
+	uint8_t len = tvb_get_guint8(tvb, offset) >> 4;
 	switch (len) {
 	default:
 		*size = 1;
@@ -1301,20 +1301,20 @@ coap_frame_length(tvbuff_t *tvb, guint offset, gint *size)
 }
 
 static int
-dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, coap_parent_protocol parent_protocol, gboolean is_coap_for_tmf)
+dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, coap_parent_protocol parent_protocol, bool is_coap_for_tmf)
 {
-	gint              offset = 0;
+	int               offset = 0;
 	proto_item       *coap_root;
 	proto_item       *pi;
 	proto_tree       *coap_tree;
-	gint              length_size = 0;
-	guint8            ttype = G_MAXUINT8;
-	guint32           token_len;
-	guint8            code;
-	guint8            code_class;
-	guint32           mid = 0;
-	gint              coap_length;
-	gchar            *coap_token_str;
+	int               length_size = 0;
+	uint8_t           ttype = UINT8_MAX;
+	uint32_t          token_len;
+	uint8_t           code;
+	uint8_t           code_class;
+	uint32_t          mid = 0;
+	int               coap_length;
+	char             *coap_token_str;
 	coap_info        *coinfo;
 	conversation_t   *conversation;
 	coap_conv_info   *ccinfo;
@@ -1338,7 +1338,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* check if trel is previously dissected */
 	if (coinfo->is_coap_for_tmf == 0)
 	{
-		guint id2 = proto_get_id_by_short_name("TREL");
+		unsigned id2 = proto_get_id_by_short_name("TREL");
 		wmem_list_frame_t* ptr2 = wmem_list_find(pinfo->layers, GUINT_TO_POINTER(id2));
 
 		if (  ptr2 != NULL)
@@ -1409,7 +1409,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				       val_to_str_ext(code, &coap_vals_code_ext, "Unknown %u"),
 				       mid);
 	} else {
-		guint len = coap_length;
+		unsigned len = coap_length;
 		if (parent_protocol == PARENT_WEBSOCKETS) {
 			len = tvb_get_guint8(tvb, offset) >> 4;
 			length_size = 1;
@@ -1438,7 +1438,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	coinfo->uri_query_strbuf = wmem_strbuf_create(pinfo->pool);
 	 /* Allocate pointers and static elements of oscore_info_t, arrays are allocated only if object security option is found during option parsing */
 	coinfo->oscore_info = wmem_new0(pinfo->pool, oscore_info_t);
-	coinfo->object_security = FALSE;
+	coinfo->object_security = false;
 	coap_token_str = NULL;
 
 	if (token_len > 0)
@@ -1487,13 +1487,13 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 					if (coinfo->oscore_info) {
 						coap_trans->oscore_info = (oscore_info_t *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info, sizeof(oscore_info_t));
 						if (coinfo->oscore_info->kid) {
-							coap_trans->oscore_info->kid = (guint8 *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->kid, coinfo->oscore_info->kid_len);
+							coap_trans->oscore_info->kid = (uint8_t *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->kid, coinfo->oscore_info->kid_len);
 						}
 						if (coinfo->oscore_info->kid_context) {
-							coap_trans->oscore_info->kid_context = (guint8 *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->kid_context, coinfo->oscore_info->kid_context_len);
+							coap_trans->oscore_info->kid_context = (uint8_t *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->kid_context, coinfo->oscore_info->kid_context_len);
 						}
 						if (coinfo->oscore_info->piv) {
-							coap_trans->oscore_info->request_piv = (guint8 *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->request_piv, coinfo->oscore_info->request_piv_len);
+							coap_trans->oscore_info->request_piv = (uint8_t *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->request_piv, coinfo->oscore_info->request_piv_len);
 						}
 					}
 					wmem_map_insert(ccinfo->messages, coap_token_str, (void *)coap_trans);
@@ -1507,20 +1507,20 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 					if (coap_trans->oscore_info) {
 						/* Copy OSCORE info in matching transaction info into CoAP packet info */
 						if (coap_trans->oscore_info->kid) {
-							coinfo->oscore_info->kid = (guint8 *) wmem_memdup(pinfo->pool, coap_trans->oscore_info->kid, coap_trans->oscore_info->kid_len);
+							coinfo->oscore_info->kid = (uint8_t *) wmem_memdup(pinfo->pool, coap_trans->oscore_info->kid, coap_trans->oscore_info->kid_len);
 						}
 						coinfo->oscore_info->kid_len = coap_trans->oscore_info->kid_len;
 
 						if (coap_trans->oscore_info->kid_context) {
-							coinfo->oscore_info->kid_context = (guint8 *) wmem_memdup(pinfo->pool, coap_trans->oscore_info->kid_context, coap_trans->oscore_info->kid_context_len);
+							coinfo->oscore_info->kid_context = (uint8_t *) wmem_memdup(pinfo->pool, coap_trans->oscore_info->kid_context, coap_trans->oscore_info->kid_context_len);
 						}
 						coinfo->oscore_info->kid_context_len = coap_trans->oscore_info->kid_context_len;
 
 						if (coap_trans->oscore_info->request_piv) {
-							coinfo->oscore_info->request_piv = (guint8 *) wmem_memdup(pinfo->pool, coap_trans->oscore_info->request_piv, coap_trans->oscore_info->request_piv_len);
+							coinfo->oscore_info->request_piv = (uint8_t *) wmem_memdup(pinfo->pool, coap_trans->oscore_info->request_piv, coap_trans->oscore_info->request_piv_len);
 						}
 						coinfo->oscore_info->request_piv_len = coap_trans->oscore_info->request_piv_len;
-						coinfo->oscore_info->response = TRUE;
+						coinfo->oscore_info->response = true;
 
 					}
 				}
@@ -1556,7 +1556,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (coap_length > offset) {
 		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
 			dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length,
-					     code_class, coinfo, &dissect_coap_hf, FALSE);
+					     code_class, coinfo, &dissect_coap_hf, false);
 		} else {
 			proto_tree_add_bytes_format(coap_tree, hf_block_payload, tvb, offset,
 						    coap_length - offset, NULL, "Block Payload");
@@ -1571,7 +1571,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 			if (frag_tvb) {
 				dissect_coap_payload(frag_tvb, pinfo, coap_tree, parent_tree, 0, tvb_reported_length(frag_tvb),
-						     code_class, coinfo, &dissect_coap_hf, FALSE);
+						     code_class, coinfo, &dissect_coap_hf, false);
 			}
 		}
 	}
@@ -1581,7 +1581,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
 	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER) {
 		/* The M bit is used in Block1 Option in a request and in Block2 Option in a response */
-		gboolean mflag_is_used = (((coinfo->block_option == 1) && (code_class == 0)) ||
+		bool mflag_is_used = (((coinfo->block_option == 1) && (code_class == 0)) ||
 					  ((coinfo->block_option == 2) && (code_class >= 2) && (code_class <= 5)));
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%u",
 				(coinfo->block_mflag || !mflag_is_used) ? "" : "End of ", coinfo->block_number);
@@ -1660,25 +1660,25 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 static int
 dissect_coap_tcp_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_coap_message(tvb, pinfo, tree, PARENT_TCP_TLS, FALSE);
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_TCP_TLS, false);
 }
 
 static int
 dissect_coap_websockets(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_coap_message(tvb, pinfo, tree, PARENT_WEBSOCKETS, FALSE);
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_WEBSOCKETS, false);
 }
 
 static int
 dissect_coap_other(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_coap_message(tvb, pinfo, tree, PARENT_OTHER, FALSE);
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_OTHER, false);
 }
 
 static int
 dissect_coap_for_tmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_coap_message(tvb, pinfo, tree, PARENT_OTHER, TRUE);
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_OTHER, true);
 }
 
 /*
@@ -1818,7 +1818,7 @@ proto_register_coap(void)
 		COAP_COMMON_HF_LIST(dissect_coap_hf, "coap")
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_coap,
 		&ett_block,
 		&ett_blocks,

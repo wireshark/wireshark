@@ -38,7 +38,7 @@ static dissector_handle_t cl3_handle;
 /* persistent handles for this dissector */
 static int               proto_cl3;
 static dissector_table_t cl3_command_table;
-static gint              ett_cl3;
+static int               ett_cl3;
 static int               hf_cl3_version;
 static int               hf_cl3_headerlen;
 static int               hf_cl3_subproto;
@@ -62,13 +62,13 @@ dissect_cl3_v1(
   proto_tree  *tree,
   proto_item  *ti,
   proto_tree  *cl3_tree,
-  guint16      header_length
+  uint16_t     header_length
   ) {
 
   dissector_handle_t   dh;
   tvbuff_t            *tvb_sub;
 
-  guint16 subprotocol_id;
+  uint16_t subprotocol_id;
 
   /* ensure the header length is valid for version 1 */
   if (header_length != 4) {
@@ -79,7 +79,7 @@ dissect_cl3_v1(
   subprotocol_id = tvb_get_ntohs(tvb, 2);
 
   /* append the subprotocol id to the "packet summary view" fields */
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Subprotocol 0x%04X]", (guint)subprotocol_id);
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Subprotocol 0x%04X]", (unsigned)subprotocol_id);
 
   /* add elements to the CL3 tree...
      CL3 version 1 fields: (pretty much just the sub protocol id) */
@@ -100,9 +100,9 @@ dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   proto_item   *ti;
   proto_tree   *cl3_tree;
 
-  guint16 version;
-  guint16 header_length;
-  guint32 payload_length;
+  uint16_t version;
+  uint16_t header_length;
+  uint32_t payload_length;
 
   /* parse the header fields */
   version = header_length = tvb_get_ntohs(tvb, 0);
@@ -115,10 +115,10 @@ dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /* setup the "packet summary view" fields */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL3");
   col_clear(pinfo->cinfo, COL_INFO);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "CableLabs Layer-3 Protocol (Ver %u)", (guint)version);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "CableLabs Layer-3 Protocol (Ver %u)", (unsigned)version);
 
   /* create a tree node for us... */
-  ti = proto_tree_add_protocol_format(tree, proto_cl3, tvb, 0, header_length, "CableLabs Layer-3 Protocol (CL3) Version %u", (guint)version);
+  ti = proto_tree_add_protocol_format(tree, proto_cl3, tvb, 0, header_length, "CableLabs Layer-3 Protocol (CL3) Version %u", (unsigned)version);
   cl3_tree = proto_item_add_subtree(ti, ett_cl3);
 
   /* CL3 version agnostic fields: (pretty much just the first byte; like ipv4, version + length) */
@@ -169,7 +169,7 @@ proto_register_cl3(void) {
         FT_BYTES,      BASE_NONE,   NULL, 0x0,
         "The payload carried by this CableLabs layer-3 protocol packet", HFILL}},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cl3,
   };
   static ei_register_info ei[] = {

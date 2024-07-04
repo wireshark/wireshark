@@ -22,22 +22,22 @@ void proto_reg_handoff_carp(void);
 
 static dissector_handle_t carp_handle;
 
-static gint proto_carp;
-static gint ett_carp;
-static gint ett_carp_ver_type;
+static int proto_carp;
+static int ett_carp;
+static int ett_carp_ver_type;
 
-static gint hf_carp_ver_type;
-static gint hf_carp_version;
-static gint hf_carp_type;
-static gint hf_carp_vhid;
-static gint hf_carp_advskew;
-static gint hf_carp_authlen;
-static gint hf_carp_demotion;
-static gint hf_carp_advbase;
-static gint hf_carp_counter;
-static gint hf_carp_hmac;
-static gint hf_carp_checksum;
-static gint hf_carp_checksum_status;
+static int hf_carp_ver_type;
+static int hf_carp_version;
+static int hf_carp_type;
+static int hf_carp_vhid;
+static int hf_carp_advskew;
+static int hf_carp_authlen;
+static int hf_carp_demotion;
+static int hf_carp_advbase;
+static int hf_carp_counter;
+static int hf_carp_hmac;
+static int hf_carp_checksum;
+static int hf_carp_checksum_status;
 
 static expert_field ei_carp_checksum;
 
@@ -50,40 +50,40 @@ static const value_string carp_type_vals[] = {
     {0, NULL}
 };
 
-static gboolean
+static bool
 test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
-    guint8 ver_type, version, auth_length;
+    uint8_t ver_type, version, auth_length;
 
     /* First some simple check if the data is
        really CARP */
     if (tvb_captured_length(tvb) < 36)
-        return FALSE;
+        return false;
 
     /* Version must be 1 or 2, type must be in carp_type_vals */
     ver_type = tvb_get_guint8(tvb, 0);
     version = hi_nibble(ver_type);
     if ((version == 0) || (version > 2) ||
         (try_val_to_str(lo_nibble(ver_type), carp_type_vals) == NULL))
-        return FALSE;
+        return false;
 
     auth_length = tvb_get_guint8(tvb, 3);
     if ( auth_length != 7 )
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 static int
 dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset = 0;
-    guint carp_len;
-    guint8  vhid;
+    unsigned carp_len;
+    uint8_t vhid;
     vec_t cksum_vec[4];
     proto_item *ti, *tv;
     proto_tree *carp_tree, *ver_type_tree;
-    guint8 ver_type;
+    uint8_t ver_type;
 
     /* Make sure it's a CARP packet */
     if (!test_carp_packet(tvb, pinfo, tree, data))
@@ -223,7 +223,7 @@ void proto_register_carp(void)
            NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_carp,
         &ett_carp_ver_type
     };

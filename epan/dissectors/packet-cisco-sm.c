@@ -244,7 +244,7 @@ static int hf_sm_stat_request_type;
 static int hf_sm_bsn_num;
 
 /* Initialize the subtree pointers */
-static gint ett_sm;
+static int ett_sm;
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t mtp3_handle;
@@ -257,12 +257,12 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item *ti;
     proto_tree *sm_tree;
     tvbuff_t   *next_tvb      = NULL;
-    guint32     sm_message_type;
-    guint32     bh_event_code = 0;
-    guint16     protocol;
-    guint16     msg_type      = 0;
-    guint16     length;
-    guint16     tag;
+    uint32_t    sm_message_type;
+    uint32_t    bh_event_code = 0;
+    uint16_t    protocol;
+    uint16_t    msg_type      = 0;
+    uint16_t    length;
+    uint16_t    tag;
     int         offset        = 0;
 
     sm_message_type = tvb_get_ntohl(tvb,offset);
@@ -574,7 +574,7 @@ proto_register_sm(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sm,
     };
 

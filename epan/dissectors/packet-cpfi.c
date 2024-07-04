@@ -47,7 +47,7 @@ void proto_reg_handoff_cpfi(void);
 #define CPFI_EOF_ERROR_MASK   0x7FE00000
 
 /* configurable parameters */
-static guint gbl_cpfi_ttot_udp_port = CPFI_DEFAULT_TTOT_UDP_PORT;
+static unsigned gbl_cpfi_ttot_udp_port = CPFI_DEFAULT_TTOT_UDP_PORT;
 static bool cpfi_arrow_moves    = true;
 
 /* Initialize the protocol and registered fields */
@@ -87,9 +87,9 @@ static const char direction_and_port_string[] = "[%s %s %s] ";
 
 
 /* Initialize the subtree pointers */
-static gint ett_cpfi;
-static gint ett_cpfi_header;
-static gint ett_cpfi_footer;
+static int ett_cpfi;
+static int ett_cpfi_header;
+static int ett_cpfi_footer;
 
 static dissector_handle_t cpfi_handle;
 static dissector_handle_t fc_handle;
@@ -134,19 +134,19 @@ static const value_string eof_type_vals[] = {
 static void
 dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32     word1;
+  uint32_t    word1;
 #if 0
-  guint32     word2;
+  uint32_t    word2;
 #endif
-  guint32     tda;
-  guint32     src;
-  guint8      src_instance = 0;
-  guint8      src_board    = 0;
-  guint8      src_port     = 0;
-  guint32     dst;
-  guint8      dst_instance = 0;
-  guint8      dst_board    = 0;
-  guint8      dst_port     = 0;
+  uint32_t    tda;
+  uint32_t    src;
+  uint8_t     src_instance = 0;
+  uint8_t     src_board    = 0;
+  uint8_t     src_port     = 0;
+  uint32_t    dst;
+  uint8_t     dst_instance = 0;
+  uint8_t     dst_board    = 0;
+  uint8_t     dst_port     = 0;
   proto_tree *extra_tree   = NULL;
 
   /* add a tree for the header */
@@ -172,11 +172,11 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   else
   {
-    const guint8 *srcmac;
+    const uint8_t *srcmac;
 
     /* Make sure this is an Ethernet address. */
     DISSECTOR_ASSERT(pinfo->src.type == AT_ETHER);
-    srcmac = (const guint8 *)pinfo->src.data;
+    srcmac = (const uint8_t *)pinfo->src.data;
 
     src_instance = srcmac[2]-1;
     src_board = tda >> 4;
@@ -194,11 +194,11 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   else
   {
-    const guint8 *dstmac;
+    const uint8_t *dstmac;
 
     /* Make sure this is an Ethernet address. */
     DISSECTOR_ASSERT(pinfo->dst.type == AT_ETHER);
-    dstmac = (const guint8 *)pinfo->dst.data;
+    dstmac = (const uint8_t *)pinfo->dst.data;
 
     dst_instance = dstmac[2]-1;
     dst_board = tda >> 4;
@@ -298,8 +298,8 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   tvbuff_t   *header_tvb, *body_tvb, *footer_tvb;
   proto_item *cpfi_item = NULL;
   proto_tree *cpfi_tree = NULL;
-  gint        length, reported_length, body_length, reported_body_length;
-  guint8      frame_type;
+  int         length, reported_length, body_length, reported_body_length;
+  uint8_t     frame_type;
   fc_data_t fc_data;
 
   frame_type = (tvb_get_ntohl (message_tvb, 0) & CPFI_FRAME_TYPE_MASK) >> CPFI_FRAME_TYPE_SHIFT;
@@ -477,7 +477,7 @@ proto_register_cpfi(void)
 
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cpfi,
     &ett_cpfi_header,
     &ett_cpfi_footer
@@ -512,14 +512,14 @@ proto_register_cpfi(void)
 void
 proto_reg_handoff_cpfi(void)
 {
-  static gboolean cpfi_init_complete = FALSE;
-  static guint cpfi_ttot_udp_port;
+  static bool cpfi_init_complete = false;
+  static unsigned cpfi_ttot_udp_port;
 
   if ( !cpfi_init_complete )
   {
     fc_handle = find_dissector_add_dependency("fc", proto_cpfi);
     dissector_add_uint_with_preference("udp.port", CPFI_DEFAULT_UDP_PORT, cpfi_handle);
-    cpfi_init_complete = TRUE;
+    cpfi_init_complete = true;
   }
   else
   {

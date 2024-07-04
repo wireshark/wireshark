@@ -32,15 +32,15 @@ typedef enum {
 
 /* CoAP Message information */
 typedef struct {
-	const gchar *ctype_str;
-	guint ctype_value;
-	guint block_option;                     /* Indicates Block1 or Block2 option */
-	guint block_number;
-	guint block_mflag;
+	const char *ctype_str;
+	unsigned ctype_value;
+	unsigned block_option;                     /* Indicates Block1 or Block2 option */
+	unsigned block_number;
+	unsigned block_mflag;
 	wmem_strbuf_t *uri_str_strbuf;		/* the maximum is 1024 > 510 = Uri-Host:255 + Uri-Path:255 x 2 */
 	wmem_strbuf_t *uri_query_strbuf;	/* the maximum is 1024 >         765 = Uri-Query:255 x 3 */
-	gboolean is_coap_for_tmf;		/* CoAP for Thread Management Framework */
-	gboolean object_security;
+	bool is_coap_for_tmf;		/* CoAP for Thread Management Framework */
+	bool object_security;
 	oscore_info_t *oscore_info;		/* OSCORE data needed to decrypt */
 } coap_info;
 
@@ -57,8 +57,8 @@ typedef struct {
 } coap_transaction;
 
 typedef struct {
-	guint32  req_frame;
-	guint32  rsp_frame;
+	uint32_t req_frame;
+	uint32_t rsp_frame;
 	nstime_t req_time;
 } coap_request_response;
 
@@ -120,8 +120,8 @@ typedef struct coap_common_dissect {
 	} hf;
 
 	struct {
-		gint payload;
-		gint option;
+		int payload;
+		int option;
 
 	/* do not forget to update COAP_COMMON_ETT_LIST! */
 	} ett;
@@ -138,9 +138,9 @@ typedef struct coap_common_dissect {
 	} ei;
 } coap_common_dissect_t;
 
-guint8 dissect_coap_code(tvbuff_t *tvb, proto_tree *coap_tree, gint *offset, coap_common_dissect_t *dissect_hf, guint8 *code_class);
-int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
-void dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, gboolean oscore);
+uint8_t dissect_coap_code(tvbuff_t *tvb, proto_tree *coap_tree, int *offset, coap_common_dissect_t *dissect_hf, uint8_t *code_class);
+int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
+void dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, bool oscore);
 
 extern const value_string coap_vals_observe_options[];
 extern value_string_ext coap_vals_code_ext;

@@ -30,7 +30,7 @@ static const value_string cimetrics_pid_vals[] = {
 
 static int proto_cimetrics_mstp;
 static int hf_llc_cimetrics_pid;
-static gint ett_cimetrics_mstp;
+static int ett_cimetrics_mstp;
 
 static int hf_cimetrics_mstp_timer;
 static int hf_cimetrics_mstp_value;
@@ -42,11 +42,11 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
 	proto_item *ti;
 	proto_tree *subtree;
-	gint offset = 0;
+	int offset = 0;
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE
-	guint8 mstp_frame_type = 0;
-	guint8 mstp_frame_source = 0;
-	guint8 mstp_frame_destination = 0;
+	uint8_t mstp_frame_type = 0;
+	uint8_t mstp_frame_source = 0;
+	uint8_t mstp_frame_destination = 0;
 #endif
 
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE
@@ -93,7 +93,7 @@ proto_register_cimetrics(void)
 		    NULL, HFILL }
 		}
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cimetrics_mstp
 	};
 

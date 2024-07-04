@@ -32,7 +32,7 @@ static int hf_err;
 static int hf_sar;
 static int hf_channel_id;
 
-static gint ett_raw;
+static int ett_raw;
 
 static dissector_handle_t cosine_handle;
 static dissector_handle_t eth_withoutfcs_handle;
@@ -150,7 +150,7 @@ proto_register_cosine(void)
       { "Channel handle ID", "cosine.channel_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_raw,
   };
 

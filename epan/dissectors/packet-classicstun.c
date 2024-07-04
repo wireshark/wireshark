@@ -61,8 +61,8 @@ static int hf_classicstun_att_connection_request_binding;
 
 /* Structure containing transaction specific information */
 typedef struct _classicstun_transaction_t {
-    guint32  req_frame;
-    guint32  rep_frame;
+    uint32_t req_frame;
+    uint32_t rep_frame;
     nstime_t req_time;
 } classicstun_transaction_t;
 
@@ -129,16 +129,16 @@ typedef struct _classicstun_conv_info_t {
 
 
 /* Initialize the subtree pointers */
-static gint ett_classicstun;
-static gint ett_classicstun_att_type;
-static gint ett_classicstun_att;
+static int ett_classicstun;
+static int ett_classicstun_att_type;
+static int ett_classicstun_att;
 
 
 #define UDP_PORT_STUN   3478
 #define TCP_PORT_STUN   3478
 
 
-#define CLASSICSTUN_HDR_LEN ((guint)20) /* CLASSIC-STUN message header length */
+#define CLASSICSTUN_HDR_LEN ((unsigned)20) /* CLASSIC-STUN message header length */
 #define ATTR_HDR_LEN                 4  /* CLASSIC-STUN attribute header length */
 
 
@@ -206,20 +206,20 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree                *classicstun_tree;
     proto_tree                *att_type_tree;
     proto_tree                *att_tree;
-    guint16                    msg_type;
-    guint16                    msg_length;
+    uint16_t                   msg_type;
+    uint16_t                   msg_length;
     const char                *msg_type_str;
-    guint16                    att_type;
-    guint16                    att_length, clear_port;
-    guint32                    clear_ip;
-    guint16                    offset;
-    guint                      len;
-    guint                      i;
+    uint16_t                   att_type;
+    uint16_t                   att_length, clear_port;
+    uint32_t                   clear_ip;
+    uint16_t                   offset;
+    unsigned                   len;
+    unsigned                   i;
     conversation_t            *conversation;
     classicstun_conv_info_t   *classicstun_info;
     classicstun_transaction_t *classicstun_trans;
     wmem_tree_key_t            transaction_id_key[2];
-    guint32                    transaction_id[4];
+    uint32_t                   transaction_id[4];
 
 
     /*
@@ -313,7 +313,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message: %s",
              msg_type_str);
 
-    guint transaction_id_first_word;
+    unsigned transaction_id_first_word;
 
     ti = proto_tree_add_item(tree, proto_classicstun, tvb, 0, -1, ENC_NA);
 
@@ -672,7 +672,7 @@ proto_register_classicstun(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_classicstun,
         &ett_classicstun_att_type,
         &ett_classicstun_att,

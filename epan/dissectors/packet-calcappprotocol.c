@@ -38,11 +38,11 @@ static int hf_message_jobid;
 static int hf_message_jobsize;
 static int hf_message_completed;
 
-static guint64 calcappprotocol_total_msgs;
-static guint64 calcappprotocol_total_bytes;
+static uint64_t calcappprotocol_total_msgs;
+static uint64_t calcappprotocol_total_bytes;
 
 /* Initialize the subtree pointers */
-static gint ett_calcappprotocol;
+static int ett_calcappprotocol;
 
 /* Dissectors for messages. This is specific to CalcAppProtocol */
 #define MESSAGE_TYPE_LENGTH      1
@@ -82,8 +82,8 @@ static const value_string message_type_values[] = {
 
 
 typedef struct _tap_calcappprotocol_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } tap_calcappprotocol_rec_t;
 
@@ -127,7 +127,7 @@ dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
   };
   /* dissect the message */
   dissect_calcappprotocol_message(message_tvb, pinfo, calcappprotocol_tree);
-  return TRUE;
+  return true;
 }
 
 
@@ -213,9 +213,9 @@ calcappprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_
   const tap_calcappprotocol_rec_t* tap_rec   = (const tap_calcappprotocol_rec_t*)data;
   stat_tap_table*                  table;
   stat_tap_table_item_type*        msg_data;
-  gint                             idx;
-  guint64                          messages;
-  guint64                          bytes;
+  int                              idx;
+  uint64_t                         messages;
+  uint64_t                         bytes;
   int                              i         = 0;
   double                           firstSeen = -1.0;
   double                           lastSeen  = -1.0;
@@ -243,9 +243,9 @@ calcappprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -303,7 +303,7 @@ calcappprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_
 static void
 calcappprotocol_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -371,12 +371,12 @@ proto_register_calcappprotocol(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_calcappprotocol
   };
 
   static tap_param calcappprotocol_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui calcappprotocol_stat_table = {

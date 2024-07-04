@@ -45,11 +45,11 @@ static int hf_corosync_totemnet_security_crypto_type;
 static int hf_corosync_totemnet_security_crypto_key;
 
 /* configurable parameters */
-static gchar*  corosync_totemnet_private_keys;
-static gchar** corosync_totemnet_private_keys_list;
+static char*  corosync_totemnet_private_keys;
+static char** corosync_totemnet_private_keys_list;
 
 /* Initialize the subtree pointers */
-static gint ett_corosync_totemnet_security_header;
+static int ett_corosync_totemnet_security_header;
 
 #define SALT_SIZE          16
 
@@ -66,8 +66,8 @@ static const value_string corosync_totemnet_crypto_type[] = {
 static int
 dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
                                           packet_info *pinfo, proto_tree *parent_tree,
-                                          gboolean check_crypt_type,
-                                          const gchar* key)
+                                          bool check_crypt_type,
+                                          const char* key)
 {
   proto_item *item;
   proto_tree *tree;
@@ -242,8 +242,8 @@ Regards
 static int
 dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
                                            packet_info *pinfo, proto_tree *parent_tree,
-                                           gboolean check_crypt_type,
-                                           const gchar* key_for_trial)
+                                           bool check_crypt_type,
+                                           const char* key_for_trial)
 {
   unsigned char  keys[48];
   sober128_prng  keygen_prng_state;
@@ -254,11 +254,11 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   unsigned char  digest_comparison[HASH_SHA1_LENGTH];
 
   int            io_len;
-  guint8        *io_base;
+  uint8_t       *io_base;
 
 #define PRIVATE_KEY_LEN_MAX 256
-  gchar          private_key[PRIVATE_KEY_LEN_MAX];
-  gsize          private_key_len;
+  char           private_key[PRIVATE_KEY_LEN_MAX];
+  size_t         private_key_len;
   unsigned char* hash_digest;
   unsigned char* salt;
 
@@ -267,7 +267,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
     return 0;
   }
 
-  io_base = (guint8 *)tvb_memdup(pinfo->pool, tvb, 0, io_len + (check_crypt_type? 1: 0));
+  io_base = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 0, io_len + (check_crypt_type? 1: 0));
   if (check_crypt_type &&
       ( io_base[io_len] != TOTEM_CRYPTO_SOBER )) {
     return 0;
@@ -355,7 +355,7 @@ dissect_corosynec_totemnet(tvbuff_t *tvb,
 
       static int last_check_crypt_type_index;
       int check_crypt_type_index = -1;
-      gboolean check_crypt_type_list[] = {FALSE, TRUE};
+      bool check_crypt_type_list[] = {false, true};
 
 
       if (last_key_index != -1)
@@ -434,7 +434,7 @@ proto_register_corosync_totemnet(void)
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ett_corosync_totemnet[] = {
+  static int *ett_corosync_totemnet[] = {
     &ett_corosync_totemnet_security_header,
   };
 
@@ -448,7 +448,7 @@ proto_register_corosync_totemnet(void)
 
   prefs_register_string_preference(corosync_totemnet_module, "private_keys", "Private keys",
                                    "Semicolon-separated  list of keys for decryption(e.g. key1;key2;..." ,
-                                   (const gchar **)&corosync_totemnet_private_keys);
+                                   (const char **)&corosync_totemnet_private_keys);
 
   register_shutdown_routine(corosync_totemnet_shutdown);
 
@@ -458,14 +458,14 @@ proto_register_corosync_totemnet(void)
 void
 proto_reg_handoff_corosync_totemnet(void)
 {
-  static gboolean initialized = FALSE;
+  static bool initialized = false;
 
   if (!initialized)
   {
     corosync_totemsrp_handle = find_dissector_add_dependency("corosync_totemsrp", proto_corosync_totemnet);
 
     dissector_add_uint_range_with_preference("udp.port", PORT_COROSYNC_TOTEMNET_RANGE, corosync_totemnet_handle);
-    initialized = TRUE;
+    initialized = true;
   }
 
   g_strfreev(corosync_totemnet_private_keys_list);

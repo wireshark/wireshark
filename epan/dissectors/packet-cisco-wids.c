@@ -50,7 +50,7 @@ static int hf_cwids_reallength;
 static int hf_cwids_capturelen;
 static int hf_cwids_unknown3;
 
-static gint ett_cwids;
+static int ett_cwids;
 
 static expert_field ei_ieee80211_subpacket;
 
@@ -64,7 +64,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	tvbuff_t *wlan_tvb;
 	proto_tree *ti, *cwids_tree;
 	volatile int offset = 0;
-	guint16 capturelen;
+	uint16_t capturelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
 	col_set_str(pinfo->cinfo, COL_INFO, "Cwids: ");
@@ -80,8 +80,8 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 		memset(&phdr, 0, sizeof(phdr));
 		phdr.fcs_len = 0;	/* no FCS */
-		phdr.decrypted = FALSE;
-		phdr.datapad = FALSE;
+		phdr.decrypted = false;
+		phdr.datapad = false;
 		phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
@@ -89,7 +89,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		offset += 6;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 1, ENC_NA);
 		offset += 1;
-		phdr.has_channel = TRUE;
+		phdr.has_channel = true;
 		phdr.channel = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -158,7 +158,7 @@ proto_register_cwids(void)
 			0x0, "3rd Unknown block", HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cwids,
 	};
 

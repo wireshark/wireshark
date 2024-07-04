@@ -55,7 +55,7 @@ static int hf_out_assumed_up_num;
 static int hf_cluster_last_packet;
 static int hf_ifn;
 
-static gint ett_cphap;
+static int ett_cphap;
 
 #define UDP_PORT_CPHA        8116
 #define CPHA_MAGIC 0x1A90
@@ -246,9 +246,9 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   proto_item *          nti;
   proto_tree *          cpha_tree = NULL;
   proto_tree *          ntree = NULL;
-  guint16               opcode;
-  guint16               magic_number;
-  guint16               ha_version;
+  uint16_t              opcode;
+  uint16_t              magic_number;
+  uint16_t              ha_version;
   /*
    * If the magic number or protocol version is unknown, don't treat this
    * frame as a CPHA frame.
@@ -336,7 +336,7 @@ static int dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   int i;
   proto_item *  nti = NULL;
   proto_tree *  ntree = NULL;
-  guint16       report_code, id_num;
+  uint16_t      report_code, id_num;
 
   proto_tree_add_item(tree, hf_id_num, tvb, offset, 2, ENC_BIG_ENDIAN);
   id_num = tvb_get_ntohs(tvb, offset);
@@ -507,7 +507,7 @@ proto_register_cpha(void)
     { &hf_ifn,
     { "Interface Number", "cpha.ifn", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cphap,
   };
 

@@ -20,7 +20,7 @@
 
 #include <wsutil/str_util.h>
 
-#define STR_NONNULL(str) ((str) ? ((const gchar*)str) : "(null)")
+#define STR_NONNULL(str) ((str) ? ((const char*)str) : "(null)")
 
 #define TYPE_HOST            0x0000
 #define TYPE_TIME            0x0001
@@ -42,51 +42,51 @@ void proto_register_collectd(void);
 static dissector_handle_t collectd_handle;
 
 typedef struct value_data_s {
-	const guint8 *host;
-	gint host_off;
-	gint host_len;
-	guint64 time_value;
-	gint time_off;
-	guint64 interval;
-	gint interval_off;
-	const guint8 *plugin;
-	gint plugin_off;
-	gint plugin_len;
-	const guint8 *plugin_instance;
-	gint plugin_instance_off;
-	gint plugin_instance_len;
-	const guint8 *type;
-	gint type_off;
-	gint type_len;
-	const guint8 *type_instance;
-	gint type_instance_off;
-	gint type_instance_len;
+	const uint8_t *host;
+	int host_off;
+	int host_len;
+	uint64_t time_value;
+	int time_off;
+	uint64_t interval;
+	int interval_off;
+	const uint8_t *plugin;
+	int plugin_off;
+	int plugin_len;
+	const uint8_t *plugin_instance;
+	int plugin_instance_off;
+	int plugin_instance_len;
+	const uint8_t *type;
+	int type_off;
+	int type_len;
+	const uint8_t *type_instance;
+	int type_instance_off;
+	int type_instance_len;
 } value_data_t;
 
 typedef struct notify_data_s {
-	const guint8 *host;
-	gint host_off;
-	gint host_len;
-	guint64 time_value;
-	gint time_off;
-	guint64 severity;
-	gint severity_off;
-	const guint8 *message;
-	gint message_off;
-	gint message_len;
+	const uint8_t *host;
+	int host_off;
+	int host_len;
+	uint64_t time_value;
+	int time_off;
+	uint64_t severity;
+	int severity_off;
+	const uint8_t *message;
+	int message_off;
+	int message_len;
 } notify_data_t;
 
 struct string_counter_s;
 typedef struct string_counter_s string_counter_t;
 struct string_counter_s
 {
-	const gchar *string;
-	gint   count;
+	const char *string;
+	int    count;
 	string_counter_t *next;
 };
 
 typedef struct tap_data_s {
-	gint values_num;
+	int values_num;
 
 	string_counter_t *hosts;
 	string_counter_t *plugins;
@@ -135,51 +135,51 @@ static const val64_string severity_names[] = {
 
 #define UDP_PORT_COLLECTD 25826 /* Not IANA registered */
 
-static gint proto_collectd;
-static gint tap_collectd                = -1;
+static int proto_collectd;
+static int tap_collectd                = -1;
 
-static gint hf_collectd_type;
-static gint hf_collectd_length;
-static gint hf_collectd_data;
-static gint hf_collectd_data_host;
-static gint hf_collectd_data_time;
-static gint hf_collectd_data_interval;
-static gint hf_collectd_data_plugin;
-static gint hf_collectd_data_plugin_inst;
-static gint hf_collectd_data_type;
-static gint hf_collectd_data_type_inst;
-static gint hf_collectd_data_valcnt;
-static gint hf_collectd_val_type;
-static gint hf_collectd_val_counter;
-static gint hf_collectd_val_gauge;
-static gint hf_collectd_val_derive;
-static gint hf_collectd_val_absolute;
-static gint hf_collectd_val_unknown;
-static gint hf_collectd_data_severity;
-static gint hf_collectd_data_message;
-static gint hf_collectd_data_sighash;
-static gint hf_collectd_data_initvec;
-static gint hf_collectd_data_username_len;
-static gint hf_collectd_data_username;
-static gint hf_collectd_data_encrypted;
+static int hf_collectd_type;
+static int hf_collectd_length;
+static int hf_collectd_data;
+static int hf_collectd_data_host;
+static int hf_collectd_data_time;
+static int hf_collectd_data_interval;
+static int hf_collectd_data_plugin;
+static int hf_collectd_data_plugin_inst;
+static int hf_collectd_data_type;
+static int hf_collectd_data_type_inst;
+static int hf_collectd_data_valcnt;
+static int hf_collectd_val_type;
+static int hf_collectd_val_counter;
+static int hf_collectd_val_gauge;
+static int hf_collectd_val_derive;
+static int hf_collectd_val_absolute;
+static int hf_collectd_val_unknown;
+static int hf_collectd_data_severity;
+static int hf_collectd_data_message;
+static int hf_collectd_data_sighash;
+static int hf_collectd_data_initvec;
+static int hf_collectd_data_username_len;
+static int hf_collectd_data_username;
+static int hf_collectd_data_encrypted;
 
-static gint ett_collectd;
-static gint ett_collectd_string;
-static gint ett_collectd_integer;
-static gint ett_collectd_part_value;
-static gint ett_collectd_value;
-static gint ett_collectd_valinfo;
-static gint ett_collectd_signature;
-static gint ett_collectd_encryption;
-static gint ett_collectd_dispatch;
-static gint ett_collectd_invalid_length;
-static gint ett_collectd_unknown;
+static int ett_collectd;
+static int ett_collectd_string;
+static int ett_collectd_integer;
+static int ett_collectd_part_value;
+static int ett_collectd_value;
+static int ett_collectd_valinfo;
+static int ett_collectd_signature;
+static int ett_collectd_encryption;
+static int ett_collectd_dispatch;
+static int ett_collectd_invalid_length;
+static int ett_collectd_unknown;
 
-static gint st_collectd_packets = -1;
-static gint st_collectd_values  = -1;
-static gint st_collectd_values_hosts   = -1;
-static gint st_collectd_values_plugins = -1;
-static gint st_collectd_values_types   = -1;
+static int st_collectd_packets = -1;
+static int st_collectd_values  = -1;
+static int st_collectd_values_hosts   = -1;
+static int st_collectd_values_plugins = -1;
+static int st_collectd_values_types   = -1;
 
 static expert_field ei_collectd_type;
 static expert_field ei_collectd_invalid_length;
@@ -190,7 +190,7 @@ static expert_field ei_collectd_garbage;
 void proto_reg_handoff_collectd (void);
 
 static nstime_t
-collectd_time_to_nstime (guint64 t)
+collectd_time_to_nstime (uint64_t t)
 {
 	nstime_t nstime = NSTIME_INIT_ZERO;
 	nstime.secs = (time_t) (t / 1073741824);
@@ -202,8 +202,8 @@ collectd_time_to_nstime (guint64 t)
 static void
 collectd_stats_tree_init (stats_tree *st)
 {
-	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, STAT_DT_INT, FALSE);
-	st_collectd_values = stats_tree_create_node (st, "Values", 0, STAT_DT_INT, TRUE);
+	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, STAT_DT_INT, false);
+	st_collectd_values = stats_tree_create_node (st, "Values", 0, STAT_DT_INT, true);
 
 	st_collectd_values_hosts = stats_tree_create_pivot (st, "By host",
 							   st_collectd_values);
@@ -229,7 +229,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 
 	for (sc = td->hosts; sc != NULL; sc = sc->next)
 	{
-		gint i;
+		int i;
 		for (i = 0; i < sc->count; i++)
 			stats_tree_tick_pivot (st, st_collectd_values_hosts,
 					       sc->string);
@@ -237,7 +237,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 
 	for (sc = td->plugins; sc != NULL; sc = sc->next)
 	{
-		gint i;
+		int i;
 		for (i = 0; i < sc->count; i++)
 			stats_tree_tick_pivot (st, st_collectd_values_plugins,
 					       sc->string);
@@ -245,7 +245,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 
 	for (sc = td->types; sc != NULL; sc = sc->next)
 	{
-		gint i;
+		int i;
 		for (i = 0; i < sc->count; i++)
 			stats_tree_tick_pivot (st, st_collectd_values_types,
 					       sc->string);
@@ -264,7 +264,7 @@ collectd_stats_tree_register (void)
 
 static void
 collectd_proto_tree_add_assembled_metric (tvbuff_t *tvb,
-		gint offset, gint length,
+		int offset, int length,
 		value_data_t const *vdispatch, proto_tree *root)
 {
 	proto_item *root_item;
@@ -312,7 +312,7 @@ collectd_proto_tree_add_assembled_metric (tvbuff_t *tvb,
 
 static void
 collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
-		gint offset, gint length,
+		int offset, int length,
 		notify_data_t const *ndispatch, proto_tree *root)
 {
 	proto_item *root_item;
@@ -341,16 +341,16 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 }
 
 static int
-dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
-			 gint offset, gint *ret_offset, gint *ret_length,
-			 const guint8 **ret_string, proto_tree *tree_root,
+dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, int type_hf,
+			 int offset, int *ret_offset, int *ret_length,
+			 const uint8_t **ret_string, proto_tree *tree_root,
 			 proto_item **ret_item)
 {
 	proto_tree *pt;
 	proto_item *pi;
-	gint type;
-	gint length;
-	gint size;
+	int type;
+	int length;
+	int size;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -392,15 +392,15 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 } /* int dissect_collectd_string */
 
 static int
-dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
-			  gint offset, gint *ret_offset, guint64 *ret_value,
+dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, int type_hf,
+			  int offset, int *ret_offset, uint64_t *ret_value,
 			  proto_tree *tree_root, proto_item **ret_item)
 {
 	proto_tree *pt;
 	proto_item *pi;
-	gint type;
-	gint length;
-	gint size;
+	int type;
+	int length;
+	int size;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -459,10 +459,10 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	if ((type == TYPE_TIME) || (type == TYPE_TIME_HR))
 	{
 		nstime_t nstime;
-		gchar *strtime;
+		char *strtime;
 
 		nstime = collectd_time_to_nstime (*ret_value);
-		strtime = abs_time_to_str (pinfo->pool, &nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ TRUE);
+		strtime = abs_time_to_str (pinfo->pool, &nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ true);
 		pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
 					  ett_collectd_integer, &pi, "collectd %s segment: %s",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
@@ -471,7 +471,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	else if ((type == TYPE_INTERVAL) || (type == TYPE_INTERVAL_HR))
 	{
 		nstime_t nstime;
-		gchar *strtime;
+		char *strtime;
 
 		nstime = collectd_time_to_nstime (*ret_value);
 		strtime = rel_time_to_str (pinfo->pool, &nstime);
@@ -511,11 +511,11 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 } /* int dissect_collectd_integer */
 
 static void
-dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
+dissect_collectd_values(tvbuff_t *tvb, int msg_off, int val_cnt,
 			proto_tree *collectd_tree)
 {
 	proto_tree *values_tree, *value_tree;
-	gint i;
+	int i;
 
 	values_tree = proto_tree_add_subtree_format(collectd_tree, tvb, msg_off + 6, val_cnt * 9,
 				  ett_collectd_value, NULL, "%d value%s", val_cnt,
@@ -523,10 +523,10 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 	for (i = 0; i < val_cnt; i++)
 	{
-		gint value_offset;
+		int value_offset;
 
-		gint value_type_offset;
-		guint8 value_type;
+		int value_type_offset;
+		uint8_t value_type;
 
 		/* Calculate the offsets of the type byte and the actual value. */
 		value_offset = msg_off + 6
@@ -539,7 +539,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 		switch (value_type) {
 		case TYPE_VALUE_COUNTER:
 		{
-			guint64 val64;
+			uint64_t val64;
 
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
@@ -556,7 +556,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 		case TYPE_VALUE_GAUGE:
 		{
-			gdouble val;
+			double val;
 
 			val = tvb_get_letohieee_double (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
@@ -565,7 +565,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
 					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
-			/* Set the `little endian' flag to TRUE here, because
+			/* Set the `little endian' flag to true here, because
 			 * collectd stores doubles in x86 representation. */
 			proto_tree_add_item (value_tree, hf_collectd_val_gauge,
 					     tvb, value_offset, 8, ENC_LITTLE_ENDIAN);
@@ -574,7 +574,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 		case TYPE_VALUE_DERIVE:
 		{
-			gint64 val64;
+			int64_t val64;
 
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
@@ -591,7 +591,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 		case TYPE_VALUE_ABSOLUTE:
 		{
-			guint64 val64;
+			uint64_t val64;
 
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
@@ -608,7 +608,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 		default:
 		{
-			guint64 val64;
+			uint64_t val64;
 
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
@@ -627,16 +627,16 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 } /* void dissect_collectd_values */
 
 static int
-dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
+dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, int offset,
 			      value_data_t *vdispatch, proto_tree *tree_root)
 {
 	proto_tree *pt;
 	proto_item *pi;
-	gint type;
-	gint length;
-	gint size;
-	gint values_count;
-	gint corrected_values_count;
+	int type;
+	int length;
+	int size;
+	int values_count;
+	int corrected_values_count;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -720,13 +720,13 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 static int
 dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
-			    gint offset, proto_tree *tree_root)
+			    int offset, proto_tree *tree_root)
 {
 	proto_item *pi;
 	proto_tree *pt;
-	gint type;
-	gint length;
-	gint size;
+	int type;
+	int length;
+	int size;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -784,14 +784,14 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
-			    gint offset, proto_tree *tree_root)
+			    int offset, proto_tree *tree_root)
 {
 	proto_item *pi;
 	proto_tree *pt;
-	gint type;
-	gint length;
-	gint size;
-	gint username_length;
+	int type;
+	int length;
+	int size;
+	int username_length;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -870,7 +870,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 } /* int dissect_collectd_encrypted */
 
 static int
-stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, const gchar *new_value)
+stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, const char *new_value)
 {
 	string_counter_t *entry;
 
@@ -902,10 +902,10 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
 	static tap_data_t tap_data;
 
-	gint offset;
-	gint size;
-	const guint8 *pkt_host = NULL;
-	gint pkt_plugins = 0, pkt_values = 0, pkt_messages = 0, pkt_unknown = 0, pkt_errors = 0;
+	int offset;
+	int size;
+	const uint8_t *pkt_host = NULL;
+	int pkt_plugins = 0, pkt_values = 0, pkt_messages = 0, pkt_unknown = 0, pkt_errors = 0;
 	value_data_t vdispatch;
 	notify_data_t ndispatch;
 	int status;
@@ -932,8 +932,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	while ((size > 0) && (status == 0))
 	{
 
-		gint part_type;
-		gint part_length;
+		int part_type;
+		int part_length;
 
 		/* Let's handle the easy case first real quick: All we do here
 		 * is extract a host name and count the number of values,
@@ -1446,7 +1446,7 @@ void proto_register_collectd(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_collectd,
 		&ett_collectd_string,
 		&ett_collectd_integer,

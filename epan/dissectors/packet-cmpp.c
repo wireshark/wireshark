@@ -26,79 +26,79 @@ void proto_reg_handoff_cmpp(void);
 static dissector_handle_t cmpp_handle;
 
 /* Initialize the protocol and registered fields */
-static gint proto_cmpp;
+static int proto_cmpp;
 
 /* These are the fix header field */
-static gint hf_cmpp_Total_Length;
-static gint hf_cmpp_Command_Id;
-static gint hf_cmpp_Sequence_Id;
+static int hf_cmpp_Total_Length;
+static int hf_cmpp_Command_Id;
+static int hf_cmpp_Sequence_Id;
 
 /* CMPP_CONNECT */
-static gint hf_cmpp_connect_Source_Addr;
-static gint hf_cmpp_connect_AuthenticatorSource;
-static gint hf_cmpp_Version;
-static gint hf_cmpp_connect_Timestamp;
+static int hf_cmpp_connect_Source_Addr;
+static int hf_cmpp_connect_AuthenticatorSource;
+static int hf_cmpp_Version;
+static int hf_cmpp_connect_Timestamp;
 
 /* CMPP_CONNECT_RESP */
-static gint hf_cmpp_connect_resp_status;
-static gint hf_cmpp_connect_resp_AuthenticatorISMG;
+static int hf_cmpp_connect_resp_status;
+static int hf_cmpp_connect_resp_AuthenticatorISMG;
 
 /* CMPP_SUBMIT */
-static gint hf_cmpp_submit_pk_total;
-static gint hf_cmpp_submit_pk_number;
-static gint hf_cmpp_submit_Msg_level;
-static gint hf_cmpp_submit_Fee_UserType;
-static gint hf_cmpp_submit_Fee_terminal_Id;
-static gint hf_cmpp_submit_Fee_terminal_type;
-static gint hf_cmpp_submit_Msg_src;
-static gint hf_cmpp_submit_FeeType;
-static gint hf_cmpp_submit_FeeCode;
-static gint hf_cmpp_submit_Valld_Time;
-static gint hf_cmpp_submit_At_Time;
-static gint hf_cmpp_submit_Src_Id;
-static gint hf_cmpp_submit_DestUsr_tl;
-static gint hf_cmpp_submit_Dest_terminal_type;
-static gint hf_cmpp_submit_Registered_Delivery;
+static int hf_cmpp_submit_pk_total;
+static int hf_cmpp_submit_pk_number;
+static int hf_cmpp_submit_Msg_level;
+static int hf_cmpp_submit_Fee_UserType;
+static int hf_cmpp_submit_Fee_terminal_Id;
+static int hf_cmpp_submit_Fee_terminal_type;
+static int hf_cmpp_submit_Msg_src;
+static int hf_cmpp_submit_FeeType;
+static int hf_cmpp_submit_FeeCode;
+static int hf_cmpp_submit_Valld_Time;
+static int hf_cmpp_submit_At_Time;
+static int hf_cmpp_submit_Src_Id;
+static int hf_cmpp_submit_DestUsr_tl;
+static int hf_cmpp_submit_Dest_terminal_type;
+static int hf_cmpp_submit_Registered_Delivery;
 
 /* Field common in CMPP_SUBMIT and CMPP_DELIVER */
-static gint hf_cmpp_Dest_terminal_Id;
-static gint hf_cmpp_Service_Id;
-static gint hf_cmpp_TP_pId;
-static gint hf_cmpp_TP_udhi;
-static gint hf_cmpp_Msg_Fmt;
-static gint hf_cmpp_Msg_Length;
-static gint hf_cmpp_Msg_Content;
-static gint hf_cmpp_LinkID;
+static int hf_cmpp_Dest_terminal_Id;
+static int hf_cmpp_Service_Id;
+static int hf_cmpp_TP_pId;
+static int hf_cmpp_TP_udhi;
+static int hf_cmpp_Msg_Fmt;
+static int hf_cmpp_Msg_Length;
+static int hf_cmpp_Msg_Content;
+static int hf_cmpp_LinkID;
 
 /* CMPP_SUBMIT_RESP */
-static gint hf_cmpp_submit_resp_Result;
+static int hf_cmpp_submit_resp_Result;
 
 /* CMPP_QUERY */
 /* CMPP_QUERY_RESP */
 /* TODO implement CMPP_QUERY and CMPP_QUERY_RESP */
 
 /* CMPP_DELIVER */
-static gint hf_cmpp_deliver_Dest_Id;
-static gint hf_cmpp_deliver_Src_terminal_Id;
-static gint hf_cmpp_deliver_Src_terminal_type;
-static gint hf_cmpp_deliver_Registered_Delivery;
+static int hf_cmpp_deliver_Dest_Id;
+static int hf_cmpp_deliver_Src_terminal_Id;
+static int hf_cmpp_deliver_Src_terminal_type;
+static int hf_cmpp_deliver_Registered_Delivery;
 
-static gint hf_cmpp_deliver_resp_Result;
+static int hf_cmpp_deliver_resp_Result;
 
 /* CMPP Deliver Report */
-static gint hf_cmpp_deliver_Report;
-static gint hf_cmpp_deliver_Report_Stat;
-static gint hf_cmpp_deliver_Report_Submit_time;
-static gint hf_cmpp_deliver_Report_Done_time;
-static gint hf_cmpp_deliver_Report_SMSC_sequence;
+static int hf_cmpp_deliver_Report;
+static int hf_cmpp_deliver_Report_Stat;
+static int hf_cmpp_deliver_Report_Submit_time;
+static int hf_cmpp_deliver_Report_Done_time;
+static int hf_cmpp_deliver_Report_SMSC_sequence;
 
 /* Msg_Id field */
-static gint hf_cmpp_msg_id;
-static gint hf_msg_id_timestamp;
-static gint hf_msg_id_ismg_code;
-static gint hf_msg_id_sequence_id;
+static int hf_cmpp_msg_id;
+static int hf_msg_id_timestamp;
+static int hf_msg_id_ismg_code;
+static int hf_msg_id_sequence_id;
 
-static gboolean cmpp_desegment = TRUE;
+static bool cmpp_desegment = true;
 
 /*
  * Value-arrays for field-contents
@@ -232,25 +232,25 @@ static const value_string vals_Deliver_Resp_Result[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_cmpp;
-static gint ett_msg_id;
-static gint ett_deliver_report;
+static int ett_cmpp;
+static int ett_msg_id;
+static int ett_deliver_report;
 
 /* Helper functions */
 
-static const guint8*
-cmpp_octet_string(proto_tree *tree, tvbuff_t *tvb, gint field, gint offset, gint length)
+static const uint8_t*
+cmpp_octet_string(proto_tree *tree, tvbuff_t *tvb, int field, int offset, int length)
 {
-	const guint8 *display;
+	const uint8_t *display;
 
 	proto_tree_add_item_ret_string(tree, field, tvb, offset, length, ENC_ASCII, wmem_packet_scope(), &display);
 	return display;
 }
 
 static char*
-cmpp_version(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+cmpp_version(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	gint8  version, major, minor;
+	int8_t version, major, minor;
 	char  *strval;
 
 	version = tvb_get_guint8(tvb, offset);
@@ -263,10 +263,10 @@ cmpp_version(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 }
 
 static char*
-cmpp_timestamp(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+cmpp_timestamp(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	gint8   month, day, hour, minute, second;
-	gint32  timevalue;
+	int8_t  month, day, hour, minute, second;
+	int32_t timevalue;
 	char   *strval;
 
 	timevalue = tvb_get_ntohl(tvb, offset);
@@ -287,49 +287,49 @@ cmpp_timestamp(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 /*  TODO: most calls to these (except those that use the return value) should
  *  be replaced by calls to proto_tree_add_item().
  */
-static guint8
-cmpp_uint1(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+static uint8_t
+cmpp_uint1(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	guint8 value;
+	uint8_t value;
 	value = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, field, tvb, offset, 1, value);
 	return value;
 }
 
-static guint16
-cmpp_uint2(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+static uint16_t
+cmpp_uint2(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	guint16 value;
+	uint16_t value;
 	value = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_uint(tree, field, tvb, offset, 2, value);
 	return value;
 }
 
-static gint32
-cmpp_uint4(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+static int32_t
+cmpp_uint4(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	gint32 value;
+	int32_t value;
 	value = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint(tree, field, tvb, offset, 4, value);
 	return value;
 }
 
-static gboolean
-cmpp_boolean(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+static bool
+cmpp_boolean(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	gint8 value;
+	int8_t value;
 	value = tvb_get_guint8(tvb, offset);
 	proto_tree_add_boolean(tree, field, tvb, offset, 1, value);
 	if (value ==  1)
-		return TRUE;
-	return FALSE;
+		return true;
+	return false;
 }
 
 static void
-cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
+cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
-	guint8      month,day,hour,minute,second;
-	guint32     ismg_code;
+	uint8_t     month,day,hour,minute,second;
+	uint32_t    ismg_code;
 	proto_item *pi;
 	proto_tree *sub_tree;
 	char       *strval;
@@ -383,7 +383,7 @@ static void
 cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 {
 	int    offset, i;
-	guint8 destUsr, msgLen;
+	uint8_t destUsr, msgLen;
 	offset = CMPP_FIX_HEADER_LENGTH;
 	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
@@ -454,7 +454,7 @@ cmpp_submit_resp(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-cmpp_deliver_report(proto_tree *tree, tvbuff_t *tvb, gint  field, guint offset)
+cmpp_deliver_report(proto_tree *tree, tvbuff_t *tvb, int   field, unsigned offset)
 {
 	proto_item *pi;
 	proto_tree *sub_tree;
@@ -477,8 +477,8 @@ cmpp_deliver_report(proto_tree *tree, tvbuff_t *tvb, gint  field, guint offset)
 static void
 cmpp_deliver(proto_tree *tree, tvbuff_t *tvb)
 {
-	guint    offset, msgLen;
-	gboolean report;
+	unsigned offset, msgLen;
+	bool report;
 	offset = CMPP_FIX_HEADER_LENGTH;
 	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
@@ -500,7 +500,7 @@ cmpp_deliver(proto_tree *tree, tvbuff_t *tvb)
 	offset++;
 	msgLen = cmpp_uint1(tree, tvb, hf_cmpp_Msg_Length, offset);
 	offset++;
-	if (report == FALSE)
+	if (report == false)
 		proto_tree_add_string(tree, hf_cmpp_Msg_Content, tvb, offset, msgLen, "SMS Messages");
 	else
 		cmpp_deliver_report(tree, tvb, hf_cmpp_deliver_Report, offset);
@@ -527,10 +527,10 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item  *ti;
 	proto_tree  *cmpp_tree;
-	guint        command_id;
-	guint        tvb_len;
-	guint        total_length;
-	const gchar *command_str; /* Header command string */
+	unsigned     command_id;
+	unsigned     tvb_len;
+	unsigned     total_length;
+	const char *command_str; /* Header command string */
 
 	/* Get the length of the PDU */
 	tvb_len = tvb_captured_length(tvb);
@@ -608,7 +608,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 
 /* Get the CMPP PDU Length */
-static guint
+static unsigned
 get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	return tvb_get_ntohl(tvb, offset);
@@ -618,7 +618,7 @@ get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint total_length, command_id, tvb_len;
+	unsigned total_length, command_id, tvb_len;
 	/* Check that there's enough data */
 	tvb_len = tvb_captured_length(tvb);
 	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
@@ -941,7 +941,7 @@ proto_register_cmpp(void) {
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cmpp,
 		&ett_msg_id,
 		&ett_deliver_report,

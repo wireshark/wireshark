@@ -39,7 +39,7 @@ void proto_reg_handoff_erspan(void);
 
 static int proto_erspan;
 
-static gint ett_erspan;
+static int ett_erspan;
 
 static int hf_erspan_version;
 static int hf_erspan_vlan;
@@ -155,9 +155,9 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_item *ti;
 	proto_tree *erspan_tree = NULL;
 	tvbuff_t *frame_tvb;
-	guint32 offset = 0;
-	guint32 version;
-	guint32 frame_type = ERSPAN_FT_ETHERNET;
+	uint32_t offset = 0;
+	uint32_t version;
+	uint32_t frame_type = ERSPAN_FT_ETHERNET;
 
 	ti = proto_tree_add_item(tree, proto_erspan, tvb, offset, -1,
 	    ENC_NA);
@@ -181,7 +181,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	 */
 	switch (version) {
 	case 1: {
-		guint32 vlan, vlan_encap;
+		uint32_t vlan, vlan_encap;
 
 		proto_tree_add_item_ret_uint(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN, &vlan);
@@ -208,8 +208,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		break;
 		}
 	case 2: {
-		guint32 subheader = 0;
-		guint32 vlan;
+		uint32_t subheader = 0;
+		uint32_t vlan;
 
 		proto_tree_add_item_ret_uint(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN, &vlan);
@@ -255,7 +255,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 		/* Platform Specific SubHeader, 8 octets, optional */
 		if (subheader) {
-			gint32 platform_id = tvb_get_ntohl(tvb, offset) >> 26;
+			int32_t platform_id = tvb_get_ntohl(tvb, offset) >> 26;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_platid, tvb,
 					offset, 4, ENC_BIG_ENDIAN);
@@ -360,7 +360,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static int
 dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	gboolean has_erspan_header;
+	bool has_erspan_header;
 
 	/*
 	 * Frames with a GRE type of 0x88BE have an ERSPAN header iff
@@ -376,7 +376,7 @@ dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		 * For now, we just assume this is Type I, with no
 		 * header.
 		 */
-		has_erspan_header = FALSE;
+		has_erspan_header = false;
 	} else {
 		gre_hdr_info_t *gre_hdr_info = (gre_hdr_info_t *)data;
 
@@ -385,12 +385,12 @@ dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 			 * "sequence number present" set, so it has a
 			 * header.
 			 */
-			has_erspan_header = TRUE;
+			has_erspan_header = true;
 		} else {
 			/*
 			 * Not present, so no header.
 			 */
-			has_erspan_header = FALSE;
+			has_erspan_header = false;
 		}
 	}
 
@@ -585,7 +585,7 @@ proto_register_erspan(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_erspan,
 	};
 

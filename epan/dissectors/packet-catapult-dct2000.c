@@ -345,26 +345,26 @@ static dissector_handle_t mac_nr_handle;
 static dissector_handle_t eth_handle;
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
-static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length, guint *outhdr_values);
+static unsigned parse_outhdr_string(const unsigned char *outhdr_string, int outhdr_length, unsigned *outhdr_values);
 
-static void attach_fp_info(packet_info *pinfo, gboolean received,
+static void attach_fp_info(packet_info *pinfo, bool received,
                            const char *protocol_name, int variant,
-                           guint *outhdr_values, guint outhdr_values_found);
-static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
-                            gboolean is_sent, guint *outhdr_values,
-                            guint outhdr_values_found);
+                           unsigned *outhdr_values, unsigned outhdr_values_found);
+static void attach_rlc_info(packet_info *pinfo, uint32_t urnti, uint8_t rbid,
+                            bool is_sent, unsigned *outhdr_values,
+                            unsigned outhdr_values_found);
 
-static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values,
-                                guint outhdr_values_found);
-static void attach_rlc_lte_info(packet_info *pinfo, guint *outhdr_values,
-                                guint outhdr_values_found);
-static void attach_pdcp_lte_info(packet_info *pinfo, guint *outhdr_values,
-                                 guint outhdr_values_found);
+static void attach_mac_lte_info(packet_info *pinfo, unsigned *outhdr_values,
+                                unsigned outhdr_values_found);
+static void attach_rlc_lte_info(packet_info *pinfo, unsigned *outhdr_values,
+                                unsigned outhdr_values_found);
+static void attach_pdcp_lte_info(packet_info *pinfo, unsigned *outhdr_values,
+                                 unsigned outhdr_values_found);
 
 
 /* Return the number of bytes used to encode the length field
    (we're not interested in the length value itself) */
-static int skipASNLength(guint8 value)
+static int skipASNLength(uint8_t value)
 {
     if ((value & 0x80) == 0)
     {
@@ -379,18 +379,18 @@ static int skipASNLength(guint8 value)
 
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
-static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 direction,
-                                        guint32 *source_addr_offset, guint8 *source_addr_length,
-                                        guint32 *dest_addr_offset,   guint8 *dest_addr_length,
-                                        guint32 *source_port_offset, guint32 *dest_port_offset,
+static bool find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, uint8_t direction,
+                                        uint32_t *source_addr_offset, uint8_t *source_addr_length,
+                                        uint32_t *dest_addr_offset,   uint8_t *dest_addr_length,
+                                        uint32_t *source_port_offset, uint32_t *dest_port_offset,
                                         port_type *type_of_port,
-                                        guint16 *conn_id_offset)
+                                        uint16_t *conn_id_offset)
 {
-    guint8 length;
+    uint8_t length;
     int    offset = *data_offset;
 
     /* Get the ipprim command code. */
-    guint8 tag = tvb_get_guint8(tvb, offset++);
+    uint8_t tag = tvb_get_guint8(tvb, offset++);
 
     /* Only accept UDP or TCP data request or indication */
     switch (tag) {
@@ -403,7 +403,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
             *type_of_port = PT_TCP;
             break;
         default:
-            return FALSE;
+            return false;
     }
 
     /* Skip any other TLC fields before reach payload */
@@ -416,7 +416,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
             ((tag == 0x48) && (*type_of_port == PT_TCP))) {
 
             *data_offset = offset;
-            return TRUE;
+            return true;
         }
         else {
             /* Read length in next byte */
@@ -482,24 +482,24 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
     }
 
     /* No data found... */
-    return FALSE;
+    return false;
 }
 
 
 
 /* Look for the protocol data within an sctpprim (variant 1 or 2...) packet.
    Only set *data_offset if data field found. */
-static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset,
-                                                   guint32 *dest_addr_offset,
-                                                   guint16 *dest_addr_length,
-                                                   guint32 *dest_port_offset)
+static bool find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset,
+                                                   uint32_t *dest_addr_offset,
+                                                   uint16_t *dest_addr_length,
+                                                   uint32_t *dest_port_offset)
 {
     int offset = *data_offset;
 
     /* Get the sctpprim command code. */
-    guint8 first_tag = tvb_get_guint8(tvb, offset++);
-    guint8 tag;
-    guint8 first_length_byte;
+    uint8_t first_tag = tvb_get_guint8(tvb, offset++);
+    uint8_t tag;
+    uint8_t first_length_byte;
 
     /* Only accept interested in data requests or indications */
     switch (first_tag) {
@@ -507,7 +507,7 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
         case 0x62:  /* data indication */
             break;
         default:
-            return FALSE;
+            return false;
     }
 
     first_length_byte = tvb_get_guint8(tvb, offset);
@@ -521,7 +521,7 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
         /* Is this the data payload we're expecting? */
         if (tag == 0x19) {
             *data_offset = offset;
-            return TRUE;
+            return true;
         }
         else {
             /* Skip length field */
@@ -551,35 +551,35 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
 
                 default:
                     /* Fail if not a known header field */
-                    return FALSE;
+                    return false;
             }
         }
     }
 
     /* No data found... */
-    return FALSE;
+    return false;
 }
 
 /* Look for the protocol data within an sctpprim (variant 3) packet.
    Return value indicates whether this header found.
    Only set *data_offset if data field found. */
-static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset,
-                                                   guint32 *dest_addr_offset,
-                                                   guint16 *dest_addr_length,
-                                                   guint32 *dest_port_offset)
+static bool find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset,
+                                                   uint32_t *dest_addr_offset,
+                                                   uint16_t *dest_addr_length,
+                                                   uint32_t *dest_port_offset)
 {
-    guint16 tag    = 0;
-    guint16 length = 0;
+    uint16_t tag    = 0;
+    uint16_t length = 0;
     int     offset = *data_offset;
 
     /* Get the sctpprim (2 byte) command code. */
-    guint16 top_tag = tvb_get_ntohs(tvb, offset);
+    uint16_t top_tag = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
     /* Only interested in data requests or indications */
     if ((top_tag != 0x0400) &&  /* SendDataReq */
        (top_tag != 0x6200)) {  /* DataInd */
-        return FALSE;
+        return false;
     }
 
     /* Overall length field is next 2 bytes */
@@ -600,7 +600,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         /* Destination address should follow - check tag */
         tag = tvb_get_ntohs(tvb, offset);
         if (tag != 0x0900) {
-            return FALSE;
+            return false;
         }
         else {
             /* Skip tag */
@@ -610,7 +610,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
             length = tvb_get_ntohs(tvb, offset) / 2;
             if ((length != 4) && (length != 16))
             {
-                return FALSE;
+                return false;
             }
             offset += 2;
 
@@ -626,7 +626,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
             offset += (4 + 2 + 2 + 4);
         }
         else {
-            return FALSE;
+            return false;
         }
 
         /* Data should now be here */
@@ -638,10 +638,10 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 
             /* Data is here!!! */
             *data_offset = offset;
-            return TRUE;
+            return true;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -651,7 +651,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         /* AssociateId should follow - check tag */
         tag = tvb_get_ntohs(tvb, offset);
         if (tag != 0x2400) {
-            return FALSE;
+            return false;
         }
         else {
             /* Skip tag */
@@ -672,7 +672,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
                     /* Length field */
                     length = tvb_get_ntohs(tvb, offset) / 2;
                     if ((length != 4) && (length != 16)) {
-                        return FALSE;
+                        return false;
                     }
                     offset += 2;
 
@@ -694,7 +694,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 
 
                 default:
-                    return FALSE;
+                    return false;
             }
 
             /* Get the next tag */
@@ -705,7 +705,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 
         /* Mandatory payload type */
         if (tag != 0x0c00) {
-            return FALSE;
+            return false;
         }
         length = tvb_get_ntohs(tvb, offset) / 2;
         offset += 2;
@@ -734,10 +734,10 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 
             /* Data is here!!! */
             *data_offset = offset;
-            return TRUE;
+            return true;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
 }
@@ -747,16 +747,16 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
    - parsing the primitive header
    - passing those values + outhdeader to dissector
    - calling the UMTS RLC dissector */
-static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
+static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             gboolean is_sent, guint *outhdr_values,
-                             guint outhdr_values_found)
+                             bool is_sent, unsigned *outhdr_values,
+                             unsigned outhdr_values_found)
 {
-    guint8              tag;
-    gboolean            ueid_set        = FALSE, rbid_set=FALSE;
-    guint32             ueid            = 0;
-    guint8              rbid            = 0;
-    guint8              length;
+    uint8_t             tag;
+    bool                ueid_set        = false, rbid_set=false;
+    uint32_t            ueid            = 0;
+    uint8_t             rbid            = 0;
+    uint8_t             length;
     tvbuff_t           *rlc_tvb;
     dissector_handle_t  rlc_umts_handle = 0;
 
@@ -781,14 +781,14 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
                 offset += 2;
                 proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                ueid_set = TRUE;
+                ueid_set = true;
                 break;
             case 0xa2:  /* RBID */
                 offset++;  /* skip length */
                 rbid = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_catapult_dct2000_rbid, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
-                rbid_set = TRUE;
+                rbid_set = true;
                 break;
             case 0x22:  /* CCCH-id setting rbid to CCCH! */
                 offset++;  /* skip length */
@@ -883,9 +883,9 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
     }
 }
 
-static char* get_key(tvbuff_t*tvb, gint offset)
+static char* get_key(tvbuff_t*tvb, int offset)
 {
-    static gchar key[33];
+    static char key[33];
     for (int n=0; n < 16; n++) {
         snprintf(&key[n*2], 33-(n*2), "%02x", tvb_get_guint8(tvb, offset+n));
     }
@@ -895,17 +895,17 @@ static char* get_key(tvbuff_t*tvb, gint offset)
 
 /* Dissect an RRC LTE or NR frame by first parsing the header entries then passing
    the data to the RRC dissector, according to direction and channel type. */
-static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
+static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
                                enum LTE_or_NR lte_or_nr)
 {
-    guint8              opcode, tag;
+    uint8_t             opcode, tag;
     dissector_handle_t  protocol_handle = 0;
-    gboolean            isUplink        = FALSE;
+    bool                isUplink        = false;
     LogicalChannelType  logicalChannelType;
-    guint16             cell_id;
-    guint8              bcch_transport  = 0;
-    guint32             ueid = 0;
+    uint16_t            cell_id;
+    uint8_t             bcch_transport  = 0;
+    uint32_t            ueid = 0;
     tvbuff_t           *rrc_tvb;
 
     /* Top-level opcode */
@@ -914,13 +914,13 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
         case 0x00:    /* Data_Req_UE */
         case 0x05:    /* Data_Req_UE_SM */
         case 0x04:    /* Data_Ind_eNodeB */
-            isUplink = TRUE;
+            isUplink = true;
             break;
 
         case 0x02:    /* Data_Req_eNodeB */
         case 0x03:    /* Data_Ind_UE */
         case 0x07:    /* Data_Ind_UE_SM */
-            isUplink = FALSE;
+            isUplink = false;
             break;
 
         default:
@@ -1066,7 +1066,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
         /* Data_Req_UE_SM - SecurityMode Params */
         /* N.B. DRB keys do not get configured here.. */
         offset++;  /* tag */
-        guint8 len = tvb_get_guint8(tvb, offset++); /* length */
+        uint8_t len = tvb_get_guint8(tvb, offset++); /* length */
 
         /* Uplink Sec Mode */
         proto_item *sc_ti;
@@ -1074,12 +1074,12 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
         sc_ti = proto_tree_add_item(tree, hf_catapult_dct2000_security_mode_params, tvb, offset, len, ENC_NA);
         sc_tree = proto_item_add_subtree(sc_ti, ett_catapult_dct2000_security_mode_params);
 
-        guint32 uplink_sec_mode;
+        uint32_t uplink_sec_mode;
         proto_tree_add_item_ret_uint(sc_tree, hf_catapult_dct2000_uplink_sec_mode,
                                      tvb, offset++, 1, ENC_BIG_ENDIAN, &uplink_sec_mode);
 
         /* Downlink Sec Mode */
-        guint32 downlink_sec_mode;
+        uint32_t downlink_sec_mode;
         proto_tree_add_item_ret_uint(sc_tree, hf_catapult_dct2000_downlink_sec_mode,
                                      tvb, offset++, 1, ENC_BIG_ENDIAN, &downlink_sec_mode);
 
@@ -1097,7 +1097,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
 
             /* Optional cryptParams */
             if (tag == 0x2) {
-                guint32 cipher_algorithm;
+                uint32_t cipher_algorithm;
 
                 len = tvb_get_guint8(tvb, offset++);
 
@@ -1112,7 +1112,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                     offset += 2;
                     proto_tree_add_item(sc_tree, hf_catapult_dct2000_ciphering_key,
                                         tvb, offset, 16, ENC_NA);
-                    gchar *key = get_key(tvb, offset);
+                    char *key = get_key(tvb, offset);
 
                     if (!PINFO_FD_VISITED(pinfo)) {
                         if (lte_or_nr == NR) {
@@ -1130,7 +1130,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
             }
 
             /* Now should be Auth params (required) */
-            guint32 integrity_algorithm;
+            uint32_t integrity_algorithm;
             /* Skip tag */
             offset++;
 
@@ -1147,7 +1147,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                 offset += 2;
                 proto_tree_add_item(sc_tree, hf_catapult_dct2000_integrity_key,
                                     tvb, offset, 16, ENC_NA);
-                gchar *key = get_key(tvb, offset);
+                char *key = get_key(tvb, offset);
 
                 if (!PINFO_FD_VISITED(pinfo)) {
                     if (lte_or_nr == NR) {
@@ -1286,14 +1286,14 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
    "C" in "CCPRI"?  And why is the LAPB dissector involved here?  The CPRI
    spec just speaks of HDLC; LAPB is certainly a HDLC-based protocol, but
    that doesn't mean every HDLC-based protocol is LAPB. */
-static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
+static void dissect_ccpri_lte(tvbuff_t *tvb, int offset,
                               packet_info *pinfo, proto_tree *tree)
 {
-    guint8              opcode;
-    guint8              tag;
+    uint8_t             opcode;
+    uint8_t             tag;
     tvbuff_t           *ccpri_tvb;
     dissector_handle_t  protocol_handle = 0;
-    guint16             length;
+    uint16_t            length;
 
     /* Top-level opcode */
     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1310,7 +1310,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
     /* Status (ind only) */
     if (opcode == 2) {
         proto_item *ti;
-        guint8 status = tvb_get_guint8(tvb, offset);
+        uint8_t status = tvb_get_guint8(tvb, offset);
         ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_status,
                                  tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -1353,15 +1353,15 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
 
 /* Dissect a PDCP LTE frame by first parsing the RLCPrim header then passing
    the data to the PDCP LTE dissector */
-static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
+static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree)
 {
-    guint8                opcode;
-    guint8                tag;
+    uint8_t               opcode;
+    uint8_t               tag;
     struct pdcp_lte_info *p_pdcp_lte_info;
     tvbuff_t             *pdcp_lte_tvb;
-    guint16               ueid;
-    guint8                channelId;
+    uint16_t              ueid;
+    uint8_t               channelId;
 
     /* Look this up so can update channel info */
     p_pdcp_lte_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
@@ -1641,7 +1641,7 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
 
 
 /* Populate outhdr_values array with numbers found in outhdr_string */
-static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_len, guint *outhdr_values)
+static unsigned parse_outhdr_string(const unsigned char *outhdr_string, int outhdr_string_len, unsigned *outhdr_values)
 {
     int   n                 = 0;
     int   outhdr_values_found;
@@ -1649,12 +1649,12 @@ static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; ) {
 
-        guint  digit_array[MAX_OUTHDR_VALUES];
-        guint  number_digits = 0;
+        unsigned  digit_array[MAX_OUTHDR_VALUES];
+        unsigned  number_digits = 0;
 
-        guint   number = 0;
-        guint   multiplier = 1;
-        guint   d;
+        unsigned   number = 0;
+        unsigned   multiplier = 1;
+        unsigned   d;
 
         /* Find digits */
         for ( ; (n < outhdr_string_len) && (number_digits < MAX_OUTHDR_VALUES); n++) {
@@ -1688,14 +1688,14 @@ static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string
 
 /* Fill in an FP packet info struct and attach it to the packet for the FP
    dissector to use */
-static void attach_fp_info(packet_info *pinfo, gboolean received,
+static void attach_fp_info(packet_info *pinfo, bool received,
                            const char *protocol_name, int variant,
-                           guint *outhdr_values, guint outhdr_values_found)
+                           unsigned *outhdr_values, unsigned outhdr_values_found)
 {
-    guint i = 0;
+    unsigned i = 0;
     int   chan;
-    guint tf_start, num_chans_start;
-    gint  node_type;
+    unsigned tf_start, num_chans_start;
+    int   node_type;
     int   calculated_variant;
 
     /* Only need to set info once per session. */
@@ -1917,9 +1917,9 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
 
 /* Fill in an RLC packet info struct and attach it to the packet for the RLC
    dissector to use */
-static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
-                            gboolean is_sent, guint *outhdr_values,
-                            guint outhdr_values_found)
+static void attach_rlc_info(packet_info *pinfo, uint32_t urnti, uint8_t rbid,
+                            bool is_sent, unsigned *outhdr_values,
+                            unsigned outhdr_values_found)
 {
     /* Only need to set info once per session. */
     struct fp_info  *p_fp_info;
@@ -1944,10 +1944,10 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
     p_rlc_info->ueid[0] = urnti;
 
     /* ciphered (off by default) */
-    p_rlc_info->ciphered[0] = FALSE;
+    p_rlc_info->ciphered[0] = false;
 
     /* deciphered (off by default) */
-    p_rlc_info->deciphered[0] = FALSE;
+    p_rlc_info->deciphered[0] = false;
 
     /* Mode. */
     switch (outhdr_values[1]) {
@@ -1962,11 +1962,11 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
             break;
         case 4:
             p_rlc_info->mode[0] = RLC_UM;
-            p_rlc_info->ciphered[0] = TRUE;
+            p_rlc_info->ciphered[0] = true;
             break;
         case 5:
             p_rlc_info->mode[0] = RLC_AM;
-            p_rlc_info->ciphered[0] = TRUE;
+            p_rlc_info->ciphered[0] = true;
             break;
         default:
             return;
@@ -1993,7 +1993,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
 
 /* Fill in a MAC LTE packet info struct and attach it to the packet for that
    dissector to use */
-static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint outhdr_values_found)
+static void attach_mac_lte_info(packet_info *pinfo, unsigned *outhdr_values, unsigned outhdr_values_found)
 {
     struct mac_lte_info *p_mac_lte_info;
     unsigned int         i = 0;
@@ -2008,20 +2008,20 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
     p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
 
     /* Populate the struct from outhdr values */
-    p_mac_lte_info->crcStatusValid = FALSE;  /* not set yet */
+    p_mac_lte_info->crcStatusValid = false;  /* not set yet */
 
     p_mac_lte_info->radioType = outhdr_values[i++] + 1;        // 1
     p_mac_lte_info->rntiType = outhdr_values[i++];             // 2
     p_mac_lte_info->direction = outhdr_values[i++];            // 3
-    /* Set these extra PHY present flags to FALSE by default */
+    /* Set these extra PHY present flags to false by default */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
-        p_mac_lte_info->detailed_phy_info.ul_info.present = FALSE;
+        p_mac_lte_info->detailed_phy_info.ul_info.present = false;
     }
     else {
-        p_mac_lte_info->detailed_phy_info.dl_info.present = FALSE;
+        p_mac_lte_info->detailed_phy_info.dl_info.present = false;
     }
 
-    p_mac_lte_info->sfnSfInfoPresent = TRUE;
+    p_mac_lte_info->sfnSfInfoPresent = true;
     p_mac_lte_info->subframeNumber = outhdr_values[i++];       // 4
     p_mac_lte_info->isPredefinedData = outhdr_values[i++];     // 5
     p_mac_lte_info->rnti = outhdr_values[i++];                 // 6
@@ -2034,7 +2034,7 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
     if (outhdr_values_found == 10) {
         /* CRC only valid for Downlink */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
-            p_mac_lte_info->crcStatusValid = TRUE;
+            p_mac_lte_info->crcStatusValid = true;
             p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++]; // 10
         }
         else {
@@ -2056,7 +2056,7 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
             p_mac_lte_info->dl_retx = (outhdr_values[i++]) ? dl_retx_yes : dl_retx_no;  // 16
 
             p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++]; // 17
-            p_mac_lte_info->crcStatusValid = TRUE;                                                // 18
+            p_mac_lte_info->crcStatusValid = true;                                                // 18
             p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++];
             if (outhdr_values_found > 18) {
                 p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];    // 19
@@ -2078,14 +2078,14 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
 
             /* TODO: delete if won't see this special case anymore? */
             if (outhdr_values_found == 16) {
-                p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
+                p_mac_lte_info->subframeNumberOfGrantPresent = true;
                 p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];   // 16
             }
             if (outhdr_values_found > 16) {
                 p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++]; // 16
                 p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];     // 17
 
-                p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
+                p_mac_lte_info->subframeNumberOfGrantPresent = true;
                 p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];             // 18
             }
         }
@@ -2104,7 +2104,7 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
 
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         /* R10 parameter not set yet */
-        p_mac_lte_info->isExtendedBSRSizes = FALSE;
+        p_mac_lte_info->isExtendedBSRSizes = false;
     }
 
     if (i < outhdr_values_found) {
@@ -2128,8 +2128,8 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
 
 /* Fill in a RLC LTE packet info struct and attach it to the packet for that
    dissector to use */
-static void attach_rlc_lte_info(packet_info *pinfo, guint *outhdr_values,
-                                guint outhdr_values_found _U_)
+static void attach_rlc_lte_info(packet_info *pinfo, unsigned *outhdr_values,
+                                unsigned outhdr_values_found _U_)
 {
     struct rlc_lte_info *p_rlc_lte_info;
     unsigned int         i = 0;
@@ -2158,8 +2158,8 @@ static void attach_rlc_lte_info(packet_info *pinfo, guint *outhdr_values,
 
 /* Fill in a PDCP LTE packet info struct and attach it to the packet for the PDCP LTE
    dissector to use */
-static void attach_pdcp_lte_info(packet_info *pinfo, guint *outhdr_values,
-                                 guint outhdr_values_found _U_)
+static void attach_pdcp_lte_info(packet_info *pinfo, unsigned *outhdr_values,
+                                 unsigned outhdr_values_found _U_)
 {
     struct pdcp_lte_info *p_pdcp_lte_info;
     unsigned int          i = 0;
@@ -2199,7 +2199,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo, guint *outhdr_values,
 /* Attempt to show tty (raw character messages) as text lines. */
 static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    gint        next_offset;
+    int         next_offset;
     proto_tree *tty_tree;
     proto_item *ti;
     int         lines = 0;
@@ -2263,15 +2263,15 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                                          const char *string)
 {
-    guint                number_of_ues;
-    guint                ueids[MAX_SRs];
-    guint                rntis[MAX_SRs];
-    guint                rapid;
-    guint                rach_attempt_number;
-    guint                temp;
+    unsigned             number_of_ues;
+    unsigned             ueids[MAX_SRs];
+    unsigned             rntis[MAX_SRs];
+    unsigned             rapid;
+    unsigned             rach_attempt_number;
+    unsigned             temp;
     mac_lte_oob_event    oob_event;
     struct mac_lte_info *p_mac_lte_info;
-    guint16              n;
+    uint16_t             n;
 
     /* Current strings of interest begin with ">> ", so if don't see, avoid sscanf() calls. */
     if (strncmp(string, ">> ", 3) != 0) {
@@ -2362,7 +2362,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     }
 
     p_mac_lte_info->radioType = FDD_RADIO; /* TODO: will be the same as rest of log... */
-    p_mac_lte_info->sfnSfInfoPresent = FALSE;  /* We don't have this */
+    p_mac_lte_info->sfnSfInfoPresent = false;  /* We don't have this */
     p_mac_lte_info->oob_event = oob_event;
 
     /* Store info in packet */
@@ -2372,8 +2372,8 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     call_dissector_only(mac_lte_handle, tvb, pinfo, tree, NULL);
 }
 
-static guint8
-hex_from_char(gchar c)
+static uint8_t
+hex_from_char(char c)
 {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
@@ -2396,19 +2396,19 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     proto_tree         *dct2000_tree = NULL;
     proto_item         *ti           = NULL;
-    gint                offset       = 0;
-    gint                context_length;
+    int                 offset       = 0;
+    int                 context_length;
     const char         *context_name;
-    guint8              port_number;
-    gint                protocol_length;
-    gint                timestamp_length;
+    uint8_t             port_number;
+    int                 protocol_length;
+    int                 timestamp_length;
     const char         *timestamp_string;
-    gint                variant_length;
+    int                 variant_length;
     const char         *variant_string;
-    guint32             variant;
-    gint                outhdr_length;
+    uint32_t            variant;
+    int                 outhdr_length;
     const char         *outhdr_string;
-    guint8              direction;
+    uint8_t             direction;
     tvbuff_t           *next_tvb;
     int                 encap;
     dissector_handle_t  protocol_handle = 0;
@@ -2416,9 +2416,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     void               *protocol_data = 0;
     int                 sub_dissector_result = 0;
     const char         *protocol_name;
-    gboolean            is_comment, is_sprint = FALSE;
-    guint               outhdr_values[MAX_OUTHDR_VALUES];
-    guint               outhdr_values_found;
+    bool                is_comment, is_sprint = false;
+    unsigned            outhdr_values[MAX_OUTHDR_VALUES];
+    unsigned            outhdr_values_found;
 
     /* Set Protocol */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
@@ -2604,8 +2604,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
              (strcmp(protocol_name, "nas_rrc_r10_lte") == 0) ||
              (strcmp(protocol_name, "nas_rrc_r13_lte") == 0) ||
              (strcmp(protocol_name, "nas_rrc_r15_5gnr") == 0)) {
-        gboolean nas_body_found = TRUE;
-        guint8 opcode = tvb_get_guint8(tvb, offset);
+        bool nas_body_found = true;
+        uint8_t opcode = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_opcode,
                             tvb, offset++, 1, ENC_BIG_ENDIAN);
 
@@ -2654,7 +2654,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 break;
 
             default:
-                nas_body_found = FALSE;
+                nas_body_found = false;
                 break;
         }
 
@@ -2672,7 +2672,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     /* NR NAS for S1AP */
     else if (strcmp(protocol_name, "nas_s1ap_r15_5gnr") == 0) {
-        guint8 opcode = tvb_get_guint8(tvb, offset);
+        uint8_t opcode = tvb_get_guint8(tvb, offset);
         if (opcode <= NAS_S1AP_DATA_IND) {
             /* Opcode tag (only interested in ones that carry NAS PDU) */
             proto_tree_add_item(tree, hf_catapult_dct2000_nr_nas_s1ap_opcode,
@@ -2688,7 +2688,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             offset += 4;
 
             /* NAS PDU tag is 2 bytes */
-            guint16 data_tag = tvb_get_ntohs(tvb, offset);
+            uint16_t data_tag = tvb_get_ntohs(tvb, offset);
             if (data_tag == 0x0021) {
                 offset += 2;
                 /* Also skip length */
@@ -2855,7 +2855,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             if (strcmp(protocol_name, "comment") == 0) {
                 /* Extract & add the string. */
                 proto_item *string_ti;
-                const guint8 *string;
+                const uint8_t *string;
 
                 /* Show comment string */
                 string_ti = proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_comment, tvb,
@@ -2929,12 +2929,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
                     p_mac_nr_info->ueid = ueid;
 
-                    p_mac_nr_info->phr_type2_othercell = FALSE;
+                    p_mac_nr_info->phr_type2_othercell = false;
 
                     p_mac_nr_info->length = length;
 
                     /* Always present. TODO: miss out if both zero? */
-                    p_mac_nr_info->sfnSlotInfoPresent = TRUE;
+                    p_mac_nr_info->sfnSlotInfoPresent = true;
                     p_mac_nr_info->sysframeNumber = sfn;
                     p_mac_nr_info->slotNumber = sn;  /* only right if mu==0, but don't know SCS */
 
@@ -2979,7 +2979,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     /* Pad out to nearest 4 bytes if necessary. */
                     /* Convert data to hex. */
                     #define MAX_NRUP_DATA_LENGTH 200
-                    static guint8 nrup_data[MAX_NRUP_DATA_LENGTH];
+                    static uint8_t nrup_data[MAX_NRUP_DATA_LENGTH];
                     int idx, m;
 
                     /* The rest (or all) is data! */
@@ -3005,7 +3005,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* Read key info from formatted lines */
                 /* e.g. NRPDCP: RRCPRIM:ueId=   1;setThreadAuthKey: RRC id=1 alg 2 key: 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 */
                 if (strstr(string, "setThreadAuthKey:")) {
-                    guint ue_id, id, alg;
+                    unsigned ue_id, id, alg;
                     if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadAuthKey: RRC id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
                         char *key = g_strdup(strstr(string, "key: ")+5);
                         set_pdcp_nr_rrc_integrity_key(ue_id, key, pinfo->num);
@@ -3018,7 +3018,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
                 }
                 else if (strstr(string, "setThreadCryptKey:")) {
-                    guint ue_id, id, alg;
+                    unsigned ue_id, id, alg;
                     if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadCryptKey: RRC id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
                         char *key = g_strdup(strstr(string, "key: ")+5);
                         set_pdcp_nr_rrc_ciphering_key(ue_id, key, pinfo->num);
@@ -3055,7 +3055,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
 
                     /* Convert data to hex. */
-                    static guint8 eth_data[36000];
+                    static uint8_t eth_data[36000];
                     int idx, m;
                     for (idx=0, m=data_offset+1; idx<36000 && string[m] != '\0'; m+=2, idx++) {
                         eth_data[idx] = (hex_from_char(string[m]) << 4) + hex_from_char(string[m+1]);
@@ -3079,7 +3079,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             else
             if (strcmp(protocol_name, "sprint") == 0) {
                 /* Extract & add the string. */
-                const guint8 *string;
+                const uint8_t *string;
 
                 /* Show sprint string */
                 proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_sprint, tvb,
@@ -3130,11 +3130,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             */
 
             if (!protocol_handle && catapult_dct2000_try_ipprim_heuristic) {
-                guint32      source_addr_offset = 0, dest_addr_offset = 0;
-                guint8       source_addr_length = 0, dest_addr_length = 0;
-                guint32      source_port_offset = 0, dest_port_offset = 0;
+                uint32_t     source_addr_offset = 0, dest_addr_offset = 0;
+                uint8_t      source_addr_length = 0, dest_addr_length = 0;
+                uint32_t     source_port_offset = 0, dest_port_offset = 0;
                 port_type    type_of_port = PT_NONE;
-                guint16      conn_id_offset = 0;
+                uint16_t     conn_id_offset = 0;
                 int          offset_before_ipprim_header = offset;
 
                 /* For ipprim, want to show ipprim header even if can't find dissector to call for payload.. */
@@ -3311,9 +3311,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             /* Try SCTP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_sctpprim_heuristic) {
-                guint32      dest_addr_offset = 0;
-                guint16      dest_addr_length = 0;
-                guint32      dest_port_offset = 0;
+                uint32_t     dest_addr_offset = 0;
+                uint16_t     dest_addr_length = 0;
+                uint32_t     dest_port_offset = 0;
                 int          offset_before_sctpprim_header = offset;
 
                 heur_protocol_handle = look_for_dissector(protocol_name);
@@ -3968,7 +3968,7 @@ void proto_register_catapult_dct2000(void)
         }
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_catapult_dct2000,
         &ett_catapult_dct2000_ipprim,

@@ -114,93 +114,93 @@ void proto_reg_handoff_cemi(void);
 /* Initialize the protocol identifier that is needed for the
  protocol hook and to register the fields in the protocol tree
 */
-static gint proto_cemi;
+static int proto_cemi;
 
 /* Initialize the registered fields identifiers. These fields
  will be registered with the protocol during initialization.
  Protocol fields are like type definitions. The protocol dissector
  later on adds items of these types to the protocol tree.
 */
-static gint hf_bytes;
-static gint hf_folder;
-static gint hf_cemi_mc;
-static gint hf_cemi_error;
-static gint hf_cemi_ai_length;
-static gint hf_cemi_aie_type;
-static gint hf_cemi_aie_length;
-static gint hf_cemi_ot;
-static gint hf_cemi_oi;
-static gint hf_cemi_ox;
-static gint hf_cemi_px;
-static gint hf_cemi_pid;
-static gint hf_cemi_ne;
-static gint hf_cemi_sx;
-static gint hf_cemi_ft;
-static gint hf_cemi_rep;
-static gint hf_cemi_bt;
-static gint hf_cemi_prio;
-static gint hf_cemi_ack;
-static gint hf_cemi_ce;
-static gint hf_cemi_at;
-static gint hf_cemi_hc;
-static gint hf_cemi_eff;
-static gint hf_cemi_sa;
-static gint hf_cemi_da;
-static gint hf_cemi_len;
-static gint hf_cemi_tpt;
-static gint hf_cemi_tst;
-static gint hf_cemi_num;
-static gint hf_cemi_tc;
-static gint hf_cemi_ac;
-static gint hf_cemi_ad;
-static gint hf_cemi_ad_memory_length;
-static gint hf_cemi_ad_channel;
-static gint hf_cemi_ad_type;
-static gint hf_cemi_ax;
-static gint hf_cemi_pw;
-static gint hf_cemi_pdt;
-static gint hf_cemi_me;
-static gint hf_cemi_ra;
-static gint hf_cemi_wa;
-static gint hf_cemi_ext_oi;
-static gint hf_cemi_ext_pid;
-static gint hf_cemi_ext_ne;
-static gint hf_cemi_ext_sx;
-static gint hf_cemi_ext_dt;
-static gint hf_cemi_ext_px;
-static gint hf_cemi_ext_memory_length;
-static gint hf_cemi_ext_memory_address;
-static gint hf_cemi_memory_length;
-static gint hf_cemi_memory_address;
-static gint hf_cemi_memory_address_ext;
-static gint hf_cemi_level;
-static gint hf_cemi_snp_pid;
-static gint hf_cemi_snp_reserved;
-static gint hf_cemi_dpt_major;
-static gint hf_cemi_dpt_minor;
-static gint hf_cemi_scf;
-static gint hf_cemi_scf_t;
-static gint hf_cemi_scf_sai;
-static gint hf_cemi_scf_sbc;
-static gint hf_cemi_scf_svc;
-static gint hf_cemi_adc_count;
+static int hf_bytes;
+static int hf_folder;
+static int hf_cemi_mc;
+static int hf_cemi_error;
+static int hf_cemi_ai_length;
+static int hf_cemi_aie_type;
+static int hf_cemi_aie_length;
+static int hf_cemi_ot;
+static int hf_cemi_oi;
+static int hf_cemi_ox;
+static int hf_cemi_px;
+static int hf_cemi_pid;
+static int hf_cemi_ne;
+static int hf_cemi_sx;
+static int hf_cemi_ft;
+static int hf_cemi_rep;
+static int hf_cemi_bt;
+static int hf_cemi_prio;
+static int hf_cemi_ack;
+static int hf_cemi_ce;
+static int hf_cemi_at;
+static int hf_cemi_hc;
+static int hf_cemi_eff;
+static int hf_cemi_sa;
+static int hf_cemi_da;
+static int hf_cemi_len;
+static int hf_cemi_tpt;
+static int hf_cemi_tst;
+static int hf_cemi_num;
+static int hf_cemi_tc;
+static int hf_cemi_ac;
+static int hf_cemi_ad;
+static int hf_cemi_ad_memory_length;
+static int hf_cemi_ad_channel;
+static int hf_cemi_ad_type;
+static int hf_cemi_ax;
+static int hf_cemi_pw;
+static int hf_cemi_pdt;
+static int hf_cemi_me;
+static int hf_cemi_ra;
+static int hf_cemi_wa;
+static int hf_cemi_ext_oi;
+static int hf_cemi_ext_pid;
+static int hf_cemi_ext_ne;
+static int hf_cemi_ext_sx;
+static int hf_cemi_ext_dt;
+static int hf_cemi_ext_px;
+static int hf_cemi_ext_memory_length;
+static int hf_cemi_ext_memory_address;
+static int hf_cemi_memory_length;
+static int hf_cemi_memory_address;
+static int hf_cemi_memory_address_ext;
+static int hf_cemi_level;
+static int hf_cemi_snp_pid;
+static int hf_cemi_snp_reserved;
+static int hf_cemi_dpt_major;
+static int hf_cemi_dpt_minor;
+static int hf_cemi_scf;
+static int hf_cemi_scf_t;
+static int hf_cemi_scf_sai;
+static int hf_cemi_scf_sbc;
+static int hf_cemi_scf_svc;
+static int hf_cemi_adc_count;
 
 /* Initialize the subtree pointers. These pointers are needed to
  display the protocol in a structured tree. Subtrees hook on
  already defined fields or (the topmost) on the protocol itself
 */
-static gint ett_cemi;
-static gint ett_cemi_ai;
-static gint ett_cemi_aie;
-static gint ett_cemi_ctrl1;
-static gint ett_cemi_ctrl2;
-static gint ett_cemi_tpci;
-static gint ett_cemi_apci;
-static gint ett_cemi_range;
-static gint ett_cemi_pd;
-static gint ett_cemi_dpt;
-static gint ett_cemi_scf;
-static gint ett_cemi_decrypted;
+static int ett_cemi;
+static int ett_cemi_ai;
+static int ett_cemi_aie;
+static int ett_cemi_ctrl1;
+static int ett_cemi_ctrl2;
+static int ett_cemi_tpci;
+static int ett_cemi_apci;
+static int ett_cemi_range;
+static int ett_cemi_pd;
+static int ett_cemi_dpt;
+static int ett_cemi_scf;
+static int ett_cemi_decrypted;
 
 /* - - - - - - - - - - -  V A L U E   T A B L E S  - - - - - - - - - - - -
 */
@@ -874,8 +874,8 @@ static const value_string pid17_vals[] = {
 
 /* Add raw data to list view, tree view, and parent folder
 */
-static proto_item* proto_tree_add_data( proto_tree* tree, tvbuff_t* tvb, gint offset, gint length, column_info* cinfo, proto_item* item,
-  const gchar* name, const gchar* text1, const gchar* text2 )
+static proto_item* proto_tree_add_data( proto_tree* tree, tvbuff_t* tvb, int offset, int length, column_info* cinfo, proto_item* item,
+  const char* name, const char* text1, const char* text2 )
 {
   proto_item* new_item = proto_tree_add_bytes_format( tree, hf_bytes, tvb, offset, length, NULL, "%s: $", name );
   if( text1 ) col_append_str( cinfo, COL_INFO, text1 );
@@ -883,7 +883,7 @@ static proto_item* proto_tree_add_data( proto_tree* tree, tvbuff_t* tvb, gint of
 
   while( length > 0 )
   {
-    guint8 value = tvb_get_guint8( tvb, offset );
+    uint8_t value = tvb_get_guint8( tvb, offset );
     if( text1 ) col_append_fstr( cinfo, COL_INFO, "%02X", value );
     if( text2 ) proto_item_append_text( item, "%02X", value );
     proto_item_append_text( new_item, " %02X", value );
@@ -894,7 +894,7 @@ static proto_item* proto_tree_add_data( proto_tree* tree, tvbuff_t* tvb, gint of
   return new_item;
 }
 
-static const gchar* get_pid_name( gint ot, gint pid )
+static const char* get_pid_name( int ot, int pid )
 {
   if( pid <= 50 )
   {
@@ -939,28 +939,28 @@ static const gchar* get_pid_name( gint ot, gint pid )
 
 /* Decrypt data security APDU with a specific key.
 */
-static const guint8* decrypt_data_security_data_with_key( wmem_allocator_t *pool, const guint8* key, const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size )
+static const uint8_t* decrypt_data_security_data_with_key( wmem_allocator_t *pool, const uint8_t* key, const uint8_t* encrypted, int encrypted_size, const uint8_t* cemi, int cemi_size )
 {
-  guint8 ctr_0[ KNX_KEY_LENGTH ];
-  guint8 b_0[ KNX_KEY_LENGTH ];
-  guint8 mac[ KNX_KEY_LENGTH ];
-  guint8* a_bytes = 0;
-  const guint8* p_bytes = NULL;
-  gint a_length = 0;
-  gint p_length = 0;
+  uint8_t ctr_0[ KNX_KEY_LENGTH ];
+  uint8_t b_0[ KNX_KEY_LENGTH ];
+  uint8_t mac[ KNX_KEY_LENGTH ];
+  uint8_t* a_bytes = 0;
+  const uint8_t* p_bytes = NULL;
+  int a_length = 0;
+  int p_length = 0;
 
-  guint8* decrypted = NULL;
+  uint8_t* decrypted = NULL;
 
   if( encrypted_size > 4 )  // contains 4 bytes MAC
   {
     if( cemi_size >= 2 )
     {
-      gint additionalInfoLength = cemi[ 1 ];
-      gint offsetToData = additionalInfoLength + 11;
+      int additionalInfoLength = cemi[ 1 ];
+      int offsetToData = additionalInfoLength + 11;
       if( offsetToData + 6 <= cemi_size )
       {
         /* 1 byte Security Control Field */
-        guint8 scf = cemi[ offsetToData ];
+        uint8_t scf = cemi[ offsetToData ];
 
         // Get A and P.
         if( (scf & 0x30) == 0x10 ) // A+C
@@ -985,7 +985,7 @@ static const guint8* decrypt_data_security_data_with_key( wmem_allocator_t *pool
         b_0[ 12 ] = cemi[ additionalInfoLength + 9 ]; // TPCI + ApciSec
         b_0[ 13 ] = cemi[ additionalInfoLength + 10 ];
         b_0[ 14 ] = 0;
-        b_0[ 15 ] = (guint8) p_length;
+        b_0[ 15 ] = (uint8_t) p_length;
 
         // Build ctr_0.
         ctr_0[ 0 ] = cemi[ offsetToData + 1 ]; // SeqNr
@@ -1007,7 +1007,7 @@ static const guint8* decrypt_data_security_data_with_key( wmem_allocator_t *pool
 
         decrypted = knx_ccm_encrypt( 0, key, p_bytes, p_length, encrypted + encrypted_size - 4, 4, ctr_0, 4 );
 
-        a_bytes = (guint8*) wmem_alloc( pool, encrypted_size );
+        a_bytes = (uint8_t*) wmem_alloc( pool, encrypted_size );
         if( (scf & 0x30) == 0x10 ) // A+C
         {
           a_bytes[ 0 ] = scf;
@@ -1042,28 +1042,28 @@ static const guint8* decrypt_data_security_data_with_key( wmem_allocator_t *pool
 */
 struct data_security_info
 {
-  guint16 source;       // KNX source address
-  guint16 dest;         // KNX source address
-  guint8 multicast;     // KNX multicast (group addressed)?
-  guint64 seq_nr;       // 6-byte data security sequence number
-  gchar output_text[ 128 ];  // buffer for diagnostic output text
+  uint16_t source;       // KNX source address
+  uint16_t dest;         // KNX source address
+  uint8_t multicast;     // KNX multicast (group addressed)?
+  uint64_t seq_nr;       // 6-byte data security sequence number
+  char output_text[ 128 ];  // buffer for diagnostic output text
 };
 
 /* Decrypt data security APDU.
 */
-static const guint8* decrypt_data_security_data( wmem_allocator_t *pool, const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size, struct data_security_info* info )
+static const uint8_t* decrypt_data_security_data( wmem_allocator_t *pool, const uint8_t* encrypted, int encrypted_size, const uint8_t* cemi, int cemi_size, struct data_security_info* info )
 {
-  const guint8* key = NULL;
-  const guint8* decrypted = NULL;
-  guint8 keys_found = 0;
+  const uint8_t* key = NULL;
+  const uint8_t* decrypted = NULL;
+  uint8_t keys_found = 0;
 
   // Get context info
-  guint16 source = info->source;
-  guint16 dest = info->dest;
-  guint8 multicast = info->multicast;
+  uint16_t source = info->source;
+  uint16_t dest = info->dest;
+  uint8_t multicast = info->multicast;
 
-  gchar* output = info->output_text;
-  gint output_max = sizeof info->output_text;
+  char* output = info->output_text;
+  int output_max = sizeof info->output_text;
   snprintf( output, output_max, "with " );
   while( *output ) { ++output; --output_max; }
 
@@ -1139,7 +1139,7 @@ static const guint8* decrypt_data_security_data( wmem_allocator_t *pool, const g
   if( !decrypted && knx_decryption_key_count )
   {
     // Try all explicitly specified keys
-    guint8 key_index;
+    uint8_t key_index;
 
     for( key_index = 0; key_index < knx_decryption_key_count; ++key_index )
     {
@@ -1156,7 +1156,7 @@ static const guint8* decrypt_data_security_data( wmem_allocator_t *pool, const g
 
   if( decrypted )
   {
-    guint8 count;
+    uint8_t count;
 
     snprintf( output, output_max, "key" );
 
@@ -1176,13 +1176,13 @@ static const guint8* decrypt_data_security_data( wmem_allocator_t *pool, const g
 
 /* Dissect Object Index (1 byte)
 */
-static guint8 dissect_ox( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, gint *p_offset, gint end_pos, guint8 *p_error )
+static uint8_t dissect_ox( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, int *p_offset, int end_pos, uint8_t *p_error )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
 
   if( offset < end_pos )
   {
-    guint8 ox = tvb_get_guint8( tvb, offset );
+    uint8_t ox = tvb_get_guint8( tvb, offset );
     column_info *cinfo = pinfo->cinfo;
 
     col_append_fstr( cinfo, COL_INFO, " OX=%u", ox );
@@ -1205,13 +1205,13 @@ static guint8 dissect_ox( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, p
 
 /* Dissect Object Type (2 bytes)
 */
-static guint16 dissect_ot( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, gint *p_offset, gint end_pos, guint8 *p_error )
+static uint16_t dissect_ot( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, int *p_offset, int end_pos, uint8_t *p_error )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
 
   if( offset + 1 < end_pos )
   {
-    guint16 ot = tvb_get_ntohs( tvb, offset );
+    uint16_t ot = tvb_get_ntohs( tvb, offset );
     column_info *cinfo = pinfo->cinfo;
 
     col_append_fstr( cinfo, COL_INFO, " OT=%u", ot );
@@ -1238,15 +1238,15 @@ static guint16 dissect_ot( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
 
 /* Dissect Property Identifier (1 byte)
 */
-static guint8 dissect_pid( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, gint *p_offset, gint end_pos, gint ot, guint8 show, guint8 *p_error )
+static uint8_t dissect_pid( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, int *p_offset, int end_pos, int ot, uint8_t show, uint8_t *p_error )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
 
   if( offset < end_pos )
   {
-    guint8 pid = tvb_get_guint8( tvb, offset );
+    uint8_t pid = tvb_get_guint8( tvb, offset );
     column_info *cinfo = pinfo->cinfo;
-    const gchar* name;
+    const char* name;
 
     if( pid || show )
     {
@@ -1280,13 +1280,13 @@ static guint8 dissect_pid( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
 
 /* Dissect Property Index (1 byte)
 */
-static guint8 dissect_px( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, gint *p_offset, gint end_pos, guint8 show, guint8 *p_error )
+static uint8_t dissect_px( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, int *p_offset, int end_pos, uint8_t show, uint8_t *p_error )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
 
   if( offset < end_pos )
   {
-    guint8 px = tvb_get_guint8( tvb, offset );
+    uint8_t px = tvb_get_guint8( tvb, offset );
 
     if( show )
     {
@@ -1314,10 +1314,10 @@ static guint8 dissect_px( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, p
 /* Dissect Property Range (2 bytes: Number Of Elements (4 bits), Start Index (12 bits))
   and subsequent Data
 */
-static void dissect_range( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, gint *p_offset, gint end_pos, guint8 pa_flags, guint8 *p_error )
+static void dissect_range( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, proto_tree *list, int *p_offset, int end_pos, uint8_t pa_flags, uint8_t *p_error )
 {
-  gint offset = *p_offset;
-  guint8 error = 0;
+  int offset = *p_offset;
+  uint8_t error = 0;
 
   if( offset + 1 >= end_pos )
   {
@@ -1331,8 +1331,8 @@ static void dissect_range( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
   {
     column_info *cinfo = pinfo->cinfo;
     proto_item *cemi_node = node;
-    guint16 sx = tvb_get_ntohs( tvb, offset );
-    guint8 ne = sx >> 12;
+    uint16_t sx = tvb_get_ntohs( tvb, offset );
+    uint8_t ne = sx >> 12;
     sx &= 0x0FFF;
 
     /* 4 bits Number Of Elements */
@@ -1381,7 +1381,7 @@ static void dissect_range( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
 
     /* Data */
     {
-      gint length = end_pos - offset;
+      int length = end_pos - offset;
       if( length > 0 )
       {
         node = proto_tree_add_data( list, tvb, offset, length, cinfo, cemi_node, "Data", " $", ", $" );
@@ -1426,11 +1426,11 @@ static void dissect_range( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
 
 /* Dissect Property Description: PDT (1 byte), Max Count (2 bytes), Access Levels (1 byte)
 */
-static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list, gint* p_offset, gint size, guint8* p_error )
+static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list, int* p_offset, int size, uint8_t* p_error )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
   column_info* cinfo = pinfo->cinfo;
-  guint8 error = 0;
+  uint8_t error = 0;
 
   /* 4 bytes Property Description */
   if( offset + 4 > size )
@@ -1444,14 +1444,14 @@ static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* c
   else
   {
     /* 1 bit Writability, 1 bit reserved, 6 bits Property Data Type */
-    guint8 pdt = tvb_get_guint8( tvb, offset );
-    guint8 writable = (pdt & 0x80) != 0;
+    uint8_t pdt = tvb_get_guint8( tvb, offset );
+    uint8_t writable = (pdt & 0x80) != 0;
     pdt &= 0x3F;
     col_append_fstr( cinfo, COL_INFO, " T=%u", pdt );
     proto_item_append_text( cemi_node, ", T=%u", pdt );
 
     /* 4 bits reserved, 12 bits Max Elements */
-    guint16 me = tvb_get_ntohs( tvb, offset + 1) & 0x0FFF;
+    uint16_t me = tvb_get_ntohs( tvb, offset + 1) & 0x0FFF;
     if( me != 1 )
     {
       col_append_fstr( cinfo, COL_INFO, " N=%u", me );
@@ -1459,8 +1459,8 @@ static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* c
     }
 
     /* 4 bits Read Access, 4 bits Write Access */
-    guint8 wa = tvb_get_guint8( tvb, offset + 3 );
-    guint8 ra = (wa & 0xF0) >> 4;
+    uint8_t wa = tvb_get_guint8( tvb, offset + 3 );
+    uint8_t ra = (wa & 0xF0) >> 4;
     wa &= 0x0F;
     col_append_fstr( cinfo, COL_INFO, " R=%u", ra );
     if( writable )
@@ -1474,7 +1474,7 @@ static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* c
       proto_item *pd_node = proto_tree_add_none_format( cemi_list, hf_folder, tvb, offset, 4, "Property Description: " );
       proto_tree *pd_list = proto_item_add_subtree( pd_node, ett_cemi_pd );
 
-      const gchar* pdt_name = try_val_to_str( pdt, pdt_vals );
+      const char* pdt_name = try_val_to_str( pdt, pdt_vals );
       if( pdt_name )
         proto_item_append_text( pd_node, "%s", pdt_name );
       else
@@ -1507,14 +1507,14 @@ static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* c
 
 /* Dissect OT (2 bytes), OI (12 bits), and PID (12 bits) for PropertyExt services
 */
-static void dissect_pid_ext( tvbuff_t *tvb, packet_info *pinfo, proto_item *cemi_node, proto_tree *cemi_list, gint *p_offset, gint size, guint8 *p_error )
+static void dissect_pid_ext( tvbuff_t *tvb, packet_info *pinfo, proto_item *cemi_node, proto_tree *cemi_list, int *p_offset, int size, uint8_t *p_error )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
   column_info* cinfo = pinfo->cinfo;
-  guint8 error = 0;
+  uint8_t error = 0;
 
   /* 2 bytes Object Type */
-  guint16 ot = dissect_ot( tvb, pinfo, cemi_node, cemi_list, &offset, size, &error );
+  uint16_t ot = dissect_ot( tvb, pinfo, cemi_node, cemi_list, &offset, size, &error );
 
   if( offset + 3 > size )
   {
@@ -1527,7 +1527,7 @@ static void dissect_pid_ext( tvbuff_t *tvb, packet_info *pinfo, proto_item *cemi
   else
   {
     /* 12 bits Object Instance */
-    guint16 cc = tvb_get_ntohs( tvb, offset ) >> 4;
+    uint16_t cc = tvb_get_ntohs( tvb, offset ) >> 4;
     col_append_fstr( cinfo, COL_INFO, " OI=%u", cc );
     proto_item_append_text( cemi_node, ", OI=%u", cc );
     proto_tree_add_item( cemi_list, hf_cemi_ext_oi, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -1541,7 +1541,7 @@ static void dissect_pid_ext( tvbuff_t *tvb, packet_info *pinfo, proto_item *cemi
     if( cemi_list )
     {
       proto_item* node = proto_tree_add_item( cemi_list, hf_cemi_ext_pid, tvb, offset, 2, ENC_BIG_ENDIAN );
-      const gchar* name = get_pid_name( ot, cc );
+      const char* name = get_pid_name( ot, cc );
       if( name )
       {
         proto_item_append_text( node, " = %s", name );
@@ -1562,14 +1562,14 @@ static void dissect_pid_ext( tvbuff_t *tvb, packet_info *pinfo, proto_item *cemi
 /* Dissect cEMI Management packet
   (M_PropRead.req, M_PropRead.con, M_PropWrite.req, M_PropWrite.con, M_PropInfo.ind, M_Reset.req, M_Reset.ind)
 */
-static void dissect_cemi_mgmt_packet( tvbuff_t* tvb, packet_info* pinfo, proto_item *cemi_node, proto_tree *cemi_list, guint8 mc, gint *p_offset, gint size, guint8* p_pa_flags, guint8 *p_error )
+static void dissect_cemi_mgmt_packet( tvbuff_t* tvb, packet_info* pinfo, proto_item *cemi_node, proto_tree *cemi_list, uint8_t mc, int *p_offset, int size, uint8_t* p_pa_flags, uint8_t *p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
-  guint8 min_size = 1;
+  uint8_t min_size = 1;
 
   switch( mc )
   {
@@ -1609,7 +1609,7 @@ static void dissect_cemi_mgmt_packet( tvbuff_t* tvb, packet_info* pinfo, proto_i
   if( min_size >= 5 )
   {
     /* 2 bytes Object Type */
-    guint16 ot = dissect_ot( tvb, pinfo, cemi_node, cemi_list, &offset, size, &error );
+    uint16_t ot = dissect_ot( tvb, pinfo, cemi_node, cemi_list, &offset, size, &error );
 
     /* 1 byte Object Instance */
     if( size < 4 )
@@ -1619,7 +1619,7 @@ static void dissect_cemi_mgmt_packet( tvbuff_t* tvb, packet_info* pinfo, proto_i
     }
     else
     {
-      guint8 oi = tvb_get_guint8( tvb, 3 );
+      uint8_t oi = tvb_get_guint8( tvb, 3 );
       if( oi != 1 )
       {
         col_append_fstr( cinfo, COL_INFO, " OI=%u", oi );
@@ -1649,12 +1649,12 @@ static void dissect_cemi_mgmt_packet( tvbuff_t* tvb, packet_info* pinfo, proto_i
 
 /* Dissect A_MemoryExt service */
 static void dissect_memory_ext_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  guint16 ax, gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint16_t ax, int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   /* 4 bytes Range (1 byte Memory Length, 3 bytes Memory Address) */
   if( offset + 4 > size )
@@ -1667,8 +1667,8 @@ static void dissect_memory_ext_service( tvbuff_t* tvb, packet_info* pinfo, proto
   else
   {
     /* 1 byte Memory Length or Error Code */
-    guint8 is_response = (ax == AX_MemExtReadResp || ax == AX_MemExtWriteResp);
-    guint8 n = tvb_get_guint8( tvb, offset );
+    uint8_t is_response = (ax == AX_MemExtReadResp || ax == AX_MemExtWriteResp);
+    uint8_t n = tvb_get_guint8( tvb, offset );
     if( is_response )
     {
       if( n != 0 )
@@ -1687,7 +1687,7 @@ static void dissect_memory_ext_service( tvbuff_t* tvb, packet_info* pinfo, proto
     }
 
     /* 3 bytes Memory Address */
-    guint32 x = tvb_get_guint24( tvb, offset + 1, ENC_BIG_ENDIAN );
+    uint32_t x = tvb_get_guint24( tvb, offset + 1, ENC_BIG_ENDIAN );
     col_append_fstr( cinfo, COL_INFO, " X=$%06" PRIX32, x );
     proto_item_append_text( cemi_node, ", X=$%06" PRIX32, x );
 
@@ -1712,12 +1712,12 @@ static void dissect_memory_ext_service( tvbuff_t* tvb, packet_info* pinfo, proto
 
 /* Dissect A_UserMemory service */
 static void dissect_user_memory_service( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
   proto_tree* list;
@@ -1732,9 +1732,9 @@ static void dissect_user_memory_service( tvbuff_t* tvb, packet_info* pinfo, prot
   }
   else
   {
-    guint8 c2 = tvb_get_guint8( tvb, offset );
-    guint8 c1 = c2 >> 4;
-    guint32 c3 = tvb_get_ntohs( tvb, offset + 1 );
+    uint8_t c2 = tvb_get_guint8( tvb, offset );
+    uint8_t c1 = c2 >> 4;
+    uint32_t c3 = tvb_get_ntohs( tvb, offset + 1 );
     c2 &= 0x0F;
     c3 |= c1 << 16UL;
     if( c2 != 1 )
@@ -1762,7 +1762,7 @@ static void dissect_user_memory_service( tvbuff_t* tvb, packet_info* pinfo, prot
 
 /* Dissect A_FunctionProperty service */
 static void dissect_function_property_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_error )
 {
   /* 1 byte Object Index */
   dissect_ox( tvb, pinfo, cemi_node, cemi_list, p_offset, size, p_error );
@@ -1773,12 +1773,12 @@ static void dissect_function_property_service( tvbuff_t* tvb, packet_info* pinfo
 
 /* Dissect (obsolete) A_Router service */
 static void dissect_router_service( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
   proto_tree* list;
@@ -1793,8 +1793,8 @@ static void dissect_router_service( tvbuff_t* tvb, packet_info* pinfo, proto_tre
   }
   else
   {
-    guint8 c = tvb_get_guint8( tvb, offset );
-    guint16 cc = tvb_get_ntohs( tvb, offset + 1 );
+    uint8_t c = tvb_get_guint8( tvb, offset );
+    uint16_t cc = tvb_get_ntohs( tvb, offset + 1 );
     if( c != 1 )
       col_append_fstr( cinfo, COL_INFO, " N=%u", c );
     col_append_fstr( cinfo, COL_INFO, " X=$%04X", cc );
@@ -1817,12 +1817,12 @@ static void dissect_router_service( tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 /* Dissect A_Authenticate or A_Key service */
 static void dissect_authenticate_service( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  guint16 ax, gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint16_t ax, int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   /* 1 byte Level */
   if( offset >= size )
@@ -1832,7 +1832,7 @@ static void dissect_authenticate_service( tvbuff_t* tvb, packet_info* pinfo, pro
   }
   else
   {
-    guint8 c = tvb_get_guint8( tvb, offset );
+    uint8_t c = tvb_get_guint8( tvb, offset );
     if( ax != AX_AuthReq || c != 0 )
     {
       col_append_fstr( cinfo, COL_INFO, " L=%u", c );
@@ -1855,7 +1855,7 @@ static void dissect_authenticate_service( tvbuff_t* tvb, packet_info* pinfo, pro
 
 /* Dissect A_PropertyValue service */
 static void dissect_property_value_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   /* 1 byte Object Index */
   dissect_ox( tvb, pinfo, cemi_node, cemi_list, p_offset, size, p_error );
@@ -1869,15 +1869,15 @@ static void dissect_property_value_service( tvbuff_t* tvb, packet_info* pinfo, p
 
 /* Dissect A_PropertyDescription service */
 static void dissect_property_description_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   /* 1 byte Object Index */
   dissect_ox( tvb, pinfo, cemi_node, cemi_list, p_offset, size, p_error );
 
   /* 1 byte Property ID */
   {
-    guint8 pa_flags = *p_pa_flags;
-    guint8 pid = dissect_pid( tvb, pinfo, cemi_node, cemi_list, p_offset, size, -1, pa_flags, p_error );
+    uint8_t pa_flags = *p_pa_flags;
+    uint8_t pid = dissect_pid( tvb, pinfo, cemi_node, cemi_list, p_offset, size, -1, pa_flags, p_error );
 
     /* 1 byte Property Index */
     dissect_px( tvb, pinfo, cemi_node, cemi_list, p_offset, size, pa_flags || !pid, p_error );
@@ -1895,10 +1895,10 @@ static void dissect_property_description_service( tvbuff_t* tvb, packet_info* pi
 
 /* Dissect A_NetworkParameter or A_GroupPropertyValue service */
 static void dissect_network_parameter_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_error )
 {
   /* 2 bytes Object Type */
-  guint16 ot = dissect_ot( tvb, pinfo, cemi_node, cemi_list, p_offset, size, p_error );
+  uint16_t ot = dissect_ot( tvb, pinfo, cemi_node, cemi_list, p_offset, size, p_error );
 
   /* 1 byte Property ID */
   dissect_pid( tvb, pinfo, cemi_node, cemi_list, p_offset, size, ot, 1, p_error );
@@ -1906,12 +1906,12 @@ static void dissect_network_parameter_service( tvbuff_t* tvb, packet_info* pinfo
 
 /* Dissect A_IndividualAddressSerialNumber or A_DomainAddressSerialNumber service */
 static void dissect_ia_serial_number_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
 
@@ -1945,18 +1945,18 @@ static void dissect_ia_serial_number_service( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect A_SystemNetworkParameter service */
 static void dissect_system_network_parameter_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
-  const gchar* name;
-  guint16 ot;
-  guint16 cc;
-  guint8 c;
+  const char* name;
+  uint16_t ot;
+  uint16_t cc;
+  uint8_t c;
 
   /* 2 bytes Object Type */
   if( offset + 1 >= size )
@@ -2040,12 +2040,12 @@ static void dissect_system_network_parameter_service( tvbuff_t* tvb, packet_info
 
 /* Dissect A_PropertyExtValue service */
 static void dissect_property_ext_value_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
 
@@ -2063,7 +2063,7 @@ static void dissect_property_ext_value_service( tvbuff_t* tvb, packet_info* pinf
   else
   {
     /* 1 byte Count */
-    guint8 ne = tvb_get_guint8( tvb, offset );
+    uint8_t ne = tvb_get_guint8( tvb, offset );
     if( ne != 1 )
     {
       col_append_fstr( cinfo, COL_INFO, " N=%u", ne );
@@ -2071,7 +2071,7 @@ static void dissect_property_ext_value_service( tvbuff_t* tvb, packet_info* pinf
     }
 
     /* 2 bytes Index */
-    guint16 sx = tvb_get_ntohs( tvb, offset + 1 );
+    uint16_t sx = tvb_get_ntohs( tvb, offset + 1 );
     if( sx != 1 )
     {
       col_append_fstr( cinfo, COL_INFO, " X=%u", sx );
@@ -2096,16 +2096,16 @@ static void dissect_property_ext_value_service( tvbuff_t* tvb, packet_info* pinf
 
 /* Dissect A_PropertyExtDescription service */
 static void dissect_property_ext_description_service( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
-  guint16 cc;
-  guint8 c;
+  uint16_t cc;
+  uint8_t c;
 
   /* 2 bytes OT, 12 bits OI, 12 bits PID */
   dissect_pid_ext( tvb, pinfo, cemi_node, cemi_list, &offset, size, &error );
@@ -2154,8 +2154,8 @@ static void dissect_property_ext_description_service( tvbuff_t* tvb, packet_info
     }
     else
     {
-      guint16 dpt_major = tvb_get_ntohs( tvb, offset );
-      guint16 dpt_minor = tvb_get_ntohs( tvb, offset + 2 );
+      uint16_t dpt_major = tvb_get_ntohs( tvb, offset );
+      uint16_t dpt_minor = tvb_get_ntohs( tvb, offset + 2 );
 
       if( cemi_list )
       {
@@ -2188,14 +2188,14 @@ static void dissect_property_ext_description_service( tvbuff_t* tvb, packet_info
 
 /* Dissect A_DataSecurity service */
 static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  guint16 source_addr, proto_item* source_node, guint16 dest_addr, proto_item* dest_node, guint8 unicast,
-  const gchar* name, gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint16_t source_addr, proto_item* source_node, uint16_t dest_addr, proto_item* dest_node, uint8_t unicast,
+  const char* name, int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
   proto_tree* root_tree = tree;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
   proto_tree* list;
@@ -2212,11 +2212,11 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
   else
   {
     /* 1 byte SCF */
-    guint8 scf = tvb_get_guint8( tvb, offset );
-    guint8 is_sync = (scf & 6) == 0x02;
-    guint8 is_sync_req = is_sync && (scf & 1) == 0;
-    guint8 is_sync_res = is_sync && !is_sync_req;
-    guint64 seq_nr;
+    uint8_t scf = tvb_get_guint8( tvb, offset );
+    uint8_t is_sync = (scf & 6) == 0x02;
+    uint8_t is_sync_req = is_sync && (scf & 1) == 0;
+    uint8_t is_sync_res = is_sync && !is_sync_req;
+    uint64_t seq_nr;
 
     name = try_val_to_str( scf, scf_short_vals );
     if( !name ) name = "?";
@@ -2278,10 +2278,10 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
     {
       struct data_security_info info;
       struct knx_keyring_ia_seqs* ia_seq;
-      const guint8* cemi;
-      const guint8* encrypted;
-      gint encrypted_size;
-      const guint8* decrypted;
+      const uint8_t* cemi;
+      const uint8_t* encrypted;
+      int encrypted_size;
+      const uint8_t* decrypted;
       proto_item* item;
 
       info.source = source_addr;
@@ -2293,8 +2293,8 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
       if( !unicast )  // multicast or broadcast
       {
         // Check sending IA
-        guint8 ga_found = 0;
-        guint8 ia_ok = 0;
+        uint8_t ga_found = 0;
+        uint8_t ia_ok = 0;
         struct knx_keyring_ga_senders* ga_sender = knx_keyring_ga_senders;
         for( ; ga_sender; ga_sender = ga_sender->next )
         {
@@ -2348,7 +2348,7 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
       if( decrypted )
       {
         tvbuff_t* tvb2 = tvb_new_child_real_data( tvb, decrypted, encrypted_size, encrypted_size );
-        gint size2 = encrypted_size - 4;  // > 0, guaranteed by decrypt_data_security_data
+        int size2 = encrypted_size - 4;  // > 0, guaranteed by decrypt_data_security_data
         proto_item_append_text( cemi_node, ", MAC OK" );
         //tvb_set_free_cb(tvb2, wmem_free);
         add_new_data_source( pinfo, tvb2, "Decrypted" );
@@ -2370,18 +2370,18 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
           // dissects the Apci+Apdu
           // we synthesize a telegram from the outer ApciSec telegram fields and the inner
           // decrypted apci+apdu and then we dissect this as a new cEMI frame.
-          gint innerTelegramSize = size - 13;     // > 0, already checked above
-          gint additionalInfoLength = cemi[ 1 ];  // cemi size > 13, already checked above
-          gint offsetToApci = additionalInfoLength + 9;
+          int innerTelegramSize = size - 13;     // > 0, already checked above
+          int additionalInfoLength = cemi[ 1 ];  // cemi size > 13, already checked above
+          int offsetToApci = additionalInfoLength + 9;
           if( offsetToApci < size )
           {
             if( offsetToApci + size2 <= innerTelegramSize )
             {
-              guint8* innerTelegram = (guint8*) wmem_alloc( pinfo->pool, innerTelegramSize );
+              uint8_t* innerTelegram = (uint8_t*) wmem_alloc( pinfo->pool, innerTelegramSize );
 
               memcpy( innerTelegram, cemi, offsetToApci );
               memcpy( innerTelegram + offsetToApci, decrypted, size2 );
-              innerTelegram[ additionalInfoLength + 8 ] = (guint8) (size2 - 1);
+              innerTelegram[ additionalInfoLength + 8 ] = (uint8_t) (size2 - 1);
 
               tvbuff_t* tvb3 = tvb_new_child_real_data( tvb, innerTelegram, innerTelegramSize, innerTelegramSize );
               //tvb_set_free_cb(tvb3, wmem_free);
@@ -2419,14 +2419,14 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
 /* Dissect extended AL service (10 bit AL service code)
 */
 static void dissect_extended_app_service( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  guint16 source_addr, proto_item* source_node, guint16 dest_addr, proto_item* dest_node, guint8 unicast,
-  guint16 ax, const gchar* name,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint16_t source_addr, proto_item* source_node, uint16_t dest_addr, proto_item* dest_node, uint8_t unicast,
+  uint16_t ax, const char* name,
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node = NULL;
   proto_tree* list = NULL;
@@ -2571,20 +2571,20 @@ static void dissect_extended_app_service( tvbuff_t* tvb, packet_info* pinfo, pro
 /* Dissect simple AL service (4 bit AL service code)
 */
 static void dissect_simple_app_service( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  guint8 ac, guint8 ad, gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint8_t ac, uint8_t ad, int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node = NULL;
   proto_tree* list = NULL;
 
-  guint8 c;
-  guint16 cc;
+  uint8_t c;
+  uint16_t cc;
 
-  const gchar* name = val_to_str( ac, ac_vals, "AC=%u" );
+  const char* name = val_to_str( ac, ac_vals, "AC=%u" );
   col_append_fstr( cinfo, COL_INFO, " %s", name );
   if( tree )
   {
@@ -2613,7 +2613,7 @@ static void dissect_simple_app_service( tvbuff_t* tvb, packet_info* pinfo, proto
   case AC_GroupValueWrite:
   case AC_Restart:
     {
-      guint8 expected = ((pa_flags && offset + 1 >= size) || ac == AC_Restart);
+      uint8_t expected = ((pa_flags && offset + 1 >= size) || ac == AC_Restart);
 
       if( expected || ad != 0 )
       {
@@ -2750,12 +2750,12 @@ static void dissect_simple_app_service( tvbuff_t* tvb, packet_info* pinfo, proto
 /* Dissect cEMI Application Layer
 */
 static void dissect_cemi_app_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  guint16 source_addr, proto_item* source_node, guint16 dest_addr, proto_item* dest_node, guint8 unicast,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint16_t source_addr, proto_item* source_node, uint16_t dest_addr, proto_item* dest_node, uint8_t unicast,
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   /* 10 bits APCI
   */
@@ -2769,19 +2769,19 @@ static void dissect_cemi_app_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tre
   else
   {
     /* Extract and split AL service code */
-    guint8 tb = tvb_get_guint8( tvb, offset );
-    guint8 ab = tvb_get_guint8( tvb, offset + 1 );
+    uint8_t tb = tvb_get_guint8( tvb, offset );
+    uint8_t ab = tvb_get_guint8( tvb, offset + 1 );
 
     /* 4 bits simple AL service code */
-    guint8 ac = ((tb & 0x03) << 2) | ((ab & 0xC0) >> 6);
+    uint8_t ac = ((tb & 0x03) << 2) | ((ab & 0xC0) >> 6);
 
     /* 6 bits data */
-    guint8 ad = ab & 0x3F;
+    uint8_t ad = ab & 0x3F;
 
     /* 10 = 4 + 6 bits extended AL service code */
-    guint16 ax = (ac << 6) | ad;
+    uint16_t ax = (ac << 6) | ad;
 
-    const gchar* name = try_val_to_str( ax, ax_vals );
+    const char* name = try_val_to_str( ax, ax_vals );
 
     if( name )  /* Extended AL code (10 bits) */
     {
@@ -2802,18 +2802,18 @@ static void dissect_cemi_app_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tre
 /* Dissect cEMI Transport Layer
 */
 static void dissect_cemi_transport_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list,
-  guint8 is_tdata, guint16 source_addr, proto_item* source_node, guint16 dest_addr, proto_item* dest_node, guint8 unicast,
-  gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+  uint8_t is_tdata, uint16_t source_addr, proto_item* source_node, uint16_t dest_addr, proto_item* dest_node, uint8_t unicast,
+  int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node;
-  const gchar* name;
-  gchar text[ 128 ];
-  guint8 c;
+  const char* name;
+  char text[ 128 ];
+  uint8_t c;
 
   /* 6 bits TPCI */
   if( offset >= size )
@@ -2823,10 +2823,10 @@ static void dissect_cemi_transport_layer( tvbuff_t* tvb, packet_info* pinfo, pro
   }
   else
   {
-    guint8 tb = tvb_get_guint8( tvb, offset );
+    uint8_t tb = tvb_get_guint8( tvb, offset );
     proto_item *tpci_node = proto_tree_add_none_format( cemi_list, hf_folder, tvb, offset, 1, "TPCI" );
     proto_tree *tpci_list = proto_item_add_subtree( tpci_node, ett_cemi_tpci );
-    guint8 tpci_error = 0;
+    uint8_t tpci_error = 0;
 
     node = proto_tree_add_item( tpci_list, hf_cemi_tpt, tvb, offset, 1, ENC_BIG_ENDIAN );
     if( is_tdata && (tb & 0x80) )
@@ -2860,7 +2860,7 @@ static void dissect_cemi_transport_layer( tvbuff_t* tvb, packet_info* pinfo, pro
     if( tb & 0x80 )  /* Control Packet */
     {
       /* 2 bits TPCI Code */
-      guint8 tc = tb & 0x03;
+      uint8_t tc = tb & 0x03;
       name = try_val_to_str( tc, tc_vals );
       if( !name )
       {
@@ -2902,25 +2902,25 @@ static void dissect_cemi_transport_layer( tvbuff_t* tvb, packet_info* pinfo, pro
 /* Dissect cEMI Link Layer
   (typically L_Data or T_Data)
 */
-static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list, guint8 mc, gint* p_offset, gint size, guint8* p_pa_flags, guint8* p_error )
+static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* cemi_node, proto_tree* cemi_list, uint8_t mc, int* p_offset, int size, uint8_t* p_pa_flags, uint8_t* p_error )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  guint8 pa_flags = *p_pa_flags;
-  guint8 error = *p_error;
+  int offset = *p_offset;
+  uint8_t pa_flags = *p_pa_flags;
+  uint8_t error = *p_error;
 
   proto_item* node = NULL;
   proto_tree* list = NULL;
 
-  const gchar* name;
-  gchar text[ 128 ];
-  guint8 c;
+  const char* name;
+  char text[ 128 ];
+  uint8_t c;
 
-  guint8 is_tdata = 0;
-  guint8 is_ldata = 0;
-  guint16 source_addr = 0;
-  guint16 dest_addr = 0;
-  guint8 unicast = 0;
+  uint8_t is_tdata = 0;
+  uint8_t is_ldata = 0;
+  uint16_t source_addr = 0;
+  uint16_t dest_addr = 0;
+  uint8_t unicast = 0;
 
   proto_item* source_node = NULL;
   proto_item* dest_node = NULL;
@@ -2938,9 +2938,9 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
   else
   {
     /* Additional Information */
-    guint8 ai_len = tvb_get_guint8( tvb, 1 );
-    gint ai_end = 2 + ai_len;
-    gint ai_size = ai_len;
+    uint8_t ai_len = tvb_get_guint8( tvb, 1 );
+    int ai_end = 2 + ai_len;
+    int ai_size = ai_len;
 
     if( ai_end > size )
     {
@@ -2963,9 +2963,9 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
     while( offset < ai_end )
     {
       /* Additional Information Element */
-      guint8 aie_type = tvb_get_guint8( tvb, offset );
-      guint8 aie_len;
-      gint aie_size;
+      uint8_t aie_type = tvb_get_guint8( tvb, offset );
+      uint8_t aie_len;
+      int aie_size;
       proto_item *aie_node;
       proto_tree *aie_list;
 
@@ -3067,7 +3067,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
 
     if( is_tdata )
     {
-      gint length = (size >= offset + 6) ? 6 : size - offset;
+      int length = (size >= offset + 6) ? 6 : size - offset;
       node = proto_tree_add_bytes_format( cemi_list, hf_bytes, tvb, offset, length, NULL, "Reserved" );
       if( length < 6 )
       {
@@ -3077,7 +3077,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
       }
       else
       {
-        gint pos = 0;
+        int pos = 0;
         for( ; pos < 6; pos++ )
         {
           if( tvb_get_guint8( tvb, offset + pos ) != 0 )
@@ -3165,8 +3165,8 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
 
         if( tree )
         {
-          guint8 hc = (c & 0x70) >> 4;  /* Hop Count */
-          guint8 eff = c & 0x0F;  /* Extended Frame Format (0 = standard) */
+          uint8_t hc = (c & 0x70) >> 4;  /* Hop Count */
+          uint8_t eff = c & 0x0F;  /* Extended Frame Format (0 = standard) */
 
           snprintf( text, sizeof text, "%u", (c & 0x70) >> 4 );   /* hop count */
           proto_item_append_text( cemi_node, ", H=%u", hc );
@@ -3254,7 +3254,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
       }
       else
       {
-        guint8 data_len = tvb_get_guint8( tvb, offset );
+        uint8_t data_len = tvb_get_guint8( tvb, offset );
         node = proto_tree_add_item( cemi_list, hf_cemi_len, tvb, offset, 1, ENC_BIG_ENDIAN );
 
         if( offset + 2 + data_len != size )
@@ -3279,11 +3279,11 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
   *p_error = error;
 }
 
-static gint dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ )
+static int dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ )
 {
-  gint offset = 0;
-  gint size = tvb_captured_length_remaining( tvb, 0 );
-  guint8 error = 0;
+  int offset = 0;
+  int size = tvb_captured_length_remaining( tvb, 0 );
+  uint8_t error = 0;
   column_info* cinfo = pinfo->cinfo;
 
   /* cEMI node in tree view */
@@ -3292,7 +3292,7 @@ static gint dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
   /* Subnodes of cEMI node */
   proto_tree* cemi_list = proto_item_add_subtree( cemi_node, ett_cemi );
 
-  guint8 pa_flags = PA_DATA;
+  uint8_t pa_flags = PA_DATA;
 
   /* Only add cEMI information to the info column (not replacing it).
     This means that we do not have to clear that column here, but
@@ -3311,8 +3311,8 @@ static gint dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
   else
   {
     /* 1 byte cEMI Message Code */
-    guint8 mc = tvb_get_guint8( tvb, 0 );
-    const gchar* name = try_val_to_str( mc, mc_vals );
+    uint8_t mc = tvb_get_guint8( tvb, 0 );
+    const char* name = try_val_to_str( mc, mc_vals );
 
     if( !name )
     {
@@ -3444,7 +3444,7 @@ void proto_register_cemi( void )
   };
 
   /* Subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cemi,
     &ett_cemi_ai,
     &ett_cemi_aie,

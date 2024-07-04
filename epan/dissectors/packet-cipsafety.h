@@ -39,7 +39,7 @@
 typedef struct cip_safety_info {
    enum enip_connid_type conn_type;
    cip_conn_info_t* eip_conn_info;
-   gboolean compute_crc;
+   bool compute_crc;
 } cip_safety_info_t;
 
 
@@ -47,9 +47,9 @@ typedef struct cip_safety_info {
 ** Exported functions
 */
 extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi, const char* snn_name, int hf_snn_timestamp,
-             int hf_snn_date, int hf_snn_time, int hf_macid, gint ett, gint ett_snn);
+             int hf_snn_date, int hf_snn_time, int hf_macid, int ett, int ett_snn);
 extern void dissect_cipsafety_snn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int hf_real_datetime, int hf_date, int hf_time);
-extern void cip_safety_128us_fmt(gchar *s, guint32 value);
+extern void cip_safety_128us_fmt(char *s, uint32_t value);
 extern void add_safety_data_type_to_info_column(packet_info *pinfo, enum enip_connid_type conn_type, const cip_safety_epath_info_t* safety);
 
 /*

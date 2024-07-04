@@ -93,50 +93,50 @@ enum {
 };
 
 /** Does the magic represent a flex encoded packet type */
-static bool is_flex_encoded(guint8 magic) {
+static bool is_flex_encoded(uint8_t magic) {
   switch (magic) {
     case MAGIC_CLIENT_RESPONSE_FLEX:
     case MAGIC_CLIENT_REQUEST_FLEX:
     case MAGIC_SERVER_REQUEST:
     case MAGIC_SERVER_RESPONSE:
-      return TRUE;
+      return true;
 
     case MAGIC_CLIENT_REQUEST:
     case MAGIC_CLIENT_RESPONSE:
     default:
-      return FALSE;
+      return false;
   }
 }
 
 /** Does the magic represent server initiated packet types */
-static bool is_server_magic(guint8 magic) {
+static bool is_server_magic(uint8_t magic) {
   switch (magic) {
     case MAGIC_SERVER_REQUEST:
     case MAGIC_SERVER_RESPONSE:
-      return TRUE;
+      return true;
 
     case MAGIC_CLIENT_RESPONSE_FLEX:
     case MAGIC_CLIENT_REQUEST_FLEX:
     case MAGIC_CLIENT_REQUEST:
     case MAGIC_CLIENT_RESPONSE:
     default:
-      return FALSE;
+      return false;
   }
 }
 
 /** Does the magic represent a request or a response */
-static bool is_request_magic(guint8 magic) {
+static bool is_request_magic(uint8_t magic) {
   switch (magic) {
     case MAGIC_SERVER_REQUEST:
     case MAGIC_CLIENT_REQUEST_FLEX:
     case MAGIC_CLIENT_REQUEST:
-      return TRUE;
+      return true;
 
     case MAGIC_SERVER_RESPONSE:
     case MAGIC_CLIENT_RESPONSE_FLEX:
     case MAGIC_CLIENT_RESPONSE:
     default:
-      return FALSE;
+      return false;
   }
 }
 
@@ -645,21 +645,21 @@ static expert_field ei_note_status_code;
 static expert_field ei_separator_not_found;
 static expert_field ei_illegal_value;
 
-static gint ett_couchbase;
-static gint ett_extras;
-static gint ett_extras_flags;
-static gint ett_observe;
-static gint ett_failover_log;
-static gint ett_vbucket_states;
-static gint ett_multipath;
-static gint ett_config;
-static gint ett_config_key;
-static gint ett_hello_features;
-static gint ett_datatype;
-static gint ett_xattrs;
-static gint ett_xattr_pair;
-static gint ett_flex_frame_extras;
-static gint ett_collection_key;
+static int ett_couchbase;
+static int ett_extras;
+static int ett_extras_flags;
+static int ett_observe;
+static int ett_failover_log;
+static int ett_vbucket_states;
+static int ett_multipath;
+static int ett_config;
+static int ett_config_key;
+static int ett_hello_features;
+static int ett_datatype;
+static int ett_xattrs;
+static int ett_xattr_pair;
+static int ett_flex_frame_extras;
+static int ett_collection_key;
 
 static const value_string magic_vals[] = {
   { MAGIC_CLIENT_REQUEST, "Request" },
@@ -1149,26 +1149,26 @@ static dissector_handle_t json_handle;
 
 /* desegmentation of COUCHBASE payload */
 static bool couchbase_desegment_body = true;
-static guint couchbase_ssl_port = 11207;
-static guint couchbase_ssl_port_pref = 11207;
+static unsigned couchbase_ssl_port = 11207;
+static unsigned couchbase_ssl_port_pref = 11207;
 
 /** Read out the magic byte (located at offset 0 in the header) */
-static guint8 get_magic(tvbuff_t *tvb) {
+static uint8_t get_magic(tvbuff_t *tvb) {
   return tvb_get_guint8(tvb, 0);
 }
 
 /** Read out the opcode (located at offset 1 in the header) */
-static guint8 get_opcode(tvbuff_t *tvb) {
+static uint8_t get_opcode(tvbuff_t *tvb) {
   return tvb_get_guint8(tvb, 1);
 }
 
 /** Read out the status code from the header (only "valid" for response packets) */
-static guint16 get_status(tvbuff_t *tvb) {
+static uint16_t get_status(tvbuff_t *tvb) {
   return tvb_get_ntohs(tvb, 6);
 }
 
 /** Read out flex size (using the upper bits of the key length when using flex encoding) */
-static guint8 get_flex_framing_extras_length(tvbuff_t *tvb) {
+static uint8_t get_flex_framing_extras_length(tvbuff_t *tvb) {
   if (is_flex_encoded(get_magic(tvb))) {
     return tvb_get_guint8(tvb, 2);
   }
@@ -1176,17 +1176,17 @@ static guint8 get_flex_framing_extras_length(tvbuff_t *tvb) {
 }
 
 /** Read out the size of the extras section (located at offset 4) */
-static guint8 get_extras_length(tvbuff_t *tvb) {
+static uint8_t get_extras_length(tvbuff_t *tvb) {
   return tvb_get_guint8(tvb, 4);
 }
 
 /** Read out the datatype section (located at offset 5) */
-static guint8 get_datatype(tvbuff_t *tvb) {
+static uint8_t get_datatype(tvbuff_t *tvb) {
   return tvb_get_guint8(tvb, 5);
 }
 
 /** Read out the length of the key (1 or 2 bytes depending on the encoding) */
-static guint16 get_key_length(tvbuff_t *tvb) {
+static uint16_t get_key_length(tvbuff_t *tvb) {
   if (is_flex_encoded(get_magic(tvb))) {
     return tvb_get_guint8(tvb, 3);
   }
@@ -1194,22 +1194,22 @@ static guint16 get_key_length(tvbuff_t *tvb) {
 }
 
 /** Read out the size for the rest of the frame data */
-static guint32 get_body_length(tvbuff_t *tvb) {
+static uint32_t get_body_length(tvbuff_t *tvb) {
   return tvb_get_ntohl(tvb, 8);
 }
 
 /* Returns true if the specified opcode's response value is JSON. */
-static gboolean
-has_json_value(gboolean is_request, guint8 opcode)
+static bool
+has_json_value(bool is_request, uint8_t opcode)
 {
   if (is_request) {
     switch (opcode) {
     case CLIENT_OPCODE_AUDIT_PUT:
     case CLIENT_OPCODE_RANGE_SCAN_CREATE:
-      return TRUE;
+      return true;
 
     default:
-      return FALSE;
+      return false;
     }
   } else {
     switch (opcode) {
@@ -1217,19 +1217,19 @@ has_json_value(gboolean is_request, guint8 opcode)
     case CLIENT_OPCODE_SUBDOC_GET:
     case CLIENT_OPCODE_COLLECTIONS_GET_MANIFEST:
     case CLIENT_OPCODE_COLLECTIONS_SET_MANIFEST:
-      return TRUE;
+      return true;
 
     default:
-      return FALSE;
+      return false;
     }
   }
 }
 
 static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
-                               guint32 value_len, gint offset,
+                               uint32_t value_len, int offset,
                                packet_info *pinfo) {
-  guint32 xattr_size, pair_len;
-  gint mark;
+  uint32_t xattr_size, pair_len;
+  int mark;
   proto_tree *xattr_tree, *pair_tree;
   proto_item *ti;
 
@@ -1276,8 +1276,8 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
 /* Dissects the required extras for subdoc single-path packets */
 static void
 dissect_subdoc_spath_required_extras(tvbuff_t *tvb, proto_tree *extras_tree,
-                                     guint8 extlen, gboolean request, gint* offset,
-                                     guint16 *path_len, gboolean *illegal)
+                                     uint8_t extlen, bool request, int* offset,
+                                     uint16_t *path_len, bool *illegal)
 {
   if (request) {
     if (extlen >= 3) {
@@ -1291,12 +1291,12 @@ dissect_subdoc_spath_required_extras(tvbuff_t *tvb, proto_tree *extras_tree,
       *offset += 1;
     } else {
       /* Must always have at least 3 bytes of extras */
-      *illegal = TRUE;
+      *illegal = true;
     }
   }
 }
 
-static void dissect_server_request_extras(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree, gint offset, guint8 extlen, guint8 opcode) {
+static void dissect_server_request_extras(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t extlen, uint8_t opcode) {
   if (extlen == 0) {
     switch (opcode) {
       case SERVER_OPCODE_CLUSTERMAP_CHANGE_NOTIFICATION:
@@ -1348,8 +1348,8 @@ static void dissect_server_request_extras(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 static void
 dissect_server_response_extras(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree, gint offset, guint8 extlen,
-                               guint8 opcode _U_) {
+                               proto_tree *tree, int offset, uint8_t extlen,
+                               uint8_t opcode _U_) {
   if (extlen == 0) {
     // Success! none of the known commands use extras
     return;
@@ -1366,19 +1366,19 @@ dissect_server_response_extras(tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      gint offset, guint8 extlen, guint8 opcode, gboolean request,
-                      guint16 *path_len)
+                      int offset, uint8_t extlen, uint8_t opcode, bool request,
+                      uint16_t *path_len)
 {
   proto_tree *extras_tree = NULL;
   proto_item *extras_item = NULL;
-  gint        save_offset = offset, ii;
-  guint       bpos;
-  gboolean    illegal = FALSE;  /* Set when extras shall not be present */
-  gboolean    missing = FALSE;  /* Set when extras is missing */
-  gboolean    first_flag;
-  guint32     flags;
+  int         save_offset = offset, ii;
+  unsigned    bpos;
+  bool        illegal = false;  /* Set when extras shall not be present */
+  bool        missing = false;  /* Set when extras is missing */
+  bool        first_flag;
+  uint32_t    flags;
   proto_item *tf;
-  const gchar   *tap_connect_flags[] = {
+  const char    *tap_connect_flags[] = {
     "BACKFILL", "DUMP", "LIST_VBUCKETS", "TAKEOVER_VBUCKETS",
     "SUPPORT_ACK", "REQUEST_KEYS_ONLY", "CHECKPOINT", "REGISTERED_CLIENT"
   };
@@ -1399,14 +1399,14 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (extlen) {
       if (request) {
         /* Request shall not have extras */
-        illegal = TRUE;
+        illegal = true;
       } else {
         proto_tree_add_item(extras_tree, hf_extras_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       }
     } else if (!request) {
       /* Response must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1432,7 +1432,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1459,7 +1459,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1480,7 +1480,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (extlen) {
       if (request) {
         /* Must not have extras */
-        illegal = TRUE;
+        illegal = true;
       } else {
         proto_tree_add_item(extras_tree, hf_extras_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
@@ -1499,7 +1499,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case CLIENT_OPCODE_OBSERVE_SEQNO:
     /* Must not have extras */
     if (extlen) {
-      illegal = TRUE;
+      illegal = true;
     }
     break;
 
@@ -1511,7 +1511,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
       } else {
         /* Must not have extras */
-        illegal = TRUE;
+        illegal = true;
       }
     }
     break;
@@ -1533,7 +1533,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tf = proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
 
     flags = tvb_get_ntohl(tvb, offset);
-    first_flag = TRUE;
+    first_flag = true;
     for (ii = 0; ii < 8; ii++) {
       bpos = 1 << ii;
       if (flags & bpos) {
@@ -1543,10 +1543,10 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_append_text(tf, "%s%s",
                                   first_flag ? "" : ", ",
                                   tap_connect_flags[ii]);
-        first_flag = FALSE;
+        first_flag = false;
       }
     }
-    if (first_flag == TRUE) {
+    if (first_flag == true) {
       proto_item_append_text(tf, " <None>");
     } else {
       proto_item_append_text(tf, ")");
@@ -1583,11 +1583,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
       } else {
         /* Response must not have extras (response is in Value) */
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1608,7 +1608,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
       }
     } else {
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1639,7 +1639,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1658,14 +1658,14 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, snapshot_marker_flags, ENC_BIG_ENDIAN);
           offset += 4;
         } else {
-          illegal = TRUE;
+          illegal = true;
         }
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1696,11 +1696,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_nru, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1723,10 +1723,10 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 1;
         }
       } else if (extlen == 0) {
-        missing = TRUE; // request with no extras
+        missing = true; // request with no extras
       }
     } else if (extlen) {
-        illegal = TRUE; // response with extras
+        illegal = true; // response with extras
     }
     break;
   case CLIENT_OPCODE_DCP_EXPIRATION:
@@ -1745,11 +1745,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
             }
         } else {
-            illegal = TRUE;
+            illegal = true;
         }
     } else if (request) {
         /* Request must have extras */
-        missing = TRUE;
+        missing = true;
     }
     break;
   case CLIENT_OPCODE_DCP_FLUSH:
@@ -1762,11 +1762,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_nmeta, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
 
@@ -1776,11 +1776,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_bytes_to_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   case CLIENT_OPCODE_DCP_SYSTEM_EVENT: {
@@ -1823,11 +1823,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_flex_frame_durability_req, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   }
@@ -1837,11 +1837,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   }
@@ -1853,11 +1853,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   }
@@ -1869,11 +1869,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_abort_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   }
@@ -1883,11 +1883,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   }
@@ -1908,11 +1908,11 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                ENC_BIG_ENDIAN);
         offset += 4;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     } else if (request) {
       /* Request must have extras */
-      missing = TRUE;
+      missing = true;
     }
     break;
   }
@@ -1955,7 +1955,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
       }
       if (extlen != 3 && extlen != 7 && extlen != 4 && extlen != 8) {
-        illegal = TRUE;
+        illegal = true;
       }
     }
     break;
@@ -1968,7 +1968,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                ENC_BIG_ENDIAN);
         offset += 1;
       } else {
-        illegal = TRUE;
+        illegal = true;
       }
     }
     break;
@@ -1986,7 +1986,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
       }
       if (extlen != 1 && extlen != 4 && extlen != 5) {
-        illegal = TRUE;
+        illegal = true;
       }
     }
     break;
@@ -2114,15 +2114,15 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   @param [out] value the decoded value
   @returns next byte after the leb128 bytes or -1 if we failed to decode
 */
-static gint
-dissect_unsigned_leb128(tvbuff_t *tvb, gint start, gint end, guint32* value) {
-    guint8 byte = tvb_get_guint8(tvb, start);
+static int
+dissect_unsigned_leb128(tvbuff_t *tvb, int start, int end, uint32_t* value) {
+    uint8_t byte = tvb_get_guint8(tvb, start);
     *value = byte & 0x7f;
 
 
     if ((byte & 0x80) == 0x80) {
-        guint32 shift = 7;
-        gint byte_idx;
+        uint32_t shift = 7;
+        int byte_idx;
         for (byte_idx = start+1; byte_idx < end; byte_idx++) {
             byte = tvb_get_guint8(tvb, byte_idx);
             /* Ensure we are using a valid shift */
@@ -2139,7 +2139,7 @@ dissect_unsigned_leb128(tvbuff_t *tvb, gint start, gint end, guint32* value) {
     return start + 1;
 }
 
-static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int keylen, guint8 opcode, bool request) {
+static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int keylen, uint8_t opcode, bool request) {
   if (keylen == 0) {
     switch (opcode) {
       case SERVER_OPCODE_GET_AUTHORIZATION:
@@ -2197,14 +2197,14 @@ static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 static void
 dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   gint offset, int keylen, guint8 opcode, gboolean request)
+                   int offset, int keylen, uint8_t opcode, bool request)
 {
   proto_item *ti = NULL;
-  gboolean    illegal = FALSE;  /* Set when key shall not be present */
-  gboolean    missing = FALSE;  /* Set when key is missing */
+  bool        illegal = false;  /* Set when key shall not be present */
+  bool        missing = false;  /* Set when key is missing */
 
   if (keylen) {
-    bool collection_encoded_key = TRUE;
+    bool collection_encoded_key = true;
     switch (opcode) {
       case CLIENT_OPCODE_STAT:
       case CLIENT_OPCODE_HELLO:
@@ -2218,7 +2218,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       case CLIENT_OPCODE_DELETE_BUCKET:
       case CLIENT_OPCODE_SELECT_BUCKET:
       case CLIENT_OPCODE_IFCONFIG:
-        collection_encoded_key = FALSE;
+        collection_encoded_key = false;
         break;
       default:
         break;
@@ -2228,8 +2228,8 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (collection_encoded_key) {
       /* assume collections are enabled and add a field for the CID */
-      guint32 cid = 0;
-      gint ok = dissect_unsigned_leb128(tvb, offset, offset + keylen, &cid);
+      uint32_t cid = 0;
+      int ok = dissect_unsigned_leb128(tvb, offset, offset + keylen, &cid);
 
       /* Add collection info to a subtree */
       proto_tree *cid_tree = proto_item_add_subtree(ti, ett_collection_key);
@@ -2265,7 +2265,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_BUFFER_ACKNOWLEDGEMENT:
     case CLIENT_OPCODE_GET_ALL_VB_SEQNOS:
       /* Request and Response must not have key */
-      illegal = TRUE;
+      illegal = true;
       break;
 
     case CLIENT_OPCODE_SET:
@@ -2284,7 +2284,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_PREPENDQ:
       /* Response must not have a key */
       if (!request) {
-        illegal = TRUE;
+        illegal = true;
       }
       break;
 
@@ -2296,7 +2296,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_SET_VBUCKET_STATE:
       /* Request must not have a key */
       if (request) {
-        illegal = TRUE;
+        illegal = true;
       }
       break;
     }
@@ -2325,7 +2325,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_SYSTEM_EVENT:
       /* Request must have key */
       if (request) {
-        missing = TRUE;
+        missing = true;
       }
       break;
     }
@@ -2345,17 +2345,17 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
-                                  proto_tree *tree, gint offset, guint32 value_len)
+                                  proto_tree *tree, int offset, uint32_t value_len)
 {
-  gint end = offset + value_len;
+  int end = offset + value_len;
   int spec_idx = 0;
 
   while (offset < end) {
     proto_item *ti;
     proto_tree *multipath_tree;
     tvbuff_t *json_tvb;
-    guint32 result_len;
-    gint start_offset = offset;
+    uint32_t result_len;
+    int start_offset = offset;
 
     ti = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_multipath,
                                        &multipath_tree, "Lookup Result [ %u ]",
@@ -2384,9 +2384,9 @@ dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
-                                    proto_tree *tree, gint offset, guint32 value_len)
+                                    proto_tree *tree, int offset, uint32_t value_len)
 {
-  gint end = offset + value_len;
+  int end = offset + value_len;
   int spec_idx = 0;
 
   /* Expect a variable number of mutation responses:
@@ -2399,8 +2399,8 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti;
     proto_tree *multipath_tree;
     tvbuff_t *json_tvb;
-    guint32 status;
-    gint start_offset = offset;
+    uint32_t status;
+    int start_offset = offset;
 
     ti = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_multipath,
                                        &multipath_tree, "Mutation Result [ %u ]",
@@ -2413,7 +2413,7 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
                                  ENC_BIG_ENDIAN, &status);
     offset += 2;
     if (status == STATUS_SUCCESS) {
-      guint32 result_len;
+      uint32_t result_len;
       proto_tree_add_item_ret_uint(multipath_tree, hf_value_length, tvb,
                                    offset, 4, ENC_BIG_ENDIAN, &result_len);
       offset += 4;
@@ -2434,24 +2434,24 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        gint offset, guint32 value_len, gboolean is_mutation,
-                        gboolean request)
+                        int offset, uint32_t value_len, bool is_mutation,
+                        bool request)
 {
-  gint end = offset + value_len;
+  int end = offset + value_len;
   int spec_idx = 0;
   proto_item *ti;
   proto_tree *multipath_tree;
 
   if (request) {
-    gint min_spec_size;
+    int min_spec_size;
 
     /* Minimum size is the fixed header. */
     min_spec_size = (is_mutation ? 8 : 4);
 
     while (offset + min_spec_size <= end) {
-      guint32 path_len;
-      guint32 spec_value_len = 0;
-      gint start_offset = offset;
+      uint32_t path_len;
+      uint32_t spec_value_len = 0;
+      int start_offset = offset;
 
       ti = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_multipath,
                                          &multipath_tree,
@@ -2504,21 +2504,21 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-              gint offset, guint32 value_len, guint16 path_len, guint8 opcode,
-              gboolean request, guint8 datatype)
+              int offset, uint32_t value_len, uint16_t path_len, uint8_t opcode,
+              bool request, uint8_t datatype)
 {
   proto_item *ti = NULL;
-  gboolean    illegal = FALSE;  /* Set when value shall not be present */
-  gboolean    missing = FALSE;  /* Set when value is missing */
+  bool        illegal = false;  /* Set when value shall not be present */
+  bool        missing = false;  /* Set when value is missing */
 
   if (value_len > 0) {
     if (opcode == CLIENT_OPCODE_OBSERVE) {
       proto_tree *observe_tree;
-      gint oo = offset, end = offset + value_len;
+      int oo = offset, end = offset + value_len;
       ti = proto_tree_add_item(tree, hf_observe, tvb, offset, value_len, ENC_ASCII);
       observe_tree = proto_item_add_subtree(ti, ett_observe);
       while (oo < end) {
-        guint16 kl; /* keylength */
+        uint16_t kl; /* keylength */
         proto_tree_add_item(observe_tree, hf_observe_vbucket, tvb, oo, 2, ENC_BIG_ENDIAN);
         oo += 2;
         kl = tvb_get_ntohs(tvb, oo);
@@ -2568,7 +2568,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          *
          * The other fields are the same as that mentioned in the normal case.
          */
-        guint8 failed_over;
+        uint8_t failed_over;
 
         proto_tree_add_item(tree, hf_observe_failed_over, tvb, offset, 1, ENC_BIG_ENDIAN);
         failed_over = tvb_get_guint8(tvb, offset);
@@ -2592,7 +2592,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Response with bad failover log length");
       } else {
         proto_tree *failover_log_tree;
-        gint cur = offset, end = offset + value_len;
+        int cur = offset, end = offset + value_len;
         ti = proto_tree_add_item(tree, hf_failover_log, tvb, offset, value_len, ENC_ASCII);
         failover_log_tree = proto_item_add_subtree(ti, ett_failover_log);
         ti = proto_tree_add_uint(failover_log_tree, hf_failover_log_size, tvb, offset, 0, (end - cur) / 16);
@@ -2609,7 +2609,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Response with bad body length");
       } else {
         proto_tree *vbucket_states_tree;
-        gint cur = offset, end = offset + value_len;
+        int cur = offset, end = offset + value_len;
         ti = proto_tree_add_item(tree, hf_vbucket_states, tvb, offset, value_len, ENC_ASCII);
         vbucket_states_tree = proto_item_add_subtree(ti, ett_vbucket_states);
         ti = proto_tree_add_uint(vbucket_states_tree, hf_vbucket_states_size, tvb, offset, 0, (end - cur) / 10);
@@ -2639,7 +2639,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                               request);
 
     } else if (opcode == CLIENT_OPCODE_HELLO) {
-      gint curr = offset, end = offset + value_len;
+      int curr = offset, end = offset + value_len;
       proto_tree *hello_features_tree;
       ti = proto_tree_add_item(tree, hf_hello_features, tvb, offset, value_len, ENC_ASCII);
       hello_features_tree = proto_item_add_subtree(ti, ett_hello_features);
@@ -2657,7 +2657,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      value_len, ENC_ASCII | ENC_NA);
         }
     } else if (request && opcode == CLIENT_OPCODE_CREATE_BUCKET) {
-      gint sep, equals_pos, sep_pos, config_len;
+      int sep, equals_pos, sep_pos, config_len;
       proto_tree *key_tree, *config_tree = NULL;
 
       /* There are 2 main items stored in the value. The bucket type (represented by a path to the engine) and the
@@ -2796,7 +2796,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_SET_VBUCKET_STATE:
       /* Request must not have value */
       if (request) {
-        illegal = TRUE;
+        illegal = true;
       }
       break;
     case CLIENT_OPCODE_DELETE:
@@ -2807,7 +2807,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_QUITQ:
     case CLIENT_OPCODE_FLUSHQ:
       /* Request and Response must not have value */
-      illegal = TRUE;
+      illegal = true;
       break;
     case CLIENT_OPCODE_SET:
     case CLIENT_OPCODE_ADD:
@@ -2821,7 +2821,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_PREPENDQ:
       /* Response must not have value */
       if (!request) {
-        illegal = TRUE;
+        illegal = true;
       }
       break;
     }
@@ -2830,7 +2830,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST:
       /* Successful response must have value */
       if (!request) {
-        missing = TRUE;
+        missing = true;
       }
       break;
     }
@@ -2849,8 +2849,8 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void flex_frame_duration_dissect(tvbuff_t* tvb,
                                         proto_tree* frame_tree,
-                                        gint offset,
-                                        gint length) {
+                                        int offset,
+                                        int length) {
 
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
@@ -2861,7 +2861,7 @@ static void flex_frame_duration_dissect(tvbuff_t* tvb,
                                  length,
                                  "FlexFrame: RX/TX Duration with illegal length %d", length);
   } else {
-    guint16 encoded_micros = tvb_get_ntohs(tvb, offset);
+    uint16_t encoded_micros = tvb_get_ntohs(tvb, offset);
     proto_tree_add_double(frame_tree,
                           hf_flex_frame_tracing_duration,
                           tvb,
@@ -2873,8 +2873,8 @@ static void flex_frame_duration_dissect(tvbuff_t* tvb,
 
 static void flex_frame_ru_usage_dissect(tvbuff_t* tvb,
                                         proto_tree* frame_tree,
-                                        gint offset,
-                                        gint length) {
+                                        int offset,
+                                        int length) {
 
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
@@ -2885,15 +2885,15 @@ static void flex_frame_ru_usage_dissect(tvbuff_t* tvb,
                                  length,
                                  "Read unit illegal length %d", length);
   } else {
-    guint16 units = tvb_get_ntohs(tvb, offset);
+    uint16_t units = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(frame_tree, hf_flex_frame_ru_count, tvb, offset, 2, units);
   }
 }
 
 static void flex_frame_wu_usage_dissect(tvbuff_t* tvb,
                                         proto_tree* frame_tree,
-                                        gint offset,
-                                        gint length) {
+                                        int offset,
+                                        int length) {
 
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
@@ -2904,15 +2904,15 @@ static void flex_frame_wu_usage_dissect(tvbuff_t* tvb,
                                  length,
                                  "Write unit illegal length %d", length);
   } else {
-    guint16 units = tvb_get_ntohs(tvb, offset);
+    uint16_t units = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(frame_tree, hf_flex_frame_wu_count, tvb, offset, 2, units);
   }
 }
 
 static void flex_frame_reorder_dissect(tvbuff_t* tvb,
                                        proto_tree* frame_tree,
-                                       gint offset,
-                                       gint length) {
+                                       int offset,
+                                       int length) {
   /* Expects no data, so just check len */
   if (length != 0) {
     proto_tree_add_expert_format(frame_tree,
@@ -2927,8 +2927,8 @@ static void flex_frame_reorder_dissect(tvbuff_t* tvb,
 
 static void flex_frame_durability_dissect(tvbuff_t* tvb,
                                           proto_tree* frame_tree,
-                                          gint offset,
-                                          gint length) {
+                                          int offset,
+                                          int length) {
   if (!(length == 1 || length == 3)) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
@@ -2944,8 +2944,8 @@ static void flex_frame_durability_dissect(tvbuff_t* tvb,
 
 static void flex_frame_dcp_stream_id_dissect(tvbuff_t* tvb,
                                              proto_tree* frame_tree,
-                                             gint offset,
-                                             gint length) {
+                                             int offset,
+                                             int length) {
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
@@ -2955,15 +2955,15 @@ static void flex_frame_dcp_stream_id_dissect(tvbuff_t* tvb,
                                  length,
                                  "FlexFrame: DCP Stream ID with illegal length %d", length);
   } else {
-    guint16 sid = tvb_get_ntohs(tvb, offset);
+    uint16_t sid = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(frame_tree, hf_flex_frame_dcp_stream_id, tvb, offset, 2, sid);
   }
 }
 
 static void flex_frame_impersonate_dissect(tvbuff_t* tvb,
                                            proto_tree* frame_tree,
-                                           gint offset,
-                                           gint length) {
+                                           int offset,
+                                           int length) {
   proto_tree_add_item(frame_tree,
                       hf_flex_frame_impersonated_user,
                       tvb,
@@ -2974,8 +2974,8 @@ static void flex_frame_impersonate_dissect(tvbuff_t* tvb,
 
 static void flex_frame_preserve_ttl(tvbuff_t* tvb,
                                     proto_tree* frame_tree,
-                                    gint offset,
-                                    gint length) {
+                                    int offset,
+                                    int length) {
   /* Expects no data, so just check len */
   if (length != 0) {
     proto_tree_add_expert_format(frame_tree,
@@ -2990,11 +2990,11 @@ static void flex_frame_preserve_ttl(tvbuff_t* tvb,
 
 typedef void (*flex_frame_by_id_dissect_fn)(tvbuff_t*,
                                             proto_tree*,
-                                            gint,
-                                            gint);
+                                            int,
+                                            int);
 
 struct flex_frame_by_id_dissect {
-  guint32 id;
+  uint32_t id;
   flex_frame_by_id_dissect_fn handler;
 };
 
@@ -3021,9 +3021,9 @@ static const struct flex_frame_by_id_dissect flex_frame_request_dissect[] = {
 static void dissect_flexible_framing_extras(tvbuff_t* tvb,
                                             packet_info* pinfo,
                                             proto_tree* tree,
-                                            gint offset,
-                                            guint8 flex_frame_extra_len,
-                                            gboolean request) {
+                                            int offset,
+                                            uint8_t flex_frame_extra_len,
+                                            bool request) {
 
     /* select some request/response ID decoders */
   const struct flex_frame_by_id_dissect* id_dissectors = flex_frame_response_dissect;
@@ -3046,13 +3046,13 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
                       flex_frame_extra_len);
 
   /* iterate until we've consumed the flex_frame_extra_len */
-  gint bytes_remaining = flex_frame_extra_len;
+  int bytes_remaining = flex_frame_extra_len;
   int frame_index = 0;
 
   while (bytes_remaining > 0) {
 
     /* FrameInfo starts with a 'tag' byte which is formed from 2 nibbles */
-    guint8 tag_byte = tvb_get_guint8(tvb, offset);
+    uint8_t tag_byte = tvb_get_guint8(tvb, offset);
 
     /* 0xff isn't defined yet in the spec as to what it should do */
     if (tag_byte == 0xFF) {
@@ -3068,8 +3068,8 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
 
     /* extract the nibbles into u16, if the id/len nibbles are escapes, their
        true values come from following bytes and can be larger than u8 */
-    guint16 id = tag_byte >> 4;
-    guint16 len = tag_byte & 0x0F;
+    uint16_t id = tag_byte >> 4;
+    uint16_t len = tag_byte & 0x0F;
 
     int id_size = 1;
     /* Calculate the id/len and add to the tree */
@@ -3135,13 +3135,13 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
   }
 }
 
-static gboolean
-is_xerror(guint8 datatype, guint16 status)
+static bool
+is_xerror(uint8_t datatype, uint16_t status)
 {
   if ((datatype & DT_JSON) && status != STATUS_SUBDOC_MULTI_PATH_FAILURE) {
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 /// The following section contains dissector functions for the various
@@ -3152,8 +3152,8 @@ is_xerror(guint8 datatype, guint16 status)
 static void d_s_o_clustermap_change_notification_req(tvbuff_t *tvb,
                                                      packet_info *pinfo,
                                                      proto_tree *tree,
-                                                     gint offset,
-                                                     gint size) {
+                                                     int offset,
+                                                     int size) {
   if (size == 0) {
     // this is an error!
     expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
@@ -3170,8 +3170,8 @@ static void d_s_o_clustermap_change_notification_req(tvbuff_t *tvb,
 static void d_s_o_authenticate_req(tvbuff_t *tvb,
                                    packet_info *pinfo,
                                    proto_tree *tree,
-                                   gint offset,
-                                   gint size) {
+                                   int offset,
+                                   int size) {
   if (size == 0) {
     // this is an error!
     expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
@@ -3188,8 +3188,8 @@ static void d_s_o_authenticate_req(tvbuff_t *tvb,
 static void d_s_o_active_external_users_req(tvbuff_t *tvb,
                                             packet_info *pinfo,
                                             proto_tree *tree,
-                                            gint offset,
-                                            gint size) {
+                                            int offset,
+                                            int size) {
   if (size == 0) {
     // this is an error!
     expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
@@ -3206,8 +3206,8 @@ static void d_s_o_active_external_users_req(tvbuff_t *tvb,
 static void d_s_o_get_authorization_req(tvbuff_t *tvb,
                                         packet_info *pinfo,
                                         proto_tree *tree,
-                                        gint offset,
-                                        gint size) {
+                                        int offset,
+                                        int size) {
   if (size > 0) {
     // this is an error!
     proto_item *ti = proto_tree_add_item(tree, hf_value, tvb, offset, size,
@@ -3226,8 +3226,8 @@ static void d_s_o_get_authorization_req(tvbuff_t *tvb,
 static void d_s_o_server_ignored_response(tvbuff_t *tvb,
                                           packet_info *pinfo,
                                           proto_tree *tree,
-                                          gint offset,
-                                          gint size) {
+                                          int offset,
+                                          int size) {
   if (size == 0) {
     return;
   }
@@ -3245,8 +3245,8 @@ static void d_s_o_server_ignored_response(tvbuff_t *tvb,
 static void d_s_o_authenticate_res(tvbuff_t *tvb ,
                                    packet_info *pinfo ,
                                    proto_tree *tree ,
-                                   gint offset ,
-                                   gint size ) {
+                                   int offset ,
+                                   int size ) {
   if (size == 0) {
     return;
   }
@@ -3261,8 +3261,8 @@ static void d_s_o_authenticate_res(tvbuff_t *tvb ,
 static void d_s_o_get_authorization_res(tvbuff_t *tvb,
                                         packet_info *pinfo,
                                         proto_tree *tree,
-                                        gint offset,
-                                        gint size) {
+                                        int offset,
+                                        int size) {
   if (size == 0) {
     return;
   }
@@ -3279,7 +3279,7 @@ static void d_s_o_get_authorization_res(tvbuff_t *tvb,
  * Does the opcode use the vbucket or not? (does it make any sense to
  * add the vbucket to the info)
  */
-static bool opcode_use_vbucket(guint8 magic _U_, guint8 opcode) {
+static bool opcode_use_vbucket(uint8_t magic _U_, uint8_t opcode) {
   switch (opcode) {
     case CLIENT_OPCODE_OBSERVE:
     case CLIENT_OPCODE_COLLECTIONS_GET_ID:
@@ -3303,10 +3303,10 @@ static bool opcode_use_vbucket(guint8 magic _U_, guint8 opcode) {
     case CLIENT_OPCODE_CREATE_BUCKET:
     case CLIENT_OPCODE_DELETE_BUCKET:
     case CLIENT_OPCODE_SELECT_BUCKET:
-      return FALSE;
+      return false;
 
     default:
-      return TRUE;
+      return true;
   }
 }
 
@@ -3319,15 +3319,15 @@ static bool opcode_use_vbucket(guint8 magic _U_, guint8 opcode) {
  * for the layout of the frame header.
  */
 static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *couchbase_tree, proto_item *couchbase_item) {
-  guint8 magic = get_magic(tvb);
+  uint8_t magic = get_magic(tvb);
   proto_item *ti = proto_tree_add_item(couchbase_tree, hf_magic, tvb, 0, 1, ENC_BIG_ENDIAN);
   if (try_val_to_str(magic, magic_vals) == NULL) {
     expert_add_info_format(pinfo, ti, &ei_warn_unknown_magic_byte, "Unknown magic byte: 0x%x", magic);
   }
 
-  guint8 opcode = get_opcode(tvb);
+  uint8_t opcode = get_opcode(tvb);
 
-  const gchar *opcode_name;
+  const char *opcode_name;
   if (is_server_magic(magic)) {
     ti = proto_tree_add_item(couchbase_tree, hf_server_opcode, tvb, 1, 1, ENC_BIG_ENDIAN);
     opcode_name = try_val_to_str_ext(opcode, &server_opcode_vals_ext);
@@ -3350,8 +3350,8 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                   opcode);
 
   /* Check for flex magic, which changes the header format */
-  guint16 keylen;
-  guint8 flex_frame_extras = get_flex_framing_extras_length(tvb);
+  uint16_t keylen;
+  uint8_t flex_frame_extras = get_flex_framing_extras_length(tvb);
   if (is_flex_encoded(magic)) {
     /* 2 separate bytes for the flex_extras and keylen */
     proto_tree_add_item(couchbase_tree, hf_flex_extras_length, tvb, 2, 1, ENC_BIG_ENDIAN);
@@ -3362,13 +3362,13 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   }
   keylen = get_key_length(tvb);
 
-  guint8 extlen = get_extras_length(tvb);
+  uint8_t extlen = get_extras_length(tvb);
   proto_tree_add_item(couchbase_tree, hf_extlength, tvb, 4, 1, ENC_BIG_ENDIAN);
 
   proto_tree_add_bitmask(couchbase_tree, tvb, 5, hf_datatype, ett_datatype, datatype_vals, ENC_BIG_ENDIAN);
 
   if (is_request_magic(magic)) {
-    guint16 vbucket = tvb_get_ntohs(tvb, 6);
+    uint16_t vbucket = tvb_get_ntohs(tvb, 6);
     proto_tree_add_item(couchbase_tree, hf_vbucket, tvb, 6, 2, ENC_BIG_ENDIAN);
     if (opcode_use_vbucket(magic, opcode)) {
       proto_item_append_text(couchbase_item, ", vb:%d", vbucket);
@@ -3376,7 +3376,7 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
   } else {
     /* This is a response or invalid magic... */
-    guint16 status = get_status(tvb);
+    uint16_t status = get_status(tvb);
     ti = proto_tree_add_item(couchbase_tree, hf_status, tvb, 6, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
       expert_add_info_format(pinfo, ti, &ei_warn_unknown_opcode, "%s: %s",
@@ -3385,8 +3385,8 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
   }
 
-  guint32 bodylen = get_body_length(tvb);
-  guint32 value_len = bodylen - extlen - keylen - flex_frame_extras;
+  uint32_t bodylen = get_body_length(tvb);
+  uint32_t value_len = bodylen - extlen - keylen - flex_frame_extras;
   ti = proto_tree_add_uint(couchbase_tree, hf_value_length, tvb, 8, 0, value_len);
   proto_item_set_generated(ti);
 
@@ -3413,9 +3413,9 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void dissect_frame_flex_info_section(tvbuff_t *tvb,
                                             packet_info *pinfo,
                                             proto_tree *tree,
-                                            gint offset,
-                                            guint8 size,
-                                            guint8 magic) {
+                                            int offset,
+                                            uint8_t size,
+                                            uint8_t magic) {
   if (size == 0) {
     return;
   }
@@ -3461,11 +3461,11 @@ static void dissect_frame_flex_info_section(tvbuff_t *tvb,
 static void dissect_frame_extras(tvbuff_t *tvb,
                                  packet_info *pinfo,
                                  proto_tree *tree,
-                                 gint offset,
-                                 guint8 size,
-                                 guint8 magic,
-                                 guint8 opcode,
-                                 guint16 *subdoc_path_len) {
+                                 int offset,
+                                 uint8_t size,
+                                 uint8_t magic,
+                                 uint8_t opcode,
+                                 uint16_t *subdoc_path_len) {
   switch (magic) {
     case MAGIC_SERVER_RESPONSE:
       dissect_server_response_extras(tvb, pinfo, tree, offset, size, opcode);
@@ -3498,10 +3498,10 @@ static void dissect_frame_extras(tvbuff_t *tvb,
 static void dissect_frame_key(tvbuff_t *tvb,
                               packet_info *pinfo,
                               proto_tree *tree,
-                              gint offset,
-                              guint16 size,
-                              guint8 magic,
-                              guint8 opcode) {
+                              int offset,
+                              uint16_t size,
+                              uint8_t magic,
+                              uint8_t opcode) {
   if (is_server_magic(magic)) {
     dissect_server_key(tvb, pinfo, tree, offset, size, opcode,
                        is_request_magic(magic));
@@ -3514,16 +3514,16 @@ static void dissect_frame_key(tvbuff_t *tvb,
 static void dissect_client_value(tvbuff_t *tvb,
                                  packet_info *pinfo,
                                  proto_tree *tree,
-                                 gint offset,
-                                 guint32 size,
-                                 guint8 magic,
-                                 guint8 opcode,
-                                 guint16 subdoc_path_len) {
-  guint8 datatype = get_datatype(tvb);
+                                 int offset,
+                                 uint32_t size,
+                                 uint8_t magic,
+                                 uint8_t opcode,
+                                 uint16_t subdoc_path_len) {
+  uint8_t datatype = get_datatype(tvb);
   if (is_request_magic(magic)) {
     dissect_value(tvb, pinfo, tree, offset, size, subdoc_path_len, opcode, true, datatype);
   } else {
-    guint16 status = get_status(tvb);
+    uint16_t status = get_status(tvb);
     if (status == 0) {
       dissect_value(tvb, pinfo, tree, offset, size, subdoc_path_len, opcode, false, datatype);
     } else if (size) {
@@ -3579,8 +3579,8 @@ static void dissect_client_value(tvbuff_t *tvb,
 static void dissect_server_request_value(tvbuff_t *tvb,
                                          packet_info *pinfo,
                                          proto_tree *tree,
-                                         gint offset,
-                                         gint size) {
+                                         int offset,
+                                         int size) {
   switch (get_opcode(tvb)) {
     case SERVER_OPCODE_CLUSTERMAP_CHANGE_NOTIFICATION:
       d_s_o_clustermap_change_notification_req(tvb, pinfo, tree, offset, size);
@@ -3607,8 +3607,8 @@ static void dissect_server_request_value(tvbuff_t *tvb,
 static void dissect_server_response_value(tvbuff_t *tvb,
                                          packet_info *pinfo,
                                          proto_tree *tree,
-                                         gint offset,
-                                         gint size) {
+                                         int offset,
+                                         int size) {
   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                   val_to_str_ext(get_status(tvb), &status_vals_ext,
                                  "Unknown status: 0x%x"));
@@ -3642,12 +3642,12 @@ static void dissect_server_response_value(tvbuff_t *tvb,
 static void dissect_frame_value(tvbuff_t *tvb,
                                 packet_info *pinfo,
                                 proto_tree *tree,
-                                gint offset,
-                                guint32 size,
-                                guint8 magic,
-                                guint8 opcode,
-                                guint16 subdoc_path_len) {
-  if (size > G_MAXINT32) {
+                                int offset,
+                                uint32_t size,
+                                uint8_t magic,
+                                uint8_t opcode,
+                                uint16_t subdoc_path_len) {
+  if (size > INT32_MAX) {
     // The packet size isn't supported
   }
 
@@ -3659,15 +3659,15 @@ static void dissect_frame_value(tvbuff_t *tvb,
       dissect_client_value(tvb, pinfo, tree, offset, size, magic, opcode, subdoc_path_len);
       return;
     case MAGIC_SERVER_REQUEST:
-      dissect_server_request_value(tvb, pinfo, tree, offset, (gint)size);
+      dissect_server_request_value(tvb, pinfo, tree, offset, (int)size);
       return;
     case MAGIC_SERVER_RESPONSE:
-      dissect_server_response_value(tvb, pinfo, tree, offset, (gint)size);
+      dissect_server_response_value(tvb, pinfo, tree, offset, (int)size);
       return;
     default:
       // Unknown magic... just dump the data
       if (size > 0) {
-        proto_tree_add_item(tree, hf_value, tvb, offset, (gint)size, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_value, tvb, offset, (int)size, ENC_ASCII | ENC_NA);
       }
       return;
   }
@@ -3702,20 +3702,20 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_tree *couchbase_tree = proto_item_add_subtree(couchbase_item, ett_couchbase);
 
   dissect_frame_header(tvb, pinfo, couchbase_tree, couchbase_item);
-  guint8 magic = get_magic(tvb);
-  gint offset = 24;
+  uint8_t magic = get_magic(tvb);
+  int offset = 24;
 
-  guint8 flex_frame_extra_len = get_flex_framing_extras_length(tvb);
-  guint8 opcode = get_opcode(tvb);
-  guint8 extras_length = get_extras_length(tvb);
-  guint16 key_length = get_key_length(tvb);
-  guint32 body_length = get_body_length(tvb);
-  guint32 value_len = body_length - key_length - extras_length - flex_frame_extra_len;
+  uint8_t flex_frame_extra_len = get_flex_framing_extras_length(tvb);
+  uint8_t opcode = get_opcode(tvb);
+  uint8_t extras_length = get_extras_length(tvb);
+  uint16_t key_length = get_key_length(tvb);
+  uint32_t body_length = get_body_length(tvb);
+  uint32_t value_len = body_length - key_length - extras_length - flex_frame_extra_len;
 
   dissect_frame_flex_info_section(tvb, pinfo, couchbase_tree, offset, flex_frame_extra_len, magic);
   offset += flex_frame_extra_len;
 
-  guint16 subdoc_path_len = 0;
+  uint16_t subdoc_path_len = 0;
   // Dissect the extras section
   dissect_frame_extras(tvb, pinfo, couchbase_tree, offset, extras_length, magic, opcode, &subdoc_path_len);
   offset += extras_length;
@@ -3728,7 +3728,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   return tvb_reported_length(tvb);
 }
 
-static guint
+static unsigned
 get_couchbase_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                          void *data _U_) {
   // See https://github.com/couchbase/kv_engine/blob/master/docs/BinaryProtocol.md#packet-structure
@@ -3985,7 +3985,7 @@ proto_register_couchbase(void)
     { &ei_warn_unknown_flex_len, { "couchbase.warn.unknown_flexible_frame_len", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_couchbase,
     &ett_extras,
     &ett_flex_frame_extras,
@@ -4037,12 +4037,12 @@ proto_register_couchbase(void)
 void
 proto_reg_handoff_couchbase(void)
 {
-  static gboolean initialized = FALSE;
+  static bool initialized = false;
 
   if (!initialized){
     json_handle = find_dissector_add_dependency("json", proto_couchbase);
     dissector_add_uint_range_with_preference("tcp.port", COUCHBASE_DEFAULT_PORT, couchbase_handle);
-    initialized = TRUE;
+    initialized = true;
   } else {
     ssl_dissector_delete(couchbase_ssl_port, couchbase_handle);
   }

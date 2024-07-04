@@ -42,10 +42,10 @@ static dissector_handle_t cattp_handle;
 
 static int proto_cattp;
 
-static gint ett_cattp;
-static gint ett_cattp_id;
-static gint ett_cattp_flags;
-static gint ett_cattp_eaks;
+static int ett_cattp;
+static int ett_cattp_id;
+static int ett_cattp_flags;
+static int ett_cattp_eaks;
 
 static int hf_cattp_flags;
 
@@ -113,11 +113,11 @@ void proto_reg_handoff_cattp(void);
 void proto_register_cattp(void);
 
 /* Dissection of SYN PDUs */
-static guint32
-dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, guint32 offset)
+static uint32_t
+dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, uint32_t offset)
 {
     proto_item *idi, *id_tree;
-    guint8      idlen;
+    uint8_t     idlen;
 
     proto_tree_add_item(cattp_tree, hf_cattp_maxpdu, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -134,7 +134,7 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     id_tree = proto_item_add_subtree(idi, ett_cattp_id);
 
     if (idlen > 0) {
-        guint8 first_id_byte;
+        uint8_t first_id_byte;
 
         first_id_byte = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(id_tree, hf_cattp_identification, tvb, offset, idlen, ENC_NA);
@@ -150,7 +150,7 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
 
             /* switch nibbles */
             for (i = 0; i < idlen; i++) {
-                guint8 c, n;
+                uint8_t c, n;
 
                 c = tvb_get_guint8(tvb, offset + i);
                 n = ((c & 0xF0) >> 4) + ((c & 0x0F) << 4);
@@ -166,11 +166,11 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
 }
 
 /* Dissection of Extended Acknowledgement PDUs */
-static guint32
-dissect_cattp_eakpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, guint32 offset, guint8 hlen)
+static uint32_t
+dissect_cattp_eakpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, uint32_t offset, uint8_t hlen)
 {
     proto_item *eaki;
-    guint8      eak_count;
+    uint8_t     eak_count;
 
     eak_count = (hlen - offset) >> 1;
     eaki = proto_tree_add_uint(cattp_tree, hf_cattp_eaklen, tvb, offset, eak_count * 2, eak_count);
@@ -192,11 +192,11 @@ dissect_cattp_eakpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
 }
 
 /* Dissection of Extended Acknowledgement PDUs */
-static guint32
-dissect_cattp_rstpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, guint32 offset)
+static uint32_t
+dissect_cattp_rstpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, uint32_t offset)
 {
-    guint8       rc;
-    const gchar *rc_str;
+    uint8_t      rc;
+    const char *rc_str;
 
     rc = tvb_get_guint8(tvb, offset); /* reason code of RST */
     rc_str = val_to_str(rc, cattp_reset_reason, "Unknown reason code: 0x%02x");
@@ -212,12 +212,12 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
     const char *pdutype = "[Unknown PDU]";
     proto_item *ti, *cattp_tree;
-    guint32     offset;
+    uint32_t    offset;
     vec_t       cksum_vec[1];
     int         header_offset;
-    guint       cksum_data_len;
-    guint8      flags, first_byte, hlen, ver;
-    guint16     plen, ackno, seqno, wsize, sport, dport;
+    unsigned    cksum_data_len;
+    uint8_t     flags, first_byte, hlen, ver;
+    uint16_t    plen, ackno, seqno, wsize, sport, dport;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, CATTP_SHORTNAME);
 
@@ -323,8 +323,8 @@ static bool
 dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) >= CATTP_HBLEN) { /* check of data is big enough for base header. */
-        guint8  flags, ver, hlen;
-        guint16 plen;
+        uint8_t flags, ver, hlen;
+        uint16_t plen;
 
         hlen = tvb_get_guint8(tvb, 3); /* header len  */
         plen = tvb_get_ntohs(tvb, 8);  /* payload len */
@@ -532,7 +532,7 @@ proto_register_cattp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cattp,
         &ett_cattp_flags,
         &ett_cattp_id,

@@ -29,19 +29,19 @@ static int proto_ttag;
 static int hf_ttag_time_stamp;
 static int hf_ttag_eth_type;
 
-static gint ett_ttag;
+static int ett_ttag;
 
 static int
 dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint64 timestamp_value;
+    uint64_t timestamp_value;
     nstime_t timestamp;
-    guint16 encap_proto;
+    uint16_t encap_proto;
     ethertype_data_t ethertype_data;
 
     proto_tree *ttag_tree;
     proto_item *ti;
-    gint offset = 0;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTAG");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -50,8 +50,8 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ttag_tree = proto_item_add_subtree(ti, ett_ttag);
 
     timestamp_value = tvb_get_guint48(tvb, offset, ENC_BIG_ENDIAN);
-    timestamp.secs = (time_t) (timestamp_value / G_GUINT64_CONSTANT(1000000000));
-    timestamp.nsecs = (guint32)(timestamp_value - (timestamp.secs * G_GUINT64_CONSTANT(1000000000)));
+    timestamp.secs = (time_t) (timestamp_value / UINT64_C(1000000000));
+    timestamp.nsecs = (uint32_t)(timestamp_value - (timestamp.secs * UINT64_C(1000000000)));
 
     proto_item_append_text(ti, ", Timestamp: %s", rel_time_to_secs_str(pinfo->pool, &timestamp));
 
@@ -89,7 +89,7 @@ proto_register_ttag(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ttag
     };
 

@@ -33,7 +33,7 @@ static int hf_cgmp_count;
 static int hf_cgmp_gda;
 static int hf_cgmp_usa;
 
-static gint ett_cgmp;
+static int ett_cgmp;
 
 static const value_string type_vals[] = {
 	{ 0, "Join" },
@@ -47,7 +47,7 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item *ti;
 	proto_tree *cgmp_tree = NULL;
 	int offset = 0;
-	guint8 count;
+	uint8_t count;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CGMP");
 	col_set_str(pinfo->cinfo, COL_INFO, "Cisco Group Management Protocol");
@@ -115,7 +115,7 @@ proto_register_cgmp(void)
 		{ "Unicast Source Address",	"cgmp.usa", FT_ETHER, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cgmp,
 	};
 

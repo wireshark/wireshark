@@ -41,7 +41,7 @@ static int hf_cisco_erspan_utcoffset;
 static int hf_cisco_erspan_version;
 
 
-static gint ett_marker;
+static int ett_marker;
 
 
 static int
@@ -56,7 +56,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   if (tree) {
 
     /* Skip the proprietary CISCO header - no docs have been released for this */
-    guint32 offset = 20;
+    uint32_t offset = 20;
 
     ti = proto_tree_add_item(tree, proto_marker, tvb, 0, -1, ENC_NA);
     marker_tree = proto_item_add_subtree(ti, ett_marker);
@@ -176,7 +176,7 @@ proto_register_erspan_marker(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_marker,
   };
 

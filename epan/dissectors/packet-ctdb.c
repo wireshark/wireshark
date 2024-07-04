@@ -60,26 +60,26 @@ static int hf_ctdb_pid;
 static int hf_ctdb_process_exists;
 
 /* Initialize the subtree pointers */
-static gint ett_ctdb;
-static gint ett_ctdb_key;
+static int ett_ctdb;
+static int ett_ctdb_key;
 
 static expert_field ei_ctdb_too_many_nodes;
 
 /* this tree keeps track of caller/reqid for ctdb transactions */
 static wmem_tree_t *ctdb_transactions;
 typedef struct _ctdb_trans_t {
-	guint32 key_hash;
-	guint32 request_in;
-	guint32 response_in;
+	uint32_t key_hash;
+	uint32_t request_in;
+	uint32_t response_in;
 	nstime_t req_time;
 } ctdb_trans_t;
 
 /* this tree keeps track of CONTROL request/responses */
 static wmem_tree_t *ctdb_controls;
 typedef struct _ctdb_control_t {
-	guint32 opcode;
-	guint32 request_in;
-	guint32 response_in;
+	uint32_t opcode;
+	uint32_t request_in;
+	uint32_t response_in;
 	nstime_t req_time;
 } ctdb_control_t;
 
@@ -405,7 +405,7 @@ static const value_string ctrl_opcode_vals[] = {
 
 
 
-static int dissect_control_get_recmaster_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
+static int dissect_control_get_recmaster_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t status, int endianess _U_)
 {
 	proto_tree_add_uint(tree, hf_ctdb_recmaster, tvb, 0, 0, status);
 
@@ -420,7 +420,7 @@ static const value_string recmode_vals[] = {
 	{0, NULL}
 };
 
-static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
+static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t status, int endianess _U_)
 {
 	proto_tree_add_uint(tree, hf_ctdb_recmode, tvb, 0, 0, status);
 
@@ -431,9 +431,9 @@ static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tre
 }
 
 #define CTDB_MAX_NODES 500 /* Arbitrary. */
-static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
+static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t status _U_, int endianess)
 {
-	guint32 num_nodes;
+	uint32_t num_nodes;
 	proto_item *item;
 
 	/* num nodes */
@@ -467,9 +467,9 @@ static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
-static int dissect_control_process_exist_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
+static int dissect_control_process_exist_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t status _U_, int endianess)
 {
-	guint32 pid;
+	uint32_t pid;
 
 	/* pid */
 	proto_tree_add_item(tree, hf_ctdb_pid, tvb, offset, 4, endianess);
@@ -490,17 +490,17 @@ static const true_false_string process_exists_tfs = {
 	"Process Exists"
 };
 
-static int dissect_control_process_exist_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
+static int dissect_control_process_exist_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t status, int endianess _U_)
 {
 	proto_tree_add_boolean(tree, hf_ctdb_process_exists, tvb, offset, 4, status);
 	return offset;
 }
 
 /* This defines the array of dissectors for request/reply controls */
-typedef int (*control_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess);
+typedef int (*control_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t status, int endianess);
 
 typedef struct _control_dissector_array_t {
-	guint32 opcode;
+	uint32_t opcode;
 	control_dissector request_dissector;
 	control_dissector reply_dissector;
 } control_dissector_array_t;
@@ -579,7 +579,7 @@ static control_dissector_array_t control_dissectors[] = {
 	{0, NULL, NULL}
 };
 
-static control_dissector find_control_dissector(guint32 opcode, gboolean is_request)
+static control_dissector find_control_dissector(uint32_t opcode, bool is_request)
 {
 	control_dissector_array_t *cd=control_dissectors;
 
@@ -658,11 +658,11 @@ ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_c
 	}
 }
 
-static guint32
-ctdb_hash(tvbuff_t *tvb, int offset, guint32 len)
+static uint32_t
+ctdb_hash(tvbuff_t *tvb, int offset, uint32_t len)
 {
-	guint32 value;
-	guint32 i;
+	uint32_t value;
+	uint32_t i;
 
 	for(value=0x238F13AF*len, i=0; i < len; i++)
 		value=(value+(tvb_get_guint8(tvb, offset+i) << (i*5 % 24)));
@@ -671,9 +671,9 @@ ctdb_hash(tvbuff_t *tvb, int offset, guint32 len)
 }
 
 static int
-dissect_ctdb_key(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 keylen, guint32 *key_hash, int endianess)
+dissect_ctdb_key(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t keylen, uint32_t *key_hash, int endianess)
 {
-	guint32 keyhash;
+	uint32_t keyhash;
 	proto_item *key_item=NULL;
 	proto_item *key_tree=NULL;
 
@@ -700,7 +700,7 @@ dissect_ctdb_key(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 keylen, gu
 static int
 dissect_ctdb_reply_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int endianess)
 {
-	guint32 datalen;
+	uint32_t datalen;
 
 	/* status */
 	proto_tree_add_item(tree, hf_ctdb_status, tvb, offset, 4, endianess);
@@ -724,9 +724,9 @@ dissect_ctdb_reply_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 }
 
 static int
-dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 dst, int endianess)
+dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t reqid, uint32_t dst, int endianess)
 {
-	guint32 datalen, keylen;
+	uint32_t datalen, keylen;
 	wmem_tree_key_t tkey[3];
 	ctdb_trans_t *ctdb_trans;
 
@@ -781,9 +781,9 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static int
-dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, int endianess)
+dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t reqid, int endianess)
 {
-	guint32 keylen, datalen, dmaster;
+	uint32_t keylen, datalen, dmaster;
 	wmem_tree_key_t tkey[3];
 	ctdb_trans_t *ctdb_trans;
 
@@ -848,10 +848,10 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static int
-dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
+dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t reqid, uint32_t src, uint32_t dst, int endianess)
 {
-	guint32 datalen;
-	guint32 opcode;
+	uint32_t datalen;
+	uint32_t opcode;
 	ctdb_control_t *ctdb_control;
 	control_dissector cd;
 	int data_offset;
@@ -930,7 +930,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	}
 
 	if (ctdb_control) {
-		cd=find_control_dissector(ctdb_control->opcode, TRUE);
+		cd=find_control_dissector(ctdb_control->opcode, true);
 		if (cd) {
 			cd(pinfo, tree, tvb, data_offset, 0, endianess);
 		}
@@ -941,12 +941,12 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
+dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t reqid, uint32_t src, uint32_t dst, int endianess)
 {
 	ctdb_control_t *ctdb_control;
 	wmem_tree_key_t tkey[4];
 	proto_item *item;
-	guint32 datalen, errorlen, status;
+	uint32_t datalen, errorlen, status;
 	int data_offset;
 	control_dissector cd;
 
@@ -1018,7 +1018,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	}
 
 
-	cd=find_control_dissector(ctdb_control->opcode, FALSE);
+	cd=find_control_dissector(ctdb_control->opcode, false);
 	if (cd) {
 		cd(pinfo, tree, tvb, data_offset, status, endianess);
 	}
@@ -1033,10 +1033,10 @@ static const true_false_string flags_immediate_tfs={
 };
 
 static int
-dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 caller, int endianess)
+dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t reqid, uint32_t caller, int endianess)
 {
-	guint32 flags, keyhash;
-	guint32 keylen, datalen;
+	uint32_t flags, keyhash;
+	uint32_t keylen, datalen;
 	ctdb_trans_t *ctdb_trans=NULL;
 
 	/* flags */
@@ -1128,7 +1128,7 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	proto_tree *tree=NULL;
 	proto_item *item=NULL;
 	int offset=0;
-	guint32 opcode, src, dst, reqid;
+	uint32_t opcode, src, dst, reqid;
 	int endianess;
 
 	/* does this look like CTDB? */
@@ -1137,10 +1137,10 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	}
 	switch(tvb_get_letohl(tvb, offset+4)){
 	case 0x42445443:
-		endianess=FALSE;
+		endianess=false;
 		break;
 	case 0x43544442:
-		endianess=TRUE;
+		endianess=true;
 		break;
 	default:
 		return FALSE;
@@ -1368,7 +1368,7 @@ proto_register_ctdb(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ctdb,
 		&ett_ctdb_key,
 	};

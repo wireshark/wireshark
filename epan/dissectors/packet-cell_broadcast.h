@@ -22,7 +22,7 @@
  *
  * @return the offset after the Message Identifier
  */
-guint dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint offset);
+unsigned dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, unsigned offset);
 
 
 /**
@@ -34,7 +34,7 @@ guint dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint offs
  *
  * @return the offset after the Serial Number
  */
-guint dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint offset);
+unsigned dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, unsigned offset);
 
 
 /**
@@ -50,6 +50,6 @@ int dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto
 /**
  * Dissects CB Data
  */
-tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset);
+tvbuff_t * dissect_cbs_data(uint8_t sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset);
 
 #endif /* PACKET_CELL_BROADCAST_H */

@@ -66,7 +66,7 @@ static const char * C15_LABEL = "C15";
 static int proto_c15ch_hbeat;
 
 /* Subtrees */
-static gint ett_c15ch_hbeat;
+static int ett_c15ch_hbeat;
 
 /* Fields */
 static int hf_c15ch_hbeat_clli;
@@ -96,9 +96,9 @@ static int hf_c15ch_dest_ni_tn;
 static int hf_c15ch_realtime;
 
 /* Subtrees */
-static gint ett_c15ch;
-static gint ett_src_ni_tn;
-static gint ett_dest_ni_tn;
+static int ett_c15ch;
+static int ett_src_ni_tn;
+static int ett_dest_ni_tn;
 
 /* for msg_type field ...*/
 static const value_string c15_msg_types[] = {
@@ -143,11 +143,11 @@ static const value_string c15_msg_types[] = {
 static value_string_ext c15_msg_types_ext = VALUE_STRING_EXT_INIT(c15_msg_types);
 
 /* Second Level */
-static gint ett_c15ch_second_level;
-static gint ett_c15ch_second_level_sub1;
-static gint ett_c15ch_second_level_sub2;
-static gint ett_c15ch_second_level_sub3;
-static gint ett_c15ch_second_level_sub4;
+static int ett_c15ch_second_level;
+static int ett_c15ch_second_level_sub1;
+static int ett_c15ch_second_level_sub2;
+static int ett_c15ch_second_level_sub3;
+static int ett_c15ch_second_level_sub4;
 static int proto_c15ch_second_level;
 
 static dissector_handle_t c15ch_hbeat_handle;
@@ -1548,8 +1548,8 @@ static int hf_c15ch_cp_event_subpm_sig_dest;
 static int hf_c15ch_cp_event_subpm_agl_splrg;
 
 
-/*static const guint32 MIN_PM_VAL = 0; */
-static const guint32 MAX_PM_VAL = 77;
+/*static const uint32_t MIN_PM_VAL = 0; */
+static const uint32_t MAX_PM_VAL = 77;
 static int * subpm_table[] = {
     /* one entry for each PM type */
     &hf_c15ch_cp_event_subpm_orig,            /* MIN_PM_VAL */
@@ -1632,12 +1632,12 @@ static int * subpm_table[] = {
     &hf_c15ch_cp_event_subpm_agl_splrg
     /* MAX_PM_VAL */
 };
-static const guint32 DIG_CKT_TEST_PM_VALUE = 40;
+static const uint32_t DIG_CKT_TEST_PM_VALUE = 40;
 
 /* special table to look up subpm for pm_val = DIG_CKT_TEST__PM_VALUE */
 /* this table is indexed by trunk pm numbers */
-/*static const guint32 MIN_DIG_CKT_TEST_TRKPM_VAL = 0; */
-static const guint32 MAX_DIG_CKT_TEST_TRKPM_VAL = 5;
+/*static const uint32_t MIN_DIG_CKT_TEST_TRKPM_VAL = 0; */
+static const uint32_t MAX_DIG_CKT_TEST_TRKPM_VAL = 5;
 static int * dig_ckt_test_subpm_table[] = {
     /* one entry for each TRKPM value in the expected range */
     &hf_c15ch_cp_event_dig_ckt_test_subpm_sp,            /* MIN_DIG_CKT_TEST_TRKPM_VAL */
@@ -3031,8 +3031,8 @@ static int * fiatid_table[] = {
     &hf_c15ch_inc_gwe_fiatid_admn
 };
 
-/*static const guint8 FIRST_TASK_TYPE_INDEX = 0;*/
-static const guint8  LAST_TASK_TYPE_INDEX = 8;
+/*static const uint8_t FIRST_TASK_TYPE_INDEX = 0;*/
+static const uint8_t LAST_TASK_TYPE_INDEX = 8;
 
 
 static const value_string c15inc_gwe_task_types[] = {
@@ -3049,7 +3049,7 @@ static const value_string c15inc_gwe_task_types[] = {
 };
 
 #if 0
-static const guint8 INVALID_TASK_TYPE_VAL;
+static const uint8_t INVALID_TASK_TYPE_VAL;
 #endif
 
 static const value_string c15inc_gwe_bc_fiat_types[] = {
@@ -3168,8 +3168,8 @@ static const value_string * fiat_name_tables[] = {
     c15inc_gwe_sip_notify_fiat_types,
     c15inc_gwe_admn_fiat_types
 };
-static const guint8 FIRST_FIAT_NAME_TABLE_INDEX  = 1;  /* First valid index. */
-static const guint8 LAST_FIAT_NAME_TABLE_INDEX = 8;
+static const uint8_t FIRST_FIAT_NAME_TABLE_INDEX  = 1;  /* First valid index. */
+static const uint8_t LAST_FIAT_NAME_TABLE_INDEX = 8;
 
 static const value_string c15inc_gwe_types[] = {
     { C15_INC_GWE_NONE, "IN_DATA_NONE" },
@@ -3244,7 +3244,7 @@ static const value_string c15_inc_gwe_bc_pgi_pbc_conn_types[] = {
 
 /* Subtree */
 #if 0
-static gint ett_c15ch_inc_gwe_bc_pgi;
+static int ett_c15ch_inc_gwe_bc_pgi;
 #endif
 
 /* Fields */
@@ -3440,7 +3440,7 @@ static const true_false_string c15_inc_gwe_voip_cot_ip_gwe_pass_code_types = {
 
 #if 0
 /* Subtree */
-static gint ett_c15ch_inc_gwe_voip_cot;
+static int ett_c15ch_inc_gwe_voip_cot;
 #endif
 
 /* out gwe */
@@ -3492,8 +3492,8 @@ static int hf_c15ch_out_gwe_gwe_data_type;
 
 #if 0
 /* Subtree */
-static gint ett_c15ch_out_gwe;
-static gint ett_c15ch_out_gwe_sub_ni_tn;
+static int ett_c15ch_out_gwe;
+static int ett_c15ch_out_gwe_sub_ni_tn;
 #endif
 
 /* value labels for fields*/
@@ -3861,8 +3861,8 @@ static int hf_c15ch_tone;
 static int hf_c15ch_tone_msg_type;
 
 /* Subtree */
-static gint ett_c15ch_third_level_tone; /* for third level dissection */
-static gint ett_c15ch_third_level_tone_sub1;
+static int ett_c15ch_third_level_tone; /* for third level dissection */
+static int ett_c15ch_third_level_tone_sub1;
 
 /* Protocol */
 static int proto_c15ch_third_level_tone;
@@ -3896,7 +3896,7 @@ static int hf_c15ch_tone_cpm_tone_type;
 
 #if 0
 /* Subtree */
-static gint ett_c15ch_tone_cpm;
+static int ett_c15ch_tone_cpm;
 #endif
 
 /* labels for loop type */
@@ -4085,8 +4085,8 @@ static int hf_c15ch_c15_subs_spare_6;
 
 /* util functions */
 /* static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
-                    guint first_offset, guint num_digits, guint max_num_digits,
-                    guint offset_from_digits_to_consume )
+                    unsigned first_offset, unsigned num_digits, unsigned max_num_digits,
+                    unsigned offset_from_digits_to_consume )
     Function: Add a string of telephony digits, read from a tvbuff_t as a field to a
               given proto_tree.
               The number of digits in the string is typically given in a number before the
@@ -4117,12 +4117,12 @@ static int hf_c15ch_c15_subs_spare_6;
         to offset_from_digits_to_consume of 0).
 */
 static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
-                    guint first_offset, guint num_digits, guint max_num_digits, guint offset_from_digits_to_consume )
+                    unsigned first_offset, unsigned num_digits, unsigned max_num_digits, unsigned offset_from_digits_to_consume )
 {
     char * ch_buff = NULL;
-    guint curr_offset;
-    guint buff_index;
-    guint curr_digit;
+    unsigned curr_offset;
+    unsigned buff_index;
+    unsigned curr_digit;
     const char ZERO_C = '0';
     if (max_num_digits < num_digits)
     {
@@ -4172,8 +4172,8 @@ static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
 }
 
 
-/* static void add_digits_string_info_col( tvbuff_t *tvb, guint first_offset,
-                                    guint num_digits, packet_info *pinfo );
+/* static void add_digits_string_info_col( tvbuff_t *tvb, unsigned first_offset,
+                                    unsigned num_digits, packet_info *pinfo );
     Function: Append a string of telephony digits, read from a tvbuff_t, to the
               string displayed in COL_INFO, for pinfo.
     Parameters:
@@ -4187,20 +4187,20 @@ static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
         pinfo : the packet_info structure containing the INFO column to be modified.
     */
 static void add_digits_string_info_col(tvbuff_t *tvb,
-                    guint first_offset, guint num_digits,
+                    unsigned first_offset, unsigned num_digits,
                     packet_info *pinfo)
 {
     /* first_offset is where the list of digits actually begins in the packet */
     /* num_digits is the actual number of digits in the string */
     char * ch_buff;
-    guint i;
+    unsigned i;
     const char ZERO_C = '0';
 
     tvb_ensure_bytes_exist(tvb, first_offset, num_digits);
     ch_buff = (char *) wmem_alloc(pinfo->pool, num_digits + 1); /*include space for terminating null*/
     for ( i = 0; i < num_digits; i++ )
     {
-        guint curr_digit = tvb_get_guint8(tvb, i + first_offset);
+        unsigned curr_digit = tvb_get_guint8(tvb, i + first_offset);
 
         if ( curr_digit < 10 )
         {
@@ -4233,7 +4233,7 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
 }
 
 /* static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
-                                guint str_start, guint max_str_len,
+                                unsigned str_start, unsigned max_str_len,
                                 int hf_num )
 
    Function: add an ascii string, read from a tvbuff_t, as a field to a given proto_tree
@@ -4251,11 +4251,11 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
    hf_num is the field number for p_tree which is used for the string
 */
 static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
-                                guint str_start, guint max_str_len,
+                                unsigned str_start, unsigned max_str_len,
                                 int hf_num )
 {
-    gchar *field_stringz;
-    gint len;
+    char *field_stringz;
+    int len;
 
     if (max_str_len == 0)
     {
@@ -4263,7 +4263,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     }
 
 
-    field_stringz = (gchar * )tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &len, ENC_ASCII);
+    field_stringz = (char * )tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &len, ENC_ASCII);
     if ( len <= 1 )
     {
         proto_tree_add_string(p_tree, hf_num,
@@ -4271,7 +4271,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     }
     else
     {
-        if ( len > (gint)max_str_len )
+        if ( len > (int)max_str_len )
         {
             ws_utf8_truncate(field_stringz, max_str_len - 1);
         }
@@ -4312,10 +4312,10 @@ static int dissect_c15ch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_tree * c15ch_tree = NULL;
     proto_tree * src_ni_tn_tree = NULL;
     proto_tree * dest_ni_tn_tree = NULL;
-    guint32 msg_type = 0;
-    guint32 packet_length = 0;
-    guint32 payload_length = 0;
-    guint32 retv = 0;
+    uint32_t msg_type = 0;
+    uint32_t packet_length = 0;
+    uint32_t payload_length = 0;
+    uint32_t retv = 0;
 
     tvbuff_t * next_tvb;
     col_clear(pinfo->cinfo, COL_INFO);
@@ -4373,8 +4373,8 @@ static int dissect_c15ch_ama(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item * ti = NULL;
     proto_tree * c15ch_ama_tree = NULL;
 
-    guint8 call_type_val = 0;
-    guint8 dialed_num_digits;
+    uint8_t call_type_val = 0;
+    uint8_t dialed_num_digits;
 
     call_type_val = tvb_get_guint8(tvb, 40);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Call Type: %s",
@@ -4441,8 +4441,8 @@ static int dissect_c15ch_clli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item * ti = NULL;
     proto_tree * c15ch_clli_tree = NULL;
 
-    gint clli_siz;
-    guchar * clli_string;
+    int clli_siz;
+    unsigned char * clli_string;
     clli_string = tvb_get_stringz_enc(pinfo->pool, tvb, 0, &clli_siz, ENC_ASCII );
     if ( (clli_siz > 1) && (clli_siz <= 25 ) )
     {
@@ -4521,8 +4521,8 @@ static int dissect_c15ch_cp_state_ch(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item * ti = NULL;
     proto_tree * c15ch_cp_state_ch_tree = NULL;
 
-    guint32 oldpm_value = 0;
-    guint32 newpm_value = 0;
+    uint32_t oldpm_value = 0;
+    uint32_t newpm_value = 0;
     col_clear(pinfo->cinfo, COL_INFO);
     oldpm_value = tvb_get_ntohl(tvb, 0);
     newpm_value = tvb_get_ntohl(tvb, 4);
@@ -4572,7 +4572,7 @@ static int dissect_c15ch_dest_digits(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item * ti = NULL;
     proto_tree * c15ch_dest_digits_tree = NULL;
 
-    guint32 num_digits;
+    uint32_t num_digits;
     num_digits = tvb_get_ntohl(tvb, 0);
     col_append_str(pinfo->cinfo, COL_INFO, ", ");
     add_digits_string_info_col( tvb, 4, num_digits, pinfo);
@@ -4595,11 +4595,11 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree * old_tree = NULL;
     proto_tree * new_tree = NULL;
 
-    guint8 valid_tone_id = 0;
-    guint8 old_l2_mode_val, new_l2_mode_val;
+    uint8_t valid_tone_id = 0;
+    uint8_t old_l2_mode_val, new_l2_mode_val;
     enum C15_EC_CHANNEL_MODE old_channel_mode, new_channel_mode;
     enum C15_EC_ECAN_MODE old_ecan_mode, new_ecan_mode;
-    guint32 pm_val, pc_val, loop_val, slot_val;
+    uint32_t pm_val, pc_val, loop_val, slot_val;
 
     char * loc_string = NULL;
 
@@ -4682,16 +4682,16 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         ti = proto_tree_add_item(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_old_l2_mode,
                             tvb, 8, 1, ENC_BIG_ENDIAN);
         old_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub2);
-        proto_tree_add_uint(old_tree, hf_c15ch_echo_cancel_old_channel_mode, tvb, 8, 1, (guint32)old_channel_mode);
-        proto_tree_add_uint(old_tree, hf_c15ch_echo_cancel_old_ecan_mode, tvb, 8, 1, (guint32)old_ecan_mode);
+        proto_tree_add_uint(old_tree, hf_c15ch_echo_cancel_old_channel_mode, tvb, 8, 1, (uint32_t)old_channel_mode);
+        proto_tree_add_uint(old_tree, hf_c15ch_echo_cancel_old_ecan_mode, tvb, 8, 1, (uint32_t)old_ecan_mode);
 
         ti = proto_tree_add_item(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_new_l2_mode,
                             tvb, 9, 1, ENC_BIG_ENDIAN);
         new_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub3);
         proto_tree_add_uint(new_tree, hf_c15ch_echo_cancel_new_channel_mode,
-                            tvb, 9, 1, (guint32)new_channel_mode);
+                            tvb, 9, 1, (uint32_t)new_channel_mode);
         proto_tree_add_uint(new_tree, hf_c15ch_echo_cancel_new_ecan_mode,
-                            tvb, 9, 1, (guint32)new_ecan_mode);
+                            tvb, 9, 1, (uint32_t)new_ecan_mode);
 
         /* location : pm, pc, loop, slot */
         pm_val = tvb_get_ntohl( tvb, 15 );
@@ -4746,7 +4746,7 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree * c15ch_isup_tree = NULL;
     proto_tree * c15ch_sub_hdr_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
-    guint8 msgtype_value = 0;
+    uint8_t msgtype_value = 0;
     tvbuff_t * next_tvb;
 
     msgtype_value = tvb_get_guint8(tvb, 1);
@@ -4846,16 +4846,16 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree * c15ch_nitnxlate_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
     proto_tree * concat_tree = NULL;
-    guchar * site_string;
-    guchar * subsite_string;
-    gchar * equipname_string;
+    unsigned char * site_string;
+    unsigned char * subsite_string;
+    char * equipname_string;
     wmem_strbuf_t * desc_string = wmem_strbuf_create(pinfo->pool);
-    gint str_start;
-    gint site_str_len, subsite_str_len, equipname_str_len;
-    guint32 gwtype_val;
-    guint32 frame_val, shelf_val, lsg_val, unit_val;
-    guint32 key_val;
-    guint32 tgnum_val;
+    int str_start;
+    int site_str_len, subsite_str_len, equipname_str_len;
+    uint32_t gwtype_val;
+    uint32_t frame_val, shelf_val, lsg_val, unit_val;
+    uint32_t key_val;
+    uint32_t tgnum_val;
 
     /* sitestring */
     str_start = 12;
@@ -4867,7 +4867,7 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* equipname */
     str_start = 22;
-    equipname_string = (gchar * )tvb_get_stringz_enc(pinfo->pool, tvb, str_start, &equipname_str_len, ENC_ASCII);
+    equipname_string = (char * )tvb_get_stringz_enc(pinfo->pool, tvb, str_start, &equipname_str_len, ENC_ASCII);
 
     frame_val = tvb_get_ntohl( tvb, 31 );
     shelf_val = tvb_get_ntohl( tvb, 35 );
@@ -5073,14 +5073,14 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree * old_loc_tree = NULL;
     proto_tree * new_loc_tree = NULL;
 
-    guint8 from_pm_val, from_pc_val, from_loop_val, from_slot_val;
+    uint8_t from_pm_val, from_pc_val, from_loop_val, from_slot_val;
     char * from_loc_string = NULL;
 
-    guint8 to_pm_val, to_pc_val, to_loop_val, to_slot_val;
+    uint8_t to_pm_val, to_pc_val, to_loop_val, to_slot_val;
     char * to_loc_string = NULL;
 
-    guint8 path_type_val = 0;
-    guint8 conn_type_val = 0;
+    uint8_t path_type_val = 0;
+    uint8_t conn_type_val = 0;
     path_type_val = tvb_get_guint8(tvb, 0);
     conn_type_val = tvb_get_guint8(tvb, 1);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Path Type: %s",
@@ -5089,8 +5089,8 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         val_to_str(conn_type_val, ett_c15ch_ntwk_conn_conn_types, "Unknown %d") );
     if (tree)
     {
-        gint str_start;
-        gint max_str_len;
+        int str_start;
+        int max_str_len;
         ti = proto_tree_add_item(tree, hf_c15ch_ntwk_conn, tvb, 0, 39, ENC_NA);
         c15ch_ntwk_conn_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
 
@@ -5177,9 +5177,9 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree * c15ch_orig_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
 
-    guint8 num_dn_digits;
-    guint8 num_upn_digits;
-    guint8 num_rnp_digits;
+    uint8_t num_dn_digits;
+    uint8_t num_upn_digits;
+    uint8_t num_rnp_digits;
 
     num_dn_digits = tvb_get_guint8(tvb, 12);
 
@@ -5295,8 +5295,8 @@ static int dissect_c15ch_pathfind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree * from_ni_tn_tree = NULL;
     proto_tree * togwe_ni_tn_tree = NULL;
     proto_tree * to_ni_tn_tree = NULL;
-    gint str_start;
-    gint max_str_len;
+    int str_start;
+    int max_str_len;
 
     if (tree)
     {
@@ -5384,8 +5384,8 @@ static int dissect_c15ch_pathidle(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree * from_ni_tn_tree = NULL;
     proto_tree * togwe_ni_tn_tree = NULL;
     proto_tree * to_ni_tn_tree = NULL;
-    gint str_start;
-    gint max_str_len;
+    int str_start;
+    int max_str_len;
 
     if (tree)
     {
@@ -5468,10 +5468,10 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item * ti = NULL;
     proto_tree * c15ch_q931_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
-    guint32 q931_msg_len;
-    guint8 direction;
+    uint32_t q931_msg_len;
+    uint8_t direction;
     tvbuff_t * next_tvb;
-    guint8 bytes_to_skip;
+    uint8_t bytes_to_skip;
 
     direction = tvb_get_guint8(tvb, 0);
 
@@ -5534,10 +5534,10 @@ static int dissect_c15ch_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree * c15ch_qos_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
 
-    guint32 year_val = (guint32)0;
-    gfloat mos = (gfloat)0.0;
+    uint32_t year_val = (uint32_t)0;
+    float mos = (float)0.0;
 
-    mos = tvb_get_ntohl(tvb, 72) / (gfloat) (100.0);
+    mos = tvb_get_ntohl(tvb, 72) / (float) (100.0);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", MOS: %.2f", mos);
     if (tree)
     {
@@ -5601,7 +5601,7 @@ static int dissect_c15ch_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             tvb, 94, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_tenth_sec,
                             tvb, 95, 1, ENC_BIG_ENDIAN);
-        year_val = 2000 + ( (guint32) tvb_get_guint8( tvb, 96 ) ) ;
+        year_val = 2000 + ( (uint32_t) tvb_get_guint8( tvb, 96 ) ) ;
         proto_tree_add_uint(c15ch_qos_tree, hf_c15ch_qos_year, tvb, 96, 1, year_val);
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_month,
                             tvb, 97, 1, ENC_BIG_ENDIAN);
@@ -5620,7 +5620,7 @@ static int dissect_c15ch_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item * ti = NULL;
     proto_tree * c15ch_route_tree = NULL;
 
-    guint32 route_num_val = 0;
+    uint32_t route_num_val = 0;
 
     route_num_val = tvb_get_ntohl(tvb, 0);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Route Number: %d", route_num_val);
@@ -5656,7 +5656,7 @@ static int dissect_c15ch_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item * ti = NULL;
     proto_tree * c15ch_sccp_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
-    guint8 direction;
+    uint8_t direction;
     tvbuff_t * next_tvb;
 
     direction = tvb_get_guint8(tvb, 0);
@@ -5738,7 +5738,7 @@ static int dissect_c15ch_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item * ti = NULL;
     proto_tree * c15ch_tcap_tree = NULL;
 
-    guint8 local_ssn_val = 0;
+    uint8_t local_ssn_val = 0;
 
     local_ssn_val = tvb_get_guint8(tvb, 4);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Local SSN: %s",
@@ -5818,11 +5818,11 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item * ti = NULL;
     proto_tree * c15ch_cp_event_tree = NULL;
 
-    guint32 pm_value = 0;
-    guint32 event_value = 0;
-    guint32 parm_value = 0;
-    guint32 subpm_value = 0;
-    guint32 trkpm_value = 0;
+    uint32_t pm_value = 0;
+    uint32_t event_value = 0;
+    uint32_t parm_value = 0;
+    uint32_t subpm_value = 0;
+    uint32_t trkpm_value = 0;
     if (tvb_reported_length(tvb) < 28)
     {
         return 0;
@@ -5945,12 +5945,12 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree * sub_ni_tn_tree = NULL;
 
     int retv = 0;
-    guint8 task_num;
-    guint8 type_num;
-    guint8 fiat_num;
+    uint8_t task_num;
+    uint8_t type_num;
+    uint8_t fiat_num;
     tvbuff_t * next_tvb;
-    gboolean task_in_range = TRUE;
-    gboolean fiat_index_in_range = TRUE;
+    bool task_in_range = true;
+    bool fiat_index_in_range = true;
 
     task_num = tvb_get_guint8(tvb,  8);
     fiat_num = tvb_get_guint8(tvb,  9);
@@ -5958,15 +5958,15 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     if ( task_num > LAST_TASK_TYPE_INDEX )
     {    /* this happens for unknown task types */
-        task_in_range  = FALSE;
-        fiat_index_in_range = FALSE; /* don't guess what the correct fiat table should be for unknown task */
+        task_in_range  = false;
+        fiat_index_in_range = false; /* don't guess what the correct fiat table should be for unknown task */
     }
 
     if ( task_in_range )
     {
         if ( ( task_num < FIRST_FIAT_NAME_TABLE_INDEX ) || (task_num > LAST_FIAT_NAME_TABLE_INDEX ) )
         {
-            fiat_index_in_range = FALSE; /* this happens for INVALID_TASK_TYPE_VAL */
+            fiat_index_in_range = false; /* this happens for INVALID_TASK_TYPE_VAL */
         }
     }
 
@@ -6033,7 +6033,7 @@ static int dissect_c15ch_inc_gwe_admn_dn(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_item * ti = NULL;
     proto_tree * c15ch_inc_gwe_admn_dn_tree = NULL;
 
-    guint8 num_digits;
+    uint8_t num_digits;
 
     if (tree)
     {
@@ -6179,7 +6179,7 @@ static int dissect_c15ch_inc_gwe_cl_redir(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree * c15ch_inc_gwe_cl_redir_tree = NULL;
 
 
-    guint8 redir_num_digits;
+    uint8_t redir_num_digits;
 
     if (tree)
     {
@@ -6202,7 +6202,7 @@ static int dissect_c15ch_inc_gwe_cl_refer(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree * c15ch_inc_gwe_cl_refer_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
 
-    guint8 trgt_num_digits;
+    uint8_t trgt_num_digits;
 
     if (tree)
     {
@@ -6254,7 +6254,7 @@ static int dissect_c15ch_inc_gwe_cl_setup(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree * c15ch_inc_gwe_cl_setup_tree = NULL;
 
 
-    guint8 num_digits;
+    uint8_t num_digits;
 
     num_digits = tvb_get_guint8(tvb, 4);
 
@@ -6355,7 +6355,7 @@ static int dissect_c15ch_inc_gwe_notify(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree * c15ch_inc_gwe_notify_tree = NULL;
 
 
-    guint8 num_digits;
+    uint8_t num_digits;
 
     num_digits = tvb_get_guint8(tvb, 4);
 
@@ -6406,7 +6406,7 @@ static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U
     proto_tree * c15ch_inc_gwe_ptrk_setup_tree = NULL;
 
 
-    guint8 cled_num_digits, clng_num_digits, redir_num_digits, ocn_num_digits, chrg_num_digits,
+    uint8_t cled_num_digits, clng_num_digits, redir_num_digits, ocn_num_digits, chrg_num_digits,
         rn_num_digits, cic_num_digits;
 
     if (tree)
@@ -6648,8 +6648,8 @@ static int dissect_c15ch_out_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree * c15ch_out_gwe_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
 
-    guint8 data_type;
-    guint8 msg_type;
+    uint8_t data_type;
+    uint8_t msg_type;
     tvbuff_t * next_tvb;
 
     msg_type = tvb_get_guint8(tvb, 8);
@@ -6841,9 +6841,9 @@ static int dissect_c15ch_out_gwe_call_setup(tvbuff_t *tvb, packet_info *pinfo _U
     proto_item * ti = NULL;
     proto_tree * c15ch_out_gwe_call_setup_tree = NULL;
 
-    guint8 redir_num_digits;
-    guint8 ocn_num_digits;
-    guint8 chrg_num_digits;
+    uint8_t redir_num_digits;
+    uint8_t ocn_num_digits;
+    uint8_t chrg_num_digits;
 
     if (tree)
     {
@@ -6922,8 +6922,8 @@ static int dissect_c15ch_out_gwe_digit_scan(tvbuff_t *tvb, packet_info *pinfo _U
     proto_item * ti = NULL;
     proto_tree * c15ch_out_gwe_digit_scan_tree = NULL;
 
-    gint str_start;
-    gint max_str_len;
+    int str_start;
+    int max_str_len;
 
     if (tree)
     {
@@ -7233,9 +7233,9 @@ static int dissect_c15ch_tone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item * ti = NULL;
     proto_tree * c15ch_tone_tree = NULL;
 
-    guint8 msg_type;
+    uint8_t msg_type;
     tvbuff_t * next_tvb;
-    guint32 retv = 0;
+    uint32_t retv = 0;
 
     msg_type = tvb_get_guint8(tvb, 0);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -7344,7 +7344,7 @@ static int dissect_c15ch_tone_opls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree * c15ch_tone_opls_tree = NULL;
     proto_tree * to_ni_tn_tree = NULL;
 
-    guint8 num_digits;
+    uint8_t num_digits;
     num_digits = tvb_get_guint8(tvb, 12);
 
     if (tree)
@@ -7451,7 +7451,7 @@ static int dissect_c15ch_c15_generic_msg_1(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_generic_msg_1_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7510,7 +7510,7 @@ static int dissect_c15ch_c15_generic_msg_2(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_generic_msg_2_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7569,7 +7569,7 @@ static int dissect_c15ch_c15_generic_msg_3(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_generic_msg_3_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7630,7 +7630,7 @@ static int dissect_c15ch_c15_generic_msg_4(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_generic_msg_4_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7691,7 +7691,7 @@ static int dissect_c15ch_c15_generic_msg_5(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_generic_msg_5_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7752,7 +7752,7 @@ static int dissect_c15ch_c15_correlate_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_correlate_msg_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7797,10 +7797,10 @@ static int dissect_c15ch_c15_sip_reg_subs_report(tvbuff_t *tvb, packet_info *pin
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_sip_reg_subs_report_tree = NULL;
-    gint length = 0;
-    gchar * report_type;
-    gint str_start;
-    gint report_type_str_len;
+    int length = 0;
+    char * report_type;
+    int str_start;
+    int report_type_str_len;
 
     length = tvb_reported_length(tvb);
 
@@ -7876,7 +7876,7 @@ static int dissect_c15ch_c15_sys_alarm(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_sys_alarm_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7905,7 +7905,7 @@ static int dissect_c15ch_c15_tty_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_tty_msg_tree = NULL;
-    gint length = 0;
+    int length = 0;
 
     length = tvb_reported_length(tvb);
 
@@ -7969,7 +7969,7 @@ void proto_register_c15ch_hbeat(void)
     }; /* close hf[] array declaration */
 
     /* Protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_c15ch_hbeat
     };
 
@@ -8057,7 +8057,7 @@ void proto_register_c15ch(void)
 
 
     /* Protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_c15ch,
         &ett_src_ni_tn,
         &ett_dest_ni_tn
@@ -11295,7 +11295,7 @@ void proto_register_c15ch(void)
             0x0, NULL, HFILL}
         }
     };
-    static gint *ett_second_level[] = {
+    static int *ett_second_level[] = {
         &ett_c15ch_second_level,
         &ett_c15ch_second_level_sub1,
         &ett_c15ch_second_level_sub2,
@@ -11539,7 +11539,7 @@ void proto_register_c15ch(void)
     };
 
 
-    static gint *ett_third_level_tone[] = {
+    static int *ett_third_level_tone[] = {
         &ett_c15ch_third_level_tone,
         &ett_c15ch_third_level_tone_sub1
     };
@@ -12364,7 +12364,7 @@ void proto_register_c15ch(void)
         }
     };
 
-    static gint *ett_third_level_inc_gwe[] = {
+    static int *ett_third_level_inc_gwe[] = {
         &ett_c15ch_third_level_inc_gwe,
         &ett_c15ch_third_level_inc_gwe_sub1
     };
@@ -12955,7 +12955,7 @@ void proto_register_c15ch(void)
         }
     };
 
-    static gint *ett_third_level_out_gwe[] = {
+    static int *ett_third_level_out_gwe[] = {
         &ett_c15ch_third_level_out_gwe,
         &ett_c15ch_third_level_out_gwe_sub1,
         &ett_c15ch_third_level_out_gwe_sub2

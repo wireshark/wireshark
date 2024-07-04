@@ -29,8 +29,8 @@ void proto_reg_handoff_fabricpath(void);
 static bool fp_check_fcs;
 
 static int proto_fp;
-static gint ett_mim;
-static gint ett_hmac;
+static int ett_mim;
+static int ett_hmac;
 
 /* Main protocol items */
 static int hf_s_hmac;
@@ -96,17 +96,17 @@ static dissector_handle_t eth_withoutfcs_dissector;
 #define FP_FTAG_MASK     0xFFC0
 #define FP_TTL_MASK      0x003F
 
-#define FP_HMAC_IG_MASK    G_GINT64_CONSTANT(0x010000000000)
-#define FP_HMAC_SWID_MASK  G_GINT64_CONSTANT(0x000FFF000000)
-#define FP_HMAC_SSWID_MASK G_GINT64_CONSTANT(0x000000FF0000)
-#define FP_HMAC_LID_MASK   G_GINT64_CONSTANT(0x00000000FFFF)
+#define FP_HMAC_IG_MASK    INT64_C(0x010000000000)
+#define FP_HMAC_SWID_MASK  INT64_C(0x000FFF000000)
+#define FP_HMAC_SSWID_MASK INT64_C(0x000000FF0000)
+#define FP_HMAC_LID_MASK   INT64_C(0x00000000FFFF)
 
 #define FP_HMAC_LEN 6
 #define FP_HEADER_SIZE (16)
 #define FP_HEADER_WITH_1AD_SIZE (20)
 
 /* 0100.0000.0000 */
-#define MAC_MC_BC          G_GINT64_CONSTANT(0x010000000000)
+#define MAC_MC_BC          INT64_C(0x010000000000)
 
 /* proto */
 static int dissect_fp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int header_size );
@@ -133,7 +133,7 @@ static int dissect_fp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static bool
 dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  guint16 etype = 0;
+  uint16_t etype = 0;
   int header_size = 0;
 
   if ( ! tvb_bytes_exist( tvb, 12, 2 ) )
@@ -164,21 +164,21 @@ dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static void
-fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
+fp_get_hmac_addr (uint64_t hmac, uint16_t *swid, uint16_t *sswid, uint16_t *lid) {
 
   if (!swid || !sswid || !lid) {
     return;
   }
 
-  *swid  = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 24);
-  *sswid = (guint16) ((hmac & FP_HMAC_SSWID_MASK) >> 16);
-  *lid   = (guint16)  (hmac & FP_HMAC_LID_MASK);
+  *swid  = (uint16_t) ((hmac & FP_HMAC_SWID_MASK) >> 24);
+  *sswid = (uint16_t) ((hmac & FP_HMAC_SSWID_MASK) >> 16);
+  *lid   = (uint16_t)  (hmac & FP_HMAC_LID_MASK);
 }
 
 static void
 fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
 
-  guint16 eid;
+  uint16_t eid;
 
   if (!tree) {
     return;
@@ -214,17 +214,17 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
   int           offset   = 0;
   int           next_tvb_len = 0;
   int           fcs_offset = 0;
-  guint64       hmac_src;
-  guint64       hmac_dst;
-  guint16       sswid    = 0;
-  guint16       ssswid   = 0;
-  guint16       slid     = 0;
-  guint16       dswid    = 0;
-  guint16       dsswid   = 0;
-  guint16       dlid     = 0;
-  guint16       etype    = 0;
-  const guint8 *dst_addr = NULL;
-  gboolean      dest_as_mac  = FALSE;
+  uint64_t      hmac_src;
+  uint64_t      hmac_dst;
+  uint16_t      sswid    = 0;
+  uint16_t      ssswid   = 0;
+  uint16_t      slid     = 0;
+  uint16_t      dswid    = 0;
+  uint16_t      dsswid   = 0;
+  uint16_t      dlid     = 0;
+  uint16_t      etype    = 0;
+  const uint8_t *dst_addr = NULL;
+  bool          dest_as_mac  = false;
 
 
   col_set_str( pinfo->cinfo, COL_PROTOCOL, FP_PROTO_COL_NAME );
@@ -250,7 +250,7 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
   hmac_src = tvb_get_ntoh48 (tvb, 6);
 
   if (hmac_dst & MAC_MC_BC) {
-    dest_as_mac = TRUE;
+    dest_as_mac = true;
   }
   if (!dest_as_mac) {
     fp_get_hmac_addr (hmac_dst, &dswid, &dsswid, &dlid);
@@ -259,7 +259,7 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
     /* Get pointer to most sig byte of destination address
        in network order
     */
-    dst_addr = ((const guint8 *) &hmac_dst) + 2;
+    dst_addr = ((const uint8_t *) &hmac_dst) + 2;
   }
   fp_get_hmac_addr (hmac_src, &sswid, &ssswid, &slid);
 
@@ -333,7 +333,7 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
 
   if ( tvb_bytes_exist(tvb, fcs_offset, 4 ) ) {
     if ( fp_check_fcs ) {
-      guint32 fcs = crc32_802_tvb(tvb, fcs_offset);
+      uint32_t fcs = crc32_802_tvb(tvb, fcs_offset);
       proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     } else {
       proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
@@ -449,7 +449,7 @@ proto_register_mim(void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mim,
     &ett_hmac
   };

@@ -22,7 +22,7 @@ void proto_reg_handoff_clearcase(void);
 static int proto_clearcase;
 static int hf_clearcase_procedure_v3;
 
-static gint ett_clearcase;
+static int ett_clearcase;
 
 #define CLEARCASEPROC_NULL 0
 
@@ -52,7 +52,7 @@ proto_register_clearcase(void)
 			VALS(clearcase3_proc_vals), 0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_clearcase
 	};
 

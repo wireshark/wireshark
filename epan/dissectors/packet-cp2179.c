@@ -204,25 +204,25 @@ static const value_string cp2179_FC20_CommandCodeNames [] = {
 
 /* Holds Request information required to later decode a response  */
 typedef struct {
-   guint32  fnum;  /* frame number */
-   guint16  address_word;
-   guint8   function_code;
-   guint8   commmand_code;
-   guint16  numberofcharacters;
-   guint8   *requested_points;
+   uint32_t fnum;  /* frame number */
+   uint16_t address_word;
+   uint8_t  function_code;
+   uint8_t  commmand_code;
+   uint16_t numberofcharacters;
+   uint8_t  *requested_points;
 } request_frame;
 
 
 static int proto_cp2179;
 
 /* Initialize the subtree pointers */
-static gint ett_cp2179;
-static gint ett_cp2179_header;
-static gint ett_cp2179_addr;
-static gint ett_cp2179_fc;
-static gint ett_cp2179_data;
-static gint ett_cp2179_subdata;
-static gint ett_cp2179_event;
+static int ett_cp2179;
+static int ett_cp2179_header;
+static int ett_cp2179_addr;
+static int ett_cp2179_fc;
+static int ett_cp2179_data;
+static int ett_cp2179_subdata;
+static int ett_cp2179_event;
 
 /* Initialize the protocol and registered fields */
 static int hf_cp2179_request_frame;
@@ -343,13 +343,13 @@ static tvbuff_t *
 clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
   tvbuff_t     *telnet_tvb;
-  guint8       *buf;
-  const guint8 *spos;
-  guint8       *dpos;
+  uint8_t      *buf;
+  const uint8_t *spos;
+  uint8_t      *dpos;
   int           skip_byte, len_remaining;
 
   spos=tvb_get_ptr(tvb, offset, len);
-  buf = (guint8 *)wmem_alloc(pinfo->pool, len);
+  buf = (uint8_t *)wmem_alloc(pinfo->pool, len);
   dpos = buf;
   skip_byte = 0;
   len_remaining = len;
@@ -381,7 +381,7 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 /* Code to Dissect Request frames */
 /******************************************************************************************************/
 static int
-dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 message_type )
+dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, uint16_t message_type )
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree *cp2179_proto_tree = NULL;
@@ -390,11 +390,11 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     proto_item *cp2179_proto_item = NULL;
 
-    guint8 req_command_code = 0;
-    guint8 function_code = 0;
+    uint8_t req_command_code = 0;
+    uint8_t function_code = 0;
 
-    guint16 address_word = -1;
-    guint16 requestnumberofcharacters = 0;
+    uint16_t address_word = -1;
+    uint16_t requestnumberofcharacters = 0;
 
     cp2179_proto_item = proto_tree_add_item(tree, proto_cp2179, tvb, 0, -1, ENC_NA);
     cp2179_proto_tree = proto_item_add_subtree(cp2179_proto_item, ett_cp2179_header);
@@ -493,7 +493,7 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 /* Code to dissect Response frames  */
 /******************************************************************************************************/
 static int
-dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 message_type)
+dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, uint16_t message_type)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *response_item = NULL;
@@ -507,23 +507,23 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
     proto_tree *cp2179_event_tree = NULL;
 
     cp2179_conversation  *conv;
-    guint32 req_frame_num;
-    guint16 req_address_word;
-    guint8  req_command_code;
-    gboolean request_found = FALSE;
+    uint32_t req_frame_num;
+    uint16_t req_address_word;
+    uint8_t req_command_code;
+    bool request_found = false;
     request_frame *request_data;
 
-    gint analogtestvalue = 0;
-    gint analog16_num = 0;
-    gint point_num = 0;
+    int analogtestvalue = 0;
+    int analog16_num = 0;
+    int point_num = 0;
 
-    guint function_code;
-    guint simplestatusseq = 0x30;
+    unsigned function_code;
+    unsigned simplestatusseq = 0x30;
 
-    guint16 address_word = 0;
-    guint16 numberofcharacters = -1;
+    uint16_t address_word = 0;
+    uint16_t numberofcharacters = -1;
 
-    gfloat specialcalvalue = 0;
+    float specialcalvalue = 0;
 
     int x, y, num_records = 0, recordsize = 0, num_values = 0;
 
@@ -579,7 +579,7 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
                 if ((pinfo->num > req_frame_num) && (req_address_word == address_word)) {
                     response_item = proto_tree_add_uint(cp2179_proto_tree, hf_cp2179_request_frame, tvb, 0, 0, req_frame_num);
                     proto_item_set_generated(response_item);
-                    request_found = TRUE;
+                    request_found = true;
                 }
                 frame = wmem_list_frame_next(frame);
         }
@@ -774,10 +774,10 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 static request_frame* copy_request_frame(tvbuff_t *tvb  )
 {
  /* Set up structures needed to add the protocol request and use it for dissecting response packet */
-    guint offset = 0;
-    guint8 idx=0 ;
+    unsigned offset = 0;
+    uint8_t idx=0 ;
     request_frame *frame;
-    guint16 num_objects=0;
+    uint16_t num_objects=0;
 
     /* get a new frame and initialize it */
     frame = wmem_new(wmem_file_scope(), request_frame);
@@ -791,11 +791,11 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
     /*Keep track of the request data field in a request.
       Such as SCAN INCLUSIVE request contains a Start Sequence Number and an Ending Sequence Number. */
     if (frame->function_code == SCAN_INCLUSIVE) {
-        guint8 startpt, endpt;
+        uint8_t startpt, endpt;
         startpt = tvb_get_guint8(tvb, offset);
         endpt = tvb_get_guint8(tvb, offset+1);
         num_objects = (endpt - startpt) + 1;
-        frame->requested_points = (guint8 *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(guint8));
+        frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
 
         /* We have a range of 'request' points */
         for (idx = 0; idx < num_objects; idx++) {
@@ -807,7 +807,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
     /* Get Details for all Requested Points */
     else {
         num_objects = frame->numberofcharacters;
-        frame->requested_points = (guint8 *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(guint8));
+        frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
         for (idx = 0; idx < num_objects; idx++) {
             frame->requested_points[idx] = tvb_get_guint8(tvb, offset);
             offset += 1;
@@ -827,11 +827,11 @@ static int
 classify_message_type(tvbuff_t *tvb)
 {
     int message_type = -1;
-    guint8 function_code;
-    guint8 command_code;
-    guint16 requestnumberofcharacters = 0;
-    guint16 responsenumberofcharacters = 0;
-    guint16 message_length = 0;
+    uint8_t function_code;
+    uint8_t command_code;
+    uint16_t requestnumberofcharacters = 0;
+    uint16_t responsenumberofcharacters = 0;
+    uint16_t message_length = 0;
 
 
     message_length = tvb_reported_length(tvb);
@@ -966,7 +966,7 @@ static int
 dissect_cp2179_pdu(tvbuff_t *cp2179_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
-    gint16 message_type;
+    int16_t message_type;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CP2179");
     col_clear(pinfo->cinfo,COL_INFO);
 
@@ -1046,7 +1046,7 @@ static int
 dissect_cp2179(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tvbuff_t *cp2179_tvb;
-    gint length = tvb_reported_length(tvb);
+    int length = tvb_reported_length(tvb);
 
    /* Check for the packet length, a 2179 Message is at least 7 byte long*/
     if(length < CP2179_MIN_LENGTH){
@@ -1483,7 +1483,7 @@ proto_register_cp2179(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
       &ett_cp2179,
       &ett_cp2179_header,
       &ett_cp2179_addr,
@@ -1504,7 +1504,7 @@ proto_register_cp2179(void)
     /* Register required preferences for CP2179 Encapsulated-over-TCP decoding */
     cp2179_module = prefs_register_protocol(proto_cp2179, NULL);
 
-    /* Telnet protocol IAC (0xFF) processing; defaults to TRUE to allow Telnet Encapsulated Data */
+    /* Telnet protocol IAC (0xFF) processing; defaults to true to allow Telnet Encapsulated Data */
     prefs_register_bool_preference(cp2179_module, "telnetclean",
                                   "Remove extra 0xFF (IAC) bytes from Telnet-encapsulated data",
                                   "Whether the SEL Protocol dissector should automatically pre-process Telnet data to remove IAC bytes",

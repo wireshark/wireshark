@@ -29,7 +29,7 @@ static dissector_handle_t cast_handle;
  * infrastructure for now
  *
  * typedef struct {
- *   guint32 id;
+ *   uint32_t id;
  *   char   *name;
  * } message_id_t;
  */
@@ -376,8 +376,8 @@ static int hf_cast_audio;
 
 
 /* Initialize the subtree pointers */
-static gint ett_cast;
-static gint ett_cast_tree;
+static int ett_cast;
+static int ett_cast_tree;
 
 /* desegmentation of SCCP */
 static bool cast_desegment = true;
@@ -389,14 +389,14 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   int offset = 0;
 
   /* Header fields */
-  guint32 hdr_data_length;
-  guint32 hdr_marker;
-  guint32 data_messageid;
-  const gchar *messageid_str;
-  /*  guint32 data_size; */
+  uint32_t hdr_data_length;
+  uint32_t hdr_marker;
+  uint32_t data_messageid;
+  const char *messageid_str;
+  /*  uint32_t data_size; */
 
-  guint i = 0;
-  guint t = 0;
+  unsigned i = 0;
+  unsigned t = 0;
   int count;
   int val;
 
@@ -987,10 +987,10 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 /* Get the length of a single CAST PDU */
-static guint
+static unsigned
 get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  guint32 hdr_data_length;
+  uint32_t hdr_data_length;
 
   /*
    * Get the length of the CAST packet.
@@ -1012,8 +1012,8 @@ dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
    * CAST-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
    */
   /* Header fields */
-  guint32 hdr_data_length;
-  guint32 hdr_marker;
+  uint32_t hdr_data_length;
+  uint32_t hdr_marker;
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
 
@@ -1670,7 +1670,7 @@ proto_register_cast(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cast,
     &ett_cast_tree,
   };

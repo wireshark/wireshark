@@ -129,19 +129,19 @@
 #define CID_DEBUG 0
 
 typedef struct _communityid_cfg_t {
-    gboolean cfg_do_base64;
-    guint16 cfg_seed;
+    bool cfg_do_base64;
+    uint16_t cfg_seed;
 } communityid_cfg_t;
 
 #if CID_DEBUG
-static void communityid_sha1_dbg(const gchar *msg, const void* data, gsize len)
+static void communityid_sha1_dbg(const char *msg, const void* data, size_t len)
 {
-    gchar *buf = (gchar*) g_malloc(len*2 + 1);
-    gchar *ptr = buf;
-    gsize i;
+    char *buf = (char*) g_malloc(len*2 + 1);
+    char *ptr = buf;
+    size_t i;
 
     for (i = 0; i < len; i++, ptr += 2) {
-        snprintf(ptr, 3, "%02x", ((guchar*)data)[i]);
+        snprintf(ptr, 3, "%02x", ((unsigned char*)data)[i]);
     }
 
     fprintf(stderr, "Community ID dbg [%s]: %s\n", msg, buf);
@@ -155,12 +155,12 @@ static void communityid_sha1_dbg(const gchar *msg, const void* data, gsize len)
 /* Helper function to determine whether a flow tuple is ordered
  * correctly or needs flipping for abstracting flow directionality.
  */
-static gboolean communityid_tuple_lt(guint8 addr_len,
-                                     const guchar *saddr, const guchar  *daddr,
-                                     const guint16 *sport, const guint16 *dport)
+static bool communityid_tuple_lt(uint8_t addr_len,
+                                     const unsigned char *saddr, const unsigned char  *daddr,
+                                     const uint16_t *sport, const uint16_t *dport)
 {
     int addrcmp = memcmp(saddr, daddr, addr_len);
-    int ports_lt = (sport != NULL && dport != NULL) ? GUINT16_FROM_BE(*sport) < GUINT16_FROM_BE(*dport) : TRUE;
+    int ports_lt = (sport != NULL && dport != NULL) ? GUINT16_FROM_BE(*sport) < GUINT16_FROM_BE(*dport) : true;
     return addrcmp < 0 || (addrcmp == 0 && ports_lt);
 }
 
@@ -187,27 +187,27 @@ static gboolean communityid_tuple_lt(guint8 addr_len,
  *   return from the function. Callers take ownership of the allocated
  *   string and need to free it when finished.
  *
- * Return value: a Boolean, TRUE if the computation was successful and
- * FALSE otherwise. The function modifies the result pointer only when
- * the return value is TRUE.
+ * Return value: a Boolean, true if the computation was successful and
+ * false otherwise. The function modifies the result pointer only when
+ * the return value is true.
  */
-static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
-                                 guint8 addr_len, const guchar *saddr, const guchar *daddr,
-                                 const guint16 *sport, const guint16 *dport,
-                                 gchar **result)
+static bool communityid_calc(communityid_cfg_t *cfg, uint8_t proto,
+                                 uint8_t addr_len, const unsigned char *saddr, const unsigned char *daddr,
+                                 const uint16_t *sport, const uint16_t *dport,
+                                 char **result)
 {
-    gboolean is_one_way = FALSE;
-    guint8 padding = 0;
-    guint16 seed_final = 0;
+    bool is_one_way = false;
+    uint8_t padding = 0;
+    uint16_t seed_final = 0;
     gcry_md_hd_t sha1;
-    guchar *sha1_buf = NULL;
-    gsize sha1_buf_len = gcry_md_get_algo_dlen(GCRY_MD_SHA1);
-    guint16 sport_final, dport_final;
+    unsigned char *sha1_buf = NULL;
+    size_t sha1_buf_len = gcry_md_get_algo_dlen(GCRY_MD_SHA1);
+    uint16_t sport_final, dport_final;
 
-    g_return_val_if_fail(cfg != NULL, FALSE);
-    g_return_val_if_fail(result != NULL, FALSE);
-    g_return_val_if_fail(addr_len == 4 || addr_len == 16, FALSE);
-    g_return_val_if_fail(saddr != NULL && daddr != NULL, FALSE);
+    g_return_val_if_fail(cfg != NULL, false);
+    g_return_val_if_fail(result != NULL, false);
+    g_return_val_if_fail(addr_len == 4 || addr_len == 16, false);
+    g_return_val_if_fail(saddr != NULL && daddr != NULL, false);
 
     if (sport != NULL && dport != NULL) {
         sport_final = *sport;
@@ -259,7 +259,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
                     dport_final = CID_ICMP_MASK;
                     break;
                 default:
-                    is_one_way = TRUE;
+                    is_one_way = true;
                 }
 
                 /* And back to NBO: */
@@ -310,7 +310,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
                     dport_final = CID_ICMPV6_HAAD_REQUEST;
                     break;
                 default:
-                    is_one_way = TRUE;
+                    is_one_way = true;
                 }
 
                 sport_final = GUINT16_TO_BE(sport_final);
@@ -329,12 +329,12 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
         /* Ordered correctly, no need to flip. */
     } else {
         /* Need to flip endpoints for consistent hashing. */
-        const guchar *tmp_addr = saddr;
+        const unsigned char *tmp_addr = saddr;
         saddr = daddr;
         daddr = tmp_addr;
 
         if (sport != NULL && dport != NULL) {
-            const guint16 *tmp_port = sport;
+            const uint16_t *tmp_port = sport;
             sport = dport;
             dport = tmp_port;
         }
@@ -345,7 +345,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
     /* SHA-1 computation */
 
     if (gcry_md_open(&sha1, GCRY_MD_SHA1, 0))
-        return FALSE;
+        return false;
 
     COMMUNITYID_SHA1_DBG("seed", &seed_final, 2);
     gcry_md_write(sha1, &seed_final, 2);
@@ -370,25 +370,25 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
         gcry_md_write(sha1, dport, 2);
     }
 
-    sha1_buf = (guchar*) g_malloc(sha1_buf_len);
+    sha1_buf = (unsigned char*) g_malloc(sha1_buf_len);
     memcpy(sha1_buf, gcry_md_read(sha1, 0), sha1_buf_len);
     gcry_md_close(sha1);
 
     if (cfg->cfg_do_base64) {
-        gchar *str = g_base64_encode(sha1_buf, sha1_buf_len);
-        gsize len = strlen(CID_VERSION_PREFIX) + strlen(str) + 1;
+        char *str = g_base64_encode(sha1_buf, sha1_buf_len);
+        size_t len = strlen(CID_VERSION_PREFIX) + strlen(str) + 1;
 
-        *result = (gchar*) g_malloc(len);
+        *result = (char*) g_malloc(len);
         snprintf(*result, len, "%s%s", CID_VERSION_PREFIX, str);
         g_free(str);
     } else {
         /* Convert binary SHA-1 to ASCII representation.
          * 2 hex digits for every byte + 1 for trailing \0:
          */
-        gchar *ptr;
-        gsize i;
+        char *ptr;
+        size_t i;
 
-        *result = (gchar*) g_malloc(strlen(CID_VERSION_PREFIX) + sha1_buf_len*2 + 1);
+        *result = (char*) g_malloc(strlen(CID_VERSION_PREFIX) + sha1_buf_len*2 + 1);
         memcpy(*result, CID_VERSION_PREFIX, strlen(CID_VERSION_PREFIX));
         ptr = *result + strlen(CID_VERSION_PREFIX);
         for (i = 0; i < sha1_buf_len; i++, ptr += 2) {
@@ -398,7 +398,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
 
     g_free(sha1_buf);
 
-    return TRUE;
+    return true;
 }
 
 /* ---- End of generic Community ID codebase ----------------------------------- */
@@ -417,33 +417,33 @@ static dissector_handle_t communityid_handle;
 
 /* Config settings as handled by Wireshark's preference framework ... */
 static bool pref_cid_do_base64 = true;
-static guint pref_cid_seed;
+static unsigned pref_cid_seed;
 /* ... and as interpreted by the Community ID code. */
 static communityid_cfg_t cid_cfg;
 
 /* rapper mapping Wireshark's data types to the generic ones supported above. */
-static gboolean communityid_calc_wrapper(communityid_cfg_t *cfg, guint8 proto,
+static bool communityid_calc_wrapper(communityid_cfg_t *cfg, uint8_t proto,
                                          address *saddr, address *daddr,
-                                         const guint16 *sport, const guint16 *dport,
-                                         gchar **result)
+                                         const uint16_t *sport, const uint16_t *dport,
+                                         char **result)
 {
     /* IPv4 */
     if (4 == saddr->len && saddr->len == daddr->len)
         return communityid_calc(cfg, proto, 4,
-                                (const guchar*)saddr->data, (const guchar*)daddr->data,
+                                (const unsigned char*)saddr->data, (const unsigned char*)daddr->data,
                                 sport, dport, result);
 
     /* IPv6 */
     if (16 == saddr->len && saddr->len == daddr->len)
         return communityid_calc(cfg, proto, 16,
-                                (const guchar*)saddr->data, (const guchar*)daddr->data,
+                                (const unsigned char*)saddr->data, (const unsigned char*)daddr->data,
                                 sport, dport, result);
 
     /* Need another network protocol here? Please file a ticket at
      * https://github.com/corelight/community-id-spec!
      */
 
-    return FALSE;
+    return false;
 }
 
 static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
@@ -456,10 +456,10 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
      * - ICMP/ICMPv6
      * - Other IPv4/v6
      */
-    gchar *cid = NULL;
+    char *cid = NULL;
     int proto_ip_found = -1;
     icmp_info_t *icmp_info = NULL;
-    guint8 proto = 0;
+    uint8_t proto = 0;
 
     /* All of this is to establish the Community ID value in the tree,
      * so if we don't have a tree, we're done.
@@ -469,7 +469,7 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Map Wireshark-level config to Community ID configs. */
     cid_cfg.cfg_do_base64 = pref_cid_do_base64;
-    cid_cfg.cfg_seed = (guint16) pref_cid_seed;
+    cid_cfg.cfg_seed = (uint16_t) pref_cid_seed;
 
     /* If not yet done, establish global handles for required protocols. */
     if (proto_ip <= 0) {
@@ -493,8 +493,8 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
         icmp_info = (icmp_info_t*) p_get_proto_data(wmem_file_scope(),
                                                 pinfo, proto_icmp, 0);
         if (icmp_info != NULL) {
-            guint16 sport = GUINT16_TO_BE(icmp_info->type);
-            guint16 dport = GUINT16_TO_BE(icmp_info->code);
+            uint16_t sport = GUINT16_TO_BE(icmp_info->type);
+            uint16_t dport = GUINT16_TO_BE(icmp_info->code);
 
             if (! communityid_calc_wrapper(&cid_cfg, CID_PROTO_ICMP,
                                            &pinfo->net_src, &pinfo->net_dst,
@@ -511,8 +511,8 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
         icmp_info = (icmp_info_t*) p_get_proto_data(wmem_file_scope(),
                                                     pinfo, proto_icmpv6, 0);
         if (icmp_info != NULL) {
-            guint16 sport = GUINT16_TO_BE(icmp_info->type);
-            guint16 dport = GUINT16_TO_BE(icmp_info->code);
+            uint16_t sport = GUINT16_TO_BE(icmp_info->type);
+            uint16_t dport = GUINT16_TO_BE(icmp_info->code);
 
             if (! communityid_calc_wrapper(&cid_cfg, CID_PROTO_ICMPV6,
                                            &pinfo->net_src, &pinfo->net_dst,
@@ -523,8 +523,8 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Still no go? Try generic transport layers next. */
     if (cid == NULL) {
-        guint16 sport = GUINT16_TO_BE(pinfo->srcport);
-        guint16 dport = GUINT16_TO_BE(pinfo->destport);
+        uint16_t sport = GUINT16_TO_BE(pinfo->srcport);
+        uint16_t dport = GUINT16_TO_BE(pinfo->destport);
 
         switch ( pinfo->ptype ) {
         case PT_SCTP:
@@ -556,7 +556,7 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
          * the layer number. Inspired by proto_get_frame_protocols().
          */
         wmem_list_frame_t *protos = wmem_list_head(pinfo->layers);
-        guint layer_num = 1;
+        unsigned layer_num = 1;
 
         while (protos != NULL) {
             if (GPOINTER_TO_INT(wmem_list_frame_data(protos)) == proto_ip_found) {

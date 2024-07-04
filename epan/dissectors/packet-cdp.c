@@ -141,13 +141,13 @@ static int hf_cdp_number_of_addresses;
 static int hf_cdp_cluster_management_vlan;
 static int hf_cdp_software_version;
 
-static gint ett_cdp;
-static gint ett_cdp_tlv;
-static gint ett_cdp_nrgyz_tlv;
-static gint ett_cdp_address;
-static gint ett_cdp_capabilities;
-static gint ett_cdp_spare_poe_tlv;
-static gint ett_cdp_checksum;
+static int ett_cdp;
+static int ett_cdp_tlv;
+static int ett_cdp_nrgyz_tlv;
+static int ett_cdp_address;
+static int ett_cdp_capabilities;
+static int ett_cdp_spare_poe_tlv;
+static int ett_cdp_checksum;
 
 static expert_field ei_cdp_invalid_data;
 static expert_field ei_cdp_nrgyz_tlvlength;
@@ -158,13 +158,13 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
 static void
 dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
-dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, guint16 length, guint16 num,
+dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, uint16_t length, uint16_t num,
   proto_tree *tree);
 static void
 dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
-add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, gint start,
-  gint len, int hf);
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int start,
+  int len, int hf);
 
 #define TYPE_DEVICE_ID          0x0001
 #define TYPE_ADDRESS            0x0002
@@ -282,15 +282,15 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item *ti;
     proto_tree *cdp_tree;
     int         offset   = 0;
-    guint16     type;
-    guint16     length, data_length;
+    uint16_t    type;
+    uint16_t    length, data_length;
     proto_item *tlvi;
     proto_tree *tlv_tree;
     int         real_length;
-    guint32     naddresses;
-    guint32     power_avail_len, power_avail;
-    guint32     power_req_len, power_req;
-    gboolean    first;
+    uint32_t    naddresses;
+    uint32_t    power_avail_len, power_avail;
+    uint32_t    power_req_len, power_req;
+    bool        first;
     int         addr_length;
     vec_t       cksum_vec[1];
 
@@ -324,9 +324,9 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * the network data.
      */
     if (data_length & 1) {
-        guint8 *padded_buffer;
+        uint8_t *padded_buffer;
         /* Allocate new buffer */
-        padded_buffer = (guint8 *)wmem_alloc(pinfo->pool, data_length+1);
+        padded_buffer = (uint8_t *)wmem_alloc(pinfo->pool, data_length+1);
         tvb_memcpy(tvb, padded_buffer, 0, data_length);
         /* Swap bytes in last word */
         padded_buffer[data_length] = padded_buffer[data_length-1];
@@ -585,7 +585,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         case TYPE_VOIP_VLAN_REPLY:
             tlvi = NULL;
             if (tree) {
-                guint32 vlan_id;
+                uint32_t vlan_id;
 
                 tlv_tree = proto_tree_add_subtree(cdp_tree, tvb,
                                            offset, length, ett_cdp_tlv, &tlvi,
@@ -614,7 +614,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         case TYPE_VOIP_VLAN_QUERY:
             tlvi = NULL;
             if (tree) {
-                guint32 vlan_id;
+                uint32_t vlan_id;
 
                 tlv_tree = proto_tree_add_subtree(cdp_tree, tvb,
                                            offset, length, ett_cdp_tlv, &tlvi,
@@ -771,12 +771,12 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             power_req_len -= 8;
             /* Move offset to where the list of Power Request Values Exist */
             offset += 8;
-            first = TRUE;
+            first = true;
             while (power_req_len >= 4) {
                 proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, ENC_BIG_ENDIAN, &power_req);
                 if (first) {
                     proto_item_append_text(tlvi, ": %u mW", power_req);
-                    first = FALSE;
+                    first = false;
                 } else
                     proto_item_append_text(tlvi, ", %u mW", power_req);
                 power_req_len -= 4;
@@ -804,12 +804,12 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             power_avail_len -= 8;
             /* Move offset to where the list of Power Available Values Exist */
             offset += 8;
-            first = TRUE;
+            first = true;
             while (power_avail_len >= 4) {
                 proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_available, tvb, offset, 4, ENC_BIG_ENDIAN, &power_avail);
                 if (first) {
                     proto_item_append_text(tlvi, ": %u mW", power_avail);
-                    first = FALSE;
+                    first = false;
                 } else
                     proto_item_append_text(tlvi, ", %u mW", power_avail);
                 power_avail_len -= 4;
@@ -1057,11 +1057,11 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
 {
     proto_item *ti;
     proto_tree *address_tree;
-    guint8      protocol_type;
-    guint8      protocol_length;
+    uint8_t     protocol_type;
+    uint8_t     protocol_length;
     int         nlpid = 0;
-    guint16     address_length;
-    guint16     etypeid = 0;
+    uint16_t    address_length;
+    uint16_t    etypeid = 0;
     int         hf_addr = 0;
 
     if (length < 1)
@@ -1191,10 +1191,10 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, guint16 length, guint16 num,
+dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, uint16_t length, uint16_t num,
                   proto_tree *tree)
 {
-    guint32     tlvt, tlvl;
+    uint32_t    tlvt, tlvl;
     proto_tree *etree = NULL;
     char const *ttext = NULL;
 
@@ -1286,15 +1286,15 @@ dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
 }
 
 static void
-add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, gint start,
-  gint len, int hf)
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int start,
+  int len, int hf)
 {
-    gint next;
+    int next;
     int  line_len;
     int  data_len;
 
     while (len > 0) {
-        line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
+        line_len = tvb_find_line_end(tvb, start, len, &next, false);
         data_len = next - start;
         proto_tree_add_string(tree, hf, tvb, start, data_len, tvb_format_stringzpad(scope, tvb, start, line_len));
         start += data_len;
@@ -1484,7 +1484,7 @@ proto_register_cdp(void)
       { &hf_cdp_software_version, { "Software version", "cdp.software_version", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cdp,
         &ett_cdp_tlv,
         &ett_cdp_nrgyz_tlv,

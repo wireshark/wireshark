@@ -88,7 +88,7 @@
 
 
 typedef struct {
-   guint32 req_num, rep_num;
+   uint32_t req_num, rep_num;
    nstime_t req_time;
    cip_req_info_t* cip_info;
 } enip_request_info_t;
@@ -109,14 +109,14 @@ void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tr
 void enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad);
 void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t* triad);
 
-cip_service_info_t* cip_get_service_enip(guint32 class_id, guint8 service_id);
+cip_service_info_t* cip_get_service_enip(uint32_t class_id, uint8_t service_id);
 
 extern int dissect_ingress_tcp_udp_ports_supported(packet_info *pinfo, proto_tree *tree, proto_item *item,
    tvbuff_t *tvb, int offset, int total_len);
 extern int dissect_ingress_egress_rules(packet_info *pinfo, proto_tree *tree, proto_item *item,
    tvbuff_t *tvb, int offset, int total_len);
 extern int dissect_ingress_egress_set_rules(packet_info *pinfo, proto_tree *tree, proto_item *item,
-   tvbuff_t *tvb, int offset, gboolean request);
+   tvbuff_t *tvb, int offset, bool request);
 extern int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern const value_string lldp_cip_subtypes[];
 

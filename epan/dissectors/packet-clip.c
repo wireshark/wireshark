@@ -24,7 +24,7 @@ void proto_reg_handoff_clip(void);
 
 static int proto_clip;
 
-static gint ett_clip;
+static int ett_clip;
 
 static expert_field ei_no_link_info;
 
@@ -76,7 +76,7 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_clip(void)
 {
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_clip,
   };
 

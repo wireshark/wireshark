@@ -125,13 +125,13 @@ static int hf_csm_encaps_param;
 
 
 /* Initialize the subtree pointers */
-static gint ett_csm_encaps;
-static gint ett_csm_encaps_control;
+static int ett_csm_encaps;
+static int ett_csm_encaps_control;
 
 
 /* returns the command name */
-static const gchar *
-csm_fc(guint16 fc, guint16 ct)
+static const char *
+csm_fc(uint16_t fc, uint16_t ct)
 {
     if (fc == 0x0000) {
         return val_to_str(ct, class_type_vals, "0x%04x");
@@ -143,8 +143,8 @@ csm_fc(guint16 fc, guint16 ct)
 
 
 /* check to see if the message is an exclusive message send to host */
-static gboolean
-csm_to_host(guint16 fc, guint16 ct)
+static bool
+csm_to_host(uint16_t fc, uint16_t ct)
 {
     if (fc == 0x0000) {
         return (try_val_to_str(ct, exclusive_to_host_ct_vals) != NULL);
@@ -161,11 +161,11 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
     proto_item  *ti;
     proto_tree  *csm_encaps_tree = NULL;
-    guint16      function_code, channel, class_type;
-    guint        control, type, sequence, length;
-    guint        i;
-    gboolean     show_error_param= FALSE;
-    const gchar *str_function_name;
+    uint16_t     function_code, channel, class_type;
+    unsigned     control, type, sequence, length;
+    unsigned     i;
+    bool         show_error_param= false;
+    const char *str_function_name;
 
 
     function_code = tvb_get_letohs(tvb, 10);
@@ -182,15 +182,15 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 
     if (CSM_ENCAPS_CTRL_ACK&control)
-        show_error_param= FALSE;
+        show_error_param= false;
     else {
         if (csm_to_host(function_code, class_type)) /* exclusive messages to host */
-            show_error_param= FALSE;
+            show_error_param= false;
         else {
             if (type == CSM_ENCAPS_TYPE_RESPONSE)
-                show_error_param= TRUE;
+                show_error_param= true;
             else
-                show_error_param= FALSE;
+                show_error_param= false;
         }
     }
 
@@ -705,7 +705,7 @@ proto_register_csm_encaps(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_csm_encaps,
         &ett_csm_encaps_control
     };

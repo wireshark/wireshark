@@ -22,7 +22,7 @@
 extern const value_string chdlc_vals[];
 
 void
-chdlctype(dissector_handle_t sub_dissector, guint16 chdlctype,
+chdlctype(dissector_handle_t sub_dissector, uint16_t chdlctype,
           tvbuff_t *tvb, int offset_after_chdlctype,
 	  packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 	  int chdlctype_id);

@@ -22,7 +22,7 @@ void proto_reg_handoff_cups(void);
 static dissector_handle_t cups_handle;
 
 /* From cups/cups.h, GNU GPL, Copyright 1997-2001 by Easy Software Products. */
-typedef guint32 cups_ptype_t;           /**** Printer Type/Capability Bits ****/
+typedef uint32_t cups_ptype_t;           /**** Printer Type/Capability Bits ****/
 enum                                    /* Not a typedef'd enum so we can OR */
 {
     CUPS_PRINTER_LOCAL = 0x0000,          /* Local printer or class */
@@ -90,8 +90,8 @@ static int hf_cups_location;
 static int hf_cups_information;
 static int hf_cups_make_model;
 
-static gint ett_cups;
-static gint ett_cups_ptype;
+static int ett_cups;
+static int ett_cups_ptype;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_whitespace;
@@ -101,12 +101,12 @@ static ws_mempbrk_pattern pbrk_whitespace;
 #define UDP_PORT_CUPS  631
 #define PROTO_TAG_CUPS "CUPS"
 
-static guint get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset);
-static gboolean skip_space(tvbuff_t *tvb, gint offset, gint *next_offset);
-static const guint8* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset,
-    gint *next_offset, guint *len);
-static const guint8* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset,
-    gint *next_offset, guint *len);
+static unsigned get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset);
+static bool skip_space(tvbuff_t *tvb, int offset, int *next_offset);
+static const uint8_t* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
+    int *next_offset, unsigned *len);
+static const uint8_t* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
+    int *next_offset, unsigned *len);
 
 /**********************************************************************/
 
@@ -116,10 +116,10 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree   *cups_tree = NULL;
     proto_tree   *ptype_subtree = NULL;
     proto_item   *ti = NULL;
-    gint          offset = 0;
-    gint          next_offset;
-    guint         len;
-    const guint8 *str;
+    int           offset = 0;
+    int           next_offset;
+    unsigned      len;
+    const uint8_t *str;
     cups_ptype_t  ptype;
     unsigned int  state;
 
@@ -217,11 +217,11 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     return next_offset;
 }
 
-static guint
-get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset)
+static unsigned
+get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset)
 {
     int c;
-    guint u = 0;
+    unsigned u = 0;
 
     while (g_ascii_isxdigit(c = tvb_get_guint8(tvb, offset))) {
         u = 16*u + ws_xton(c);
@@ -234,28 +234,28 @@ get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset)
     return u;
 }
 
-static gboolean
-skip_space(tvbuff_t *tvb, gint offset, gint *next_offset)
+static bool
+skip_space(tvbuff_t *tvb, int offset, int *next_offset)
 {
     int c;
 
     while ((c = tvb_get_guint8(tvb, offset)) == ' ')
         offset++;
     if (c == '\r' || c == '\n')
-        return FALSE;    /* end of packet */
+        return false;    /* end of packet */
 
     *next_offset = offset;
 
-    return TRUE;
+    return true;
 }
 
-static const guint8*
-get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
+static const uint8_t*
+get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_offset, unsigned *len)
 {
     int c;
-    const guint8* s = NULL;
-    guint l = 0;
-    gint o;
+    const uint8_t* s = NULL;
+    unsigned l = 0;
+    int o;
 
     c = tvb_get_guint8(tvb, offset);
     if (c == '"') {
@@ -274,12 +274,12 @@ get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *nex
     return s;
 }
 
-static const guint8*
-get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
+static const uint8_t*
+get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_offset, unsigned *len)
 {
-    const guint8* s = NULL;
-    guint l = 0;
-    gint o;
+    const uint8_t* s = NULL;
+    unsigned l = 0;
+    int o;
 
     o = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, &pbrk_whitespace, NULL);
     if (o != -1) {
@@ -374,7 +374,7 @@ proto_register_cups(void)
                 NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cups,
         &ett_cups_ptype
     };
