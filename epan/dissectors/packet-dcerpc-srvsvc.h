@@ -59,7 +59,7 @@ int srvsvc_dissect_struct_NetSessCtr502(tvbuff_t *tvb _U_, int offset _U_, packe
 #define SESSION_INFO_10_CONTAINER (10)
 #define SESSION_INFO_502_CONTAINER (502)
 extern const value_string srvsvc_SESSION_INFO_LEVEL_vals[];
-int srvsvc_dissect_enum_SESSION_INFO_LEVEL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_);
+int srvsvc_dissect_enum_SESSION_INFO_LEVEL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int srvsvc_dissect_struct_NetSessInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define STYPE_DISKTREE (0)
 #define STYPE_DISKTREE_TEMPORARY (STYPE_DISKTREE|STYPE_TEMPORARY)
@@ -83,7 +83,7 @@ int srvsvc_dissect_struct_NetSessInfoCtr(tvbuff_t *tvb _U_, int offset _U_, pack
 #define STYPE_CLUSTER_DFS_TEMPORARY (STYPE_CLUSTER_DFS|STYPE_TEMPORARY)
 #define STYPE_CLUSTER_DFS_HIDDEN (STYPE_CLUSTER_DFS|STYPE_HIDDEN)
 extern const value_string srvsvc_srvsvc_ShareType_vals[];
-int srvsvc_dissect_enum_ShareType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int srvsvc_dissect_enum_ShareType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int srvsvc_dissect_struct_NetShareInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int srvsvc_dissect_struct_NetShareCtr0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int srvsvc_dissect_struct_NetShareInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -111,7 +111,7 @@ int srvsvc_dissect_struct_NetShareInfoCtr(tvbuff_t *tvb _U_, int offset _U_, pac
 #define PLATFORM_ID_OSF (600)
 #define PLATFORM_ID_VMS (700)
 extern const value_string srvsvc_srvsvc_PlatformId_vals[];
-int srvsvc_dissect_enum_PlatformId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int srvsvc_dissect_enum_PlatformId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int srvsvc_dissect_struct_NetSrvInfo100(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int srvsvc_dissect_struct_NetSrvInfo101(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int srvsvc_dissect_struct_NetSrvInfo102(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);

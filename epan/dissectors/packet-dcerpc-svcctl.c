@@ -1190,7 +1190,7 @@ svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_in
 int
 svcctl_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
@@ -1287,9 +1287,9 @@ svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1316,9 +1316,9 @@ svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 int
-svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1364,7 +1364,7 @@ svcctl_dissect_bitmap_ControlsAccepted(tvbuff_t *tvb _U_, int offset _U_, packet
 		&hf_svcctl_svcctl_ControlsAccepted_SERVICE_ACCEPT_USERMODEREBOOT,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -1498,9 +1498,9 @@ svcctl_dissect_struct_SERVICE_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 int
-svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1816,9 +1816,9 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 int
-svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1838,9 +1838,9 @@ svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 int
-svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1861,9 +1861,9 @@ svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 int
-svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1882,9 +1882,9 @@ svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 int
-svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1920,7 +1920,7 @@ svcctl_dissect_bitmap_MgrAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		&hf_svcctl_svcctl_MgrAccessMask_SC_RIGHT_MGR_ALL_ACCESS,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -1968,7 +1968,7 @@ svcctl_dissect_bitmap_ServiceAccessMask(tvbuff_t *tvb _U_, int offset _U_, packe
 		&hf_svcctl_svcctl_ServiceAccessMask_SC_RIGHT_SVC_USER_DEFINED_CONTROL,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -2285,9 +2285,9 @@ svcctl_dissect_struct_ArgumentStringA(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 int
-svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -2304,9 +2304,9 @@ svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 int
-svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}

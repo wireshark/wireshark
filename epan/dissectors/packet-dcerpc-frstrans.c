@@ -244,8 +244,8 @@ static int frstrans_dissect_element_RdcParameterFilterPoint_max_chunk_size(tvbuf
 static int frstrans_dissect_element_RdcParameterUnion_filter_generic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int frstrans_dissect_element_RdcParameterUnion_filter_max(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int frstrans_dissect_element_RdcParameterUnion_filter_point(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int frstrans_dissect_element_RdcParameters_rdc_chunker_algorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *rdc_chunker_algorithm);
-static int frstrans_dissect_element_RdcParameters_u(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *rdc_chunker_algorithm);
+static int frstrans_dissect_element_RdcParameters_rdc_chunker_algorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *rdc_chunker_algorithm);
+static int frstrans_dissect_element_RdcParameters_u(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *rdc_chunker_algorithm);
 const value_string frstrans_frstrans_RdcVersion_vals[] = {
 	{ FRSTRANS_RDC_VERSION, "FRSTRANS_RDC_VERSION" },
 { 0, NULL }
@@ -341,9 +341,9 @@ cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 /* IDL: } */
 
 int
-frstrans_dissect_enum_ProtocolVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+frstrans_dissect_enum_ProtocolVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -367,7 +367,7 @@ frstrans_dissect_bitmap_TransportFlags(tvbuff_t *tvb _U_, int offset _U_, packet
 		&hf_frstrans_frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -394,9 +394,9 @@ frstrans_dissect_bitmap_TransportFlags(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 int
-frstrans_dissect_enum_UpdateRequestType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_UpdateRequestType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -414,9 +414,9 @@ frstrans_dissect_enum_UpdateRequestType(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-frstrans_dissect_enum_UpdateStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_UpdateStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -740,9 +740,9 @@ frstrans_dissect_struct_Update(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 int
-frstrans_dissect_enum_VersionRequestType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_VersionRequestType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -760,9 +760,9 @@ frstrans_dissect_enum_VersionRequestType(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-frstrans_dissect_enum_VersionChangeType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_VersionChangeType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1093,9 +1093,9 @@ frstrans_dissect_struct_AsyncResponseContext(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-frstrans_dissect_enum_RequestedStagingPolicy(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_RequestedStagingPolicy(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1115,9 +1115,9 @@ frstrans_dissect_enum_RequestedStagingPolicy(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-frstrans_dissect_enum_RdcChunckerAlgorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_RdcChunckerAlgorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1334,7 +1334,7 @@ frstrans_dissect_RdcParameterUnion(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint1632 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -1369,7 +1369,7 @@ frstrans_dissect_RdcParameterUnion(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-frstrans_dissect_element_RdcParameters_rdc_chunker_algorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *rdc_chunker_algorithm)
+frstrans_dissect_element_RdcParameters_rdc_chunker_algorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *rdc_chunker_algorithm)
 {
 	offset = frstrans_dissect_enum_RdcChunckerAlgorithm(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_RdcParameters_rdc_chunker_algorithm, rdc_chunker_algorithm);
 
@@ -1377,7 +1377,7 @@ frstrans_dissect_element_RdcParameters_rdc_chunker_algorithm(tvbuff_t *tvb _U_, 
 }
 
 static int
-frstrans_dissect_element_RdcParameters_u(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *rdc_chunker_algorithm)
+frstrans_dissect_element_RdcParameters_u(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *rdc_chunker_algorithm)
 {
 	offset = frstrans_dissect_RdcParameterUnion(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_RdcParameters_u, *rdc_chunker_algorithm);
 
@@ -1387,7 +1387,7 @@ frstrans_dissect_element_RdcParameters_u(tvbuff_t *tvb _U_, int offset _U_, pack
 int
 frstrans_dissect_struct_RdcParameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint1632 rdc_chunker_algorithm = 0;
+	uint32_t rdc_chunker_algorithm = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -1422,9 +1422,9 @@ frstrans_dissect_struct_RdcParameters(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 int
-frstrans_dissect_enum_RdcVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_RdcVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1441,9 +1441,9 @@ frstrans_dissect_enum_RdcVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 int
-frstrans_dissect_enum_RdcVersionCompatible(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_RdcVersionCompatible(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1461,9 +1461,9 @@ frstrans_dissect_enum_RdcVersionCompatible(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 int
-frstrans_dissect_enum_RdcCompressionAlgorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+frstrans_dissect_enum_RdcCompressionAlgorithm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}

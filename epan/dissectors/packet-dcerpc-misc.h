@@ -23,7 +23,7 @@ int misc_dissect_struct_policy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_
 #define SEC_CHAN_BDC (6)
 #define SEC_CHAN_RODC (7)
 extern const value_string misc_netr_SchannelType_vals[];
-int misc_dissect_enum_netr_SchannelType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_);
+int misc_dissect_enum_netr_SchannelType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define REG_NONE (0)
 #define REG_SZ (1)
@@ -38,5 +38,5 @@ int misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb _U_, int offset _U_, p
 #define REG_RESOURCE_REQUIREMENTS_LIST (10)
 #define REG_QWORD (11)
 extern const value_string misc_winreg_Type_vals[];
-int misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #endif /* __PACKET_DCERPC_MISC_H */

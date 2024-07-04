@@ -415,8 +415,8 @@ static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_prop
 static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertySDContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyReplyContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyOptionsContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *PropertyType);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *PropertyType);
+static int iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType);
+static int iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType);
 static int iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -1130,9 +1130,9 @@ iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *tvb _
 /* IDL: } */
 
 int
-iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -1245,7 +1245,7 @@ iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvbuff_t *tvb _U_, int 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint1632 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -1304,7 +1304,7 @@ iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvbuff_t *tvb _U_, int 
 /* IDL: } */
 
 static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *PropertyType)
+iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType)
 {
 	offset = iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValue_PropertyType, PropertyType);
 
@@ -1312,7 +1312,7 @@ iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_
 }
 
 static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *PropertyType)
+iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType)
 {
 	offset = iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValue_value, *PropertyType);
 
@@ -1322,7 +1322,7 @@ iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb 
 int
 iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint1632 PropertyType = 0;
+	uint32_t PropertyType = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -1498,7 +1498,7 @@ iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvb
 		&hf_iremotewinspool_winspool_InstallPrinterDriverFromPackageFlags_IPDFP_COPY_ALL_FILES,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -1533,7 +1533,7 @@ iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t
 		&hf_iremotewinspool_winspool_UploadPrinterDriverPackageFlags_UPDP_CHECK_DRIVERSTORE,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,

@@ -3150,9 +3150,9 @@ clusapi_dissect_struct_IDL_CLUSTER_SET_PASSWORD_STATUS(tvbuff_t *tvb _U_, int of
 /* IDL: } */
 
 int
-clusapi_dissect_enum_IDL_CLUSTER_SET_PASSWORD_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_IDL_CLUSTER_SET_PASSWORD_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -3243,7 +3243,7 @@ clusapi_dissect_bitmap_ClusterEnumType(tvbuff_t *tvb _U_, int offset _U_, packet
 		&hf_clusapi_ClusterEnumType_CLUSTER_ENUM_SHARED_VOLUME_RESOURCE,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -3906,9 +3906,9 @@ clusapi_dissect_struct_RESOURCE_ENUM_LIST(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CreateResourceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_CreateResourceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -3931,9 +3931,9 @@ clusapi_dissect_enum_CreateResourceFlags(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ClusterResourceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ClusterResourceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -3955,9 +3955,9 @@ clusapi_dissect_enum_ClusterResourceState(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ClusterGroupState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ClusterGroupState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -3983,7 +3983,7 @@ clusapi_dissect_bitmap_ClusterGroupEnumType(tvbuff_t *tvb _U_, int offset _U_, p
 		&hf_clusapi_ClusterGroupEnumType_CLUSTER_GROUP_ENUM_NODES,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -4012,9 +4012,9 @@ clusapi_dissect_bitmap_ClusterGroupEnumType(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ClusterNodeState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ClusterNodeState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4033,9 +4033,9 @@ clusapi_dissect_enum_ClusterNodeState(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ResourceClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ResourceClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4163,9 +4163,9 @@ clusapi_dissect_struct_CLUS_RESOURCE_CLASS_INFO(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ResourceControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ResourceControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4220,9 +4220,9 @@ clusapi_dissect_enum_ResourceControlCode(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ResourceTypeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ResourceTypeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4254,9 +4254,9 @@ clusapi_dissect_enum_ResourceTypeControlCode(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-clusapi_dissect_enum_GroupControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_GroupControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4288,9 +4288,9 @@ clusapi_dissect_enum_GroupControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 int
-clusapi_dissect_enum_NodeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_NodeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4311,9 +4311,9 @@ clusapi_dissect_enum_NodeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ClusterNetworkState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ClusterNetworkState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4334,9 +4334,9 @@ clusapi_dissect_enum_ClusterNetworkState(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ClusterNetInterfaceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ClusterNetInterfaceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4362,7 +4362,7 @@ clusapi_dissect_bitmap_ClusterResTypeEnumType(tvbuff_t *tvb _U_, int offset _U_,
 		&hf_clusapi_ClusterResTypeEnumType_CLUSTER_RESOURCE_TYPE_ENUM_RESOURCES,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -4406,9 +4406,9 @@ clusapi_dissect_bitmap_ClusterResTypeEnumType(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: } */
 
 int
-clusapi_dissect_enum_ClusterControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_ClusterControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4447,9 +4447,9 @@ clusapi_dissect_enum_ClusterControlCode(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_PROPERTY_SYNTAX(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+clusapi_dissect_enum_CLUSTER_PROPERTY_SYNTAX(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -4485,7 +4485,7 @@ clusapi_dissect_bitmap_DesiredAccessMask(tvbuff_t *tvb _U_, int offset _U_, pack
 		&hf_clusapi_clusapi_DesiredAccessMask_CLUSAPI_MAXIMUM_ALLOWED,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -5103,9 +5103,9 @@ clusapi_dissect_struct_NOTIFICATION_DATA_ASYNC_RPC(tvbuff_t *tvb _U_, int offset
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSDSK_DISKID_ENUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSDSK_DISKID_ENUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5133,9 +5133,9 @@ clusapi_dissect_enum_CLUSDSK_DISKID_ENUM(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_PROPERTY_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_PROPERTY_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5164,9 +5164,9 @@ clusapi_dissect_enum_CLUSTER_PROPERTY_TYPE(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_PROPERTY_FORMAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_PROPERTY_FORMAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5195,9 +5195,9 @@ clusapi_dissect_enum_CLUSTER_PROPERTY_FORMAT(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUS_CHARACTERISTICS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUS_CHARACTERISTICS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5214,9 +5214,9 @@ clusapi_dissect_enum_CLUS_CHARACTERISTICS(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUS_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUS_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5235,9 +5235,9 @@ clusapi_dissect_enum_CLUS_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 int
-clusapi_dissect_enum_MAINTENANCE_MODE_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_MAINTENANCE_MODE_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5285,9 +5285,9 @@ clusapi_dissect_enum_MAINTENANCE_MODE_TYPE(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5311,9 +5311,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_REG_BATCH_COMMAND(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_REG_BATCH_COMMAND(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5331,9 +5331,9 @@ clusapi_dissect_enum_CLUSTER_REG_BATCH_COMMAND(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_QUORUM_VALUE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_QUORUM_VALUE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5359,9 +5359,9 @@ clusapi_dissect_enum_CLUSTER_QUORUM_VALUE(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_OBJECT_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_OBJECT_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5388,9 +5388,9 @@ clusapi_dissect_enum_CLUSTER_OBJECT_TYPE(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_CLUSTER_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_CLUSTER_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5416,9 +5416,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_CLUSTER_V2(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_GROUP_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_GROUP_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5444,9 +5444,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_GROUP_V2(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_RESOURCE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_RESOURCE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5467,9 +5467,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_RESOURCE_V2(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CHANGE_RESOURCE_TYPE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CHANGE_RESOURCE_TYPE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5490,9 +5490,9 @@ clusapi_dissect_enum_CHANGE_RESOURCE_TYPE_V2(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_NETINTERFACE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_NETINTERFACE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5513,9 +5513,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_NETINTERFACE_V2(tvbuff_t *tvb _U_, int offse
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_NETWORK_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_NETWORK_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5539,9 +5539,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_NETWORK_V2(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_NODE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_NODE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5562,9 +5562,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_NODE_V2(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_REGISTRY_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_REGISTRY_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5581,9 +5581,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_REGISTRY_V2(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_QUORUM_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_QUORUM_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5600,9 +5600,9 @@ clusapi_dissect_enum_CLUSTER_CHANGE_QUORUM_V2(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: } */
 
 int
-clusapi_dissect_enum_CLUSTER_CHANGE_SHARED_VOLUME_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+clusapi_dissect_enum_CLUSTER_CHANGE_SHARED_VOLUME_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}

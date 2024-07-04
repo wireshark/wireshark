@@ -3405,7 +3405,7 @@
 #define PR_EMS_AB_SERVER_ERROR (0xfffe000a)
 #define MAPI_PROP_RESERVED (0xFFFFFFFF)
 extern const value_string nspi_MAPITAGS_vals[];
-int nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define MAPI_E_SUCCESS (0x00000000)
 #define MAPI_E_NO_SUPPORT (0x80040102)
 #define MAPI_E_BAD_CHARWIDTH (0x80040103)
@@ -3478,7 +3478,7 @@ int nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 #define MAPI_E_AMBIGUOUS_RECIP (0x80040700)
 #define MAPI_E_RESERVED (0xFFFFFFFF)
 extern const value_string nspi_MAPISTATUS_vals[];
-int nspi_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int nspi_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int nspi_dissect_struct_MAPIUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int nspi_dissect_struct_input_locale(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3497,7 +3497,7 @@ int nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 #define RES_SUBRESTRICTION (9)
 #define RES_COMMENT (10)
 extern const value_string nspi_nspi_RestrictionType_vals[];
-int nspi_dissect_enum_RestrictionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int nspi_dissect_enum_RestrictionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int nspi_dissect_struct_SRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3534,7 +3534,7 @@ int nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_in
 #define PT_MV_CLSID (0x1048)
 #define PT_MV_BINARY (0x1102)
 extern const value_string nspi_property_types_vals[];
-int nspi_dissect_enum_property_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int nspi_dissect_enum_property_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int nspi_dissect_struct_SBinary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int nspi_dissect_struct_FILETIME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int nspi_dissect_struct_SShortArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);

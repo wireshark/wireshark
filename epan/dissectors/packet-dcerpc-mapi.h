@@ -85,7 +85,7 @@
 #define MAPI_E_AMBIGUOUS_RECIP (0x80040700)
 #define MAPI_E_RESERVED (0xFFFFFFFF)
 extern const value_string mapi_MAPISTATUS_vals[];
-int mapi_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int mapi_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define PR_ACKNOWLEDGEMENT_MODE (0x00010003)
 #define PR_ACKNOWLEDGEMENT_MODE_ERROR (0x0001000a)
 #define PR_ALTERNATE_RECIPIENT_ALLOWED (0x0002000b)
@@ -3480,7 +3480,7 @@ int mapi_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 #define PR_EMS_AB_SERVER_ERROR (0xfffe000a)
 #define MAPI_PROP_RESERVED (0xFFFFFFFF)
 extern const value_string mapi_MAPITAGS_vals[];
-int mapi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int mapi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int mapi_dissect_struct_DATA_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define MAPI_STORE (0x1)
 #define MAPI_ADDRBOOK (0x2)
@@ -3495,7 +3495,7 @@ int mapi_dissect_struct_DATA_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info
 #define MAPI_SESSION (0xB)
 #define MAPI_FORMINFO (0xC)
 extern const value_string mapi_MAPI_OBJTYPE_vals[];
-int mapi_dissect_enum_MAPI_OBJTYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_MAPI_OBJTYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define RightsNone (0x00000000)
 #define RightsReadItems (0x00000001)
 #define RightsCreateItems (0x00000002)
@@ -3517,7 +3517,7 @@ int mapi_dissect_enum_MAPI_OBJTYPE(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 #define RightsAll (0x000005FB)
 #define RoleOwner (0x000007FB)
 extern const value_string mapi_ACLRIGHTS_vals[];
-int mapi_dissect_enum_ACLRIGHTS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int mapi_dissect_enum_ACLRIGHTS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define RopNone (0x00)
 #define RopRelease (0x01)
 #define RopOpenFolder (0x02)
@@ -3690,7 +3690,7 @@ int mapi_dissect_enum_ACLRIGHTS(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 #define RopLogon (0xFE)
 #define RopBufferTooSmall (0xFF)
 extern const value_string mapi_ROP_OPNUM_vals[];
-int mapi_dissect_enum_ROP_OPNUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_ROP_OPNUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SBinary_short(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_MV_LONG_STRUCT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_LPSTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3714,7 +3714,7 @@ int mapi_dissect_struct_SPropValue_array_wrap(tvbuff_t *tvb _U_, int offset _U_,
 #define ActionType_OP_DELETE (0xA)
 #define ActionType_OP_MARK_AS_READ (0xB)
 extern const value_string mapi_ActionType_vals[];
-int mapi_dissect_enum_ActionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_ActionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_MoveCopy_Action(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_ReplyOOF_Action(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_RecipientBlock(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3722,7 +3722,7 @@ int mapi_dissect_struct_RecipientBlock(tvbuff_t *tvb _U_, int offset _U_, packet
 #define BOUNCE_MESSAGE_NOT_DISPLAYED (0x0000001f)
 #define BOUNCE_MESSAGE_DENIED (0x00000026)
 extern const value_string mapi_BounceCode_vals[];
-int mapi_dissect_enum_BounceCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_);
+int mapi_dissect_enum_BounceCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int mapi_dissect_struct_ForwardDelegate_Action(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_ActionBlockData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_ActionBlock(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3739,13 +3739,13 @@ int mapi_dissect_struct_SPropTagArray(tvbuff_t *tvb _U_, int offset _U_, packet_
 #define ROW_MODIFY (0x2)
 #define ROW_REMOVE (0x4)
 extern const value_string mapi_ulRowFlags_vals[];
-int mapi_dissect_enum_ulRowFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_ulRowFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_Release_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_Release_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define OpenModeFlags_Folder (0x0)
 #define OpenModeFlags_SoftDeleted (0x4)
 extern const value_string mapi_OpenFolder_OpenModeFlags_vals[];
-int mapi_dissect_enum_OpenFolder_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_OpenFolder_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_OpenFolder_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_OpenFolder_Replicas(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_OpenFolder_Success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3756,14 +3756,14 @@ int mapi_dissect_struct_OpenFolder_repl(tvbuff_t *tvb _U_, int offset _U_, packe
 #define StringType_UNICODE_REDUCED (0x3)
 #define StringType_UNICODE (0x4)
 extern const value_string mapi_StringType_vals[];
-int mapi_dissect_enum_StringType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_StringType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_TypedString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define ReadOnly (0x0)
 #define ReadWrite (0x1)
 #define Create (0x3)
 #define OpenSoftDelete (0x4)
 extern const value_string mapi_OpenMessage_OpenModeFlags_vals[];
-int mapi_dissect_enum_OpenMessage_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_OpenMessage_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_OpenMessage_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define CP_USASCII (0x04E4)
 #define CP_UNICODE (0x04B0)
@@ -3772,17 +3772,17 @@ int mapi_dissect_struct_OpenMessage_req(tvbuff_t *tvb _U_, int offset _U_, packe
 #define CP_ISO2022JPESC (0xC42D)
 #define CP_ISO2022JPSIO (0xC42E)
 extern const value_string mapi_CODEPAGEID_vals[];
-int mapi_dissect_enum_CODEPAGEID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_CODEPAGEID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 #define MAPI_ORIG (0x0)
 #define MAPI_TO (0x1)
 #define MAPI_CC (0x2)
 #define MAPI_BCC (0x3)
 extern const value_string mapi_ulRecipClass_vals[];
-int mapi_dissect_enum_ulRecipClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_ulRecipClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define SINGLE_RECIPIENT (0x0)
 #define DISTRIBUTION_LIST (0x1)
 extern const value_string mapi_addr_type_vals[];
-int mapi_dissect_enum_addr_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_addr_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_RecipExchange(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_RecipSMTP(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_RecipientRow(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3816,7 +3816,7 @@ int mapi_dissect_struct_DeleteProps_repl(tvbuff_t *tvb _U_, int offset _U_, pack
 #define KeepOpenReadWrite (0xA)
 #define ForceSave (0xC)
 extern const value_string mapi_SaveFlags_vals[];
-int mapi_dissect_enum_SaveFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_SaveFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SaveChangesMessage_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SaveChangesMessage_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_RemoveAllRecipients_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3827,7 +3827,7 @@ int mapi_dissect_struct_RemoveAllRecipients_repl(tvbuff_t *tvb _U_, int offset _
 #define MODRECIP_MODIFY (0x4)
 #define MODRECIP_REMOVE (0x8)
 extern const value_string mapi_modrecip_vals[];
-int mapi_dissect_enum_modrecip(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_modrecip(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_ModifyRecipientRow(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_ModifyRecipients_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_ModifyRecipients_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3843,7 +3843,7 @@ int mapi_dissect_struct_SetMessageReadFlag_repl(tvbuff_t *tvb _U_, int offset _U
 #define SetColumns_TBL_SYNC (0x0)
 #define SetColumns_TBL_ASYNC (0x1)
 extern const value_string mapi_SetColumnsFlags_vals[];
-int mapi_dissect_enum_SetColumnsFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_SetColumnsFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define TBLSTAT_COMPLETE (0x0)
 #define TBLSTAT_SORTING (0x9)
 #define TBLSTAT_SORT_ERROR (0xA)
@@ -3852,18 +3852,18 @@ int mapi_dissect_enum_SetColumnsFlags(tvbuff_t *tvb _U_, int offset _U_, packet_
 #define TBLSTAT_RESTRICTING (0xE)
 #define TBLSTAT_RESTRICT_ERROR (0xF)
 extern const value_string mapi_TableStatus_vals[];
-int mapi_dissect_enum_TableStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_TableStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SetColumns_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SetColumns_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define TBL_ASYNC (0x1)
 #define TBL_BATCH (0x2)
 extern const value_string mapi_TBL_FLAGS_vals[];
-int mapi_dissect_enum_TBL_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_TBL_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define TABLE_SORT_ASCEND (0x0)
 #define TABLE_SORT_COMBINE (0x1)
 #define TABLE_SORT_DESCEND (0x2)
 extern const value_string mapi_TABLE_SORT_vals[];
-int mapi_dissect_enum_TABLE_SORT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_TABLE_SORT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SSortOrder(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SSortOrderSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SortTable_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3876,7 +3876,7 @@ int mapi_dissect_struct_SContentRestriction(tvbuff_t *tvb _U_, int offset _U_, p
 #define BMR_EQZ (0x0)
 #define BMR_NEZ (0x1)
 extern const value_string mapi_relMBR_vals[];
-int mapi_dissect_enum_relMBR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_relMBR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SBitmaskRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define RELOP_LT (0x0)
 #define RELOP_LE (0x1)
@@ -3886,7 +3886,7 @@ int mapi_dissect_struct_SBitmaskRestriction(tvbuff_t *tvb _U_, int offset _U_, p
 #define RELOP_NE (0x5)
 #define RELOP_RE (0x6)
 extern const value_string mapi_CompareRelop_vals[];
-int mapi_dissect_enum_CompareRelop(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_CompareRelop(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SSizeRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SCompareProps(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3904,7 +3904,7 @@ int mapi_dissect_struct_Restrict_repl(tvbuff_t *tvb _U_, int offset _U_, packet_
 #define TBL_NOADVANCE (0x1)
 #define TBL_ENABLEPACKEDBUFFERS (0x2)
 extern const value_string mapi_QueryRowsFlags_vals[];
-int mapi_dissect_enum_QueryRowsFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_QueryRowsFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_QueryRows_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_QueryRows_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_GetStatus_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3916,7 +3916,7 @@ int mapi_dissect_struct_QueryPosition_repl(tvbuff_t *tvb _U_, int offset _U_, pa
 #define BOOKMARK_END (0x2)
 #define BOOKMARK_USER (0x3)
 extern const value_string mapi_BOOKMARK_vals[];
-int mapi_dissect_enum_BOOKMARK(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_BOOKMARK(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SeekRow_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SeekRow_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SeekRowBookmark_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3928,15 +3928,15 @@ int mapi_dissect_struct_CreateBookmark_repl(tvbuff_t *tvb _U_, int offset _U_, p
 #define FOLDER_GENERIC (0x1)
 #define FOLDER_SEARCH (0x2)
 extern const value_string mapi_FOLDER_TYPE_vals[];
-int mapi_dissect_enum_FOLDER_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_FOLDER_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define MAPI_FOLDER_ANSI (0x0)
 #define MAPI_FOLDER_UNICODE (0x1)
 extern const value_string mapi_FOLDER_STRING_vals[];
-int mapi_dissect_enum_FOLDER_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_FOLDER_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define NONE (0x0000)
 #define OPEN_IF_EXISTS (0x0001)
 extern const value_string mapi_FOLDER_FLAGS_vals[];
-int mapi_dissect_enum_FOLDER_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_FOLDER_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int mapi_dissect_struct_CreateFolder_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_CreateFolder_GhostInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_CreateFolder_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3955,7 +3955,7 @@ int mapi_dissect_struct_GetAttachmentTable_repl(tvbuff_t *tvb _U_, int offset _U
 #define OpenAttachmentFlags_ReadWrite (0x1)
 #define OpenAttachmentFlags_BestAccess (0x3)
 extern const value_string mapi_OpenAttachmentFlags_vals[];
-int mapi_dissect_enum_OpenAttachmentFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_OpenAttachmentFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_OpenAttach_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_OpenAttach_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_CreateAttach_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3984,7 +3984,7 @@ int mapi_dissect_struct_GetReceiveFolder_repl(tvbuff_t *tvb _U_, int offset _U_,
 #define fnevSbit (0x4000)
 #define fnevMbit (0x8000)
 extern const value_string mapi_NotificationFlags_vals[];
-int mapi_dissect_enum_NotificationFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_NotificationFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int mapi_dissect_struct_RegisterNotification_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_RegisterNotification_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_bitmap_MsgFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -3995,7 +3995,7 @@ int mapi_dissect_struct_GID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 #define TABLE_ROW_MODIFIED (0x5)
 #define TABLE_RESTRICT_DONE (0x7)
 extern const value_string mapi_RichTableNotificationType_vals[];
-int mapi_dissect_enum_RichTableNotificationType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_RichTableNotificationType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int mapi_dissect_struct_NewMailNotification(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_FolderCreatedNotification(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_FolderDeletedNotification(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4027,7 +4027,7 @@ int mapi_dissect_struct_Notify_repl(tvbuff_t *tvb _U_, int offset _U_, packet_in
 #define OpenStream_Create (0x2)
 #define OpenStream_BestAccess (0x3)
 extern const value_string mapi_OpenStream_OpenModeFlags_vals[];
-int mapi_dissect_enum_OpenStream_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_OpenStream_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_OpenStream_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_OpenStream_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_ReadStream_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4047,7 +4047,7 @@ int mapi_dissect_struct_GetSearchCriteria_repl(tvbuff_t *tvb _U_, int offset _U_
 #define PreProcess (0x1)
 #define NeedsSpooler (0x2)
 extern const value_string mapi_SubmitFlags_vals[];
-int mapi_dissect_enum_SubmitFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_SubmitFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SubmitMessage_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SubmitMessage_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_MoveCopyMessages_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4098,7 +4098,7 @@ int mapi_dissect_struct_PublicFolderIsGhosted_repl(tvbuff_t *tvb _U_, int offset
 #define MAPI_READWRITE (0x1)
 #define MAPI_CREATE (0x2)
 extern const value_string mapi_OpenEmbeddedMessage_OpenModeFlags_vals[];
-int mapi_dissect_enum_OpenEmbeddedMessage_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_OpenEmbeddedMessage_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_OpenEmbeddedMessage_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_OpenEmbeddedMessage_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SetSpooler_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4107,7 +4107,7 @@ int mapi_dissect_struct_SetSpooler_repl(tvbuff_t *tvb _U_, int offset _U_, packe
 #define LockState_1stUnlock (0x1)
 #define LockState_1stFinished (0x2)
 extern const value_string mapi_LockState_vals[];
-int mapi_dissect_enum_LockState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_LockState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_SpoolerLockMessage_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SpoolerLockMessage_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_AddressTypes_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4120,12 +4120,12 @@ int mapi_dissect_struct_FastTransferSourceGetBuffer_req(tvbuff_t *tvb _U_, int o
 #define TransferStatus_NoRoom (0x2)
 #define TransferStatus_Done (0x3)
 extern const value_string mapi_TransferStatus_vals[];
-int mapi_dissect_enum_TransferStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_TransferStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int mapi_dissect_struct_FastTransferSourceGetBuffer_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define DIR_FORWARD (0x0)
 #define DIR_BACKWARD (0x1)
 extern const value_string mapi_FindRow_ulFlags_vals[];
-int mapi_dissect_enum_FindRow_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_FindRow_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_FindRow_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_FindRow_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_Progress_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4137,7 +4137,7 @@ int mapi_dissect_struct_GetValidAttachments_repl(tvbuff_t *tvb _U_, int offset _
 #define MNID_ID (0)
 #define MNID_STRING (1)
 extern const value_string mapi_ulKind_vals[];
-int mapi_dissect_enum_ulKind(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_ulKind(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_MAPINAMEID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_GetNamesFromIDs_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4189,7 +4189,7 @@ int mapi_dissect_struct_OptionsData_repl(tvbuff_t *tvb _U_, int offset _U_, pack
 #define Contents (0x1)
 #define Hierarchy (0x2)
 extern const value_string mapi_SynchronizationType_vals[];
-int mapi_dissect_enum_SynchronizationType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_SynchronizationType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_bitmap_SendOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_bitmap_SynchronizationFlag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_bitmap_SynchronizationExtraFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4207,7 +4207,7 @@ int mapi_dissect_struct_SyncImportDeletes_repl(tvbuff_t *tvb _U_, int offset _U_
 #define PidTagCnsetSeenFAI (0x67da0102)
 #define PidTagCnsetRead (0x67d20102)
 extern const value_string mapi_StateProperty_vals[];
-int mapi_dissect_enum_StateProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_);
+int mapi_dissect_enum_StateProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int mapi_dissect_struct_SyncUploadStateStreamBegin_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SyncUploadStateStreamBegin_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_SyncUploadStateStreamContinue_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4250,7 +4250,7 @@ int mapi_dissect_struct_HardDeleteMessagesAndSubfolders_repl(tvbuff_t *tvb _U_, 
 #define Ghosted (0x4)
 #define SpIProcess (0x8)
 extern const value_string mapi_LogonFlags_vals[];
-int mapi_dissect_enum_LogonFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_LogonFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_bitmap_OpenFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define DayOfWeek_Sunday (0x0)
 #define DayOfWeek_Monday (0x1)
@@ -4260,7 +4260,7 @@ int mapi_dissect_bitmap_OpenFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info
 #define DayOfWeek_Friday (0x5)
 #define DayOfWeek_Saturday (0x6)
 extern const value_string mapi_DayOfWeek_vals[];
-int mapi_dissect_enum_DayOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_DayOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_LogonTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_bitmap_ResponseFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_Logon_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -4300,7 +4300,7 @@ int mapi_dissect_struct_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 #define AUX_SERVER_SESSION_INFO (0x4B)
 #define AUX_PROTOCOL_DEVICE_IDENTIFICATION (0x4E)
 extern const value_string mapi_AUX_HEADER_TYPE_1_vals[];
-int mapi_dissect_enum_AUX_HEADER_TYPE_1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_AUX_HEADER_TYPE_1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define AUX_TYPE_PERF_SESSIONINFO_2 (0x04)
 #define AUX_TYPE_PERF_MDB_SUCCESS_2 (0x07)
 #define AUX_TYPE_PERF_GC_SUCCESS_2 (0x08)
@@ -4313,17 +4313,17 @@ int mapi_dissect_enum_AUX_HEADER_TYPE_1(tvbuff_t *tvb _U_, int offset _U_, packe
 #define AUX_TYPE_PERF_FG_GC_SUCCESS_2 (0x14)
 #define AUX_TYPE_PERF_FG_FAILURE_2 (0x15)
 extern const value_string mapi_AUX_HEADER_TYPE_2_vals[];
-int mapi_dissect_enum_AUX_HEADER_TYPE_2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_AUX_HEADER_TYPE_2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 #define AUX_VERSION_1 (0x1)
 #define AUX_VERSION_2 (0x2)
 extern const value_string mapi_AUX_VERSION_vals[];
-int mapi_dissect_enum_AUX_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint8 *param _U_);
+int mapi_dissect_enum_AUX_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
 int mapi_dissect_struct_AUX_PERF_REQUESTID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define CLIENTMODE_UNKNOWN (0x0)
 #define CLIENTMODE_CLASSIC (0x1)
 #define CLIENTMODE_CACHED (0x2)
 extern const value_string mapi_ClientMode_vals[];
-int mapi_dissect_enum_ClientMode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_ClientMode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define SERVERTYPE_UNKNOWN (0x0)
 #define SERVERTYPE_PRIVATE (0x1)
@@ -4331,7 +4331,7 @@ int mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, p
 #define SERVERTYPE_DIRECTORY (0x3)
 #define SERVERTYPE_REFERRAL (0x4)
 extern const value_string mapi_SERVERINFO_ServerType_vals[];
-int mapi_dissect_enum_SERVERINFO_ServerType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint16 *param _U_);
+int mapi_dissect_enum_SERVERINFO_ServerType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int mapi_dissect_struct_AUX_PERF_SERVERINFO(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_AUX_PERF_SESSIONINFO(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int mapi_dissect_struct_AUX_PERF_SESSIONINFO_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);

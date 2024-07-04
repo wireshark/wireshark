@@ -42,6 +42,26 @@ my %ptrtype_mappings = (
 	"ptr" => "NDR_POINTER_PTR"
 );
 
+my %variable_scalars = (
+	"int1632"       => "int32_t",
+	"uint1632"      => "uint32_t",
+	"int3264"       => "int64_t",
+	"uint3264"      => "uint64_t",
+);
+
+# map from an IDL type to a C header type, using the on-the-wire length.
+# Produces different results than mapScalarType in Parse::Pidl::Typelist
+# for the types that have different wire lengths in NDR and NDR64 (i.e.,
+# includes the padding for uint1632 and uint3264, unlike that function.)
+sub mapWireScalarType($)
+{
+	my ($name) = shift;
+
+	return $variable_scalars{$name} if defined($variable_scalars{$name});
+
+	return mapScalarType($name);
+}
+
 sub StripPrefixes($$)
 {
 	my ($s, $prefixes) = @_;
@@ -152,7 +172,7 @@ sub Enum($$$$)
 	}
 
 	$self->pidl_hdr("extern const value_string $valsstring\[];");
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, g$e->{BASE_TYPE} *param _U_);");
+	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, " . mapWireScalarType($e->{BASE_TYPE}) ." *param _U_);");
 
 	$self->pidl_def("const value_string ".$valsstring."[] = {");
 	foreach (@{$e->{ELEMENTS}}) {
@@ -165,10 +185,10 @@ sub Enum($$$$)
 
 	$self->pidl_fn_start($dissectorname);
 	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, g$e->{BASE_TYPE} *param _U_)");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, " . mapWireScalarType($e->{BASE_TYPE}) . " *param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
-	$self->pidl_code("g$e->{BASE_TYPE} parameter=0;");
+	$self->pidl_code(mapWireScalarType($e->{BASE_TYPE}) . " parameter=0;");
 	$self->pidl_code("if (param) {");
 	$self->indent;
 	$self->pidl_code("parameter = *param;");
@@ -237,7 +257,7 @@ sub Bitmap($$$$)
 		$self->pidl_code("};");
 	}
 
-	$self->pidl_code("g$e->{BASE_TYPE} flags;");
+	$self->pidl_code(mapWireScalarType($e->{BASE_TYPE}) . " flags;");
 	if ($e->{ALIGN} > 1) {
 		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
 	}
@@ -479,7 +499,7 @@ sub Element($$$$$$)
 		if (not defined($switch_raw_type)) {
 			die("Unknown type[$type]\n");
 		}
-		my $switch_type = "g${switch_raw_type}";
+		my $switch_type = mapWireScalarType(${switch_raw_type});
 
 		if ($name ne "") {
 			$moreparam = ", $switch_type *".$name;
@@ -605,7 +625,7 @@ sub Function($$$)
 		if ($type->{DATA}->{TYPE} eq "ENUM") {
 			$self->pidl_code("g".Parse::Pidl::Typelist::enum_type_fn($type->{DATA}) . " status;\n");
 		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
-			$self->pidl_code("g$fn->{RETURN_TYPE} status;\n");
+			$self->pidl_code(mapWireScalarType($fn->{RETURN_TYPE}) . " status;\n");
 		} else {
 			error($fn, "return type `$fn->{RETURN_TYPE}' not yet supported");
 		}
@@ -711,7 +731,7 @@ sub Struct($$$$)
 			if (not defined($switch_raw_type)) {
 				die("Unknown type[$_->{TYPE}]\n");
 			}
-			my $switch_type = "g${switch_raw_type}";
+			my $switch_type = mapWireScalarType(${switch_raw_type});
 
 			if ($switch_type ne "") {
 				push @$vars, "$switch_type $v = 0;";
@@ -824,7 +844,7 @@ sub Union($$$$)
 	my $switch_dissect = undef;
 	my $switch_raw_type = SwitchType($e, $e->{SWITCH_TYPE});
 	if (defined($switch_raw_type)) {
-		$switch_type = "g${switch_raw_type}";
+		$switch_type = mapWireScalarType(${switch_raw_type});
 		$switch_dissect = "dissect_ndr_${switch_raw_type}";
 	}
 

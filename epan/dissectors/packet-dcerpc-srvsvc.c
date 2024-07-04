@@ -960,8 +960,8 @@ static int srvsvc_dissect_element_NetCharDevCtr_ctr0(tvbuff_t *tvb _U_, int offs
 static int srvsvc_dissect_element_NetCharDevCtr_ctr0_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetCharDevCtr_ctr1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetCharDevCtr_ctr1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetCharDevInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
-static int srvsvc_dissect_element_NetCharDevInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
+static int srvsvc_dissect_element_NetCharDevInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetCharDevInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 static int srvsvc_dissect_element_NetCharDevQInfo0_device(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetCharDevQInfo0_device_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetCharDevQCtr0_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -987,8 +987,8 @@ static int srvsvc_dissect_element_NetCharDevQCtr_ctr0(tvbuff_t *tvb _U_, int off
 static int srvsvc_dissect_element_NetCharDevQCtr_ctr0_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetCharDevQCtr_ctr1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetCharDevQCtr_ctr1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetCharDevQInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
-static int srvsvc_dissect_element_NetCharDevQInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
+static int srvsvc_dissect_element_NetCharDevQInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetCharDevQInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 static int srvsvc_dissect_element_NetConnInfo0_conn_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetConnCtr0_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetConnCtr0_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -1011,8 +1011,8 @@ static int srvsvc_dissect_element_NetConnCtr_ctr0(tvbuff_t *tvb _U_, int offset 
 static int srvsvc_dissect_element_NetConnCtr_ctr0_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetConnCtr_ctr1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetConnCtr_ctr1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetConnInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
-static int srvsvc_dissect_element_NetConnInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
+static int srvsvc_dissect_element_NetConnInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetConnInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 static int srvsvc_dissect_element_NetFileInfo2_fid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetFileCtr2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetFileCtr2_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -1037,8 +1037,8 @@ static int srvsvc_dissect_element_NetFileCtr_ctr2(tvbuff_t *tvb _U_, int offset 
 static int srvsvc_dissect_element_NetFileCtr_ctr2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetFileCtr_ctr3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetFileCtr_ctr3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetFileInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
-static int srvsvc_dissect_element_NetFileInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
+static int srvsvc_dissect_element_NetFileInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetFileInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 static int srvsvc_dissect_element_NetSessInfo0_client(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetSessInfo0_client_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetSessCtr0_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -1115,8 +1115,8 @@ static int srvsvc_dissect_element_NetSessCtr_ctr10(tvbuff_t *tvb _U_, int offset
 static int srvsvc_dissect_element_NetSessCtr_ctr10_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetSessCtr_ctr502(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetSessCtr_ctr502_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetSessInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *level);
-static int srvsvc_dissect_element_NetSessInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *level);
+static int srvsvc_dissect_element_NetSessInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetSessInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 const value_string srvsvc_srvsvc_ShareType_vals[] = {
 	{ STYPE_DISKTREE, "STYPE_DISKTREE" },
 	{ STYPE_DISKTREE_TEMPORARY, "STYPE_DISKTREE_TEMPORARY" },
@@ -1318,8 +1318,8 @@ static int srvsvc_dissect_element_NetShareCtr_ctr1007(tvbuff_t *tvb _U_, int off
 static int srvsvc_dissect_element_NetShareCtr_ctr1007_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetShareCtr_ctr1501(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetShareCtr_ctr1501_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetShareInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
-static int srvsvc_dissect_element_NetShareInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
+static int srvsvc_dissect_element_NetShareInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetShareInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 const value_string srvsvc_srvsvc_PlatformId_vals[] = {
 	{ PLATFORM_ID_DOS, "PLATFORM_ID_DOS" },
 	{ PLATFORM_ID_OS2, "PLATFORM_ID_OS2" },
@@ -1807,8 +1807,8 @@ static int srvsvc_dissect_element_NetTransportCtr_ctr2(tvbuff_t *tvb _U_, int of
 static int srvsvc_dissect_element_NetTransportCtr_ctr2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetTransportCtr_ctr3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetTransportCtr_ctr3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int srvsvc_dissect_element_NetTransportInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
-static int srvsvc_dissect_element_NetTransportInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level);
+static int srvsvc_dissect_element_NetTransportInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static int srvsvc_dissect_element_NetTransportInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
 static int srvsvc_dissect_element_NetRemoteTODInfo_elapsed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetRemoteTODInfo_msecs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int srvsvc_dissect_element_NetRemoteTODInfo_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -2211,7 +2211,7 @@ srvsvc_dissect_element_NetSetFileSecurity_securityinformation(tvbuff_t *tvb, int
 int
 srvsvc_dissect_bitmap_svcctl_ServerType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
@@ -2228,7 +2228,7 @@ srvsvc_dissect_bitmap_svcctl_ServerType(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 srvsvc_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
@@ -2571,7 +2571,7 @@ srvsvc_dissect_NetCharDevInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -2643,7 +2643,7 @@ srvsvc_dissect_NetCharDevCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -2677,7 +2677,7 @@ srvsvc_dissect_NetCharDevCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetCharDevInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetCharDevInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetCharDevInfoCtr_level, *level);
 
@@ -2685,7 +2685,7 @@ srvsvc_dissect_element_NetCharDevInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-srvsvc_dissect_element_NetCharDevInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetCharDevInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_NetCharDevCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetCharDevInfoCtr_ctr, *level);
 
@@ -2695,7 +2695,7 @@ srvsvc_dissect_element_NetCharDevInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, 
 int
 srvsvc_dissect_struct_NetCharDevInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -3068,7 +3068,7 @@ srvsvc_dissect_NetCharDevQInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -3140,7 +3140,7 @@ srvsvc_dissect_NetCharDevQCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -3174,7 +3174,7 @@ srvsvc_dissect_NetCharDevQCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetCharDevQInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetCharDevQInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetCharDevQInfoCtr_level, *level);
 
@@ -3182,7 +3182,7 @@ srvsvc_dissect_element_NetCharDevQInfoCtr_level(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-srvsvc_dissect_element_NetCharDevQInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetCharDevQInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_NetCharDevQCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetCharDevQInfoCtr_ctr, *level);
 
@@ -3192,7 +3192,7 @@ srvsvc_dissect_element_NetCharDevQInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_,
 int
 srvsvc_dissect_struct_NetCharDevQInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -3576,7 +3576,7 @@ srvsvc_dissect_NetConnCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -3610,7 +3610,7 @@ srvsvc_dissect_NetConnCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetConnInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetConnInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetConnInfoCtr_level, *level);
 
@@ -3618,7 +3618,7 @@ srvsvc_dissect_element_NetConnInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-srvsvc_dissect_element_NetConnInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetConnInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_NetConnCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetConnInfoCtr_ctr, *level);
 
@@ -3628,7 +3628,7 @@ srvsvc_dissect_element_NetConnInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, pac
 int
 srvsvc_dissect_struct_NetConnInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -3990,7 +3990,7 @@ srvsvc_dissect_NetFileInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -4062,7 +4062,7 @@ srvsvc_dissect_NetFileCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -4096,7 +4096,7 @@ srvsvc_dissect_NetFileCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetFileInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetFileInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetFileInfoCtr_level, *level);
 
@@ -4104,7 +4104,7 @@ srvsvc_dissect_element_NetFileInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-srvsvc_dissect_element_NetFileInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetFileInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_NetFileCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetFileInfoCtr_ctr, *level);
 
@@ -4114,7 +4114,7 @@ srvsvc_dissect_element_NetFileInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, pac
 int
 srvsvc_dissect_struct_NetFileInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -5071,9 +5071,9 @@ srvsvc_dissect_struct_NetSessCtr502(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 int
-srvsvc_dissect_enum_SESSION_INFO_LEVEL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_)
+srvsvc_dissect_enum_SESSION_INFO_LEVEL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint1632 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -5179,7 +5179,7 @@ srvsvc_dissect_NetSessCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint1632 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -5222,7 +5222,7 @@ srvsvc_dissect_NetSessCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetSessInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *level)
+srvsvc_dissect_element_NetSessInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_enum_SESSION_INFO_LEVEL(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetSessInfoCtr_level, level);
 
@@ -5230,7 +5230,7 @@ srvsvc_dissect_element_NetSessInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-srvsvc_dissect_element_NetSessInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint1632 *level)
+srvsvc_dissect_element_NetSessInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_NetSessCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetSessInfoCtr_ctr, *level);
 
@@ -5240,7 +5240,7 @@ srvsvc_dissect_element_NetSessInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, pac
 int
 srvsvc_dissect_struct_NetSessInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint1632 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -5295,9 +5295,9 @@ srvsvc_dissect_struct_NetSessInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 int
-srvsvc_dissect_enum_ShareType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+srvsvc_dissect_enum_ShareType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -6377,7 +6377,7 @@ srvsvc_dissect_bitmap_NetShareInfo1005Flags(tvbuff_t *tvb _U_, int offset _U_, p
 		&hf_srvsvc_NetShareInfo1005Flags_SHARE_1005_ENCRYPT_DATA,
 		NULL
 	};
-	guint32 flags;
+	uint32_t flags;
 	ALIGN_TO_4_BYTES;
 
 	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
@@ -6985,7 +6985,7 @@ srvsvc_dissect_NetShareInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -7225,7 +7225,7 @@ srvsvc_dissect_NetShareCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -7291,7 +7291,7 @@ srvsvc_dissect_NetShareCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetShareInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetShareInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetShareInfoCtr_level, *level);
 
@@ -7301,7 +7301,7 @@ srvsvc_dissect_element_NetShareInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, 
 int
 srvsvc_dissect_struct_NetShareInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -7340,9 +7340,9 @@ srvsvc_dissect_struct_NetShareInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 int
-srvsvc_dissect_enum_PlatformId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint32 *param _U_)
+srvsvc_dissect_enum_PlatformId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
-	guint32 parameter=0;
+	uint32_t parameter=0;
 	if (param) {
 		parameter = *param;
 	}
@@ -13128,7 +13128,7 @@ srvsvc_dissect_NetSrvInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -14686,7 +14686,7 @@ srvsvc_dissect_NetTransportCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -14728,7 +14728,7 @@ srvsvc_dissect_NetTransportCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-srvsvc_dissect_element_NetTransportInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetTransportInfoCtr_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetTransportInfoCtr_level, *level);
 
@@ -14736,7 +14736,7 @@ srvsvc_dissect_element_NetTransportInfoCtr_level(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-srvsvc_dissect_element_NetTransportInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetTransportInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = srvsvc_dissect_NetTransportCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetTransportInfoCtr_ctr, *level);
 
@@ -14746,7 +14746,7 @@ srvsvc_dissect_element_NetTransportInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_
 int
 srvsvc_dissect_struct_NetTransportInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 level = 0;
+	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -14984,7 +14984,7 @@ srvsvc_dissect_NetTransportInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 
 	old_offset = offset;
 	if (parent_tree) {

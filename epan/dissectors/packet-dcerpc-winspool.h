@@ -29,7 +29,7 @@ int iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *t
 #define winspool_PropertyTypeNotificationReply (8)
 #define winspool_PropertyTypeNotificationOptions (9)
 extern const value_string iremotewinspool_winspool_PrintPropertyType_vals[];
-int iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, guint1632 *param _U_);
+int iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 int iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
