@@ -49,7 +49,7 @@ static void    slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo);
 /****************************************************************************/
 /* GCompareFunc style comparison function for _mcast_stream_info */
 static int
-mcast_stream_info_cmp(gconstpointer aa, gconstpointer bb)
+mcast_stream_info_cmp(const void *aa, const void *bb)
 {
     const struct _mcast_stream_info* a = (const struct _mcast_stream_info *)aa;
     const struct _mcast_stream_info* b = (const struct _mcast_stream_info *)bb;

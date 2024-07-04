@@ -359,14 +359,14 @@ struct string_elem {
 };
 
 static gint
-string_compare(gconstpointer a, gconstpointer b)
+string_compare(const void *a, const void *b)
 {
     return strcmp(((const struct string_elem *)a)->sstr,
             ((const struct string_elem *)b)->sstr);
 }
 
 static void
-string_elem_print(gpointer data)
+string_elem_print(void *data)
 {
     fprintf(stderr, "    %s - %s\n",
             ((struct string_elem *)data)->sstr,
@@ -2034,7 +2034,7 @@ main(int argc, char *argv[])
             if (hfi) {
                 name = hfi->abbrev;
             }
-            g_hash_table_insert(output_only_tables, (gpointer)name, (gpointer)name);
+            g_hash_table_insert(output_only_tables, (void *)name, (void *)name);
         }
     }
 

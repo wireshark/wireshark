@@ -26,8 +26,8 @@
 class DecodeAsItem
 {
 public:
-    DecodeAsItem(const char *table_name = NULL, gconstpointer selector = NULL);
-    DecodeAsItem(const decode_as_t *entry, gconstpointer selector = NULL);
+    DecodeAsItem(const char *table_name = NULL, const void *selector = NULL);
+    DecodeAsItem(const decode_as_t *entry, const void *selector = NULL);
     virtual ~DecodeAsItem();
 
     const char* tableName() const { return tableName_; }
@@ -45,7 +45,7 @@ public:
     void updateHandles();
 
 private:
-    void init(const char *table_name, gconstpointer selector = NULL);
+    void init(const char *table_name, const void *selector = NULL);
 
     const char* tableName_;
     const char* tableUIName_;
@@ -105,7 +105,7 @@ public:
     bool copyRow(int dst_row, int src_row);
     bool copyFromProfile(QString filename, const char **err);
 
-    static QString entryString(const char *table_name, gconstpointer value);
+    static QString entryString(const char *table_name, const void *value);
 
     void applyChanges();
 

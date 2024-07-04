@@ -76,14 +76,14 @@ static gboolean destroy_if_info(void *key, void *value _U_,
 	return true;
 }
 
-static unsigned if_info_hash(gconstpointer info_arg)
+static unsigned if_info_hash(const void *info_arg)
 {
 	if_info *info = (if_info *)info_arg;
 
 	return g_str_hash(info->prefix) + info->unit + info->if_type;
 }
 
-static gboolean if_info_equal(gconstpointer info1_arg, gconstpointer info2_arg)
+static gboolean if_info_equal(const void *info1_arg, const void *info2_arg)
 {
 	if_info *info1 = (if_info *)info1_arg;
 	if_info *info2 = (if_info *)info2_arg;
@@ -323,7 +323,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	 * interface type.
 	 */
 	if (!g_hash_table_lookup_extended(iptrace->interface_ids,
-	    (gconstpointer)&info, NULL, &result)) {
+	    (const void *)&info, NULL, &result)) {
 		wtap_block_t int_data;
 		wtapng_if_descr_mandatory_t *int_data_mand;
 
@@ -595,7 +595,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	 * interface type.
 	 */
 	if (!g_hash_table_lookup_extended(iptrace->interface_ids,
-	    (gconstpointer)&info, NULL, &result)) {
+	    (const void *)&info, NULL, &result)) {
 		wtap_block_t int_data;
 		wtapng_if_descr_mandatory_t *int_data_mand;
 

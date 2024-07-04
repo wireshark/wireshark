@@ -36,7 +36,7 @@
  * model strings.
  */
 static int
-compare_model_names(gconstpointer a, gconstpointer b, void * user_data _U_)
+compare_model_names(const void *a, const void *b, void * user_data _U_)
 {
     return strcmp((const char *)a, (const char *)b);
 }

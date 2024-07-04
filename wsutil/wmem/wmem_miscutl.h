@@ -44,11 +44,11 @@ G_GNUC_ALLOC_SIZE(3);
  */
 WS_DLL_PUBLIC
 int
-wmem_compare_int(gconstpointer a, gconstpointer b);
+wmem_compare_int(const void *a, const void *b);
 
 WS_DLL_PUBLIC
 int
-wmem_compare_uint(gconstpointer a, gconstpointer b);
+wmem_compare_uint(const void *a, const void *b);
 
 /**   @}
  *  @} */

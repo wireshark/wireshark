@@ -88,7 +88,7 @@ free_plugin(void * data)
 }
 
 static int
-compare_plugins(gconstpointer a, gconstpointer b)
+compare_plugins(const void *a, const void *b)
 {
     return g_strcmp0((*(plugin *const *)a)->name, (*(plugin *const *)b)->name);
 }

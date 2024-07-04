@@ -737,7 +737,7 @@ dfvm_dump(FILE *f, dfilter_t *df, uint16_t flags)
 }
 
 static int
-compare_finfo_layer(gconstpointer _a, gconstpointer _b)
+compare_finfo_layer(const void *_a, const void *_b)
 {
 	const field_info *a = *(const field_info **)_a;
 	const field_info *b = *(const field_info **)_b;

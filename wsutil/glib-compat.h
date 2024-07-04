@@ -41,7 +41,7 @@ struct _GRealArray
 
 static inline gboolean
 g_array_binary_search (GArray        *array,
-                       gconstpointer  target,
+                       const void *   target,
                        GCompareFunc   compare_func,
                        guint         *out_match_index)
 {
@@ -86,7 +86,7 @@ g_array_binary_search (GArray        *array,
 
 #if !GLIB_CHECK_VERSION(2, 68, 0)
 static inline void *
-g_memdup2(gconstpointer mem, size_t byte_size)
+g_memdup2(const void *mem, size_t byte_size)
 {
   void * new_mem;
 

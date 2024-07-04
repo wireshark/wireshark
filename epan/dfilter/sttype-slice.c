@@ -45,7 +45,7 @@ slice_new(void *junk _U_)
 }
 
 static void *
-slice_dup(gconstpointer data)
+slice_dup(const void *data)
 {
 	const slice_t *org = data;
 	slice_t       *slice;

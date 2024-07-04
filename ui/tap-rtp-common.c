@@ -107,7 +107,7 @@ void rtpstream_info_free_all(rtpstream_info_t *info)
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for rtpstream_info_t */
-int rtpstream_info_cmp(gconstpointer aa, gconstpointer bb)
+int rtpstream_info_cmp(const void *aa, const void *bb)
 {
     const rtpstream_info_t *a = (const rtpstream_info_t *)aa;
     const rtpstream_info_t *b = (const rtpstream_info_t *)bb;
@@ -558,7 +558,7 @@ void rtpstream_info_analyse_process(rtpstream_info_t *stream_info, const packet_
 
 /****************************************************************************/
 /* Get hash for rtpstream_info_t */
-unsigned rtpstream_to_hash(gconstpointer key)
+unsigned rtpstream_to_hash(const void *key)
 {
     if (key) {
         return rtpstream_id_to_hash(&((rtpstream_info_t *)key)->id);

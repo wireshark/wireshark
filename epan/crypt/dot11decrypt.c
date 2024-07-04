@@ -1148,7 +1148,7 @@ int Dot11DecryptSetLastSSID(
 }
 
 static unsigned
-Dot11DecryptSaHash(gconstpointer key)
+Dot11DecryptSaHash(const void *key)
 {
     GBytes *bytes = g_bytes_new_static(key, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
     unsigned hash = g_bytes_hash(bytes);
@@ -1157,7 +1157,7 @@ Dot11DecryptSaHash(gconstpointer key)
 }
 
 static gboolean
-Dot11DecryptIsSaIdEqual(gconstpointer key1, gconstpointer key2)
+Dot11DecryptIsSaIdEqual(const void *key1, const void *key2)
 {
     return memcmp(key1, key2, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID)) == 0;
 }

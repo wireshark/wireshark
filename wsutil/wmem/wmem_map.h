@@ -207,21 +207,21 @@ wmem_strong_hash(const uint8_t *buf, const size_t len);
  */
 WS_DLL_PUBLIC
 unsigned
-wmem_str_hash(gconstpointer key);
+wmem_str_hash(const void *key);
 
 /** An implementation of GHashFunc using wmem_strong_hash. Prefer this over
  * g_int64_hash when the data comes from an untrusted source.
  */
 WS_DLL_PUBLIC
 unsigned
-wmem_int64_hash(gconstpointer key);
+wmem_int64_hash(const void *key);
 
 /** An implementation of GHashFunc using wmem_strong_hash. Prefer this over
  * g_double_hash when the data comes from an untrusted source.
  */
 WS_DLL_PUBLIC
 unsigned
-wmem_double_hash(gconstpointer key);
+wmem_double_hash(const void *key);
 
 /**   @}
  *  @} */

@@ -121,7 +121,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
    positive if (t1 > t2)
 */
 static int
-frames_compare(gconstpointer a, gconstpointer b)
+frames_compare(const void *a, const void *b)
 {
     const FrameRecord_t *frame1 = *(const FrameRecord_t *const *) a;
     const FrameRecord_t *frame2 = *(const FrameRecord_t *const *) b;

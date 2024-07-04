@@ -308,14 +308,14 @@ struct string_elem {
 };
 
 static gint
-string_nat_compare(gconstpointer a, gconstpointer b)
+string_nat_compare(const void *a, const void *b)
 {
     return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
         ((const struct string_elem *)b)->sstr);
 }
 
 static void
-string_elem_print(gpointer data, gpointer stream_ptr)
+string_elem_print(void *data, void *stream_ptr)
 {
     fprintf((FILE *) stream_ptr, "    %s - %s\n",
         ((struct string_elem *)data)->sstr,

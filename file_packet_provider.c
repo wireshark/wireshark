@@ -32,7 +32,7 @@ cap_file_provider_get_frame_ts(struct packet_provider_data *prov, guint32 frame_
 }
 
 static int
-frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+frame_cmp(const void *a, const void *b, void *user_data _U_)
 {
   const frame_data *fdata1 = (const frame_data *) a;
   const frame_data *fdata2 = (const frame_data *) b;
@@ -109,7 +109,7 @@ cap_file_provider_set_modified_block(struct packet_provider_data *prov, frame_da
     prov->frames_modified_blocks = g_tree_new_full(frame_cmp, NULL, NULL, (GDestroyNotify)wtap_block_unref);
 
   /* insert new packet block */
-  g_tree_replace(prov->frames_modified_blocks, fd, (gpointer)new_block);
+  g_tree_replace(prov->frames_modified_blocks, fd, (void *)new_block);
 
   fd->has_modified_block = TRUE;
 }

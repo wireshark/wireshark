@@ -736,7 +736,7 @@ check_val_list(void * val, void * val_to_check)
 }
 
 static int
-str_compare(gconstpointer a, gconstpointer b)
+str_compare(const void *a, const void *b)
 {
     return strcmp((const char*)a, (const char*)b);
 }

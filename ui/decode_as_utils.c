@@ -79,7 +79,7 @@ display_dissector_names(const char *table _U_, void *handle, void *output)
 */
 
 static int
-compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
+compare_dissector_key_name(const void *dissector_a, const void *dissector_b)
 {
     return strcmp((const char*)dissector_a, (const char*)dissector_b);
 }

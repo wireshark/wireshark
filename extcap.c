@@ -187,7 +187,7 @@ extcap_clear_interfaces(void)
 }
 
 static int
-compare_tools(gconstpointer a, gconstpointer b)
+compare_tools(const void *a, const void *b)
 {
     return g_strcmp0((*(extcap_info *const *)a)->basename, (*(extcap_info *const *)b)->basename);
 }
@@ -662,7 +662,7 @@ static void extcap_free_interfaces(GList *interfaces)
 }
 
 static int
-if_info_compare(gconstpointer a, gconstpointer b)
+if_info_compare(const void *a, const void *b)
 {
     int comp = 0;
     const if_info_t *if_a = (const if_info_t *)a;

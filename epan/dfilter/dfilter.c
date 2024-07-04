@@ -827,7 +827,7 @@ dfilter_log_full(const char *domain, enum ws_log_level level,
 }
 
 static int
-compare_ref_layer(gconstpointer _a, gconstpointer _b)
+compare_ref_layer(const void *_a, const void *_b)
 {
 	const df_reference_t *a = *(const df_reference_t **)_a;
 	const df_reference_t *b = *(const df_reference_t **)_b;

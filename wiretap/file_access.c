@@ -1590,7 +1590,7 @@ wtap_dump_can_write(const GArray *file_encaps, uint32_t required_comment_types)
  * Sort by file type/subtype name.
  */
 static int
-compare_file_type_subtypes_by_name(gconstpointer a, gconstpointer b)
+compare_file_type_subtypes_by_name(const void *a, const void *b)
 {
 	int file_type_subtype_a = *(const int *)a;
 	int file_type_subtype_b = *(const int *)b;
@@ -1603,7 +1603,7 @@ compare_file_type_subtypes_by_name(gconstpointer a, gconstpointer b)
  * Sort by file type/subtype description.
  */
 static int
-compare_file_type_subtypes_by_description(gconstpointer a, gconstpointer b)
+compare_file_type_subtypes_by_description(const void *a, const void *b)
 {
 	int file_type_subtype_a = *(const int *)a;
 	int file_type_subtype_b = *(const int *)b;

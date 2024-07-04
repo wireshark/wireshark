@@ -117,7 +117,7 @@ static int PrivateTable__newindex(lua_State* L) {
     if (string) {
       g_hash_table_replace (priv->table, (void *) g_strdup(name), (void *) g_strdup(string));
     } else {
-      g_hash_table_remove (priv->table, (gconstpointer) name);
+      g_hash_table_remove (priv->table, (const void *) name);
     }
 
     return 1;

@@ -140,8 +140,8 @@ static void set_isdn_info(union wtap_pseudo_header *pseudo_header,
 static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction);
 
-static int packet_offset_equal(gconstpointer v, gconstpointer v2);
-static unsigned packet_offset_hash_func(gconstpointer v);
+static int packet_offset_equal(const void *v, const void *v2);
+static unsigned packet_offset_hash_func(const void *v);
 
 static bool get_file_time_stamp(const char *linebuff, time_t *secs, uint32_t *usecs);
 static gboolean free_line_prefix_info(void *key, void *value, void *user_data);
@@ -1560,7 +1560,7 @@ char_from_hex(uint8_t hex)
 /* Equality test for packet prefix hash tables */
 /***********************************************/
 static int
-packet_offset_equal(gconstpointer v, gconstpointer v2)
+packet_offset_equal(const void *v, const void *v2)
 {
     /* Dereferenced pointers must have same int64_t offset value */
     return (*(const int64_t*)v == *(const int64_t*)v2);
@@ -1571,7 +1571,7 @@ packet_offset_equal(gconstpointer v, gconstpointer v2)
 /* Hash function for packet-prefix hash table */
 /********************************************/
 static unsigned
-packet_offset_hash_func(gconstpointer v)
+packet_offset_hash_func(const void *v)
 {
     /* Use low-order bits of int64_t offset value */
     return (unsigned)(*(const int64_t*)v);

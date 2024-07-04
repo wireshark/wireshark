@@ -68,7 +68,7 @@ icmpstat_reset(void *tapdata)
 }
 
 
-static int compare_doubles(gconstpointer a, gconstpointer b)
+static int compare_doubles(const void *a, const void *b)
 {
     double ad, bd;
 

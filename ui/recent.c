@@ -564,7 +564,7 @@ free_remote_host(void *value)
 }
 
 static int
-remote_host_compare(gconstpointer a, gconstpointer b)
+remote_host_compare(const void *a, const void *b)
 {
     const struct remote_host* rh_a = (const struct remote_host*)a;
     const struct remote_host* rh_b = (const struct remote_host*)b;

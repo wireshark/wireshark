@@ -340,7 +340,7 @@ ws_filter_list_add(filter_list_t *fl, const char *name,
 }
 
 static int
-compare_def(gconstpointer def, gconstpointer name)
+compare_def(const void *def, const void *name)
 {
     return g_strcmp0(((filter_def *)def)->name, name);
 }

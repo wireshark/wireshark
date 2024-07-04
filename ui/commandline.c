@@ -800,7 +800,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
 }
 
 /* Local function used by commandline_options_drop */
-static int cl_find_custom(gconstpointer elem_data, gconstpointer search_data) {
+static int cl_find_custom(const void *elem_data, const void *search_data) {
     return memcmp(elem_data, search_data, strlen((char *)search_data));
 }
 
@@ -816,7 +816,7 @@ void commandline_options_drop(const char *module_name, const char *pref_name) {
     opt_prefix = ws_strdup_printf("%s.%s:", module_name, pref_name);
 
     while (NULL != (elem = g_slist_find_custom(global_commandline_info.user_opts,
-                        (gconstpointer)opt_prefix, cl_find_custom))) {
+                        (const void *)opt_prefix, cl_find_custom))) {
         global_commandline_info.user_opts =
                 g_slist_remove_link(global_commandline_info.user_opts, elem);
         g_free(elem->data);

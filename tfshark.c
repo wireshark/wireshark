@@ -134,14 +134,14 @@ struct string_elem {
 };
 
 static gint
-string_compare(gconstpointer a, gconstpointer b)
+string_compare(const void *a, const void *b)
 {
     return strcmp(((const struct string_elem *)a)->sstr,
             ((const struct string_elem *)b)->sstr);
 }
 
 static void
-string_elem_print(gpointer data, gpointer not_used _U_)
+string_elem_print(void *data, void *not_used _U_)
 {
     fprintf(stderr, "    %s - %s\n",
             ((struct string_elem *)data)->sstr,
@@ -831,7 +831,7 @@ main(int argc, char *argv[])
 
         output_only_tables = g_hash_table_new (g_str_hash, g_str_equal);
         for (ps = strtok (output_only, ","); ps; ps = strtok (NULL, ",")) {
-            g_hash_table_insert(output_only_tables, (gpointer)ps, (gpointer)ps);
+            g_hash_table_insert(output_only_tables, (void *)ps, (void *)ps);
         }
     }
 

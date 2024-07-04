@@ -232,7 +232,7 @@ static void extcap_iface_print(void * data, void * userdata _U_)
         printf ("\n");
 }
 
-static int extcap_iface_compare(gconstpointer  a, gconstpointer  b)
+static int extcap_iface_compare(const void *   a, const void *   b)
 {
     const extcap_interface * iface_a = (const extcap_interface *)a;
 

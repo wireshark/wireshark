@@ -39,7 +39,7 @@ oper_new(void *junk _U_)
 }
 
 static void *
-oper_dup(gconstpointer data)
+oper_dup(const void *data)
 {
 	const oper_t *org = data;
 	oper_t *oper;

@@ -484,19 +484,19 @@ wmem_strong_hash(const uint8_t *buf, const size_t len)
 }
 
 unsigned
-wmem_str_hash(gconstpointer key)
+wmem_str_hash(const void *key)
 {
     return wmem_strong_hash((const uint8_t *)key, strlen((const char *)key));
 }
 
 unsigned
-wmem_int64_hash(gconstpointer key)
+wmem_int64_hash(const void *key)
 {
     return wmem_strong_hash((const uint8_t *)key, sizeof(uint64_t));
 }
 
 unsigned
-wmem_double_hash(gconstpointer key)
+wmem_double_hash(const void *key)
 {
     return wmem_strong_hash((const uint8_t *)key, sizeof(double));
 }

@@ -35,7 +35,7 @@ function_new(void *funcdef)
 }
 
 static void *
-function_dup(gconstpointer data)
+function_dup(const void *data)
 {
 	const function_t *org = data;
 	function_t		 *stfuncrec;

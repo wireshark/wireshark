@@ -11,7 +11,7 @@
 #include <wsutil/str_util.h>
 
 static void *
-string_dup(gconstpointer string)
+string_dup(const void *string)
 {
 	return g_strdup(string);
 }
@@ -29,7 +29,7 @@ string_tostr(const void *data, bool pretty _U_)
 }
 
 static void *
-gstring_dup(gconstpointer value)
+gstring_dup(const void *value)
 {
 	const GString *gs = value;
 	return g_string_new_len(gs->str, gs->len);

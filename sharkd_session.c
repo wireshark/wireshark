@@ -722,7 +722,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 }
 
 static void
-sharkd_session_filter_free(gpointer data)
+sharkd_session_filter_free(void *data)
 {
     struct sharkd_filter_item *l = (struct sharkd_filter_item *) data;
 
@@ -938,14 +938,14 @@ struct encap_type_info
 };
 
 static gint
-encap_type_info_nat_compare(gconstpointer a, gconstpointer b)
+encap_type_info_nat_compare(const void *a, const void *b)
 {
     return ws_ascii_strnatcmp(((const struct encap_type_info *)a)->name,
                               ((const struct encap_type_info *)b)->name);
 }
 
 static void
-encap_type_info_visit(gpointer data, gpointer user_data _U_)
+encap_type_info_visit(void *data, void *user_data _U_)
 {
     sharkd_json_object_open(NULL);
     sharkd_json_value_string("name", ((struct encap_type_info *)data)->name);
@@ -3257,21 +3257,21 @@ struct sharkd_hosts_req {
 };
 
 static gint
-sharkd_session_tap_ipv4_host_compare(gconstpointer a, gconstpointer b)
+sharkd_session_tap_ipv4_host_compare(const void *a, const void *b)
 {
     return ws_ascii_strnatcmp(((const hashipv4_t *)a)->name,
                               ((const hashipv4_t *)b)->name);
 }
 
 static gint
-sharkd_session_tap_ipv6_host_compare(gconstpointer a, gconstpointer b)
+sharkd_session_tap_ipv6_host_compare(const void *a, const void *b)
 {
     return ws_ascii_strnatcmp(((const hashipv6_t *)a)->name,
                               ((const hashipv6_t *)b)->name);
 }
 
 static void
-sharkd_session_tap_ipv4_host_print(gpointer data, gpointer user_data _U_)
+sharkd_session_tap_ipv4_host_print(void *data, void *user_data _U_)
 {
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)data;
     sharkd_json_object_open(NULL);
@@ -3281,7 +3281,7 @@ sharkd_session_tap_ipv4_host_print(gpointer data, gpointer user_data _U_)
 }
 
 static void
-sharkd_session_tap_ipv6_host_print(gpointer data, gpointer user_data _U_)
+sharkd_session_tap_ipv6_host_print(void *data, void *user_data _U_)
 {
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)data;
     sharkd_json_object_open(NULL);
@@ -3291,7 +3291,7 @@ sharkd_session_tap_ipv6_host_print(gpointer data, gpointer user_data _U_)
 }
 
 static void
-sharkd_session_tap_ipv4_host_insert_sorted(gpointer key _U_, gpointer value, gpointer user_data)
+sharkd_session_tap_ipv4_host_insert_sorted(void *key _U_, void *value, void *user_data)
 {
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
     GSList **list = (GSList **)user_data;
@@ -3301,7 +3301,7 @@ sharkd_session_tap_ipv4_host_insert_sorted(gpointer key _U_, gpointer value, gpo
 }
 
 static void
-sharkd_session_tap_ipv6_host_insert_sorted(gpointer key _U_, gpointer value, gpointer user_data)
+sharkd_session_tap_ipv6_host_insert_sorted(void *key _U_, void *value, void *user_data)
 {
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
     GSList **list = (GSList **) user_data;
@@ -4990,7 +4990,7 @@ struct sharkd_session_process_complete_pref_data
 };
 
 static guint
-sharkd_session_process_complete_pref_cb(module_t *module, gpointer d)
+sharkd_session_process_complete_pref_cb(module_t *module, void *d)
 {
     struct sharkd_session_process_complete_pref_data *data = (struct sharkd_session_process_complete_pref_data *) d;
 
@@ -5006,7 +5006,7 @@ sharkd_session_process_complete_pref_cb(module_t *module, gpointer d)
 }
 
 static guint
-sharkd_session_process_complete_pref_option_cb(pref_t *pref, gpointer d)
+sharkd_session_process_complete_pref_option_cb(pref_t *pref, void *d)
 {
     struct sharkd_session_process_complete_pref_data *data = (struct sharkd_session_process_complete_pref_data *) d;
     const char *pref_name = prefs_get_name(pref);
@@ -5291,7 +5291,7 @@ struct sharkd_session_process_dumpconf_data
 };
 
 static guint
-sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
+sharkd_session_process_dumpconf_cb(pref_t *pref, void *d)
 {
     struct sharkd_session_process_dumpconf_data *data = (struct sharkd_session_process_dumpconf_data *) d;
     const char *pref_name = prefs_get_name(pref);
@@ -5398,7 +5398,7 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 }
 
 static guint
-sharkd_session_process_dumpconf_mod_cb(module_t *module, gpointer d)
+sharkd_session_process_dumpconf_mod_cb(module_t *module, void *d)
 {
     struct sharkd_session_process_dumpconf_data *data = (struct sharkd_session_process_dumpconf_data *) d;
 

@@ -642,7 +642,7 @@ blf_init_logcontainer(blf_log_container_t *tmp) {
 }
 
 int
-blf_logcontainers_cmp(gconstpointer a, gconstpointer b) {
+blf_logcontainers_cmp(const void *a, const void *b) {
     blf_log_container_t* container_a = (blf_log_container_t*)a;
     blf_log_container_t* container_b = (blf_log_container_t*)b;
 
@@ -658,7 +658,7 @@ blf_logcontainers_cmp(gconstpointer a, gconstpointer b) {
 }
 
 int
-blf_logcontainers_search(gconstpointer a, gconstpointer b) {
+blf_logcontainers_search(const void *a, const void *b) {
     blf_log_container_t* container_a = (blf_log_container_t*)a;
     uint64_t pos = *(uint64_t*)b;
 

@@ -199,7 +199,7 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
 
 /* GCompareFunc helper for g_list_find_custom() */
 static int
-fileset_find_by_path(gconstpointer a, gconstpointer b)
+fileset_find_by_path(const void *a, const void *b)
 {
     const fileset_entry *entry;
     const char *path;
@@ -285,7 +285,7 @@ fileset_add_file(const char *dirname, const char *fname, bool current)
 
 /* compare two list entries by creation date/time (through filename) */
 static int
-fileset_sort_compare(gconstpointer a, gconstpointer b)
+fileset_sort_compare(const void *a, const void *b)
 {
     const fileset_entry *entry_a = (const fileset_entry *)a;
     const fileset_entry *entry_b = (const fileset_entry *)b;

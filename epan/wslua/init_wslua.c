@@ -733,7 +733,7 @@ static int wslua_panic(lua_State* LS) {
     return 0; /* keep gcc happy */
 }
 
-static int string_compare(gconstpointer a, gconstpointer b) {
+static int string_compare(const void *a, const void *b) {
     return strcmp((const char*)a, (const char*)b);
 }
 

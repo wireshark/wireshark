@@ -29,7 +29,7 @@
 static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary
 static const char *DEFAULT_UI_TABLE = "TCP port";    // Arbitrary
 
-DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector) :
+DecodeAsItem::DecodeAsItem(const char* table_name, const void *selector) :
  tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
@@ -45,7 +45,7 @@ DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector) :
     init(table_name, selector);
 }
 
-DecodeAsItem::DecodeAsItem(const decode_as_t *entry, gconstpointer selector) :
+DecodeAsItem::DecodeAsItem(const decode_as_t *entry, const void *selector) :
  tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
@@ -65,7 +65,7 @@ DecodeAsItem::~DecodeAsItem()
 {
 }
 
-void DecodeAsItem::init(const char* table_name, gconstpointer selector)
+void DecodeAsItem::init(const char* table_name, const void *selector)
 {
     tableName_ = table_name;
     tableUIName_ = get_dissector_table_ui_name(tableName_);
@@ -241,7 +241,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
             if (FT_IS_UINT(selector_type)) {
                 return entryString(item->tableName(), GUINT_TO_POINTER(item->selectorUint()));
             } else if (FT_IS_STRING(selector_type)) {
-                return entryString(item->tableName(), (gconstpointer)item->selectorString().toUtf8().constData());
+                return entryString(item->tableName(), (const void *)item->selectorString().toUtf8().constData());
             } else if (selector_type == FT_GUID) {
                 if (item->selectorDCERPC() != NULL) {
                     return item->selectorDCERPC()->ctx_id;
@@ -564,7 +564,7 @@ bool DecodeAsModel::copyFromProfile(QString filename, const char **err)
     return true;
 }
 
-QString DecodeAsModel::entryString(const char *table_name, gconstpointer value)
+QString DecodeAsModel::entryString(const char *table_name, const void *value)
 {
     QString entry_str;
     ftenum_t selector_type = get_dissector_table_selector_type(table_name);
@@ -784,7 +784,7 @@ void DecodeAsModel::applyChanges()
             if (!g_strcmp0(decode_as_entry->table_name, item->tableName())) {
 
                 ftenum_t selector_type = get_dissector_table_selector_type(item->tableName());
-                gconstpointer  selector_value;
+                const void *   selector_value;
                 QByteArray byteArray;
 
                 switch (selector_type) {
@@ -800,7 +800,7 @@ void DecodeAsModel::applyChanges()
                 case FT_STRINGZPAD:
                 case FT_STRINGZTRUNC:
                     byteArray = item->selectorString().toUtf8();
-                    selector_value = (gconstpointer) byteArray.constData();
+                    selector_value = (const void *) byteArray.constData();
                     break;
                 case FT_NONE:
                     //selector value is ignored, but dissector table needs to happen
@@ -808,7 +808,7 @@ void DecodeAsModel::applyChanges()
                     break;
                 case FT_GUID:
                     if (item->selectorDCERPC() != NULL) {
-                        selector_value = (gconstpointer)item->selectorDCERPC();
+                        selector_value = (const void *)item->selectorDCERPC();
                     } else {
                         //TODO: Support normal GUID dissector tables
                         selector_value = NULL;

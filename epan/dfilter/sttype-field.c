@@ -45,7 +45,7 @@ field_new(void *hfinfo)
 }
 
 static void *
-field_dup(gconstpointer data)
+field_dup(const void *data)
 {
 	const field_t *org = data;
 	field_t       *field;

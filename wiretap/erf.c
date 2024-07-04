@@ -187,14 +187,14 @@ static int erf_file_type_subtype = -1;
 
 void register_erf(void);
 
-static unsigned erf_anchor_mapping_hash(gconstpointer key) {
+static unsigned erf_anchor_mapping_hash(const void *key) {
   const struct erf_anchor_mapping *anchor_map = (const struct erf_anchor_mapping*) key;
 
   return ((uint32_t)anchor_map->host_id ^ (uint32_t)anchor_map->anchor_id);
 
 }
 
-static gboolean erf_anchor_mapping_equal(gconstpointer a, gconstpointer b) {
+static gboolean erf_anchor_mapping_equal(const void *a, const void *b) {
   const struct erf_anchor_mapping *anchor_map_a = (const struct erf_anchor_mapping*) a ;
   const struct erf_anchor_mapping *anchor_map_b = (const struct erf_anchor_mapping*) b ;
 
@@ -213,7 +213,7 @@ static void erf_anchor_mapping_destroy(void *key) {
   anchor_map = NULL;
 }
 
-static gboolean erf_if_mapping_equal(gconstpointer a, gconstpointer b)
+static gboolean erf_if_mapping_equal(const void *a, const void *b)
 {
   const struct erf_if_mapping *if_map_a = (const struct erf_if_mapping*) a;
   const struct erf_if_mapping *if_map_b = (const struct erf_if_mapping*) b;
@@ -221,7 +221,7 @@ static gboolean erf_if_mapping_equal(gconstpointer a, gconstpointer b)
   return if_map_a->source_id == if_map_b->source_id && if_map_a->host_id == if_map_b->host_id;
 }
 
-static unsigned erf_if_mapping_hash(gconstpointer key)
+static unsigned erf_if_mapping_hash(const void *key)
 {
   const struct erf_if_mapping *if_map = (const struct erf_if_mapping*) key;
 
