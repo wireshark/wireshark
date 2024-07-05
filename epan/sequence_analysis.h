@@ -77,16 +77,6 @@ typedef struct _seq_analysis_info {
 /** Structure for information about a registered sequence analysis function */
 typedef struct register_analysis register_analysis_t;
 
-#if 0
-#define SEQ_ANALYSIS_DEBUG(...) { \
-    char *SEQ_ANALYSIS_DEBUG_MSG = ws_strdup_printf(__VA_ARGS__); \
-    ws_warning("sequence analysis: %s:%d %s", G_STRFUNC, __LINE__, SEQ_ANALYSIS_DEBUG_MSG); \
-    g_free(SEQ_ANALYSIS_DEBUG_MSG); \
-}
-#else
-#define SEQ_ANALYSIS_DEBUG()
-#endif
-
 WS_DLL_PUBLIC void register_seq_analysis(const char* name, const char* ui_name, const int proto_id, const char* tap_listener, unsigned tap_flags, tap_packet_cb tap_func);
 
 /** Helper function to get sequence analysis name
