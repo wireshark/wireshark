@@ -67,7 +67,7 @@ sttype_set_tostr(const void *data, bool pretty)
 		}
 	}
 
-	return g_string_free(repr, false);
+	return g_string_free(repr, FALSE);
 }
 
 void

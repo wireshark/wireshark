@@ -145,7 +145,7 @@ void FirewallRulesDialog::addRule(QString description, syntax_func rule_func, ad
     ui->textBrowser->append(comment_line);
     ui->textBrowser->append(rule_str->str);
 
-    g_string_free(rule_str, true);
+    g_string_free(rule_str, TRUE);
 }
 
 

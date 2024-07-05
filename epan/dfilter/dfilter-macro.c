@@ -79,7 +79,7 @@ static char* dfilter_macro_resolve(char* name, char** args, df_error_t** error) 
 
 	ret = wmem_strdup(NULL, text->str);
 
-	g_string_free(text,true);
+	g_string_free(text,TRUE);
 
 	return ret;
 }
@@ -154,7 +154,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 		return NULL;
 	}
 
-#define FGS(n) if (n) g_string_free(n,true); n = NULL
+#define FGS(n) if (n) g_string_free(n,TRUE); n = NULL
 
 #define FREE_ALL() \
 	do { \
@@ -309,7 +309,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 								*error = df_error_new_msg("null argument in macro expression");
 							goto on_error;
 						}
-						g_ptr_array_add(args,g_string_free(arg,false));
+						g_ptr_array_add(args,g_string_free(arg,FALSE));
 
 						arg = g_string_sized_new(32);
 						break;
@@ -340,7 +340,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 								goto on_error;
 							}
 						} else {
-							g_ptr_array_add(args,g_string_free(arg,false));
+							g_ptr_array_add(args,g_string_free(arg,FALSE));
 							g_ptr_array_add(args,NULL);
 							arg = NULL;
 						}
@@ -377,11 +377,11 @@ finish:
 
 		if (changed) {
 			resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
-			g_string_free(out,true);
+			g_string_free(out,TRUE);
 			return resolved;
 		} else {
 			char* out_str = wmem_strdup(NULL, out->str);
-			g_string_free(out,true);
+			g_string_free(out,TRUE);
 			return out_str;
 		}
 	}
@@ -392,7 +392,7 @@ on_error:
 			if (*error == NULL)
 				*error = df_error_new_msg("unknown error in macro expression");
 		}
-		g_string_free(out,true);
+		g_string_free(out,TRUE);
 		return NULL;
 	}
 }

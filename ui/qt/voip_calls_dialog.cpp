@@ -505,7 +505,7 @@ void VoipCallsDialog::prepareFilter()
     if (filter_length < max_filter_length) {
         gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
     } else {
-        g_string_free(filter_string_fwd, true);
+        g_string_free(filter_string_fwd, TRUE);
         filter_string_fwd = g_string_new(filter_prepend);
 
         g_string_append_printf(filter_string_fwd, "(");

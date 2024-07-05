@@ -140,7 +140,7 @@ char* follow_get_stat_tap_string(register_follow_t* follower)
 {
     GString *cmd_str = g_string_new("follow,");
     g_string_append(cmd_str, proto_get_protocol_filter_name(follower->proto_id));
-    return g_string_free(cmd_str, false);
+    return g_string_free(cmd_str, FALSE);
 }
 
 /* here we are going to try and reconstruct the data portion of a TCP

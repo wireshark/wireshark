@@ -387,7 +387,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             }
         }
         device.addresses = g_strdup(ip_str->str);
-        g_string_free(ip_str, true);
+        g_string_free(ip_str, TRUE);
 
         device.links = NULL;
         caps = if_info->caps;

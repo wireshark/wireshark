@@ -1029,7 +1029,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
 
     ops->copy_to_clipboard(gstr);
 
-    g_string_free(gstr,true);
+    g_string_free(gstr,TRUE);
 
     return 0;
 }

@@ -196,7 +196,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 				g_string_append_printf(ifaces_string, "-i %s ", quoted_iface);
 				ifaces_array_num++;
 			}
-			ifaces = g_string_free(ifaces_string, false);
+			ifaces = g_string_free(ifaces_string, FALSE);
 		}
 		quoted_filter = g_shell_quote(cfilter ? cfilter : "");
 		if (count > 0)
@@ -306,7 +306,7 @@ static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_p
 		}
 		g_string_append_printf(filter, ") and port %u)", remote_port);
 	}
-	return g_string_free(filter, false);
+	return g_string_free(filter, FALSE);
 }
 
 static int list_config(char *interface, unsigned int remote_port)

@@ -100,7 +100,7 @@ flow_init(const char *opt_argp, void *userdata)
     {
         sequence_analysis_list_free(flow_info);
         sequence_analysis_info_free(flow_info);
-        g_string_free(errp, true);
+        g_string_free(errp, TRUE);
         flow_exit("Error registering tap listener.");
     }
 }
@@ -114,7 +114,7 @@ flow_register(const void *key _U_, void *value, void *userdata _U_)
     char *cli_string;
 
     g_string_append(cmd_str, sequence_analysis_get_name(analysis));
-    cli_string = g_string_free(cmd_str, false);
+    cli_string = g_string_free(cmd_str, FALSE);
 
     flow_ui.group = REGISTER_STAT_GROUP_GENERIC;
     flow_ui.title = NULL;   /* construct this from the protocol info? */

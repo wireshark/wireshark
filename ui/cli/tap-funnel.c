@@ -45,7 +45,7 @@ static funnel_text_window_t *new_text_window(funnel_ops_id_t *ops_id _U_, const 
 }
 
 static void text_window_clear(funnel_text_window_t *tw) {
-    g_string_free(tw->text, true);
+    g_string_free(tw->text, TRUE);
     tw->text = g_string_new("");
 }
 
@@ -54,7 +54,7 @@ static void text_window_append(funnel_text_window_t *tw, const char *text ) {
 }
 
 static void text_window_set_text(funnel_text_window_t *tw, const char *text) {
-    g_string_free(tw->text, true);
+    g_string_free(tw->text, TRUE);
     tw->text = g_string_new(text);
 }
 
@@ -118,7 +118,7 @@ void funnel_dump_all_text_windows(void) {
 
         g_ptr_array_remove_index(text_windows, i);
         g_free(tw->title);
-        g_string_free(tw->text, true);
+        g_string_free(tw->text, TRUE);
         g_free(tw);
     }
 }

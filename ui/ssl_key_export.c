@@ -146,7 +146,7 @@ ssl_export_sessions(size_t *length)
     }
 
     *length = keylist->len;
-    return g_string_free(keylist, false);
+    return g_string_free(keylist, FALSE);
 }
 
 void

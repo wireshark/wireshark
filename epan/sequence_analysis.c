@@ -627,11 +627,11 @@ sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned 
         fprintf(of, "%s\n", tmp_str->str);
     }
 
-    g_string_free(label_string, true);
-    g_string_free(empty_line, true);
-    g_string_free(separator_line, true);
-    g_string_free(tmp_str, true);
-    g_string_free(tmp_str2, true);
+    g_string_free(label_string, TRUE);
+    g_string_free(empty_line, TRUE);
+    g_string_free(separator_line, TRUE);
+    g_string_free(tmp_str, TRUE);
+    g_string_free(tmp_str2, TRUE);
 }
 
 /*

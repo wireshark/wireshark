@@ -235,7 +235,7 @@ dfsyntax_free(dfsyntax_t *dfs)
 		stnode_free(dfs->lval);
 
 	if (dfs->quoted_string)
-		g_string_free(dfs->quoted_string, true);
+		g_string_free(dfs->quoted_string, TRUE);
 
 
 

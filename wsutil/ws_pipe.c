@@ -223,7 +223,7 @@ convert_to_command_line(char **argv)
         g_free(quoted_arg);
     }
 #endif
-    return g_string_free(command_line, false);
+    return g_string_free(command_line, FALSE);
 }
 
 bool ws_pipe_spawn_sync(const char *working_directory, const char *command, int argc, char **args, char **command_output)
@@ -457,7 +457,7 @@ bool ws_pipe_spawn_sync(const char *working_directory, const char *command, int 
             status = false;
         }
 
-        local_output = g_string_free(output_string, false);
+        local_output = g_string_free(output_string, FALSE);
 
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stderr_rd);

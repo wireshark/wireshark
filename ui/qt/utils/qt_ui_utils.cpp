@@ -68,7 +68,7 @@ QByteArray gchar_free_to_qbytearray(char *glib_string)
 QByteArray gstring_free_to_qbytearray(GString *glib_gstring)
 {
     QByteArray qt_ba(glib_gstring->str);
-    g_string_free(glib_gstring, true);
+    g_string_free(glib_gstring, TRUE);
     return qt_ba;
 }
 

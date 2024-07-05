@@ -162,7 +162,7 @@ static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_p
 		g_string_append_printf(filter, ", permit ip any any");
 	}
 
-	return g_string_free(filter, false);
+	return g_string_free(filter, FALSE);
 }
 
 static char* local_interfaces_to_filter(const unsigned int remote_port)

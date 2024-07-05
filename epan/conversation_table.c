@@ -74,7 +74,7 @@ dissector_conversation_init(const char *opt_arg, void* userdata)
             filter = opt_arg + cmd_str->len + 1;
         }
     }
-    g_string_free(cmd_str, true);
+    g_string_free(cmd_str, TRUE);
 
     if (table->conv_gui_init)
         table->conv_gui_init(table, filter);
@@ -96,7 +96,7 @@ dissector_endpoint_init(const char *opt_arg, void* userdata)
         filter=NULL;
     }
 
-    g_string_free(cmd_str, true);
+    g_string_free(cmd_str, TRUE);
 
     if (table->endpoint_gui_init)
         table->endpoint_gui_init(table, filter);
@@ -152,7 +152,7 @@ set_conv_gui_data(const void *key _U_, void *value, void *userdata)
     g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
     ui_info.group = REGISTER_STAT_GROUP_CONVERSATION_LIST;
     ui_info.title = NULL;   /* construct this from the protocol info? */
-    ui_info.cli_string = g_string_free(conv_cmd_str, false);
+    ui_info.cli_string = g_string_free(conv_cmd_str, FALSE);
     ui_info.tap_init_cb = dissector_conversation_init;
     ui_info.nparams = 0;
     ui_info.params = NULL;

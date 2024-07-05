@@ -95,7 +95,7 @@ bluetooth_devices_tap(void *data)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 

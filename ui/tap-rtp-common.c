@@ -229,7 +229,7 @@ register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstrin
             if (tap_error) {
                 tap_error(error_string);
             }
-            g_string_free(error_string, true);
+            g_string_free(error_string, TRUE);
             exit(1);
         }
 
@@ -287,7 +287,7 @@ static void update_payload_names(rtpstream_info_t *stream_info, const struct _rt
         g_free(stream_info->all_payload_type_names);
     }
     stream_info->all_payload_type_names = payload_type_names->str;
-    g_string_free(payload_type_names, false);
+    g_string_free(payload_type_names, FALSE);
 }
 
 bool rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const uint8_t payload_type)

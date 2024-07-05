@@ -106,7 +106,7 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 	if (error_string) {
 		free_rtd_table(&ui->rtd.stat_table);
 		cmdarg_err("Couldn't register srt tap: %s", error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

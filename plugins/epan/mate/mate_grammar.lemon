@@ -165,7 +165,7 @@ static char* recolonize(mate_config* mc, char* s) {
 
 	r = str->str;
 
-	g_string_free(str,false);
+	g_string_free(str,FALSE);
 
 	return r;
 }

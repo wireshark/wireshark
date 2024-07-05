@@ -127,7 +127,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 		free_srt_table(srt, global_srt_array);
 		g_free(ui);
 		cmdarg_err("Couldn't register srt tap: %s", error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

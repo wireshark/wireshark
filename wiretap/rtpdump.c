@@ -142,7 +142,7 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
     header_str = g_string_sized_new(RTP_HEADER_MAX_LEN);
     do {
         if (!wtap_read_bytes(wth->fh, &ch, 1, err, err_info)) {
-            g_string_free(header_str, true);
+            g_string_free(header_str, TRUE);
             return (*err == WTAP_ERR_SHORT_READ)
                 ? WTAP_OPEN_NOT_MINE
                 : WTAP_OPEN_ERROR;
@@ -159,7 +159,7 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
             else {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup("rtpdump: bad IP in header text");
-                g_string_free(header_str, true);
+                g_string_free(header_str, TRUE);
                 return WTAP_OPEN_ERROR;
             }
 
@@ -170,13 +170,13 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
             if (!got_ip) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup("rtpdump: no IP in header text");
-                g_string_free(header_str, true);
+                g_string_free(header_str, TRUE);
                 return WTAP_OPEN_ERROR;
             }
             if (!ws_strtou16(header_str->str, NULL, &txt_port)) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup("rtpdump: bad port in header text");
-                g_string_free(header_str, true);
+                g_string_free(header_str, TRUE);
                 return WTAP_OPEN_ERROR;
             }
             break;
@@ -185,12 +185,12 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
             g_string_append_c(header_str, ch);
         }
         else {
-            g_string_free(header_str, true);
+            g_string_free(header_str, TRUE);
             return WTAP_OPEN_NOT_MINE;
         }
     } while (ch != '\n');
 
-    g_string_free(header_str, true);
+    g_string_free(header_str, TRUE);
 
     if (!got_ip || txt_port == 0) {
         *err = WTAP_ERR_BAD_FILE;

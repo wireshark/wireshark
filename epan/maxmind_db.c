@@ -356,10 +356,10 @@ read_mmdbr_stdout_worker(void *data _U_) {
         }
     }
 
-    g_string_free(country_iso, true);
-    g_string_free(country, true);
-    g_string_free(city, true);
-    g_string_free(as_org, true);
+    g_string_free(country_iso, TRUE);
+    g_string_free(country, TRUE);
+    g_string_free(city, TRUE);
+    g_string_free(as_org, TRUE);
     g_free(line_buf);
     g_free(response);
     return NULL;
@@ -810,7 +810,7 @@ maxmind_db_get_paths(void) {
 
     g_string_truncate(path_str, path_str->len-1);
 
-    return g_string_free(path_str, false);
+    return g_string_free(path_str, FALSE);
 }
 
 void

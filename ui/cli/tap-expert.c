@@ -264,7 +264,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
                                          (tap_finish_cb)expert_tapdata_free);
     if (error_string) {
         printf("Expert tap error (%s)!\n", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         expert_tapdata_free(hs);
         exit(1);
     }

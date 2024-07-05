@@ -408,7 +408,7 @@ void extcap_cmdline_debug(char** ar, const unsigned n)
     for (i = 0; i < n; i++)
         g_string_append_printf(cmdline, "%s ", ar[i]);
     ws_debug("%s", cmdline->str);
-    g_string_free(cmdline, true);
+    g_string_free(cmdline, TRUE);
 }
 
 /*

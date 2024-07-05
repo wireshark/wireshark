@@ -1717,7 +1717,7 @@ void LBMLBTRUTransportDialog::fillTree(void)
     {
         QMessageBox::critical(this, tr("LBT-RU Statistics failed to attach to tap"),
             error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         reject();
     }
 

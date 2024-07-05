@@ -254,7 +254,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		g_string_append(filter, field);
 	}
 	g_strfreev(tokens);
-	ds->filter = g_string_free(filter, false);
+	ds->filter = g_string_free(filter, FALSE);
 
 	error_string = register_tap_listener("diameter", ds, ds->filter, 0, NULL, diameteravp_packet, diameteravp_draw, NULL);
 	if (error_string) {
@@ -263,7 +263,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 
 		cmdarg_err("Couldn't register diam,csv tap: %s",
 				error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

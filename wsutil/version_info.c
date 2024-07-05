@@ -64,11 +64,11 @@ ws_init_version_info(const char *appname,
 
 	copyright_info_str = g_string_new(get_copyright_info());
 	end_string(copyright_info_str);
-	copyright_info = g_string_free(copyright_info_str, false);
+	copyright_info = g_string_free(copyright_info_str, FALSE);
 
 	license_info_str = g_string_new(get_license_info_short());
 	end_string(license_info_str);
-	license_info = g_string_free(license_info_str, false);
+	license_info = g_string_free(license_info_str, FALSE);
 
 	/*
 	 * Combine the supplied application name string with the
@@ -90,8 +90,8 @@ ws_init_version_info(const char *appname,
 	/* Get the run-time version information string */
 	runtime_info_str = get_runtime_version_info(gather_runtime);
 
-	comp_info = g_string_free(comp_info_str, false);
-	runtime_info = g_string_free(runtime_info_str, false);
+	comp_info = g_string_free(comp_info_str, FALSE);
+	runtime_info = g_string_free(runtime_info_str, FALSE);
 
 	/* Add this information to the information to be reported on a crash. */
 	ws_add_crash_info("%s\n"

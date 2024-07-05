@@ -103,10 +103,10 @@ static GString *eo_rename(GString *gstr, size_t maxlen, int dupn)
     }
 
     if (ext_str) {
-        g_string_free(ext_str, true);
+        g_string_free(ext_str, TRUE);
     }
 
-    g_string_free(gstr_tmp, true);
+    g_string_free(gstr_tmp, TRUE);
     return gstr;
 }
 

@@ -324,7 +324,7 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
     if (err_p != NULL)
     {
         g_free(stat_p);
-        g_string_free(err_p, true);
+        g_string_free(err_p, TRUE);
 
         exit(1);
     }

@@ -1381,7 +1381,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
         g_free(io);
         fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
             error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         exit(1);
     }
 }

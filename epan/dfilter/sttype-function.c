@@ -76,7 +76,7 @@ function_tostr(const void *data, bool pretty)
 		g_string_printf(repr, "%s#%u", def->name, g_slist_length(params));
 	}
 
-	return g_string_free(repr, false);
+	return g_string_free(repr, FALSE);
 }
 
 static void

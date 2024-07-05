@@ -113,7 +113,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 		/* error, we failed to attach to the tap. complain and clean up */
 		cmdarg_err("Couldn't register proto,colinfo tap: %s",
 		    error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		g_free(rs->filter);
 		g_free(rs);
 

@@ -253,7 +253,7 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(sp);
 		cmdarg_err("Couldn't register rtsp,stat tap: %s",
 				error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 

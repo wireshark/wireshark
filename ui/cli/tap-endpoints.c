@@ -114,7 +114,7 @@ void init_endpoints(struct register_ct *ct, const char *filter)
 		g_free(iu);
 		cmdarg_err("Couldn't register endpoint tap: %s",
 		    error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 

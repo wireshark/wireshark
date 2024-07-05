@@ -596,7 +596,7 @@ static void register_mibs(void) {
 	}
 
 	g_free(path_str);
-	g_string_free(smi_errors,true);
+	g_string_free(smi_errors,TRUE);
 
 	for (smiModule = smiGetFirstModule();
 		 smiModule;
@@ -1286,7 +1286,7 @@ oid_get_default_mib_path(void) {
 
 	if (!load_smi_modules) {
 		D(1,("OID resolution not enabled"));
-		return g_string_free(path_str, false);
+		return g_string_free(path_str, FALSE);
 	}
 #ifdef _WIN32
 	path = get_datafile_path("snmp\\mibs");
@@ -1319,7 +1319,7 @@ oid_get_default_mib_path(void) {
 #ifndef _WIN32
 	}
 #endif
-	return g_string_free(path_str, false);
+	return g_string_free(path_str, FALSE);
 #else /* HAVE_LIBSMI */
         return g_strdup("");
 #endif

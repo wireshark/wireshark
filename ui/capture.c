@@ -132,7 +132,7 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
     ws_message("Capture Start ...");
     source = get_iface_list_string(capture_opts, IFLIST_SHOW_FILTER);
     cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
-    g_string_free(source, true);
+    g_string_free(source, TRUE);
     /* try to start the capture child process */
     if (!sync_pipe_start(capture_opts, capture_comments, cap_session,
                          cap_data, update_cb)) {
@@ -738,7 +738,7 @@ capture_input_closed(capture_session *cap_session, char *msg)
         }
         ws_warning("%s", msg);
         simple_dialog(dlg_type, ESD_BTN_OK, "%s", gui_msg->str);
-        g_string_free(gui_msg, true);
+        g_string_free(gui_msg, TRUE);
         g_strfreev(msg_lines);
     }
 

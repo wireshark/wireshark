@@ -255,7 +255,7 @@ static char* conversation_element_list_values(conversation_element_t *elements) 
             break;
         }
     }
-    return g_string_free(value_str, false);
+    return g_string_free(value_str, FALSE);
 }
 #endif
 

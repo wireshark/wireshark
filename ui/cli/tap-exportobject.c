@@ -136,7 +136,7 @@ eo_draw(void *tapdata)
                     EXPORT_OBJECT_MAXFILELEN, count);
             }
             save_as_fullpath = g_build_filename(save_in_path, safe_filename->str, NULL);
-            g_string_free(safe_filename, true);
+            g_string_free(safe_filename, TRUE);
         } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < prefs.gui_max_export_objects);
         count = 0;
         write_file_binary_mode(save_as_fullpath, entry->payload_data, entry->payload_len);
@@ -176,7 +176,7 @@ exportobject_handler(void *key, void *value _U_, void *user_data _U_)
 
     if (error_msg) {
         cmdarg_err("Can't register %s tap: %s", (const char*)key, error_msg->str);
-        g_string_free(error_msg, true);
+        g_string_free(error_msg, TRUE);
         g_free(tap_data);
         g_free(object_list);
         return;

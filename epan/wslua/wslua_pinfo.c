@@ -74,7 +74,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
 
     lua_pushstring(L,key_string->str);
 
-    g_string_free (key_string, true);
+    g_string_free (key_string, TRUE);
     g_list_free (keys);
 
     WSLUA_RETURN(1); /* A string with all keys in the table, mostly for debugging. */

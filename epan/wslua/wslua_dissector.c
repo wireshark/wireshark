@@ -811,7 +811,7 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
     }
 
     lua_pushstring(L,s->str);
-    g_string_free(s,true);
+    g_string_free(s,TRUE);
     WSLUA_RETURN(1); /* A string of debug information about the <<lua_class_DissectorTable,`DissectorTable`>>. */
 }
 

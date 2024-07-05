@@ -311,7 +311,7 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
 
             for (i=0; i<len;i++) g_string_append_printf(s, "%.2X", ((const uint8_t*)ptr)[i]);
 
-            out = g_string_free(s, false);
+            out = g_string_free(s, FALSE);
             break;
         }
         default:

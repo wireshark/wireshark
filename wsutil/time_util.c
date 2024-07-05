@@ -199,7 +199,7 @@ void log_resource_usage(bool reset_delta, const char *format, ...) {
 	va_end(ap);
 
 	ws_warning("%s", log_str->str);
-	g_string_free(log_str, true);
+	g_string_free(log_str, TRUE);
 
 }
 

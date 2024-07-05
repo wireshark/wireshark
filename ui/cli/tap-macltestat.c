@@ -511,7 +511,7 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          mac_lte_stat_draw,
                                          NULL);
     if (error_string) {
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         g_free(hs);
         exit(1);
     }

@@ -116,7 +116,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
          * create this section.
          */
         opt_len = os_info_str->len;
-        opt_str = g_string_free(os_info_str, false);
+        opt_str = g_string_free(os_info_str, FALSE);
         if (opt_str) {
             wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, opt_str, opt_len);
             g_free(opt_str);
@@ -224,7 +224,7 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
                                          NULL,
                                          NULL);
     if (error_string != NULL)
-        return g_string_free(error_string, false);
+        return g_string_free(error_string, FALSE);
 
     exp_pdu_tap_data->pkt_encap = export_pdu_tap_get_encap(tap_name);
 

@@ -125,7 +125,7 @@ struct plugin_configuration {
         json_dumper_finish(&dumper);
         std::string config_blob = dumper.output_string->str;
         ws_debug("configuration: %s", dumper.output_string->str);
-        g_string_free(dumper.output_string, true);
+        g_string_free(dumper.output_string, TRUE);
         return config_blob;
     }
 };

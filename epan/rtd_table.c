@@ -112,7 +112,7 @@ char* rtd_table_get_tap_string(register_rtd_t* rtd)
 {
     GString *cmd_str = g_string_new(proto_get_protocol_filter_name(rtd->proto_id));
     g_string_append(cmd_str, ",rtd");
-    return g_string_free(cmd_str, false);
+    return g_string_free(cmd_str, FALSE);
 }
 
 void rtd_table_get_filter(register_rtd_t* rtd, const char *opt_arg, const char **filter, char** err)

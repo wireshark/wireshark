@@ -920,7 +920,7 @@ void LograyMainWindow::pushLiveCaptureInProgress() {
     if (capture_opts->save_file)
         msgtip += capture_opts->save_file;
     mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
-    g_string_free(interface_names, true);
+    g_string_free(interface_names, TRUE);
 #endif // HAVE_LIBPCAP
 }
 

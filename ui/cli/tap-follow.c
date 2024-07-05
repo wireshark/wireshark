@@ -595,7 +595,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
   if (errp != NULL)
   {
     follow_free(follow_info);
-    g_string_free(errp, true);
+    g_string_free(errp, TRUE);
     follow_exit("Error registering tap listener.");
   }
 }

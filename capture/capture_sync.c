@@ -188,7 +188,7 @@ void capture_process_finished(capture_session *cap_session)
     }
 
     cap_session->closed(cap_session, message->str);
-    g_string_free(message, true);
+    g_string_free(message, TRUE);
     g_free(capture_opts->closed_msg);
     capture_opts->closed_msg = NULL;
     capture_opts->stop_after_extcaps = false;
@@ -348,7 +348,7 @@ sync_pipe_open_command(char **argv, int *data_read_fd,
         /* We can't return anything */
         g_strfreev(argv);
 #ifdef _WIN32
-        g_string_free(args, true);
+        g_string_free(args, TRUE);
 #endif
         return -1;
     }
@@ -543,7 +543,7 @@ sync_pipe_open_command(char **argv, int *data_read_fd,
         ws_close(message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
         g_strfreev(argv);
-        g_string_free(args, true);
+        g_string_free(args, TRUE);
         g_free(handles);
         return -1;
     }
@@ -551,7 +551,7 @@ sync_pipe_open_command(char **argv, int *data_read_fd,
     /* We may need to store this and close it later */
     CloseHandle(pi.hThread);
     g_strfreev(argv);
-    g_string_free(args, true);
+    g_string_free(args, TRUE);
     g_free(handles);
 
     if (signal_write_fd != NULL) {
@@ -1202,7 +1202,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
                  */
                 *primary_msg = msg;
                 *secondary_msg = NULL;
-                g_string_free(data_buf, true);
+                g_string_free(data_buf, TRUE);
                 *data = NULL;
             } else {
                 /*
@@ -1210,7 +1210,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
                  */
                 *primary_msg = NULL;
                 *secondary_msg = NULL;
-                *data = g_string_free(data_buf, false);
+                *data = g_string_free(data_buf, FALSE);
             }
             break;
 

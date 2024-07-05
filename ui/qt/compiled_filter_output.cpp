@@ -95,7 +95,7 @@ void CompiledFilterOutput::compileFilter()
                     }
                     g_mutex_unlock(&pcap_compile_mtx_);
                     compile_results.insert(current.interface, QString(bpf_code_dump->str));
-                    g_string_free(bpf_code_dump, true);
+                    g_string_free(bpf_code_dump, TRUE);
                     ui->interfaceList->addItem(new QListWidgetItem(current.interface));
                     pcap_freecode(&fcode);
                 }

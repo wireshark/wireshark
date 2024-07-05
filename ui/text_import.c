@@ -1784,14 +1784,14 @@ text_import_pre_open(wtap_dump_params * const params, int file_type_subtype, con
         if (info_str->str) {
             wtap_block_add_string_option(shb_hdr, OPT_SHB_HARDWARE, info_str->str, info_str->len);
         }
-        g_string_free(info_str, true);
+        g_string_free(info_str, TRUE);
 
         info_str = g_string_new("");
         get_os_version_info(info_str);
         if (info_str->str) {
             wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, info_str->str, info_str->len);
         }
-        g_string_free(info_str, true);
+        g_string_free(info_str, TRUE);
 
         wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
 

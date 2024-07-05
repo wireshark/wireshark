@@ -556,7 +556,7 @@ rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -903,7 +903,7 @@ rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -1107,7 +1107,7 @@ t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -1343,7 +1343,7 @@ sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -1551,7 +1551,7 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -1631,7 +1631,7 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 
     error_string = register_tap_listener("m3ua", tap_base_to_id(tap_id_base, tap_id_offset_m3ua_),
@@ -1646,7 +1646,7 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 
 }
@@ -1965,7 +1965,7 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -2262,7 +2262,7 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -2432,7 +2432,7 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -2508,7 +2508,7 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -2897,7 +2897,7 @@ mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -3028,7 +3028,7 @@ actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -3128,7 +3128,7 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
             }
         }
 
-        callsinfo->to_identity = g_string_free(s,false);
+        callsinfo->to_identity = g_string_free(s,FALSE);
 
         callsinfo->stop_fd = pinfo->fd;
         callsinfo->stop_rel_ts = pinfo->rel_ts;
@@ -3206,7 +3206,7 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 
     error_string = register_tap_listener("h248", tap_base_to_id(tap_id_base, tap_id_offset_h248_),
@@ -3220,7 +3220,7 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -3408,7 +3408,7 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 
     error_string = register_tap_listener("sua", tap_base_to_id(tap_id_base, tap_id_offset_sua_),
@@ -3422,7 +3422,7 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -3899,7 +3899,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
     /* free data */
     g_free(comment);
-    g_string_free(g_tmp, true);
+    g_string_free(g_tmp, TRUE);
 
     tapinfo->redraw |= REDRAW_UNISTIM;
 
@@ -3938,7 +3938,7 @@ unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -4111,7 +4111,7 @@ skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -4258,7 +4258,7 @@ iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
                 error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -4377,7 +4377,7 @@ voip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 
@@ -4448,7 +4448,7 @@ prot_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "%s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 

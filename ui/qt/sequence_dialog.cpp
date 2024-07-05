@@ -640,7 +640,7 @@ void SequenceDialog::fillDiagram()
                                        NULL, sequence_analysis_get_packet_func(analysis), NULL, NULL);
             if (error_string) {
                 report_failure("Sequence dialog - tap registration failed: %s", error_string->str);
-                g_string_free(error_string, true);
+                g_string_free(error_string, TRUE);
             }
 
             cf_retap_packets(cap_file_.capFile());

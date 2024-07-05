@@ -284,7 +284,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 <DQUOTE><<EOF>>				{
 	/* unterminated string */
 	update_string_loc(yyextra, yytext);
-	g_string_free(yyextra->quoted_string, true);
+	g_string_free(yyextra->quoted_string, TRUE);
 	yyextra->quoted_string = NULL;
 	FAIL("The final quote was missing from a quoted string.");
 	return SCAN_FAILED;
@@ -310,7 +310,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		unsigned long result;
 		result = strtoul(yytext + 1, NULL, 8);
 		if (result > 0xff) {
-			g_string_free(yyextra->quoted_string, true);
+			g_string_free(yyextra->quoted_string, TRUE);
 			yyextra->quoted_string = NULL;
 			FAIL("%s is larger than 255.", yytext);
 			return SCAN_FAILED;
@@ -343,7 +343,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_universal_character_name(yyextra, yyextra->quoted_string, yytext)) {
-		g_string_free(yyextra->quoted_string, true);
+		g_string_free(yyextra->quoted_string, TRUE);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
@@ -356,7 +356,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_universal_character_name(yyextra, yyextra->quoted_string, yytext)) {
-		g_string_free(yyextra->quoted_string, true);
+		g_string_free(yyextra->quoted_string, TRUE);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
@@ -370,7 +370,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_escaped_char(yyextra, yyextra->quoted_string, yytext[1])) {
-		g_string_free(yyextra->quoted_string, true);
+		g_string_free(yyextra->quoted_string, TRUE);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
@@ -395,7 +395,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 <SQUOTE><<EOF>>				{
 	/* unterminated character value */
 	update_string_loc(yyextra, yytext);
-	g_string_free(yyextra->quoted_string, true);
+	g_string_free(yyextra->quoted_string, TRUE);
 	yyextra->quoted_string = NULL;
 	FAIL("The final quote was missing from a character constant.");
 	return SCAN_FAILED;
@@ -655,7 +655,7 @@ set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string)
 	unsigned long number;
 	bool ok;
 
-	char *token_value = g_string_free(quoted_string, false);
+	char *token_value = g_string_free(quoted_string, FALSE);
 	ok = parse_charconst(dfs, token_value, &number);
 	if (!ok) {
 		g_free(token_value);

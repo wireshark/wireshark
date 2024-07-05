@@ -388,7 +388,7 @@ uat_pkcs11_libs_load_all(void)
     }
     if (err) {
         report_failure("%s", err->str);
-        g_string_free(err, true);
+        g_string_free(err, TRUE);
     }
 }
 
@@ -519,7 +519,7 @@ uat_rsa_privkeys_post_update(void)
     }
     if (errors) {
         report_failure("%s", errors->str);
-        g_string_free(errors, true);
+        g_string_free(errors, TRUE);
     }
 }
 

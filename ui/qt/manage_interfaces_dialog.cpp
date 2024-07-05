@@ -537,7 +537,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         device.selected = true;
         global_capture_opts.num_selected++;
         g_array_append_val(global_capture_opts.all_ifaces, device);
-        g_string_free(ip_str, true);
+        g_string_free(ip_str, TRUE);
     } /*for*/
 }
 

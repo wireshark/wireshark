@@ -155,7 +155,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         exit(1);   /* XXX: fix this */
     }
     cf_retap_packets(cf);
@@ -317,7 +317,7 @@ select_tcpip_session(capture_file *cf)
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         exit(1);
     }
 

@@ -114,14 +114,14 @@ bool ATapDataModel::enableTap()
     GString * errorString = register_tap_listener(tap().toUtf8().constData(), hash(), _filter.toUtf8().constData(),
         TL_IGNORE_DISPLAY_FILTER, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
-        g_string_free(errorString, true);
+        g_string_free(errorString, TRUE);
         _disableTap = true;
         emit tapListenerChanged(false);
         return false;
     }
 
     if (errorString)
-        g_string_free(errorString, true);
+        g_string_free(errorString, TRUE);
 
     emit tapListenerChanged(true);
 
@@ -295,7 +295,7 @@ void ATapDataModel::setFilter(QString filter)
     }
 
     if (errorString)
-        g_string_free(errorString, true);
+        g_string_free(errorString, TRUE);
 }
 
 QString ATapDataModel::filter() const

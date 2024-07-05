@@ -609,7 +609,7 @@ xml_escape(const char *unescaped)
     /* Return the string value contained within the GString
      * after getting rid of the GString structure.
      * This is the way to do this, see the GLib reference. */
-    return g_string_free(buffer, false);
+    return g_string_free(buffer, FALSE);
 }
 
 /*

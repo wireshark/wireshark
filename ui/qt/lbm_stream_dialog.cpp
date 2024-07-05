@@ -377,7 +377,7 @@ void LBMStreamDialog::fillTree(void)
     {
         QMessageBox::critical(this, tr("LBM Stream failed to attach to tap"),
             error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         reject();
     }
 

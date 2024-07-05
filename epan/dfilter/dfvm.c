@@ -359,7 +359,7 @@ append_call_function(wmem_strbuf_t *buf, const char *func, const char *func_type
 			sep = ", ";
 		}
 		wmem_strbuf_append(buf, gs->str);
-		g_string_free(gs, true);
+		g_string_free(gs, TRUE);
 	}
 	wmem_strbuf_append_printf(buf, ")%s", func_type);
 }

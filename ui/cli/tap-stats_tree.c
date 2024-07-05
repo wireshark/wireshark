@@ -45,7 +45,7 @@ draw_stats_tree(void *psp)
 				    stats_tree_is_default_sort_DESC(st));
 
 	printf("%s", s->str);
-	g_string_free(s, true);
+	g_string_free(s, TRUE);
 }
 
 static void

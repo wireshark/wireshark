@@ -297,7 +297,7 @@ stats_tree_register(const char *tapname, const char *abbr, const char *path,
         sep = " / ";
     }
     g_strfreev(split);
-    cfg->title = g_string_free(title_str, false);
+    cfg->title = g_string_free(title_str, FALSE);
 
     cfg->packet = packet;
     cfg->init = init;

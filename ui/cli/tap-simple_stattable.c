@@ -115,7 +115,7 @@ init_stat_table(stat_tap_table_ui *stat_tap, const char *filter)
 	if (error_string) {
 /*		free_rtd_table(&ui->rtd.stat_table); */
 		cmdarg_err("Couldn't register tap: %s", error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

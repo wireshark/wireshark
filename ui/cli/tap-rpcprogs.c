@@ -212,7 +212,7 @@ rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 	if (error_string) {
 		cmdarg_err("Couldn't register rpc,programs tap: %s",
 			error_string->str);
-		g_string_free(error_string, true);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

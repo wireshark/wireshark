@@ -463,7 +463,7 @@ void RtpPlayerDialog::retapPackets()
     error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL, NULL);
     if (error_string) {
         report_failure("RTP Player - tap registration failed: %s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
         unlockUI();
         return;
     }

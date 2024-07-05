@@ -1084,7 +1084,7 @@ proto_registrar_get_byalias(const char *alias_name)
 	}
 	header_field_info *hfinfo = proto_registrar_get_byname(filter_name->str);
 	g_free(an_copy);
-	g_string_free(filter_name, true);
+	g_string_free(filter_name, TRUE);
 
 	return hfinfo;
 }

@@ -2612,7 +2612,7 @@ column_hidden_to_str_cb(pref_t* pref, bool default_val)
         cidx++;
     }
 
-    return g_string_free (cols_hidden, false);
+    return g_string_free (cols_hidden, FALSE);
 }
 
 static bool
@@ -2698,7 +2698,7 @@ column_hidden_fmt_to_str_cb(pref_t* pref, bool default_val)
         clp = clp->next;
     }
 
-    return g_string_free (cols_hidden, false);
+    return g_string_free (cols_hidden, FALSE);
 }
 
 static bool
@@ -4067,14 +4067,14 @@ prefs_get_string_list(const char *str)
             if (state == IN_QUOT || backslash) {
                 /* We were in the middle of a quoted string or backslash escape,
                    and ran out of characters; that's an error.  */
-                g_string_free(slstr, true);
+                g_string_free(slstr, TRUE);
                 prefs_clear_string_list(sl);
                 return NULL;
             }
             if (slstr->len > 0)
-                sl = g_list_append(sl, g_string_free(slstr, false));
+                sl = g_list_append(sl, g_string_free(slstr, FALSE));
             else
-                g_string_free(slstr, true);
+                g_string_free(slstr, TRUE);
             break;
         }
         if (cur_c == '"' && !backslash) {
@@ -4110,7 +4110,7 @@ prefs_get_string_list(const char *str)
                and it wasn't preceded by a backslash; it's the end of
                the string we were working on...  */
             if (slstr->len > 0) {
-                sl = g_list_append(sl, g_string_free(slstr, false));
+                sl = g_list_append(sl, g_string_free(slstr, FALSE));
                 slstr = g_string_sized_new(default_size);
             }
 
@@ -4170,7 +4170,7 @@ char *join_string_list(GList *sl)
 
         cur = cur->next;
     }
-    return g_string_free(joined_str, false);
+    return g_string_free(joined_str, FALSE);
 }
 
 void
@@ -4993,8 +4993,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
         }
     }
 
-    g_string_free(cur_val, true);
-    g_string_free(cur_var, true);
+    g_string_free(cur_val, TRUE);
+    g_string_free(cur_var, TRUE);
 
     if (ferror(pf))
         return errno;
@@ -6685,7 +6685,7 @@ prefs_pref_type_description(pref_t *pref)
                 g_string_append(enum_str, ", ");
         }
         g_string_append(enum_str, "\n(case-insensitive).");
-        return g_string_free(enum_str, false);
+        return g_string_free(enum_str, FALSE);
     }
 
     case PREF_STRING:

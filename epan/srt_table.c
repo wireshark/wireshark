@@ -130,7 +130,7 @@ char* srt_table_get_tap_string(register_srt_t* srt)
 {
     GString *cmd_str = g_string_new(proto_get_protocol_filter_name(srt->proto_id));
     g_string_append(cmd_str, ",srt");
-    return g_string_free(cmd_str, false);
+    return g_string_free(cmd_str, FALSE);
 }
 
 void srt_table_get_filter(register_srt_t* srt, const char *opt_arg, const char **filter, char** err)

@@ -523,7 +523,7 @@ create_shb_header(const merge_in_file_t *in_files, const unsigned in_file_count,
      * writes nothing without reporting an error.) What if we support other
      * output file formats later?
      */
-    opt_str = g_string_free(comment_gstr, false);
+    opt_str = g_string_free(comment_gstr, FALSE);
     /* XXX: We probably want to prepend (insert at index 0) instead? */
     wtap_block_add_string_option_owned(shb_hdr, OPT_COMMENT, opt_str);
     /*
@@ -532,7 +532,7 @@ create_shb_header(const merge_in_file_t *in_files, const unsigned in_file_count,
      */
     wtap_block_remove_option(shb_hdr, OPT_SHB_HARDWARE);
     opt_len = os_info_str->len;
-    opt_str = g_string_free(os_info_str, false);
+    opt_str = g_string_free(os_info_str, FALSE);
     if (opt_str) {
         wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, opt_str, opt_len); /* UTF-8 string containing the name   */
                                                                                    /*  of the operating system used to create this section.     */

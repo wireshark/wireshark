@@ -349,7 +349,7 @@ fileset_add_dir(const char *fname, void *window)
         /* don't add the file to the dialog here, this will be done in fileset_update_dlg() below */
     }
 
-    g_string_free(dirname, true /* free_segment */);
+    g_string_free(dirname, TRUE /* free_segment */);
 
     /* sort entries by creation time */
     set.entries = g_list_sort(set.entries, fileset_sort_compare);

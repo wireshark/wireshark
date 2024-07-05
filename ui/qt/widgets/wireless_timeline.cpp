@@ -300,7 +300,7 @@ void WirelessTimeline::appInitialized()
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);
     if (error_string) {
         report_failure("Wireless Timeline - tap registration failed: %s", error_string->str);
-        g_string_free(error_string, true);
+        g_string_free(error_string, TRUE);
     }
 }
 

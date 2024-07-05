@@ -2950,7 +2950,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
                         g_string_append_printf(err_string, "%u, ", allowed_key_lengths[i]);
                     }
                     g_string_append_printf(err_string, "or %u bytes.", allowed_key_lengths[i]);
-                    *error = g_string_free(err_string, false);
+                    *error = g_string_free(err_string, FALSE);
                 }
                 g_byte_array_free(key_ba, true);
                 return NULL;

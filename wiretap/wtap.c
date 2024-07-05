@@ -505,7 +505,7 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 			if_descr_mand->num_stat_entries,
 			line_end);
 
-	return g_string_free(info, false);
+	return g_string_free(info, FALSE);
 }
 
 wtap_block_t

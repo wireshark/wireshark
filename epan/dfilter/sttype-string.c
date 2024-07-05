@@ -38,7 +38,7 @@ gstring_dup(const void *value)
 static void
 gstring_free(void *value)
 {
-	g_string_free(value, true);
+	g_string_free(value, TRUE);
 }
 
 static char *

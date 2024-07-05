@@ -89,7 +89,7 @@ static char *get_appcast_update_url(software_update_channel_e chan) {
                     SU_OSNAME,
                     SU_ARCH,
                     chan_name);
-    return g_string_free(update_url_str, false);
+    return g_string_free(update_url_str, FALSE);
 }
 
 #ifdef _WIN32

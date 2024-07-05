@@ -389,7 +389,7 @@ drange_tostr(const drange_t *dr)
         }
     }
 
-    return g_string_free(repr, false);
+    return g_string_free(repr, FALSE);
 }
 
 /*
