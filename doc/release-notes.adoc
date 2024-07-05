@@ -1,7 +1,7 @@
 include::attributes.adoc[]
 :stylesheet: ws.css
 :linkcss:
-:copycss: {build_dir}/{stylesheet}
+:copycss: {css_dir}/{stylesheet}
 
 = Wireshark {wireshark-version} Release Notes
 // Asciidoctor Syntax Quick Reference:
