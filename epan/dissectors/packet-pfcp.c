@@ -3495,7 +3495,7 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /* The DLPSI flag in octet 5 indicates whether the DL Data Packet Size value in octet 'q' to 'q+1' shall be present */
-    if ((flags & 0x2) == 2) {
+    if ((flags & 0x4) == 4) {
         /*
          * DL Data Packet Size
          */
