@@ -3503,7 +3503,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		{16, {"Access Point BSSID", special, &hf_dhcp_option82_option_ani_ap_bssid}}, /* [RFC7839] */
 		{17, {"Access Network Operator ID", bytes, &hf_dhcp_option82_option_ani_operator_id}}, /* [RFC7839] */
 		{18, {"Access Network Operator Realm", string, &hf_dhcp_option82_option_ani_operator_realm}}, /* [RFC7839] */
-		{19, {"Source Port", val_u_short, &hf_dhcp_option82_option_source_port}}, /* [RFC8357] */
+		{19, {"Source Port", presence, &hf_dhcp_option82_option_source_port}}, /* [RFC8357] */
 		{150, {"Link selection (Cisco proprietary)", ipv4, &hf_dhcp_option82_link_selection_cisco}}, /* [RFC3527] */
 		{151, {"VRF name/VPN ID", special, &hf_dhcp_option82_vrf_name_vpn_id}}, /* [RFC2685] */
 		{152, {"Server ID Override (Cisco proprietary)", ipv4, &hf_dhcp_option82_server_id_override_cisco}} /* [RFC 5107] */
@@ -9325,7 +9325,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option82_option_source_port,
 		  { "Source Port", "dhcp.option.agent_information_option.source_port",
-		    FT_UINT16, BASE_DEC, NULL, 0x00,
+		    FT_NONE, BASE_NONE, NULL, 0x00,
 		    "Option 82:19 Source Port", HFILL }},
 
 		{ &hf_dhcp_option82_link_selection_cisco,
