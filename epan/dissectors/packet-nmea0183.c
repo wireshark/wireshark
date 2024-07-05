@@ -23,6 +23,9 @@ static int hf_nmea0183_dpt_depth;
 static int hf_nmea0183_dpt_offset;
 static int hf_nmea0183_dpt_max_range;
 
+static int hf_nmea0183_hdt_heading;
+static int hf_nmea0183_hdt_unit;
+
 static int hf_nmea0183_gga_time;
 static int hf_nmea0183_gga_time_hour;
 static int hf_nmea0183_gga_time_minute;
@@ -95,6 +98,7 @@ static expert_field ei_nmea0183_field_longitude_too_short;
 static expert_field ei_nmea0183_field_missing;
 static expert_field ei_nmea0183_gga_altitude_unit_incorrect;
 static expert_field ei_nmea0183_gga_geoidal_separation_unit_incorrect;
+static expert_field ei_nmea0183_hdt_unit_incorrect;
 
 static int proto_nmea0183;
 
@@ -861,9 +865,27 @@ dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
+/* Dissect a HDT sentence. */
+static int
+dissect_nmea0183_sentence_hdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "HDT sentence - True Heading");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_heading, "degree");
+
+    dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_unit,
+                                                "T", &ei_nmea0183_hdt_unit_incorrect);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a ROT sentence. */
 static int
-dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset = 0;
 
@@ -996,6 +1018,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "GLL") == 0)
     {
         offset += dissect_nmea0183_sentence_gll(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "HDT") == 0)
+    {
+        offset += dissect_nmea0183_sentence_hdt(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
     {
@@ -1274,6 +1300,16 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 GLL FAA mode indicator (NMEA 2.3 and later)", HFILL}},
+        {&hf_nmea0183_hdt_heading,
+         {"True heading", "nmea0183.hdt_heading",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 HDT Heading, degrees True", HFILL}},
+        {&hf_nmea0183_hdt_unit,
+         {"Heading unit", "nmea0183.hdt_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 HDT Heading unit, must be T", HFILL}},
         {&hf_nmea0183_rot_rate_of_turn,
          {"Rate of turn", "nmea0183.rot_rate_of_turn",
           FT_STRING, BASE_NONE,
@@ -1376,7 +1412,10 @@ void proto_register_nmea0183(void)
           "Incorrect altitude unit (should be 'M')", EXPFILL}},
         {&ei_nmea0183_gga_geoidal_separation_unit_incorrect,
          {"nmea0183.gga_geoidal_separation_unit_incorrect", PI_PROTOCOL, PI_WARN,
-          "Incorrect geoidal separation unit (should be 'M')", EXPFILL}}};
+          "Incorrect geoidal separation unit (should be 'M')", EXPFILL}},
+        {&ei_nmea0183_hdt_unit_incorrect,
+         {"nmea0183.hdt_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect heading unit (should be 'T')", EXPFILL}}};
 
     proto_nmea0183 = proto_register_protocol("NMEA 0183 protocol", "NMEA 0183", "nmea0183");
 
