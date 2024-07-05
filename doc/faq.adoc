@@ -1,7 +1,7 @@
 include::attributes.adoc[]
 :stylesheet: ws.css
 :linkcss:
-:copycss: {stylesheet}
+:copycss: {build_dir}/{stylesheet}
 :toc:
 
 = Wireshark Frequently Asked Questions
