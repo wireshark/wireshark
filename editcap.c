@@ -159,6 +159,7 @@ static bool                   discard_all_secrets;
 static bool                   discard_cap_comments;
 static bool                   set_unused;
 static bool                   discard_pkt_comments;
+static bool                   do_extract_secrets;
 
 static int                    do_strict_time_adjustment;
 static struct time_adjustment strict_time_adj; /* strict time adjustment */
@@ -211,7 +212,7 @@ fileset_get_filename_by_pattern(unsigned idx, const wtap_rec *rec,
     char *abs_str;
 
     snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
-    if (rec->presence_flags & WTAP_HAS_TS) {
+    if (rec && rec->presence_flags & WTAP_HAS_TS) {
         timestr = abs_time_to_str_with_sec_resolution(&rec->ts);
         abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
         g_free(timestr);
@@ -894,6 +895,8 @@ print_usage(FILE *output)
     fprintf(output, "                         list the encapsulation types.\n");
     fprintf(output, "  --inject-secrets <type>,<file>  Insert decryption secrets from <file>. List\n");
     fprintf(output, "                         supported secret types with \"--inject-secrets help\".\n");
+    fprintf(output, "  --extract-secrets      Extract decryption secrets into the output file instead.\n");
+    fprintf(output, "                         Incompatible with other options besides -V.\n");
     fprintf(output, "  --discard-all-secrets  Discard all decryption secrets from the input file\n");
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         secrets added by \"--inject-secrets\" in the same\n");
@@ -1176,6 +1179,86 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
     return true;
 }
 
+static int
+extract_secrets(wtap *wth, char* filename, int *err, char **err_info)
+{
+    wtap_rec                     read_rec;
+    Buffer                       read_buf;
+    int64_t       offset;
+    char         *fprefix            = NULL;
+    char         *fsuffix            = NULL;
+
+    /* Read all of the packets in turn */
+    wtap_rec_init(&read_rec);
+    ws_buffer_init(&read_buf, 1514);
+    while (wtap_read(wth, &read_rec, &read_buf, err, err_info, &offset)) {
+        /* Do we want to respect the max packet number on the command line?
+         * Probably more confusing than it's worth, because a user might
+         * not know if a DSB is at the end of the file.
+         */
+        wtap_rec_reset(&read_rec);
+    }
+    wtap_rec_cleanup(&read_rec);
+    ws_buffer_free(&read_buf);
+
+    wtapng_dsb_mandatory_t *dsb;
+    if (strcmp(filename, "-") == 0) {
+        /* Sure. Why not. */
+        for (unsigned dsb_num = 0; dsb_num < wtap_file_get_num_dsbs(wth); ++dsb_num) {
+            dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(wtap_file_get_dsb(wth, dsb_num));
+            if (verbose) {
+                fprintf(stderr, "Writing secrets type \"%s\" (0x%08x) to standard out.\n",
+                        secrets_type_description(dsb->secrets_type), dsb->secrets_type);
+            }
+            if (fwrite(dsb->secrets_data, 1, dsb->secrets_len, stdout) != dsb->secrets_len) {
+                return WRITE_ERROR;
+            }
+        }
+    } else if (wtap_file_get_num_dsbs(wth) == 1) {
+        dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(wtap_file_get_dsb(wth, 0));
+        if (verbose) {
+            fprintf(stderr, "Writing secrets type \"%s\" (0x%08x) to \"%s\".\n",
+                    secrets_type_description(dsb->secrets_type), dsb->secrets_type,
+                    filename);
+        }
+        if (!write_file_binary_mode(filename, dsb->secrets_data, dsb->secrets_len)) {
+            return WRITE_ERROR;
+        }
+    } else {
+        /* We have more than one DSB, so write multiple files. While for some
+         * types, we could combine the information from different DSBs togther
+         * (and most of those are text-based, so we'd want to write in text
+         * mode so that the line endings are uniform (which makes testing
+         * harder), we don't know that for every type.
+         */
+        if (!fileset_extract_prefix_suffix(filename, &fprefix, &fsuffix)) {
+            return CANT_EXTRACT_PREFIX;
+        }
+        char *extract_filename;
+        for (unsigned dsb_num = 0; dsb_num < wtap_file_get_num_dsbs(wth); ++dsb_num) {
+            dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(wtap_file_get_dsb(wth, dsb_num));
+            extract_filename = fileset_get_filename_by_pattern(dsb_num, NULL, fprefix, fsuffix);
+            if (verbose) {
+                fprintf(stderr, "Writing secrets type \"%s\" (0x%08x) to \"%s\".\n",
+                        secrets_type_description(dsb->secrets_type), dsb->secrets_type,
+                        extract_filename);
+            }
+            if (!write_file_binary_mode(extract_filename, dsb->secrets_data, dsb->secrets_len)) {
+                /* write_file_binary_mode already reports failures */
+                g_free(extract_filename);
+                g_free(fprefix);
+                g_free(fsuffix);
+
+                return WRITE_ERROR;
+            }
+            g_free(extract_filename);
+        }
+        g_free(fprefix);
+        g_free(fsuffix);
+    }
+    return EXIT_SUCCESS;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1206,6 +1289,7 @@ main(int argc, char *argv[])
 #define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
 #define LONGOPT_SET_UNUSED           LONGOPT_BASE_APPLICATION+8
 #define LONGOPT_DISCARD_PACKET_COMMENTS LONGOPT_BASE_APPLICATION+9
+#define LONGOPT_EXTRACT_SECRETS      LONGOPT_BASE_APPLICATION+10
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1219,6 +1303,7 @@ main(int argc, char *argv[])
         {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {"set-unused", ws_no_argument, NULL, LONGOPT_SET_UNUSED},
         {"discard-packet-comments", ws_no_argument, NULL, LONGOPT_DISCARD_PACKET_COMMENTS},
+        {"extract-secrets", ws_no_argument, NULL, LONGOPT_EXTRACT_SECRETS},
         {0, 0, 0, 0 }
     };
 
@@ -1258,6 +1343,7 @@ main(int argc, char *argv[])
     int                          ret = EXIT_SUCCESS;
     bool                         valid_seed = false;
     unsigned int                 seed = 0;
+    bool                         edit_option_specified = false;
 
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
     memset(&read_rec, 0, sizeof *rec);
@@ -1299,6 +1385,9 @@ main(int argc, char *argv[])
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
+        if (opt != LONGOPT_EXTRACT_SECRETS && opt != 'V') {
+            edit_option_specified = true;
+        }
         switch (opt) {
         case LONGOPT_NO_VLAN:
         {
@@ -1404,6 +1493,15 @@ main(int argc, char *argv[])
         case LONGOPT_DISCARD_PACKET_COMMENTS:
         {
             discard_pkt_comments = true;
+            break;
+        }
+
+        case LONGOPT_EXTRACT_SECRETS:
+        {
+            do_extract_secrets = true;
+            /* XXX - Would it make sense to specify what types of secrets
+             * to extract (or any)?
+             */
             break;
         }
 
@@ -1733,6 +1831,22 @@ main(int argc, char *argv[])
             ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
+    }
+
+    if (do_extract_secrets) {
+        if (edit_option_specified) {
+            cmdarg_err("can't extract secrets and use other options at the same time");
+            ret = WS_EXIT_INVALID_OPTION;
+            goto clean_exit;
+        }
+        ret = extract_secrets(wth, argv[ws_optind+1], &read_err, &read_err_info);
+
+        if (read_err != 0) {
+            /* Print a message noting that the read failed somewhere along the
+             * line. */
+            cfile_read_failure_message(argv[ws_optind], read_err, read_err_info);
+        }
+        goto clean_exit;
     }
 
     wtap_dump_params_init_no_idbs(&params, wth);

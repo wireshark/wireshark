@@ -12,6 +12,7 @@ import os.path
 from subprocesstest import count_output
 import subprocess
 import pytest
+from pathlib import PurePath
 
 # XXX Currently unused. It would be nice to be able to use this below.
 time_output_args = ('-Tfields', '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta')
@@ -227,6 +228,27 @@ class TestFileFormatsPcapngDsb:
             (0x544c534b, len(dsb2_contents), dsb2_contents),
         ), env=base_env)
 
+    def test_pcapng_dsb_extract(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields, base_env):
+        '''Check that extracted DSBs match the original key log files.'''
+        dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
+        dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
+        outfile = result_file('tls12-dsb-extract.key')
+        subprocess.run((cmd_editcap,
+            '--extract-secrets',
+            capture_file('tls12-dsb.pcapng'), outfile
+        ), check=True, env=base_env)
+        p = PurePath(outfile)
+        with open(dsb_keys1, 'r') as f:
+            dsb1_contents = f.read().encode('utf8')
+        with open(dsb_keys2, 'r') as f:
+            dsb2_contents = f.read().encode('utf8')
+        # Python 3.9 and higher has p.with_stem(p.stem + "_00000"))
+        with open(p.with_name(p.stem + "_00000" + p.suffix)) as f:
+            dsb1_out = f.read().encode('utf8')
+        with open(p.with_name(p.stem + "_00001" + p.suffix)) as f:
+            dsb2_out = f.read().encode('utf8')
+        assert dsb1_contents == dsb1_out
+        assert dsb2_contents == dsb2_out
 
 class TestFileFormatMime:
     def test_mime_pcapng_gz(self, cmd_tshark, capture_file, test_env):

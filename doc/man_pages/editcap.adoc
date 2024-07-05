@@ -52,6 +52,13 @@ __outfile__
 
 [manarg]
 *editcap*
+*--extract-secrets*
+[ *-V* ]
+__infile__
+__outfile__
+
+[manarg]
+*editcap*
 *-h|--help*
 
 [manarg]
@@ -97,6 +104,9 @@ the same way *Editcap* handles this.
 *Editcap* can write the file in several output formats. The *-F*
 flag can be used to specify the format in which to write the capture
 file; *editcap -F* provides a list of the available output formats.
+
+*Editcap* can also be used to extract embedded decryption secrets from file
+formats like *pcapng* that contain them, in lieu of writing a capture file.
 
 == OPTIONS
 
@@ -461,6 +471,18 @@ This option may be specified multiple times. The available options for
 <secrets type> can be listed with *--inject-secrets help*.
 --
 
+--extract-secrets::
++
+--
+Extracts each Decryption Secrets Block (DSB) contained within __infile__.
+If there is only one, it is written to __outfile__ instead of a capture file.
+If there is more than one, they are each written to unique output files named
+with an infix _nnnnn before the file extension of __outfile__ in a manner
+similar to the *-c* flag (unless writing to standard output.)
+
+Incompatible with other options except for *-V*.
+
+--
 --discard-all-secrets::
 +
 --
