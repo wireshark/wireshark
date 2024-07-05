@@ -1434,7 +1434,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     return TAP_PACKET_DONT_REDRAW;
 }
 
-#define EXP_PDU_TCP_INFO_DATA_LEN   19
+#define EXP_PDU_TCP_INFO_DATA_LEN   20
 #define EXP_PDU_TCP_INFO_VERSION    1
 
 static int exp_pdu_tcp_dissector_data_size(packet_info *pinfo _U_, void* data _U_)
