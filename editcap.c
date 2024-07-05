@@ -1298,7 +1298,7 @@ main(int argc, char *argv[])
     wtap_init(true);
 
     /* Process the options */
-    while ((opt = ws_getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case LONGOPT_NO_VLAN:
         {
@@ -1641,8 +1641,8 @@ main(int argc, char *argv[])
             }
             break;
 
-        case '?':              /* Bad options if GNU getopt */
-        case ':':              /* missing option argument */
+        case '?':              /* Bad options - print usage */
+        default:
             switch(ws_optopt) {
             case'F':
                 list_capture_types(stdout);
@@ -1651,11 +1651,6 @@ main(int argc, char *argv[])
                 list_encap_types(stdout);
                 break;
             default:
-                if (opt == '?') {
-                    cmdarg_err("invalid option -- '%c'", ws_optopt);
-                } else {
-                    cmdarg_err("option requires an argument -- '%c'", ws_optopt);
-                }
                 print_usage(stderr);
                 ret = WS_EXIT_INVALID_OPTION;
                 break;
