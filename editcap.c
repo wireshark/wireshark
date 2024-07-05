@@ -80,7 +80,7 @@
  */
 
 struct select_item {
-    gboolean inclusive;
+    bool inclusive;
     uint64_t first, second;
 };
 
@@ -88,8 +88,8 @@ struct select_item {
  * Duplicate frame detection
  */
 typedef struct _fd_hash_t {
-    guint8     digest[16];
-    guint32    len;
+    uint8_t    digest[16];
+    uint32_t   len;
     nstime_t   frame_time;
 } fd_hash_t;
 
@@ -100,7 +100,7 @@ static fd_hash_t fd_hash[MAX_DUP_DEPTH];
 static int       dup_window    = DEFAULT_DUP_DEPTH;
 static int       cur_dup_entry;
 
-static guint32   ignored_bytes;  /* Used with -I */
+static uint32_t  ignored_bytes;  /* Used with -I */
 
 #define ONE_BILLION 1000000000
 
@@ -138,27 +138,27 @@ GPtrArray *capture_comments;
 
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
-static guint                  max_selected;
-static gboolean               keep_em;
+static unsigned               max_selected;
+static bool                   keep_em;
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 static int                    out_frame_type            = -2; /* Leave frame type alone */
-static gboolean               verbose; /* Not so verbose         */
+static bool                   verbose; /* Not so verbose         */
 static struct time_adjustment time_adj; /* no adjustment */
 static nstime_t               relative_time_window; /* de-dup time window */
 static double                 err_prob                  = -1.0;
 static nstime_t               starttime;
-static gboolean               have_starttime;
+static bool                   have_starttime;
 static nstime_t               stoptime;
-static gboolean               have_stoptime;
-static gboolean               check_startstop;
-static gboolean               rem_vlan;
-static gboolean               dup_detect;
-static gboolean               dup_detect_by_time;
-static gboolean               skip_radiotap;
-static gboolean               discard_all_secrets;
-static gboolean               discard_cap_comments;
-static gboolean               set_unused;
-static gboolean               discard_pkt_comments;
+static bool                   have_stoptime;
+static bool                   check_startstop;
+static bool                   rem_vlan;
+static bool                   dup_detect;
+static bool                   dup_detect_by_time;
+static bool                   skip_radiotap;
+static bool                   discard_all_secrets;
+static bool                   discard_cap_comments;
+static bool                   set_unused;
+static bool                   discard_pkt_comments;
 
 static int                    do_strict_time_adjustment;
 static struct time_adjustment strict_time_adj; /* strict time adjustment */
@@ -166,7 +166,7 @@ static nstime_t               previous_time; /* previous time */
 
 static const struct {
     const char *str;
-    guint32     id;
+    uint32_t    id;
 } secrets_types[] = {
     { "tls",    SECRETS_TYPE_TLS },
     { "ssh",    SECRETS_TYPE_SSH },
@@ -174,16 +174,16 @@ static const struct {
     { "opcua",  SECRETS_TYPE_OPCUA },
 };
 
-static int find_dct2000_real_data(guint8 *buf);
+static int find_dct2000_real_data(uint8_t *buf);
 static void handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
-                            const wtap_packet_header *in_phdr, guint8 **buf,
-                            gboolean adjlen);
+                            const wtap_packet_header *in_phdr, uint8_t **buf,
+                            bool adjlen);
 
-static gchar *
+static char *
 abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
 {
     struct tm *tmp;
-    gchar     *buf = (gchar *)g_malloc(16);
+    char      *buf = (char *)g_malloc(16);
 
     tmp = localtime(&abs_time->secs);
 
@@ -202,13 +202,13 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
     return buf;
 }
 
-static gchar *
-fileset_get_filename_by_pattern(guint idx, const wtap_rec *rec,
-                                gchar *fprefix, gchar *fsuffix)
+static char *
+fileset_get_filename_by_pattern(unsigned idx, const wtap_rec *rec,
+                                char *fprefix, char *fsuffix)
 {
-    gchar  filenum[5+1];
-    gchar *timestr;
-    gchar *abs_str;
+    char  filenum[5+1];
+    char *timestr;
+    char *abs_str;
 
     snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
     if (rec->presence_flags & WTAP_HAS_TS) {
@@ -221,16 +221,16 @@ fileset_get_filename_by_pattern(guint idx, const wtap_rec *rec,
     return abs_str;
 }
 
-static gboolean
-fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffix)
+static bool
+fileset_extract_prefix_suffix(const char *fname, char **fprefix, char **fsuffix)
 {
     char  *pfx, *last_pathsep;
-    gchar *save_file;
+    char *save_file;
 
     save_file = g_strdup(fname);
     if (save_file == NULL) {
         fprintf(stderr, "editcap: Out of memory\n");
-        return FALSE;
+        return false;
     }
 
     last_pathsep = strrchr(save_file, G_DIR_SEPARATOR);
@@ -257,11 +257,11 @@ fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffi
         *fsuffix = NULL;
     }
     g_free(save_file);
-    return TRUE;
+    return true;
 }
 
 /* Add a selection item, a simple parser for now */
-static gboolean
+static bool
 add_selection(char *sel, uint64_t* max_selection)
 {
     char *locn;
@@ -270,7 +270,7 @@ add_selection(char *sel, uint64_t* max_selection)
     if (max_selected >= MAX_SELECTIONS) {
         /* Let the user know we stopped selecting */
         fprintf(stderr, "Out of room for packet selections.\n");
-        return FALSE;
+        return false;
     }
 
     if (verbose)
@@ -280,7 +280,7 @@ add_selection(char *sel, uint64_t* max_selection)
         if (verbose)
             fprintf(stderr, "Not inclusive ...");
 
-        selectfrm[max_selected].inclusive = FALSE;
+        selectfrm[max_selected].inclusive = false;
         selectfrm[max_selected].first = get_uint64(sel, "packet number");
         if (selectfrm[max_selected].first > *max_selection)
             *max_selection = selectfrm[max_selected].first;
@@ -293,7 +293,7 @@ add_selection(char *sel, uint64_t* max_selection)
 
         *locn = '\0';    /* split the range */
         next = locn + 1;
-        selectfrm[max_selected].inclusive = TRUE;
+        selectfrm[max_selected].inclusive = true;
         selectfrm[max_selected].first = get_uint64(sel, "beginning of packet range");
         selectfrm[max_selected].second = get_uint64(next, "end of packet range");
 
@@ -311,30 +311,30 @@ add_selection(char *sel, uint64_t* max_selection)
     }
 
     max_selected++;
-    return TRUE;
+    return true;
 }
 
 /* Was the packet selected? */
 
-static gboolean
+static bool
 selected(uint64_t recno)
 {
-    guint i;
+    unsigned i;
 
     for (i = 0; i < max_selected; i++) {
         if (selectfrm[i].inclusive) {
             if (selectfrm[i].first <= recno && selectfrm[i].second >= recno)
-                return TRUE;
+                return true;
         } else {
             if (recno == selectfrm[i].first)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 set_time_adjustment(char *optarg_str_p)
 {
     char   *frac, *end;
@@ -342,7 +342,7 @@ set_time_adjustment(char *optarg_str_p)
     size_t  frac_digits;
 
     if (!optarg_str_p)
-        return TRUE;
+        return true;
 
     /* skip leading whitespace */
     while (*optarg_str_p == ' ' || *optarg_str_p == '\t')
@@ -364,12 +364,12 @@ set_time_adjustment(char *optarg_str_p)
             || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
         if (val < 0) {            /* implies '--' since we caught '-' above  */
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
     }
     time_adj.tv.secs = val;
@@ -386,10 +386,10 @@ set_time_adjustment(char *optarg_str_p)
             || val >= ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
     } else {
-        return TRUE;                     /* no fractional digits */
+        return true;                     /* no fractional digits */
     }
 
     /* adjust fractional portion from fractional to numerator
@@ -401,10 +401,10 @@ set_time_adjustment(char *optarg_str_p)
     }
 
     time_adj.tv.nsecs = (int)val;
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 set_strict_time_adj(char *optarg_str_p)
 {
     char   *frac, *end;
@@ -412,7 +412,7 @@ set_strict_time_adj(char *optarg_str_p)
     size_t  frac_digits;
 
     if (!optarg_str_p)
-        return TRUE;
+        return true;
 
     /* skip leading whitespace */
     while (*optarg_str_p == ' ' || *optarg_str_p == '\t')
@@ -438,12 +438,12 @@ set_strict_time_adj(char *optarg_str_p)
             || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
         if (val < 0) {            /* implies '--' since we caught '-' above  */
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
     }
     strict_time_adj.tv.secs = val;
@@ -460,10 +460,10 @@ set_strict_time_adj(char *optarg_str_p)
             || val >= ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
     } else {
-        return TRUE;                     /* no fractional digits */
+        return true;                     /* no fractional digits */
     }
 
     /* adjust fractional portion from fractional to numerator
@@ -475,10 +475,10 @@ set_strict_time_adj(char *optarg_str_p)
     }
 
     strict_time_adj.tv.nsecs = (int)val;
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 set_rel_time(char *optarg_str_p)
 {
     char   *frac, *end;
@@ -486,7 +486,7 @@ set_rel_time(char *optarg_str_p)
     size_t  frac_digits;
 
     if (!optarg_str_p)
-        return TRUE;
+        return true;
 
     /* skip leading whitespace */
     while (*optarg_str_p == ' ' || *optarg_str_p == '\t')
@@ -506,12 +506,12 @@ set_rel_time(char *optarg_str_p)
             || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "1: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
         if (val < 0) {            /* implies '--' since we caught '-' above  */
             fprintf(stderr, "2: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
     }
     relative_time_window.secs = val;
@@ -528,10 +528,10 @@ set_rel_time(char *optarg_str_p)
             || val >= ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
-            return FALSE;
+            return false;
         }
     } else {
-        return TRUE;                     /* no fractional digits */
+        return true;                     /* no fractional digits */
     }
 
     /* adjust fractional portion from fractional to numerator
@@ -543,7 +543,7 @@ set_rel_time(char *optarg_str_p)
     }
 
     relative_time_window.nsecs = (int)val;
-    return TRUE;
+    return true;
 }
 
 #define SLL_ADDRLEN 8 /* length of address field */
@@ -567,7 +567,7 @@ struct sll2_header {
 
 #define VLAN_SIZE 4
 static void
-sll_remove_vlan_info(guint8* fd, guint32* len) {
+sll_remove_vlan_info(uint8_t* fd, uint32_t* len) {
     if (pntoh16(fd + offsetof(struct sll_header, sll_protocol)) == ETHERTYPE_VLAN) {
         int rest_len;
         /* point to start of vlan */
@@ -583,8 +583,8 @@ sll_remove_vlan_info(guint8* fd, guint32* len) {
 
 
 static void
-sll_set_unused_info(guint8* fd) {
-    guint32 ha_len;
+sll_set_unused_info(uint8_t* fd) {
+    uint32_t ha_len;
     ha_len = pntoh16(fd + offsetof(struct sll_header, sll_halen));
 
     if (ha_len < SLL_ADDRLEN) {
@@ -598,8 +598,8 @@ sll_set_unused_info(guint8* fd) {
 }
 
 static void
-sll2_set_unused_info(guint8* fd) {
-    guint32 ha_len;
+sll2_set_unused_info(uint8_t* fd) {
+    uint32_t ha_len;
     ha_len = *(fd + offsetof(struct sll2_header, sll2_halen));
 
     if (ha_len < SLL_ADDRLEN) {
@@ -613,7 +613,7 @@ sll2_set_unused_info(guint8* fd) {
 }
 
 static void
-remove_vlan_info(const wtap_packet_header *phdr, guint8* fd, guint32* len) {
+remove_vlan_info(const wtap_packet_header *phdr, uint8_t* fd, uint32_t* len) {
     switch (phdr->pkt_encap) {
         case WTAP_ENCAP_SLL:
             sll_remove_vlan_info(fd, len);
@@ -625,7 +625,7 @@ remove_vlan_info(const wtap_packet_header *phdr, guint8* fd, guint32* len) {
 }
 
 static void
-set_unused_info(const wtap_packet_header *phdr, guint8* fd) {
+set_unused_info(const wtap_packet_header *phdr, uint8_t* fd) {
     switch (phdr->pkt_encap) {
         case WTAP_ENCAP_SLL:
             sll_set_unused_info(fd);
@@ -639,22 +639,22 @@ set_unused_info(const wtap_packet_header *phdr, guint8* fd) {
     }
 }
 
-static gboolean
-is_duplicate(guint8* fd, guint32 len) {
+static bool
+is_duplicate(uint8_t* fd, uint32_t len) {
     int i;
     const struct ieee80211_radiotap_header* tap_header;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
-    guint32 offset = ignored_bytes;
-    guint32 new_len;
-    guint8 *new_fd;
+    uint32_t offset = ignored_bytes;
+    uint32_t new_len;
+    uint8_t *new_fd;
 
     if (len <= ignored_bytes) {
         offset = 0;
     }
 
     /* Get the size of radiotap header and use that as offset (-p option) */
-    if (skip_radiotap == TRUE) {
+    if (skip_radiotap == true) {
         tap_header = (const struct ieee80211_radiotap_header*)fd;
         offset = pletoh16(&tap_header->it_len);
         if (offset >= len)
@@ -680,21 +680,21 @@ is_duplicate(guint8* fd, guint32 len) {
 
         if (fd_hash[i].len == fd_hash[cur_dup_entry].len
             && memcmp(fd_hash[i].digest, fd_hash[cur_dup_entry].digest, 16) == 0) {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
-static gboolean
-is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
+static bool
+is_duplicate_rel_time(uint8_t* fd, uint32_t len, const nstime_t *current) {
     int i;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
-    guint32 offset = ignored_bytes;
-    guint32 new_len;
-    guint8 *new_fd;
+    uint32_t offset = ignored_bytes;
+    uint32_t new_len;
+    uint8_t *new_fd;
 
     if (len <= ignored_bytes) {
         offset = 0;
@@ -793,11 +793,11 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
             break;
         } else if (fd_hash[i].len == fd_hash[cur_dup_entry].len
                    && memcmp(fd_hash[i].digest, fd_hash[cur_dup_entry].digest, 16) == 0) {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 static void
@@ -924,7 +924,7 @@ struct string_elem {
     const char *lstr;   /* The long string */
 };
 
-static gint
+static int
 string_nat_compare(const void *a, const void *b)
 {
     return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
@@ -945,7 +945,7 @@ list_capture_types(FILE *stream) {
 
     fprintf(stream, "editcap: The available capture file types for the \"-F\" flag are:\n");
     writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
-    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    for (unsigned i = 0; i < writable_type_subtypes->len; i++) {
         int ft = g_array_index(writable_type_subtypes, int, i);
         fprintf(stream, "    %s - %s\n", wtap_file_type_subtype_name(ft),
                 wtap_file_type_subtype_description(ft));
@@ -976,15 +976,15 @@ list_encap_types(FILE *stream) {
 static void
 list_secrets_types(FILE *stream)
 {
-    for (guint i = 0; i < G_N_ELEMENTS(secrets_types); i++) {
+    for (unsigned i = 0; i < G_N_ELEMENTS(secrets_types); i++) {
         fprintf(stream, "    %s\n", secrets_types[i].str);
     }
 }
 
-static guint32
+static uint32_t
 lookup_secrets_type(const char *type)
 {
-    for (guint i = 0; i < G_N_ELEMENTS(secrets_types); i++) {
+    for (unsigned i = 0; i < G_N_ELEMENTS(secrets_types); i++) {
         if (!strcmp(secrets_types[i].str, type)) {
             return secrets_types[i].id;
         }
@@ -993,7 +993,7 @@ lookup_secrets_type(const char *type)
 }
 
 static void
-validate_secrets_file(const char *filename, guint32 secrets_type, const char *data)
+validate_secrets_file(const char *filename, uint32_t secrets_type, const char *data)
 {
     if (secrets_type == SECRETS_TYPE_TLS) {
         /*
@@ -1047,7 +1047,7 @@ editcap_cmdarg_err_cont(const char *msg_format, va_list ap)
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, const wtap_dump_params *params,
-                  GArray *idbs_seen, int *err, gchar **err_info)
+                  GArray *idbs_seen, int *err, char **err_info)
 {
     wtap_dumper *pdh;
 
@@ -1071,7 +1071,7 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
      */
     if (wtap_file_type_subtype_supports_block(wtap_dump_file_type_subtype(pdh),
                                               WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
-        for (guint i = 0; i < idbs_seen->len; i++) {
+        for (unsigned i = 0; i < idbs_seen->len; i++) {
             wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, i);
             wtap_block_t if_data_copy;
 
@@ -1098,7 +1098,7 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
              */
             if (!wtap_dump_add_idb(pdh, if_data_copy, err, err_info)) {
                 int close_err;
-                gchar *close_err_info;
+                char *close_err_info;
 
                 wtap_dump_close(pdh, NULL, &close_err, &close_err_info);
                 g_free(close_err_info);
@@ -1116,9 +1116,9 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
     return pdh;
 }
 
-static gboolean
+static bool
 process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
-                 int *err, gchar **err_info)
+                 int *err, char **err_info)
 {
     wtap_block_t if_data;
 
@@ -1156,7 +1156,7 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
              * we're currently writing.
              */
             if (!wtap_dump_add_idb(pdh, if_data_copy, err, err_info))
-                return FALSE;
+                return false;
 
             /*
              * Release the copy - wtap_dump_add_idb() makes its own copy.
@@ -1173,7 +1173,7 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
             g_array_append_val(idbs_seen, if_data_copy);
         }
     }
-    return TRUE;
+    return true;
 }
 
 int
@@ -1194,7 +1194,7 @@ main(int argc, char *argv[])
     };
     wtap         *wth = NULL;
     int           i, j, read_err, write_err;
-    gchar        *read_err_info, *write_err_info;
+    char         *read_err_info, *write_err_info;
     int           opt;
 
 #define LONGOPT_NO_VLAN              LONGOPT_BASE_APPLICATION+1
@@ -1223,27 +1223,27 @@ main(int argc, char *argv[])
     };
 
     char         *p;
-    guint32       snaplen            = 0; /* No limit               */
+    uint32_t      snaplen            = 0; /* No limit               */
     chop_t        chop               = {0, 0, 0, 0, 0, 0}; /* No chop */
-    gboolean      adjlen             = FALSE;
+    bool          adjlen             = false;
     wtap_dumper  *pdh                = NULL;
     GArray       *idbs_seen          = NULL;
     uint64_t      count              = 1;
     uint64_t      duplicate_count    = 0;
-    gint64        data_offset;
+    int64_t       data_offset;
     int           err_type;
-    guint8       *buf;
+    uint8_t      *buf;
     uint64_t      read_count         = 0;
     uint64_t      split_packet_count = 0;
     uint64_t      written_count      = 0;
     char         *filename           = NULL;
-    gboolean      ts_okay;
+    bool          ts_okay;
     nstime_t      secs_per_block     = NSTIME_INIT_UNSET;
     int           block_cnt          = 0;
     nstime_t      block_next         = NSTIME_INIT_UNSET;
-    gchar        *fprefix            = NULL;
-    gchar        *fsuffix            = NULL;
-    guint32       change_offset      = 0;
+    char         *fprefix            = NULL;
+    char         *fsuffix            = NULL;
+    uint32_t      change_offset      = 0;
     uint64_t      max_packet_number  = 0;
     GArray       *dsb_types          = NULL;
     GPtrArray    *dsb_filenames      = NULL;
@@ -1253,10 +1253,10 @@ main(int argc, char *argv[])
     wtap_rec                     temp_rec;
     wtap_dump_params             params = WTAP_DUMP_PARAMS_INIT;
     char                        *shb_user_appl;
-    gboolean                     do_mutation;
-    guint32                      caplen;
+    bool                         do_mutation;
+    uint32_t                     caplen;
     int                          ret = EXIT_SUCCESS;
-    gboolean                     valid_seed = FALSE;
+    bool                         valid_seed = false;
     unsigned int                 seed = 0;
 
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
@@ -1295,20 +1295,20 @@ main(int argc, char *argv[])
 
     init_report_message("editcap", &editcap_report_routines);
 
-    wtap_init(TRUE);
+    wtap_init(true);
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case LONGOPT_NO_VLAN:
         {
-            rem_vlan = TRUE;
+            rem_vlan = true;
             break;
         }
 
         case LONGOPT_SKIP_RADIOTAP_HEADER:
         {
-            skip_radiotap = TRUE;
+            skip_radiotap = true;
             break;
         }
 
@@ -1319,19 +1319,19 @@ main(int argc, char *argv[])
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
-            valid_seed = TRUE;
+            valid_seed = true;
             break;
         }
 
         case LONGOPT_INJECT_SECRETS:
         {
-            guint32 secrets_type_id = 0;
+            uint32_t secrets_type_id = 0;
             const char *secrets_filename = NULL;
             if (strcmp("help", ws_optarg) == 0) {
                 list_secrets_types(stdout);
                 goto clean_exit;
             }
-            gchar **splitted = g_strsplit(ws_optarg, ",", 2);
+            char **splitted = g_strsplit(ws_optarg, ",", 2);
             if (splitted[0] && splitted[0][0] != '\0') {
                 secrets_type_id = lookup_secrets_type(splitted[0]);
                 if (secrets_type_id == 0) {
@@ -1348,7 +1348,7 @@ main(int argc, char *argv[])
                 goto clean_exit;
             }
             if (!dsb_filenames) {
-                dsb_types = g_array_new(FALSE, FALSE, sizeof(guint32));
+                dsb_types = g_array_new(FALSE, FALSE, sizeof(uint32_t));
                 dsb_filenames = g_ptr_array_new_with_free_func(g_free);
             }
             g_array_append_val(dsb_types, secrets_type_id);
@@ -1359,7 +1359,7 @@ main(int argc, char *argv[])
 
         case LONGOPT_DISCARD_ALL_SECRETS:
         {
-            discard_all_secrets = TRUE;
+            discard_all_secrets = true;
             break;
         }
 
@@ -1391,26 +1391,26 @@ main(int argc, char *argv[])
 
         case LONGOPT_DISCARD_CAPTURE_COMMENT:
         {
-            discard_cap_comments = TRUE;
+            discard_cap_comments = true;
             break;
         }
 
         case LONGOPT_SET_UNUSED:
         {
-            set_unused = TRUE;
+            set_unused = true;
             break;
         }
 
         case LONGOPT_DISCARD_PACKET_COMMENTS:
         {
-            discard_pkt_comments = TRUE;
+            discard_pkt_comments = true;
             break;
         }
 
         case 'a':
         {
             uint64_t frame_number;
-            gint string_start_index = 0;
+            int string_start_index = 0;
 
             if ((sscanf(ws_optarg, "%" SCNu64 ":%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
                 cmdarg_err("\"%s\" isn't a valid <frame>:<comment>", ws_optarg);
@@ -1450,14 +1450,14 @@ main(int argc, char *argv[])
         {
             nstime_t in_time;
 
-            check_startstop = TRUE;
+            check_startstop = true;
             if ((NULL != iso8601_to_nstime(&in_time, ws_optarg, ISO8601_DATETIME)) || (NULL != unix_epoch_to_nstime(&in_time, ws_optarg))) {
                 if (opt == 'A') {
                     nstime_copy(&starttime, &in_time);
-                    have_starttime = TRUE;
+                    have_starttime = true;
                 } else {
                     nstime_copy(&stoptime, &in_time);
-                    have_stoptime = TRUE;
+                    have_stoptime = true;
                 }
                 break;
             }
@@ -1509,14 +1509,14 @@ main(int argc, char *argv[])
         }
 
         case 'd':
-            dup_detect = TRUE;
-            dup_detect_by_time = FALSE;
+            dup_detect = true;
+            dup_detect_by_time = false;
             dup_window = DEFAULT_DUP_DEPTH;
             break;
 
         case 'D':
-            dup_detect = TRUE;
-            dup_detect_by_time = FALSE;
+            dup_detect = true;
+            dup_detect_by_time = false;
             dup_window = get_guint32(ws_optarg, "duplicate window");
             if (dup_window > MAX_DUP_DEPTH) {
                 cmdarg_err("\"%d\" duplicate window value must be between 0 and %d inclusive.",
@@ -1572,7 +1572,7 @@ main(int argc, char *argv[])
             break;
 
         case 'L':
-            adjlen = TRUE;
+            adjlen = true;
             break;
 
         case 'o':
@@ -1585,7 +1585,7 @@ main(int argc, char *argv[])
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
-            keep_em = TRUE;
+            keep_em = true;
             break;
 
         case 's':
@@ -1597,7 +1597,7 @@ main(int argc, char *argv[])
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
-            do_strict_time_adjustment = TRUE;
+            do_strict_time_adjustment = true;
             break;
 
         case 't':
@@ -1623,7 +1623,7 @@ main(int argc, char *argv[])
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
-            verbose = TRUE;
+            verbose = true;
             break;
 
         case 'v':
@@ -1632,8 +1632,8 @@ main(int argc, char *argv[])
             break;
 
         case 'w':
-            dup_detect = FALSE;
-            dup_detect_by_time = TRUE;
+            dup_detect = false;
+            dup_detect_by_time = true;
             dup_window = MAX_DUP_DEPTH;
             if (!set_rel_time(ws_optarg)) {
                 ret = WS_EXIT_INVALID_OPTION;
@@ -1704,7 +1704,7 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
+    wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, false);
 
     if (!wth) {
         cfile_open_failure_message(argv[ws_optind], read_err, read_err_info);
@@ -1753,7 +1753,7 @@ main(int argc, char *argv[])
      * Discard capture file comments.
      */
     if (discard_cap_comments) {
-        for (guint b = 0; b < params.shb_hdrs->len; b++) {
+        for (unsigned b = 0; b < params.shb_hdrs->len; b++) {
             wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
             while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(shb, OPT_COMMENT, 0)) {
                 continue;
@@ -1765,9 +1765,9 @@ main(int argc, char *argv[])
      * Add new capture file comments.
      */
     if (capture_comments != NULL) {
-        for (guint b = 0; b < params.shb_hdrs->len; b++) {
+        for (unsigned b = 0; b < params.shb_hdrs->len; b++) {
             wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
-            for (guint c = 0; c < capture_comments->len; c++) {
+            for (unsigned c = 0; c < capture_comments->len; c++) {
                 char *comment = (char *)g_ptr_array_index(capture_comments, c);
                 wtap_block_add_string_option(shb, OPT_COMMENT, comment, strlen(comment));
             }
@@ -1775,11 +1775,11 @@ main(int argc, char *argv[])
     }
 
     if (dsb_filenames) {
-        for (guint k = 0; k < dsb_filenames->len; k++) {
-            guint32 secrets_type_id = g_array_index(dsb_types, guint32, k);
+        for (unsigned k = 0; k < dsb_filenames->len; k++) {
+            uint32_t secrets_type_id = g_array_index(dsb_types, uint32_t, k);
             const char *secrets_filename = (const char *)g_ptr_array_index(dsb_filenames, k);
             char *data;
-            gsize data_len;
+            size_t data_len;
             wtap_block_t block;
             wtapng_dsb_mandatory_t *dsb;
             GError *err = NULL;
@@ -1795,7 +1795,7 @@ main(int argc, char *argv[])
                 g_free(data);
                 continue;
             }
-            if (data_len >= G_MAXINT) {
+            if (data_len >= INT_MAX) {
                 cmdarg_err("\"%s\" is too large, ignoring", secrets_filename);
                 g_free(data);
                 continue;
@@ -1807,7 +1807,7 @@ main(int argc, char *argv[])
             block = wtap_block_create(WTAP_BLOCK_DECRYPTION_SECRETS);
             dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
             dsb->secrets_type = secrets_type_id;
-            dsb->secrets_len = (guint)data_len;
+            dsb->secrets_len = (unsigned)data_len;
             dsb->secrets_data = data;
             if (params.dsbs_initial == NULL) {
                 params.dsbs_initial = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
@@ -1836,7 +1836,7 @@ main(int argc, char *argv[])
      * names, if any; they specify packets to include/exclude.
      */
     for (i = ws_optind + 2; i < argc; i++)
-        if (add_selection(argv[i], &max_packet_number) == FALSE)
+        if (add_selection(argv[i], &max_packet_number) == false)
             break;
 
     if (keep_em && max_selected == 0) {
@@ -2011,7 +2011,7 @@ main(int argc, char *argv[])
         } /* split packet handling */
 
         if (check_startstop) {
-            ts_okay = FALSE;
+            ts_okay = false;
             /*
              * Is the packet in the selected timeframe?
              * If the packet has no time stamp, the answer is "no".
@@ -2031,7 +2031,7 @@ main(int argc, char *argv[])
              * No selected timeframe, so all packets are "in the
              * selected timeframe".
              */
-            ts_okay = TRUE;
+            ts_okay = true;
         }
 
         if (ts_okay && ((!selected(count) && !keep_em)
@@ -2258,37 +2258,37 @@ main(int argc, char *argv[])
             }
 
             /* Random error mutation */
-            do_mutation = FALSE;
+            do_mutation = false;
             caplen = 0;
             if (err_prob > 0.0) {
                 switch (rec->rec_type) {
 
                 case REC_TYPE_PACKET:
                     caplen = rec->rec_header.packet_header.caplen;
-                    do_mutation = TRUE;
+                    do_mutation = true;
                     break;
 
                 case REC_TYPE_FT_SPECIFIC_EVENT:
                 case REC_TYPE_FT_SPECIFIC_REPORT:
                     caplen = rec->rec_header.ft_specific_header.record_len;
-                    do_mutation = TRUE;
+                    do_mutation = true;
                     break;
 
                 case REC_TYPE_SYSCALL:
                     caplen = rec->rec_header.syscall_header.event_filelen;
-                    do_mutation = TRUE;
+                    do_mutation = true;
                     break;
 
                 case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
                     caplen = rec->rec_header.systemd_journal_export_header.record_len;
-                    do_mutation = TRUE;
+                    do_mutation = true;
                     break;
                 }
 
                 if (change_offset > caplen) {
                     fprintf(stderr, "change offset %u is longer than caplen %u in packet %" PRIu64 "\n",
                         change_offset, caplen, count);
-                    do_mutation = FALSE;
+                    do_mutation = false;
                 }
             }
 
@@ -2355,7 +2355,7 @@ main(int argc, char *argv[])
             if (discard_pkt_comments) {
                 temp_rec = *rec;
                 while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
-                    temp_rec.block_was_modified = TRUE;
+                    temp_rec.block_was_modified = true;
                     continue;
                 }
                 rec = &temp_rec;
@@ -2371,18 +2371,18 @@ main(int argc, char *argv[])
 
                     /* Erase any existing comments before adding the new one */
                     while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
-                        temp_rec.block_was_modified = TRUE;
+                        temp_rec.block_was_modified = true;
                         continue;
                     }
 
                     /* The comment is not modified by dumper, cast away. */
                     wtap_block_add_string_option(rec->block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
-                    temp_rec.block_was_modified = TRUE;
+                    temp_rec.block_was_modified = true;
                     rec = &temp_rec;
                 } else {
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
-                    temp_rec.block_was_modified = FALSE;
+                    temp_rec.block_was_modified = false;
                     rec = &temp_rec;
                 }
             }
@@ -2497,7 +2497,7 @@ clean_exit:
         g_ptr_array_free(dsb_filenames, TRUE);
     }
     if (idbs_seen != NULL) {
-        for (guint b = 0; b < idbs_seen->len; b++) {
+        for (unsigned b = 0; b < idbs_seen->len; b++) {
             wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, b);
             wtap_block_unref(if_data);
         }
@@ -2520,7 +2520,7 @@ clean_exit:
 /* Skip meta-information read from file to return offset of real
  * protocol data */
 static int
-find_dct2000_real_data(guint8 *buf)
+find_dct2000_real_data(uint8_t *buf)
 {
     int n = 0;
 
@@ -2546,8 +2546,8 @@ find_dct2000_real_data(guint8 *buf)
  */
 static void
 handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
-                const wtap_packet_header *in_phdr, guint8 **buf,
-                gboolean adjlen)
+                const wtap_packet_header *in_phdr, uint8_t **buf,
+                bool adjlen)
 {
     /* If we're not chopping anything from one side, then the offset for that
      * side is meaningless. */
@@ -2582,12 +2582,12 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
     }
 
     /* Make sure we don't chop off more than we have available */
-    if (in_phdr->caplen < (guint32)(chop.off_begin_pos - chop.off_end_neg)) {
+    if (in_phdr->caplen < (uint32_t)(chop.off_begin_pos - chop.off_end_neg)) {
         chop.len_begin = 0;
         chop.len_end = 0;
     }
-    if ((guint32)(chop.len_begin - chop.len_end) >
-        (in_phdr->caplen - (guint32)(chop.off_begin_pos - chop.off_end_neg))) {
+    if ((uint32_t)(chop.len_begin - chop.len_end) >
+        (in_phdr->caplen - (uint32_t)(chop.off_begin_pos - chop.off_end_neg))) {
         chop.len_begin = in_phdr->caplen - (chop.off_begin_pos - chop.off_end_neg);
         chop.len_end = 0;
     }
@@ -2607,7 +2607,7 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
         out_phdr->caplen -= chop.len_begin;
 
         if (adjlen) {
-            if (in_phdr->len > (guint32)chop.len_begin)
+            if (in_phdr->len > (uint32_t)chop.len_begin)
                 out_phdr->len -= chop.len_begin;
             else
                 out_phdr->len = 0;
@@ -2621,8 +2621,8 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
         *out_phdr = *in_phdr;
 
         if (chop.off_end_neg < 0) {
-            memmove(*buf + (gint)out_phdr->caplen + (chop.len_end + chop.off_end_neg),
-                    *buf + (gint)out_phdr->caplen + chop.off_end_neg,
+            memmove(*buf + (int)out_phdr->caplen + (chop.len_end + chop.off_end_neg),
+                    *buf + (int)out_phdr->caplen + chop.off_end_neg,
                     -chop.off_end_neg);
         }
         out_phdr->caplen += chop.len_end;
