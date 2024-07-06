@@ -16,6 +16,7 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 
+#include <wsutil/pint.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-ubx.h"
@@ -30,6 +31,15 @@
 #define SBAS_L1_PREAMBLE_1 0x53
 #define SBAS_L1_PREAMBLE_2 0x9a
 #define SBAS_L1_PREAMBLE_3 0xc6
+
+// SBAS service provider identifier mapping
+// see ICAO Annex 10, Vol I, Table B-27
+static const value_string SBAS_SPID[] = {
+    {0, "WAAS"},
+    {1, "EGNOS"},
+    {2, "MSAS"},
+    {0, NULL}
+};
 
 // UDREI_i mapping
 // see ICAO Annex 10, Vol I, Table B-29
@@ -394,6 +404,33 @@ static int hf_sbas_l1_mt7_ai_49;
 static int hf_sbas_l1_mt7_ai_50;
 static int hf_sbas_l1_mt7_ai_51;
 
+// see ICAO Annex 10, Vol I, Table B-45
+static int hf_sbas_l1_mt17;
+static int hf_sbas_l1_mt17_reserved;
+static int hf_sbas_l1_mt17_prn;
+static int hf_sbas_l1_mt17_health_and_status;
+static int hf_sbas_l1_mt17_health_and_status_spid;
+static int hf_sbas_l1_mt17_health_and_status_spare;
+static int hf_sbas_l1_mt17_health_and_status_sat_status_basic_corrections;
+static int hf_sbas_l1_mt17_health_and_status_precision_corrections;
+static int hf_sbas_l1_mt17_health_and_status_ranging;
+static int hf_sbas_l1_mt17_x_ga;
+static int hf_sbas_l1_mt17_y_ga;
+static int hf_sbas_l1_mt17_z_ga;
+static int hf_sbas_l1_mt17_x_ga_vel;
+static int hf_sbas_l1_mt17_y_ga_vel;
+static int hf_sbas_l1_mt17_z_ga_vel;
+static int hf_sbas_l1_mt17_t_a;
+
+static int * const sbas_l1_mt17_health_and_status_fields[] = {
+    &hf_sbas_l1_mt17_health_and_status_spid,
+    &hf_sbas_l1_mt17_health_and_status_spare,
+    &hf_sbas_l1_mt17_health_and_status_sat_status_basic_corrections,
+    &hf_sbas_l1_mt17_health_and_status_precision_corrections,
+    &hf_sbas_l1_mt17_health_and_status_ranging,
+    NULL
+};
+
 // see ICAO Annex 10, Vol I, Table B-47
 static int hf_sbas_l1_mt24;
 static int hf_sbas_l1_mt24_fc_i1;
@@ -545,6 +582,9 @@ static int ett_sbas_l1_mt4;
 static int ett_sbas_l1_mt5;
 static int ett_sbas_l1_mt6;
 static int ett_sbas_l1_mt7;
+static int ett_sbas_l1_mt17;
+static int ett_sbas_l1_mt17_prn_data[3];
+static int ett_sbas_l1_mt17_health_and_status;
 static int ett_sbas_l1_mt24;
 static int ett_sbas_l1_mt25;
 static int ett_sbas_l1_mt26;
@@ -595,6 +635,32 @@ static guint32 sbas_crc24q(const guint8 *data) {
     }
 
     return crc;
+}
+
+/* Format GEO position (X or Y axis) with 2600m resolution */
+static void fmt_geo_xy_position(gchar *label, gint32 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d m", c * 2600);
+}
+
+/* Format GEO position (Z axis) with 26000m resolution */
+static void fmt_geo_z_position(gchar *label, gint32 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d m", c * 26000);
+}
+
+/* Format GEO velocity (X or Y axis) with 10m/s resolution */
+static void fmt_geo_xy_velocity(gchar *label, gint32 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d m/s", c * 10);
+}
+
+/* Format GEO velocity (Z axis) with 60m/s resolution */
+static void fmt_geo_z_velocity(gchar *label, gint32 c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d m/s", c * 60);
+}
+
+/* Format time of almanac with 64s resolution */
+static void fmt_time_of_almanac(gchar *label, guint32 c) {
+    c = c * 64;
+    snprintf(label, ITEM_LABEL_LENGTH, "%us (%02u:%02u:%02u)", c, c / 3600, (c / 60) % 60, c % 60);
 }
 
 /* Format clock corrections */
@@ -1008,6 +1074,46 @@ static int dissect_sbas_l1_mt7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_49, tvb, 25, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_50, tvb, 26, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_51, tvb, 26, 2, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect SBAS L1 MT 17 */
+static int dissect_sbas_l1_mt17(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    guint8 i;
+    tvbuff_t *prn_tvb;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT17");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt17, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt17_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt17);
+
+    // dissect data for each of 3 PRNs
+    for (i = 0; i < 3; i++) {
+        prn_tvb = tvb_new_octet_aligned(tvb, 6 + i*67, 67);
+        if (prn_tvb) {
+            add_new_data_source(pinfo, prn_tvb, "PRN data");
+
+            guint16 prn = (tvb_get_guint16(prn_tvb, 0, ENC_BIG_ENDIAN) >> 6) & 0xff;
+
+            proto_tree *prn_tree = proto_tree_add_subtree_format(sbas_l1_mt17_tree, tvb, (6 + i * 67) / 8, (i == 0) ? 10 : 9, ett_sbas_l1_mt17_prn_data[i], NULL, "PRN %u", prn);
+
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_reserved, prn_tvb, 0,  1, ENC_NA);
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_prn,      prn_tvb, 0,  2, ENC_BIG_ENDIAN);
+
+            proto_tree_add_bitmask(prn_tree, prn_tvb, 1, hf_sbas_l1_mt17_health_and_status, ett_sbas_l1_mt17_health_and_status, sbas_l1_mt17_health_and_status_fields, ENC_NA);
+
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_x_ga,     prn_tvb, 2,  4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_y_ga,     prn_tvb, 4,  4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_z_ga,     prn_tvb, 4,  4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_x_ga_vel, prn_tvb, 4,  4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_y_ga_vel, prn_tvb, 4,  4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_z_ga_vel, prn_tvb, 5,  4, ENC_BIG_ENDIAN);
+        }
+    }
+
+    proto_tree_add_item(sbas_l1_mt17_tree, hf_sbas_l1_mt17_t_a, tvb, 24, 4, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
 }
@@ -1531,6 +1637,24 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt7_ai_50,    {"Degradation Factor Indicator ai_50", "sbas_l1.mt7.ai_50",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
         {&hf_sbas_l1_mt7_ai_51,    {"Degradation Factor Indicator ai_51", "sbas_l1.mt7.ai_51",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
 
+        // MT17
+        {&hf_sbas_l1_mt17,                                                {"MT17",                                   "sbas_l1.mt17",                                                FT_NONE,    BASE_NONE,   NULL,                          0x0,        NULL, HFILL}},
+        {&hf_sbas_l1_mt17_reserved,                                       {"Reserved",                               "sbas_l1.mt17.reserved",                                       FT_UINT8,   BASE_HEX,    NULL,                          0xc0,       NULL, HFILL}},
+        {&hf_sbas_l1_mt17_prn,                                            {"PRN",                                    "sbas_l1.mt17.prn",                                            FT_UINT16,  BASE_DEC,    NULL,                          0x3fc0,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_health_and_status,                              {"Health and Status",                      "sbas_l1.mt17.health_and_status",                              FT_UINT16,  BASE_HEX,    NULL,                          0x3fc0,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_health_and_status_spid,                         {"Service Provider Identifier",            "sbas_l1.mt17.health_and_status.spid",                         FT_UINT16,  BASE_DEC,    VALS(SBAS_SPID),               0x3c00,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_health_and_status_spare,                        {"Spare",                                  "sbas_l1.mt17.health_and_status.spare",                        FT_UINT16,  BASE_HEX,    NULL,                          0x0200,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_health_and_status_sat_status_basic_corrections, {"Satellite Status and Basic Corrections", "sbas_l1.mt17.health_and_status.sat_status_basic_corrections", FT_BOOLEAN, 16,          TFS(&tfs_off_on),              0x0100,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_health_and_status_precision_corrections,        {"Precision Corrections",                  "sbas_l1.mt17.health_and_status.precision_corrections",        FT_BOOLEAN, 16,          TFS(&tfs_off_on),              0x0080,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_health_and_status_ranging,                      {"Ranging",                                "sbas_l1.mt17.health_and_status.ranging",                      FT_BOOLEAN, 16,          TFS(&tfs_off_on),              0x0040,     NULL, HFILL}},
+        {&hf_sbas_l1_mt17_x_ga,                                           {"X_G,A",                                  "sbas_l1.mt17.x_ga",                                           FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_geo_xy_position), 0x3fff8000, NULL, HFILL}},
+        {&hf_sbas_l1_mt17_y_ga,                                           {"Y_G,A",                                  "sbas_l1.mt17.y_ga",                                           FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_geo_xy_position), 0x7fff0000, NULL, HFILL}},
+        {&hf_sbas_l1_mt17_z_ga,                                           {"Z_G,A",                                  "sbas_l1.mt17.z_ga",                                           FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_geo_z_position),  0x0000ff80, NULL, HFILL}},
+        {&hf_sbas_l1_mt17_x_ga_vel,                                       {"X_G,A velocity",                         "sbas_l1.mt17.x_ga_vel",                                       FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_geo_xy_velocity), 0x00000070, NULL, HFILL}},
+        {&hf_sbas_l1_mt17_y_ga_vel,                                       {"Y_G,A velocity",                         "sbas_l1.mt17.y_ga_vel",                                       FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_geo_xy_velocity), 0x0000000e, NULL, HFILL}},
+        {&hf_sbas_l1_mt17_z_ga_vel,                                       {"Z_G,A velocity",                         "sbas_l1.mt17.z_ga_vel",                                       FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_geo_z_velocity),  0x000001e0, NULL, HFILL}},
+        {&hf_sbas_l1_mt17_t_a,                                            {"t_almanac",                              "sbas_l1.mt17.t_a",                                            FT_UINT32,  BASE_CUSTOM, CF_FUNC(&fmt_time_of_almanac), 0x0001ffc0, NULL, HFILL}},
+
         // MT24
         {&hf_sbas_l1_mt24,                  {"MT24",                                     "sbas_l1.mt24",                  FT_NONE,   BASE_NONE,   NULL,                          0x0,        NULL, HFILL}},
         {&hf_sbas_l1_mt24_fc_i1,            {"Fast Correction i1 (FC_i1)",               "sbas_l1.mt24.fc_i1",            FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x03ffc000, NULL, HFILL}},
@@ -1686,6 +1810,11 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt5,
         &ett_sbas_l1_mt6,
         &ett_sbas_l1_mt7,
+        &ett_sbas_l1_mt17,
+        &ett_sbas_l1_mt17_prn_data[0],
+        &ett_sbas_l1_mt17_prn_data[1],
+        &ett_sbas_l1_mt17_prn_data[2],
+        &ett_sbas_l1_mt17_health_and_status,
         &ett_sbas_l1_mt24,
         &ett_sbas_l1_mt25,
         &ett_sbas_l1_mt26,
@@ -1719,6 +1848,7 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 5,  create_dissector_handle(dissect_sbas_l1_mt5,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 6,  create_dissector_handle(dissect_sbas_l1_mt6,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 7,  create_dissector_handle(dissect_sbas_l1_mt7,  proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 17, create_dissector_handle(dissect_sbas_l1_mt17, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 24, create_dissector_handle(dissect_sbas_l1_mt24, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 25, create_dissector_handle(dissect_sbas_l1_mt25, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 26, create_dissector_handle(dissect_sbas_l1_mt26, proto_sbas_l1));
