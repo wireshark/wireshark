@@ -54,6 +54,7 @@ WS_DLL_PUBLIC const true_false_string tfs_error_ok;
 WS_DLL_PUBLIC const true_false_string tfs_success_fail;
 WS_DLL_PUBLIC const true_false_string tfs_fail_success;
 WS_DLL_PUBLIC const true_false_string tfs_on_off;
+WS_DLL_PUBLIC const true_false_string tfs_off_on;
 WS_DLL_PUBLIC const true_false_string tfs_ack_nack;
 WS_DLL_PUBLIC const true_false_string tfs_odd_even;
 WS_DLL_PUBLIC const true_false_string tfs_allow_block;

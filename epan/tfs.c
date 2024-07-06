@@ -39,6 +39,7 @@ const true_false_string tfs_error_ok = { "Error", "Ok" };
 const true_false_string tfs_success_fail = { "Success", "Fail" };
 const true_false_string tfs_fail_success = { "Fail", "Success" };
 const true_false_string tfs_on_off = { "On", "Off" };
+const true_false_string tfs_off_on = { "Off", "On" };
 const true_false_string tfs_ack_nack = { "Ack", "Nack" };
 const true_false_string tfs_odd_even = { "Odd", "Even" };
 const true_false_string tfs_allow_block = { "Allow", "Block" };
