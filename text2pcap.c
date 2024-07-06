@@ -102,57 +102,57 @@
 /*--- Options --------------------------------------------------------------------*/
 
 /* Be quiet */
-static gboolean quiet;
+static bool quiet;
 
 /* Dummy Ethernet header */
-static gboolean hdr_ethernet;
+static bool hdr_ethernet;
 #if 0
 /* XXX: Maybe add custom Ethernet Address options? */
-static guint8 hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
-static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
+static uint8_t hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
+static uint8_t hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
 #endif
-static guint32 hdr_ethernet_proto;
+static uint32_t hdr_ethernet_proto;
 
 /* Dummy IP header */
-static gboolean hdr_ip;
-static gboolean hdr_ipv6;
-static gboolean have_hdr_ip_proto;
-static guint8 hdr_ip_proto;
+static bool hdr_ip;
+static bool hdr_ipv6;
+static bool have_hdr_ip_proto;
+static uint8_t hdr_ip_proto;
 
 /* Destination and source addresses for IP header */
-static guint32 hdr_ip_dest_addr;
-static guint32 hdr_ip_src_addr;
+static uint32_t hdr_ip_dest_addr;
+static uint32_t hdr_ip_src_addr;
 static ws_in6_addr hdr_ipv6_dest_addr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 static ws_in6_addr hdr_ipv6_src_addr  = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 /* Dummy UDP header */
-static gboolean hdr_udp;
-static guint32 hdr_dest_port;
-static guint32 hdr_src_port;
+static bool hdr_udp;
+static uint32_t hdr_dest_port;
+static uint32_t hdr_src_port;
 
 /* Dummy TCP header */
-static gboolean hdr_tcp;
+static bool hdr_tcp;
 
 /* Dummy SCTP header */
-static gboolean hdr_sctp;
-static guint32 hdr_sctp_src;
-static guint32 hdr_sctp_dest;
-static guint32 hdr_sctp_tag;
+static bool hdr_sctp;
+static uint32_t hdr_sctp_src;
+static uint32_t hdr_sctp_dest;
+static uint32_t hdr_sctp_tag;
 
 /* Dummy DATA chunk header */
-static gboolean hdr_data_chunk;
-static guint32 hdr_data_chunk_tsn;
-static guint16 hdr_data_chunk_sid;
-static guint16 hdr_data_chunk_ssn;
-static guint32 hdr_data_chunk_ppid;
+static bool hdr_data_chunk;
+static uint32_t hdr_data_chunk_tsn;
+static uint16_t hdr_data_chunk_sid;
+static uint16_t hdr_data_chunk_ssn;
+static uint32_t hdr_data_chunk_ppid;
 
 /* Export PDU */
-static gboolean hdr_export_pdu;
+static bool hdr_export_pdu;
 
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
-static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
+static uint32_t max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 
 /* Time code of packet, derived from packet_preamble */
 static int      ts_fmt_iso;
@@ -282,9 +282,9 @@ print_usage (FILE *output)
  * XXX - catch the case where two different options set it differently?
  */
 static void
-set_hdr_ip_proto(guint8 ip_proto)
+set_hdr_ip_proto(uint8_t ip_proto)
 {
-    have_hdr_ip_proto = TRUE;
+    have_hdr_ip_proto = true;
     hdr_ip_proto = ip_proto;
 }
 
@@ -294,7 +294,7 @@ list_capture_types(void) {
 
     cmdarg_err("The available capture file types for the \"-F\" flag are:\n");
     writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
-    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    for (unsigned i = 0; i < writable_type_subtypes->len; i++) {
         int ft = g_array_index(writable_type_subtypes, int, i);
         fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
             wtap_file_type_subtype_description(ft));
@@ -307,7 +307,7 @@ struct string_elem {
     const char *lstr;   /* The long string */
 };
 
-static gint
+static int
 string_nat_compare(const void *a, const void *b)
 {
     return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
@@ -371,7 +371,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     };
     const char *interface_name = NULL;
     /* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
-    guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
+    uint32_t pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
     int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
     int wtap_encap_type = WTAP_ENCAP_ETHERNET;
     int err;
@@ -395,19 +395,19 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             print_usage(stdout);
             exit(0);
             break;
-        case 'q': quiet = TRUE; break;
-        case 'a': info->hexdump.identify_ascii = TRUE; break;
-        case 'D': info->hexdump.has_direction = TRUE; break;
+        case 'q': quiet = true; break;
+        case 'a': info->hexdump.identify_ascii = true; break;
+        case 'D': info->hexdump.has_direction = true; break;
         case 'l':
-            pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0);
+            pcap_link_type = (uint32_t)strtol(ws_optarg, NULL, 0);
             wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
             break;
-        case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
+        case 'm': max_offset = (uint32_t)strtol(ws_optarg, NULL, 0); break;
         case 'n': cmdarg_err("'-n' is deprecated; the output format already defaults to pcapng."); break;
         case 'N': interface_name = ws_optarg; break;
         case 'b':
         {
-            guint8 radix;
+            uint8_t radix;
             if (!ws_strtou8(ws_optarg, NULL, &radix)) {
                 cmdarg_err("Bad argument for '-b': %s", ws_optarg);
                 print_usage(stderr);
@@ -441,7 +441,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 'e':
-            hdr_ethernet = TRUE;
+            hdr_ethernet = true;
             if (sscanf(ws_optarg, "%x", &hdr_ethernet_proto) < 1) {
                 cmdarg_err("Bad argument for '-e': %s", ws_optarg);
                 print_usage(stderr);
@@ -469,7 +469,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         case 'i':
         {
-            guint8 ip_proto;
+            uint8_t ip_proto;
             if (!ws_strtou8(ws_optarg, NULL, &ip_proto)) {
                 cmdarg_err("Bad argument for '-i': %s", ws_optarg);
                 print_usage(stderr);
@@ -480,7 +480,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         }
 
         case 'P':
-            hdr_export_pdu = TRUE;
+            hdr_export_pdu = true;
             wtap_encap_type = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
             info->payload = ws_optarg;
             break;
@@ -508,11 +508,11 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 's':
-            hdr_sctp = TRUE;
-            hdr_data_chunk = FALSE;
-            hdr_tcp = FALSE;
-            hdr_udp = FALSE;
-            hdr_sctp_src   = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_sctp = true;
+            hdr_data_chunk = false;
+            hdr_tcp = false;
+            hdr_udp = false;
+            hdr_sctp_src   = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-%c'", c);
                 print_usage(stderr);
@@ -525,7 +525,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             p++;
             ws_optarg = p;
-            hdr_sctp_dest = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_sctp_dest = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad dest port for '-s'");
                 print_usage(stderr);
@@ -538,7 +538,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             p++;
             ws_optarg = p;
-            hdr_sctp_tag = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_sctp_tag = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad tag for '-%c'", c);
                 print_usage(stderr);
@@ -549,11 +549,11 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 'S':
-            hdr_sctp = TRUE;
-            hdr_data_chunk = TRUE;
-            hdr_tcp = FALSE;
-            hdr_udp = FALSE;
-            hdr_sctp_src   = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_sctp = true;
+            hdr_data_chunk = true;
+            hdr_tcp = false;
+            hdr_udp = false;
+            hdr_sctp_src   = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-%c'", c);
                 print_usage(stderr);
@@ -566,7 +566,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             p++;
             ws_optarg = p;
-            hdr_sctp_dest = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_sctp_dest = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad dest port for '-s'");
                 print_usage(stderr);
@@ -579,7 +579,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             p++;
             ws_optarg = p;
-            hdr_data_chunk_ppid = (guint32)strtoul(ws_optarg, &p, 10);
+            hdr_data_chunk_ppid = (uint32_t)strtoul(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad ppi for '-%c'", c);
                 print_usage(stderr);
@@ -596,11 +596,11 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 'u':
-            hdr_udp = TRUE;
-            hdr_tcp = FALSE;
-            hdr_sctp = FALSE;
-            hdr_data_chunk = FALSE;
-            hdr_src_port = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_udp = true;
+            hdr_tcp = false;
+            hdr_sctp = false;
+            hdr_data_chunk = false;
+            hdr_src_port = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-u'");
                 print_usage(stderr);
@@ -613,7 +613,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             p++;
             ws_optarg = p;
-            hdr_dest_port = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_dest_port = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad dest port for '-u'");
                 print_usage(stderr);
@@ -623,11 +623,11 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 'T':
-            hdr_tcp = TRUE;
-            hdr_udp = FALSE;
-            hdr_sctp = FALSE;
-            hdr_data_chunk = FALSE;
-            hdr_src_port = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_tcp = true;
+            hdr_udp = false;
+            hdr_sctp = false;
+            hdr_data_chunk = false;
+            hdr_src_port = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-T'");
                 print_usage(stderr);
@@ -640,7 +640,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             p++;
             ws_optarg = p;
-            hdr_dest_port = (guint32)strtol(ws_optarg, &p, 10);
+            hdr_dest_port = (uint32_t)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad dest port for '-T'");
                 print_usage(stderr);
@@ -667,17 +667,17 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             *p = '\0';
             if (c == '6')
             {
-                hdr_ipv6 = TRUE;
-                hdr_ip   = FALSE;
+                hdr_ipv6 = true;
+                hdr_ip   = false;
             }
             else
             {
-                hdr_ip   = TRUE;
-                hdr_ipv6 = FALSE;
+                hdr_ip   = true;
+                hdr_ipv6 = false;
             }
-            hdr_ethernet = TRUE;
+            hdr_ethernet = true;
 
-            if (hdr_ipv6 == TRUE) {
+            if (hdr_ipv6 == true) {
                 if (!ws_inet_pton6(ws_optarg, &hdr_ipv6_src_addr)) {
                         cmdarg_err("Bad src addr -%c '%s'", c, p);
                         print_usage(stderr);
@@ -698,7 +698,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 return WS_EXIT_INVALID_OPTION;
             }
 
-            if (hdr_ipv6 == TRUE) {
+            if (hdr_ipv6 == true) {
                 if (!ws_inet_pton6(p, &hdr_ipv6_dest_addr)) {
                         cmdarg_err("Bad dest addr for -%c '%s'", c, p);
                         print_usage(stderr);
@@ -766,7 +766,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
          * If we have an IP protocol to add to the header, but neither an
          * IPv4 nor an IPv6 header was specified,  add an IPv4 header.
          */
-        hdr_ip = TRUE;
+        hdr_ip = true;
     }
 
     if (!have_hdr_ip_proto && (hdr_ip || hdr_ipv6)) {
@@ -780,7 +780,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
          * If TCP (-T), UDP (-u) or SCTP (-s/-S) header options are specified
          * but none of IPv4 (-4) or IPv6 (-6) options then add an IPv4 header
          */
-        hdr_ip = TRUE;
+        hdr_ip = true;
     }
 
     if (hdr_export_pdu && wtap_encap_type != WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
@@ -796,7 +796,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         switch (wtap_encap_type) {
 
         case (WTAP_ENCAP_ETHERNET):
-            hdr_ethernet = TRUE;
+            hdr_ethernet = true;
             hdr_ethernet_proto = 0x0800;
             break;
 
@@ -812,7 +812,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         switch (wtap_encap_type) {
 
         case (WTAP_ENCAP_ETHERNET):
-            hdr_ethernet = TRUE;
+            hdr_ethernet = true;
             hdr_ethernet_proto = 0x86DD;
             break;
 
@@ -838,7 +838,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         } else {
             input_file = ws_fopen(input_filename, "rb");
             if (!input_file) {
-                open_failure_message(input_filename, errno, FALSE);
+                open_failure_message(input_filename, errno, false);
                 return WS_EXIT_OPEN_ERROR;
             }
         }
@@ -925,7 +925,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         info->ip_src_addr.ipv4 = hdr_ip_src_addr;
         info->ip_dest_addr.ipv4 = hdr_ip_dest_addr;
     } else if (hdr_ipv6) {
-        info->ipv6 = TRUE;
+        info->ipv6 = true;
         info->ip_src_addr.ipv6 = hdr_ipv6_src_addr;
         info->ip_dest_addr.ipv6 = hdr_ipv6_dest_addr;
     }
@@ -1007,7 +1007,7 @@ main(int argc, char *argv[])
     int ret = EXIT_SUCCESS;
     text_import_info_t info;
     wtap_dump_params params;
-    guint64 bytes_written;
+    uint64_t bytes_written;
 
     cmdarg_err_init(text2pcap_cmdarg_err, text2pcap_cmdarg_err_cont);
 
@@ -1037,7 +1037,7 @@ main(int argc, char *argv[])
     }
 
     init_report_message("text2pcap", &text2pcap_report_routines);
-    wtap_init(TRUE);
+    wtap_init(true);
 
     memset(&info, 0, sizeof(info));
     wtap_dump_params_init(&params, NULL);
