@@ -3,7 +3,7 @@
 // min-macos-version
 
 include::{include-dir}/attributes.adoc[]
-:stylesheet: {include-dir}/../docbook/ws.css
+:stylesheet: {include-dir}/ws.css
 
 == Before You Begin
 

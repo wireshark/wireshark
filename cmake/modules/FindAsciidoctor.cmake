@@ -46,7 +46,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         # --trace
         --quiet
         --attribute build_dir=${CMAKE_BINARY_DIR}/docbook
-        --attribute css_dir=${CMAKE_SOURCE_DIR}/docbook
+        --attribute css_dir=${CMAKE_SOURCE_DIR}/doc
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/commaize-block.rb
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/cveidlink-inline-macro.rb

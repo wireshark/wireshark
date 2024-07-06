@@ -2148,7 +2148,7 @@ set(INSTALL_FILES
 set(DOC_FILES
 	resources/share/doc/wireshark/pdml2html.xsl
 	doc/README.xml-output
-	docbook/ws.css
+	doc/ws.css
 )
 
 if (BUILD_logray)
@@ -2157,7 +2157,7 @@ if (BUILD_logray)
 	)
 
 	set(LOG_INSTALL_FILES
-		docbook/ws.css
+		doc/ws.css
 		resources/share/logray/colorfilters
 		resources/share/logray/dfilter_buttons
 	)

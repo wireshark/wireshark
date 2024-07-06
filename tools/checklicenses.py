@@ -78,9 +78,6 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'docbook/custom_layer_single_html.xsl': [
         'UNKNOWN',
     ],
-    'docbook/ws.css' : [
-        'UNKNOWN'
-    ],
     'fix': [
         'UNKNOWN',
     ],

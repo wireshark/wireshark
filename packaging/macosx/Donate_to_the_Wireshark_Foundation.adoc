@@ -2,7 +2,7 @@
 // include-dir
 
 include::{include-dir}/attributes.adoc[]
-:stylesheet: {include-dir}/../docbook/ws.css
+:stylesheet: {include-dir}/ws.css
 
 == The Wireshark Founation
 

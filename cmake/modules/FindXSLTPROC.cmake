@@ -114,7 +114,7 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
         COMMAND ${CMAKE_COMMAND}
            -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_src_dir} ${_out_dir}/images
         COMMAND ${CMAKE_COMMAND}
-            -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_out_dir}
+            -E copy_if_different ${CMAKE_SOURCE_DIR}/doc/ws.css ${_out_dir}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/

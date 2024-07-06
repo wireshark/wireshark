@@ -267,10 +267,10 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	add_custom_command(
 		OUTPUT ws.css
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${CMAKE_CURRENT_SOURCE_DIR}/ws.css
+			${CMAKE_SOURCE_DIR}/doc/ws.css
 			${CMAKE_CURRENT_BINARY_DIR}/ws.css
 		DEPENDS
-			${CMAKE_CURRENT_SOURCE_DIR}/ws.css
+			${CMAKE_SOURCE_DIR}/doc/ws.css
 	)
 	add_custom_target(copy_ws.css DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ws.css)
 else()
