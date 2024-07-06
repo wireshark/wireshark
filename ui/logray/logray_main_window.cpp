@@ -684,6 +684,9 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 LograyMainWindow::~LograyMainWindow()
 {
     disconnect(main_ui_->mainStack, 0, 0, 0);
+    if (previous_focus_ != nullptr) {
+        disconnect(previous_focus_, &QWidget::destroyed, this, &LograyMainWindow::resetPreviousFocus);
+    }
 
 #ifndef Q_OS_MAC
     // Below dialogs inherit GeometryStateDialog
