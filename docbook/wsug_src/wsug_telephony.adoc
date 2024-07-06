@@ -33,7 +33,7 @@ RTP Player is able to play any codec supported by an installed plugin. The codec
 
 * Open menu:Help[About Wireshark] window
 * Select the menu:Plugins[] tab
-* In the menu:Filter by type[] menu on the top-right, select codec 
+* In the menu:Filter by type[] menu on the top-right, select codec
 
 .List of supported codecs
 image::images/ws-about-codecs.png[{screenshot-attrs}]
@@ -154,7 +154,7 @@ traffic. It finds calls by their signaling and shows related RTP streams. The cu
 * SKINNY
 * UNISTIM
 
-See https://gitlab.com/wireshark/wireshark/-/wikis/VOIPProtocolFamily[VOIPProtocolFamily] for an overview of the used VoIP protocols.
+See {wireshark-wiki-url}VOIPProtocolFamily[VOIPProtocolFamily] for an overview of the used VoIP protocols.
 
 VoIP Calls window can be opened as window showing all protocol types (menu:Telephony[VoIP Calls] window) or limited to SIP messages only (menu:Telephony[SIP Flows] window).
 
@@ -193,7 +193,7 @@ The A-Interface Base Station Management Application Part (BSMAP) Statistics wind
 
 ==== A-I/F DTAP Statistics Window
 
-The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file. 
+The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file.
 
 [#ChTelGSM]
 
@@ -244,7 +244,7 @@ NOTE: That graph shows data of a single bearer and direction. The user can also 
 .The RLC Graph window
 image::images/ws-rlc-graph.png[{screenshot-attrs}]
 
-[.small]#_The image of the RLC Graph is borrowed from link:https://gitlab.com/wireshark/wireshark/-/wikis/RLC-LTE[Wireshark wiki]._#
+[.small]#_The image of the RLC Graph is borrowed from link:{wireshark-wiki-url}RLC-LTE[the Wireshark wiki]._#
 
 [#ChTelLTERLCTraffic]
 
@@ -608,7 +608,7 @@ Window has same features as <<ChTelVoipCalls,VoIP Calls>> window.
 
 === SIP Statistics Window
 
-SIP Statistics window shows captured SIP transactions. It is divided into SIP Responses and SIP Requests. In this window the user can filter, copy or save the statistics into a file.  
+SIP Statistics window shows captured SIP transactions. It is divided into SIP Responses and SIP Requests. In this window the user can filter, copy or save the statistics into a file.
 
 [#ChTelWAPWSPPacketCounter]
 

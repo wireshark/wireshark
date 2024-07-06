@@ -2388,7 +2388,7 @@ section of epan/dissectors/CMakeLists.txt
 1.10 Submitting code for your new dissector.
 
   See <https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcContribute.html>
-  and <https://gitlab.com/wireshark/wireshark/-/wikis/Development/SubmittingPatches>.
+  and <https://wiki.wireshark.org/Development/SubmittingPatches>.
 
   - VERIFY that your dissector code does not use prohibited or deprecated APIs
     as follows:
@@ -2409,7 +2409,7 @@ section of epan/dissectors/CMakeLists.txt
 
   - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
     Use fuzz-test.sh and/or randpkt against your dissector. These are
-    described at <https://gitlab.com/wireshark/wireshark/-/wikis/FuzzTesting>.
+    described at <https://wiki.wireshark.org/FuzzTesting>.
 
   - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
     <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
@@ -2430,11 +2430,11 @@ section of epan/dissectors/CMakeLists.txt
   - Create a Wiki page on the protocol at <https://gitlab.com/wireshark/editor-wiki>.
     (You'll need to request access to https://gitlab.com/wireshark/wiki-editors.)
     A template is provided so it is easy to setup in a consistent style.
-      See: <https://gitlab.com/wireshark/wireshark/-/wikis/HowToEdit>
-      and  <https://gitlab.com/wireshark/wireshark/-/wikis/ProtocolReference>
+      See: <https://wiki.wireshark.org/HowToEdit>
+      and  <https://wiki.wireshark.org/ProtocolReference>
 
   - If possible, add sample capture files to the sample captures page at
-    <https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures>. These
+    <https://wiki.wireshark.org/SampleCaptures>. These
     files are used by the automated build system for fuzz testing.
 
   - If you don't think the wiki is the right place for your sample capture,

@@ -32,11 +32,11 @@ endif::[]
 :wireshark-qa-url: https://ask.wireshark.org/
 :wireshark-foundation-url: https://wiresharkfoundation.org/
 :sharkfest-url: https://sharkfest.wireshark.org/
+:wireshark-wiki-url: https://wiki.wireshark.org/
 
 // Wireshark secondary URLs (pages)
 :wireshark-bugs-url: {wireshark-gitlab-project-url}/-/issues
 :wireshark-code-review-url: {wireshark-gitlab-project-url}/-/merge_requests
-:wireshark-wiki-url: {wireshark-gitlab-project-url}/-/wikis/
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
 :wireshark-code-browse-url: {wireshark-gitlab-project-url}/-/tree/master
 :wireshark-code-file-url: {wireshark-gitlab-project-url}/-/blob/master/

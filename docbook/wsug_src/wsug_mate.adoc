@@ -962,7 +962,7 @@ to isolate DNS and HTTP packets related to a visit of a certain user.
 that take more than 1.5 seconds to complete.
 
 The complete config file is available on the Wireshark Wiki:
-https://gitlab.com/wireshark/wireshark/-/wikis/Mate/Tutorial
+{wireshark-wiki-url}Mate/Tutorial
 
 Note: This example uses _dns.qry.name_ which is defined since Wireshark
 version 0.10.9. Supposing you have a MATE plugin already installed you can test

@@ -19,7 +19,7 @@ format as the default format to save captured packets. It is very flexible
 but other tools may not support it.
 
 Wireshark also supports the
-link:https://gitlab.com/wireshark/wireshark/-/wikis/Development/LibpcapFileFormat[libpcap] file
+{wireshark-wiki-url}/Development/LibpcapFileFormat[libpcap] file
 format. This is a much simpler format and is well established. However, it has
 some drawbacks: it’s not extensible and lacks some information that would be
 really helpful (e.g., being able to add a comment to a packet such as “the
@@ -49,7 +49,7 @@ The following data is saved for each packet:
 * The packet’s raw bytes
 
 A detailed description of the libpcap file format can be found at
-https://gitlab.com/wireshark/wireshark/-/wikis/Development/LibpcapFileFormat
+{wireshark-wiki-url}Development/LibpcapFileFormat
 
 [#ChIOFileNotContentSection]
 

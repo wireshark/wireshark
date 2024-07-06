@@ -64,7 +64,7 @@ Reasons one might _not_ want to build as a plugin:
 * The CMakeFile is quite a bit more complex.
 * Building under the asn1 subtree keeps all such dissectors together.
 
-If you still think you'd like to build your module as a plugin, see https://gitlab.com/wireshark/wireshark/-/wikis/ASN1_plugin[Building ASN1 Plugins].
+If you still think you'd like to build your module as a plugin, see {wireshark-wiki-url}ASN1_plugin[Building ASN1 Plugins].
 
 [#UnderstandingErrorMessages]
 === Understanding Error Messages
@@ -432,7 +432,7 @@ Time TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 [#SimpleASN1BasedDissector]
 === Simple ASN.1-Based Dissector
 
-// https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/ASN1_sample/foo.tar.gz
+// {wireshark-wiki-moin-import-url}ASN1_sample/foo.tar.gz
 // all seven files as gzipped foo directory (suitable for unzipping in
 // wireshark/asn1 directory)
 
