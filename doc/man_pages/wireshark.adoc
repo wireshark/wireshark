@@ -944,12 +944,12 @@ include::diagnostic-options.adoc[]
 
 == INTERFACE
 
-The xref:https://www.wireshark.org/docs/wsug_html_chunked/[Wireshark User's Guide] contains a description of the user interface. It also may be installed locally along with Wireshark. Pressing the F1 key will attempt to open the guide locally if present, falling back to the online guide if not.
+The xref:{wireshark-users-guide-url}[Wireshark User's Guide] contains a description of the user interface. It also may be installed locally along with Wireshark. Pressing the F1 key will attempt to open the guide locally if present, falling back to the online guide if not.
 
 == CAPTURE FILTER SYNTAX
 
 See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist, xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8),
-or, if that doesn't exist, https://gitlab.com/wireshark/wireshark/-/wikis/CaptureFilters.
+or, if that doesn't exist, {wireshark-wiki-url}CaptureFilters.
 
 == DISPLAY FILTER SYNTAX
 
@@ -1089,10 +1089,10 @@ xref:text2pcap.html[text2pcap](1), xref:https://www.tcpdump.org/manpages/pcap-fi
 
 This is the manual page for *Wireshark* {wireshark-version}.
 The latest version of *Wireshark* can be found at
-https://www.wireshark.org.
+{wireshark-main-url}.
 
 HTML versions of the Wireshark project man pages are available at
-https://www.wireshark.org/docs/man-pages.
+{wireshark-man-page-url}.
 
 The Wireshark's User Guide is available at
-https://www.wireshark.org/docs/wsug_html_chunked/.
+{wireshark-users-guide-url}.

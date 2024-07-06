@@ -732,7 +732,7 @@ can find references and examples at the following locations:
 
 * `tshark -G fields` on the command line
 
-* The Wireshark wiki: https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilters
+* The Wireshark wiki: {wireshark-wiki-url}DisplayFilters
 
 == NOTES
 
@@ -745,11 +745,11 @@ See https://www.pcre.org/ for more information.
 
 This manpage does not describe the capture filter syntax, which is
 different. See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist,
-xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8), or, if that doesn't exist, https://gitlab.com/wireshark/wireshark/-/wikis/CaptureFilters
+xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8), or, if that doesn't exist, {wireshark-wiki-url}CaptureFilters
 for a description of capture filters.
 
 Display Filters are also described in the User's Guide:
-https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html
+{wireshark-users-guide-url}ChWorkBuildDisplayFilterSection.html
 
 == SEE ALSO
 
