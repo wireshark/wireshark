@@ -167,7 +167,7 @@ Same functionality as “Follow TCP Stream” but for DCCP streams.
 
 |menu:Follow[TLS Stream] |menu:Analyze[] |
 Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
-See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions
+See the wiki page on link:{wireshark-wiki-url}TLS[TLS] for instructions
 on providing TLS keys.
 
 |menu:Follow[HTTP Stream] |menu:Analyze[] |
@@ -266,7 +266,7 @@ Same functionality as “Follow TCP Stream” but for UDP “streams”.
 
 |menu:Follow[TLS Stream] |menu:Analyze[] |
 Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
-See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions
+See the wiki page on link:{wireshark-wiki-url}TLS[TLS] for instructions
 on providing TLS keys.
 
 |menu:Follow[HTTP Stream] |menu:Analyze[] |
