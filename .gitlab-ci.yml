@@ -1004,10 +1004,7 @@ Visual Studio Code Analysis:
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
     - $report = "visual-c++-analyze-" + (Get-Date -format "yyyy-MM-dd") + ".html"
     - sarif-tools.venv\Scripts\sarif html --output $report
-    - |
-      if (Test-Path env:S3_DESTINATION_ANALYSIS) {
-        aws s3 cp "$report" "$env:S3_DESTINATION_ANALYSIS/"
-      }
+    - if (Test-Path env:MC_DESTINATION_ANALYSIS) { C:\gitlab-builds\bin\mc --quiet cp "$report" "$env:MC_DESTINATION_ANALYSIS/" }
 
 # Build all doxygen docs
 API Reference:
