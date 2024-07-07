@@ -214,14 +214,13 @@ variables:
     - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
     - env | grep ^CI | sort
     - printf "\e[0Ksection_end:%s:ci_env_section\r\e[0K" "$(date +%s)"
-    - export PATH=$PATH:$HOME/.python-env/bin
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
-    # Homebrew implemented PEP 668, so install Python packages using venv for now.
-    - python3 -m venv $HOME/.python-env
-    - $HOME/.python-env/bin/pip3 install pytest pytest-xdist
+    - python3 -m venv $CI_PROJECT_DIR/.venv
+    - source $CI_PROJECT_DIR/.venv/bin/activate
+    - pip3 install pytest pytest-xdist
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
     - ccache --show-stats
@@ -779,8 +778,9 @@ Clang + Code Checks:
   needs: [ 'Commit Check' ]
   script:
     - source /clang-latest.env
-    - apt-get update && apt-get --yes install python3-pip
-    - pip3 install pyspellchecker
+    - apt-get update && apt-get --yes install python3-venv
+    - python3 -m venv $CI_PROJECT_DIR/.venv
+    - source $CI_PROJECT_DIR/.venv/bin/activate
     # build-ubuntu puts us in `build`.
     - cd ..
     - mkdir cppcheck
@@ -812,6 +812,7 @@ Clang + Code Checks:
     - ninja checkAPI
     - ninja shellcheck
     - cd ..
+    - pip3 install pyspellchecker
     - ./tools/check_spelling.py --no-wikipedia --comments --commits $NUM_COMMITS | tee spelling_check.txt
     - ./tools/check_typed_item_calls.py --consecutive --label --mask --check-bitmask-fields --commits $NUM_COMMITS | tee item_calls_check.txt
     - ./tools/check_tfs.py --check-value-strings --commits $NUM_COMMITS | tee tfs_check.txt
