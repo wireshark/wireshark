@@ -89,16 +89,20 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     setCompleter(new QCompleter(completion_model_, this));
     setCompletionTokenChars(fld_abbrev_chars_);
 
+    // Add a margin so that the QLineEdit border is visible even with a
+    // non-transparent background (to block the Syntax color highlighting.)
+    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QString buttonStyle = QString(
         "QToolButton {"
         "  border: none;"
-        "  background: transparent;" // Disables platform style on Windows.
-        "  padding: 0 0 0 0;"
+        "  background: palette(base);"
+        //"  background: transparent;" // Disables platform style on Windows.
+        "  margin: %1px;"
         "}"
         "QToolButton::menu-indicator {"
         "  image: none;"
         "}"
-    );
+    ).arg(frameWidth);
 
     leftAlignActions_ = recent.gui_geometry_leftalign_actions;
 
@@ -227,8 +231,16 @@ void DisplayFilterEdit::alignActionButtons()
         rightPadding = 0;
     }
 
+    // The border color is to match the divider line drawn below.
+    // Some platform styles have different QLineEdit borders for
+    // normal and selected, which this disables.
     SyntaxLineEdit::setStyleSheet(style_sheet_ + QString(
             "SyntaxLineEdit {"
+#ifdef Q_OS_MAC
+            "  border: 1px solid gray;"
+#else
+            "  border: 1px solid palette(shadow);"
+#endif
             "  padding-left: %1px;"
             "  padding-right: %2px;"
             "}"
