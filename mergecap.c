@@ -98,7 +98,7 @@ list_capture_types(void) {
 
     fprintf(stderr, "mergecap: The available capture file types for the \"-F\" flag are:\n");
     writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
-    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    for (unsigned i = 0; i < writable_type_subtypes->len; i++) {
         int ft = g_array_index(writable_type_subtypes, int, i);
         fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
                 wtap_file_type_subtype_description(ft));
@@ -118,10 +118,10 @@ list_idb_merge_modes(void) {
 
 static bool
 merge_callback(merge_event event, int num,
-        const merge_in_file_t in_files[], const guint in_file_count,
+        const merge_in_file_t in_files[], const unsigned in_file_count,
         void *data _U_)
 {
-    guint i;
+    unsigned i;
 
     switch (event) {
 
@@ -203,13 +203,13 @@ main(int argc, char *argv[])
         {"version", ws_no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
-    gboolean            do_append          = FALSE;
-    gboolean            verbose            = FALSE;
+    bool                do_append          = false;
+    bool                verbose            = false;
     int                 in_file_count      = 0;
-    guint32             snaplen            = 0;
+    uint32_t            snaplen            = 0;
     int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
     char               *out_filename       = NULL;
-    bool                status             = TRUE;
+    bool                status             = true;
     idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
     merge_progress_callback_t cb;
 
@@ -249,7 +249,7 @@ main(int argc, char *argv[])
 
     init_report_message("mergecap", &mergecap_report_routines);
 
-    wtap_init(TRUE);
+    wtap_init(true);
 
     /* Process the options first */
     while ((opt = ws_getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {
@@ -292,7 +292,7 @@ main(int argc, char *argv[])
                 break;
 
             case 'V':
-                verbose = TRUE;
+                verbose = true;
                 break;
 
             case 'v':

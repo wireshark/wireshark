@@ -93,7 +93,7 @@ main(int argc, char *argv[])
     };
     wtap  *wth;
     int    err;
-    gchar *err_info;
+    char *err_info;
     int    i;
     int    opt;
     int    overall_error_status;
@@ -149,7 +149,7 @@ main(int argc, char *argv[])
 
     init_report_message("captype", &captype_report_routines);
 
-    wtap_init(TRUE);
+    wtap_init(true);
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, "hv", long_options, NULL)) !=-1) {
@@ -182,7 +182,7 @@ main(int argc, char *argv[])
     overall_error_status = 0;
 
     for (i = 1; i < argc; i++) {
-        wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+        wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, false);
 
         if(wth) {
             printf("%s: %s\n", argv[i], wtap_file_type_subtype_name(wtap_file_type_subtype(wth)));

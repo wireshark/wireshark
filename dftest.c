@@ -56,8 +56,8 @@ static int opt_show_types;
 static int opt_dump_refs;
 static int opt_dump_macros;
 
-static gint64 elapsed_expand;
-static gint64 elapsed_compile;
+static int64_t elapsed_expand;
+static int64_t elapsed_compile;
 
 /*
  * Report an error in command-line arguments.
@@ -153,7 +153,7 @@ print_macros(void)
 static void
 print_warnings(dfilter_t *df)
 {
-    guint i;
+    unsigned i;
     GPtrArray *deprecated;
     int count = 0;
 
@@ -190,7 +190,7 @@ expand_filter(const char *text)
 {
     char *expanded = NULL;
     df_error_t *err = NULL;
-    gint64 start;
+    int64_t start;
 
     start = g_get_monotonic_time();
     expanded = dfilter_expand(text, &err);
@@ -202,13 +202,13 @@ expand_filter(const char *text)
     return expanded;
 }
 
-static gboolean
+static bool
 compile_filter(const char *text, dfilter_t **dfp)
 {
     unsigned df_flags = 0;
-    gboolean ok;
+    bool ok;
     df_error_t *df_err = NULL;
-    gint64 start;
+    int64_t start;
 
     if (opt_optimize > 0)
         df_flags |= DF_OPTIMIZE;
@@ -428,13 +428,13 @@ main(int argc, char **argv)
      * dissection-time handlers for file-type-dependent blocks can
      * register using the file type/subtype value for the file type.
      */
-    wtap_init(TRUE);
+    wtap_init(true);
 
     /* Register all dissectors; we must do this before checking for the
        "-g" flag, as the "-g" flag dumps a list of fields registered
        by the dissectors, and we must do it before we read the preferences,
        in case any dissectors register preferences. */
-    if (!epan_init(NULL, NULL, TRUE))
+    if (!epan_init(NULL, NULL, true))
         goto out;
 
     /* Load libwireshark settings from the current profile. */

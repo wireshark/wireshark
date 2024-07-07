@@ -56,8 +56,8 @@ print_usage(FILE *output)
 
 /* Remember where this frame was in the file */
 typedef struct FrameRecord_t {
-    gint64       offset;
-    guint        num;
+    int64_t      offset;
+    unsigned     num;
 
     nstime_t     frame_time;
 } FrameRecord_t;
@@ -83,7 +83,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
             const char *outfile)
 {
     int    err;
-    gchar  *err_info;
+    char   *err_info;
 
     DEBUG_PRINT("\nDumping frame (offset=%" PRIu64 ")\n",
                 frame->offset);
@@ -178,11 +178,11 @@ main(int argc, char *argv[])
     wtap_rec rec;
     Buffer buf;
     int err;
-    gchar *err_info;
-    gint64 data_offset;
-    guint wrong_order_count = 0;
-    gboolean write_output_regardless = TRUE;
-    guint i;
+    char *err_info;
+    int64_t data_offset;
+    unsigned wrong_order_count = 0;
+    bool write_output_regardless = true;
+    unsigned i;
     wtap_dump_params params;
     int                          ret = EXIT_SUCCESS;
 
@@ -231,13 +231,13 @@ main(int argc, char *argv[])
 
     init_report_message("reordercap", &reordercap_message_routines);
 
-    wtap_init(TRUE);
+    wtap_init(true);
 
     /* Process the options first */
     while ((opt = ws_getopt_long(argc, argv, "hnv", long_options, NULL)) != -1) {
         switch (opt) {
             case 'n':
-                write_output_regardless = FALSE;
+                write_output_regardless = false;
                 break;
             case 'h':
                 show_help_header("Reorder timestamps of input file frames into output file.");
@@ -268,7 +268,7 @@ main(int argc, char *argv[])
     /* Open infile */
     /* TODO: if reordercap is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */
-    wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
+    wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, true);
     if (wth == NULL) {
         cfile_open_failure_message(infile, err, err_info);
         ret = WS_EXIT_OPEN_ERROR;

@@ -48,7 +48,7 @@ list_capture_types(void) {
 
     cmdarg_err("The available capture file types for the \"-F\" flag are:\n");
     writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
-    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    for (unsigned i = 0; i < writable_type_subtypes->len; i++) {
         int ft = g_array_index(writable_type_subtypes, int, i);
         fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
             wtap_file_type_subtype_description(ft));
@@ -79,7 +79,7 @@ randpkt_cmdarg_err_cont(const char *msg_format, va_list ap)
 
 /* Print usage statement and exit program */
 static void
-usage(gboolean is_error)
+usage(bool is_error)
 {
     FILE *output;
     char** abbrev_list;
@@ -143,8 +143,8 @@ main(int argc, char *argv[])
     int produce_count = 1000;
     int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
     randpkt_example *example;
-    guint8* type = NULL;
-    int allrandom = FALSE;
+    uint8_t* type = NULL;
+    int allrandom = false;
     wtap_dumper *savedump;
     int ret = EXIT_SUCCESS;
     static const struct ws_option long_options[] = {
@@ -182,7 +182,7 @@ main(int argc, char *argv[])
 
     init_report_message("randpkt", &randpkt_report_routines);
 
-    wtap_init(TRUE);
+    wtap_init(true);
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -220,12 +220,12 @@ main(int argc, char *argv[])
 
             case 'h':
                 show_help_header(NULL);
-                usage(FALSE);
+                usage(false);
                 goto clean_exit;
                 break;
 
             case 'r':
-                allrandom = TRUE;
+                allrandom = true;
                 break;
 
             case 'v':
@@ -243,7 +243,7 @@ main(int argc, char *argv[])
                 /* FALLTHROUGH */
 
             default:
-                usage(TRUE);
+                usage(true);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
                 break;
@@ -254,7 +254,7 @@ main(int argc, char *argv[])
     if (argc > ws_optind) {
         produce_filename = argv[ws_optind];
     } else {
-        usage(TRUE);
+        usage(true);
         ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
