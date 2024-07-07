@@ -29,7 +29,7 @@
 typedef void (*sharkd_dissect_func_t)(epan_dissect_t *edt, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data);
 
 /* sharkd.c */
-cf_status_t sharkd_cf_open(const char *fname, unsigned int type, gboolean is_tempfile, int *err);
+cf_status_t sharkd_cf_open(const char *fname, unsigned int type, bool is_tempfile, int *err);
 int sharkd_load_cap_file(void);
 int sharkd_retap(void);
 int sharkd_filter(const char *dftext, guint8 **result);

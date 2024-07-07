@@ -1178,7 +1178,7 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
 
     fprintf(stderr, "load: filename=%s\n", tok_file);
 
-    if (sharkd_cf_open(tok_file, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK)
+    if (sharkd_cf_open(tok_file, WTAP_TYPE_AUTO, false, &err) != CF_OK)
     {
         sharkd_json_error(
                 rpcid, -2001, NULL,

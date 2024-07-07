@@ -390,7 +390,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, int *err)
 {
     wtap  *wth;
     gchar *err_info;
@@ -465,7 +465,7 @@ sharkd_cmdarg_err_cont(const char *msg_format, va_list ap)
 }
 
 cf_status_t
-sharkd_cf_open(const char *fname, unsigned int type, gboolean is_tempfile, int *err)
+sharkd_cf_open(const char *fname, unsigned int type, bool is_tempfile, int *err)
 {
     return cf_open(&cfile, fname, type, is_tempfile, err);
 }

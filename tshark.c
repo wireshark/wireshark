@@ -2450,7 +2450,7 @@ main(int argc, char *argv[])
         /*
          * We're reading a capture file.
          */
-        if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) != CF_OK) {
+        if (cf_open(&cfile, cf_name, in_file_type, false, &err) != CF_OK) {
             epan_cleanup();
             extcap_cleanup();
             exit_status = WS_EXIT_INVALID_FILE;
@@ -2963,7 +2963,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     capture_file *cf = cap_session->cf;
-    gboolean is_tempfile;
+    bool is_tempfile;
     int      err;
 
     if (really_quiet == FALSE) {
@@ -2984,13 +2984,13 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
         }
 
         g_free(capture_opts->save_file);
-        is_tempfile = FALSE;
+        is_tempfile = false;
 
         epan_free(cf->epan);
         cf->epan = tshark_epan_new(cf);
     } else {
         /* we didn't had a save_file before, must be a tempfile */
-        is_tempfile = TRUE;
+        is_tempfile = true;
     }
 
     /* save the new filename */
@@ -4811,7 +4811,7 @@ cf_close(capture_file *cf)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, int *err)
 {
     wtap  *wth;
     gchar *err_info;

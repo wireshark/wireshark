@@ -915,7 +915,7 @@ main(int argc, char *argv[])
 
     /* TODO: if tfshark is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */
-    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
+    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, false, &err) != CF_OK) {
         exit_status = WS_EXIT_OPEN_ERROR;
         goto clean_exit;
     }
@@ -1990,7 +1990,7 @@ write_finale(void)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err _U_)
+cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, int *err _U_)
 {
     /* The open isn't implemented yet.  Fill in the information for this file. */
 
