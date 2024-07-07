@@ -41,11 +41,11 @@
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
 
-static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
+static bool capture_opts_output_to_pipe(const char *save_file, bool *is_pipe);
 
 
 void
-capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, gchar **))
+capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, char **))
 {
     capture_opts->get_iface_list                  = get_iface_list;
     capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
@@ -57,10 +57,10 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->default_options.hardware        = NULL;
     capture_opts->default_options.display_name    = NULL;
     capture_opts->default_options.cfilter         = NULL;
-    capture_opts->default_options.has_snaplen     = FALSE;
+    capture_opts->default_options.has_snaplen     = false;
     capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE_STANDARD;
     capture_opts->default_options.linktype        = -1; /* use interface default */
-    capture_opts->default_options.promisc_mode    = TRUE;
+    capture_opts->default_options.promisc_mode    = true;
     capture_opts->default_options.if_type         = IF_WIRED;
     capture_opts->default_options.extcap          = NULL;
     capture_opts->default_options.extcap_fifo     = NULL;
@@ -80,7 +80,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
-    capture_opts->default_options.monitor_mode    = FALSE;
+    capture_opts->default_options.monitor_mode    = false;
 #ifdef HAVE_PCAP_REMOTE
     capture_opts->default_options.src_type        = CAPTURE_IFLOCAL;
     capture_opts->default_options.remote_host     = NULL;
@@ -88,52 +88,52 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->default_options.auth_type       = CAPTURE_AUTH_NULL;
     capture_opts->default_options.auth_username   = NULL;
     capture_opts->default_options.auth_password   = NULL;
-    capture_opts->default_options.datatx_udp      = FALSE;
-    capture_opts->default_options.nocap_rpcap     = TRUE;
-    capture_opts->default_options.nocap_local     = FALSE;
+    capture_opts->default_options.datatx_udp      = false;
+    capture_opts->default_options.nocap_rpcap     = true;
+    capture_opts->default_options.nocap_local     = false;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
     capture_opts->default_options.sampling_method = CAPTURE_SAMP_NONE;
     capture_opts->default_options.sampling_param  = 0;
 #endif
     capture_opts->default_options.timestamp_type  = NULL;
-    capture_opts->saving_to_file                  = FALSE;
+    capture_opts->saving_to_file                  = false;
     capture_opts->save_file                       = NULL;
-    capture_opts->group_read_access               = FALSE;
-    capture_opts->use_pcapng                      = TRUE;             /* Save as pcapng by default */
+    capture_opts->group_read_access               = false;
+    capture_opts->use_pcapng                      = true;             /* Save as pcapng by default */
     capture_opts->update_interval                 = DEFAULT_UPDATE_INTERVAL; /* 100 ms */
-    capture_opts->real_time_mode                  = TRUE;
-    capture_opts->show_info                       = TRUE;
-    capture_opts->restart                         = FALSE;
+    capture_opts->real_time_mode                  = true;
+    capture_opts->show_info                       = true;
+    capture_opts->restart                         = false;
     capture_opts->orig_save_file                  = NULL;
 
-    capture_opts->multi_files_on                  = FALSE;
-    capture_opts->has_file_duration               = FALSE;
+    capture_opts->multi_files_on                  = false;
+    capture_opts->has_file_duration               = false;
     capture_opts->file_duration                   = 60.0;             /* 1 min */
-    capture_opts->has_file_interval               = FALSE;
-    capture_opts->has_nametimenum                 = FALSE;
+    capture_opts->has_file_interval               = false;
+    capture_opts->has_nametimenum                 = false;
     capture_opts->file_interval                   = 60;               /* 1 min */
-    capture_opts->has_file_packets                = FALSE;
+    capture_opts->has_file_packets                = false;
     capture_opts->file_packets                    = 0;
-    capture_opts->has_ring_num_files              = FALSE;
+    capture_opts->has_ring_num_files              = false;
     capture_opts->ring_num_files                  = RINGBUFFER_MIN_NUM_FILES;
 
-    capture_opts->has_autostop_files              = FALSE;
+    capture_opts->has_autostop_files              = false;
     capture_opts->autostop_files                  = 1;
-    capture_opts->has_autostop_packets            = FALSE;
+    capture_opts->has_autostop_packets            = false;
     capture_opts->autostop_packets                = 0;
-    capture_opts->has_autostop_written_packets    = FALSE;
+    capture_opts->has_autostop_written_packets    = false;
     capture_opts->autostop_written_packets        = 0;
-    capture_opts->has_autostop_filesize           = FALSE;
+    capture_opts->has_autostop_filesize           = false;
     capture_opts->autostop_filesize               = 1000;             /* 1 MB */
-    capture_opts->has_autostop_duration           = FALSE;
+    capture_opts->has_autostop_duration           = false;
     capture_opts->autostop_duration               = 60.0;             /* 1 min */
 
-    capture_opts->output_to_pipe                  = FALSE;
-    capture_opts->capture_child                   = FALSE;
-    capture_opts->stop_after_extcaps              = FALSE;
-    capture_opts->wait_for_extcap_cbs             = FALSE;
-    capture_opts->print_file_names                = FALSE;
+    capture_opts->output_to_pipe                  = false;
+    capture_opts->capture_child                   = false;
+    capture_opts->stop_after_extcaps              = false;
+    capture_opts->wait_for_extcap_cbs             = false;
+    capture_opts->print_file_names                = false;
     capture_opts->print_name_to                   = NULL;
     capture_opts->temp_dir                        = NULL;
     capture_opts->compress_type                   = NULL;
@@ -185,7 +185,7 @@ capture_opts_cleanup(capture_options *capture_opts)
 /* log content of capture_opts */
 void
 capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_options *capture_opts) {
-    guint i;
+    unsigned i;
 
     ws_log(log_domain, log_level, "CAPTURE OPTIONS     :");
 
@@ -305,14 +305,14 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  */
-static gboolean
+static bool
 set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
 {
-    gchar *p, *colonp;
+    char *p, *colonp;
 
     colonp = strchr(autostoparg, ':');
     if (colonp == NULL)
-        return FALSE;
+        return false;
 
     p = colonp;
     *p++ = '\0';
@@ -331,29 +331,29 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
          * looks correct.
          */
         *colonp = ':';
-        return FALSE;
+        return false;
     }
     if (strcmp(autostoparg,"duration") == 0) {
-        capture_opts->has_autostop_duration = TRUE;
+        capture_opts->has_autostop_duration = true;
         capture_opts->autostop_duration = get_positive_double(p,"autostop duration");
     } else if (strcmp(autostoparg,"filesize") == 0) {
-        capture_opts->has_autostop_filesize = TRUE;
+        capture_opts->has_autostop_filesize = true;
         capture_opts->autostop_filesize = get_nonzero_guint32(p,"autostop filesize");
     } else if (strcmp(autostoparg,"files") == 0) {
-        capture_opts->multi_files_on = TRUE;
-        capture_opts->has_autostop_files = TRUE;
+        capture_opts->multi_files_on = true;
+        capture_opts->has_autostop_files = true;
         capture_opts->autostop_files = get_positive_int(p,"autostop files");
     } else if (strcmp(autostoparg,"packets") == 0) {
-        capture_opts->has_autostop_written_packets = TRUE;
+        capture_opts->has_autostop_written_packets = true;
         capture_opts->autostop_written_packets = get_positive_int(p,"packet write count");
     } else {
-        return FALSE;
+        return false;
     }
     *colonp = ':'; /* put the colon back */
-    return TRUE;
+    return true;
 }
 
-static gboolean get_filter_arguments(capture_options* capture_opts, const char* arg)
+static bool get_filter_arguments(capture_options* capture_opts, const char* arg)
 {
     char* colonp;
     char* val;
@@ -396,12 +396,12 @@ static gboolean get_filter_arguments(capture_options* capture_opts, const char* 
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
         g_free(interface_opts->cfilter);
         interface_opts->cfilter = filter_exp;
-        return TRUE;
+        return true;
     }
     else {
         g_free(capture_opts->default_options.cfilter);
         capture_opts->default_options.cfilter = filter_exp;
-        return TRUE;
+        return true;
     }
 }
 
@@ -413,17 +413,17 @@ capture_opts_list_file_types(void) {
     cmdarg_err_cont("%s", "    pcapng - Wireshark/... - pcapng");
 }
 
-static gboolean get_file_type_argument(capture_options* capture_opts _U_, const
+static bool get_file_type_argument(capture_options* capture_opts _U_, const
  char* arg)
 {
     if (strcmp(arg, "pcapng") == 0) {
-        capture_opts->use_pcapng = TRUE;
+        capture_opts->use_pcapng = true;
     } else if (strcmp(arg, "pcap") == 0) {
-        capture_opts->use_pcapng = FALSE;
+        capture_opts->use_pcapng = false;
     } else {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /*
@@ -432,14 +432,14 @@ static gboolean get_file_type_argument(capture_options* capture_opts _U_, const
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  */
-static gboolean
+static bool
 get_ring_arguments(capture_options *capture_opts, const char *arg)
 {
-    gchar *p = NULL, *colonp;
+    char *p = NULL, *colonp;
 
     colonp = strchr(arg, ':');
     if (colonp == NULL)
-        return FALSE;
+        return false;
 
     p = colonp;
     *p++ = '\0';
@@ -458,36 +458,36 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
          * looks correct.
          */
         *colonp = ':';
-        return FALSE;
+        return false;
     }
 
     if (strcmp(arg,"files") == 0) {
-        capture_opts->has_ring_num_files = TRUE;
+        capture_opts->has_ring_num_files = true;
         capture_opts->ring_num_files = get_nonzero_guint32(p, "number of ring buffer files");
     } else if (strcmp(arg,"filesize") == 0) {
-        capture_opts->has_autostop_filesize = TRUE;
+        capture_opts->has_autostop_filesize = true;
         capture_opts->autostop_filesize = get_nonzero_guint32(p, "ring buffer filesize");
     } else if (strcmp(arg,"duration") == 0) {
-        capture_opts->has_file_duration = TRUE;
+        capture_opts->has_file_duration = true;
         capture_opts->file_duration = get_positive_double(p, "ring buffer duration");
     } else if (strcmp(arg,"interval") == 0) {
-        capture_opts->has_file_interval = TRUE;
+        capture_opts->has_file_interval = true;
         capture_opts->file_interval = get_positive_int(p, "ring buffer interval");
     } else if (strcmp(arg,"nametimenum") == 0) {
         int val = get_positive_int(p, "file name: time before num");
         capture_opts->has_nametimenum = (val > 1);
     } else if (strcmp(arg,"packets") == 0) {
-        capture_opts->has_file_packets = TRUE;
+        capture_opts->has_file_packets = true;
         capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
     } else if (strcmp(arg,"printname") == 0) {
-        capture_opts->print_file_names = TRUE;
+        capture_opts->print_file_names = true;
         capture_opts->print_name_to = g_strdup(p);
     }
     else {
-        return FALSE;
+        return false;
     }
     *colonp = ':';    /* put the colon back */
-    return TRUE;
+    return true;
 }
 
 #ifdef HAVE_PCAP_SETSAMPLING
@@ -497,14 +497,14 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  */
-static gboolean
+static bool
 get_sampling_arguments(capture_options *capture_opts, const char *arg)
 {
-    gchar *p = NULL, *colonp;
+    char *p = NULL, *colonp;
 
     colonp = strchr(arg, ':');
     if (colonp == NULL)
-        return FALSE;
+        return false;
 
     p = colonp;
     *p++ = '\0';
@@ -513,7 +513,7 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
         p++;
     if (*p == '\0') {
         *colonp = ':';
-        return FALSE;
+        return false;
     }
 
     if (strcmp(arg, "count") == 0) {
@@ -540,7 +540,7 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
         }
     }
     *colonp = ':';
-    return TRUE;
+    return true;
 }
 #endif
 
@@ -551,14 +551,14 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  */
-static gboolean
+static bool
 get_auth_arguments(capture_options *capture_opts, const char *arg)
 {
-    gchar *p = NULL, *colonp;
+    char *p = NULL, *colonp;
 
     colonp = strchr(arg, ':');
     if (colonp == NULL)
-        return FALSE;
+        return false;
 
     p = colonp;
     *p++ = '\0';
@@ -579,7 +579,7 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
         capture_opts->default_options.auth_password = g_strdup(p);
     }
     *colonp = ':';
-    return TRUE;
+    return true;
 }
 #endif
 
@@ -801,7 +801,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     GList       *if_list;
     if_info_t   *if_info;
     int         err;
-    gchar       *err_str;
+    char        *err_str;
     interface_options interface_opts;
 
     /*
@@ -954,22 +954,22 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 
     switch(opt) {
     case 'a':        /* autostop criteria */
-        if (set_autostop_criterion(capture_opts, optarg_str_p) == FALSE) {
+        if (set_autostop_criterion(capture_opts, optarg_str_p) == false) {
             cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg_str_p);
             return 1;
         }
         break;
 #ifdef HAVE_PCAP_REMOTE
     case 'A':
-        if (get_auth_arguments(capture_opts, optarg_str_p) == FALSE) {
+        if (get_auth_arguments(capture_opts, optarg_str_p) == false) {
             cmdarg_err("Invalid or unknown -A arg \"%s\"", optarg_str_p);
             return 1;
         }
         break;
 #endif
     case 'b':        /* Ringbuffer option */
-        capture_opts->multi_files_on = TRUE;
-        if (get_ring_arguments(capture_opts, optarg_str_p) == FALSE) {
+        capture_opts->multi_files_on = true;
+        if (get_ring_arguments(capture_opts, optarg_str_p) == false) {
             cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg_str_p);
             return 1;
         }
@@ -988,7 +988,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #endif
     case 'c':        /* Capture n packets */
         /* XXX Use set_autostop_criterion instead? */
-        capture_opts->has_autostop_packets = TRUE;
+        capture_opts->has_autostop_packets = true;
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
@@ -997,16 +997,16 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         get_filter_arguments(capture_opts, optarg_str_p);
         break;
     case 'F':        /* capture file type */
-        if (get_file_type_argument(capture_opts, optarg_str_p) == FALSE) {
+        if (get_file_type_argument(capture_opts, optarg_str_p) == false) {
             capture_opts_list_file_types();
             return 1;
         }
         break;
     case 'g':        /* enable group read access on the capture file(s) */
-        capture_opts->group_read_access = TRUE;
+        capture_opts->group_read_access = true;
         break;
     case 'H':        /* Hide capture info dialog box */
-        capture_opts->show_info = FALSE;
+        capture_opts->show_info = false;
         break;
     case LONGOPT_SET_TSTAMP_TYPE:        /* Set capture time stamp type */
         if (capture_opts->ifaces->len > 0) {
@@ -1032,9 +1032,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            interface_opts->monitor_mode = TRUE;
+            interface_opts->monitor_mode = true;
         } else {
-            capture_opts->default_options.monitor_mode = TRUE;
+            capture_opts->default_options.monitor_mode = true;
         }
         break;
 #endif
@@ -1047,7 +1047,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
 #ifdef HAVE_PCAP_SETSAMPLING
     case 'm':
-        if (get_sampling_arguments(capture_opts, optarg_str_p) == FALSE) {
+        if (get_sampling_arguments(capture_opts, optarg_str_p) == false) {
             cmdarg_err("Invalid or unknown -m arg \"%s\"", optarg_str_p);
             return 1;
         }
@@ -1055,21 +1055,21 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #endif
     case 'n':        /* Use pcapng format */
         cmdarg_err("'-n' is deprecated; use '-F pcapng' to set the output format to pcapng.");
-        capture_opts->use_pcapng = TRUE;
+        capture_opts->use_pcapng = true;
         break;
     case 'p':        /* Don't capture in promiscuous mode */
         if (capture_opts->ifaces->len > 0) {
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            interface_opts->promisc_mode = FALSE;
+            interface_opts->promisc_mode = false;
         } else {
-            capture_opts->default_options.promisc_mode = FALSE;
+            capture_opts->default_options.promisc_mode = false;
         }
         break;
     case 'P':        /* Use pcap format */
         cmdarg_err("'-P' is deprecated; use '-F pcap' to set the output format to pcap.");
-        capture_opts->use_pcapng = FALSE;
+        capture_opts->use_pcapng = false;
         break;
 #ifdef HAVE_PCAP_REMOTE
     case 'r':
@@ -1077,9 +1077,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            interface_opts->nocap_rpcap = FALSE;
+            interface_opts->nocap_rpcap = false;
         } else {
-            capture_opts->default_options.nocap_rpcap = FALSE;
+            capture_opts->default_options.nocap_rpcap = false;
         }
         break;
 #endif
@@ -1095,15 +1095,15 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            interface_opts->has_snaplen = TRUE;
+            interface_opts->has_snaplen = true;
             interface_opts->snaplen = snaplen;
         } else {
             capture_opts->default_options.snaplen = snaplen;
-            capture_opts->default_options.has_snaplen = TRUE;
+            capture_opts->default_options.has_snaplen = true;
         }
         break;
     case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
-        capture_opts->real_time_mode = TRUE;
+        capture_opts->real_time_mode = true;
         break;
 #ifdef HAVE_PCAP_REMOTE
     case 'u':
@@ -1111,14 +1111,14 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            interface_opts->datatx_udp = TRUE;
+            interface_opts->datatx_udp = true;
         } else {
-            capture_opts->default_options.datatx_udp = TRUE;
+            capture_opts->default_options.datatx_udp = true;
         }
         break;
 #endif
     case 'w':        /* Write to capture file x */
-        capture_opts->saving_to_file = TRUE;
+        capture_opts->saving_to_file = true;
         g_free(capture_opts->save_file);
         capture_opts->save_file = g_strdup(optarg_str_p);
         capture_opts->orig_save_file = g_strdup(optarg_str_p);
@@ -1308,7 +1308,7 @@ capture_opts_print_interfaces(GList *if_list)
 void
 capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 {
-    guint i;
+    unsigned i;
     interface_options *interface_opts;
 
     if (capture_opts->ifaces->len > 0) {
@@ -1393,12 +1393,12 @@ capture_opts_test_for_fifo(const char *path)
         return 0;
 }
 
-static gboolean
-capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
+static bool
+capture_opts_output_to_pipe(const char *save_file, bool *is_pipe)
 {
     int err;
 
-    *is_pipe = FALSE;
+    *is_pipe = false;
 
     if (save_file != NULL) {
         /* We're writing to a capture file. */
@@ -1408,7 +1408,7 @@ capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
                silly to do "-w - >output_file" rather than "-w output_file",
                but by not checking we might be violating the Principle Of
                Least Astonishment. */
-            *is_pipe = TRUE;
+            *is_pipe = true;
         } else {
             /* not writing to stdout, test for a FIFO (aka named pipe) */
             err = capture_opts_test_for_fifo(save_file);
@@ -1420,7 +1420,7 @@ capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
                 break;
 
             case ESPIPE:      /* it is a FIFO */
-                *is_pipe = TRUE;
+                *is_pipe = true;
                 break;
 
             default:          /* couldn't stat it              */
@@ -1468,7 +1468,7 @@ interface_opts_free(interface_options *interface_opts)
 }
 
 void
-capture_opts_del_iface(capture_options *capture_opts, guint if_index)
+capture_opts_del_iface(capture_options *capture_opts, unsigned if_index)
 {
     interface_options *interface_opts;
 
@@ -1497,7 +1497,7 @@ interface_opts_from_if_info(capture_options *capture_opts, const if_info_t *if_i
 void
 collect_ifaces(capture_options *capture_opts)
 {
-    guint i;
+    unsigned i;
     interface_t *device;
     interface_options interface_opts;
 
@@ -1566,7 +1566,7 @@ collect_ifaces(capture_options *capture_opts)
 }
 
 void
-capture_opts_free_link_row(gpointer elem)
+capture_opts_free_link_row(void *elem)
 {
     link_row* e = (link_row*)elem;
     if (e != NULL)

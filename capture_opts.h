@@ -128,22 +128,22 @@ typedef enum {
 
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host_info {
-    gchar        *remote_host;      /**< Host name or network address for remote capturing */
-    gchar        *remote_port;      /**< TCP port of remote RPCAP server */
+    char         *remote_host;      /**< Host name or network address for remote capturing */
+    char         *remote_port;      /**< TCP port of remote RPCAP server */
     capture_auth  auth_type;        /**< Authentication type */
-    gchar        *auth_username;    /**< Remote authentication parameters */
-    gchar        *auth_password;    /**< Remote authentication parameters */
-    gboolean      datatx_udp;
-    gboolean      nocap_rpcap;
-    gboolean      nocap_local;
+    char         *auth_username;    /**< Remote authentication parameters */
+    char         *auth_password;    /**< Remote authentication parameters */
+    bool          datatx_udp;
+    bool          nocap_rpcap;
+    bool          nocap_local;
 };
 
 struct remote_host {
-    gchar        *r_host;           /**< Host name or network address for remote capturing */
-    gchar        *remote_port;      /**< TCP port of remote RPCAP server */
+    char         *r_host;           /**< Host name or network address for remote capturing */
+    char         *remote_port;      /**< TCP port of remote RPCAP server */
     capture_auth  auth_type;        /**< Authentication type */
-    gchar        *auth_username;    /**< Remote authentication parameters */
-    gchar        *auth_password;    /**< Remote authentication parameters */
+    char         *auth_username;    /**< Remote authentication parameters */
+    char         *auth_password;    /**< Remote authentication parameters */
 };
 
 typedef struct remote_options_tag {
@@ -157,89 +157,89 @@ typedef struct remote_options_tag {
 #endif /* HAVE_PCAP_REMOTE */
 
 typedef struct interface_tag {
-    gchar          *name;
-    gchar          *display_name;
-    gchar          *addresses;
-    gint            no_addresses;
-    gchar          *cfilter;
+    char           *name;
+    char           *display_name;
+    char           *addresses;
+    int             no_addresses;
+    char           *cfilter;
     GList          *links;
-    gint            active_dlt;
+    int             active_dlt;
     bool            pmode;
     bool            has_snaplen;
     int             snaplen;
-    gboolean        local;
+    bool            local;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    gint            buffer;
+    int             buffer;
 #endif
 #ifdef HAVE_PCAP_CREATE
-    gboolean        monitor_mode_enabled;
-    gboolean        monitor_mode_supported;
+    bool            monitor_mode_enabled;
+    bool            monitor_mode_supported;
 #endif
 #ifdef HAVE_PCAP_REMOTE
     remote_options  remote_opts;
 #endif
-    guint32         last_packets;
-    guint32         packet_diff;
+    uint32_t        last_packets;
+    uint32_t        packet_diff;
     if_info_t       if_info;
-    gboolean        selected;
-    gboolean        hidden;
+    bool            selected;
+    bool            hidden;
     /* External capture cached data */
     GHashTable     *external_cap_args_settings;
-    gchar          *timestamp_type;
+    char           *timestamp_type;
 } interface_t;
 
 typedef struct link_row_tag {
-    gchar *name;
-    gint dlt;
+    char *name;
+    int dlt;
 } link_row;
 
 typedef struct interface_options_tag {
-    gchar            *name;                 /* the name of the interface supplied to libpcap/WinPcap/Npcap to specify the interface */
-    gchar            *descr;                /* a more user-friendly description of the interface; may be NULL if none */
-    gchar            *hardware;             /* description of the hardware */
-    gchar            *display_name;         /* the name displayed in the console and title bar */
-    gchar            *ifname;               /* if not null, name to use instead of the interface naem in IDBs */
-    gchar            *cfilter;
-    gboolean          has_snaplen;
+    char             *name;                 /* the name of the interface supplied to libpcap/WinPcap/Npcap to specify the interface */
+    char             *descr;                /* a more user-friendly description of the interface; may be NULL if none */
+    char             *hardware;             /* description of the hardware */
+    char             *display_name;         /* the name displayed in the console and title bar */
+    char             *ifname;               /* if not null, name to use instead of the interface naem in IDBs */
+    char             *cfilter;
+    bool              has_snaplen;
     int               snaplen;
     int               linktype;
-    gboolean          promisc_mode;
+    bool              promisc_mode;
     interface_type    if_type;
-    gchar            *extcap;
-    gchar            *extcap_fifo;
+    char             *extcap;
+    char             *extcap_fifo;
     GHashTable       *extcap_args;
     GPid              extcap_pid;           /* pid of running process or WS_INVALID_PID */
-    gpointer          extcap_pipedata;
+    void *            extcap_pipedata;
     GString          *extcap_stderr;
-    guint             extcap_stdout_watch;
-    guint             extcap_stderr_watch;
+    unsigned          extcap_stdout_watch;
+    unsigned          extcap_stderr_watch;
 #ifdef _WIN32
     HANDLE            extcap_pipe_h;
     HANDLE            extcap_control_in_h;
     HANDLE            extcap_control_out_h;
 #endif
-    gchar            *extcap_control_in;
-    gchar            *extcap_control_out;
+    char             *extcap_control_in;
+    char             *extcap_control_out;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     int               buffer_size;
 #endif
-    gboolean          monitor_mode;
+    bool              monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
     capture_source    src_type;
-    gchar            *remote_host;
-    gchar            *remote_port;
+    char             *remote_host;
+    char             *remote_port;
     capture_auth      auth_type;
-    gchar            *auth_username;
-    gchar            *auth_password;
-    gboolean          datatx_udp;
-    gboolean          nocap_rpcap;
-    gboolean          nocap_local;
+    char             *auth_username;
+    char             *auth_password;
+    bool              datatx_udp;
+    bool              nocap_rpcap;
+    bool              nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
     capture_sampling  sampling_method;
     int               sampling_param;
 #endif
-    gchar            *timestamp_type;       /* requested timestamp as string */
+    char             *timestamp_type;       /* requested timestamp as string */
     int               timestamp_type_id;    /* Timestamp type to pass to pcap_set_tstamp_type.
                                                only valid if timestamp_type != NULL */
 } interface_options;
@@ -247,7 +247,7 @@ typedef struct interface_options_tag {
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
-    GList             *(*get_iface_list)(int *, gchar **);
+    GList             *(*get_iface_list)(int *, char **);
                                               /**< routine to call to get the interface list */
     GArray            *ifaces;                /**< the interfaces to use for the
                                                    next capture, entries are of
@@ -256,8 +256,8 @@ typedef struct capture_options_tag {
                                                    of type interface_t */
     int                ifaces_err;            /**< if all_ifaces is null, the error
                                                    when it was fetched, if any */
-    gchar             *ifaces_err_info;       /**< error string for that error */
-    guint              num_selected;
+    char              *ifaces_err_info;       /**< error string for that error */
+    unsigned           num_selected;
 
     /*
      * Options to be applied to all interfaces.
@@ -278,63 +278,63 @@ typedef struct capture_options_tag {
      */
     interface_options  default_options;
 
-    gboolean           saving_to_file;        /**< TRUE if capture is writing to a file */
-    gchar             *save_file;             /**< the capture file name */
-    gboolean           group_read_access;     /**< TRUE is group read permission needs to be set */
-    gboolean           use_pcapng;            /**< TRUE if file format is pcapng */
-    guint              update_interval;       /**< Time in milliseconds. How often to notify parent of new packet counts, check file duration, etc. */
+    bool               saving_to_file;        /**< true if capture is writing to a file */
+    char              *save_file;             /**< the capture file name */
+    bool               group_read_access;     /**< true is group read permission needs to be set */
+    bool               use_pcapng;            /**< true if file format is pcapng */
+    unsigned           update_interval;       /**< Time in milliseconds. How often to notify parent of new packet counts, check file duration, etc. */
 
     /* GUI related */
-    gboolean           real_time_mode;        /**< Update list of packets in real time */
-    gboolean           show_info;             /**< show the info dialog. */
-    gboolean           restart;               /**< restart after closing is done */
-    gchar             *orig_save_file;        /**< the original capture file name (saved for a restart) */
+    bool               real_time_mode;        /**< Update list of packets in real time */
+    bool               show_info;             /**< show the info dialog. */
+    bool               restart;               /**< restart after closing is done */
+    char              *orig_save_file;        /**< the original capture file name (saved for a restart) */
 
     /* multiple files (and ringbuffer) */
-    gboolean           multi_files_on;        /**< TRUE if ring buffer in use */
+    bool               multi_files_on;        /**< true if ring buffer in use */
 
-    gboolean           has_file_duration;     /**< TRUE if ring duration specified */
-    gdouble            file_duration;         /**< Switch file after n seconds */
-    gboolean           has_file_interval;     /**< TRUE if ring interval specified */
-    gint32             file_interval;         /**< Create time intervals of n seconds */
-    gboolean           has_file_packets;      /**< TRUE if ring packet count is
+    bool               has_file_duration;     /**< true if ring duration specified */
+    double             file_duration;         /**< Switch file after n seconds */
+    bool               has_file_interval;     /**< true if ring interval specified */
+    int32_t            file_interval;         /**< Create time intervals of n seconds */
+    bool               has_file_packets;      /**< true if ring packet count is
                                                    specified */
     int                file_packets;          /**< Switch file after n packets */
-    gboolean           has_ring_num_files;    /**< TRUE if ring num_files specified */
-    guint32            ring_num_files;        /**< Number of multiple buffer files */
-    gboolean           has_nametimenum;       /**< TRUE if file name has date part before num part  */
+    bool               has_ring_num_files;    /**< true if ring num_files specified */
+    uint32_t           ring_num_files;        /**< Number of multiple buffer files */
+    bool               has_nametimenum;       /**< true if file name has date part before num part  */
 
     /* autostop conditions */
-    gboolean           has_autostop_files;    /**< TRUE if maximum number of capture files
+    bool               has_autostop_files;    /**< true if maximum number of capture files
                                                    are specified */
     int                autostop_files;        /**< Maximum number of capture files */
 
-    gboolean           has_autostop_packets;  /**< TRUE if maximum packet count is
+    bool               has_autostop_packets;  /**< true if maximum packet count is
                                                    specified */
     int                autostop_packets;      /**< Maximum packet count */
-    gboolean           has_autostop_written_packets;  /**< TRUE if maximum packet count is
+    bool               has_autostop_written_packets;  /**< true if maximum packet count is
                                                    specified */
     int                autostop_written_packets;      /**< Maximum packet count */
-    gboolean           has_autostop_filesize; /**< TRUE if maximum capture file size
+    bool               has_autostop_filesize; /**< true if maximum capture file size
                                                    is specified */
-    guint32            autostop_filesize;     /**< Maximum capture file size in kB */
-    gboolean           has_autostop_duration; /**< TRUE if maximum capture duration
+    uint32_t           autostop_filesize;     /**< Maximum capture file size in kB */
+    bool               has_autostop_duration; /**< true if maximum capture duration
                                                    is specified */
-    gdouble            autostop_duration;     /**< Maximum capture duration */
+    double             autostop_duration;     /**< Maximum capture duration */
 
-    gboolean           print_file_names;      /**< TRUE if printing names of completed
+    bool               print_file_names;      /**< true if printing names of completed
                                                    files as we close them */
-    gchar             *print_name_to;         /**< output file name */
-    gchar             *temp_dir;              /**< temporary directory path */
+    char              *print_name_to;         /**< output file name */
+    char              *temp_dir;              /**< temporary directory path */
 
     /* internally used (don't touch from outside) */
-    gboolean           output_to_pipe;        /**< save_file is a pipe (named or stdout) */
-    gboolean           capture_child;         /**< hidden option: Wireshark child mode */
-    gboolean           stop_after_extcaps;    /**< request dumpcap stop after last extcap */
-    gboolean           wait_for_extcap_cbs;   /**< extcaps terminated, waiting for callbacks */
-    gchar             *compress_type;         /**< compress type */
-    gchar             *closed_msg;            /**< Dumpcap capture closed message */
-    guint              extcap_terminate_id;   /**< extcap process termination source ID */
+    bool               output_to_pipe;        /**< save_file is a pipe (named or stdout) */
+    bool               capture_child;         /**< hidden option: Wireshark child mode */
+    bool               stop_after_extcaps;    /**< request dumpcap stop after last extcap */
+    bool               wait_for_extcap_cbs;   /**< extcaps terminated, waiting for callbacks */
+    char              *compress_type;         /**< compress type */
+    char              *closed_msg;            /**< Dumpcap capture closed message */
+    unsigned           extcap_terminate_id;   /**< extcap process termination source ID */
     filter_list_t     *capture_filters_list;  /**< list of saved capture filters */
 } capture_options;
 
@@ -347,7 +347,7 @@ typedef struct capture_options_tag {
  * to waste time doing that if we don't have to.)
  */
 extern void
-capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, gchar **));
+capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, char **));
 
 /* clean internal structures */
 extern void
@@ -396,7 +396,7 @@ capture_opts_default_iface_if_necessary(capture_options *capture_opts,
                                         const char *capture_device);
 
 extern void
-capture_opts_del_iface(capture_options *capture_opts, guint if_index);
+capture_opts_del_iface(capture_options *capture_opts, unsigned if_index);
 
 extern void
 interface_opts_free(interface_options *interface_opts);
@@ -408,7 +408,7 @@ extern void
 collect_ifaces(capture_options *capture_opts);
 
 extern void
-capture_opts_free_link_row(gpointer elem);
+capture_opts_free_link_row(void *elem);
 
 extern void
 capture_opts_free_interface_t(interface_t *device);
