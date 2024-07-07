@@ -4776,6 +4776,7 @@ scup-disc	6315/udp	# Sensor Control Unit Protocol Discovery Protocol
 abb-escp	6316/tcp/udp	# Ethernet Sensor Communications Protocol
 nav-data-cmd	6317/tcp	# Navtech Radar Sensor Data Command
 nav-data	6317/udp	# Navtech Radar Sensor Data
+iona-data	6318/tcp	# IONA Measurement and control data
 repsvc		6320/tcp/udp	# Double-Take Replication Service
 emp-server1	6321/tcp/udp	# Empress Software Connectivity Server 1
 emp-server2	6322/tcp/udp	# Empress Software Connectivity Server 2
