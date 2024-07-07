@@ -265,13 +265,8 @@ Source Package:
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha512 sha256 sha1 ; do openssl $digest wireshark-*.tar.* ; done
-    # This will break if we produce multiple tarballs, which is arguably a good thing.
-    - if [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
-    - |
-      if [ -n "$S3_DESTINATION_RELEASE" ] ; then
-        aws s3 cp release-notes-*.txt "$S3_DESTINATION_RELEASE/"
-        aws s3 cp release-notes-*.html "$S3_DESTINATION_RELEASE/"
-      fi
+    - if [ -n "$MC_DESTINATION_DIST" ] ; then mc --quiet cp wireshark-*.tar.* "$MC_DESTINATION_DIST/" ; fi
+    - if [ -n "$MC_DESTINATION_RELEASE" ] ; then mc --quiet cp release-notes-*.{txt,html} "$MC_DESTINATION_RELEASE/" ; fi
   artifacts:
     paths:
       - wireshark-*.tar.*
@@ -313,7 +308,7 @@ Debian Stable APT Test:
     # Used for https://www.wireshark.org/docs/dfref/
     - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.*$//' -e 's/-0-g.*//' )
     - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
-    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp dfilter-list-${TSHARK_VERSION}.txt "$S3_DESTINATION_RELEASE/" ; fi
+    - if [[ -n "$MC_DESTINATION_RELEASE" ]] ; then mc --quiet cp dfilter-list-${TSHARK_VERSION}.txt "$MC_DESTINATION_RELEASE/" ; fi
   artifacts:
     paths:
       - dfilter-list-*.txt
@@ -635,12 +630,7 @@ Documentation:
     - ninja all_guides
     - cd docbook
     - for HTML_DIR in ws[ud]g_html{,_chunked} ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
-    - |
-      if [ -n "$S3_DESTINATION_DOCS" ] ; then
-        for DOC_FILE in ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ; do
-          aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
-        done
-      fi
+    - if [ -n "$MC_DESTINATION_DOCS" ] ; then mc --quiet cp ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} "$MC_DESTINATION_DOCS/" ; fi
     - mv -v ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ../..
   after_script:
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
@@ -815,10 +805,7 @@ macOS Build:
     - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
     - mv wsar_html.zip doxygen_{output,errors}.txt ..
     - cd ..
-    - |
-      if [ -n "$S3_DESTINATION_DOCS" ] ; then
-        aws s3 cp wsar_html.zip "$S3_DESTINATION_DOCS/"
-      fi
+    - if [ -n "$MC_DESTINATION_DOCS" ] ; then mc --quiet cp wsar_html.zip "$MC_DESTINATION_DOCS/" ; fi
   after_script:
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
   artifacts:
@@ -865,11 +852,7 @@ macOS Build:
     - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
-    - |
-      if [ -n "$S3_DESTINATION_FUZZ" ] ; then
-        aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
-        aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
-      fi
+    - if [ -n "$MC_DESTINATION_FUZZ" ] ; then mc --quiet cp "$FUZZ_CAPTURE" "$FUZZ_ERRORS" "$MC_DESTINATION_FUZZ/"
 
 ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
