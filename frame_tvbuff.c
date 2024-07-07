@@ -26,17 +26,17 @@ struct tvb_frame {
     Buffer *buf;         /* Packet data */
 
     const struct packet_provider_data *prov;	/* provider of packet information */
-    gint64 file_off;     /**< File offset */
+    int64_t file_off;     /**< File offset */
 
-    guint offset;
+    unsigned offset;
 };
 
-static gboolean
+static bool
 frame_read(struct tvb_frame *frame_tvb, wtap_rec *rec, Buffer *buf)
 {
     int    err;
-    gchar *err_info;
-    gboolean ok = TRUE;
+    char *err_info;
+    bool ok = true;
 
     /* XXX, what if phdr->caplen isn't equal to
      * frame_tvb->tvb.length + frame_tvb->offset?
@@ -46,7 +46,7 @@ frame_read(struct tvb_frame *frame_tvb, wtap_rec *rec, Buffer *buf)
         switch (err) {
             case WTAP_ERR_BAD_FILE:
                 g_free(err_info);
-                ok = FALSE;
+                ok = false;
                 break;
         }
     }
@@ -93,8 +93,8 @@ frame_free(tvbuff_t *tvb)
     }
 }
 
-static const guint8 *
-frame_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length _U_)
+static const uint8_t *
+frame_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length _U_)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
@@ -104,7 +104,7 @@ frame_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length _U_)
 }
 
 static void *
-frame_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
+frame_memcpy(tvbuff_t *tvb, void *target, unsigned abs_offset, unsigned abs_length)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
@@ -113,23 +113,23 @@ frame_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
     return memcpy(target, tvb->real_data + abs_offset, abs_length);
 }
 
-static gint
-frame_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
+static int
+frame_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
-    const guint8 *result;
+    const uint8_t *result;
 
     frame_cache(frame_tvb);
 
-    result = (const guint8 *)memchr(tvb->real_data + abs_offset, needle, limit);
+    result = (const uint8_t *)memchr(tvb->real_data + abs_offset, needle, limit);
     if (result)
-        return (gint) (result - tvb->real_data);
+        return (int) (result - tvb->real_data);
     else
         return -1;
 }
 
-static gint
-frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle)
+static int
+frame_pbrk_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
@@ -138,14 +138,14 @@ frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk
     return tvb_ws_mempbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
 }
 
-static guint
-frame_offset(const tvbuff_t *tvb _U_, const guint counter)
+static unsigned
+frame_offset(const tvbuff_t *tvb _U_, const unsigned counter)
 {
     /* XXX: frame_tvb->offset */
     return counter;
 }
 
-static tvbuff_t *frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length);
+static tvbuff_t *frame_clone(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length);
 
 static const struct tvb_ops tvb_frame_ops = {
     sizeof(struct tvb_frame), /* size */
@@ -162,7 +162,7 @@ static const struct tvb_ops tvb_frame_ops = {
 /* based on tvb_new_real_data() */
 tvbuff_t *
 frame_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
-        const guint8 *buf)
+        const uint8_t *buf)
 {
     struct tvb_frame *frame_tvb;
     tvbuff_t *tvb;
@@ -185,7 +185,7 @@ frame_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
      * filtered out, and should not be filtered out,
      * as those lengths are not necessarily invalid.
      *
-     * For now, we clip the reported length at G_MAXINT
+     * For now, we clip the reported length at INT_MAX
      *
      * (XXX, is this still a problem?) There was an exception when we call
      * tvb_new_real_data() now there's no one
@@ -193,9 +193,9 @@ frame_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
 
     tvb->real_data        = buf;
     tvb->length           = fd->cap_len;
-    tvb->reported_length  = fd->pkt_len > G_MAXINT ? G_MAXINT : fd->pkt_len;
+    tvb->reported_length  = fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len;
     tvb->contained_length = tvb->reported_length;
-    tvb->initialized      = TRUE;
+    tvb->initialized      = true;
 
     /*
      * This is the top-level real tvbuff for this data source,
@@ -226,7 +226,7 @@ frame_tvbuff_new_buffer(const struct packet_provider_data *prov,
 }
 
 static tvbuff_t *
-frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
+frame_clone(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
@@ -246,7 +246,7 @@ frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
     cloned_tvb->length           = abs_length;
     cloned_tvb->reported_length  = abs_length; /* XXX? */
     cloned_tvb->contained_length = cloned_tvb->reported_length;
-    cloned_tvb->initialized      = TRUE;
+    cloned_tvb->initialized      = true;
 
     /*
      * This is the top-level real tvbuff for this data source,
@@ -267,7 +267,7 @@ frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 /* based on tvb_new_real_data() */
 tvbuff_t *
 file_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
-        const guint8 *buf)
+        const uint8_t *buf)
 {
     struct tvb_frame *frame_tvb;
     tvbuff_t *tvb;
@@ -290,7 +290,7 @@ file_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
      * filtered out, and should not be filtered out,
      * as those lengths are not necessarily invalid.
      *
-     * For now, we clip the reported length at G_MAXINT
+     * For now, we clip the reported length at INT_MAX
      *
      * (XXX, is this still a problem?) There was an exception when we call
      * tvb_new_real_data() now there's no one
@@ -298,9 +298,9 @@ file_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
 
     tvb->real_data        = buf;
     tvb->length           = fd->cap_len;
-    tvb->reported_length  = fd->pkt_len > G_MAXINT ? G_MAXINT : fd->pkt_len;
+    tvb->reported_length  = fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len;
     tvb->contained_length = tvb->reported_length;
-    tvb->initialized      = TRUE;
+    tvb->initialized      = true;
 
     /*
      * This is the top-level real tvbuff for this data source,

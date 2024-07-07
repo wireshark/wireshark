@@ -24,16 +24,16 @@
 /* Maximum number for FAT filesystems */
 #define RINGBUFFER_WARN_NUM_FILES 65535
 
-int ringbuf_init(const char *capture_name, guint num_files, gboolean group_read_access, gchar* compress_type,
-                 gboolean nametimenum);
-gboolean ringbuf_is_initialized(void);
-const gchar *ringbuf_current_filename(void);
+int ringbuf_init(const char *capture_name, unsigned num_files, bool group_read_access, char* compress_type,
+                 bool nametimenum);
+bool ringbuf_is_initialized(void);
+const char *ringbuf_current_filename(void);
 FILE *ringbuf_init_libpcap_fdopen(int *err);
-gboolean ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd,
+bool ringbuf_switch_file(FILE **pdh, char **save_file, int *save_file_fd,
                              int *err);
-gboolean ringbuf_libpcap_dump_close(gchar **save_file, int *err);
+bool ringbuf_libpcap_dump_close(char **save_file, int *err);
 void ringbuf_free(void);
 void ringbuf_error_cleanup(void);
-gboolean ringbuf_set_print_name(gchar *name, int *err);
+bool ringbuf_set_print_name(char *name, int *err);
 
 #endif /* ringbuffer.h */

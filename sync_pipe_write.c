@@ -26,7 +26,7 @@
 static ssize_t
 sync_pipe_write_header(int pipe_fd, char indicator, unsigned int length)
 {
-    guchar header[1+3]; /* indicator + 3-byte len */
+    unsigned char header[1+3]; /* indicator + 3-byte len */
 
     ws_assert(length <= SP_MAX_MSG_LEN);
 

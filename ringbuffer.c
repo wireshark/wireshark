@@ -69,7 +69,7 @@ typedef z_stream zlib_stream;
 
 /* Ringbuffer file structure */
 typedef struct _rb_file {
-    gchar         *name;
+    char          *name;
 } rb_file;
 
 #define MAX_FILENAME_QUEUE  100
@@ -77,22 +77,22 @@ typedef struct _rb_file {
 /** Ringbuffer data structure */
 typedef struct _ringbuf_data {
     rb_file      *files;
-    guint         num_files;           /**< Number of ringbuffer files (1 to ...) */
-    guint         curr_file_num;       /**< Number of the current file (ever increasing) */
-    gchar        *fprefix;             /**< Filename prefix */
-    gchar        *fsuffix;             /**< Filename suffix */
-    gboolean      nametimenum;         /**< ...num_time... or ...time_num...   */
-    gboolean      unlimited;           /**< TRUE if unlimited number of files */
+    unsigned      num_files;           /**< Number of ringbuffer files (1 to ...) */
+    unsigned      curr_file_num;       /**< Number of the current file (ever increasing) */
+    char         *fprefix;             /**< Filename prefix */
+    char         *fsuffix;             /**< Filename suffix */
+    bool          nametimenum;         /**< ...num_time... or ...time_num...   */
+    bool          unlimited;           /**< true if unlimited number of files */
 
     int           fd;                  /**< Current ringbuffer file descriptor */
     FILE         *pdh;
     char         *io_buffer;              /**< The IO buffer used to write to the file */
-    gboolean      group_read_access;   /**< TRUE if files need to be opened with group read access */
+    bool          group_read_access;   /**< true if files need to be opened with group read access */
     FILE         *name_h;              /**< write names of completed files to this handle */
-    gchar        *compress_type;       /**< compress type */
+    char         *compress_type;       /**< compress type */
 
     GMutex        mutex;               /**< mutex for oldnames */
-    gchar        *oldnames[MAX_FILENAME_QUEUE];       /**< filename list of pending to be deleted */
+    char         *oldnames[MAX_FILENAME_QUEUE];       /**< filename list of pending to be deleted */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
@@ -101,7 +101,7 @@ static ringbuf_data rb_data;
  * delete pending uncompressed pcap files.
  */
 static void
-CleanupOldCap(gchar* name)
+CleanupOldCap(char* name)
 {
     ws_statb64 statb;
     size_t i;
@@ -139,13 +139,13 @@ CleanupOldCap(gchar* name)
  * compress capture file
  */
 static int
-ringbuf_exec_compress(gchar* name)
+ringbuf_exec_compress(char* name)
 {
-    guint8  *buffer = NULL;
-    gchar* outgz = NULL;
+    uint8_t *buffer = NULL;
+    char* outgz = NULL;
     int  fd = -1;
     ssize_t nread;
-    gboolean delete_org_file = TRUE;
+    bool delete_org_file = true;
     gzFile fi = NULL;
 
     fd = ws_open(name, O_RDONLY | O_BINARY, 0000);
@@ -162,7 +162,7 @@ ringbuf_exec_compress(gchar* name)
     }
 
 #define FS_READ_SIZE 65536
-    buffer = (guint8*)g_malloc(FS_READ_SIZE);
+    buffer = (uint8_t*)g_malloc(FS_READ_SIZE);
     if (buffer == NULL) {
         ws_close(fd);
         ZLIB_PREFIX(gzclose)(fi);
@@ -173,13 +173,13 @@ ringbuf_exec_compress(gchar* name)
         int n = ZLIB_PREFIX(gzwrite)(fi, buffer, (unsigned int)nread);
         if (n <= 0) {
             /* mark compression as failed */
-            delete_org_file = FALSE;
+            delete_org_file = false;
             break;
         }
     }
     if (nread < 0) {
         /* mark compression as failed */
-        delete_org_file = FALSE;
+        delete_org_file = false;
     }
     ws_close(fd);
     ZLIB_PREFIX(gzclose)(fi);
@@ -200,7 +200,7 @@ ringbuf_exec_compress(gchar* name)
 static void*
 exec_compress_thread(void* arg)
 {
-    ringbuf_exec_compress((gchar*)arg);
+    ringbuf_exec_compress((char*)arg);
     return NULL;
 }
 
@@ -210,7 +210,7 @@ exec_compress_thread(void* arg)
 static int
 ringbuf_start_compress_file(rb_file* rfile)
 {
-    gchar* name = g_strdup(rfile->name);
+    char* name = g_strdup(rfile->name);
     g_thread_new("exec_compress", &exec_compress_thread, name);
     return 0;
 }
@@ -228,7 +228,7 @@ ringbuf_open_file(rb_file *rfile, int *err)
     struct tm *tm;
 
     if (rfile->name != NULL) {
-        if (rb_data.unlimited == FALSE) {
+        if (rb_data.unlimited == false) {
             /* remove old file (if any, so ignore error) */
             ws_unlink(rfile->name);
         }
@@ -277,8 +277,8 @@ ringbuf_open_file(rb_file *rfile, int *err)
  * Initialize the ringbuffer data structures
  */
 int
-ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_access,
-        gchar *compress_type, gboolean has_nametimenum)
+ringbuf_init(const char *capfile_name, unsigned num_files, bool group_read_access,
+        char *compress_type, bool has_nametimenum)
 {
     unsigned int i;
     char        *pfx;
@@ -289,7 +289,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
     rb_data.fprefix = NULL;
     rb_data.fsuffix = NULL;
     rb_data.nametimenum = has_nametimenum;
-    rb_data.unlimited = FALSE;
+    rb_data.unlimited = false;
     rb_data.fd = -1;
     rb_data.pdh = NULL;
     rb_data.io_buffer = NULL;
@@ -343,7 +343,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
        need to save all file names in that case) */
 
     if (num_files == RINGBUFFER_UNLIMITED_FILES) {
-        rb_data.unlimited = TRUE;
+        rb_data.unlimited = true;
         rb_data.num_files = 1;
     }
 
@@ -368,15 +368,15 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
 /*
  * Set name of file to which to print ringbuffer file names.
  */
-gboolean
-ringbuf_set_print_name(gchar *name, int *err)
+bool
+ringbuf_set_print_name(char *name, int *err)
 {
     if (rb_data.name_h != NULL) {
         if (EOF == fclose(rb_data.name_h)) {
             if (err != NULL) {
                 *err = errno;
             }
-            return FALSE;
+            return false;
         }
     }
     if (!strcmp(name, "-") || !strcmp(name, "stdout")) {
@@ -388,23 +388,23 @@ ringbuf_set_print_name(gchar *name, int *err)
             if (err != NULL) {
                 *err = errno;
             }
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 /*
  * Whether the ringbuf filenames are ready.
  * (Whether ringbuf_init is called and ringbuf_free is not called.)
  */
-gboolean
+bool
 ringbuf_is_initialized(void)
 {
     return rb_data.files != NULL;
 }
 
-const gchar *
+const char *
 ringbuf_current_filename(void)
 {
     return rb_data.files[rb_data.curr_file_num % rb_data.num_files].name;
@@ -443,8 +443,8 @@ ringbuf_init_libpcap_fdopen(int *err)
 /*
  * Switches to the next ringbuffer file
  */
-gboolean
-ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
+bool
+ringbuf_switch_file(FILE **pdh, char **save_file, int *save_file_fd, int *err)
 {
     int     next_file_index;
     rb_file *next_rfile = NULL;
@@ -460,7 +460,7 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
         rb_data.fd = -1;
         g_free(rb_data.io_buffer);
         rb_data.io_buffer = NULL;
-        return FALSE;
+        return false;
     }
 
     rb_data.pdh = NULL;
@@ -478,11 +478,11 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
     next_rfile = &rb_data.files[next_file_index];
 
     if (ringbuf_open_file(next_rfile, err) == -1) {
-        return FALSE;
+        return false;
     }
 
     if (ringbuf_init_libpcap_fdopen(err) == NULL) {
-        return FALSE;
+        return false;
     }
 
     /* switch to the new file */
@@ -490,16 +490,16 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
     *save_file_fd = rb_data.fd;
     (*pdh) = rb_data.pdh;
 
-    return TRUE;
+    return true;
 }
 
 /*
  * Calls fclose() for the current ringbuffer file
  */
-gboolean
-ringbuf_libpcap_dump_close(gchar **save_file, int *err)
+bool
+ringbuf_libpcap_dump_close(char **save_file, int *err)
 {
-    gboolean  ret_val = TRUE;
+    bool      ret_val = true;
 
     /* close current file, if it's open */
     if (rb_data.pdh != NULL) {
@@ -508,7 +508,7 @@ ringbuf_libpcap_dump_close(gchar **save_file, int *err)
                 *err = errno;
             }
             ws_close(rb_data.fd);
-            ret_val = FALSE;
+            ret_val = false;
         }
         rb_data.pdh = NULL;
         rb_data.fd  = -1;
