@@ -18,7 +18,6 @@ set(DISSECTOR_SRC
 )
 
 set(DISSECTOR_HEADERS
-	conversation-macros.h
 	sinsp-span.h
 )
 
