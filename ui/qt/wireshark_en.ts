@@ -8830,6 +8830,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>THROUGHPUT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13128,10 +13132,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13394,10 +13394,6 @@ a:hover {
     </message>
     <message>
         <source>Wireless Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Help contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14172,6 +14168,14 @@ a:hover {
     </message>
     <message>
         <source>&amp;Wireless</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark User&apos;s Guide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

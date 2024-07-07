@@ -5590,6 +5590,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 6267, "gld",              "GridLAB-D User Interface" },
     { 6315, "scup",             "Sensor Control Unit Protocol" },
     { 6317, "nav-data-cmd",     "Navtech Radar Sensor Data Command" },
+    { 6318, "iona-data",        "IONA Measurement and control data" },
     { 6324, "hrd-ncs",          "HR Device Network Configuration Service" },
     { 6325, "dt-mgmtsvc",       "Double-Take Management Service" },
     { 6326, "dt-vra",           "Double-Take Virtual Recovery Assistant" },

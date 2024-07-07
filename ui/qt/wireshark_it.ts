@@ -8893,6 +8893,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>MEDIA</translation>
     </message>
     <message>
+        <source>THROUGHPUT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LOAD</source>
         <translation>CARICO</translation>
     </message>
@@ -11503,7 +11507,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Decoded as %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Decodificato come %1.</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As…</source>
@@ -11511,14 +11515,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>compressed %1</source>
-        <translation type="unfinished"></translation>
+        <translation>compressi %1</translation>
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <oldsource>Displaying %Ln byte(s).</oldsource>
-        <translation type="unfinished">
-            <numerusform>Visualizzazione di %Ln byte.</numerusform>
-            <numerusform>Visualizzazione di %Ln byte.</numerusform>
+        <translation>
+            <numerusform>Utilizzo di %Ln byte.</numerusform>
+            <numerusform>Utilizzo di %Ln byte.</numerusform>
         </translation>
     </message>
     <message>
@@ -13298,7 +13301,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation>&amp;Contenuti</translation>
+        <translation type="vanished">&amp;Contenuti</translation>
     </message>
     <message>
         <source>TShark</source>
@@ -13567,7 +13570,7 @@ a:hover {
     </message>
     <message>
         <source>Help contents</source>
-        <translation>Contenuti della guida</translation>
+        <translation type="vanished">Contenuti della guida</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -14332,6 +14335,14 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Wireless</translation>
+    </message>
+    <message>
+        <source>&amp;User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display Filters</source>

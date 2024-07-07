@@ -8914,6 +8914,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>THROUGHPUT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11539,11 +11543,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <oldsource>Displaying %Ln byte(s).</oldsource>
         <translation type="unfinished">
-            <numerusform>Wyświetl %Ln bajt.</numerusform>
-            <numerusform>Wyświetl %Ln bajtów.</numerusform>
-            <numerusform>Wyświetl %Ln bajtów.</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13324,7 +13327,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation>Podrę&amp;cznik</translation>
+        <translation type="vanished">Podrę&amp;cznik</translation>
     </message>
     <message>
         <source>TShark</source>
@@ -13593,7 +13596,7 @@ a:hover {
     </message>
     <message>
         <source>Help contents</source>
-        <translation>Pomoc</translation>
+        <translation type="vanished">Pomoc</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -14358,6 +14361,14 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>Bezprze&amp;wodowe</translation>
+    </message>
+    <message>
+        <source>&amp;User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display Filters</source>

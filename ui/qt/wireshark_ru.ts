@@ -8922,6 +8922,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>THROUGHPUT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11547,11 +11551,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <oldsource>Displaying %Ln byte(s).</oldsource>
         <translation type="unfinished">
-            <numerusform>Показ %Ln байта.</numerusform>
-            <numerusform>Показ %Ln байтов.</numerusform>
-            <numerusform>Показ %Ln байтов.</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13337,7 +13340,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation>&amp;Содержание</translation>
+        <translation type="vanished">&amp;Содержание</translation>
     </message>
     <message>
         <source>TShark</source>
@@ -13606,7 +13609,7 @@ a:hover {
     </message>
     <message>
         <source>Help contents</source>
-        <translation>Содержание справки</translation>
+        <translation type="vanished">Содержание справки</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -14371,6 +14374,14 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Беспроводная связь</translation>
+    </message>
+    <message>
+        <source>&amp;User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display Filters</source>

@@ -8818,6 +8818,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>THROUGHPUT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11413,10 +11417,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <oldsource>Displaying %Ln byte(s).</oldsource>
         <translation type="unfinished">
-            <numerusform>Mostrando %Ln byte.</numerusform>
-            <numerusform>Mostrando %Ln bytes.</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13162,7 +13165,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation>&amp;Contenidos</translation>
+        <translation type="vanished">&amp;Contenidos</translation>
     </message>
     <message>
         <source>TShark</source>
@@ -13431,7 +13434,7 @@ a:hover {
     </message>
     <message>
         <source>Help contents</source>
-        <translation>Contenidos de ayuda</translation>
+        <translation type="vanished">Contenidos de ayuda</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -14196,6 +14199,14 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Wireless</translation>
+    </message>
+    <message>
+        <source>&amp;User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark User&apos;s Guide</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display Filters</source>

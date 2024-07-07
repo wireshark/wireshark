@@ -321,13 +321,17 @@ Wireshark 4.3.0 Release Notes
         • Endpoints that share a same address now have two distinct
        nodes with a line between them. Issue 12038[26]
 
+        • The Comment column can be resized, by selecting the axis
+       between the Comment column and the graph and dragging, and
+       auto-resized by double-clicking the column. Issue 4972[27]
+
         • Tooltips are shown for elided comments
 
         • The scroll direction via keyboard is no longer reversed. Issue
-       12932[27]
+       12932[28]
 
         • The column widths are fixed, instead of resizing slightly
-       depending on the visible entries. Issue 12931[28]
+       depending on the visible entries. Issue 12931[29]
 
         • The Y-axis labels stay in the correct position without having
        to click Reset.
@@ -336,7 +340,7 @@ Wireshark 4.3.0 Release Notes
        Calls.)
 
         • The behavior of the "Any" and "Network" combobox is corrected.
-       Issue 19818[29]
+       Issue 19818[30]
 
         • "Limit to Display Filter" is checked if a display filter is
        applied when the Flow Graph is opened, per the documentation.
@@ -359,8 +363,8 @@ Wireshark 4.3.0 Release Notes
        been patched to work with Lua 5.3 and 5.4, in addition to the
        native Lua support for bit operations present in those versions),
        different versions of Lua are not guaranteed to be compatible. If
-       a Lua dissector has issues, check the manuals for Lua 5.4[30],
-       Lua 5.3[31], and Lua 5.2[32] for incompatibilities and suggested
+       a Lua dissector has issues, check the manuals for Lua 5.4[31],
+       Lua 5.3[32], and Lua 5.2[33] for incompatibilities and suggested
        workarounds. Note that features marked as deprecated in one
        version are removed in the subsequent version without additional
        notice, so it can be worth checking the manual for previous
@@ -374,7 +378,7 @@ Wireshark 4.3.0 Release Notes
 
      • Lua Dumper now defaults to the pcapng file type, and to
        per-packet encapsulation (creating interfaces on demand as
-       necessary) when writing pcapng Issue 16403[33]
+       necessary) when writing pcapng Issue 16403[34]
 
   Removed Features and Support
 
@@ -428,7 +432,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[34] on the Wireshark web site.
+   be found on the download page[35] on the Wireshark web site.
 
  File Locations
 
@@ -443,24 +447,24 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[35] and on the
+  Community support is available on Wireshark’s Q&A site[36] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[36].
+  for all of Wireshark’s mailing lists can be found on the web site[37].
 
-  Bugs and feature requests can be reported on the issue tracker[37].
+  Bugs and feature requests can be reported on the issue tracker[38].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[38].
+  SharkFest[39].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[39].
+  at wiresharkfoundation.org[40].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[40].
+  A complete FAQ is available on the Wireshark web site[41].
 
  References
 
@@ -490,17 +494,18 @@ Wireshark 4.3.0 Release Notes
   24. https://gitlab.com/wireshark/wireshark/-/issues/18102
   25. https://gitlab.com/wireshark/wireshark/-/issues/13504
   26. https://gitlab.com/wireshark/wireshark/-/issues/12038
-  27. https://gitlab.com/wireshark/wireshark/-/issues/12932
-  28. https://gitlab.com/wireshark/wireshark/-/issues/12931
-  29. https://gitlab.com/wireshark/wireshark/-/issues/19818
-  30. https://www.lua.org/manual/5.4/manual.html#8
-  31. https://www.lua.org/manual/5.3/manual.html#8
-  32. https://www.lua.org/manual/5.2/manual.html#8
-  33. https://gitlab.com/wireshark/wireshark/-/issues/16403
-  34. https://www.wireshark.org/download.html
-  35. https://ask.wireshark.org/
-  36. https://www.wireshark.org/lists/
-  37. https://gitlab.com/wireshark/wireshark/-/issues
-  38. https://sharkfest.wireshark.org
-  39. https://wiresharkfoundation.org
-  40. https://www.wireshark.org/faq.html
+  27. https://gitlab.com/wireshark/wireshark/-/issues/4972
+  28. https://gitlab.com/wireshark/wireshark/-/issues/12932
+  29. https://gitlab.com/wireshark/wireshark/-/issues/12931
+  30. https://gitlab.com/wireshark/wireshark/-/issues/19818
+  31. https://www.lua.org/manual/5.4/manual.html#8
+  32. https://www.lua.org/manual/5.3/manual.html#8
+  33. https://www.lua.org/manual/5.2/manual.html#8
+  34. https://gitlab.com/wireshark/wireshark/-/issues/16403
+  35. https://www.wireshark.org/download.html
+  36. https://ask.wireshark.org/
+  37. https://www.wireshark.org/lists/
+  38. https://gitlab.com/wireshark/wireshark/-/issues
+  39. https://sharkfest.wireshark.org
+  40. https://wiresharkfoundation.org
+  41. https://www.wireshark.org/faq.html
