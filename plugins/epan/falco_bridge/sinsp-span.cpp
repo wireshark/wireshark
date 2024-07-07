@@ -465,8 +465,8 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
     ssi->evt = new sinsp_evt(&sinsp_span->inspector);
     ssi->evt_storage_size = 4096;
     ssi->evt_storage = (uint8_t *) g_malloc(ssi->evt_storage_size);
-    ssi->name = strdup(sinsp_syscall_event_source_name);
-    ssi->description = strdup(sinsp_syscall_event_source_name);
+    ssi->name = g_strdup(sinsp_syscall_event_source_name);
+    ssi->description = g_strdup(sinsp_syscall_event_source_name);
     *ssi_ptr = ssi;
     return;
 }
@@ -505,8 +505,8 @@ create_sinsp_plugin_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_
     ssi->evt = new sinsp_evt(&sinsp_span->inspector);
     ssi->evt_storage_size = 4096;
     ssi->evt_storage = (uint8_t *) g_malloc(ssi->evt_storage_size);
-    ssi->name = strdup(ssi->source->name().c_str());
-    ssi->description = strdup(ssi->source->description().c_str());
+    ssi->name = g_strdup(ssi->source->name().c_str());
+    ssi->description = g_strdup(ssi->source->description().c_str());
     *ssi_ptr = ssi;
     return NULL;
 }
@@ -523,9 +523,9 @@ const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi)
 {
     if (ssi->source) {
         if (ssi->last_error) {
-            free(ssi->last_error);
+            g_free(ssi->last_error);
         }
-        ssi->last_error = strdup(ssi->source->get_last_error().c_str());
+        ssi->last_error = g_strdup(ssi->source->get_last_error().c_str());
     }
     return ssi->last_error;
 }
