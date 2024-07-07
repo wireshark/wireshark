@@ -748,8 +748,7 @@ different. See the manual page of xref:https://www.tcpdump.org/manpages/pcap-fil
 xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8), or, if that doesn't exist, {wireshark-wiki-url}CaptureFilters
 for a description of capture filters.
 
-Display Filters are also described in the User's Guide:
-{wireshark-users-guide-url}ChWorkBuildDisplayFilterSection.html
+Display Filters are also described in the link:{wireshark-users-guide-url}ChWorkBuildDisplayFilterSection.html[Wireshark User's Guide].
 
 == SEE ALSO
 

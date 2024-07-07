@@ -944,7 +944,7 @@ include::diagnostic-options.adoc[]
 
 == INTERFACE
 
-The xref:{wireshark-users-guide-url}[Wireshark User's Guide] contains a description of the user interface. It also may be installed locally along with Wireshark. Pressing the F1 key will attempt to open the guide locally if present, falling back to the online guide if not.
+The link:{wireshark-users-guide-url}[Wireshark User's Guide] contains a description of the user interface. It also may be installed locally along with Wireshark. Pressing the F1 key will attempt to open the guide locally if present, falling back to the online guide if not.
 
 == CAPTURE FILTER SYNTAX
 
