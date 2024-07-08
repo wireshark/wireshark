@@ -4208,7 +4208,7 @@ static bool
 capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap_stat *stats)
 {
 #ifdef _WIN32
-    DWORD             upd_time, cur_time; /* GetTickCount() returns a "DWORD" (which is 'unsigned long') */
+    ULONGLONG         upd_time, cur_time; /* GetTickCount64() returns a "ULONGLONG" */
 #else
     struct timeval    upd_time, cur_time;
 #endif
@@ -4337,7 +4337,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
 
     /* init the time values */
 #ifdef _WIN32
-    upd_time = GetTickCount();
+    upd_time = GetTickCount64();
 #else
     gettimeofday(&upd_time, NULL);
 #endif
@@ -4415,8 +4415,8 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
          * packets we haven't notified the parent about, such as on fast links?
          */
 #ifdef _WIN32
-        cur_time = GetTickCount();  /* Note: wraps to 0 if sys runs for 49.7 days */
-        if ((cur_time - upd_time) > capture_opts->update_interval) /* wrap just causes an extra update */
+        cur_time = GetTickCount64();
+        if ((cur_time - upd_time) > capture_opts->update_interval)
 #else
         gettimeofday(&cur_time, NULL);
         if (((uint64_t)cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
