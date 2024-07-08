@@ -2596,8 +2596,9 @@ finished_fwd:
                         bool is_sacked = false;
                         int i=0;
                         while( !is_sacked && i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges ) {
-                            is_sacked = ((seq >= tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i++])
-                                        && (nextseq <= tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i]));
+                            is_sacked = ((seq >= tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i+1])
+                                        && (nextseq <= tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i+1]));
+                            i++;
                         }
 
                         /* fine, it's probably a Fast Retrans triggered by the SACK sender algo */
