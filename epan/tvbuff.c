@@ -2311,15 +2311,15 @@ _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bit
 		/* not aligned, extract bits from first octet */
 		shift = 8 - (bit_offset % 8);
 		value = tvb_get_guint8(tvb, octet_offset) >> (bit_offset % 8);
-		if (shift > total_no_of_bits)
+		if (shift > remaining_bits)
 		{
 			/* keep only the requested bits */
-			value &= (UINT64_C(1) << total_no_of_bits) - 1;
+			value &= (UINT64_C(1) << remaining_bits) - 1;
 			remaining_bits = 0;
 		}
 		else
 		{
-			remaining_bits = total_no_of_bits - shift;
+			remaining_bits -= shift;
 		}
 		octet_offset++;
 	}
