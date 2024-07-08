@@ -423,7 +423,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, bo
     return time_string_buf;
 }
 
-static void print_value(const char *text_p1, gint width, const char *text_p2, double value)
+static void print_value(const char *text_p1, int width, const char *text_p2, double value)
 {
     if (value > 0.0)
         printf("%s%.*f%s\n", text_p1, width, value, text_p2);
@@ -647,7 +647,7 @@ print_stats(const char *filename, capture_info *cf_info)
                     char *s = g_array_index(cf_info->idb_info_strings, char*, i);
                     uint32_t packet_count = 0;
                     if (i < cf_info->interface_packet_counts->len)
-                        packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
+                        packet_count = g_array_index(cf_info->interface_packet_counts, uint32_t, i);
                     printf   ("Interface #%u info:\n", i);
                     printf   ("%s", s);
                     printf   ("                     Number of packets = %u\n", packet_count);
@@ -694,7 +694,7 @@ print_stats_table_header(capture_info *cf_info)
 {
     pkt_cmt *p;
     char    *buf;
-    gsize    buf_len;
+    size_t   buf_len;
 
     putquote();
     printf("File name");
@@ -914,7 +914,7 @@ print_stats_table(const char *filename, capture_info *cf_info)
         putquote();
     }
 
-    for (guint section_number = 0;
+    for (unsigned section_number = 0;
             section_number < wtap_file_get_num_shbs(cf_info->wth);
             section_number++) {
         wtap_block_t shb;
@@ -1248,7 +1248,7 @@ process_cap_file(const char *filename, bool need_separator)
                     idb_info = NULL;
                 }
                 if (rec.rec_header.packet_header.interface_id < cf_info.num_interfaces) {
-                    g_array_index(cf_info.interface_packet_counts, guint32,
+                    g_array_index(cf_info.interface_packet_counts, uint32_t,
                             rec.rec_header.packet_header.interface_id) += 1;
                 }
                 else {
@@ -1258,7 +1258,7 @@ process_cap_file(const char *filename, bool need_separator)
             else {
                 /* it's for interface_id 0 */
                 if (cf_info.num_interfaces != 0) {
-                    g_array_index(cf_info.interface_packet_counts, guint32, 0) += 1;
+                    g_array_index(cf_info.interface_packet_counts, uint32_t, 0) += 1;
                 }
                 else {
                     cf_info.pkt_interface_id_unknown += 1;
