@@ -122,23 +122,23 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     MACRO( ASCIIDOCTOR2TXT _asciidocsource )
         GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-        set( _output_html ${_source_base_name}.html )
+        set( _input_html ${_source_base_name}.html )
         set( _output_txt ${_source_base_name}.txt )
 
         ADD_CUSTOM_COMMAND(
             OUTPUT
                 ${_output_txt}
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
-                ${_output_html}
+                ${_input_html}
                 > ${_output_txt}
             DEPENDS
                 ${MAN_INCLUDES}
                 ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                ${_output_html}
+                ${_input_html}
                 ${ARGN}
         )
-        unset(_output_html)
+        unset(_input_html)
         unset(_output_txt)
     ENDMACRO()
 
