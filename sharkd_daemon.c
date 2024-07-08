@@ -106,7 +106,7 @@ socket_init(char *path)
         struct sockaddr_in s_in;
         int one = 1;
         char *port_sep;
-        guint16 port;
+        uint16_t port;
 
         path += 4;
 
@@ -116,7 +116,7 @@ socket_init(char *path)
 
         *port_sep = '\0';
 
-        if (ws_strtou16(port_sep + 1, NULL, &port) == FALSE)
+        if (ws_strtou16(port_sep + 1, NULL, &port) == false)
             return INVALID_SOCKET;
 
 #ifdef _WIN32
@@ -291,7 +291,7 @@ sharkd_init(int argc, char **argv)
 
             switch (opt) {
                 case 'C':        /* Configuration Profile */
-                    if (profile_exists(ws_optarg, FALSE)) {
+                    if (profile_exists(ws_optarg, false)) {
                         set_profile_name(ws_optarg);  // In Daemon Mode, we may need to do this again in the child process
                     }
                     else {
@@ -443,8 +443,8 @@ sharkd_loop(int argc _U_, char* argv[])
             for (int i = 1; i < argc; i++)
             {
                 if (
-                        !g_ascii_strncasecmp(argv[i], "-a", (guint)strlen(argv[i]))
-                        || !g_ascii_strncasecmp(argv[i], "--api", (guint)strlen(argv[i]))
+                        !g_ascii_strncasecmp(argv[i], "-a", strlen(argv[i]))
+                        || !g_ascii_strncasecmp(argv[i], "--api", strlen(argv[i]))
                    )
                 {
                     i++;  // skip the socket details

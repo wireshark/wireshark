@@ -32,19 +32,19 @@ typedef void (*sharkd_dissect_func_t)(epan_dissect_t *edt, proto_tree *tree, str
 cf_status_t sharkd_cf_open(const char *fname, unsigned int type, bool is_tempfile, int *err);
 int sharkd_load_cap_file(void);
 int sharkd_retap(void);
-int sharkd_filter(const char *dftext, guint8 **result);
-frame_data *sharkd_get_frame(guint32 framenum);
+int sharkd_filter(const char *dftext, uint8_t **result);
+frame_data *sharkd_get_frame(uint32_t framenum);
 enum dissect_request_status {
   DISSECT_REQUEST_SUCCESS,
   DISSECT_REQUEST_NO_SUCH_FRAME,
   DISSECT_REQUEST_READ_ERROR
 };
 enum dissect_request_status
-sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num,
-                       guint32 prev_dis_num, wtap_rec *rec, Buffer *buf,
-                       column_info *cinfo, guint32 dissect_flags,
+sharkd_dissect_request(uint32_t framenum, uint32_t frame_ref_num,
+                       uint32_t prev_dis_num, wtap_rec *rec, Buffer *buf,
+                       column_info *cinfo, uint32_t dissect_flags,
                        sharkd_dissect_func_t cb, void *data,
-                       int *err, gchar **err_info);
+                       int *err, char **err_info);
 wtap_block_t sharkd_get_modified_block(const frame_data *fd);
 wtap_block_t sharkd_get_packet_block(const frame_data *fd);
 int sharkd_set_modified_block(frame_data *fd, wtap_block_t new_block);
