@@ -998,14 +998,15 @@ Visual Studio Code Analysis:
   script:
     - py -m venv sarif-tools.venv
     - sarif-tools.venv\Scripts\pip.exe install sarif-tools
-    - msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
-    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
+    - New-Item -Path C:\MinIO -Type "directory"
+    - Invoke-Webrequest -OutFile C:\MinIO\mc.exe https://dl.min.io/client/mc/release/windows-amd64/archive/mc.RELEASE.2024-07-03T20-17-25Z
+    - if ($( Get-FileHash -Algorithm SHA256 -Path C:\MinIO\mc.exe ).Hash -ne "A379139FB32C0ADDB6C05786782602B5106D13402759AC1B4A88285A4D5EAAD3" ) { Exit 1 }
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
     - $report = "visual-c++-analyze-" + (Get-Date -format "yyyy-MM-dd") + ".html"
     - sarif-tools.venv\Scripts\sarif html --output $report
-    - if (Test-Path env:MC_DESTINATION_ANALYSIS) { C:\gitlab-builds\bin\mc --quiet cp "$report" "$env:MC_DESTINATION_ANALYSIS/" }
+    - if (Test-Path env:MC_DESTINATION_ANALYSIS) { C:\MinIO\mc --quiet cp "$report" "$env:MC_DESTINATION_ANALYSIS/" }
 
 # Build all doxygen docs
 API Reference:
