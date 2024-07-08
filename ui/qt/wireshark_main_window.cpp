@@ -303,16 +303,22 @@ static void mainwindow_remove_toolbar(const char *menu_title)
     }
 }
 
-QMenu* WiresharkMainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
-    QList<QAction *> actions = parent_menu->actions();
-    QList<QAction *>::const_iterator i;
-    for (i = actions.constBegin(); i != actions.constEnd(); ++i) {
-        if ((*i)->text()==menu_text) {
-            return (*i)->menu();
+QMenu* WiresharkMainWindow::findOrAddMenu(QMenu *parent_menu, const QStringList& menu_parts) {
+    for (auto const & menu_text : menu_parts) {
+        bool found;
+        for (auto const & action : parent_menu->actions()) {
+            if (action->text() == menu_text.trimmed()) {
+                parent_menu = action->menu();
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // If we get here the menu entry was not found, add a sub menu
+            parent_menu = parent_menu->addMenu(menu_text.trimmed());
         }
     }
-    // If we get here there menu entry was not found, add a sub menu
-    return parent_menu->addMenu(menu_text);
+    return parent_menu;
 }
 
 WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
