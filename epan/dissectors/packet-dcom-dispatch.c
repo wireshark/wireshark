@@ -336,7 +336,7 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
                 u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, dispparams_tree, di, drep, hf_dispatch_arg);
             }
         }
-        offset = u32VariableOffset;
+        /*offset = u32VariableOffset;*/
     }
 
     /* DISPID rgdispidNamedArgs[u32NamedArgs] */
