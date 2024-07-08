@@ -16,8 +16,6 @@ import signal
 # Can also check for value_string where common tfs could be used instead.
 
 # TODO:
-# - check how many of the definitions in epan/tfs.c are used in other dissectors
-#      - although even if unused, might be in external dissectors?
 # - consider merging Item class with check_typed_item_calls.py ?
 
 
@@ -70,58 +68,58 @@ def isGeneratedFile(filename):
 # Keep track of custom entries that might appear in multiple dissectors,
 # so we can consider adding them to tfs.c
 custom_tfs_entries = {}
-def AddCustomEntry(val1, val2, file):
+def AddCustomEntry(true_val, false_val, file):
     global custom_tfs_entries
-    if (val1, val2) in custom_tfs_entries:
-        custom_tfs_entries[(val1, val2)].append(file)
+    if (true_val, false_val) in custom_tfs_entries:
+        custom_tfs_entries[(true_val, false_val)].append(file)
     else:
-        custom_tfs_entries[(val1, val2)] = [file]
+        custom_tfs_entries[(true_val, false_val)] = [file]
 
 
 # Individual parsed TFS entry
 class TFS:
-    def __init__(self, file, name, val1, val2):
+    def __init__(self, file, name, true_val, false_val):
         self.file = file
         self.name = name
-        self.val1 = val1
-        self.val2 = val2
+        self.true_val = true_val
+        self.false_val = false_val
 
         global warnings_found
 
         # Should not be empty
-        if not len(val1) or not len(val2):
+        if not len(true_val) or not len(false_val):
             print('Warning:', file, name, 'has an empty field', self)
             warnings_found += 1
         #else:
             # Strange if one begins with capital but other doesn't?
-            #if val1[0].isalpha() and val2[0].isalpha():
-            #    if val1[0].isupper() != val2[0].isupper():
+            #if true_val[0].isalpha() and false_val[0].isalpha():
+            #    if true_val[0].isupper() != false_val[0].isupper():
             #        print(file, name, 'one starts lowercase and the other upper', self)
 
         # Leading or trailing space should not be needed.
-        if val1.startswith(' ') or val1.endswith(' '):
-            print('Note: ' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.val1 + '\"')
-        if val2.startswith(' ') or val2.endswith(' '):
-            print('Note: ' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.val2 + '\"')
+        if true_val.startswith(' ') or true_val.endswith(' '):
+            print('Note: ' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.true_val + '\"')
+        if false_val.startswith(' ') or false_val.endswith(' '):
+            print('Note: ' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.false_val + '\"')
 
         # Should really not be identical...
-        if val1.lower() == val2.lower():
+        if true_val.lower() == false_val.lower():
             print('Warning:', file, name, 'true and false strings are the same', self)
             warnings_found += 1
 
         # Shouldn't both be negation (with exception..)
-        if (file != os.path.join('epan', 'dissectors', 'packet-smb.c') and (val1.lower().find('not ') != -1) and (val2.lower().find('not ') != -1)):
+        if (file != os.path.join('epan', 'dissectors', 'packet-smb.c') and (true_val.lower().find('not ') != -1) and (false_val.lower().find('not ') != -1)):
             print('Warning:', file, name, self, 'both strings contain not')
             warnings_found += 1
 
         # Not expecting full-stops inside strings..
-        if val1.find('.') != -1 or val2.find('.') != -1:
+        if true_val.find('.') != -1 or false_val.find('.') != -1:
             print('Warning:', file, name, 'Period found in string', self)
             warnings_found += 1
 
 
     def __str__(self):
-        return '{' + '"' + self.val1 + '", "' + self.val2 + '"}'
+        return '{' + '"' + self.true_val + '", "' + self.false_val + '"}'
 
 
 # Only looking at in terms of could/should it be TFS instead.
@@ -300,10 +298,10 @@ def findTFS(filename):
         matches =   re.finditer(r'\sconst\s*true_false_string\s*([a-zA-Z0-9_]*)\s*=\s*{\s*\"([a-zA-Z_0-9/:! ]*)\"\s*,\s*\"([a-zA-Z_0-9/:! ]*)\"', contents)
         for m in matches:
             name = m.group(1)
-            val1 = m.group(2)
-            val2 = m.group(3)
+            true_val = m.group(2)
+            false_val = m.group(3)
             # Store this entry.
-            tfs_found[name] = TFS(filename, name, val1, val2)
+            tfs_found[name] = TFS(filename, name, true_val, false_val)
 
     return tfs_found
 
@@ -424,14 +422,14 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
             #
             if os.path.commonprefix([filename, 'plugin/epan/']) == '':
                 exact_case = False
-                if file_tfs[f].val1 == common_tfs[c].val1 and file_tfs[f].val2 == common_tfs[c].val2:
+                if file_tfs[f].true_val == common_tfs[c].true_val and file_tfs[f].false_val == common_tfs[c].false_val:
                     found = True
                     exact_case = True
-                elif file_tfs[f].val1.upper() == common_tfs[c].val1.upper() and file_tfs[f].val2.upper() == common_tfs[c].val2.upper():
+                elif file_tfs[f].true_val.upper() == common_tfs[c].true_val.upper() and file_tfs[f].false_val.upper() == common_tfs[c].false_val.upper():
                     found = True
 
                 if found:
-                    print("Error:" if exact_case else "Warn: ", filename, f,
+                    print("Error:" if exact_case else "Warning: ", filename, f,
                           "- could have used", c, 'from tfs.c instead: ', common_tfs[c],
                           '' if exact_case else '  (capitalisation differs)')
                     if exact_case:
@@ -441,7 +439,7 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     break
         if not found:
             if look_for_common:
-                AddCustomEntry(file_tfs[f].val1, file_tfs[f].val2, filename)
+                AddCustomEntry(file_tfs[f].true_val, file_tfs[f].false_val, filename)
 
     if check_value_strings:
         # Get macros
@@ -475,10 +473,10 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     #
                     if os.path.commonprefix([filename, 'plugin/epan/']) == '':
                         exact_case = False
-                        if common_tfs[c].val1 == vs[v].parsed_vals[True] and common_tfs[c].val2 == vs[v].parsed_vals[False]:
+                        if common_tfs[c].true_val == vs[v].parsed_vals[True] and common_tfs[c].false_val == vs[v].parsed_vals[False]:
                             found = True
                             exact_case = True
-                        elif common_tfs[c].val1.upper() == vs[v].parsed_vals[True].upper() and common_tfs[c].val2.upper() == vs[v].parsed_vals[False].upper():
+                        elif common_tfs[c].true_val.upper() == vs[v].parsed_vals[True].upper() and common_tfs[c].false_val.upper() == vs[v].parsed_vals[False].upper():
                             found = True
 
                         # Do values match?

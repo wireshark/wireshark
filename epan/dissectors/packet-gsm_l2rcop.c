@@ -113,20 +113,16 @@ static const true_false_string x_vals = {
 	"flow control ACTIVE", "flow control inactive"
 };
 
-static const true_false_string sab_vals = {
-	"OFF", "ON"
-};
-
 
 void
 proto_register_gsm_l2rcop(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_l2rcop_sa,
-		  { "SA", "gsm_l2rcop.sa", FT_BOOLEAN, 8, TFS(&sab_vals), 0x80,
+		  { "SA", "gsm_l2rcop.sa", FT_BOOLEAN, 8, TFS(&tfs_off_on), 0x80,
 		    NULL, HFILL }},
 		{ &hf_l2rcop_sb,
-		  { "SB", "gsm_l2rcop.sb", FT_BOOLEAN, 8, TFS(&sab_vals), 0x40,
+		  { "SB", "gsm_l2rcop.sb", FT_BOOLEAN, 8, TFS(&tfs_off_on), 0x40,
 		    NULL, HFILL }},
 		{ &hf_l2rcop_x,
 		  { "X", "gsm_l2rcop.x", FT_BOOLEAN, 8, TFS(&x_vals), 0x20,
