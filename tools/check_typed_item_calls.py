@@ -183,7 +183,7 @@ class APICheck:
             if self.fun_name.find('add_bits') == -1 and call.hf_name in items_defined:
                 if call.length and items_defined[call.hf_name].item_type in item_lengths:
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
-                        # Don't warn if adding value - value is unlkely to just be bytes value
+                        # Don't warn if adding value - value is unlikely to just be bytes value
                         if self.fun_name.find('_add_uint') == -1:
                             print('Warning:', self.file + ':' + str(call.line_number),
                                 self.fun_name + ' called for', call.hf_name, ' - ',

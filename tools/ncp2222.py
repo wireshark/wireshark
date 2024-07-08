@@ -5850,7 +5850,7 @@ def define_errors():
     errors[0xff0d] = "Object associated with ObjectID is not a manager"
     errors[0xff0e] = "Invalid initial semaphore value"
     errors[0xff0f] = "The semaphore handle is not valid"
-    errors[0xff10] = "SemaphoreHandle is not associated with a valid sempahore"
+    errors[0xff10] = "SemaphoreHandle is not associated with a valid semaphore"
     errors[0xff11] = "Invalid semaphore handle"
     errors[0xff12] = "Transaction tracking is not available"
     errors[0xff13] = "The transaction has not yet been written to disk"
@@ -8486,7 +8486,7 @@ proto_register_ncp2222(void)
     { "Vendor Name", "ncp.vendor_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_hardware_name,
-    { "Hardware Name", "ncp.harware_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Hardware Name", "ncp.hardware_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_no_request_record_found,
     { "No request record found. Parsing is impossible.", "ncp.no_request_record_found", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},

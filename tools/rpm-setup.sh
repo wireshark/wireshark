@@ -218,7 +218,7 @@ then
 	# OpenSUSE additionally has a separate Qt5PrintSupport package.
 	add_package BASIC_LIST qt5-qtmultimedia-devel ||
 	add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
-	echo "Required Qt5 Mutlimedia and/or Qt5 Print Support is unavailable" >&2
+	echo "Required Qt5 Multimedia and/or Qt5 Print Support is unavailable" >&2
 
 	# This is only required on OpenSUSE
 	add_package BASIC_LIST libqt5-qtsvg-devel ||
@@ -258,7 +258,7 @@ fi
 
 # This in only required on OpenSUSE
 add_packages BASIC_LIST hicolor-icon-theme xdg-utils ||
-echo "Required OpenSUSE packages hicolor-icon-theme and xdg-utils are unavailable. Not required for other distirbutions." >&2
+echo "Required OpenSUSE packages hicolor-icon-theme and xdg-utils are unavailable. Not required for other distributions." >&2
 
 # This in only required (and available) on OpenSUSE
 add_package BASIC_LIST update-desktop-files ||

@@ -223,7 +223,7 @@ for uuids in uuids_sources:
 
 '''
 Do a check on duplicate entries.
-While at it, do a count of the number of UUIDs retreived.
+While at it, do a count of the number of UUIDs retrieved.
 '''
 prev_uuid = 0
 uuid_count = 0

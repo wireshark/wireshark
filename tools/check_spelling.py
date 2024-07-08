@@ -448,7 +448,7 @@ parser.add_argument('--file', action='append',
                     help='specify individual file to test')
 parser.add_argument('--folder', action='append',
                     help='specify folder to test')
-parser.add_argument('--glob', action='store', default='',
+parser.add_argument('--glob', action='append',
                     help='specify glob to test - should give in "quotes"')
 parser.add_argument('--no-recurse', action='store_true', default='',
                     help='do not recurse inside chosen folder(s)')
@@ -560,12 +560,13 @@ if args.open:
 
 if args.glob:
     # Add specified file(s)
-    for f in glob.glob(args.glob):
-        if not os.path.isfile(f):
-            print('Chosen file', f, 'does not exist.')
-            exit(1)
-        else:
-            files.append(f)
+    for g in args.glob:
+        for f in glob.glob(g):
+            if not os.path.isfile(f):
+                print('Chosen file', f, 'does not exist.')
+                exit(1)
+            else:
+                files.append(f)
 
 if args.folder:
     for folder in args.folder:

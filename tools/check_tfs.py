@@ -12,7 +12,7 @@ import argparse
 import signal
 
 # This utility scans for tfs items, and works out if standard ones
-# could have been used intead (from epan/tfs.c)
+# could have been used instead (from epan/tfs.c)
 # Can also check for value_string where common tfs could be used instead.
 
 # TODO:
@@ -197,7 +197,7 @@ class Item:
         self.strings = strings
         self.mask = mask
 
-        # N.B. Not sestting mask by looking up macros.
+        # N.B. Not setting mask by looking up macros.
 
         self.item_type = item_type
         self.type_modifier = type_modifier

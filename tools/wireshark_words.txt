@@ -110,6 +110,7 @@ arbitrated
 arcnet
 arduino
 arfcn
+argparse
 arista
 armscii
 arphrd
@@ -159,6 +160,7 @@ authtoken
 authtype
 authz
 autocompletions
+autoconf
 autoconfiguration
 autodiscovery
 autoneg
@@ -198,6 +200,7 @@ bgpspec
 bharti
 bibliographic
 bibliography
+bidir
 bidirection
 bidirectional
 bidirectionally
@@ -304,6 +307,7 @@ centre
 centric
 centrino
 cfilters
+cflags
 cframe
 chacha
 chan1
@@ -386,6 +390,7 @@ colorized
 colorizing
 colormap
 colour
+colouring
 combi
 combiner
 combiners
@@ -423,6 +428,7 @@ connid
 connp
 conout
 const
+constr
 contactless
 contextp
 contiguity
@@ -472,6 +478,7 @@ curvezmq
 customizable
 customization
 customizing
+cxxflags
 cyber
 cymru
 cyphering
@@ -516,6 +523,7 @@ december
 decentralization
 dechunk
 decimals
+declarator
 decnet
 decompressed
 decompressing
@@ -578,6 +586,7 @@ deregistering
 deregistration
 derivate
 des40
+descname
 descr
 descriptor
 descriptors
@@ -593,6 +602,7 @@ destport
 determinant
 deutschland
 devcap
+devel
 devfs
 deviceid
 devmode
@@ -623,6 +633,7 @@ digium
 dilithium
 diplexer
 directionality
+dirname
 disambiguate
 disambiguation
 discontinuities
@@ -632,6 +643,7 @@ dishnet
 dissection
 dissector
 dissectors
+distclean
 distinguisher
 distrib
 distributions
@@ -644,6 +656,7 @@ dlsch
 dlstatus
 dmacros
 dmepi
+dmrpc
 dmx4all
 dnskey
 dnsop
@@ -699,6 +712,7 @@ elektronik
 elided
 elink
 ellipsoid
+elsif
 emlsr
 emulates
 emule
@@ -749,10 +763,12 @@ equiv
 equivalence
 ericsson
 erldp
+errcnt
 errinf
 errno
 errorcode
 errored
+errorlog
 errorportinfo
 erspan
 España
@@ -766,6 +782,7 @@ ethercat
 ethernet
 ethers
 ethertype
+ethname
 etisalat
 etlfile
 ettarr
@@ -821,6 +838,7 @@ fileseg
 fileset
 filsfils
 filter2d
+finditer
 firefox
 firewall
 fiveco
@@ -838,6 +856,7 @@ flowset
 flowspec
 fmconfig
 fmdata
+fname
 foffset
 followup
 foobar
@@ -962,6 +981,7 @@ hfarr
 hfill,
 hfindex
 hfinfo
+hfname
 HI2Operations
 histogram
 historizing
@@ -1003,6 +1023,7 @@ ideographic
 idiographic
 idl2deb
 idl2wrs
+idltype
 iec60870
 ieee1609dot
 ieee17221
@@ -1130,6 +1151,7 @@ isakmp
 isatap
 iscsi
 iseries
+isinstance
 isobus
 isocenter
 isochronous
@@ -1188,10 +1210,13 @@ lbmpdm
 lcgid
 lcids
 lcsap
+ldflags
 leasequery
 legitimisation
 lempar
 level1login
+lexer
+lexpos
 lfsck
 libcap
 libgcrypt
@@ -1218,6 +1243,7 @@ literals
 lithionics
 llcgprs
 lnpdqp
+localise
 locamation
 locoinfof
 logcat
@@ -1348,6 +1374,7 @@ modulo
 modulus
 modus
 monday
+moscow
 motorola
 móviles
 mozilla
@@ -1424,6 +1451,7 @@ nasdaq
 nbifom
 nbrar
 ndpsm
+ndriver
 nederland
 negotiability
 neighbour
@@ -1508,6 +1536,7 @@ nssvc
 nstat
 nstime
 nstrace
+nstring
 nt4change
 ntlmssp
 ntlmv
@@ -1645,6 +1674,7 @@ pdsch
 pdustatus
 peeraddr
 peerkey
+pentium
 periodicities
 periodicity
 peripherals
@@ -1716,6 +1746,7 @@ prefs
 preloaded
 prepay
 prepend
+preprocessor
 preshared
 prettification
 printf
@@ -1735,6 +1766,7 @@ promiscsniff
 promiscuously
 propertykey
 prosody
+protabbrev
 protected
 proto
 protoabbrev
@@ -1886,6 +1918,7 @@ regex
 regexp
 regid
 regionid
+regname
 reimplement
 reimplementation
 reimplemented
@@ -1947,6 +1980,7 @@ resized
 resolvable
 resolver
 resolvers
+restofline
 resub
 resubmission
 resync
@@ -2052,6 +2086,7 @@ scrollbar
 sczdx
 sdcch
 sdjournal
+sdkflags
 sdram
 sdusize
 sectigo
@@ -2133,6 +2168,7 @@ slimp
 slovak
 slsch
 smime
+sminfo
 smpdirected
 smpte
 smrse
@@ -2151,6 +2187,7 @@ sonet
 spacebar
 spacetel
 spacings
+spandsp
 spanish
 spare
 spare1
@@ -2167,6 +2204,7 @@ specifier
 specifiers
 spectrograph
 speex
+speexdsp
 spirent
 spline
 spnego
@@ -2196,6 +2234,7 @@ stateful
 statfs
 statsum
 statusbar
+statvfs
 stderr
 stdin
 stdio
@@ -2358,6 +2397,7 @@ tipcv
 titlebar
 tlvlen
 tlvtype
+tname
 tobago
 toggled
 toggles
@@ -2448,6 +2488,7 @@ unack
 unacked
 unadmitted
 unadvise
+unalias
 unaligned
 unallocated
 unallowed
@@ -2606,6 +2647,7 @@ uploading
 uploads
 uptime
 urlencoded
+urllib
 urnti
 usability
 usbdump

@@ -2214,7 +2214,7 @@ class EthCtx:
             print(', '.join(dep))
         # end of print_mod()
         (mod_ord, mod_cyc) = dependency_compute(self.module_ord, self.module, ignore_fn = lambda t: t not in self.module)
-        print("\n# ASN.1 Moudules")
+        print("\n# ASN.1 Modules")
         print("Module name                     Dependency")
         print("-" * 100)
         new_ord = False
@@ -2222,7 +2222,7 @@ class EthCtx:
             print_mod(m)
             new_ord = new_ord or (self.module_ord.index(m) != mod_ord.index(m))
         if new_ord:
-            print("\n# ASN.1 Moudules - in dependency order")
+            print("\n# ASN.1 Modules - in dependency order")
             print("Module name                     Dependency")
             print("-" * 100)
             for m in (mod_ord):
@@ -7323,11 +7323,11 @@ def p_cls_syntax_list_2 (t):
 # X.681
 def p_cls_syntax_1 (t):
     'cls_syntax : Type IDENTIFIED BY Value'
-    t[0] = { get_class_fieled(' ') : t[1], get_class_fieled(' '.join((t[2], t[3]))) : t[4] }
+    t[0] = { get_class_field(' ') : t[1], get_class_field(' '.join((t[2], t[3]))) : t[4] }
 
 def p_cls_syntax_2 (t):
     'cls_syntax : HAS PROPERTY Value'
-    t[0] = { get_class_fieled(' '.join(t[1:-1])) : t[-1:][0] }
+    t[0] = { get_class_field(' '.join(t[1:-1])) : t[-1:][0] }
 
 # X.880
 def p_cls_syntax_3 (t):
@@ -7340,17 +7340,17 @@ def p_cls_syntax_3 (t):
                    | PRIORITY Value
                    | ALWAYS RESPONDS BooleanValue
                    | IDEMPOTENT BooleanValue '''
-    t[0] = { get_class_fieled(' '.join(t[1:-1])) : t[-1:][0] }
+    t[0] = { get_class_field(' '.join(t[1:-1])) : t[-1:][0] }
 
 def p_cls_syntax_4 (t):
     '''cls_syntax : ARGUMENT Type
                    | RESULT Type
                    | PARAMETER Type '''
-    t[0] = { get_class_fieled(t[1]) : t[2] }
+    t[0] = { get_class_field(t[1]) : t[2] }
 
 def p_cls_syntax_5 (t):
     'cls_syntax : CODE Value'
-    fld = get_class_fieled(t[1]);
+    fld = get_class_field(t[1]);
     t[0] = { fld : t[2] }
     if isinstance(t[2], ChoiceValue):
         fldt = fld + '.' + t[2].choice
@@ -7360,7 +7360,7 @@ def p_cls_syntax_6 (t):
     '''cls_syntax : ARGUMENT Type OPTIONAL BooleanValue
                    | RESULT Type OPTIONAL BooleanValue
                    | PARAMETER Type OPTIONAL BooleanValue '''
-    t[0] = { get_class_fieled(t[1]) : t[2], get_class_fieled(' '.join((t[1], t[3]))) : t[4] }
+    t[0] = { get_class_field(t[1]) : t[2], get_class_field(' '.join((t[1], t[3]))) : t[4] }
 
 # 12 Information object set definition and assignment
 
@@ -7506,7 +7506,7 @@ def is_class_syntax(name):
         return False
     return name in class_syntaxes[class_current_syntax]
 
-def get_class_fieled(name):
+def get_class_field(name):
     if not class_current_syntax:
         return None
     return class_syntaxes[class_current_syntax][name]

@@ -291,7 +291,7 @@ sub remove_quoted_strings {
     sub remove_if0_code {
         my ($codeRef, $fileName)  = @_;
 
-        # Preprocess outputput (ensure trailing LF and no leading WS before '#')
+        # Preprocess output (ensure trailing LF and no leading WS before '#')
         $$codeRef =~ s/^\s*#/#/m;
         if ($$codeRef !~ /\n$/) { $$codeRef .= "\n"; }
 

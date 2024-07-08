@@ -238,7 +238,7 @@ class wireshark_gen_C:
         rt = op.returnType()
 
         if rt.kind() != idltype.tk_void:
-            if rt.kind() == idltype.tk_alias:  # a typdef return val possibly ?
+            if rt.kind() == idltype.tk_alias:  # a typedef return val possibly ?
                 #self.get_CDR_alias(rt, rt.name())
                 if rt.unalias().kind() == idltype.tk_sequence:
                     self.st.out(self.template_hf, name=sname + "_return_loop")
@@ -482,7 +482,7 @@ class wireshark_gen_C:
     def genAtList(self, atlist):
         """in: atlist
 
-        out: C code for IDL attribute decalarations.
+        out: C code for IDL attribute declarations.
 
         ie: def genAtlist(self,atlist,language)
         """
@@ -502,7 +502,7 @@ class wireshark_gen_C:
     def genEnList(self, enlist):
         """in: enlist
 
-        out: C code for IDL Enum decalarations using "static const value_string" template
+        out: C code for IDL Enum declarations using "static const value_string" template
         """
 
         self.st.out(self.template_comment_enums_start)
@@ -1110,7 +1110,7 @@ class wireshark_gen_C:
 
         string_digits = '%i ' % type.digits()  # convert int to string
         string_scale = '%i ' % type.scale()  # convert int to string
-        string_length = '%i ' % self.dig_to_len(type.digits())  # how many octets to hilight for a number of digits
+        string_length = '%i ' % self.dig_to_len(type.digits())  # how many octets to highlight for a number of digits
 
         self.st.out(self.template_get_CDR_fixed, hfname=pn, digits=string_digits, scale=string_scale, length=string_length)
         self.addvar(self.c_seq)

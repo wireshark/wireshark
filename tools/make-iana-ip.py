@@ -29,7 +29,7 @@ def exit_msg(msg=None, status=1):
 def open_url(url):
     '''Open a URL.
     Returns a tuple containing the body and response dict. The body is a
-    str in Python 3 and bytes in Python 2 in order to be compatibile with
+    str in Python 3 and bytes in Python 2 in order to be compatible with
     csv.reader.
     '''
 

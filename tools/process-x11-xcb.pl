@@ -666,7 +666,7 @@ sub register_element($$$$;$)
 
     given ($e->name()) {
         when ('pad') { return; }     # Pad has no variables
-        when ('switch') { return; }  # Switch defines varaibles in a tighter scope to avoid collisions
+        when ('switch') { return; }  # Switch defines variables in a tighter scope to avoid collisions
     }
 
     # Register field with wireshark

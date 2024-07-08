@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Generate Wireshark Dissectors for eletronic trading/market data
+# Generate Wireshark Dissectors for electronic trading/market data
 # protocols such as ETI/EOBI.
 #
 # Targets Wireshark 3.5 or later.
@@ -1121,7 +1121,7 @@ def group_members(e, dt):
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description='Generate Wireshark Dissector for ETI/EOBI style protocol specifictions')
+    p = argparse.ArgumentParser(description='Generate Wireshark Dissector for ETI/EOBI style protocol specifications')
     p.add_argument('filename', help='protocol description XML file')
     p.add_argument('--proto', default='eti',
             help='short protocol name (default: %(default)s)')

@@ -3369,7 +3369,7 @@ install_all() {
     install_curl
 
     #
-    # Now intall xz: it is the sole download format of glib later than 2.31.2.
+    # Now install xz: it is the sole download format of glib later than 2.31.2.
     #
     install_xz
 
@@ -3993,7 +3993,7 @@ then
     #
     # Set the minimum OS version for which to build to the specified
     # minimum target OS version, so we don't, for example, end up using
-    # linker features supported by the OS verson on which we're building
+    # linker features supported by the OS version on which we're building
     # but not by the target version.
     #
     VERSION_MIN_FLAGS="-mmacosx-version-min=$min_osx_target"
