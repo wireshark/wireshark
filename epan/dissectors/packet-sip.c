@@ -2993,7 +2993,12 @@ void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo,
             if ((param_name != NULL)&&(g_ascii_strcasecmp(param_name, "utran-cell-id-3gpp") == 0)) {
                 proto_tree_add_item(tree, hf_sip_p_acc_net_i_ucid_3gpp, tvb,
                     equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
-                dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, equals_offset + 1);
+                /* check if value is quoted */
+                if (tvb_get_guint8(tvb, equals_offset + 1) == '"') {
+                    dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, equals_offset + 2);
+                } else {
+                    dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, equals_offset + 1);
+                }
             }
             else {
                 proto_tree_add_format_text(tree, tvb, current_offset, length);
