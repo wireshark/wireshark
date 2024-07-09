@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.7.0 (2024-03)
+-- 3GPP TS 36.423 V18.2.0 (2024-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -95,8 +95,14 @@ IMPORTS
 	id-Additional-Measurement-Timing-Configuration-List,
 	id-ServedCellSpecificInfoReq-NR,
 	id-RAT-Restrictions,
+	id-PSCellListContainer,
 	id-PSCell-UE-HistoryInformation,
 	id-SensorMeasurementConfiguration,
+	id-M4ReportAmount,
+	id-M5ReportAmount,
+	id-M6ReportAmount,
+	id-M7ReportAmount,
+	id-CHOTimeBasedInformation,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -150,7 +156,7 @@ IMPORTS
 	maxnoofNRSCSs,
 	maxnoofNRPhysicalResourceBlocks,
 	maxnoofNonAnchorCarrierFreqConfig,
-	maxnoofRACHReports,
+	maxnoofRAReports,
 	maxnoofPSCellsPerSN,
 	maxnoofPSCellsPerPrimaryCellinUEHistoryInfo,
 	maxnoofReportedNRCellsPossiblyAggregated,
@@ -162,7 +168,8 @@ IMPORTS
 	maxnoofCSIRSneighbourCellsInMTC,
 	maxCellinengNB,
 	maxnoofSensorName,
-	maxnoofTargetSgNBsMinusOne
+	maxnoofTargetSgNBsMinusOne,
+	maxnoofUEsforRAReportIndications
 
 
 FROM X2AP-Constants
@@ -550,7 +557,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	unknown-E-UTRAN-Node-Measurement-ID,
 	sCG-activation-deactivation-failure,
 	sCG-deactivation-failure-due-to-data-transmission,
-	up-integrity-protection-not-possible
+	up-integrity-protection-not-possible,
+	iAB-not-Authorized
 
 
 }
@@ -913,7 +921,7 @@ CoverageModification-Item ::= SEQUENCE {
 	coverageState					INTEGER (0..15, ...),
 	cellDeploymentStatusIndicator	CellDeploymentStatusIndicator			OPTIONAL,
 	cellReplacingInfo				CellReplacingInfo						OPTIONAL,
--- Included in case the Cell Deployment Status Indicator IE is present
+-- This IE shall be present if the Cell Deployment Status Indicator IE is present.
 	...
 }
 
@@ -1018,7 +1026,7 @@ CHOtrigger ::= ENUMERATED {
 CHOinformation-REQ ::= SEQUENCE {
 	cho-trigger						CHOtrigger,
 	new-eNB-UE-X2AP-ID				UE-X2AP-ID											OPTIONAL
-		-- This IE shall be present if the cho-trigger IE is present and set to "CHO-replace" --,
+		-- This IE shall be present if the CHO Trigger IE is present and set to "CHO-replace" --,
 	new-eNB-UE-X2AP-ID-Extension	UE-X2AP-ID-Extension								OPTIONAL,
 	cHO-EstimatedArrivalProbability	CHO-Probability										OPTIONAL,
 	iE-Extensions				ProtocolExtensionContainer { { CHOinformation-REQ-ExtIEs} }	OPTIONAL,
@@ -1026,6 +1034,18 @@ CHOinformation-REQ ::= SEQUENCE {
 }
 
 CHOinformation-REQ-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
+	{ID id-CHOTimeBasedInformation	CRITICALITY reject	EXTENSION CHOTimeBasedInformation		PRESENCE optional},
+	...
+}
+
+CHOTimeBasedInformation ::= SEQUENCE {
+	cHO-HOWindowStart			CHO-HandoverWindowStart,
+	cHO-HOWindowDuration		CHO-HandoverWindowDuration,
+	iE-Extensions				ProtocolExtensionContainer { {CHOTimeBasedInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+CHOTimeBasedInformation-ExtIEs	X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1044,6 +1064,10 @@ CHOinformation-ACK-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
 CandidateCellsToBeCancelledList ::= SEQUENCE (SIZE (1..maxnoofCellsinCHO)) OF ECGI
 
 CHO-Probability ::= INTEGER (1..100)
+
+CHO-HandoverWindowStart ::= INTEGER (0..1048575)
+
+CHO-HandoverWindowDuration ::= INTEGER (1..6000)
 
 CHOinformation-AddReq ::= SEQUENCE {
 	source-eNB-ID				GlobalENB-ID,
@@ -1878,11 +1902,14 @@ M4Configuration ::= SEQUENCE {
 }
 
 M4Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M4ReportAmount		CRITICALITY ignore	EXTENSION M4ReportAmountMDT		PRESENCE optional},
+
 	...
 }
 
 M4period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 
+M4ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 M5Configuration ::= SEQUENCE {
 	m5period			M5period,
@@ -1892,10 +1919,14 @@ M5Configuration ::= SEQUENCE {
 }
 
 M5Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M5ReportAmount		CRITICALITY ignore	EXTENSION M5ReportAmountMDT		PRESENCE optional	},
+
 	...
 }
 
 M5period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
+
+M5ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 M6Configuration ::= SEQUENCE {
 	m6report-interval	M6report-interval,
@@ -1907,12 +1938,16 @@ M6Configuration ::= SEQUENCE {
 }
 
 M6Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M6ReportAmount		CRITICALITY ignore	EXTENSION M6ReportAmountMDT		PRESENCE optional	},
+
 	...
 }
 
 M6report-interval ::= ENUMERATED { ms1024, ms2048, ms5120, ms10240, ... }
 
 M6delay-threshold ::= ENUMERATED { ms30, ms40, ms50, ms60, ms70, ms80, ms90, ms100, ms150, ms300, ms500, ms750, ... }
+
+M6ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 M7Configuration ::= SEQUENCE {
 	m7period			M7period,
@@ -1922,10 +1957,14 @@ M7Configuration ::= SEQUENCE {
 }
 
 M7Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M7ReportAmount		CRITICALITY ignore	EXTENSION M7ReportAmountMDT		PRESENCE optional	},
+
 	...
 }
 
 M7period ::= INTEGER(1..60, ...)
+
+M7ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 MakeBeforeBreakIndicator::= ENUMERATED {true, ...}
 
@@ -1947,21 +1986,26 @@ MDT-Configuration ::= SEQUENCE {
 	measurementsToActivate		MeasurementsToActivate,
 	m1reportingTrigger			M1ReportingTrigger,
 	m1thresholdeventA2			M1ThresholdEventA2			OPTIONAL,
--- Included in case of event-triggered, or event-triggered periodic reporting for measurement M1
+-- This IE shall be present if the Measurements to Activate IE has the first bit set to "1" and the M1 Reporting Trigger IE is set to "A2event-triggered" or to "A2event-triggered periodic".
 	m1periodicReporting			M1PeriodicReporting			OPTIONAL,
--- Included in case of periodic, or event-triggered periodic reporting for measurement M1
+-- This IE shall be present if the M1 Reporting Trigger IE is set to "periodic" or to "A2event-triggered periodic".
 	iE-Extensions				ProtocolExtensionContainer { {MDT-Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
 MDT-Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ID id-M3Configuration							CRITICALITY ignore	EXTENSION M3Configuration								PRESENCE conditional}|
+-- This IE shall be present if the Measurements to Activate IE has the third bit set to "1". This IE shall be present if the Measurements to Activate IE has the third bit set to "1".--
 	{ID id-M4Configuration							CRITICALITY ignore	EXTENSION M4Configuration								PRESENCE conditional}|
+-- This IE shall be present if the Measurements to Activate IE has the fourth bit set to "1". --
 	{ID id-M5Configuration							CRITICALITY ignore	EXTENSION M5Configuration								PRESENCE conditional}|
+-- This IE shall be present if the Measurements to Activate IE has the fifth bit set to "1". --
 	{ID id-MDT-Location-Info						CRITICALITY ignore	EXTENSION MDT-Location-Info							PRESENCE optional}|
 	{ID id-SignallingBasedMDTPLMNList				CRITICALITY ignore	EXTENSION MDTPLMNList									PRESENCE optional}|
 	{ID id-M6Configuration							CRITICALITY ignore	EXTENSION M6Configuration								PRESENCE conditional}|
+-- This IE shall be present if the Measurements to Activate IE has the seventh bit set to "1". --
 	{ID id-M7Configuration							CRITICALITY ignore	EXTENSION M7Configuration								PRESENCE conditional}|
+-- This IE shall be present if the Measurements to Activate IE has the eighth bit set to "1". --
 	{ ID id-BluetoothMeasurementConfiguration		CRITICALITY ignore	EXTENSION BluetoothMeasurementConfiguration		PRESENCE optional}|
 	{ ID id-WLANMeasurementConfiguration			CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration			PRESENCE optional}|
 	{ ID id-SensorMeasurementConfiguration			CRITICALITY ignore	EXTENSION SensorMeasurementConfiguration 		PRESENCE optional},
@@ -2195,18 +2239,19 @@ NRCGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-NRRACHReportContainer	::= OCTET STRING
+NRRAReportContainer	::= OCTET STRING
 
-NRRACHReportInformation	::= SEQUENCE (SIZE(1.. maxnoofRACHReports)) OF NRRACHReportList-Item
+NRRAReport	::= SEQUENCE (SIZE(1.. maxnoofRAReports)) OF NRRAReportList-Item
 
-NRRACHReportList-Item	::= SEQUENCE {
-	nRRACHReport						NRRACHReportContainer,
+NRRAReportList-Item	::= SEQUENCE {
+	nRRAReport						NRRAReportContainer,
 	uEAssitantIdentifier				SgNB-UE-X2AP-ID														OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { { NRRACHReportList-Item-ExtIEs} }	OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { NRRAReportList-Item-ExtIEs} }	OPTIONAL,
 	...
 }
 
-NRRACHReportList-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+NRRAReportList-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-PSCellListContainer		CRITICALITY ignore	EXTENSION PSCellListContainer 	PRESENCE optional},
 	...
 }
 
@@ -2334,7 +2379,7 @@ NRRadioResourceStatus-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 }
 
 MIMOPRBusageInformation ::= SEQUENCE {
-dl-GBR-PRB-usage-for-MIMO					DL-GBR-PRB-usage-for-MIMO,
+	dl-GBR-PRB-usage-for-MIMO					DL-GBR-PRB-usage-for-MIMO,
 	ul-GBR-PRB-usage-for-MIMO					UL-GBR-PRB-usage-for-MIMO,
 	dl-non-GBR-PRB-usage-for-MIMO				DL-non-GBR-PRB-usage-for-MIMO,
 	ul-non-GBR-PRB-usage-for-MIMO				UL-non-GBR-PRB-usage-for-MIMO,
@@ -2643,6 +2688,8 @@ PSCell-UE-HistoryInformation ::= SEQUENCE (SIZE(1.. maxnoofPSCellsPerPrimaryCell
 
 PSCellChangeHistory ::= ENUMERATED {reportingFullHistory,...}
 
+PSCellListContainer ::= OCTET STRING
+
 
 -- Q
 
@@ -2901,6 +2948,19 @@ RSRPMRList-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 RRCContainer ::= OCTET STRING
 
+RaReportIndicationList	 ::= SEQUENCE (SIZE(1..maxnoofUEsforRAReportIndications)) OF RaReportIndicationList-Item
+
+RaReportIndicationList-Item	::= SEQUENCE {
+	meNB-UE-X2AP-ID				UE-X2AP-ID,
+	meNB-UE-X2AP-ID-Extension	UE-X2AP-ID-Extension												OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {RaReportIndicationList-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+RaReportIndicationList-Item-ExtIEs X2AP-PROTOCOL-EXTENSION::= {
+	...
+}
+
 -- S
 
 S1TNLLoadIndicator ::= SEQUENCE {
@@ -3108,8 +3168,8 @@ SGNB-Addition-Trigger-Ind	 ::= ENUMERATED {
 }
 
 SNtriggered ::=ENUMERATED{
-true,
-...
+	true,
+	...
 }
 
 SourceOfUEActivityBehaviourInformation ::= ENUMERATED {
@@ -3687,10 +3747,10 @@ UERadioCapability ::= OCTET STRING
 UERadioCapabilityID ::= OCTET STRING
 
 UE-RLF-Report-Container::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the RLF-Report-r9 field contained in the UEInformationResponse message as defined in TS 36.331 [9]
+-- This IE is a transparent container and shall be encoded as the rLF-Report-r9 field contained in the UEInformationResponse message as defined in TS 36.331 [9]
 
 UE-RLF-Report-Container-for-extended-bands ::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the RLF-Report-v9e0 field contained in the UEInformationResponse message as defined in TS 36.331 [9]
+-- This IE is a transparent container and shall be encoded as the rLF-Report-v9e0 field contained in the UEInformationResponse message as defined in TS 36.331 [9]
 
 UESecurityCapabilities ::= SEQUENCE {
 	encryptionAlgorithms				EncryptionAlgorithms,

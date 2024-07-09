@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.7.0 (2024-03)
+-- 3GPP TS 36.423 V18.2.0 (2024-06)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -85,6 +85,7 @@ id-UERadioCapabilityIDMapping									ProcedureCode ::= 56
 id-accessAndMobilityIndication									ProcedureCode ::= 57
 id-procedure-code-58-not-to-be-used								ProcedureCode ::= 58
 id-CPC-cancel													ProcedureCode ::= 59
+id-rachIndication												ProcedureCode ::= 60
 
 -- **************************************************************
 --
@@ -148,7 +149,7 @@ maxnoofSSBAreas								INTEGER ::= 64
 maxnoofNRSCSs								INTEGER ::= 5
 maxnoofNRPhysicalResourceBlocks				INTEGER ::= 275
 maxnoofNonAnchorCarrierFreqConfig			INTEGER ::= 15
-maxnoofRACHReports							INTEGER ::= 64
+maxnoofRAReports							INTEGER ::= 64
 maxnoofPSCellsPerSN							INTEGER ::= 8
 maxnoofPSCellsPerPrimaryCellinUEHistoryInfo	INTEGER ::= 8
 maxnoofReportedNRCellsPossiblyAggregated	INTEGER ::= 16
@@ -160,6 +161,9 @@ maxnoofCSIRSneighbourCells					INTEGER ::= 16
 maxnoofCSIRSneighbourCellsInMTC				INTEGER ::= 16
 maxnoofSensorName							INTEGER ::= 3
 maxnoofTargetSgNBsMinusOne					INTEGER ::= 7
+maxnoofUEsforRAReportIndications				INTEGER ::= 64
+
+
 
 -- **************************************************************
 --
@@ -425,7 +429,7 @@ id-ServedEUTRAcellsENDCX2ManagementList										ProtocolIE-ID ::= 250
 id-CellAssistanceInformation												ProtocolIE-ID ::= 251
 id-Globalen-gNB-ID															ProtocolIE-ID ::= 252
 id-ServedNRcellsENDCX2ManagementList										ProtocolIE-ID ::= 253
-id-UE-ContextReferenceAtSgNB													ProtocolIE-ID ::= 254
+id-UE-ContextReferenceAtSgNB												ProtocolIE-ID ::= 254
 id-SecondaryRATUsageReport													ProtocolIE-ID ::= 255
 id-ActivationID																ProtocolIE-ID ::= 256
 id-MeNBResourceCoordinationInformation										ProtocolIE-ID ::= 257
@@ -586,7 +590,7 @@ id-DirectForwardingPathAvailability											ProtocolIE-ID ::= 410
 id-sourceNG-RAN-node-id														ProtocolIE-ID ::= 411
 id-SourceDLForwardingIPAddress												ProtocolIE-ID ::= 412
 id-SourceNodeDLForwardingIPAddress											ProtocolIE-ID ::= 413
-id-NRRACHReportInformation													ProtocolIE-ID ::= 414
+id-NRRAReport													ProtocolIE-ID ::= 414
 id-SCG-UE-HistoryInformation												ProtocolIE-ID ::= 415
 id-PSCellHistoryInformationRetrieve											ProtocolIE-ID ::= 416
 id-MeasurementResultforNRCellsPossiblyAggregated							ProtocolIE-ID ::= 417
@@ -614,14 +618,14 @@ id-SCGreconfigNotification													ProtocolIE-ID ::= 438
 id-MIMOPRBusageInformation													ProtocolIE-ID ::= 439
 id-SensorMeasurementConfiguration											ProtocolIE-ID ::= 440
 id-AdditionalListofForwardingGTPTunnelEndpoint								ProtocolIE-ID ::= 441
---WS extension
-id-Unknown-442																ProtocolIE-ID ::= 442
-id-Unknown-443																ProtocolIE-ID ::= 443
-id-Unknown-444																ProtocolIE-ID ::= 444
-id-Unknown-445																ProtocolIE-ID ::= 445
-id-Unknown-446																ProtocolIE-ID ::= 446
-id-Unknown-447																ProtocolIE-ID ::= 447
-id-Unknown-448																ProtocolIE-ID ::= 448
+id-M4ReportAmount															ProtocolIE-ID ::= 442
+id-M5ReportAmount															ProtocolIE-ID ::= 443
+id-M6ReportAmount															ProtocolIE-ID ::= 444
+id-M7ReportAmount															ProtocolIE-ID ::= 445
+id-CHOTimeBasedInformation													ProtocolIE-ID ::= 446
+id-RaReportIndicationList													ProtocolIE-ID ::= 447
+id-PSCellListContainer													ProtocolIE-ID ::= 448
 id-IABAuthorized															ProtocolIE-ID ::= 449
+
 
 END

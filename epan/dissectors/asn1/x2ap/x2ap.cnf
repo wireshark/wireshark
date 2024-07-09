@@ -916,12 +916,12 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
     dissect_f1ap_NRPRACHConfig_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY NRRACHReportContainer VAL_PTR = &parameter_tvb
+#.FN_BODY NRRAReportContainer VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_NRRACHReportContainer);
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_NRRAReportContainer);
     dissect_nr_rrc_RA_ReportList_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -942,6 +942,12 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
     subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_UERadioCapability);
     dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
+
+#.TYPE_ATTR
+CHO-HandoverWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+CHO-HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_cho_handover_window_duration_fmt)
 #.END
 
 #.FN_HDR HandoverRequest
@@ -1158,6 +1164,8 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AccessAndMobilityIndication");
 #.FN_HDR CPC-cancel
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CPC-cancel");
+#.FN_HDR RachIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RachIndication");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -1222,6 +1230,7 @@ id-UERadioCapabilityIDMapping					ProcedureCode
 id-accessAndMobilityIndication					ProcedureCode
 id-procedure-code-58-not-to-be-used				ProcedureCode
 id-CPC-cancel							ProcedureCode
+id-rachIndication						ProcedureCode
 
 
 # ProtocolIE-ID
@@ -1629,7 +1638,7 @@ id-DirectForwardingPathAvailability				ProtocolIE-ID
 id-sourceNG-RAN-node-id						ProtocolIE-ID
 id-SourceDLForwardingIPAddress					ProtocolIE-ID
 id-SourceNodeDLForwardingIPAddress				ProtocolIE-ID
-id-NRRACHReportInformation					ProtocolIE-ID
+id-NRRAReport							ProtocolIE-ID
 id-SCG-UE-HistoryInformation					ProtocolIE-ID
 id-PSCellHistoryInformationRetrieve				ProtocolIE-ID
 id-MeasurementResultforNRCellsPossiblyAggregated		ProtocolIE-ID
@@ -1657,6 +1666,13 @@ id-SCGreconfigNotification					ProtocolIE-ID
 id-MIMOPRBusageInformation					ProtocolIE-ID
 id-SensorMeasurementConfiguration				ProtocolIE-ID
 id-AdditionalListofForwardingGTPTunnelEndpoint			ProtocolIE-ID
+id-M4ReportAmount						ProtocolIE-ID
+id-M5ReportAmount						ProtocolIE-ID
+id-M6ReportAmount						ProtocolIE-ID
+id-M7ReportAmount						ProtocolIE-ID
+id-CHOTimeBasedInformation					ProtocolIE-ID
+id-RaReportIndicationList					ProtocolIE-ID
+id-PSCellListContainer						ProtocolIE-ID
 id-IABAuthorized						ProtocolIE-ID
 
 #.REGISTER
@@ -1942,7 +1958,7 @@ CellToReport-E-UTRA-ENDC-Item					N x2ap.ies id-CellToReport-E-UTRA-ENDC-Item
 CHO-DC-EarlyDataForwarding					N x2ap.ies id-CHO-DC-EarlyDataForwarding
 DirectForwardingPathAvailability				N x2ap.ies id-DirectForwardingPathAvailability
 Global-RAN-NODE-ID						N x2ap.ies id-sourceNG-RAN-node-id
-NRRACHReportInformation						N x2ap.ies id-NRRACHReportInformation
+NRRAReport							N x2ap.ies id-NRRAReport
 SCG-UE-HistoryInformation					N x2ap.ies id-SCG-UE-HistoryInformation
 PSCellHistoryInformationRetrieve				N x2ap.ies id-PSCellHistoryInformationRetrieve
 PSCellChangeHistory						N x2ap.ies id-PSCellChangeHistory
@@ -1960,6 +1976,7 @@ CPCinformation-CONF						N x2ap.ies id-CPCinformation-CONF
 CPCinformation-NOTIFY						N x2ap.ies id-CPCinformation-NOTIFY
 CPCupdate-MOD							N x2ap.ies id-CPCupdate-MOD
 SCGreconfigNotification						N x2ap.ies id-SCGreconfigNotification
+RaReportIndicationList						N x2ap.ies id-RaReportIndicationList
 IABAuthorized							N x2ap.ies id-IABAuthorized
 
 #X2AP-PROTOCOL-EXTENSION
@@ -2096,6 +2113,12 @@ RAT-Restrictions						N x2ap.extension id-RAT-Restrictions
 MIMOPRBusageInformation						N x2ap.extension id-MIMOPRBusageInformation
 SensorMeasurementConfiguration					N x2ap.extension id-SensorMeasurementConfiguration
 AdditionalListofForwardingGTPTunnelEndpoint			N x2ap.extension id-AdditionalListofForwardingGTPTunnelEndpoint
+M4ReportAmountMDT						N x2ap.extension id-M4ReportAmount
+M5ReportAmountMDT						N x2ap.extension id-M5ReportAmount
+M6ReportAmountMDT						N x2ap.extension id-M6ReportAmount
+M7ReportAmountMDT						N x2ap.extension id-M7ReportAmount
+CHOTimeBasedInformation						N x2ap.extension id-CHOTimeBasedInformation
+PSCellListContainer						N x2ap.extension id-PSCellListContainer
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -2264,4 +2287,6 @@ UERadioCapabilityIDMappingResponse		N x2ap.proc.sout id-UERadioCapabilityIDMappi
 AccessAndMobilityIndication			N x2ap.proc.imsg id-accessAndMobilityIndication
 
 CPC-cancel					N x2ap.proc.imsg id-CPC-cancel
+
+RachIndication					N x2ap.proc.imsg id-rachIndication
 #.END
