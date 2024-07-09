@@ -16,7 +16,7 @@ set -e -u -o pipefail
 function print_usage() {
 	printf "\nUtility to setup a rpm-based system for Wireshark Development.\n"
 	printf "The basic usage installs the needed software\n\n"
-	printf "Usage: $0 [--install-optional] [...other options...]\n"
+	printf "Usage: %s [--install-optional] [...other options...]\n" "$0"
 	printf "\t--install-optional: install optional software as well\n"
 	printf "\t--install-rpm-deps: install packages required to build the .rpm file\n"
 	printf "\t[other]: other options are passed as-is to the packet manager\n"
@@ -44,7 +44,7 @@ for arg; do
 done
 
 # Check if the user is root
-if [ $(id -u) -ne 0 ]
+if [ "$(id -u)" -ne 0 ]
 then
 	echo "You must be root."
 	exit 1
@@ -92,7 +92,7 @@ for PM in zypper dnf yum ''; do
 	fi
 done
 
-if [ -z $PM ]
+if [ -z "$PM" ]
 then
 	echo "No package managers found, exiting"
 	exit 1
@@ -119,6 +119,7 @@ add_package() {
 	local list="$1" pkgname="$2"
 
 	# fail if the package is not known
+	# shellcheck disable=SC2086
 	$PM $PM_SEARCH "$pkgname" &> /dev/null || return 1
 
 	# package is found, append it to list
@@ -127,10 +128,11 @@ add_package() {
 
 # Adds packages $2-$n to list variable $1 if all the packages are found
 add_packages() {
-	local list="$1" pkgnames="${@:2}"
+	local list="$1" pkgnames="${*:2}"
 
 	# fail if any package is not known
 	for pkgname in $pkgnames; do
+		# shellcheck disable=SC2086
 		$PM $PM_SEARCH "$pkgname" &> /dev/null || return 1
 	done
 
@@ -273,6 +275,7 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $RPMDEPS_LIST"
 fi
 
+# shellcheck disable=SC2086
 $PM $PM_OPT install $ACTUAL_LIST $OPTIONS
 
 if [ $ADDITIONAL -eq 0 ]

@@ -4055,6 +4055,7 @@ if(SHELLCHECK_EXECUTABLE)
 			tools/pre-commit
 			tools/randpkt-test.sh
 			tools/release-update-debian-soversions.sh
+			tools/rpm-setup.sh
 			tools/test-captures.sh
 			tools/update-tx
 			tools/valgrind-wireshark.sh
