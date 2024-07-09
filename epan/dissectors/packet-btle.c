@@ -2919,7 +2919,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             cte_info_present = (oct & 0x20) != 0;
         }
 
-        data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2 + cte_info_present, ENC_NA);
+        data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, (cte_info_present) ? 3 : 2, ENC_NA);
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
         proto_tree_add_item(data_header_tree, (btle_pdu_type == BTLE_PDU_TYPE_CONNECTEDISO) ? hf_data_header_llid_connectediso :hf_data_header_llid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
