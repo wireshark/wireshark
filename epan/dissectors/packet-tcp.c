@@ -2596,8 +2596,8 @@ finished_fwd:
                         bool is_sacked = false;
                         int i=0;
                         while( !is_sacked && i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges ) {
-                            is_sacked = ((seq >= tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i+1])
-                                        && (nextseq <= tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i+1]));
+                            is_sacked = ((seq >= tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i])
+                                        && (nextseq <= tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i]));
                             i++;
                         }
 
@@ -2985,8 +2985,8 @@ finished_checking_retransmission_type:
             if(tcpd->rev->tcp_analyze_seq_info->num_sack_ranges > 0) {
                 int i;
                 for(i = 0; i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges; i++) {
-                    delivered += (tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i+1] -
-                                  tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i+1]);
+                    delivered += (tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i] -
+                                  tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i]);
                 }
                 in_flight -= delivered;
             }
@@ -5776,13 +5776,12 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                    (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
         tcp_info_append_uint(pinfo, "SLE", leftedge);
         tcp_info_append_uint(pinfo, "SRE", rightedge);
-        num_sack_ranges++;
 
         /* Store blocks for BiF analysis */
         if (tcp_analyze_seq && tcpd && tcpd->fwd->tcp_analyze_seq_info && tcp_track_bytes_in_flight && num_sack_ranges < MAX_TCP_SACK_RANGES) {
-            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = num_sack_ranges;
             tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[num_sack_ranges] = leftedge;
-            tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges] = rightedge;
+            tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges++] = rightedge;
+            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = num_sack_ranges;
         }
 
         /* Update tap info */
