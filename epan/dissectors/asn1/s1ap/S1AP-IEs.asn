@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.6.0 (2024-03)
+-- 3GPP TS 36.413 V18.2.0 (2024-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -98,6 +98,13 @@ IMPORTS
 	id-Direct-Forwarding-Path-Availability,
 	id-LoggedMDTTrigger,
 	id-SensorMeasurementConfiguration,
+	id-M4ReportAmount,
+	id-M5ReportAmount,
+	id-M6ReportAmount,
+	id-M7ReportAmount,
+	id-TimeBasedHandoverInformation,
+	id-Bearers-SubjectToDLDiscarding-Item,
+	id-Bearers-SubjectToDLDiscardingList,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -293,6 +300,24 @@ Bearers-SubjectToEarlyStatusTransfer-ItemExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Bearers-SubjectToDLDiscardingList ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { { Bearers-SubjectToDLDiscarding-ItemIEs } }
+
+Bearers-SubjectToDLDiscarding-ItemIEs S1AP-PROTOCOL-IES ::= {
+	{ ID id-Bearers-SubjectToDLDiscarding-Item			CRITICALITY ignore	TYPE Bearers-SubjectToDLDiscarding-Item		PRESENCE mandatory},
+	...
+}
+
+Bearers-SubjectToDLDiscarding-Item ::= SEQUENCE {
+	e-RAB-ID						E-RAB-ID,
+	dL-Discarding					DLDiscarding,
+	iE-Extensions					ProtocolExtensionContainer { {Bearers-SubjectToDLDiscarding-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+Bearers-SubjectToDLDiscarding-ItemExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 BearerType ::= ENUMERATED {
 	non-IP,
 	...
@@ -438,7 +463,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	n26-interface-not-available,
 	insufficient-ue-capabilities,
 	maximum-bearer-pre-emption-rate-exceeded,
-	up-integrity-protection-not-possible
+	up-integrity-protection-not-possible,
+	release-due-to-discontinuous-coverage
 
 }
 
@@ -455,7 +481,8 @@ CauseNas ::= ENUMERATED {
 	unspecified,
 	...,
 	csg-subscription-expiry,
-	uE-not-in-PLMN-serving-area
+	uE-not-in-PLMN-serving-area,
+	iab-not-authorized
 }
 
 CellAccessMode ::= ENUMERATED {
@@ -837,6 +864,13 @@ DLCOUNT-PDCP-SNlength ::= CHOICE {
 	...
 }
 
+DLDiscarding 	::= CHOICE {
+	discardDLCOUNTValuePDCP-SNlength12 				COUNTvalue,
+	discardDLCOUNTValuePDCP-SNlength15 				COUNTValueExtended,
+	discardDLCOUNTValuePDCP-SNlength18 				COUNTvaluePDCP-SNlength18,
+	...
+}
+
 Direct-Forwarding-Path-Availability ::= ENUMERATED {
 	directPathAvailable,
 	...
@@ -923,6 +957,7 @@ ENB-EarlyStatusTransfer-TransparentContainer ::= SEQUENCE {
 }
 
 ENB-EarlyStatusTransfer-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-Bearers-SubjectToDLDiscardingList		CRITICALITY ignore	EXTENSION Bearers-SubjectToDLDiscardingList	PRESENCE optional},
 	...
 }
 
@@ -994,7 +1029,7 @@ EN-DCSONConfigurationTransfer ::= SEQUENCE {
 	transfertype				EN-DCSONTransferType,
 	sONInformation					SONInformation,
 	x2TNLConfigInfo					X2TNLConfigurationInfo 	OPTIONAL,
-	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to "X2TNL Configuration Info" --
+	-- The above IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to the value "X2TNL Configuration Info"
 	iE-Extensions			ProtocolExtensionContainer { {EN-DCSONConfigurationTransfer-ExtIEs} }			OPTIONAL,
 ...
 }
@@ -1423,9 +1458,9 @@ ImmediateMDT ::= SEQUENCE {
 	measurementsToActivate		MeasurementsToActivate,
 	m1reportingTrigger			M1ReportingTrigger,
 	m1thresholdeventA2			M1ThresholdEventA2				OPTIONAL,
--- Included in case of event-triggered, or event-triggered periodic reporting for measurement M1
+	-- The above IE shall be present if the Measurements to Activate IE has the first bit set to “1” and the M1 Reporting Trigger IE is set to the value “A2event-triggered” or to “A2event-triggered periodic”
 	m1periodicReporting			M1PeriodicReporting				OPTIONAL,
--- Included in case of periodic or event-triggered periodic reporting
+	-- The above IE shall be present if the M1 Reporting Trigger IE is set to the value “periodic”, or “A2event-triggered periodic”
 	iE-Extensions				ProtocolExtensionContainer { { ImmediateMDT-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1699,8 +1734,13 @@ M4Configuration ::= SEQUENCE {
 }
 
 M4Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M4ReportAmount		CRITICALITY ignore	EXTENSION M4ReportAmountMDT		PRESENCE optional},
+
 	...
 }
+
+M4ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
+
 
 M4period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 
@@ -1712,23 +1752,29 @@ M5Configuration ::= SEQUENCE {
 }
 
 M5Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M5ReportAmount		CRITICALITY ignore	EXTENSION M5ReportAmountMDT		PRESENCE optional	},
 	...
 }
+
+M5ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 M5period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 
 M6Configuration ::= SEQUENCE {
 	m6report-Interval	M6report-Interval,
 	m6delay-threshold	M6delay-threshold		OPTIONAL,
--- This IE shall be present if the M6 Links to log IE is set to "uplink" or to "both-uplink-and-downlink" --
+-- The above IE shall be present if the M6 Links to log IE is set to the value "uplink" or to "both-uplink-and-downlink"
 	m6-links-to-log		Links-to-log,
 	iE-Extensions		ProtocolExtensionContainer { { M6Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
 M6Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M6ReportAmount		CRITICALITY ignore	EXTENSION M6ReportAmountMDT		PRESENCE optional	},
 	...
 }
+
+M6ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 M6report-Interval ::= ENUMERATED { ms1024, ms2048, ms5120, ms10240, ... }
 
@@ -1742,8 +1788,11 @@ M7Configuration ::= SEQUENCE {
 }
 
 M7Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-M7ReportAmount		CRITICALITY ignore	EXTENSION M7ReportAmountMDT		PRESENCE optional	},
 	...
 }
+
+M7ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 
 M7period ::= INTEGER(1..60, ...)
 
@@ -2544,11 +2593,11 @@ SONConfigurationTransfer ::= SEQUENCE {
 
 SONConfigurationTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 10 to transfer the IP addresses of the eNB initiating the ANR action --
-	{ID id-x2TNLConfigurationInfo		CRITICALITY ignore	EXTENSION X2TNLConfigurationInfo				PRESENCE conditional
-	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to "X2TNL Configuration Info" --}|
+	{ID id-x2TNLConfigurationInfo		CRITICALITY ignore	EXTENSION X2TNLConfigurationInfo				PRESENCE conditional}|
+	-- The above IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to the value "X2TNL Configuration Info"
 -- Extension for Release 12 to transfer information concerning the source cell of synchronisation and the aggressor cell --
-	{ID id-Synchronisation-Information	CRITICALITY ignore	EXTENSION SynchronisationInformation			PRESENCE conditional
-	-- This IE shall be present if the SON Information IE contains the SON Information Request IE set to " Activate Muting " --},
+	{ID id-Synchronisation-Information	CRITICALITY ignore	EXTENSION SynchronisationInformation			PRESENCE conditional},
+	-- The above IE shall be present if the SON Information IE contains the SON Information Request IE set to the value " Activate Muting "
 	...
 }
 
@@ -2629,9 +2678,10 @@ SourceeNB-ToTargeteNB-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-IntersystemMeasurementConfiguration	CRITICALITY ignore	EXTENSION IntersystemMeasurementConfiguration	PRESENCE optional}|
 	{ID id-SourceNodeID							CRITICALITY ignore	EXTENSION SourceNodeID									PRESENCE optional}|
 	{ID id-EmergencyIndicator					CRITICALITY ignore	EXTENSION EmergencyIndicator							PRESENCE optional}|
-	{ID id-UEContextReferenceatSourceeNB		CRITICALITY ignore	EXTENSION ENB-UE-S1AP-ID								PRESENCE optional}|
+	{ID id-UEContextReferenceatSourceeNB		CRITICALITY ignore	EXTENSION ENB-UE-S1AP-ID										PRESENCE optional}|
 	{ID id-SourceSNID							CRITICALITY ignore	EXTENSION Global-RAN-NODE-ID							PRESENCE optional}|
-	{ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	EXTENSION Direct-Forwarding-Path-Availability		PRESENCE optional},
+	{ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	EXTENSION Direct-Forwarding-Path-Availability		PRESENCE optional}|
+	{ID id-TimeBasedHandoverInformation			CRITICALITY ignore	EXTENSION TimeBasedHandoverInformation				PRESENCE optional},
 	...
 }
 
@@ -2979,6 +3029,21 @@ M1ThresholdEventA2-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 Threshold-RSRP ::= INTEGER(0..97)
 
 Threshold-RSRQ ::= INTEGER(0..34)
+
+TimeBasedHandoverInformation ::= SEQUENCE {
+	hOWindowStart			HandoverWindowStart,
+	hOWindowDuration		HandoverWindowDuration,
+	iE-Extensions			ProtocolExtensionContainer { {TimeBasedHandoverInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TimeBasedHandoverInformation-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HandoverWindowStart ::= INTEGER (0.. 1048575)
+
+HandoverWindowDuration ::= INTEGER (1..6000)
 
 TimeToTrigger ::= ENUMERATED {ms0, ms40, ms64, ms80, ms100, ms128, ms160, ms256, ms320, ms480, ms512, ms640, ms1024, ms1280, ms2560, ms5120}
 

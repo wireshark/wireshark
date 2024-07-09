@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.6.0 (2024-03)
+-- 3GPP TS 36.413 V18.2.0 (2024-06)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -529,7 +529,9 @@ HandoverRequiredIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer	PRESENCE mandatory}|
 	{ ID id-Source-ToTarget-TransparentContainer-Secondary	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer	PRESENCE optional}|
 	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2						PRESENCE conditional}|
+--	The above IE shall be present if the Handover Type IE is set to the value “LTEtoGERAN” and the SRVCC HO Indication IE is present
 	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3						PRESENCE conditional}|
+--	The above IE shall be present if the Handover Type IE is set to the value “LTEtoGERAN” and the SRVCC HO Indication IE is present
 	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id								PRESENCE optional}|
 	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode						PRESENCE optional}|
 	{ ID id-PS-ServiceNotAvailable					CRITICALITY ignore	TYPE PS-ServiceNotAvailable			PRESENCE optional},
@@ -552,8 +554,8 @@ HandoverCommandIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID							PRESENCE mandatory}|
 	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID							PRESENCE mandatory}|
 	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType							PRESENCE mandatory}|
-	{ ID id-NASSecurityParametersfromE-UTRAN		CRITICALITY reject	TYPE NASSecurityParametersfromE-UTRAN			PRESENCE conditional
-	-- This IE shall be present if HandoverType IE is set to value "LTEtoUTRAN" or "LTEtoGERAN" --}|
+	{ ID id-NASSecurityParametersfromE-UTRAN		CRITICALITY reject	TYPE NASSecurityParametersfromE-UTRAN			PRESENCE conditional}|
+	-- The above IE shall be present if Handover Type IE is set to value "LTEtoUTRAN" or "LTEtoGERAN"
 	{ ID id-E-RABSubjecttoDataForwardingList		CRITICALITY ignore	TYPE E-RABSubjecttoDataForwardingList			PRESENCE optional}|
 	{ ID id-E-RABtoReleaseListHOCmd					CRITICALITY ignore	TYPE E-RABList								PRESENCE optional}|
 	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY reject	TYPE Target-ToSource-TransparentContainer		PRESENCE mandatory}|
@@ -634,8 +636,8 @@ HandoverRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-RequestType								CRITICALITY ignore	TYPE RequestType						PRESENCE optional}|
 	{ ID id-SRVCCOperationPossible					CRITICALITY ignore	TYPE SRVCCOperationPossible			PRESENCE optional}|
 	{ ID id-SecurityContext							CRITICALITY reject	TYPE SecurityContext					PRESENCE mandatory}|
-	{ ID id-NASSecurityParameterstoE-UTRAN			CRITICALITY reject	TYPE NASSecurityParameterstoE-UTRAN		PRESENCE conditional
-	-- This IE shall be present if the Handover Type IE is set to the value "UTRANtoLTE" or "GERANtoLTE" --				}|
+	{ ID id-NASSecurityParameterstoE-UTRAN			CRITICALITY reject	TYPE NASSecurityParameterstoE-UTRAN		PRESENCE conditional}|
+	-- The above IE shall be present if the Handover Type IE is set to the value "UTRANtoLTE" or "GERANtoLTE"
 	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id								PRESENCE optional}|
 	{ ID id-CSGMembershipStatus						CRITICALITY ignore	TYPE CSGMembershipStatus				PRESENCE optional}|
 	{ ID id-GUMMEI-ID								CRITICALITY ignore	TYPE GUMMEI								PRESENCE optional}|
@@ -1395,6 +1397,7 @@ InitialContextSetupRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-ManagementBasedMDTAllowed		CRITICALITY ignore	TYPE ManagementBasedMDTAllowed			PRESENCE optional}|
 	{ ID id-ManagementBasedMDTPLMNList		CRITICALITY ignore	TYPE MDTPLMNList						PRESENCE optional}|
 	{ ID id-AdditionalCSFallbackIndicator	CRITICALITY ignore	TYPE AdditionalCSFallbackIndicator	PRESENCE conditional}|
+	-- The above IE shall be present if the CS Fallback Indicator IE is set to the value “CS Fallback High Priority”
 	{ ID id-Masked-IMEISV					CRITICALITY ignore	TYPE Masked-IMEISV						PRESENCE optional}|
 	{ ID id-ExpectedUEBehaviour				CRITICALITY ignore	TYPE ExpectedUEBehaviour				PRESENCE optional}|
 	{ ID id-ProSeAuthorized					CRITICALITY ignore	TYPE ProSeAuthorized					PRESENCE optional}|
@@ -1666,6 +1669,7 @@ UEContextModificationRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-CSGMembershipStatus					CRITICALITY ignore	TYPE CSGMembershipStatus					PRESENCE optional}|
 	{ ID id-RegisteredLAI						CRITICALITY ignore	TYPE LAI									PRESENCE optional}|
 	{ ID id-AdditionalCSFallbackIndicator		CRITICALITY ignore	TYPE AdditionalCSFallbackIndicator		PRESENCE conditional}|
+	-- The above IE shall be present if the CS Fallback Indicator IE is set to the value “CS Fallback High Priority”
 	{ ID id-ProSeAuthorized						CRITICALITY ignore	TYPE ProSeAuthorized						PRESENCE optional}|
 	{ ID id-SRVCCOperationPossible				CRITICALITY ignore	TYPE SRVCCOperationPossible					PRESENCE optional}|
 	{ ID id-SRVCCOperationNotPossible			CRITICALITY ignore	TYPE SRVCCOperationNotPossible			PRESENCE optional}|

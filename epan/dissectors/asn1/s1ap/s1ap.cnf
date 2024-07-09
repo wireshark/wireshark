@@ -1566,6 +1566,12 @@ TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_
     dissect_ngap_SONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.TYPE_ATTR
+HandoverWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_handover_window_duration_fmt)
+
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -1961,6 +1967,13 @@ id-E-RABToBeUpdatedItem                             ProtocolIE-ID
 id-SourceSNID                                       ProtocolIE-ID
 id-LoggedMDTTrigger                                 ProtocolIE-ID
 id-SensorMeasurementConfiguration                   ProtocolIE-ID
+id-M4ReportAmount                                   ProtocolIE-ID
+id-M5ReportAmount                                   ProtocolIE-ID
+id-M6ReportAmount                                   ProtocolIE-ID
+id-M7ReportAmount                                   ProtocolIE-ID
+id-TimeBasedHandoverInformation                     ProtocolIE-ID
+id-Bearers-SubjectToDLDiscarding-Item               ProtocolIE-ID
+id-Bearers-SubjectToDLDiscardingList                ProtocolIE-ID
 
 #.END
 
@@ -2215,6 +2228,7 @@ E-RABSecurityResultItem                         N s1ap.ies id-E-RABSecurityResul
 LTE-NTN-TAI-Information                         N s1ap.ies id-LTE-NTN-TAI-Information
 E-RABToBeUpdatedList                            N s1ap.ies id-E-RABToBeUpdatedList
 E-RABToBeUpdatedItem                            N s1ap.ies id-E-RABToBeUpdatedItem
+Bearers-SubjectToDLDiscarding-Item              N s1ap.ies id-Bearers-SubjectToDLDiscarding-Item
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -2298,6 +2312,12 @@ TransportLayerAddress                   N s1ap.extension id-SourceNodeTransportL
 Global-RAN-NODE-ID                      N s1ap.extension id-SourceSNID
 LoggedMDTTrigger                        N s1ap.extension id-LoggedMDTTrigger
 SensorMeasurementConfiguration          N s1ap.extension id-SensorMeasurementConfiguration
+M4ReportAmountMDT                       N s1ap.extension id-M4ReportAmount
+M5ReportAmountMDT                       N s1ap.extension id-M5ReportAmount
+M6ReportAmountMDT                       N s1ap.extension id-M6ReportAmount
+M7ReportAmountMDT                       N s1ap.extension id-M7ReportAmount
+TimeBasedHandoverInformation            N s1ap.extension id-TimeBasedHandoverInformation
+Bearers-SubjectToDLDiscardingList       N s1ap.extension id-Bearers-SubjectToDLDiscardingList
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

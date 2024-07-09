@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.6.0 (2024-03)
+-- 3GPP TS 36.413 V18.2.0 (2024-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -535,5 +535,14 @@ id-E-RABToBeUpdatedItem								ProtocolIE-ID ::= 342
 id-SourceSNID										ProtocolIE-ID ::= 343
 id-LoggedMDTTrigger									ProtocolIE-ID ::= 344
 id-SensorMeasurementConfiguration					ProtocolIE-ID ::= 345
+id-M4ReportAmount									ProtocolIE-ID ::= 346
+id-M5ReportAmount									ProtocolIE-ID ::= 347
+id-M6ReportAmount									ProtocolIE-ID ::= 348
+id-M7ReportAmount									ProtocolIE-ID ::= 349
+id-TimeBasedHandoverInformation						ProtocolIE-ID ::= 350
+id-Bearers-SubjectToDLDiscarding-Item				ProtocolIE-ID ::= 351
+id-Bearers-SubjectToDLDiscardingList				ProtocolIE-ID ::= 352
+
+
 
 END

@@ -15,7 +15,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V17.6.0 (2024-03)
+ * References: 3GPP TS 36.413 V18.2.0 (2024-06)
  */
 
 #include "config.h"
@@ -541,7 +541,14 @@ typedef enum _ProtocolIE_ID_enum {
   id_E_RABToBeUpdatedItem = 342,
   id_SourceSNID = 343,
   id_LoggedMDTTrigger = 344,
-  id_SensorMeasurementConfiguration = 345
+  id_SensorMeasurementConfiguration = 345,
+  id_M4ReportAmount = 346,
+  id_M5ReportAmount = 347,
+  id_M6ReportAmount = 348,
+  id_M7ReportAmount = 349,
+  id_TimeBasedHandoverInformation = 350,
+  id_Bearers_SubjectToDLDiscarding_Item = 351,
+  id_Bearers_SubjectToDLDiscardingList = 352
 } ProtocolIE_ID_enum;
 
 typedef enum _HandoverType_enum {
@@ -637,6 +644,8 @@ static int hf_s1ap_AerialUEsubscriptionInformation_PDU;  /* AerialUEsubscription
 static int hf_s1ap_AssistanceDataForPaging_PDU;   /* AssistanceDataForPaging */
 static int hf_s1ap_Bearers_SubjectToStatusTransfer_Item_PDU;  /* Bearers_SubjectToStatusTransfer_Item */
 static int hf_s1ap_Bearers_SubjectToEarlyStatusTransfer_Item_PDU;  /* Bearers_SubjectToEarlyStatusTransfer_Item */
+static int hf_s1ap_Bearers_SubjectToDLDiscardingList_PDU;  /* Bearers_SubjectToDLDiscardingList */
+static int hf_s1ap_Bearers_SubjectToDLDiscarding_Item_PDU;  /* Bearers_SubjectToDLDiscarding_Item */
 static int hf_s1ap_BearerType_PDU;                /* BearerType */
 static int hf_s1ap_BluetoothMeasurementConfiguration_PDU;  /* BluetoothMeasurementConfiguration */
 static int hf_s1ap_BroadcastCancelledAreaList_PDU;  /* BroadcastCancelledAreaList */
@@ -733,9 +742,13 @@ static int hf_s1ap_LTE_M_Indication_PDU;          /* LTE_M_Indication */
 static int hf_s1ap_LTE_NTN_TAI_Information_PDU;   /* LTE_NTN_TAI_Information */
 static int hf_s1ap_M3Configuration_PDU;           /* M3Configuration */
 static int hf_s1ap_M4Configuration_PDU;           /* M4Configuration */
+static int hf_s1ap_M4ReportAmountMDT_PDU;         /* M4ReportAmountMDT */
 static int hf_s1ap_M5Configuration_PDU;           /* M5Configuration */
+static int hf_s1ap_M5ReportAmountMDT_PDU;         /* M5ReportAmountMDT */
 static int hf_s1ap_M6Configuration_PDU;           /* M6Configuration */
+static int hf_s1ap_M6ReportAmountMDT_PDU;         /* M6ReportAmountMDT */
 static int hf_s1ap_M7Configuration_PDU;           /* M7Configuration */
+static int hf_s1ap_M7ReportAmountMDT_PDU;         /* M7ReportAmountMDT */
 static int hf_s1ap_MDT_Location_Info_PDU;         /* MDT_Location_Info */
 static int hf_s1ap_MDT_Configuration_PDU;         /* MDT_Configuration */
 static int hf_s1ap_ManagementBasedMDTAllowed_PDU;  /* ManagementBasedMDTAllowed */
@@ -826,6 +839,7 @@ static int hf_s1ap_TargetID_PDU;                  /* TargetID */
 static int hf_s1ap_Global_RAN_NODE_ID_PDU;        /* Global_RAN_NODE_ID */
 static int hf_s1ap_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU;  /* TargeteNB_ToSourceeNB_TransparentContainer */
 static int hf_s1ap_Target_ToSource_TransparentContainer_PDU;  /* Target_ToSource_TransparentContainer */
+static int hf_s1ap_TimeBasedHandoverInformation_PDU;  /* TimeBasedHandoverInformation */
 static int hf_s1ap_TimeToWait_PDU;                /* TimeToWait */
 static int hf_s1ap_Time_UE_StayedInCell_EnhancedGranularity_PDU;  /* Time_UE_StayedInCell_EnhancedGranularity */
 static int hf_s1ap_TimeSinceSecondaryNodeRelease_PDU;  /* TimeSinceSecondaryNodeRelease */
@@ -1057,6 +1071,8 @@ static int hf_s1ap_dL_COUNTvalue;                 /* COUNTvalue */
 static int hf_s1ap_receiveStatusofULPDCPSDUs;     /* ReceiveStatusofULPDCPSDUs */
 static int hf_s1ap_Bearers_SubjectToEarlyStatusTransferList_item;  /* ProtocolIE_SingleContainer */
 static int hf_s1ap_dLCOUNT_PDCP_SNlength;         /* DLCOUNT_PDCP_SNlength */
+static int hf_s1ap_Bearers_SubjectToDLDiscardingList_item;  /* ProtocolIE_SingleContainer */
+static int hf_s1ap_dL_Discarding;                 /* DLDiscarding */
 static int hf_s1ap_bluetoothMeasConfig;           /* BluetoothMeasConfig */
 static int hf_s1ap_bluetoothMeasConfigNameList;   /* BluetoothMeasConfigNameList */
 static int hf_s1ap_bt_rssi;                       /* T_bt_rssi */
@@ -1128,6 +1144,9 @@ static int hf_s1ap_dl_NAS_MAC;                    /* DL_NAS_MAC */
 static int hf_s1ap_dLCOUNTValuePDCP_SNlength12;   /* COUNTvalue */
 static int hf_s1ap_dLCOUNTValuePDCP_SNlength15;   /* COUNTValueExtended */
 static int hf_s1ap_dLCOUNTValuePDCP_SNlength18;   /* COUNTvaluePDCP_SNlength18 */
+static int hf_s1ap_discardDLCOUNTValuePDCP_SNlength12;  /* COUNTvalue */
+static int hf_s1ap_discardDLCOUNTValuePDCP_SNlength15;  /* COUNTValueExtended */
+static int hf_s1ap_discardDLCOUNTValuePDCP_SNlength18;  /* COUNTvaluePDCP_SNlength18 */
 static int hf_s1ap_ECGIList_item;                 /* EUTRAN_CGI */
 static int hf_s1ap_PWSfailedECGIList_item;        /* EUTRAN_CGI */
 static int hf_s1ap_EmergencyAreaIDList_item;      /* EmergencyAreaID */
@@ -1404,6 +1423,8 @@ static int hf_s1ap_gNB_ID;                        /* GNB_Identity */
 static int hf_s1ap_gNB_ID_01;                     /* GNB_ID */
 static int hf_s1ap_global_ng_eNB_ID;              /* Global_ENB_ID */
 static int hf_s1ap_measurementThreshold;          /* MeasurementThresholdA2 */
+static int hf_s1ap_hOWindowStart;                 /* HandoverWindowStart */
+static int hf_s1ap_hOWindowDuration;              /* HandoverWindowDuration */
 static int hf_s1ap_transportLayerAddress;         /* TransportLayerAddress */
 static int hf_s1ap_uL_GTP_TEID;                   /* GTP_TEID */
 static int hf_s1ap_e_UTRAN_Trace_ID;              /* E_UTRAN_Trace_ID */
@@ -1611,6 +1632,8 @@ static int ett_s1ap_Bearers_SubjectToStatusTransferList;
 static int ett_s1ap_Bearers_SubjectToStatusTransfer_Item;
 static int ett_s1ap_Bearers_SubjectToEarlyStatusTransferList;
 static int ett_s1ap_Bearers_SubjectToEarlyStatusTransfer_Item;
+static int ett_s1ap_Bearers_SubjectToDLDiscardingList;
+static int ett_s1ap_Bearers_SubjectToDLDiscarding_Item;
 static int ett_s1ap_BluetoothMeasurementConfiguration;
 static int ett_s1ap_BluetoothMeasConfigNameList;
 static int ett_s1ap_BPLMNs;
@@ -1654,6 +1677,7 @@ static int ett_s1ap_ServedDCNs;
 static int ett_s1ap_ServedDCNsItem;
 static int ett_s1ap_DL_CP_SecurityInformation;
 static int ett_s1ap_DLCOUNT_PDCP_SNlength;
+static int ett_s1ap_DLDiscarding;
 static int ett_s1ap_ECGIList;
 static int ett_s1ap_PWSfailedECGIList;
 static int ett_s1ap_EmergencyAreaIDList;
@@ -1822,6 +1846,7 @@ static int ett_s1ap_GNB_Identity;
 static int ett_s1ap_NG_eNB;
 static int ett_s1ap_TargeteNB_ToSourceeNB_TransparentContainer;
 static int ett_s1ap_M1ThresholdEventA2;
+static int ett_s1ap_TimeBasedHandoverInformation;
 static int ett_s1ap_TransportInformation;
 static int ett_s1ap_TraceActivation;
 static int ett_s1ap_TunnelInformation;
@@ -2206,6 +2231,12 @@ static void
 s1ap_threshold_nr_sinr_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+}
+
+static void
+s1ap_handover_window_duration_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%dms (%u)", v*100, v);
 }
 
 static struct s1ap_private_data*
@@ -2753,6 +2784,13 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_SourceSNID, "id-SourceSNID" },
   { id_LoggedMDTTrigger, "id-LoggedMDTTrigger" },
   { id_SensorMeasurementConfiguration, "id-SensorMeasurementConfiguration" },
+  { id_M4ReportAmount, "id-M4ReportAmount" },
+  { id_M5ReportAmount, "id-M5ReportAmount" },
+  { id_M6ReportAmount, "id-M6ReportAmount" },
+  { id_M7ReportAmount, "id-M7ReportAmount" },
+  { id_TimeBasedHandoverInformation, "id-TimeBasedHandoverInformation" },
+  { id_Bearers_SubjectToDLDiscarding_Item, "id-Bearers-SubjectToDLDiscarding-Item" },
+  { id_Bearers_SubjectToDLDiscardingList, "id-Bearers-SubjectToDLDiscardingList" },
   { 0, NULL }
 };
 
@@ -3917,6 +3955,60 @@ dissect_s1ap_Bearers_SubjectToEarlyStatusTransfer_Item(tvbuff_t *tvb _U_, int of
 }
 
 
+static const per_sequence_t Bearers_SubjectToDLDiscardingList_sequence_of[1] = {
+  { &hf_s1ap_Bearers_SubjectToDLDiscardingList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_SingleContainer },
+};
+
+static int
+dissect_s1ap_Bearers_SubjectToDLDiscardingList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_s1ap_Bearers_SubjectToDLDiscardingList, Bearers_SubjectToDLDiscardingList_sequence_of,
+                                                  1, maxnoofE_RABs, false);
+
+  return offset;
+}
+
+
+static const value_string s1ap_DLDiscarding_vals[] = {
+  {   0, "discardDLCOUNTValuePDCP-SNlength12" },
+  {   1, "discardDLCOUNTValuePDCP-SNlength15" },
+  {   2, "discardDLCOUNTValuePDCP-SNlength18" },
+  { 0, NULL }
+};
+
+static const per_choice_t DLDiscarding_choice[] = {
+  {   0, &hf_s1ap_discardDLCOUNTValuePDCP_SNlength12, ASN1_EXTENSION_ROOT    , dissect_s1ap_COUNTvalue },
+  {   1, &hf_s1ap_discardDLCOUNTValuePDCP_SNlength15, ASN1_EXTENSION_ROOT    , dissect_s1ap_COUNTValueExtended },
+  {   2, &hf_s1ap_discardDLCOUNTValuePDCP_SNlength18, ASN1_EXTENSION_ROOT    , dissect_s1ap_COUNTvaluePDCP_SNlength18 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_DLDiscarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_DLDiscarding, DLDiscarding_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Bearers_SubjectToDLDiscarding_Item_sequence[] = {
+  { &hf_s1ap_e_RAB_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_E_RAB_ID },
+  { &hf_s1ap_dL_Discarding  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_DLDiscarding },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_Bearers_SubjectToDLDiscarding_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_Bearers_SubjectToDLDiscarding_Item, Bearers_SubjectToDLDiscarding_Item_sequence);
+
+  return offset;
+}
+
+
 static const value_string s1ap_BearerType_vals[] = {
   {   0, "non-IP" },
   { 0, NULL }
@@ -4440,6 +4532,7 @@ const value_string s1ap_CauseRadioNetwork_vals[] = {
   {  41, "insufficient-ue-capabilities" },
   {  42, "maximum-bearer-pre-emption-rate-exceeded" },
   {  43, "up-integrity-protection-not-possible" },
+  {  44, "release-due-to-discontinuous-coverage" },
   { 0, NULL }
 };
 
@@ -4450,7 +4543,7 @@ static int
 dissect_s1ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     36, &value, true, 8, NULL);
+                                     36, &value, true, 9, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%s]", val_to_str_const(value, s1ap_CauseRadioNetwork_vals, "Unknown"));
 
@@ -4486,6 +4579,7 @@ const value_string s1ap_CauseNas_vals[] = {
   {   3, "unspecified" },
   {   4, "csg-subscription-expiry" },
   {   5, "uE-not-in-PLMN-serving-area" },
+  {   6, "iab-not-authorized" },
   { 0, NULL }
 };
 
@@ -4494,7 +4588,7 @@ static int
 dissect_s1ap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, &value, true, 2, NULL);
+                                     4, &value, true, 3, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [NAS-cause=%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
 
@@ -8251,6 +8345,28 @@ dissect_s1ap_M4Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const value_string s1ap_M4ReportAmountMDT_vals[] = {
+  {   0, "r1" },
+  {   1, "r2" },
+  {   2, "r4" },
+  {   3, "r8" },
+  {   4, "r16" },
+  {   5, "r32" },
+  {   6, "r64" },
+  {   7, "infinity" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_M4ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 static const value_string s1ap_M5period_vals[] = {
   {   0, "ms1024" },
   {   1, "ms2048" },
@@ -8281,6 +8397,28 @@ static int
 dissect_s1ap_M5Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_M5Configuration, M5Configuration_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_M5ReportAmountMDT_vals[] = {
+  {   0, "r1" },
+  {   1, "r2" },
+  {   2, "r4" },
+  {   3, "r8" },
+  {   4, "r16" },
+  {   5, "r32" },
+  {   6, "r64" },
+  {   7, "infinity" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_M5ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -8347,6 +8485,28 @@ dissect_s1ap_M6Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const value_string s1ap_M6ReportAmountMDT_vals[] = {
+  {   0, "r1" },
+  {   1, "r2" },
+  {   2, "r4" },
+  {   3, "r8" },
+  {   4, "r16" },
+  {   5, "r32" },
+  {   6, "r64" },
+  {   7, "infinity" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_M6ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_s1ap_M7period(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -8368,6 +8528,28 @@ static int
 dissect_s1ap_M7Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_M7Configuration, M7Configuration_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_M7ReportAmountMDT_vals[] = {
+  {   0, "r1" },
+  {   1, "r2" },
+  {   2, "r4" },
+  {   3, "r8" },
+  {   4, "r16" },
+  {   5, "r32" },
+  {   6, "r64" },
+  {   7, "infinity" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_M7ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -11027,6 +11209,42 @@ dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset 
 
 
 
+
+
+
+static int
+dissect_s1ap_HandoverWindowStart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1048575U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_HandoverWindowDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 6000U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t TimeBasedHandoverInformation_sequence[] = {
+  { &hf_s1ap_hOWindowStart  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_HandoverWindowStart },
+  { &hf_s1ap_hOWindowDuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_HandoverWindowDuration },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_TimeBasedHandoverInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_TimeBasedHandoverInformation, TimeBasedHandoverInformation_sequence);
+
+  return offset;
+}
 
 
 static const value_string s1ap_TimeToWait_vals[] = {
@@ -15078,6 +15296,22 @@ static int dissect_Bearers_SubjectToEarlyStatusTransfer_Item_PDU(tvbuff_t *tvb _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Bearers_SubjectToDLDiscardingList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_Bearers_SubjectToDLDiscardingList(tvb, offset, &asn1_ctx, tree, hf_s1ap_Bearers_SubjectToDLDiscardingList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Bearers_SubjectToDLDiscarding_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_Bearers_SubjectToDLDiscarding_Item(tvb, offset, &asn1_ctx, tree, hf_s1ap_Bearers_SubjectToDLDiscarding_Item_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_BearerType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -15846,11 +16080,27 @@ static int dissect_M4Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_M4ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_M4ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_s1ap_M4ReportAmountMDT_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_M5Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_s1ap_M5Configuration(tvb, offset, &asn1_ctx, tree, hf_s1ap_M5Configuration_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_M5ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_M5ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_s1ap_M5ReportAmountMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -15862,11 +16112,27 @@ static int dissect_M6Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_M6ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_M6ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_s1ap_M6ReportAmountMDT_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_M7Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_s1ap_M7Configuration(tvb, offset, &asn1_ctx, tree, hf_s1ap_M7Configuration_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_M7ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_M7ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_s1ap_M7ReportAmountMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -16587,6 +16853,14 @@ static int dissect_Target_ToSource_TransparentContainer_PDU(tvbuff_t *tvb _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_s1ap_Target_ToSource_TransparentContainer(tvb, offset, &asn1_ctx, tree, hf_s1ap_Target_ToSource_TransparentContainer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TimeBasedHandoverInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_TimeBasedHandoverInformation(tvb, offset, &asn1_ctx, tree, hf_s1ap_TimeBasedHandoverInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -18481,6 +18755,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.ies", id_LTE_NTN_TAI_Information, create_dissector_handle(dissect_LTE_NTN_TAI_Information_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_E_RABToBeUpdatedList, create_dissector_handle(dissect_E_RABToBeUpdatedList_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_E_RABToBeUpdatedItem, create_dissector_handle(dissect_E_RABToBeUpdatedItem_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.ies", id_Bearers_SubjectToDLDiscarding_Item, create_dissector_handle(dissect_Bearers_SubjectToDLDiscarding_Item_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Data_Forwarding_Not_Possible, create_dissector_handle(dissect_Data_Forwarding_Not_Possible_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Time_Synchronisation_Info, create_dissector_handle(dissect_TimeSynchronisationInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_x2TNLConfigurationInfo, create_dissector_handle(dissect_X2TNLConfigurationInfo_PDU, proto_s1ap));
@@ -18556,6 +18831,12 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.extension", id_SourceSNID, create_dissector_handle(dissect_Global_RAN_NODE_ID_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_LoggedMDTTrigger, create_dissector_handle(dissect_LoggedMDTTrigger_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_SensorMeasurementConfiguration, create_dissector_handle(dissect_SensorMeasurementConfiguration_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_M4ReportAmount, create_dissector_handle(dissect_M4ReportAmountMDT_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_M5ReportAmount, create_dissector_handle(dissect_M5ReportAmountMDT_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_M6ReportAmount, create_dissector_handle(dissect_M6ReportAmountMDT_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_M7ReportAmount, create_dissector_handle(dissect_M7ReportAmountMDT_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_TimeBasedHandoverInformation, create_dissector_handle(dissect_TimeBasedHandoverInformation_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_Bearers_SubjectToDLDiscardingList, create_dissector_handle(dissect_Bearers_SubjectToDLDiscardingList_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.imsg", id_HandoverPreparation, create_dissector_handle(dissect_HandoverRequired_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.sout", id_HandoverPreparation, create_dissector_handle(dissect_HandoverCommand_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.uout", id_HandoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_s1ap));
@@ -18913,6 +19194,14 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_Bearers_SubjectToEarlyStatusTransfer_Item_PDU,
       { "Bearers-SubjectToEarlyStatusTransfer-Item", "s1ap.Bearers_SubjectToEarlyStatusTransfer_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_Bearers_SubjectToDLDiscardingList_PDU,
+      { "Bearers-SubjectToDLDiscardingList", "s1ap.Bearers_SubjectToDLDiscardingList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_Bearers_SubjectToDLDiscarding_Item_PDU,
+      { "Bearers-SubjectToDLDiscarding-Item", "s1ap.Bearers_SubjectToDLDiscarding_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_BearerType_PDU,
@@ -19299,17 +19588,33 @@ void proto_register_s1ap(void) {
       { "M4Configuration", "s1ap.M4Configuration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_s1ap_M4ReportAmountMDT_PDU,
+      { "M4ReportAmountMDT", "s1ap.M4ReportAmountMDT",
+        FT_UINT32, BASE_DEC, VALS(s1ap_M4ReportAmountMDT_vals), 0,
+        NULL, HFILL }},
     { &hf_s1ap_M5Configuration_PDU,
       { "M5Configuration", "s1ap.M5Configuration_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_M5ReportAmountMDT_PDU,
+      { "M5ReportAmountMDT", "s1ap.M5ReportAmountMDT",
+        FT_UINT32, BASE_DEC, VALS(s1ap_M5ReportAmountMDT_vals), 0,
         NULL, HFILL }},
     { &hf_s1ap_M6Configuration_PDU,
       { "M6Configuration", "s1ap.M6Configuration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_s1ap_M6ReportAmountMDT_PDU,
+      { "M6ReportAmountMDT", "s1ap.M6ReportAmountMDT",
+        FT_UINT32, BASE_DEC, VALS(s1ap_M6ReportAmountMDT_vals), 0,
+        NULL, HFILL }},
     { &hf_s1ap_M7Configuration_PDU,
       { "M7Configuration", "s1ap.M7Configuration_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_M7ReportAmountMDT_PDU,
+      { "M7ReportAmountMDT", "s1ap.M7ReportAmountMDT",
+        FT_UINT32, BASE_DEC, VALS(s1ap_M7ReportAmountMDT_vals), 0,
         NULL, HFILL }},
     { &hf_s1ap_MDT_Location_Info_PDU,
       { "MDT-Location-Info", "s1ap.MDT_Location_Info",
@@ -19670,6 +19975,10 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_Target_ToSource_TransparentContainer_PDU,
       { "Target-ToSource-TransparentContainer", "s1ap.Target_ToSource_TransparentContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_TimeBasedHandoverInformation_PDU,
+      { "TimeBasedHandoverInformation", "s1ap.TimeBasedHandoverInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_TimeToWait_PDU,
       { "TimeToWait", "s1ap.TimeToWait",
@@ -20595,6 +20904,14 @@ void proto_register_s1ap(void) {
       { "dLCOUNT-PDCP-SNlength", "s1ap.dLCOUNT_PDCP_SNlength",
         FT_UINT32, BASE_DEC, VALS(s1ap_DLCOUNT_PDCP_SNlength_vals), 0,
         NULL, HFILL }},
+    { &hf_s1ap_Bearers_SubjectToDLDiscardingList_item,
+      { "ProtocolIE-SingleContainer", "s1ap.ProtocolIE_SingleContainer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_dL_Discarding,
+      { "dL-Discarding", "s1ap.dL_Discarding",
+        FT_UINT32, BASE_DEC, VALS(s1ap_DLDiscarding_vals), 0,
+        "DLDiscarding", HFILL }},
     { &hf_s1ap_bluetoothMeasConfig,
       { "bluetoothMeasConfig", "s1ap.bluetoothMeasConfig",
         FT_UINT32, BASE_DEC, VALS(s1ap_BluetoothMeasConfig_vals), 0,
@@ -20877,6 +21194,18 @@ void proto_register_s1ap(void) {
         "COUNTValueExtended", HFILL }},
     { &hf_s1ap_dLCOUNTValuePDCP_SNlength18,
       { "dLCOUNTValuePDCP-SNlength18", "s1ap.dLCOUNTValuePDCP_SNlength18_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "COUNTvaluePDCP_SNlength18", HFILL }},
+    { &hf_s1ap_discardDLCOUNTValuePDCP_SNlength12,
+      { "discardDLCOUNTValuePDCP-SNlength12", "s1ap.discardDLCOUNTValuePDCP_SNlength12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "COUNTvalue", HFILL }},
+    { &hf_s1ap_discardDLCOUNTValuePDCP_SNlength15,
+      { "discardDLCOUNTValuePDCP-SNlength15", "s1ap.discardDLCOUNTValuePDCP_SNlength15_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "COUNTValueExtended", HFILL }},
+    { &hf_s1ap_discardDLCOUNTValuePDCP_SNlength18,
+      { "discardDLCOUNTValuePDCP-SNlength18", "s1ap.discardDLCOUNTValuePDCP_SNlength18_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "COUNTvaluePDCP_SNlength18", HFILL }},
     { &hf_s1ap_ECGIList_item,
@@ -21983,6 +22312,14 @@ void proto_register_s1ap(void) {
       { "measurementThreshold", "s1ap.measurementThreshold",
         FT_UINT32, BASE_DEC, VALS(s1ap_MeasurementThresholdA2_vals), 0,
         "MeasurementThresholdA2", HFILL }},
+    { &hf_s1ap_hOWindowStart,
+      { "hOWindowStart", "s1ap.hOWindowStart",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
+        "HandoverWindowStart", HFILL }},
+    { &hf_s1ap_hOWindowDuration,
+      { "hOWindowDuration", "s1ap.hOWindowDuration",
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(s1ap_handover_window_duration_fmt), 0,
+        "HandoverWindowDuration", HFILL }},
     { &hf_s1ap_transportLayerAddress,
       { "transportLayerAddress", "s1ap.transportLayerAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -22621,6 +22958,8 @@ void proto_register_s1ap(void) {
     &ett_s1ap_Bearers_SubjectToStatusTransfer_Item,
     &ett_s1ap_Bearers_SubjectToEarlyStatusTransferList,
     &ett_s1ap_Bearers_SubjectToEarlyStatusTransfer_Item,
+    &ett_s1ap_Bearers_SubjectToDLDiscardingList,
+    &ett_s1ap_Bearers_SubjectToDLDiscarding_Item,
     &ett_s1ap_BluetoothMeasurementConfiguration,
     &ett_s1ap_BluetoothMeasConfigNameList,
     &ett_s1ap_BPLMNs,
@@ -22664,6 +23003,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_ServedDCNsItem,
     &ett_s1ap_DL_CP_SecurityInformation,
     &ett_s1ap_DLCOUNT_PDCP_SNlength,
+    &ett_s1ap_DLDiscarding,
     &ett_s1ap_ECGIList,
     &ett_s1ap_PWSfailedECGIList,
     &ett_s1ap_EmergencyAreaIDList,
@@ -22832,6 +23172,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_NG_eNB,
     &ett_s1ap_TargeteNB_ToSourceeNB_TransparentContainer,
     &ett_s1ap_M1ThresholdEventA2,
+    &ett_s1ap_TimeBasedHandoverInformation,
     &ett_s1ap_TransportInformation,
     &ett_s1ap_TraceActivation,
     &ett_s1ap_TunnelInformation,

@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V17.6.0 (2024-03)
+ * References: 3GPP TS 36.413 V18.2.0 (2024-06)
  */
 
 #include "config.h"
@@ -362,6 +362,12 @@ static void
 s1ap_threshold_nr_sinr_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+}
+
+static void
+s1ap_handover_window_duration_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%dms (%u)", v*100, v);
 }
 
 static struct s1ap_private_data*
