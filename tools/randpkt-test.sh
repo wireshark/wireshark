@@ -162,7 +162,7 @@ while [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ] ; do
         grep -i "dissector bug" "$TMP_DIR/$ERR_FILE" \
             > /dev/null 2>&1 && DISSECTOR_BUG=1
 
-        if [ $RETVAL -ne 0 ] || [ $DISSECTOR_BUG -ne 0 ] || [ $VG_ERR_CNT -ne 0 ] ; then
+        if [ "$RETVAL" -ne 0 ] || [ $DISSECTOR_BUG -ne 0 ] || [ "$VG_ERR_CNT" -ne 0 ] ; then
             ws_exit_error
         fi
         echo " OK"

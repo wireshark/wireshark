@@ -304,7 +304,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
                 fi
             fi
 
-            if ! $DONE && { [ $RUNNER_RETVAL -ne 0 ] || [ $DISSECTOR_BUG -ne 0 ] || [ $VG_ERR_CNT -ne 0 ]; } ; then
+            if ! $DONE && { [ $RUNNER_RETVAL -ne 0 ] || [ $DISSECTOR_BUG -ne 0 ] || [ "$VG_ERR_CNT" -ne 0 ]; } ; then
                 # shellcheck disable=SC2086
                 rm -f $RUNNER_ERR_FILES
                 ws_exit_error
