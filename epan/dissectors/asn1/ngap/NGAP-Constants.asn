@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.8.0 (2024-03)
+-- 3GPP TS 38.413 V18.2.0 (2024-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -109,6 +109,13 @@ id-MulticastSessionDeactivation 			ProcedureCode ::= 72
 id-MulticastSessionUpdate 					ProcedureCode ::= 73
 id-MulticastGroupPaging						ProcedureCode ::= 74
 id-BroadcastSessionReleaseRequired			ProcedureCode ::= 75
+id-TimingSynchronisationStatus				ProcedureCode ::= 76
+id-TimingSynchronisationStatusReport		ProcedureCode ::= 77
+id-MTCommunicationHandling					ProcedureCode ::= 78
+id-RANPagingRequest							ProcedureCode ::= 79
+id-BroadcastSessionTransport				ProcedureCode ::= 80
+
+
 
 -- **************************************************************
 --
@@ -179,6 +186,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofRecommendedCells						INTEGER ::= 16
 	maxnoofRecommendedRANNodes					INTEGER ::= 16
 	maxnoofAoI									INTEGER ::= 64
+	maxnoofAoIMinusOne							INTEGER ::= 63
 	maxnoofReportedCells						INTEGER ::= 256
 	maxnoofSensorName							INTEGER ::= 3
 	maxnoofServedGUAMIs							INTEGER ::= 256
@@ -196,6 +204,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofTimePeriods							INTEGER ::= 2
 	maxnoofTNLAssociations						INTEGER ::= 32
 	maxnoofUEsforPaging							INTEGER ::=	4096
+	maxnoofUETypes								INTEGER ::=	8
 	maxnoofWLANName								INTEGER ::= 4
 	maxnoofXnExtTLAs							INTEGER ::= 16
 	maxnoofXnGTP-TLAs							INTEGER ::= 16
@@ -209,6 +218,17 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofSNSSAIforQMC							INTEGER ::= 16
 	maxnoofTAforQMC								INTEGER ::= 8
 	maxnoofThresholdsForExcessPacketDelay		INTEGER ::= 255
+	maxnoofESNPNs								INTEGER ::= 15
+	maxnoofCandidateRelayUEs					INTEGER ::= 32
+	maxnoofSuccessfulPSCellChangeReports       	INTEGER ::= 64
+	maxnoofCellsTSS								INTEGER ::= 16384
+	maxnoofPeriodicities						INTEGER ::= 8
+	maxnoofCAGforMDT							INTEGER ::= 256
+	maxnoofMDTSNPNs								INTEGER ::= 16
+	maxnoofPartiallyAllowedS-NSSAIs				INTEGER ::= 8
+	maxnoofRSPPQoSFlows							INTEGER ::= 2048
+
+
 
 -- **************************************************************
 --
@@ -587,6 +607,80 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-TargetHomeENB-ID										ProtocolIE-ID ::= 364
 	id-HashedUEIdentityIndexValue							ProtocolIE-ID ::= 365
 	id-ExtendedMobilityInformation							ProtocolIE-ID ::= 366
+	id-NetworkControlledRepeaterAuthorized					ProtocolIE-ID ::= 367
+	id-AdditionalCancelledlocationReportingReferenceIDList	ProtocolIE-ID ::= 368
+	id-Selected-Target-SNPN-Identity						ProtocolIE-ID ::= 369
+	id-EquivalentSNPNsList                                  ProtocolIE-ID ::= 370
+	id-SelectedNID											ProtocolIE-ID ::= 371
+	id-SupportedUETypeList									ProtocolIE-ID ::= 372
+	id-AerialUEsubscriptionInformation						ProtocolIE-ID ::= 373
+	id-NR-A2X-ServicesAuthorized							ProtocolIE-ID ::= 374
+	id-LTE-A2X-ServicesAuthorized							ProtocolIE-ID ::= 375
+	id-NR-A2X-UE-PC5-AggregateMaximumBitRate				ProtocolIE-ID ::= 376
+	id-LTE-A2X-UE-PC5-AggregateMaximumBitRate				ProtocolIE-ID ::= 377
+	id-A2X-PC5-QoS-Parameters								ProtocolIE-ID ::= 378
+	id-FiveGProSeLayer2Multipath							ProtocolIE-ID ::= 379
+	id-FiveGProSeLayer2UEtoUERelay							ProtocolIE-ID ::= 380
+	id-FiveGProSeLayer2UEtoUERemote							ProtocolIE-ID ::= 381
+	id-CandidateRelayUEInformationList						ProtocolIE-ID ::= 382
+	id-SuccessfulPSCellChangeReportList						ProtocolIE-ID ::= 383
+	id-IntersystemMobilityFailureforVoiceFallback			ProtocolIE-ID ::= 384
+	id-TargetCellCRNTI                                      ProtocolIE-ID ::= 385
+	id-TimeSinceFailure                                     ProtocolIE-ID ::= 386
+	id-RANTimingSynchronisationStatusInfo					ProtocolIE-ID ::= 387
+	id-RAN-TSSRequestType									ProtocolIE-ID ::= 388
+	id-RAN-TSSScope											ProtocolIE-ID ::= 389
+	id-ClockQualityReportingControlInfo						ProtocolIE-ID ::= 390
+	id-RANfeedbacktype										ProtocolIE-ID ::= 391
+	id-QoSFlowTSCList										ProtocolIE-ID ::= 392
+	id-TSCTrafficCharacteristicsFeedback					ProtocolIE-ID ::= 393
+	id-DownlinkTLContainer									ProtocolIE-ID ::= 394
+	id-UplinkTLContainer									ProtocolIE-ID ::= 395
+	id-ANPacketDelayBudgetUL								ProtocolIE-ID ::= 396
+	id-QosFlowAdditionalInfoList							ProtocolIE-ID ::= 397
+	id-AssistanceInformationQoE-Meas						ProtocolIE-ID ::= 398
+	id-MBSCommServiceType									ProtocolIE-ID ::= 399
+	id-MobileIAB-Authorized									ProtocolIE-ID ::= 400
+	id-MobileIAB-MTUserLocationInformation					ProtocolIE-ID ::= 401
+	id-MobileIABNodeIndication							    ProtocolIE-ID ::= 402
+	id-NoPDUSessionIndication 								ProtocolIE-ID ::= 403
+	id-MobileIAB-Supported							        ProtocolIE-ID ::= 404
+	id-CN-MT-CommunicationHandling							ProtocolIE-ID ::= 405
+	id-FiveGCAction											ProtocolIE-ID ::= 406
+	id-PagingPolicyDifferentiation							ProtocolIE-ID ::= 407
+	id-DL-Signalling										ProtocolIE-ID ::= 408
+	id-PNI-NPN-AreaScopeofMDT								ProtocolIE-ID ::= 409
+	id-PNI-NPNBasedMDT										ProtocolIE-ID ::= 410
+	id-SNPN-CellBasedMDT									ProtocolIE-ID ::= 411
+	id-SNPN-TAIBasedMDT										ProtocolIE-ID ::= 412
+	id-SNPN-BasedMDT										ProtocolIE-ID ::= 413
+	id-Partially-Allowed-NSSAI								ProtocolIE-ID ::= 414
+	id-AssociatedSessionID									ProtocolIE-ID ::= 415
+	id-MBS-AssistanceInformation							ProtocolIE-ID ::= 416
+	id-BroadcastTransportFailureTransfer					ProtocolIE-ID ::= 417
+	id-BroadcastTransportRequestTransfer					ProtocolIE-ID ::= 418
+	id-BroadcastTransportResponseTransfer					ProtocolIE-ID ::= 419
+	id-TimeBasedHandoverInformation							ProtocolIE-ID ::= 420
+	id-DLDiscarding											ProtocolIE-ID ::= 421
+	id-PDUsetQoSParameters									ProtocolIE-ID ::= 422
+	id-PDUSetbasedHandlingIndicator							ProtocolIE-ID ::= 423
+	id-N6JitterInformation									ProtocolIE-ID ::= 424
+	id-ECNMarkingorCongestionInformationReportingRequest	ProtocolIE-ID ::= 425
+	id-ECNMarkingorCongestionInformationReportingStatus		ProtocolIE-ID ::= 426
+	id-ERedCapIndication									ProtocolIE-ID ::= 427
+	id-XrDeviceWith2Rx										ProtocolIE-ID ::= 428
+	id-UserPlaneErrorIndicator								ProtocolIE-ID ::= 429
+	id-SLPositioningRangingServiceInfo						ProtocolIE-ID ::= 430
+	id-PDUSessionListMTCommHReq								ProtocolIE-ID ::= 431
+	id-MaximumDataBurstVolume 								ProtocolIE-ID ::= 432
+	id-MN-only-MDT-collection								ProtocolIE-ID ::= 433
+	id-MBS-NGUFailureIndication								ProtocolIE-ID ::= 434
+	id-UserPlaneFailureIndication							ProtocolIE-ID ::= 435
+	id-UserPlaneFailureIndicationReport						ProtocolIE-ID ::= 436
+	id-SourceSN-to-TargetSN-QMCInfo							ProtocolIE-ID ::= 437
+	id-QoERVQoEReportingPaths								ProtocolIE-ID ::= 438
+
+
 
 
 END

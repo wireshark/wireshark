@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v17.8.0 (2024-03)
+ * References: 3GPP TS 38.413 v18.2.0 (2024-06)
  */
 
 #include "config.h"
@@ -225,112 +225,123 @@ struct ngap_tap_t {
 #define MTYPE_BROADCAST_SESSION_SETUP_REQUEST             12
 #define MTYPE_BROADCAST_SESSION_SETUP_RESPONSE            13
 #define MTYPE_BROADCAST_SESSION_SETUP_FAILURE             14
-#define MTYPE_CELL_TRAFFIC_TRACE                          15
-#define MTYPE_CONNECTION_ESTAB_IND                        16
-#define MTYPE_DEACTIVATE_TRACE                            17
-#define MTYPE_DISTRIBUTION_SETUP_REQUEST                  18
-#define MTYPE_DISTRIBUTION_SETUP_RESPONSE                 19
-#define MTYPE_DISTRIBUTION_SETUP_FAILURE                  20
-#define MTYPE_DISTRIBUTION_RELEASE_REQUEST                21
-#define MTYPE_DISTRIBUTION_RELEASE_RESPONSE               22
-#define MTYPE_DOWNLINK_NAS_TRANSPORT                      23
-#define MTYPE_DOWNLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT 24
-#define MTYPE_DOWNLINK_RAN_CONFIGURATION_TRANSFER         25
-#define MTYPE_DOWNLINK_RAN_EARLY_STATUS_TRANSFER          26
-#define MTYPE_DOWNLINK_RAN_STATUS_TRANSFER                27
-#define MTYPE_DOWNLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT     28
-#define MTYPE_ERROR_INDICATION                            29
-#define MTYPE_HANDOVER_CANCEL                             30
-#define MTYPE_HANDOVER_CANCEL_ACK                         31
-#define MTYPE_HANDOVER_NOTIFY                             32
-#define MTYPE_HANDOVER_REQUIRED                           33
-#define MTYPE_HANDOVER_COMMAND                            34
-#define MTYPE_HANDOVER_PREPARATION_FAILURE                35
-#define MTYPE_HANDOVER_REQUEST                            36
-#define MTYPE_HANDOVER_REQUEST_ACK                        37
-#define MTYPE_HANDOVER_FAILURE                            38
-#define MTYPE_HANDOVER_SUCCESS                            39
-#define MTYPE_INITIAL_CONTEXT_SETUP_REQUEST               40
-#define MTYPE_INITIAL_CONTEXT_SETUP_RESPONSE              41
-#define MTYPE_INITIAL_CONTEXT_SETUP_FAILURE               42
-#define MTYPE_INITIAL_UE_MESSAGE                          43
-#define MTYPE_LOCATION_REPORT                             44
-#define MTYPE_LOCATION_REPORTING_CONTROL                  45
-#define MTYPE_LOCATION_REPORTING_FAILURE_IND              46
-#define MTYPE_MULTICAST_SESSION_ACTIVATION_REQUEST        47
-#define MTYPE_MULTICAST_SESSION_ACTIVATION_RESPONSE       48
-#define MTYPE_MULTICAST_SESSION_ACTIVATION_FAILURE        49
-#define MTYPE_MULTICAST_SESSION_DEACTIVATION_REQUEST      50
-#define MTYPE_MULTICAST_SESSION_DEACTIVATION_RESPONSE     51
-#define MTYPE_MULTICAST_SESSION_UPDATE_REQUEST            52
-#define MTYPE_MULTICAST_SESSION_UPDATE_RESPONSE           53
-#define MTYPE_MULTICAST_SESSION_UPDATE_FAILURE            54
-#define MTYPE_MULTICAST_GROUP_PAGING                      55
-#define MTYPE_NAS_NON_DELIVERY_IND                        56
-#define MTYPE_NG_RESET                                    57
-#define MTYPE_NG_RESET_ACK                                58
-#define MTYPE_NG_SETUP_REQUEST                            59
-#define MTYPE_NG_SETUP_RESPONSE                           60
-#define MTYPE_NG_SETUP_FAILURE                            61
-#define MTYPE_OVERLOAD_START                              62
-#define MTYPE_OVERLOAD_STOP                               63
-#define MTYPE_PAGING                                      64
-#define MTYPE_PATH_SWITCH_REQUEST                         65
-#define MTYPE_PATH_SWITCH_REQUEST_ACK                     66
-#define MTYPE_PATH_SWITCH_REQUEST_FAILURE                 67
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_REQUEST         68
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_RESPONSE        69
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_IND             70
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_CONFIRM         71
-#define MTYPE_PDU_SESSION_RESOURCE_NOTIFY                 72
-#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_COMMAND        73
-#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_RESPONSE       74
-#define MTYPE_PDU_SESSION_RESOURCE_SETUP_REQUEST          75
-#define MTYPE_PDU_SESSION_RESOURCE_SETUP_RESPONSE         76
-#define MTYPE_PRIVATE_MESSAGE                             77
-#define MTYPE_PWS_CANCEL_REQUEST                          78
-#define MTYPE_PWS_CANCEL_RESPONSE                         79
-#define MTYPE_PWS_FAILURE_INDICATION                      80
-#define MTYPE_PWS_RESTART_INDICATION                      81
-#define MTYPE_RAN_CONFIGURATION_UPDATE                    82
-#define MTYPE_RAN_CONFIGURATION_UPDATE_ACK                83
-#define MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE            84
-#define MTYPE_RAN_CP_RELOCATION_IND                       85
-#define MTYPE_REROUTE_NAS_REQUEST                         86
-#define MTYPE_RETRIEVE_UE_INFORMATION                     87
-#define MTYPE_RRC_INACTIVE_TRANSITION_REPORT              88
-#define MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT             89
-#define MTYPE_TRACE_FAILURE_IND                           90
-#define MTYPE_TRACE_START                                 91
-#define MTYPE_UE_CONTEXT_MODIFICATION_REQUEST             92
-#define MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE            93
-#define MTYPE_UE_CONTEXT_MODIFICATION_FAILURE             94
-#define MTYPE_UE_CONTEXT_RELEASE_COMMAND                  95
-#define MTYPE_UE_CONTEXT_RELEASE_COMPLETE                 96
-#define MTYPE_UE_CONTEXT_RELEASE_REQUEST                  97
-#define MTYPE_UE_CONTEXT_RESUME_REQUEST                   98
-#define MTYPE_UE_CONTEXT_RESUME_RESPONSE                  99
-#define MTYPE_UE_CONTEXT_RESUME_FAILURE                   100
-#define MTYPE_UE_CONTEXT_SUSPEND_REQUEST                  101
-#define MTYPE_UE_CONTEXT_SUSPEND_RESPONSE                 102
-#define MTYPE_UE_CONTEXT_SUSPEND_FAILURE                  103
-#define MTYPE_UE_INFORMATION_TRANSFER                     104
-#define MTYPE_UE_RADIO_CAPABILITY_CHECK_REQUEST           105
-#define MTYPE_UE_RADIO_CAPABILITY_CHECK_RESPONSE          106
-#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_REQUEST      107
-#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_RESPONSE     108
-#define MTYPE_UE_RADIO_CAPABILITY_INFO_IND                109
-#define MTYPE_UE_TN_LAB_BINDING_RELEASE_REQUEST           110
-#define MTYPE_UPLINK_NAS_TRANSPORT                        111
-#define MTYPE_UPLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT   112
-#define MTYPE_UPLINK_RAN_CONFIGURATION_TRANSFER           113
-#define MTYPE_UPLINK_RAN_EARLY_STATUS_TRANSFER            114
-#define MTYPE_UPLINK_RAN_STATUS_TRANSFER                  115
-#define MTYPE_UPLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT       116
-#define MTYPE_WRITE_REPLACE_WARNING_REQUEST               117
-#define MTYPE_WRITE_REPLACE_WARNING_RESPONSE              118
-#define MTYPE_UPLINK_RIM_INFORMATION_TRANSFER             119
-#define MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER           120
+#define MTYPE_BROADCAST_SESSION_TRANSPORT_REQUEST         15
+#define MTYPE_BROADCAST_SESSION_TRANSPORT_RESPONSE        16
+#define MTYPE_BROADCAST_SESSION_TRANSPORT_FAILURE         17
+#define MTYPE_CELL_TRAFFIC_TRACE                          18
+#define MTYPE_CONNECTION_ESTAB_IND                        19
+#define MTYPE_DEACTIVATE_TRACE                            20
+#define MTYPE_DISTRIBUTION_SETUP_REQUEST                  21
+#define MTYPE_DISTRIBUTION_SETUP_RESPONSE                 22
+#define MTYPE_DISTRIBUTION_SETUP_FAILURE                  23
+#define MTYPE_DISTRIBUTION_RELEASE_REQUEST                24
+#define MTYPE_DISTRIBUTION_RELEASE_RESPONSE               25
+#define MTYPE_DOWNLINK_NAS_TRANSPORT                      26
+#define MTYPE_DOWNLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT 27
+#define MTYPE_DOWNLINK_RAN_CONFIGURATION_TRANSFER         28
+#define MTYPE_DOWNLINK_RAN_EARLY_STATUS_TRANSFER          29
+#define MTYPE_DOWNLINK_RAN_STATUS_TRANSFER                30
+#define MTYPE_DOWNLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT     31
+#define MTYPE_ERROR_INDICATION                            32
+#define MTYPE_HANDOVER_CANCEL                             33
+#define MTYPE_HANDOVER_CANCEL_ACK                         34
+#define MTYPE_HANDOVER_NOTIFY                             35
+#define MTYPE_HANDOVER_REQUIRED                           36
+#define MTYPE_HANDOVER_COMMAND                            37
+#define MTYPE_HANDOVER_PREPARATION_FAILURE                38
+#define MTYPE_HANDOVER_REQUEST                            39
+#define MTYPE_HANDOVER_REQUEST_ACK                        40
+#define MTYPE_HANDOVER_FAILURE                            41
+#define MTYPE_HANDOVER_SUCCESS                            42
+#define MTYPE_INITIAL_CONTEXT_SETUP_REQUEST               43
+#define MTYPE_INITIAL_CONTEXT_SETUP_RESPONSE              44
+#define MTYPE_INITIAL_CONTEXT_SETUP_FAILURE               45
+#define MTYPE_INITIAL_UE_MESSAGE                          46
+#define MTYPE_LOCATION_REPORT                             47
+#define MTYPE_LOCATION_REPORTING_CONTROL                  48
+#define MTYPE_LOCATION_REPORTING_FAILURE_IND              49
+#define MTYPE_MT_COMMUNICATION_HANDLING_REQUEST           50
+#define MTYPE_MT_COMMUNICATION_HANDLING_RESPONSE          51
+#define MTYPE_MT_COMMUNICATION_HANDLING_FAILURE           52
+#define MTYPE_MULTICAST_SESSION_ACTIVATION_REQUEST        53
+#define MTYPE_MULTICAST_SESSION_ACTIVATION_RESPONSE       54
+#define MTYPE_MULTICAST_SESSION_ACTIVATION_FAILURE        55
+#define MTYPE_MULTICAST_SESSION_DEACTIVATION_REQUEST      56
+#define MTYPE_MULTICAST_SESSION_DEACTIVATION_RESPONSE     57
+#define MTYPE_MULTICAST_SESSION_UPDATE_REQUEST            58
+#define MTYPE_MULTICAST_SESSION_UPDATE_RESPONSE           59
+#define MTYPE_MULTICAST_SESSION_UPDATE_FAILURE            60
+#define MTYPE_MULTICAST_GROUP_PAGING                      61
+#define MTYPE_NAS_NON_DELIVERY_IND                        62
+#define MTYPE_NG_RESET                                    63
+#define MTYPE_NG_RESET_ACK                                64
+#define MTYPE_NG_SETUP_REQUEST                            65
+#define MTYPE_NG_SETUP_RESPONSE                           66
+#define MTYPE_NG_SETUP_FAILURE                            67
+#define MTYPE_OVERLOAD_START                              68
+#define MTYPE_OVERLOAD_STOP                               69
+#define MTYPE_PAGING                                      70
+#define MTYPE_PATH_SWITCH_REQUEST                         71
+#define MTYPE_PATH_SWITCH_REQUEST_ACK                     72
+#define MTYPE_PATH_SWITCH_REQUEST_FAILURE                 73
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_REQUEST         74
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_RESPONSE        75
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_IND             76
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_CONFIRM         77
+#define MTYPE_PDU_SESSION_RESOURCE_NOTIFY                 78
+#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_COMMAND        79
+#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_RESPONSE       80
+#define MTYPE_PDU_SESSION_RESOURCE_SETUP_REQUEST          81
+#define MTYPE_PDU_SESSION_RESOURCE_SETUP_RESPONSE         82
+#define MTYPE_PRIVATE_MESSAGE                             83
+#define MTYPE_PWS_CANCEL_REQUEST                          84
+#define MTYPE_PWS_CANCEL_RESPONSE                         85
+#define MTYPE_PWS_FAILURE_INDICATION                      86
+#define MTYPE_PWS_RESTART_INDICATION                      87
+#define MTYPE_RAN_CONFIGURATION_UPDATE                    88
+#define MTYPE_RAN_CONFIGURATION_UPDATE_ACK                89
+#define MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE            90
+#define MTYPE_RAN_CP_RELOCATION_IND                       91
+#define MTYPE_RAN_PAGING_REQUEST                          92
+#define MTYPE_REROUTE_NAS_REQUEST                         93
+#define MTYPE_RETRIEVE_UE_INFORMATION                     94
+#define MTYPE_RRC_INACTIVE_TRANSITION_REPORT              95
+#define MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT             96
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST       97
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE      98
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE       99
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT        100
+#define MTYPE_TRACE_FAILURE_IND                           101
+#define MTYPE_TRACE_START                                 102
+#define MTYPE_UE_CONTEXT_MODIFICATION_REQUEST             103
+#define MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE            104
+#define MTYPE_UE_CONTEXT_MODIFICATION_FAILURE             105
+#define MTYPE_UE_CONTEXT_RELEASE_COMMAND                  106
+#define MTYPE_UE_CONTEXT_RELEASE_COMPLETE                 107
+#define MTYPE_UE_CONTEXT_RELEASE_REQUEST                  108
+#define MTYPE_UE_CONTEXT_RESUME_REQUEST                   109
+#define MTYPE_UE_CONTEXT_RESUME_RESPONSE                  110
+#define MTYPE_UE_CONTEXT_RESUME_FAILURE                   111
+#define MTYPE_UE_CONTEXT_SUSPEND_REQUEST                  112
+#define MTYPE_UE_CONTEXT_SUSPEND_RESPONSE                 113
+#define MTYPE_UE_CONTEXT_SUSPEND_FAILURE                  114
+#define MTYPE_UE_INFORMATION_TRANSFER                     115
+#define MTYPE_UE_RADIO_CAPABILITY_CHECK_REQUEST           116
+#define MTYPE_UE_RADIO_CAPABILITY_CHECK_RESPONSE          117
+#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_REQUEST      118
+#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_RESPONSE     119
+#define MTYPE_UE_RADIO_CAPABILITY_INFO_IND                120
+#define MTYPE_UE_TN_LAB_BINDING_RELEASE_REQUEST           121
+#define MTYPE_UPLINK_NAS_TRANSPORT                        122
+#define MTYPE_UPLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT   123
+#define MTYPE_UPLINK_RAN_CONFIGURATION_TRANSFER           124
+#define MTYPE_UPLINK_RAN_EARLY_STATUS_TRANSFER            125
+#define MTYPE_UPLINK_RAN_STATUS_TRANSFER                  126
+#define MTYPE_UPLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT       127
+#define MTYPE_WRITE_REPLACE_WARNING_REQUEST               128
+#define MTYPE_WRITE_REPLACE_WARNING_RESPONSE              129
+#define MTYPE_UPLINK_RIM_INFORMATION_TRANSFER             130
+#define MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER           131
 
 
 /* Value Strings. TODO: ext? */
@@ -349,6 +360,9 @@ static const value_string mtype_names[] = {
     { MTYPE_BROADCAST_SESSION_SETUP_REQUEST,             "BroadcastSessionSetupRequest" },
     { MTYPE_BROADCAST_SESSION_SETUP_RESPONSE,            "BroadcastSessionSetupResponse" },
     { MTYPE_BROADCAST_SESSION_SETUP_FAILURE,             "BroadcastSessionSetupFailure" },
+    { MTYPE_BROADCAST_SESSION_TRANSPORT_REQUEST,         "BroadcastSessionTransportRequest" },
+    { MTYPE_BROADCAST_SESSION_TRANSPORT_RESPONSE,        "BroadcastSessionTransportResponse" },
+    { MTYPE_BROADCAST_SESSION_TRANSPORT_FAILURE,         "BroadcastSessionTransportFailure" },
     { MTYPE_CELL_TRAFFIC_TRACE,                          "CellTrafficTrace" },
     { MTYPE_CONNECTION_ESTAB_IND,                        "ConnectionEstablishmentIndication" },
     { MTYPE_DEACTIVATE_TRACE,                            "DeactivateTrace" },
@@ -381,6 +395,9 @@ static const value_string mtype_names[] = {
     { MTYPE_LOCATION_REPORT,                             "LocationReport" },
     { MTYPE_LOCATION_REPORTING_CONTROL,                  "LocationReportingControl" },
     { MTYPE_LOCATION_REPORTING_FAILURE_IND,              "LocationReportingFailureIndication" },
+    { MTYPE_MT_COMMUNICATION_HANDLING_REQUEST,           "MTCommunicationHandlingRequest" },
+    { MTYPE_MT_COMMUNICATION_HANDLING_RESPONSE,          "MTCommunicationHandlingResponse" },
+    { MTYPE_MT_COMMUNICATION_HANDLING_FAILURE,           "MTCommunicationHandlingFailure" },
     { MTYPE_MULTICAST_SESSION_ACTIVATION_REQUEST,        "MulticastSessionActivationRequest" },
     { MTYPE_MULTICAST_SESSION_ACTIVATION_RESPONSE,       "MulticastSessionActivationResponse" },
     { MTYPE_MULTICAST_SESSION_ACTIVATION_FAILURE,        "MulticastSessionActivationFailure" },
@@ -420,10 +437,15 @@ static const value_string mtype_names[] = {
     { MTYPE_RAN_CONFIGURATION_UPDATE_ACK,                "RANConfigurationUpdateAcknowledge" },
     { MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE,            "RANConfigurationUpdateFailure" },
     { MTYPE_RAN_CP_RELOCATION_IND,                       "RANCPRelocationIndication" },
+    { MTYPE_RAN_PAGING_REQUEST,                          "RANPagingRequest" },
     { MTYPE_REROUTE_NAS_REQUEST,                         "RerouteNASRequest" },
     { MTYPE_RETRIEVE_UE_INFORMATION,                     "RetrieveUEInformation" },
     { MTYPE_RRC_INACTIVE_TRANSITION_REPORT,              "RRCInactiveTransitionReport" },
     { MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT,             "SecondaryRATDataUsageReport" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST,       "TimingSynchronisationStatusRequest" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE,      "TimingSynchronisationStatusResponse" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE,       "TimingSynchronisationStatusFailure" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT,        "TimingSynchronisationStatusReport" },
     { MTYPE_TRACE_FAILURE_IND,                           "TraceFailureIndication" },
     { MTYPE_TRACE_START,                                 "TraceStart" },
     { MTYPE_UE_CONTEXT_MODIFICATION_REQUEST,             "UEContextModificationRequest" },
@@ -506,6 +528,7 @@ struct ngap_private_data {
   struct ngap_tai *tai;
   uint32_t ran_ue_ngap_id;
   e212_number_type_t number_type;
+  int8_t qos_flow_add_info_rel_type;
   struct ngap_tap_t *stats_tap;
 };
 
@@ -725,6 +748,12 @@ ngap_Threshold_SINR_fmt(char *s, uint32_t v)
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
 }
 
+static void
+ngap_N6Jitter_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
+}
+
 static struct ngap_private_data*
 ngap_get_private_data(packet_info *pinfo)
 {
@@ -732,6 +761,7 @@ ngap_get_private_data(packet_info *pinfo)
   if (!ngap_data) {
     ngap_data = wmem_new0(pinfo->pool, struct ngap_private_data);
     ngap_data->handover_type_value = -1;
+    ngap_data->qos_flow_add_info_rel_type = -1;
     p_add_proto_data(pinfo->pool, pinfo, proto_ngap, 0, ngap_data);
   }
   return ngap_data;
@@ -845,6 +875,13 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   return (dissector_try_uint_new(ngap_proc_uout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
+static int dissect_QosFlowAdditionalInfoListRel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  if (ngap_get_private_data(pinfo)->qos_flow_add_info_rel_type == 0)
+    return dissect_QosFlowAdditionalInfoListRelCom_PDU(tvb, pinfo, tree, data);
+  else
+    return dissect_QosFlowAdditionalInfoListRelRes_PDU(tvb, pinfo, tree, data);
+}
 
 static void
 ngap_stats_tree_init(stats_tree *st)
@@ -1086,7 +1123,8 @@ proto_reg_handoff_ngap(void)
   lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_ngap);
   lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
   lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_ngap);
-  dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
+  dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID, ngap_handle);
+  dissector_add_uint("ngap.extension", id_QosFlowAdditionalInfoList, create_dissector_handle(dissect_QosFlowAdditionalInfoListRel_PDU, proto_ngap));
 #include "packet-ngap-dis-tab.c"
 
   dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);

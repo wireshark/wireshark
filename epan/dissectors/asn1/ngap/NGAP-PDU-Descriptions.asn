@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.8.0 (2024-03)
+-- 3GPP TS 38.413 V18.2.0 (2024-06)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -40,6 +40,9 @@ FROM NGAP-CommonDataTypes
 	BroadcastSessionSetupFailure,
 	BroadcastSessionSetupRequest,
 	BroadcastSessionSetupResponse,
+	BroadcastSessionTransportFailure,
+	BroadcastSessionTransportRequest,
+	BroadcastSessionTransportResponse,
 	CellTrafficTrace,
 	ConnectionEstablishmentIndication,
 	DeactivateTrace,
@@ -72,6 +75,9 @@ FROM NGAP-CommonDataTypes
 	LocationReport,
 	LocationReportingControl,
 	LocationReportingFailureIndication,
+	MTCommunicationHandlingRequest,
+	MTCommunicationHandlingResponse,
+	MTCommunicationHandlingFailure,
 	MulticastSessionActivationFailure,
 	MulticastSessionActivationRequest,
 	MulticastSessionActivationResponse,
@@ -111,10 +117,15 @@ FROM NGAP-CommonDataTypes
 	RANConfigurationUpdateAcknowledge,
 	RANConfigurationUpdateFailure,
 	RANCPRelocationIndication,
+	RANPagingRequest,
 	RerouteNASRequest,
 	RetrieveUEInformation,
 	RRCInactiveTransitionReport,
 	SecondaryRATDataUsageReport,
+	TimingSynchronisationStatusRequest,
+	TimingSynchronisationStatusResponse,
+	TimingSynchronisationStatusFailure,
+	TimingSynchronisationStatusReport,
 	TraceFailureIndication,
 	TraceStart,
 	UEContextModificationFailure,
@@ -147,6 +158,7 @@ FROM NGAP-CommonDataTypes
 	UplinkRIMInformationTransfer,
 	DownlinkRIMInformationTransfer
 
+
 FROM NGAP-PDU-Contents
 
 	id-AMFConfigurationUpdate,
@@ -156,16 +168,18 @@ FROM NGAP-PDU-Contents
 	id-BroadcastSessionRelease,
 	id-BroadcastSessionReleaseRequired,
 	id-BroadcastSessionSetup,
+	id-BroadcastSessionTransport,
 	id-CellTrafficTrace,
 	id-ConnectionEstablishmentIndication,
 	id-DeactivateTrace,
-	id-DistributionSetup,
 	id-DistributionRelease,
+	id-DistributionSetup,
 	id-DownlinkNASTransport,
 	id-DownlinkNonUEAssociatedNRPPaTransport,
 	id-DownlinkRANConfigurationTransfer,
 	id-DownlinkRANEarlyStatusTransfer,
 	id-DownlinkRANStatusTransfer,
+	id-DownlinkRIMInformationTransfer,
 	id-DownlinkUEAssociatedNRPPaTransport,
 	id-ErrorIndication,
 	id-HandoverCancel,
@@ -178,10 +192,11 @@ FROM NGAP-PDU-Contents
 	id-LocationReport,
 	id-LocationReportingControl,
 	id-LocationReportingFailureIndication,
+	id-MTCommunicationHandling,
+	id-MulticastGroupPaging,
 	id-MulticastSessionActivation,
 	id-MulticastSessionDeactivation,
 	id-MulticastSessionUpdate,
-	id-MulticastGroupPaging,
 	id-NASNonDeliveryIndication,
 	id-NGReset,
 	id-NGSetup,
@@ -200,10 +215,13 @@ FROM NGAP-PDU-Contents
 	id-PWSRestartIndication,
 	id-RANConfigurationUpdate,
 	id-RANCPRelocationIndication,
+	id-RANPagingRequest,
 	id-RerouteNASRequest,
 	id-RetrieveUEInformation,
 	id-RRCInactiveTransitionReport,
 	id-SecondaryRATDataUsageReport,
+	id-TimingSynchronisationStatus,
+	id-TimingSynchronisationStatusReport,
 	id-TraceFailureIndication,
 	id-TraceStart,
 	id-UEContextModification,
@@ -221,10 +239,10 @@ FROM NGAP-PDU-Contents
 	id-UplinkRANConfigurationTransfer,
 	id-UplinkRANEarlyStatusTransfer,
 	id-UplinkRANStatusTransfer,
-	id-UplinkUEAssociatedNRPPaTransport,
-	id-WriteReplaceWarning,
 	id-UplinkRIMInformationTransfer,
-	id-DownlinkRIMInformationTransfer
+	id-UplinkUEAssociatedNRPPaTransport,
+	id-WriteReplaceWarning
+
 
 FROM NGAP-Constants;
 
@@ -298,12 +316,14 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-1 NGAP-ELEMENTARY-PROCEDURE ::= {
 	broadcastSessionModification	|
 	broadcastSessionRelease			|
 	broadcastSessionSetup			|
+	broadcastSessionTransport					|
 	distributionSetup				|
 	distributionRelease				|
 	handoverCancel					|
 	handoverPreparation				|
 	handoverResourceAllocation		|
 	initialContextSetup				|
+	mTCommunicationHandling			|
 	multicastSessionActivation					|
 	multicastSessionDeactivation				|
 	multicastSessionUpdate			|
@@ -316,13 +336,14 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-1 NGAP-ELEMENTARY-PROCEDURE ::= {
 	pDUSessionResourceSetup			|
 	pWSCancel						|
 	rANConfigurationUpdate			|
+	timingSynchronisationStatus		|
 	uEContextModification			|
 	uEContextRelease				|
 	uEContextResume								|
 	uEContextSuspend							|
 	uERadioCapabilityCheck			|
 	uERadioCapabilityIDMapping		|
-	writeReplaceWarning,
+	writeReplaceWarning							,
 	...
 }
 
@@ -351,16 +372,18 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	nASNonDeliveryIndication		|
 	overloadStart					|
 	overloadStop					|
-	paging							|
+	paging										|
 	pDUSessionResourceNotify		|
 	privateMessage					|
 	pWSFailureIndication						|
 	pWSRestartIndication			|
 	rANCPRelocationIndication		|
+	rANPagingRequest				|
 	rerouteNASRequest				|
 	retrieveUEInformation						|
 	rRCInactiveTransitionReport					|
 	secondaryRATDataUsageReport		|
+	timingSynchronisationStatusReport	|
 	traceFailureIndication			|
 	traceStart						|
 	uEContextReleaseRequest			|
@@ -373,7 +396,7 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	uplinkRANEarlyStatusTransfer				|
 	uplinkRANStatusTransfer			|
 	uplinkRIMInformationTransfer				|
-	uplinkUEAssociatedNRPPaTransport,
+	uplinkUEAssociatedNRPPaTransport			,
 	...
 
 }
@@ -430,6 +453,14 @@ broadcastSessionSetup NGAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		BroadcastSessionSetupResponse
 	UNSUCCESSFUL OUTCOME	BroadcastSessionSetupFailure
 	PROCEDURE CODE			id-BroadcastSessionSetup
+	CRITICALITY				reject
+}
+
+broadcastSessionTransport NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BroadcastSessionTransportRequest
+	SUCCESSFUL OUTCOME		BroadcastSessionTransportResponse
+	UNSUCCESSFUL OUTCOME	BroadcastSessionTransportFailure
+	PROCEDURE CODE			id-BroadcastSessionTransport
 	CRITICALITY				reject
 }
 
@@ -573,6 +604,14 @@ locationReportingFailureIndication NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		LocationReportingFailureIndication
 	PROCEDURE CODE			id-LocationReportingFailureIndication
 	CRITICALITY				ignore
+}
+
+mTCommunicationHandling NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MTCommunicationHandlingRequest
+	SUCCESSFUL OUTCOME		MTCommunicationHandlingResponse
+	UNSUCCESSFUL OUTCOME	MTCommunicationHandlingFailure
+	PROCEDURE CODE			id-MTCommunicationHandling
+	CRITICALITY				reject
 }
 
 multicastSessionActivation NGAP-ELEMENTARY-PROCEDURE ::= {
@@ -724,12 +763,17 @@ rANCPRelocationIndication NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+rANPagingRequest NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RANPagingRequest
+	PROCEDURE CODE			id-RANPagingRequest
+	CRITICALITY				ignore
+}
+
 rerouteNASRequest NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RerouteNASRequest
 	PROCEDURE CODE			id-RerouteNASRequest
 	CRITICALITY				reject
 }
-
 
 retrieveUEInformation NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RetrieveUEInformation
@@ -746,6 +790,20 @@ rRCInactiveTransitionReport NGAP-ELEMENTARY-PROCEDURE ::= {
 secondaryRATDataUsageReport NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		SecondaryRATDataUsageReport
 	PROCEDURE CODE			id-SecondaryRATDataUsageReport
+	CRITICALITY				ignore
+}
+
+timingSynchronisationStatus NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TimingSynchronisationStatusRequest
+	SUCCESSFUL OUTCOME		TimingSynchronisationStatusResponse
+	UNSUCCESSFUL OUTCOME	TimingSynchronisationStatusFailure
+	PROCEDURE CODE			id-TimingSynchronisationStatus
+	CRITICALITY				reject
+}
+
+timingSynchronisationStatusReport NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TimingSynchronisationStatusReport
+	PROCEDURE CODE			id-TimingSynchronisationStatusReport
 	CRITICALITY				ignore
 }
 
@@ -884,5 +942,6 @@ downlinkRIMInformationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-DownlinkRIMInformationTransfer
 	CRITICALITY				ignore
 }
+
 
 END
