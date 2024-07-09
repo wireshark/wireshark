@@ -24,6 +24,7 @@
 %bcond_with	bcg729
 %bcond_with	libxml2
 %bcond_with	nghttp2
+%bcond_with	nghttp3
 %bcond_with	sdjournal
 %bcond_with	guides
 %bcond_with	brotli
@@ -125,6 +126,10 @@ BuildRequires:	(lua-devel or lua53-devel or compat-lua-devel or lua52-devel or l
 
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
+%endif
+
+%if %{with nghttp3}
+BuildRequires:	libnghttp3-devel
 %endif
 
 %if %{with sdjournal}
