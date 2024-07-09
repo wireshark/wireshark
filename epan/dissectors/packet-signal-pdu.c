@@ -149,6 +149,33 @@ typedef enum _spdu_data_type {
     SPDU_DATA_TYPE_UINT_STRING,
 } spdu_dt_t;
 
+typedef struct _spdu_signal_value_name_item {
+    guint64     value_start;
+    guint64     value_end;
+    gchar* name;
+} spdu_signal_value_name_item_t;
+
+#define INIT_SIGNAL_VALUE_NAME_ITEM(NAME) \
+    (NAME)->value_start = 0; \
+    (NAME)->value_end  = 0; \
+    (NAME)->name        = NULL;
+
+typedef struct _spdu_signal_value_name {
+    guint32         id;
+    guint32         num_of_items;
+    guint32         pos;
+    val64_string* vs;
+
+    spdu_signal_value_name_item_t* items;
+} spdu_signal_value_name_t;
+
+#define INIT_SIGNAL_VALUE_NAME(NAME) \
+    (NAME)->id              = 0; \
+    (NAME)->pos             = 0; \
+    (NAME)->num_of_items    = 0; \
+    (NAME)->vs              = NULL; \
+    (NAME)->items           = NULL;
+
 typedef struct _spdu_signal_item {
     guint32     pos;
     gchar      *name;
@@ -173,6 +200,9 @@ typedef struct _spdu_signal_item {
     gint       *hf_id_agg_sum;
     gint       *hf_id_agg_avg;
     gint       *hf_id_agg_int;
+
+    spdu_signal_value_name_t* sig_val_names;
+    gboolean    sig_val_names_valid;
 } spdu_signal_item_t;
 
 typedef struct _spdu_signal_list {
@@ -203,34 +233,6 @@ typedef struct _spdu_signal_list_uat {
     gboolean    aggregate_avg;
     gboolean    aggregate_int;
 } spdu_signal_list_uat_t;
-
-
-typedef struct _spdu_signal_value_name_item {
-    guint64     value_start;
-    guint64     value_end;
-    gchar      *name;
-} spdu_signal_value_name_item_t;
-
-#define INIT_SIGNAL_VALUE_NAME_ITEM(NAME) \
-    (NAME)->value_start = 0; \
-    (NAME)->value_end  = 0; \
-    (NAME)->name        = NULL;
-
-typedef struct _spdu_signal_value_name {
-    guint32         id;
-    guint32         num_of_items;
-    guint32         pos;
-    val64_string   *vs;
-
-    spdu_signal_value_name_item_t *items;
-} spdu_signal_value_name_t;
-
-#define INIT_SIGNAL_VALUE_NAME(NAME) \
-    (NAME)->id              = 0; \
-    (NAME)->pos             = 0; \
-    (NAME)->num_of_items    = 0; \
-    (NAME)->vs              = NULL; \
-    (NAME)->items           = NULL;
 
 typedef struct _spdu_signal_value_name_uat {
     guint32     id;
@@ -1149,17 +1151,85 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
 }
 
 static void
-post_update_spdu_signal_list_cb(void) {
-    /* destroy old hash table, if it exists */
+post_update_spdu_signal_value_names_read_in_data(spdu_signal_value_name_uat_t* data, guint data_num, GHashTable* ht) {
+    if (ht == NULL || data == NULL || data_num == 0) {
+        return;
+    }
+
+    guint i;
+    for (i = 0; i < data_num; i++) {
+        gint64* key = wmem_new(wmem_epan_scope(), gint64);
+        *key = (guint64)data[i].id | ((guint64)data[i].pos << 32);
+
+        spdu_signal_value_name_t* list = (spdu_signal_value_name_t*)g_hash_table_lookup(ht, key);
+        if (list == NULL) {
+
+            list = wmem_new(wmem_epan_scope(), spdu_signal_value_name_t);
+            INIT_SIGNAL_VALUE_NAME(list)
+
+                list->id = data[i].id;
+            list->pos = data[i].pos;
+            list->num_of_items = data[i].num_of_items;
+
+            list->items = (spdu_signal_value_name_item_t*)wmem_alloc0_array(wmem_epan_scope(), spdu_signal_value_name_item_t, list->num_of_items);
+            list->vs = (val64_string*)wmem_alloc0_array(wmem_epan_scope(), val64_string, list->num_of_items + 1);
+
+            /* create new entry ... */
+            g_hash_table_insert(ht, key, list);
+        }
+        else {
+            /* do not need it anymore */
+            wmem_free(wmem_epan_scope(), key);
+        }
+
+        /* and now we add to item array */
+        if (list->num_of_items > 0 && data[i].num_of_items == list->num_of_items) {
+
+            /* find first empty slot for value */
+            guint j;
+            for (j = 0; j < list->num_of_items && list->items[j].name != NULL; j++);
+
+            if (j < list->num_of_items) {
+                spdu_signal_value_name_item_t* item = &(list->items[j]);
+                INIT_SIGNAL_VALUE_NAME_ITEM(item)
+
+                    item->value_start = data[i].value_start;
+                item->value_end = data[i].value_end;
+                item->name = g_strdup(data[i].value_name);
+            }
+
+            /* find first empty slot for range_value array */
+            guint g;
+            for (g = 0; g < list->num_of_items && list->vs[g].strptr != NULL; g++);
+
+            if (g < list->num_of_items) {
+                /* Limitation: range strings currently do not support guint64 min/max and do not support filtering using value names. */
+                /* Therefore, we currently use only val64_string. :-( */
+                list->vs[g].value = (guint32)data[i].value_start;
+                list->vs[g].strptr = g_strdup(data[i].value_name);
+            }
+        }
+    }
+}
+
+static void
+post_update_spdu_signal_list_and_value_names_cb(void) {
+    /* destroy old hash tables, if they exist */
     if (data_spdu_signal_list) {
         g_hash_table_destroy(data_spdu_signal_list);
         data_spdu_signal_list = NULL;
+    }
+    if (data_spdu_signal_value_names) {
+        g_hash_table_destroy(data_spdu_signal_value_names);
+        data_spdu_signal_value_names = NULL;
     }
 
     deregister_user_data();
 
     data_spdu_signal_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, &spdu_payload_free_generic_data);
+    data_spdu_signal_value_names = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, &spdu_payload_free_generic_data);
     post_update_spdu_signal_list_read_in_data(spdu_signal_list, spdu_signal_list_num, data_spdu_signal_list);
+    post_update_spdu_signal_value_names_read_in_data(spdu_signal_value_names, spdu_parameter_value_names_num, data_spdu_signal_value_names);
 }
 
 static void
@@ -1236,79 +1306,6 @@ free_spdu_signal_value_name_cb(void *r) {
         g_free(rec->value_name);
         rec->value_name = NULL;
     }
-}
-
-static void
-post_update_spdu_signal_value_names_read_in_data(spdu_signal_value_name_uat_t *data, guint data_num, GHashTable *ht) {
-    if (ht == NULL || data == NULL || data_num == 0) {
-        return;
-    }
-
-    guint i;
-    for (i = 0; i < data_num; i++) {
-        gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-        *key = (guint64)data[i].id | ((guint64)data[i].pos << 32);
-
-        spdu_signal_value_name_t *list = (spdu_signal_value_name_t *)g_hash_table_lookup(ht, key);
-        if (list == NULL) {
-
-            list = wmem_new(wmem_epan_scope(), spdu_signal_value_name_t);
-            INIT_SIGNAL_VALUE_NAME(list)
-
-            list->id = data[i].id;
-            list->pos = data[i].pos;
-            list->num_of_items = data[i].num_of_items;
-
-            list->items = (spdu_signal_value_name_item_t *)wmem_alloc0_array(wmem_epan_scope(), spdu_signal_value_name_item_t, list->num_of_items);
-            list->vs = (val64_string *)wmem_alloc0_array(wmem_epan_scope(), val64_string, list->num_of_items + 1);
-
-            /* create new entry ... */
-            g_hash_table_insert(ht, key, list);
-        } else {
-            /* do not need it anymore */
-            wmem_free(wmem_epan_scope(), key);
-        }
-
-        /* and now we add to item array */
-        if (list->num_of_items > 0 && data[i].num_of_items == list->num_of_items) {
-
-            /* find first empty slot for value */
-            guint j;
-            for (j = 0; j < list->num_of_items && list->items[j].name != NULL; j++);
-
-            if (j < list->num_of_items) {
-                spdu_signal_value_name_item_t *item = &(list->items[j]);
-                INIT_SIGNAL_VALUE_NAME_ITEM(item)
-
-                item->value_start = data[i].value_start;
-                item->value_end = data[i].value_end;
-                item->name = g_strdup(data[i].value_name);
-            }
-
-            /* find first empty slot for range_value array */
-            guint g;
-            for (g = 0; g < list->num_of_items && list->vs[g].strptr != NULL; g++);
-
-            if (g < list->num_of_items) {
-                /* Limitation: range strings currently do not support guint64 min/max and do not support filtering using value names. */
-                /* Therefore, we currently use only val64_string. :-( */
-                list->vs[g].value = (guint32)data[i].value_start;
-                list->vs[g].strptr = g_strdup(data[i].value_name);
-            }
-        }
-    }
-}
-
-static void
-post_update_spdu_signal_value_names_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_spdu_signal_value_names) {
-        g_hash_table_destroy(data_spdu_signal_value_names);
-        data_spdu_signal_value_names = NULL;
-    }
-
-    data_spdu_signal_value_names = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, &spdu_payload_free_generic_data);
-    post_update_spdu_signal_value_names_read_in_data(spdu_signal_value_names, spdu_parameter_value_names_num, data_spdu_signal_value_names);
 }
 
 static spdu_signal_value_name_t *
@@ -2207,7 +2204,7 @@ dissect_shifted_and_shortened_uint(tvbuff_t *tvb, gint offset, gint offset_bits,
 }
 
 static int
-dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, spdu_signal_item_t *item, spdu_signal_value_name_t *value_name_config, gint *multiplexer) {
+dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, spdu_signal_item_t *item, gint *multiplexer) {
     DISSECTOR_ASSERT(item != NULL);
     DISSECTOR_ASSERT(item->hf_id_effective != NULL);
 
@@ -2273,11 +2270,11 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* show names for values */
-        if (value_name_config != NULL) {
+        if (item->sig_val_names != NULL) {
             guint32 i;
-            for (i = 0; i < value_name_config->num_of_items; i++) {
-                if (value_name_config->items[i].value_start <= value_guint64 && value_guint64 <= value_name_config->items[i].value_end) {
-                    value_name = value_name_config->items[i].name;
+            for (i = 0; i < item->sig_val_names->num_of_items; i++) {
+                if (item->sig_val_names->items[i].value_start <= value_guint64 && value_guint64 <= item->sig_val_names->items[i].value_end) {
+                    value_name = item->sig_val_names->items[i].name;
                 }
             }
         }
@@ -2498,8 +2495,11 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
 
     guint i;
     for (i = 0; i < paramlist->num_of_items; i++) {
-        spdu_signal_value_name_t *value_name_config = get_signal_value_name_config(paramlist->id, paramlist->items[i].pos);
-        bits_parsed = dissect_spdu_payload_signal(tvb, pinfo, tree, offset, offset_bits, &(paramlist->items[i]), value_name_config, &multiplexer);
+        if (!paramlist->items[i].sig_val_names_valid) {
+            paramlist->items[i].sig_val_names = get_signal_value_name_config(paramlist->id, paramlist->items[i].pos);
+            paramlist->items[i].sig_val_names_valid = TRUE;
+        }
+        bits_parsed = dissect_spdu_payload_signal(tvb, pinfo, tree, offset, offset_bits, &(paramlist->items[i]), &multiplexer);
         if (bits_parsed == -1) {
             break;
         }
@@ -2875,7 +2875,7 @@ proto_register_signal_pdu(void) {
         copy_spdu_signal_value_name_cb,                    /* copy callback         */
         update_spdu_signal_value_name,                     /* update callback       */
         free_spdu_signal_value_name_cb,                    /* free callback         */
-        post_update_spdu_signal_value_names_cb,            /* post update callback  */
+        post_update_spdu_signal_list_and_value_names_cb,   /* post update callback  */
         NULL,                                              /* reset callback        */
         spdu_parameter_value_name_uat_fields               /* UAT field definitions */
     );
@@ -2896,7 +2896,7 @@ proto_register_signal_pdu(void) {
         copy_spdu_signal_list_cb,                          /* copy callback         */
         update_spdu_signal_list,                           /* update callback       */
         free_spdu_signal_list_cb,                          /* free callback         */
-        post_update_spdu_signal_list_cb,                   /* post update callback  */
+        post_update_spdu_signal_list_and_value_names_cb,   /* post update callback  */
         reset_spdu_signal_list,                            /* reset callback        */
         spdu_signal_list_uat_fields                        /* UAT field definitions */
     );
