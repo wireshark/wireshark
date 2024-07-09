@@ -1964,7 +1964,7 @@ dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
             return THRIFT_REQUEST_REASSEMBLY;
         }
-        p_set_proto_depth(pinfo, proto_thrift, nested_count--);
+        p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
         type_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(type_pi, ett_id);
     } else {
