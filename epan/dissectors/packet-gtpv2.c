@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref: 3GPP TS 29.274 V18.0.0 (2022-09-23)
+ * Ref: 3GPP TS 29.274 V18.7.0 (2024-06-26)
  */
 
 #include "config.h"
@@ -59,7 +59,7 @@ static int hf_gtpv2_spare_half_octet;
 //static int hf_gtpv2_spare_b7_b1;
 static int hf_gtpv2_spare_b7_b2;
 static int hf_gtpv2_spare_b7_b3;
-//static int hf_gtpv2_spare_b7_b4;
+static int hf_gtpv2_spare_b7_b4;
 static int hf_gtpv2_spare_b7_b5;
 
 static int hf_gtpv2_spare_bits;
@@ -188,6 +188,7 @@ static int hf_gtpv2_nsenbi;
 static int hf_gtpv2_idfupf;
 static int hf_gtpv2_emci;
 
+static int hf_gtpv2_lapcosi;
 static int hf_gtpv2_ltemsai;
 static int hf_gtpv2_srtpi;
 static int hf_gtpv2_upipsi;
@@ -514,6 +515,10 @@ static int hf_gtpv2_node_features_prn;
 static int hf_gtpv2_node_features_mabr;
 static int hf_gtpv2_node_features_ntsr;
 static int hf_gtpv2_node_features_ciot;
+static int hf_gtpv2_node_features_s1un;
+static int hf_gtpv2_node_features_eth;
+static int hf_gtpv2_node_features_mtedt;
+static int hf_gtpv2_node_features_psset;
 static int hf_gtpv2_time_to_data_xfer;
 static int hf_gtpv2_arp_pvi;
 static int hf_gtpv2_arp_pl;
@@ -2966,14 +2971,15 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static int* const oct14_flags[] = {
-        &hf_gtpv2_spare_b7_b3,
+        &hf_gtpv2_spare_b7_b4,
+        &hf_gtpv2_lapcosi,
         &hf_gtpv2_ltemsai,
         &hf_gtpv2_srtpi,
         &hf_gtpv2_upipsi,
         NULL
     };
 
-    /* Octet 13 Spare NSELTEMSAI SRTPI UPIPSI */
+    /* Octet 13 Spare LAPCOSI LTEMSAI SRTPI UPIPSI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct14_flags, ENC_NA);
     offset += 1;
 
@@ -7009,16 +7015,20 @@ dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 {
     int offset = 0;
     static int * const features[] = {
-        &hf_gtpv2_node_features_prn,
-        &hf_gtpv2_node_features_mabr,
-        &hf_gtpv2_node_features_ntsr,
+        &hf_gtpv2_node_features_psset,
+        &hf_gtpv2_node_features_mtedt,
+        &hf_gtpv2_node_features_eth,
+        &hf_gtpv2_node_features_s1un,
         &hf_gtpv2_node_features_ciot,
+        &hf_gtpv2_node_features_ntsr,
+        &hf_gtpv2_node_features_mabr,
+        &hf_gtpv2_node_features_prn,
         NULL
     };
 
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, features, ENC_BIG_ENDIAN);
-    offset+=1;
-    if (length > 1)
+    offset++;
+    if (length > offset)
         proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, offset, length-1, ENC_NA);
 }
 
@@ -9705,11 +9715,11 @@ void proto_register_gtpv2(void)
             FT_UINT8, BASE_DEC, NULL, 0xf8,
             NULL, HFILL }
         },
-        //{ &hf_gtpv2_spare_b7_b4,
-        //{ "Spare", "gtpv2.spare.b7_b4",
-        //    FT_UINT8, BASE_HEX, NULL, 0xf0,
-        //    NULL, HFILL }
-        //},
+        { &hf_gtpv2_spare_b7_b4,
+        { "Spare", "gtpv2.spare.b7_b4",
+            FT_UINT8, BASE_HEX, NULL, 0xf0,
+            NULL, HFILL }
+        },
         { &hf_gtpv2_spare_b7_b5,
         { "Spare", "gtpv2.spare.b7_b5",
             FT_UINT8, BASE_HEX, NULL, 0xe0,
@@ -10273,6 +10283,10 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_emci,
          {"EMCI (Emergency PDU Session Indication)", "gtpv2.emci",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        { &hf_gtpv2_lapcosi,
+         {"LAPCOSI (Large Additionl Protocol Configuration Options Support Indication)", "gtpv2.lapcosi",
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         { &hf_gtpv2_ltemsai,
          {"LTEMSAI (LTE-M Satellite Access Indication)", "gtpv2.ltemsai",
@@ -11793,6 +11807,26 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_node_features_ciot,
           {"Cellular Internet Of Things (CIOT)", "gtpv2.node_features_ciot",
            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_s1un,
+          {"S1-U path failure notification feature (S1UN)", "gtpv2.node_features_s1un",
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_eth,
+          {"Ethernet PDN type (ETH)", "gtpv2.node_features_eth",
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_mtedt,
+          {"Support of MT-EDT (MTEDT)", "gtpv2.node_features_mtedt",
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_psset,
+          {"Support of PGW-C/SMF Set (PSSET)", "gtpv2.node_features_psset",
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
            NULL, HFILL}
         },
         { &hf_gtpv2_time_to_data_xfer,
