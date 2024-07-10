@@ -21,6 +21,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/conversation.h>
 #include "packet-tcp.h"
 
 void proto_register_openvpn(void);
@@ -175,16 +176,11 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   gboolean       tls_crypt = FALSE;
   guint          openvpn_keyid;
   guint          openvpn_opcode;
-  guint32        msg_mpid      = -1;
   guint32        msg_sessionid = -1;
   guint8         openvpn_predict_tlsauth_arraylength;
   proto_item    *ti2;
   proto_tree    *packetarray_tree, *type_tree;
   guint32        msg_length_remaining;
-  gboolean       msg_lastframe;
-  fragment_head *frag_msg;
-  tvbuff_t      *new_tvb;
-  gboolean       save_fragmented;
   gint           wkc_offset = -1;
 
   /* Clear out stuff in the info column */
@@ -292,7 +288,6 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     if (openvpn_opcode != P_ACK_V1 && tls_crypt == FALSE) {
       /* read Message Packet-ID */
       if (tvb_reported_length_remaining(tvb, offset) >= 4) {
-        msg_mpid = tvb_get_bits32(tvb, offset*8, 32, ENC_BIG_ENDIAN);
         proto_tree_add_item(openvpn_tree, hf_openvpn_mpid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       }
@@ -339,72 +334,22 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     return tvb_captured_length(tvb);
   }
 
-  /* Try to reassemble */
+  /* Control message, possibly fragmented, carrying TLS. Try to reassemble. */
 
-  /* an ordinary openvpn control packet contains 100 bytes only if it is part of a
-     fragmented message and is not the last fragment of the current transmission.
-     Note that the tvb contains exactly one openvpn PDU:
-     UDP: by definition;
-     TCP: because of the use of tcp_dissect_pdus().
-  */
-  if (msg_length_remaining == 100) {
-    msg_lastframe = FALSE;
-  } else {
-    msg_lastframe = TRUE;
+  streaming_reassembly_info_t *streaming_reassembly_info = NULL;
+
+  conversation_t *conv = find_or_create_conversation_by_id(pinfo, CONVERSATION_OPENVPN, msg_sessionid);
+  streaming_reassembly_info = conversation_get_proto_data(conv, proto_openvpn);
+  if (!streaming_reassembly_info) {
+    streaming_reassembly_info = streaming_reassembly_info_new();
+    conversation_add_proto_data(conv, proto_openvpn, streaming_reassembly_info);
   }
 
-  save_fragmented = pinfo->fragmented;
-  pinfo->fragmented = TRUE;
-
-  frag_msg = fragment_add_seq_next(
-    &msg_reassembly_table,
-    tvb,
-    offset,
-    pinfo,
-    msg_sessionid,         /* ID for fragments belonging together */
-    NULL,
-    msg_length_remaining,  /* fragment length - to the end        */
-    !(msg_lastframe));     /* More fragments ?                    */
-
-  /* show "data" fragment on tree unless "reassembled" message has just one part.       */
-  /* i.e., show if ("not reassembled") or ("reassembled" and "has multiple fragments")  */
-  if ((frag_msg == NULL) || (frag_msg->next != NULL)) {
-    proto_tree *data_tree;
-    data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, -1,
-                              ett_openvpn_data, NULL, "Message fragment (%d bytes)",
-                              tvb_captured_length_remaining(tvb, offset));
-
-    proto_tree_add_item(data_tree, hf_openvpn_fragment_bytes, tvb, offset, -1, ENC_NA);
-    }
-
-  new_tvb = NULL;
-  if (frag_msg) {
-    if (msg_lastframe) { /* Reassembled */
-      new_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Message",
-                                         frag_msg, &openvpn_frag_items, NULL, openvpn_tree);
-      if (frag_msg->next != NULL) { /* multiple frags ? */
-        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled "); /* overwritten by next dissector */
-      }
-
-    } else { /* Not last packet of reassembled Short Message */
-      col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %d) ", msg_mpid);
-      if (pinfo->num != frag_msg->reassembled_in) {
-        /* Add a "Reassembled in" link if not reassembled in this frame */
-        proto_tree_add_uint(openvpn_tree, hf_openvpn_reassembled_in,
-                            tvb, 0, 0, frag_msg->reassembled_in);
-      }
-    }
-  } /* if (frag_msg) */
-
-  pinfo->fragmented = save_fragmented;
-
-  /* Now see if we need to call subdissector.
-     new_tvb is non-null if we "reassembled* a message (even just one fragment) */
-
-  if (new_tvb) {
-    /* call SSL/TLS dissector if we just processed the last fragment */
-    call_dissector(tls_handle, new_tvb, pinfo, parent_tree);
-  }
+  reassemble_streaming_data_and_call_subdissector(tvb, pinfo, offset,
+    msg_length_remaining, openvpn_tree, parent_tree, msg_reassembly_table,
+    streaming_reassembly_info, get_virtual_frame_num64(tvb, pinfo, offset),
+    tls_handle, parent_tree, NULL /* should it be tcpinfo if we have it? */, "OpenVPN Message",
+    &openvpn_frag_items, hf_openvpn_fragment_bytes);
 
   return tvb_captured_length(tvb);
 }

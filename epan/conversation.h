@@ -110,6 +110,7 @@ typedef enum {
     CONVERSATION_ETH_IN,        /* ETHERNET deinterlaced Interface:Y VLAN:N */
     CONVERSATION_ETH_IV,        /* ETHERNET deinterlaced Interface:Y VLAN:Y */
     CONVERSATION_VSPC_VMOTION,	/* VMware vSPC vMotion (Telnet) */
+    CONVERSATION_OPENVPN,
 } conversation_type;
 
 /*
