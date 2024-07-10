@@ -28,7 +28,18 @@ It is used for troubleshooting, analysis, development and education.
 
 A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.0.15 and 4.2.5 has been fixed. wsbuglink:19846[]
 
-// The following vulnerabilities have been fixed:
+The following vulnerability has been fixed:
+
+* wssalink:2024-10[]
+SPRT dissector crash.
+wsbuglink:19559[].
+// cveidlink:2024-xxx[].
+// Fixed in master: 8e5f8de883
+// Fixed in release-4.2: cef77b8fed
+// Fixed in release-4.0: cc67f836c0
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-824
+// * SPRT parser crash. wsbuglink:19559[].
 
 The following bugs have been fixed:
 
@@ -36,6 +47,14 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
+
+* RADIUS dissector's dictionary loading broken in many ways. wsbuglink:6466[].
+* 3.4 -> 3.6.5 ASCII display is broken on CentOS 7. wsbuglink:18096[].
+* Funnel/Lua: Closing child window disconnects buttons of parent. wsbuglink:18386[].
+* SPRT parser crash. wsbuglink:19559[].
+* TCP Stream Graphs green sliding window line not displayed correctly. wsbuglink:19846[].
+* Wireshark window doesn't fully fit on screen on small resolutions and can't be resized properly on Russian language. wsbuglink:19861[].
+* Wireshark expects wrong length for DHCP Relay Agent Information Source Port Suboption. wsbuglink:19909[].
 
 === New and Updated Features
 
@@ -53,15 +72,22 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.15.. | ag packet- | sort -u)
 [commaize]
 --
+DHCP
+NAS-5GS
+RLC-LTE
+PKT CCC
+SPRT
+Wi-SUN
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+log3gpp
+--
 
 === Updated File Format Decoding Support
 
