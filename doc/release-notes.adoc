@@ -24,18 +24,18 @@ If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https:
 
 A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.0.15 and 4.2.5 has been fixed. wsbuglink:19846[]
 
-// The following vulnerabilities have been fixed:
+The following vulnerability has been fixed:
 
-// * wssalink:2024-10[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2024-10[]
+SPRT dissector crash.
+wsbuglink:19559[].
 // cveidlink:2024-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.2: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: 8e5f8de883
+// Fixed in release-4.2: cef77b8fed
+// Fixed in release-4.0: cc67f836c0
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-125
+// CWE-824
+// * SPRT parser crash. wsbuglink:19559[].
 
 The following bugs have been fixed:
 
@@ -43,6 +43,17 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+* RADIUS dissector's dictionary loading broken in many ways. wsbuglink:6466[].
+* 3.4 -> 3.6.5 ASCII display is broken on CentOS 7. wsbuglink:18096[].
+* Funnel/Lua: Closing child window disconnects buttons of parent. wsbuglink:18386[].
+* Lua detection fails with Alpine Linux: missing: LUA_LIBRARIES. wsbuglink:19841[].
+* vnd.3gpp.5gnas payloads of type SMS not decoded inside HTTP2 5GC. wsbuglink:19845[].
+* TCP Stream Graphs green sliding window line not displayed correctly. wsbuglink:19846[].
+* Wireshark window doesn't fully fit on screen on small resolutions and can't be resized properly on Russian language. wsbuglink:19861[].
+* Wireshark started from command line doesn't set gui.fileopen_remembered_dir correctly on Windows. wsbuglink:19891[].
+* Wireshark expects wrong length for DHCP Relay Agent Information Source Port Suboption. wsbuglink:19909[].
+* SIP P-Access-Network-Info header not correctly decoded. wsbuglink:19917[].
 
 === New and Updated Features
 
@@ -63,15 +74,28 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.5.. | ag packet- | sort -u)
 [commaize]
 --
+DHCP
+E.212
+MySQL
+NAS-5GS
+ProtoBuf
+RADIUS
+RLC-LTE
+PKT CCC
+RTP
+SIP
+SPRT
+Wi-SUN
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+log3gpp
+--
 
 === Updated File Format Decoding Support
 
