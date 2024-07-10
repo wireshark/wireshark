@@ -61,7 +61,7 @@ many (especially in a row) are distracting and annoying.
 
 == Custom Asciidoctor Macros
 
-The following custom macros are available in `docbook/asciidoctor-macros`:
+The following custom macros are available in `doc/asciidoctor-macros`:
 
 commaize-block::
 Sorts a list of items and separates them with commas with an "and" preceding the last item.

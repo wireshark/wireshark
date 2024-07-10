@@ -47,12 +47,12 @@ if(ASCIIDOCTOR_EXECUTABLE)
         --quiet
         --attribute build_dir=${CMAKE_BINARY_DIR}/docbook
         --attribute css_dir=${CMAKE_SOURCE_DIR}/doc
-        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/ws_utils.rb
-        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/commaize-block.rb
-        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/cveidlink-inline-macro.rb
-        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/manarg-block.rb
-        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/wsbuglink-inline-macro.rb
-        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/wssalink-inline-macro.rb
+        --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/ws_utils.rb
+        --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/commaize-block.rb
+        --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/cveidlink-inline-macro.rb
+        --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/manarg-block.rb
+        --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/wsbuglink-inline-macro.rb
+        --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/wssalink-inline-macro.rb
     )
 
     set(_asciidoctor_common_command
