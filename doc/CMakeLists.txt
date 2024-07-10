@@ -107,18 +107,19 @@ if(ASCIIDOCTOR_FOUND)
 	ASCIIDOCTOR2HTML(release-notes.adoc)
 	ASCIIDOCTOR2TXT(release-notes.adoc)
 
-	list(APPEND HTML_INSTALL_FILES "${CMAKE_CURRENT_BINARY_DIR}/release-notes.html")
-
 	add_custom_target(release_notes_html
 		DEPENDS
 			${CMAKE_CURRENT_BINARY_DIR}/release-notes.html
 	)
 	set_target_properties(release_notes_html PROPERTIES FOLDER "Documentation")
+
 	add_custom_target(release_notes_txt
 		DEPENDS
 			${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
+			release_notes_html
 	)
 	set_target_properties(release_notes_txt PROPERTIES FOLDER "Documentation")
+
 	add_custom_target(release_notes
 		DEPENDS
 			release_notes_html
@@ -153,7 +154,7 @@ add_custom_target(
 set_target_properties(docs PROPERTIES FOLDER "Documentation")
 
 if(ASCIIDOCTOR_FOUND)
-	add_dependencies(docs manpages)
+	add_dependencies(docs manpages release_notes_html)
 
 	install(
 		FILES
@@ -168,14 +169,16 @@ if(ASCIIDOCTOR_FOUND)
 		DESTINATION
 			${CMAKE_INSTALL_MANDIR}/man4
 	)
-endif()
 
-install(
-	FILES
-		${HTML_INSTALL_FILES}
-	DESTINATION
-		${CMAKE_INSTALL_DOCDIR}
-)
+
+	install(
+		FILES
+			${HTML_INSTALL_FILES}
+			${CMAKE_CURRENT_BINARY_DIR}/release-notes.html
+		DESTINATION
+			${CMAKE_INSTALL_DOCDIR}
+	)
+endif()
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
