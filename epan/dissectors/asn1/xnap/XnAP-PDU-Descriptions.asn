@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.8.0 (2024-03)
+-- 3GPP TS 38.423 V18.2.0 (2024-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -109,7 +109,13 @@ FROM XnAP-CommonDataTypes
 	CPCCancel,
 	PartialUEContextTransfer,
 	PartialUEContextTransferAcknowledge,
-	PartialUEContextTransferFailure
+	PartialUEContextTransferFailure,
+	RachIndication,
+	DataCollectionRequest,
+	DataCollectionResponse,
+	DataCollectionFailure,
+	DataCollectionUpdate
+
 
 
 FROM XnAP-PDU-Contents
@@ -162,7 +168,12 @@ FROM XnAP-PDU-Contents
 	id-iABResourceCoordination,
 	id-retrieveUEContextConfirm,
 	id-cPCCancel,
-	id-partialUEContextTransfer
+	id-partialUEContextTransfer,
+	id-rachIndication,
+	id-dataCollectionReportingInitiation,
+	id-dataCollectionReporting
+
+
 
 FROM XnAP-Constants;
 
@@ -250,7 +261,8 @@ XNAP-ELEMENTARY-PROCEDURES-CLASS-1 XNAP-ELEMENTARY-PROCEDURE ::= {
 	iABTransportMigrationManagement							|
 	iABTransportMigrationModification						|
 	iABResourceCoordination									|
-	partialUEContextTransfer								,
+	partialUEContextTransfer								|
+	dataCollectionReportingInitiation,
 	...
 }
 
@@ -267,7 +279,7 @@ XNAP-ELEMENTARY-PROCEDURES-CLASS-2 XNAP-ELEMENTARY-PROCEDURE ::= {
 	privateMessage							|
 	notificationControl						|
 	activityNotification					|
-	secondaryRATDataUsageReport 			|
+	secondaryRATDataUsageReport				|
 	deactivateTrace							|
 	traceStart								|
 	handoverSuccess							|
@@ -283,7 +295,9 @@ XNAP-ELEMENTARY-PROCEDURES-CLASS-2 XNAP-ELEMENTARY-PROCEDURE ::= {
 	scgFailureTransfer						|
 	f1CTrafficTransfer						|
 	retrieveUEContextConfirm				|
-	cPCCancel								,
+	cPCCancel								|
+	rachIndication							|
+	dataCollectionReporting,
 	...
 
 }
@@ -424,7 +438,7 @@ rRCTransfer	XNAP-ELEMENTARY-PROCEDURE ::= {
 xnRemoval	XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		XnRemovalRequest
 	SUCCESSFUL OUTCOME		XnRemovalResponse
-	UNSUCCESSFUL OUTCOME	XnRemovalFailure
+	UNSUCCESSFUL OUTCOME		XnRemovalFailure
 	PROCEDURE CODE			id-xnRemoval
 	CRITICALITY				reject
 }
@@ -579,9 +593,9 @@ mobilitySettingsChange	XNAP-ELEMENTARY-PROCEDURE ::= {
 
 
 accessAndMobilityIndication XNAP-ELEMENTARY-PROCEDURE ::={
-	INITIATING MESSAGE 		AccessAndMobilityIndication
+	INITIATING MESSAGE		AccessAndMobilityIndication
 	PROCEDURE CODE			id-accessAndMobilityIndication
-	CRITICALITY 			ignore
+	CRITICALITY				ignore
 }
 
 cellTrafficTrace XNAP-ELEMENTARY-PROCEDURE ::= {
@@ -593,19 +607,19 @@ cellTrafficTrace XNAP-ELEMENTARY-PROCEDURE ::= {
 rANMulticastGroupPaging 	XNAP-ELEMENTARY-PROCEDURE ::={
 	INITIATING MESSAGE 		RANMulticastGroupPaging
 	PROCEDURE CODE			id-RANMulticastGroupPaging
-	CRITICALITY 			reject
+	CRITICALITY				reject
 }
 
 scgFailureInformationReport XNAP-ELEMENTARY-PROCEDURE ::={
 	INITIATING MESSAGE 		ScgFailureInformationReport
 	PROCEDURE CODE			id-scgFailureInformationReport
-	CRITICALITY 			ignore
+	CRITICALITY				ignore
 }
 
 scgFailureTransfer XNAP-ELEMENTARY-PROCEDURE ::={
-	INITIATING MESSAGE 		ScgFailureTransfer
+	INITIATING MESSAGE		ScgFailureTransfer
 	PROCEDURE CODE			id-scgFailureTransfer
-	CRITICALITY 			ignore
+	CRITICALITY				ignore
 }
 
 f1CTrafficTransfer			XNAP-ELEMENTARY-PROCEDURE ::= {
@@ -637,15 +651,35 @@ iABResourceCoordination XNAP-ELEMENTARY-PROCEDURE ::={
 }
 
 retrieveUEContextConfirm	XNAP-ELEMENTARY-PROCEDURE ::={
-	INITIATING MESSAGE 		RetrieveUEContextConfirm
+	INITIATING MESSAGE		RetrieveUEContextConfirm
 	PROCEDURE CODE			id-retrieveUEContextConfirm
-	CRITICALITY 			ignore
+	CRITICALITY				ignore
 }
 
 cPCCancel XNAP-ELEMENTARY-PROCEDURE ::={
-	INITIATING MESSAGE 		CPCCancel
+	INITIATING MESSAGE		CPCCancel
 	PROCEDURE CODE			id-cPCCancel
-	CRITICALITY 			ignore
+	CRITICALITY				ignore
+}
+
+rachIndication XNAP-ELEMENTARY-PROCEDURE ::={
+	INITIATING MESSAGE		RachIndication
+	PROCEDURE CODE			id-rachIndication
+	CRITICALITY				ignore
+}
+
+dataCollectionReportingInitiation	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE				DataCollectionRequest
+	SUCCESSFUL OUTCOME				DataCollectionResponse
+	UNSUCCESSFUL OUTCOME			DataCollectionFailure
+	PROCEDURE CODE					id-dataCollectionReportingInitiation
+	CRITICALITY						reject
+}
+
+dataCollectionReporting	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DataCollectionUpdate
+	PROCEDURE CODE			id-dataCollectionReporting
+	CRITICALITY				ignore
 }
 
 

@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V17.8.0 (2024-03)
+ * 3GPP TS 38.423 V18.2.0 (2024-06)
  */
 
 #include "config.h"
@@ -32,6 +32,7 @@
 #include "packet-ranap.h"
 #include "packet-ntp.h"
 #include "packet-f1ap.h"
+#include "packet-nrppa.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -83,8 +84,31 @@ static int hf_xnap_MeasurementsToActivate_M7;
 static int hf_xnap_ReportCharacteristics_PRBPeriodic;
 static int hf_xnap_ReportCharacteristics_TNLCapacityIndPeriodic;
 static int hf_xnap_ReportCharacteristics_CompositeAvailableCapacityPeriodic;
-static int hf_xnap_ReportCharacteristics_NumberOfActiveUEs;
+static int hf_xnap_ReportCharacteristics_NumberOfActiveUEsPeriodic;
+static int hf_xnap_ReportCharacteristics_RRCconnectionsPeriodic;
+static int hf_xnap_ReportCharacteristics_NR_UChannelListPeriodic;
 static int hf_xnap_ReportCharacteristics_Reserved;
+static int hf_xnap_ReportCharacteristicsForDataCollection_PredictedRadioResourceStatus;
+static int hf_xnap_ReportCharacteristicsForDataCollection_PredictedNumberofActiveUEs;
+static int hf_xnap_ReportCharacteristicsForDataCollection_PredictedRRCConnections;
+static int hf_xnap_ReportCharacteristicsForDataCollection_AverageUEThroughputDL;
+static int hf_xnap_ReportCharacteristicsForDataCollection_AverageUEThroughputUL;
+static int hf_xnap_ReportCharacteristicsForDataCollection_AveragePacketDelay;
+static int hf_xnap_ReportCharacteristicsForDataCollection_AveragePacketLossDL;
+static int hf_xnap_ReportCharacteristicsForDataCollection_EnergyCost;
+static int hf_xnap_ReportCharacteristicsForDataCollection_MeasuredUETrajectory;
+static int hf_xnap_ReportCharacteristicsForDataCollection_Reserved;
+static int hf_xnap_cellmeasurementFailedReportCharacteristics_PredictedRadioResourceStatus;
+static int hf_xnap_cellmeasurementFailedReportCharacteristics_PredictedNumberofActiveUEs;
+static int hf_xnap_cellmeasurementFailedReportCharacteristics_PredictedRRCConnections;
+static int hf_xnap_cellmeasurementFailedReportCharacteristics_Reserved;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_EnergyCost;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_AverageUEThroughputDL;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_AverageUEThroughputUL;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketDelay;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketLossDL;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_MeasuredUETrajectory;
+static int hf_xnap_nodemeasurementFailedReportCharacteristics_Reserved;
 #include "packet-xnap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -108,7 +132,7 @@ static int ett_xnap_ImmediateMDT_EUTRA;
 static int ett_xnap_MDT_Location_Info;
 static int ett_xnap_MeasurementsToActivate;
 static int ett_xnap_NRMobilityHistoryReport;
-static int ett_xnap_RACHReportContainer;
+static int ett_xnap_RAReportContainer;
 static int ett_xnap_TargetCellinEUTRAN;
 static int ett_xnap_TDDULDLConfigurationCommonNR;
 static int ett_xnap_UERLFReportContainerLTE;
@@ -138,6 +162,10 @@ static int ett_xnap_RLC_Bearer_Configuration;
 static int ett_xnap_SuccessfulHOReportContainer;
 static int ett_xnap_UERLFReportContainerLTEExtendBand;
 static int ett_xnap_MDTMode_EUTRA;
+static int ett_xnap_cellmeasurementFailedReportCharacteristics;
+static int ett_xnap_nodemeasurementFailedReportCharacteristics;
+static int ett_xnap_ReportCharacteristicsForDataCollection;
+static int ett_xnap_SRSConfiguration;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -226,6 +254,18 @@ static void
 xnap_Threshold_SINR_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+}
+
+static void
+xnap_AveragePacketDelayValue_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/10, v);
+}
+
+static void
+xnap_N6Jitter_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 typedef enum {
@@ -488,13 +528,105 @@ void proto_register_xnap(void) {
       { "CompositeAvailableCapacityPeriodic", "xnap.ReportCharacteristics.CompositeAvailableCapacityPeriodic",
         FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x20000000,
         NULL, HFILL }},
-    { &hf_xnap_ReportCharacteristics_NumberOfActiveUEs,
-      { "NumberOfActiveUEs", "xnap.ReportCharacteristics.NumberOfActiveUEs",
+    { &hf_xnap_ReportCharacteristics_NumberOfActiveUEsPeriodic,
+      { "NumberOfActiveUEsPeriodic", "xnap.ReportCharacteristics.NumberOfActiveUEsPeriodic",
         FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x10000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristics_RRCconnectionsPeriodic,
+      { "RRCconnectionsPeriodic", "xnap.ReportCharacteristics.RRCconnectionsPeriodic",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x08000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristics_NR_UChannelListPeriodic,
+      { "NR-UChannelListPeriodic", "xnap.ReportCharacteristics.NR_UChannelListPeriodic",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x04000000,
         NULL, HFILL }},
     { &hf_xnap_ReportCharacteristics_Reserved,
       { "Reserved", "xnap.ReportCharacteristics.Reserved",
-        FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
+        FT_UINT32, BASE_HEX, NULL, 0x03ffffff,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_PredictedRadioResourceStatus,
+      { "PredictedRadioResourceStatus", "xnap.ReportCharacteristicsForDataCollection.PredictedRadioResourceStatus",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x80000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_PredictedNumberofActiveUEs,
+      { "PredictedNumberofActiveUEs", "xnap.ReportCharacteristicsForDataCollection.PredictedNumberofActiveUEs",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x40000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_PredictedRRCConnections,
+      { "PredictedRRCConnections", "xnap.ReportCharacteristicsForDataCollection.PredictedRRCConnections",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x20000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_AverageUEThroughputDL,
+      { "AverageUEThroughputDL", "xnap.ReportCharacteristicsForDataCollection.AverageUEThroughputDL",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x10000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_AverageUEThroughputUL,
+      { "AverageUEThroughputUL", "xnap.ReportCharacteristicsForDataCollection.AverageUEThroughputUL",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x08000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_AveragePacketDelay,
+      { "AveragePacketDelay", "xnap.ReportCharacteristicsForDataCollection.AveragePacketDelay",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x04000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_AveragePacketLossDL,
+      { "AveragePacketLossDL", "xnap.ReportCharacteristicsForDataCollection.AveragePacketLossDL",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x02000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_EnergyCost,
+      { "EnergyCost", "xnap.ReportCharacteristicsForDataCollection.EnergyCost",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x01000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_MeasuredUETrajectory,
+      { "MeasuredUETrajectory", "xnap.ReportCharacteristicsForDataCollection.MeasuredUETrajectory",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x008000000,
+        NULL, HFILL }},
+    { &hf_xnap_ReportCharacteristicsForDataCollection_Reserved,
+      { "Reserved", "xnap.ReportCharacteristicsForDataCollection.Reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x007fffff,
+        NULL, HFILL }},
+    { &hf_xnap_cellmeasurementFailedReportCharacteristics_PredictedRadioResourceStatus,
+      { "PredictedRadioResourceStatus", "xnap.cellmeasurementFailedReportCharacteristics.PredictedRadioResourceStatus",
+        FT_BOOLEAN, 32, NULL, 0x80000000,
+        NULL, HFILL }},
+    { &hf_xnap_cellmeasurementFailedReportCharacteristics_PredictedNumberofActiveUEs,
+      { "PredictedNumberofActiveUEs", "xnap.cellmeasurementFailedReportCharacteristics.PredictedNumberofActiveUEs",
+        FT_BOOLEAN, 32, NULL, 0x40000000,
+        NULL, HFILL }},
+    { &hf_xnap_cellmeasurementFailedReportCharacteristics_PredictedRRCConnections,
+      { "PredictedRRCConnections", "xnap.cellmeasurementFailedReportCharacteristics.PredictedRRCConnections",
+        FT_BOOLEAN, 32, NULL, 0x20000000,
+        NULL, HFILL }},
+    { &hf_xnap_cellmeasurementFailedReportCharacteristics_Reserved,
+      { "Reserved", "xnap.cellmeasurementFailedReportCharacteristics.Reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x1fffffff,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_EnergyCost,
+      { "EnergyCost", "xnap.nodemeasurementFailedReportCharacteristics.EnergyCost",
+        FT_BOOLEAN, 32, NULL, 0x80000000,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_AverageUEThroughputDL,
+      { "AverageUEThroughputDL", "xnap.nodemeasurementFailedReportCharacteristics.AverageUEThroughputDL",
+        FT_BOOLEAN, 32, NULL, 0x40000000,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_AverageUEThroughputUL,
+      { "AverageUEThroughputUL", "xnap.nodemeasurementFailedReportCharacteristics.AverageUEThroughputUL",
+        FT_BOOLEAN, 32, NULL, 0x20000000,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketDelay,
+      { "AveragePacketDelay", "xnap.nodemeasurementFailedReportCharacteristics.AveragePacketDelay",
+        FT_BOOLEAN, 32, NULL, 0x10000000,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketLossDL,
+      { "AveragePacketLossDL", "xnap.nodemeasurementFailedReportCharacteristics.AveragePacketLossDL",
+        FT_BOOLEAN, 32, NULL, 0x08000000,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_MeasuredUETrajectory,
+      { "MeasuredUETrajectory", "xnap.nodemeasurementFailedReportCharacteristics.MeasuredUETrajectory",
+        FT_BOOLEAN, 32, NULL, 0x04000000,
+        NULL, HFILL }},
+    { &hf_xnap_nodemeasurementFailedReportCharacteristics_Reserved,
+      { "Reserved", "xnap.nodemeasurementFailedReportCharacteristics.Reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x03ffffff,
         NULL, HFILL }},
 #include "packet-xnap-hfarr.c"
   };
@@ -521,7 +653,7 @@ void proto_register_xnap(void) {
     &ett_xnap_MDT_Location_Info,
     &ett_xnap_MeasurementsToActivate,
     &ett_xnap_NRMobilityHistoryReport,
-    &ett_xnap_RACHReportContainer,
+    &ett_xnap_RAReportContainer,
     &ett_xnap_TargetCellinEUTRAN,
     &ett_xnap_TDDULDLConfigurationCommonNR,
     &ett_xnap_UERLFReportContainerLTE,
@@ -551,6 +683,10 @@ void proto_register_xnap(void) {
     &ett_xnap_SuccessfulHOReportContainer,
     &ett_xnap_UERLFReportContainerLTEExtendBand,
     &ett_xnap_MDTMode_EUTRA,
+    &ett_xnap_cellmeasurementFailedReportCharacteristics,
+    &ett_xnap_nodemeasurementFailedReportCharacteristics,
+    &ett_xnap_ReportCharacteristicsForDataCollection,
+    &ett_xnap_SRSConfiguration,
 #include "packet-xnap-ettarr.c"
   };
 

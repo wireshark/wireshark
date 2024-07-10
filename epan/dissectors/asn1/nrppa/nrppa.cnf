@@ -19,10 +19,12 @@ SRSResourceID-Item
 
 #.EXPORTS
 Assistance-Information_PDU
+SRSConfiguration_PDU
 
 #.PDU
 Assistance-Information
 NRPPA-PDU
+SRSConfiguration
 
 #.TYPE_RENAME
 InitiatingMessage/value InitiatingMessage_value

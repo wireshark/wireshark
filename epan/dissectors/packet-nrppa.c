@@ -94,7 +94,7 @@ static int hf_nrppa_SFNInitialisationTime_EUTRA_PDU;  /* SFNInitialisationTime_E
 static int hf_nrppa_SlotNumber_PDU;               /* SlotNumber */
 static int hf_nrppa_SpatialRelationInfo_PDU;      /* SpatialRelationInfo */
 static int hf_nrppa_SpatialRelationPerSRSResource_PDU;  /* SpatialRelationPerSRSResource */
-static int hf_nrppa_SRSConfiguration_PDU;         /* SRSConfiguration */
+static int hf_nrppa_nrppa_SRSConfiguration_PDU;   /* SRSConfiguration */
 static int hf_nrppa_SrsFrequency_PDU;             /* SrsFrequency */
 static int hf_nrppa_SRSPortIndex_PDU;             /* SRSPortIndex */
 static int hf_nrppa_SRSResourcetype_PDU;          /* SRSResourcetype */
@@ -11336,11 +11336,11 @@ static int dissect_SpatialRelationPerSRSResource_PDU(tvbuff_t *tvb _U_, packet_i
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_SRSConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nrppa_SRSConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_nrppa_SRSConfiguration(tvb, offset, &asn1_ctx, tree, hf_nrppa_SRSConfiguration_PDU);
+  offset = dissect_nrppa_SRSConfiguration(tvb, offset, &asn1_ctx, tree, hf_nrppa_nrppa_SRSConfiguration_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12220,7 +12220,7 @@ void proto_register_nrppa(void) {
       { "SpatialRelationPerSRSResource", "nrppa.SpatialRelationPerSRSResource_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nrppa_SRSConfiguration_PDU,
+    { &hf_nrppa_nrppa_SRSConfiguration_PDU,
       { "SRSConfiguration", "nrppa.SRSConfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -15318,7 +15318,7 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_Assistance_Information, create_dissector_handle(dissect_nrppa_Assistance_Information_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_Broadcast, create_dissector_handle(dissect_Broadcast_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_AssistanceInformationFailureList, create_dissector_handle(dissect_AssistanceInformationFailureList_PDU, proto_nrppa));
-  dissector_add_uint("nrppa.ies", id_SRSConfiguration, create_dissector_handle(dissect_SRSConfiguration_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.ies", id_SRSConfiguration, create_dissector_handle(dissect_nrppa_SRSConfiguration_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRPInformationTypeListTRPReq, create_dissector_handle(dissect_TRPInformationTypeListTRPReq_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRPInformationListTRPResp, create_dissector_handle(dissect_TRPInformationListTRPResp_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_MeasurementBeamInfoRequest, create_dissector_handle(dissect_MeasurementBeamInfoRequest_PDU, proto_nrppa));
