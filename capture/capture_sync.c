@@ -1034,7 +1034,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
     GIOChannel *sync_pipe_read_io;
     ws_process_id fork_child;
     char *wait_msg;
-    char buffer[PIPE_BUF_SIZE+1] = {0};
+    char *buffer = g_malloc(PIPE_BUF_SIZE + 1);
     ssize_t nread;
     char indicator;
     int32_t exec_errno = 0;
@@ -1052,6 +1052,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
         *primary_msg = msg;
         *secondary_msg = NULL;
         *data = NULL;
+        g_free(buffer);
         return -1;
     }
 
@@ -1097,6 +1098,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
             }
             *secondary_msg = NULL;
             *data = NULL;
+            g_free(buffer);
 
             return -1;
         }
@@ -1242,6 +1244,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
         }
     } while (indicator != SP_SUCCESS && ret != -1);
 
+    g_free(buffer);
     return ret;
 }
 
@@ -1471,7 +1474,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
     int ret;
     GIOChannel *message_read_io;
     char *wait_msg;
-    char buffer[PIPE_BUF_SIZE+1] = {0};
+    char *buffer = g_malloc(PIPE_BUF_SIZE + 1);
     ssize_t nread;
     char indicator;
     int32_t exec_errno = 0;
@@ -1487,6 +1490,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
 
     if (!argv) {
         *msg = g_strdup("We don't know where to find dumpcap.");
+        g_free(buffer);
         return -1;
     }
 
@@ -1504,6 +1508,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
     argv = sync_pipe_add_arg(argv, &argc, "--signal-pipe");
     ret = create_dummy_signal_pipe(msg);
     if (ret == -1) {
+        g_free(buffer);
         return -1;
     }
     argv = sync_pipe_add_arg(argv, &argc, dummy_control_id);
@@ -1512,6 +1517,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
     ret = sync_pipe_open_command(argv, data_read_fd, &message_read_io, NULL,
                                  fork_child, NULL, msg, update_cb);
     if (ret == -1) {
+        g_free(buffer);
         return -1;
     }
 
@@ -1556,6 +1562,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
                     *msg = combined_msg;
                 }
             }
+            g_free(buffer);
             return -1;
         }
 
@@ -1626,6 +1633,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
                 *msg = g_strdup(primary_msg_text);
                 ret = -1;
             }
+            g_free(buffer);
             return ret;
 
         case SP_LOG_MSG:
@@ -1674,6 +1682,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
         }
     } while (indicator != SP_SUCCESS && ret != -1);
 
+    g_free(buffer);
     return ret;
 }
 
@@ -1859,7 +1868,7 @@ static gboolean
 sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
 {
     int  ret;
-    char buffer[SP_MAX_MSG_LEN+1] = {0};
+    char *buffer = g_malloc(SP_MAX_MSG_LEN + 1);
     ssize_t nread;
     char indicator;
     int32_t exec_errno = 0;
@@ -1918,6 +1927,7 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         } else {
             extcap_request_stop(cap_session);
         }
+        g_free(buffer);
         return false;
     }
 
@@ -1944,6 +1954,7 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
                "standard output", as the capture file. */
             sync_pipe_stop(cap_session);
             cap_session->closed(cap_session, NULL);
+            g_free(buffer);
             return false;
         }
         break;
@@ -2019,6 +2030,7 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         break;
     }
 
+    g_free(buffer);
     return true;
 }
 
