@@ -100,16 +100,16 @@ class APICheck:
 
         if fun_name.startswith('ptvcursor'):
             # RE captures function name + 1st 2 args (always ptvc + hfindex)
-            self.p = re.compile('[^\n]*' +  self.fun_name + '\s*\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' +  self.fun_name + r'\s*\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
         elif fun_name.find('add_bitmask') == -1:
             # Normal case.
             # RE captures function name + 1st 2 args (always tree + hfindex + length)
-            self.p = re.compile('[^\n]*' +  self.fun_name + '\s*\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' +  self.fun_name + r'\s*\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
         else:
             # _add_bitmask functions.
             # RE captures function name + 1st + 4th args (always tree + hfindex)
             # 6th arg is 'fields'
-            self.p = re.compile('[^\n]*' +  self.fun_name + '\s*\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)\s*,\s*[a-zA-Z0-9_]+\s*,\s*([a-zA-Z0-9_]+)\s*,')
+            self.p = re.compile('[^\n]*' +  self.fun_name + r'\s*\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)\s*,\s*[a-zA-Z0-9_]+\s*,\s*([a-zA-Z0-9_]+)\s*,')
 
         self.file = None
         self.mask_allowed = True
@@ -244,13 +244,13 @@ class ProtoTreeAddItemCheck(APICheck):
             # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
             #                     const gint start, gint length, const guint encoding)
             self.fun_name = 'proto_tree_add_item'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\(\s*[a-zA-Z0-9_]+?,\s*([a-zA-Z0-9_]+?),\s*[a-zA-Z0-9_\+\s]+?,\s*[^,.]+?,\s*(.+),\s*([^,.]+?)\);')
+            self.p = re.compile('[^\n]*' + self.fun_name + r'\s*\(\s*[a-zA-Z0-9_]+?,\s*([a-zA-Z0-9_]+?),\s*[a-zA-Z0-9_\+\s]+?,\s*[^,.]+?,\s*(.+),\s*([^,.]+?)\);')
         else:
             # proto_item *
             # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
             #               const guint encoding)
             self.fun_name = 'ptvcursor_add'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + r'\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
 
     def find_calls(self, file, macros):
