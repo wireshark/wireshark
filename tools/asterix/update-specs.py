@@ -20,6 +20,8 @@ import os
 import sys
 import re
 
+import convertspec as convert
+
 # Path to default upstream repository
 upstream_repo = 'https://zoranbosnjak.github.io/asterix-specs'
 dissector_file = 'epan/dissectors/packet-asterix.c'
@@ -730,6 +732,7 @@ def main():
     # read and json-decode input files
     jsons = load_jsons(args.paths)
     jsons = [json.loads(i) for i in jsons]
+    jsons = [convert.handle_asterix(i) for i in jsons]
     jsons = sorted(jsons, key = lambda x: (x['number'], x['edition']['major'], x['edition']['minor']))
     jsons = [spec for spec in jsons if spec['type'] == 'Basic']
     jsons = [remove_rfs(spec) for spec in jsons]
