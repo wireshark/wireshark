@@ -1593,6 +1593,10 @@ void TCPStreamDialog::fillWindowScale()
     QVector<double> rel_time, win_size;
     QVector<double> cwnd_time, cwnd_size;
     uint32_t last_ack = 0;
+
+    /* highest expected SEQ seen so far */
+    uint32_t max_next_seq = 0;
+
     bool found_first_ack = false;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
@@ -1600,12 +1604,17 @@ void TCPStreamDialog::fillWindowScale()
         // The receive window that applies to this flow comes
         //   from packets in the opposite direction
         if (compareHeaders(seg)) {
-            // compute bytes_in_flight for cwnd graph
+            /* compute bytes_in_flight for cwnd graph,
+             * by comparing the highest next SEQ to the latest ACK
+             */
             uint32_t end_seq = seg->th_seq + seg->th_seglen;
+            if(end_seq > max_next_seq) {
+                max_next_seq = end_seq;
+            }
             if (found_first_ack &&
                 tcp_seq_eq_or_after(end_seq, last_ack)) {
                 cwnd_time.append(ts - ts_offset_);
-                cwnd_size.append((double)(end_seq - last_ack));
+                cwnd_size.append((double)(max_next_seq - last_ack));
             }
         } else {
             // packet in opposite direction - has advertised rwin
