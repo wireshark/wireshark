@@ -22,7 +22,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
 
-A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.0.15 and 4.2.5 has been fixed. wsbuglink:19846[]
+A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.2.5 and 4.0.15 has been fixed. wsbuglink:19846[]
 
 The following vulnerability has been fixed:
 
@@ -85,6 +85,7 @@ PKT CCC
 RTP
 SIP
 SPRT
+Thrift
 Wi-SUN
 --
 
