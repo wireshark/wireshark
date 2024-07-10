@@ -2146,7 +2146,7 @@ eth_addr_resolve(hashether_t *tp) {
         (void) g_strlcpy(tp->resolved_name, eth->name, MAXNAMELEN);
         tp->flags |= NAME_RESOLVED | STATIC_HOSTNAME;
         return tp;
-    } else {
+    } else if (!(tp->flags & NAME_RESOLVED)) {
         unsigned      mask;
         char         *name;
         address       ether_addr;
@@ -2255,7 +2255,7 @@ eth_addr_resolve(hashether_t *tp) {
         address_to_str_buf(&ether_addr, tp->resolved_name, MAXNAMELEN);
         return tp;
     }
-    ws_assert_not_reached();
+    return tp;
 } /* eth_addr_resolve */
 
 static hashether_t *
@@ -2310,11 +2310,18 @@ eth_name_lookup(const uint8_t *addr, const bool resolve)
     if (tp == NULL) {
         tp = eth_hash_new_entry(addr, resolve);
     } else {
-        if (resolve && !(tp->flags & NAME_RESOLVED)) {
+        if (resolve && !(tp->flags & TRIED_RESOLVE_ADDRESS)) {
+            /* We don't test TRIED_OR_RESOLVED_MASK (but check
+             * RESOLVED_NAME in eth_addr_resolve) so that the ethers
+             * files take precendent over wka, NRBs, ARP discovery, etc.
+             * XXX: What _is_ the proper precedence, and should it
+             * be configurable? (cf. #18075) */
             eth_addr_resolve(tp); /* Found but needs to be resolved */
         }
     }
-    tp->flags |= TRIED_RESOLVE_ADDRESS;
+    if (resolve) {
+        tp->flags |= TRIED_RESOLVE_ADDRESS;
+    }
 
     return tp;
 
