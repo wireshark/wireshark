@@ -14563,9 +14563,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				dissect_trans_data(s_tvb, p_tvb, d_tvb, tree);
 
 		} else if (tdc)	{
-			/* We don't have a flag or info in a struct that identifies this as a
-			 * "transact continuation" packet, so we shouldn't include it in COL_INFO
-			 * until some way is found. */
 			col_append_fstr(pinfo->cinfo, COL_INFO,	", Data: %u of %u", dc + dd, tdc);
 		}
 	}
@@ -16830,6 +16827,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint8                sc, wc;
 	guint16               od     = 0, po = 0, pc = 0, pd = 0, dc = 0, dd = 0, td = 0, tp = 0;
 	smb_transact2_info_t *t2i    = NULL;
+	guint32		      pid_mid = 0;
 	guint16               bc;
 	int                   padcnt;
 	gboolean              dissected_trans;
@@ -16984,6 +16982,15 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	dd = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 	offset += 2;
+
+	/* Now that a FF2 pid_mid response has been fully decoded, we can remove
+	 * it from the unmatched table. It was left in there to prevent "response<unknown>"
+	 * errors whenever there were multiple responses to the same request.
+	 */
+	if (pinfo->fd->visited && t2i && t2i->subcmd == 0x01) {
+		pid_mid = (si->pid << 16) | si->mid;
+		g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+	}
 
 	if (td && td >= dc + dd ) {
 		guint16 diff = td - (dc + dd);
@@ -17985,6 +17992,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	guint32               pid_mid;
 	conversation_t       *conversation;
 	nstime_t              t, deltat;
+	smb_transact2_info_t *t2i = NULL;
 
 	si = wmem_new0(wmem_packet_scope(), smb_info_t);
 
@@ -18250,20 +18258,25 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						 * 3, -> Request  MID:5 (missing from capture)
 						 * 4, <- Response MID:5
 						 * We DON'T want #4 to be presented as a response to #1
-						 * *** However, since all 16 bits are used for the MID except
-						 * 0xFFFF (MS-CIFS 2.2.1.6.2), the MID-PIDs would have to be 65534
-						 * apart, and the PIDs would also have to match, so the likelihood
-						 * of mismatches seems low.
 						 */
-						g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+						/* Prevent FIND_FIRST2 "<unknown>" responses when there are multiple
+						 * responses to the same request. We leave the pid_mid of these responses
+						 * in the unmatched table until all of them have been fully processed
+						 * and then remove that pid-mid.
+						 */
+						if (sip->extra_info_type == SMB_EI_T2I) {
+							t2i = (smb_transact2_info_t *)sip->extra_info;
+							if (t2i	&& t2i->subcmd != 0x01) {
+								g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+							}
+						}
+						else {
+							g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+						}
+
 					} else {
 						/* We have already seen another response to this MID.
-						   The MID is 16 bits all of which are used except for 0xFFFF.
-						   See MS-CIFS 2.2.1.6.2.
-						   This probably means that we just have a MID that is being
-						   reused due to the small MID space and that this is a new
-						   command we did not see the original request for.
-						*/
+						 */
 						sip = NULL;
 					}
 				}
