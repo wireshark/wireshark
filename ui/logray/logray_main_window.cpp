@@ -299,7 +299,7 @@ static void mainwindow_remove_toolbar(const char *menu_title)
 
 QMenu* LograyMainWindow::findOrAddMenu(QMenu *parent_menu, const QStringList& menu_parts) {
     for (auto const & menu_text : menu_parts) {
-        bool found;
+        bool found = false;
         for (auto const & action : parent_menu->actions()) {
             if (action->text() == menu_text.trimmed()) {
                 parent_menu = action->menu();
