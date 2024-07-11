@@ -90,23 +90,23 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
 
     if (button_box) {
         button_box->addButton(QDialogButtonBox::Help);
-        connect(button_box, SIGNAL(helpRequested()), this, SLOT(on_buttonBox_helpRequested()));
+        connect(button_box, &QDialogButtonBox::helpRequested, this, &ExportDissectionDialog::on_buttonBox_helpRequested);
 
         save_bt_ = button_box->button(QDialogButtonBox::Save);
     }
 
     if (save_bt_) {
-        connect(&packet_range_group_box_, SIGNAL(validityChanged(bool)),
-                this, SLOT(checkValidity()));
-        connect(&packet_format_group_box_, SIGNAL(formatChanged()),
-                this, SLOT(checkValidity()));
+        connect(&packet_range_group_box_, &PacketRangeGroupBox::validityChanged,
+                this, &ExportDissectionDialog::checkValidity);
+        connect(&packet_format_group_box_, &PacketFormatGroupBox::formatChanged,
+                this, &ExportDissectionDialog::checkValidity);
     }
-    connect(this, SIGNAL(filterSelected(QString)), this, SLOT(exportTypeChanged(QString)));
+    connect(this, &ExportDissectionDialog::filterSelected, this, &ExportDissectionDialog::exportTypeChanged);
 
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
 
-    connect(this, SIGNAL(filesSelected(QStringList)), this, SLOT(dialogAccepted(QStringList)));
+    connect(this, &ExportDissectionDialog::filesSelected, this, &ExportDissectionDialog::dialogAccepted);
 }
 
 ExportDissectionDialog::~ExportDissectionDialog()
