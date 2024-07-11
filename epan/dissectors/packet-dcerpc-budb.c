@@ -3743,8 +3743,8 @@ proto_register_budb(void)
 		 NULL, HFILL }},
 
 		{ &hf_budb_rc,
-		  { "Return code", "budb.rc", FT_UINT32, BASE_HEX,
-		  VALS(NT_errors), 0,
+		  { "Return code", "budb.rc", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+		  &NT_errors_ext, 0,
 		 NULL, HFILL }},
 
 		{ &hf_budb_principal_name,

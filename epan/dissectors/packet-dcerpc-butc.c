@@ -2240,8 +2240,8 @@ proto_register_butc(void)
 		 NULL, HFILL }},
 
 		{ &hf_butc_rc,
-		  { "Return code", "butc.rc", FT_UINT32, BASE_HEX,
-		  VALS(NT_errors), 0,
+		  { "Return code", "butc.rc", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+		  &NT_errors_ext, 0,
 		 NULL, HFILL }},
 
 		{ &hf_butc_Restore_flags_TC_RESTORE_CREATE,
