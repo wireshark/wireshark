@@ -85,4 +85,4 @@ To add the ability to write a new capture file format, you have to:
 	in the "file_type_subtype_info" struct passed to
 	wtap_register_file_type_subtypes().
 
-In the wiretap directory, add your source file to CMakelists.txt.
+In the wiretap directory, add your source file to CMakeLists.txt.

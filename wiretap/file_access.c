@@ -766,6 +766,86 @@ heuristic_uses_extension(unsigned int i, const char *extension)
 	return false;	/* it's not one of them */
 }
 
+/*
+ * Given a filename and (optional) specified filetype, generate an ordered list
+ * of (pointers to) open_info structures representing candidate file formats to
+ * attempt to read the file.  If a valid file type is specified, only one
+ * candidate will exist.  Otherwise, each member of open_info_arr will be
+ * included in the candidate list, sorted so that the entries most likely to be
+ * correct are at the head of the list.
+ *
+ * Returns the number of candidates populated in the output array.
+ */
+static unsigned
+generate_candidate_list_for_open(const char *filename, unsigned int type, struct open_info ***candidates)
+{
+	unsigned num_candidates = 0;
+	unsigned i;
+	char *extension;
+
+	/* 'type' is 1-based. */
+	if (type != WTAP_TYPE_AUTO && type <= open_info_arr->len) {
+		*candidates = g_malloc(sizeof *candidates);
+		(*candidates)[num_candidates++] = &open_routines[type - 1];
+		return num_candidates;
+	}
+	*candidates = g_malloc_n(open_info_arr->len, sizeof *candidates);
+	num_candidates = 0;
+
+	/* First, all file types that support magic numbers. */
+	for (i = 0; i < heuristic_open_routine_idx; i++) {
+		(*candidates)[num_candidates++] = &open_routines[i];
+	}
+
+	/* Does this file's name have an extension? */
+	extension = get_file_extension(filename);
+	if (extension != NULL) {
+		unsigned pass;
+
+		/*
+		 * Yes, the filename has an extension.
+		 *
+		 * The heuristic types fall into one of three categories, and
+		 * the candidate list is built by scanning for each category in
+		 * turn.
+		 *
+		 * First pass selects the heuristic types that list this file's
+		 * extension, as these are most likely to be the correct choice
+		 * for this file.
+		 *
+		 * Second pass selects heuristic types which have no
+		 * extensions.  We try those before the ones that have
+		 * extensions that *don't* match this file's extension, on the
+		 * theory that files of those types generally have one of the
+		 * type's extensions, and, as this file *doesn't* have one of
+		 * those extensions, it's probably *not* one of those files.
+		 *
+		 * Third pass selects heuristic types which support extensions
+		 * but where none of them matches this file's extension.
+		 */
+
+		for (pass = 0; pass < 3; pass++) {
+			for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
+				if (   (pass == 0 && heuristic_uses_extension(i, extension))
+				    || (pass == 1 && open_routines[i].extensions == NULL)
+				    || (pass == 2 && open_routines[i].extensions != NULL
+				                  && !heuristic_uses_extension(i, extension))) {
+					(*candidates)[num_candidates++] = &open_routines[i];
+				}
+			}
+		}
+
+		g_free(extension);
+	} else {
+		/* No extension.  Try all the heuristic types in order. */
+		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
+			(*candidates)[num_candidates++] = &open_routines[i];
+		}
+	}
+
+	return num_candidates;
+}
+
 /* Opens a file and prepares a wtap struct.
  * If "do_random" is true, it opens the file twice; the second open
  * allows the application to do random-access I/O without moving
@@ -784,8 +864,9 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wtap	*wth;
 	unsigned int	i;
 	bool use_stdin = false;
-	char *extension;
 	wtap_block_t shb;
+	struct open_info **open_type_candidates;
+	unsigned num_candidates;
 
 	*err = 0;
 	*err_info = NULL;
@@ -931,42 +1012,11 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		file_set_random_access(wth->random_fh, true, wth->fast_seek);
 	}
 
-	/* 'type' is 1 greater than the array index */
-	if (type != WTAP_TYPE_AUTO && type <= open_info_arr->len) {
-		int result;
+	/* Build the list of file formats in the order to try them. */
+	num_candidates = generate_candidate_list_for_open(filename, type, &open_type_candidates);
 
-		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-			/* I/O error - give up */
-			wtap_close(wth);
-			return NULL;
-		}
-
-		/* Set wth with wslua data if any - this is how we pass the data
-		 * to the file reader, kinda like the priv member but not free'd later.
-		 * It's ok for this to copy a NULL.
-		 */
-		wth->wslua_data = open_routines[type - 1].wslua_data;
-
-		result = (*open_routines[type - 1].open_routine)(wth, err, err_info);
-
-		switch (result) {
-			case WTAP_OPEN_ERROR:
-				/* Error - give up */
-				wtap_close(wth);
-				return NULL;
-
-			case WTAP_OPEN_NOT_MINE:
-				/* No error, but not that type of file */
-				goto fail;
-
-			case WTAP_OPEN_MINE:
-				/* We found the file type */
-				goto success;
-		}
-	}
-
-	/* Try all file types that support magic numbers */
-	for (i = 0; i < heuristic_open_routine_idx; i++) {
+	/* Try file formats until we find one which meets criteria and accepts the file. */
+	for (i = 0; i < num_candidates; i++) {
 		/* Seek back to the beginning of the file; the open routine
 		 * for the previous file type may have left the file
 		 * position somewhere other than the beginning, and the
@@ -985,12 +1035,12 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		 * to the file reader, kinda like the priv member but not free'd later.
 		 * It's ok for this to copy a NULL.
 		 */
-		wth->wslua_data = open_routines[i].wslua_data;
+		wth->wslua_data = open_type_candidates[i]->wslua_data;
 
-		switch ((*open_routines[i].open_routine)(wth, err, err_info)) {
-
+		switch (open_type_candidates[i]->open_routine(wth, err, err_info)) {
 		case WTAP_OPEN_ERROR:
 			/* Error - give up */
+			g_free(open_type_candidates);
 			wtap_close(wth);
 			return NULL;
 
@@ -1004,180 +1054,14 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		}
 	}
 
-
-	/* Does this file's name have an extension? */
-	extension = get_file_extension(filename);
-	if (extension != NULL) {
-		/* Yes - try the heuristic types that use that extension first. */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
-			/* Does this type use that extension? */
-			if (heuristic_uses_extension(i, extension)) {
-				/* Yes. */
-				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-					/* Error - give up */
-					g_free(extension);
-					wtap_close(wth);
-					return NULL;
-				}
-
-				/* Set wth with wslua data if any - this is how we pass the data
-				 * to the file reader, kind of like priv but not free'd later.
-				 */
-				wth->wslua_data = open_routines[i].wslua_data;
-
-				switch ((*open_routines[i].open_routine)(wth,
-				    err, err_info)) {
-
-				case WTAP_OPEN_ERROR:
-					/* Error - give up */
-					g_free(extension);
-					wtap_close(wth);
-					return NULL;
-
-				case WTAP_OPEN_NOT_MINE:
-					/* No error, but not that type of file */
-					break;
-
-				case WTAP_OPEN_MINE:
-					/* We found the file type */
-					g_free(extension);
-					goto success;
-				}
-			}
-		}
-
-		/*
-		 * Now try the heuristic types that have no extensions
-		 * to check; we try those before the ones that have
-		 * extensions that *don't* match this file's extension,
-		 * on the theory that files of those types generally
-		 * have one of the type's extensions, and, as this file
-		 * *doesn't* have one of those extensions, it's probably
-		 * *not* one of those files.
-		 */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
-			/* Does this type have any extensions? */
-			if (open_routines[i].extensions == NULL) {
-				/* No. */
-				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-					/* Error - give up */
-					g_free(extension);
-					wtap_close(wth);
-					return NULL;
-				}
-
-				/* Set wth with wslua data if any - this is how we pass the data
-				 * to the file reader, kind of like priv but not free'd later.
-				 */
-				wth->wslua_data = open_routines[i].wslua_data;
-
-				switch ((*open_routines[i].open_routine)(wth,
-				    err, err_info)) {
-
-				case WTAP_OPEN_ERROR:
-					/* Error - give up */
-					g_free(extension);
-					wtap_close(wth);
-					return NULL;
-
-				case WTAP_OPEN_NOT_MINE:
-					/* No error, but not that type of file */
-					break;
-
-				case WTAP_OPEN_MINE:
-					/* We found the file type */
-					g_free(extension);
-					goto success;
-				}
-			}
-		}
-
-		/*
-		 * Now try the ones that have extensions where none of
-		 * them matches this file's extensions.
-		 */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
-			/*
-			 * Does this type have extensions and is this file's
-			 * extension one of them?
-			 */
-			if (open_routines[i].extensions != NULL &&
-			    !heuristic_uses_extension(i, extension)) {
-				/* Yes and no. */
-				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-					/* Error - give up */
-					g_free(extension);
-					wtap_close(wth);
-					return NULL;
-				}
-
-				/* Set wth with wslua data if any - this is how we pass the data
-				 * to the file reader, kind of like priv but not free'd later.
-				 */
-				wth->wslua_data = open_routines[i].wslua_data;
-
-				switch ((*open_routines[i].open_routine)(wth,
-				    err, err_info)) {
-
-				case WTAP_OPEN_ERROR:
-					/* Error - give up */
-					g_free(extension);
-					wtap_close(wth);
-					return NULL;
-
-				case WTAP_OPEN_NOT_MINE:
-					/* No error, but not that type of file */
-					break;
-
-				case WTAP_OPEN_MINE:
-					/* We found the file type */
-					g_free(extension);
-					goto success;
-				}
-			}
-		}
-		g_free(extension);
-	} else {
-		/* No - try all the heuristics types in order. */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
-
-			if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-				/* Error - give up */
-				wtap_close(wth);
-				return NULL;
-			}
-
-			/* Set wth with wslua data if any - this is how we pass the data
-			 * to the file reader, kind of like priv but not free'd later.
-			 */
-			wth->wslua_data = open_routines[i].wslua_data;
-
-			switch ((*open_routines[i].open_routine)(wth, err, err_info)) {
-
-			case WTAP_OPEN_ERROR:
-				/* Error - give up */
-				wtap_close(wth);
-				return NULL;
-
-			case WTAP_OPEN_NOT_MINE:
-				/* No error, but not that type of file */
-				break;
-
-			case WTAP_OPEN_MINE:
-				/* We found the file type */
-				goto success;
-			}
-		}
-	}
-
-fail:
-
 	/* Well, it's not one of the types of file we know about. */
+	g_free(open_type_candidates);
 	wtap_close(wth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
 	return NULL;
 
 success:
+	g_free(open_type_candidates);
 	return wth;
 }
 
