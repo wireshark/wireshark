@@ -4754,7 +4754,7 @@ dissect_krb5_PW_SALT(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 			ENC_LITTLE_ENDIAN);
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO,
 			" NT Status: %s",
-			val_to_str(nt_status, NT_errors,
+			val_to_str_ext(nt_status, &NT_errors_ext,
 			"Unknown error code %#x"));
 	offset += 4;
 
@@ -9160,8 +9160,8 @@ void proto_register_kerberos(void) {
 		{ "pw-salt", "kerberos.pw_salt", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_ext_error_nt_status, /* we keep kerberos.smb.nt_status for compat reasons */
-		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
-		VALS(NT_errors), 0, "NT Status code", HFILL }},
+		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+		&NT_errors_ext, 0, "NT Status code", HFILL }},
 	{ &hf_krb_ext_error_reserved,
 		{ "Reserved", "kerberos.ext_error.reserved", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
