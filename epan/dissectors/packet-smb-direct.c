@@ -262,7 +262,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		if (status != 0) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", Error: %s",
-				val_to_str(status, NT_errors, "Unknown (0x%08X)"));
+				val_to_str_ext(status, &NT_errors_ext, "Unknown (0x%08X)"));
 		}
 
 		if (tree == NULL) {
@@ -573,7 +573,7 @@ void proto_register_smb_direct(void)
 
 	{ &hf_smb_direct_status,
 		{ "Status", "smb_direct.status",
-		FT_UINT32, BASE_HEX, VALS(NT_errors), 0,
+		FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0,
 		"NT Status code", HFILL }},
 
 	{ &hf_smb_direct_max_read_write_size,
