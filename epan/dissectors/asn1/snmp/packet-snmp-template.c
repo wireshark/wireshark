@@ -1601,6 +1601,7 @@ snmp_users_update_cb(void* p _U_, char** err)
 		return false;
 	}
 
+        g_string_free(es, TRUE);
 	return true;
 }
 
