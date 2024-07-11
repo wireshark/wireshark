@@ -1074,6 +1074,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
                itself while going down. Even in the rare cases that this isn't the
                case, the child will get an error when writing to the broken pipe
                the next time, cleaning itself up then. */
+            g_io_channel_unref(sync_pipe_read_io);
             ret = sync_pipe_wait_for_child(fork_child, &wait_msg);
             if(nread == 0) {
                 /* We got an EOF from the sync pipe.  That means that it exited
@@ -1533,9 +1534,9 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
                itself while going down. Even in the rare cases that this isn't the
                case, the child will get an error when writing to the broken pipe
                the next time, cleaning itself up then. */
-            ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
             g_io_channel_unref(message_read_io);
             ws_close(*data_read_fd);
+            ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
             if(nread == 0) {
                 /* We got an EOF from the sync pipe.  That means that it exited
                    before giving us any data to read.  If ret is -1, we report
@@ -1823,14 +1824,13 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, int len, char *msg,
               header[0], header[1], header[2], header[3]);
 
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
-        memcpy(msg, header, sizeof(header));
-        g_io_channel_read_chars(pipe_io, &msg[sizeof(header)], len-sizeof(header), &bytes_read, &err);
+        g_io_channel_read_chars(pipe_io, msg, len, &bytes_read, &err);
         if (err != NULL) { /* error */
             ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
             g_clear_error(&err);
         }
-        *err_msg = ws_strdup_printf("Unknown message from dumpcap reading header, try to show it as a string: %s",
-                                   msg);
+        *err_msg = ws_strdup_printf("Message %c from dumpcap with length %d > buffer size %d! Partial message: %s",
+                                    *indicator, required, len, msg);
         return -1;
     }
     len = required;
