@@ -64,6 +64,7 @@ struct _snmp_ue_assoc_t {
 	snmp_engine_id_t engine;
 	unsigned	auth_model;
 	unsigned	priv_proto;
+	unsigned	priv_key_exp;
 	struct _snmp_ue_assoc_t* next;
 };
 

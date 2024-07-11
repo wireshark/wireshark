@@ -152,6 +152,15 @@ static snmp_usm_decoder_t priv_protos[] = {
 	snmp_usm_priv_aes256
 };
 
+#define PRIVKEYEXP_USM_3DESDESEDE_00	0
+#define PRIVKEYEXP_AGENTPP				1
+
+static const value_string priv_key_exp_types[] = {
+	{ PRIVKEYEXP_USM_3DESDESEDE_00, "draft-reeder-snmpv3-usm-3desede-00" },
+	{ PRIVKEYEXP_AGENTPP, "AGENT++" },
+	{ 0, NULL }
+};
+
 static snmp_ue_assoc_t* ueas;
 static unsigned num_ueas;
 static snmp_ue_assoc_t* localized_ues;
@@ -1468,7 +1477,7 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 
 
 static void set_ue_keys(snmp_ue_assoc_t* n ) {
-	unsigned key_size = auth_hash_len[n->user.authModel];
+	unsigned const key_size = auth_hash_len[n->user.authModel];
 
 	n->user.authKey.data = (uint8_t *)g_malloc(key_size);
 	n->user.authKey.len = key_size;
@@ -1505,12 +1514,43 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 
 		/* extend key if needed */
 		while (key_len < need_key_len) {
-			snmp_usm_password_to_key(n->user.authModel,
-						 n->user.privKey.data,
-						 key_len,
-						 n->engine.data,
-						 n->engine.len,
-						 n->user.privKey.data + key_len);
+			switch (n->priv_key_exp) {
+				/* Baed on draft-reeder-snmpv3-usm-3desede-00, section 2.1 */
+				case PRIVKEYEXP_USM_3DESDESEDE_00:
+				{
+					snmp_usm_password_to_key(n->user.authModel,
+								n->user.privKey.data + (key_len - key_size),
+								key_size,
+								n->engine.data,
+								n->engine.len,
+								n->user.privKey.data + key_len);
+					break;
+				}
+				/* Based on snmp++ method PrivAES::extend_short_key in Agent++ */
+				case PRIVKEYEXP_AGENTPP:
+				{
+					/* Key expansion in Agent++
+					 * K1 = key
+					 * K2 = hash(K1)
+					 * K3 = hash(K1 | K2)
+					 * localized_key = K1 | K2 | K3
+					 */
+					gcry_md_hd_t hash_handle;
+
+					if (gcry_md_open(&hash_handle, auth_hash_algo[n->user.authModel], 0)) {
+						return;
+					}
+
+					gcry_md_write(hash_handle, n->user.privKey.data, key_len);
+					memcpy(n->user.privKey.data + key_len, gcry_md_read(hash_handle, 0), key_size);
+					gcry_md_close(hash_handle);
+
+					break;
+				}
+
+				default:
+					break;
+			}
 
 			key_len += key_size;
 		}
@@ -3539,6 +3579,7 @@ UAT_LSTRING_CB_DEF(snmp_users,privPassword,snmp_ue_assoc_t,user.privPassword.dat
 UAT_BUFFER_CB_DEF(snmp_users,engine_id,snmp_ue_assoc_t,engine.data,engine.len)
 UAT_VS_DEF(snmp_users,auth_model,snmp_ue_assoc_t,unsigned,0,"MD5")
 UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,unsigned,0,"DES")
+UAT_VS_DEF(snmp_users,priv_key_exp,snmp_ue_assoc_t,unsigned,0,"draft-reeder-snmpv3-usm-3desede-00")
 
 static void *
 snmp_specific_trap_copy_cb(void *dest, const void *orig, size_t len _U_)
@@ -4036,6 +4077,7 @@ void proto_register_snmp(void) {
 		UAT_FLD_LSTRING(snmp_users,authPassword,"Password","The password used for authenticating packets for this entry"),
 		UAT_FLD_VS(snmp_users,priv_proto,"Privacy protocol",priv_types,"Algorithm to be used for privacy."),
 		UAT_FLD_LSTRING(snmp_users,privPassword,"Privacy password","The password used for encrypting packets for this entry"),
+		UAT_FLD_VS(snmp_users,priv_key_exp,"Key expansion method",priv_key_exp_types,"Privacy protocol key expansion method"),
 		UAT_END_FIELDS
 	};
 
@@ -4053,6 +4095,10 @@ void proto_register_snmp(void) {
 				    renew_ue_cache,
 				    NULL,
 				    users_fields);
+
+	static const char *assocs_uat_defaults[] = {
+		NULL, NULL, NULL, NULL, NULL, NULL, "draft-reeder-snmpv3-usm-3desede-00"};
+	uat_set_default_values(assocs_uat, assocs_uat_defaults);
 
 	static uat_field_t specific_traps_flds[] = {
 		UAT_FLD_CSTRING(specific_traps,enterprise,"Enterprise OID","Enterprise Object Identifier"),
