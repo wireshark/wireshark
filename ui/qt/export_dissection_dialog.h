@@ -34,6 +34,9 @@ public:
 public slots:
     void show();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private slots:
     void dialogAccepted(const QStringList &selected);
     void exportTypeChanged(QString name_filter);
@@ -51,6 +54,8 @@ private:
     PacketFormatGroupBox packet_format_group_box_;
 
     QPushButton *save_bt_;
+
+    bool isValid();
 };
 
 #endif // EXPORT_DISSECTION_DIALOG_H

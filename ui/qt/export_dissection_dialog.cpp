@@ -100,6 +100,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
                 this, &ExportDissectionDialog::checkValidity);
         connect(&packet_format_group_box_, &PacketFormatGroupBox::formatChanged,
                 this, &ExportDissectionDialog::checkValidity);
+        save_bt_->installEventFilter(this);
     }
     connect(this, &ExportDissectionDialog::filterSelected, this, &ExportDissectionDialog::exportTypeChanged);
 
@@ -219,27 +220,55 @@ void ExportDissectionDialog::exportTypeChanged(QString name_filter)
     setDefaultSuffix(export_extensions[export_type_]);
 }
 
-void ExportDissectionDialog::checkValidity()
+bool ExportDissectionDialog::isValid()
 {
-    bool enable = true;
+    bool valid = true;
 
-    if (!save_bt_) return;
-
-    if (!packet_range_group_box_.isValid()) enable = false;
+    if (!packet_range_group_box_.isValid()) valid = false;
 
     if (export_type_ == export_type_text) {
         if (! packet_format_group_box_.summaryEnabled() &&
             ! packet_format_group_box_.detailsEnabled() &&
             ! packet_format_group_box_.bytesEnabled())
         {
-            enable = false;
+            valid = false;
         }
     }
 
-    save_bt_->setEnabled(enable);
+    return valid;
+}
+
+void ExportDissectionDialog::checkValidity()
+{
+    if (!save_bt_) return;
+
+    save_bt_->setEnabled(isValid());
 }
 
 void ExportDissectionDialog::on_buttonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_EXPORT_FILE_DIALOG);
+}
+
+bool ExportDissectionDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    // The QFileDialogPrivate will enable the Ok (Open/Save) button when
+    // anything is typed or selected. We can't catch that beforehand, so
+    // watch for the enable status change and re-disable it if the
+    // group boxes are invalid.
+    // We could do extra work (here and elsewhere) not to disable the button
+    // if what's selected in the dialog is a directory, but even with save_bt_
+    // disabled clicking on the directory still opens it.
+    if (event->type() == QEvent::EnabledChange) {
+        QPushButton *button = qobject_cast<QPushButton *>(obj);
+        if (button && button == save_bt_) {
+            // The button is already changed by the time we get this event.
+            if (button->isEnabled() && !isValid()) {
+                button->setEnabled(false);
+                return true;
+            }
+        }
+    }
+
+    return QObject::eventFilter(obj, event);
 }
