@@ -892,7 +892,7 @@ static void parseheader(void)
 	/* status */
 	snprintf(hf_status, BASE_BUFFER_SIZE, "hf_%s_rc", ifname);
 	snprintf(filter_name, BASE_BUFFER_SIZE, "%s.rc", ifname);
-	register_hf_field(hf_status, "Return code", filter_name, "FT_UINT32", "BASE_HEX", "VALS(NT_errors)", "0", "");
+	register_hf_field(hf_status, "Return code", filter_name, "FT_UINT32", "BASE_HEX|BASE_EXT_STRING", "&NT_errors_ext", "0", "");
 
 	FPRINTF(eth_ett, "static gint ett_%s;\n", ifname);
 	FPRINTF(eth_ettarr, "		 &ett_%s,\n", ifname);
@@ -1368,7 +1368,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("WERROR", dissectorname, "FT_UINT32", "BASE_DEC", "0", "VALS(NT_errors)", 4);
+			tmptype=register_new_type("WERROR", dissectorname, "FT_UINT32", "BASE_DEC|BASE_EXT_STRING", "0", "&WERR_errors_ext", 4);
 		}
 	}
 
