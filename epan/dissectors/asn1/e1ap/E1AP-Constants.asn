@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.8.0 (2024-03)
+-- 3GPP TS 37.483 V18.2.0 (2024-06)
 -- **************************************************************
 --
 -- Constant definitions
@@ -64,7 +64,7 @@ id-MCBearerContextSetup											ProcedureCode ::= 34
 id-MCBearerContextModification									ProcedureCode ::= 35
 id-MCBearerContextModificationRequired							ProcedureCode ::= 36
 id-MCBearerContextRelease										ProcedureCode ::= 37
-id-MCBearerContextReleaseRequest									ProcedureCode ::= 38
+id-MCBearerContextReleaseRequest								ProcedureCode ::= 38
 id-MCBearerNotification											ProcedureCode ::= 39
 
 
@@ -103,6 +103,9 @@ maxnoofMBSAreaSessionIDs					INTEGER ::= 256
 maxnoofSharedNG-UTerminations				INTEGER ::= 8
 maxnoofMRBs									INTEGER ::= 32
 maxnoofMBSSessionIDs						INTEGER ::= 512
+maxnoofCellsforMBS							INTEGER ::= 512
+maxnoofTAIforMBS							INTEGER ::= 512
+maxnoofMBSServiceAreaInformation			INTEGER ::= 256
 maxnoofDUs									INTEGER ::= 512
 
 
@@ -306,27 +309,33 @@ id-Secondary-PDU-Session-Data-Forwarding-Information			ProtocolIE-ID ::= 190
 id-MBSSessionResourceNotification								ProtocolIE-ID ::= 191
 id-MCBearerContextInactivityTimer								ProtocolIE-ID ::= 192
 id-MCBearerContextStatusChange									ProtocolIE-ID ::= 193
--- WS extension
-id-Unknown-194													ProtocolIE-ID ::= 194
-id-Unknown-195													ProtocolIE-ID ::= 195
-id-Unknown-196													ProtocolIE-ID ::= 196
-id-Unknown-197													ProtocolIE-ID ::= 197
-id-Unknown-198													ProtocolIE-ID ::= 198
-id-Unknown-199													ProtocolIE-ID ::= 199
-id-Unknown-200													ProtocolIE-ID ::= 200
-id-Unknown-201													ProtocolIE-ID ::= 201
-id-Unknown-202													ProtocolIE-ID ::= 202
-id-Unknown-203													ProtocolIE-ID ::= 203
-id-Unknown-204													ProtocolIE-ID ::= 204
-id-Unknown-205													ProtocolIE-ID ::= 205
-id-Unknown-206													ProtocolIE-ID ::= 206
-id-Unknown-207													ProtocolIE-ID ::= 207
+id-MT-SDT-Information 											ProtocolIE-ID ::= 194
+id-MT-SDT-Information-Request									ProtocolIE-ID ::= 195
+id-SDT-data-size-threshold										ProtocolIE-ID ::= 196
+id-SDT-data-size-threshold-Crossed								ProtocolIE-ID ::= 197
+id-SpecialTriggeringPurpose										ProtocolIE-ID ::= 198
+id-AssociatedSessionID											ProtocolIE-ID ::= 199
+id-MBS-ServiceArea												ProtocolIE-ID ::= 200
+id-PDUSetQoSParameters											ProtocolIE-ID ::= 201
+id-N6JitterInformation											ProtocolIE-ID ::= 202
+id-ECNMarkingorCongestionInformationReportingRequest			ProtocolIE-ID ::= 203
+id-ECNMarkingorCongestionInformationReportingStatus				ProtocolIE-ID ::= 204
+id-PDUSetbasedHandlingIndicator 								ProtocolIE-ID ::= 205
+id-IndirectPathIndication										ProtocolIE-ID ::= 206
+id-F1UTunnelNotEstablished										ProtocolIE-ID ::= 207
 id-F1U-TNL-InfoToAdd-List										ProtocolIE-ID ::= 208
 id-F1U-TNL-InfoAdded-List										ProtocolIE-ID ::= 209
 id-F1U-TNL-InfoToAddOrModify-List								ProtocolIE-ID ::= 210
 id-F1U-TNL-InfoAddedOrModified-List								ProtocolIE-ID ::= 211
 id-F1U-TNL-InfoToRelease-List									ProtocolIE-ID ::= 212
 id-BroadcastF1U-ContextReferenceE1								ProtocolIE-ID ::= 213
+id-PSIbasedDiscardTimer											ProtocolIE-ID ::= 214
+id-UserPlaneErrorIndicator										ProtocolIE-ID ::= 215
+id-MaximumDataBurstVolume 										ProtocolIE-ID ::= 216
+id-BCBearerContextNGU-TNLInfoatNGRAN-Request					ProtocolIE-ID ::= 217
+id-PDCPSNGapReport												ProtocolIE-ID ::= 218
+id-UserPlaneFailureIndication									ProtocolIE-ID ::= 219
+
 
 
 END

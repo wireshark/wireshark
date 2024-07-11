@@ -355,12 +355,32 @@ id-Secondary-PDU-Session-Data-Forwarding-Information ProtocolIE-ID
 id-MBSSessionResourceNotification                    ProtocolIE-ID
 id-MCBearerContextInactivityTimer                    ProtocolIE-ID
 id-MCBearerContextStatusChange                       ProtocolIE-ID
+id-MT-SDT-Information                                ProtocolIE-ID
+id-MT-SDT-Information-Request                        ProtocolIE-ID
+id-SDT-data-size-threshold                           ProtocolIE-ID
+id-SDT-data-size-threshold-Crossed                   ProtocolIE-ID
+id-SpecialTriggeringPurpose                          ProtocolIE-ID
+id-AssociatedSessionID                               ProtocolIE-ID
+id-MBS-ServiceArea                                   ProtocolIE-ID
+id-PDUSetQoSParameters                               ProtocolIE-ID
+id-N6JitterInformation                               ProtocolIE-ID
+id-ECNMarkingorCongestionInformationReportingRequest ProtocolIE-ID
+id-ECNMarkingorCongestionInformationReportingStatus  ProtocolIE-ID
+id-PDUSetbasedHandlingIndicator                      ProtocolIE-ID
+id-IndirectPathIndication                            ProtocolIE-ID
+id-F1UTunnelNotEstablished                           ProtocolIE-ID
 id-F1U-TNL-InfoToAdd-List                            ProtocolIE-ID
 id-F1U-TNL-InfoAdded-List                            ProtocolIE-ID
 id-F1U-TNL-InfoToAddOrModify-List                    ProtocolIE-ID
 id-F1U-TNL-InfoAddedOrModified-List                  ProtocolIE-ID
 id-F1U-TNL-InfoToRelease-List                        ProtocolIE-ID
 id-BroadcastF1U-ContextReferenceE1                   ProtocolIE-ID
+id-PSIbasedDiscardTimer                              ProtocolIE-ID
+id-UserPlaneErrorIndicator                           ProtocolIE-ID
+id-MaximumDataBurstVolume                            ProtocolIE-ID
+id-BCBearerContextNGU-TNLInfoatNGRAN-Request         ProtocolIE-ID
+id-PDCPSNGapReport                                   ProtocolIE-ID
+id-UserPlaneFailureIndication                        ProtocolIE-ID
 
 
 #.END
@@ -495,80 +515,100 @@ MDTPLMNModificationList                      N e1ap.ies id-ManagementBasedMDTPLM
 InactivityInformationRequest                 N e1ap.ies id-InactivityInformationRequest
 UEInactivityInformation                      N e1ap.ies id-UEInactivityInformation
 MBSSessionResourceNotification               N e1ap.ies id-MBSSessionResourceNotification
+MT-SDT-Information                           N e1ap.ies id-MT-SDT-Information
+MT-SDT-Information-Request                   N e1ap.ies id-MT-SDT-Information-Request
+SDT-data-size-threshold                      N e1ap.ies id-SDT-data-size-threshold
+SDT-data-size-threshold-Crossed              N e1ap.ies id-SDT-data-size-threshold-Crossed
+AssociatedSessionID                          N e1ap.ies id-AssociatedSessionID
+MBS-ServiceArea                              N e1ap.ies id-MBS-ServiceArea
 
 #E1AP-PROTOCOL-EXTENSION
-SNSSAI                                       N e1ap.extension id-SNSSAI
-QoS-Flow-List                                N e1ap.extension id-OldQoSFlowMap-ULendmarkerexpected
-QoSFlowLevelQoSParameters                    N e1ap.extension id-DRB-QoS
-CP-TNL-Information                           N e1ap.extension id-TNLAssociationTransportLayerAddressgNBCUUP
-CommonNetworkInstance                        N e1ap.extension id-CommonNetworkInstance
-NetworkInstance                              N e1ap.extension id-NetworkInstance
-QoS-Flow-Mapping-Indication                  N e1ap.extension id-QoSFlowMappingIndication
-QosMonitoringRequest                         N e1ap.extension id-QoSMonitoringRequest
-PDCP-StatusReportIndication                  N e1ap.extension id-PDCP-StatusReportIndication
-CommonNetworkInstance                        N e1ap.extension id-RedundantCommonNetworkInstance
-UP-TNL-Information                           N e1ap.extension id-redundant-nG-UL-UP-TNL-Information
-UP-TNL-Information                           N e1ap.extension id-redundant-nG-DL-UP-TNL-Information
-RedundantQoSFlowIndicator                    N e1ap.extension id-RedundantQosFlowIndicator
-TSCTrafficCharacteristics                    N e1ap.extension id-TSCTrafficCharacteristics
-ExtendedPacketDelayBudget                    N e1ap.extension id-CNPacketDelayBudgetDownlink
-ExtendedPacketDelayBudget                    N e1ap.extension id-CNPacketDelayBudgetUplink
-ExtendedPacketDelayBudget                    N e1ap.extension id-ExtendedPacketDelayBudget
-AdditionalPDCPduplicationInformation         N e1ap.extension id-AdditionalPDCPduplicationInformation
-RedundantPDUSessionInformation               N e1ap.extension id-RedundantPDUSessionInformation
-RedundantPDUSessionInformation               N e1ap.extension id-RedundantPDUSessionInformation-used
-QoS-Mapping-Information                      N e1ap.extension id-QoS-Mapping-Information
-NPNSupportInfo                               N e1ap.extension id-NPNSupportInfo
-MDT-Configuration                            N e1ap.extension id-MDTConfiguration
-URIaddress                                   N e1ap.extension id-TraceCollectionEntityURI
-EHC-Parameters                               N e1ap.extension id-EHC-Parameters
-DAPSRequestInfo                              N e1ap.extension id-DAPSRequestInfo
-EarlyForwardingCOUNTReq                      N e1ap.extension id-EarlyForwardingCOUNTReq
-EarlyForwardingCOUNTInfo                     N e1ap.extension id-EarlyForwardingCOUNTInfo
-AlternativeQoSParaSetList                    N e1ap.extension id-AlternativeQoSParaSetList
-ExtendedSliceSupportList                     N e1ap.extension id-ExtendedSliceSupportList
-GBR-QoSFlowInformation                       N e1ap.extension id-MCG-OfferedGBRQoSFlowInfo
-Number-of-tunnels                            N e1ap.extension id-Number-of-tunnels
-DataForwardingtoE-UTRANInformationList       N e1ap.extension id-DataForwardingtoE-UTRANInformationList
-QosMonitoringReportingFrequency              N e1ap.extension id-QosMonitoringReportingFrequency
-QosMonitoringDisabled                        N e1ap.extension id-QoSMonitoringDisabled
-Extended-NR-CGI-Support-List                 N e1ap.extension id-Extended-NR-CGI-Support-List
-DataForwardingtoNG-RANQoSFlowInformationList N e1ap.extension id-DataForwardingtoNG-RANQoSFlowInformationList
-MaxCIDEHCDL                                  N e1ap.extension id-MaxCIDEHCDL
-IgnoreMappingRuleIndication                  N e1ap.extension id-ignoreMappingRuleIndication
-EarlyDataForwardingIndicator                 N e1ap.extension id-EarlyDataForwardingIndicator
-QoS-Flows-DRB-Remapping                      N e1ap.extension id-QoSFlowsDRBRemapping
-TransportLayerAddress                        N e1ap.extension id-DataForwardingSourceIPAddress
-SecurityIndication                           N e1ap.extension id-SecurityIndicationModify
-ECGI-Support-List                            N e1ap.extension id-ECGI-Support-List
-M4ReportAmount                               N e1ap.extension id-M4ReportAmount
-M6ReportAmount                               N e1ap.extension id-M6ReportAmount
-M7ReportAmount                               N e1ap.extension id-M7ReportAmount
-PDUSession-PairID                            N e1ap.extension id-PDUSession-PairID
-SurvivalTime                                 N e1ap.extension id-SurvivalTime
-UDC-Parameters                               N e1ap.extension id-UDC-Parameters
-SecurityIndication                           N e1ap.extension id-SecurityIndication
-SecurityResult                               N e1ap.extension id-SecurityResult
-SDTindicatorSetup                            N e1ap.extension id-SDTindicatorSetup
-SDTindicatorMod                              N e1ap.extension id-SDTindicatorMod
-DiscardTimerExtended                         N e1ap.extension id-DiscardTimerExtended
-MCForwardingResourceRequest                  N e1ap.extension id-MCForwardingResourceRequest
-MCForwardingResourceIndication               N e1ap.extension id-MCForwardingResourceIndication
-MCForwardingResourceResponse                 N e1ap.extension id-MCForwardingResourceResponse
-MCForwardingResourceRelease                  N e1ap.extension id-MCForwardingResourceRelease
-MCForwardingResourceReleaseIndication        N e1ap.extension id-MCForwardingResourceReleaseIndication
-PDCP-COUNT-Reset                             N e1ap.extension id-PDCP-COUNT-Reset
-MBSSessionAssociatedInfoNonSupportToSupport  N e1ap.extension id-MBSSessionAssociatedInfoNonSupportToSupport
-VersionID                                    N e1ap.extension id-VersionID
-MBSAreaSessionID                             N e1ap.extension id-MBSAreaSessionID
-Data-Forwarding-Information                  N e1ap.extension id-Secondary-PDU-Session-Data-Forwarding-Information
-Inactivity-Timer                             N e1ap.extension id-MCBearerContextInactivityTimer
-MCBearerContextStatusChange                  N e1ap.extension id-MCBearerContextStatusChange
-F1U-TNL-InfoToAdd-List                       N e1ap.extension id-F1U-TNL-InfoToAdd-List
-F1U-TNL-InfoAdded-List                       N e1ap.extension id-F1U-TNL-InfoAdded-List
-F1U-TNL-InfoToAddOrModify-List               N e1ap.extension id-F1U-TNL-InfoToAddOrModify-List
-F1U-TNL-InfoAddedOrModified-List             N e1ap.extension id-F1U-TNL-InfoAddedOrModified-List
-F1U-TNL-InfoToRelease-List                   N e1ap.extension id-F1U-TNL-InfoToRelease-List
+SNSSAI                                            N e1ap.extension id-SNSSAI
+QoS-Flow-List                                     N e1ap.extension id-OldQoSFlowMap-ULendmarkerexpected
+QoSFlowLevelQoSParameters                         N e1ap.extension id-DRB-QoS
+CP-TNL-Information                                N e1ap.extension id-TNLAssociationTransportLayerAddressgNBCUUP
+CommonNetworkInstance                             N e1ap.extension id-CommonNetworkInstance
+NetworkInstance                                   N e1ap.extension id-NetworkInstance
+QoS-Flow-Mapping-Indication                       N e1ap.extension id-QoSFlowMappingIndication
+QosMonitoringRequest                              N e1ap.extension id-QoSMonitoringRequest
+PDCP-StatusReportIndication                       N e1ap.extension id-PDCP-StatusReportIndication
+CommonNetworkInstance                             N e1ap.extension id-RedundantCommonNetworkInstance
+UP-TNL-Information                                N e1ap.extension id-redundant-nG-UL-UP-TNL-Information
+UP-TNL-Information                                N e1ap.extension id-redundant-nG-DL-UP-TNL-Information
+RedundantQoSFlowIndicator                         N e1ap.extension id-RedundantQosFlowIndicator
+TSCTrafficCharacteristics                         N e1ap.extension id-TSCTrafficCharacteristics
+ExtendedPacketDelayBudget                         N e1ap.extension id-CNPacketDelayBudgetDownlink
+ExtendedPacketDelayBudget                         N e1ap.extension id-CNPacketDelayBudgetUplink
+ExtendedPacketDelayBudget                         N e1ap.extension id-ExtendedPacketDelayBudget
+AdditionalPDCPduplicationInformation              N e1ap.extension id-AdditionalPDCPduplicationInformation
+RedundantPDUSessionInformation                    N e1ap.extension id-RedundantPDUSessionInformation
+RedundantPDUSessionInformation                    N e1ap.extension id-RedundantPDUSessionInformation-used
+QoS-Mapping-Information                           N e1ap.extension id-QoS-Mapping-Information
+NPNSupportInfo                                    N e1ap.extension id-NPNSupportInfo
+MDT-Configuration                                 N e1ap.extension id-MDTConfiguration
+URIaddress                                        N e1ap.extension id-TraceCollectionEntityURI
+EHC-Parameters                                    N e1ap.extension id-EHC-Parameters
+DAPSRequestInfo                                   N e1ap.extension id-DAPSRequestInfo
+EarlyForwardingCOUNTReq                           N e1ap.extension id-EarlyForwardingCOUNTReq
+EarlyForwardingCOUNTInfo                          N e1ap.extension id-EarlyForwardingCOUNTInfo
+AlternativeQoSParaSetList                         N e1ap.extension id-AlternativeQoSParaSetList
+ExtendedSliceSupportList                          N e1ap.extension id-ExtendedSliceSupportList
+GBR-QoSFlowInformation                            N e1ap.extension id-MCG-OfferedGBRQoSFlowInfo
+Number-of-tunnels                                 N e1ap.extension id-Number-of-tunnels
+DataForwardingtoE-UTRANInformationList            N e1ap.extension id-DataForwardingtoE-UTRANInformationList
+QosMonitoringReportingFrequency                   N e1ap.extension id-QosMonitoringReportingFrequency
+QosMonitoringDisabled                             N e1ap.extension id-QoSMonitoringDisabled
+Extended-NR-CGI-Support-List                      N e1ap.extension id-Extended-NR-CGI-Support-List
+DataForwardingtoNG-RANQoSFlowInformationList      N e1ap.extension id-DataForwardingtoNG-RANQoSFlowInformationList
+MaxCIDEHCDL                                       N e1ap.extension id-MaxCIDEHCDL
+IgnoreMappingRuleIndication                       N e1ap.extension id-ignoreMappingRuleIndication
+EarlyDataForwardingIndicator                      N e1ap.extension id-EarlyDataForwardingIndicator
+QoS-Flows-DRB-Remapping                           N e1ap.extension id-QoSFlowsDRBRemapping
+TransportLayerAddress                             N e1ap.extension id-DataForwardingSourceIPAddress
+SecurityIndication                                N e1ap.extension id-SecurityIndicationModify
+ECGI-Support-List                                 N e1ap.extension id-ECGI-Support-List
+M4ReportAmount                                    N e1ap.extension id-M4ReportAmount
+M6ReportAmount                                    N e1ap.extension id-M6ReportAmount
+M7ReportAmount                                    N e1ap.extension id-M7ReportAmount
+PDUSession-PairID                                 N e1ap.extension id-PDUSession-PairID
+SurvivalTime                                      N e1ap.extension id-SurvivalTime
+UDC-Parameters                                    N e1ap.extension id-UDC-Parameters
+SecurityIndication                                N e1ap.extension id-SecurityIndication
+SecurityResult                                    N e1ap.extension id-SecurityResult
+SDTindicatorSetup                                 N e1ap.extension id-SDTindicatorSetup
+SDTindicatorMod                                   N e1ap.extension id-SDTindicatorMod
+DiscardTimerExtended                              N e1ap.extension id-DiscardTimerExtended
+MCForwardingResourceRequest                       N e1ap.extension id-MCForwardingResourceRequest
+MCForwardingResourceIndication                    N e1ap.extension id-MCForwardingResourceIndication
+MCForwardingResourceResponse                      N e1ap.extension id-MCForwardingResourceResponse
+MCForwardingResourceRelease                       N e1ap.extension id-MCForwardingResourceRelease
+MCForwardingResourceReleaseIndication             N e1ap.extension id-MCForwardingResourceReleaseIndication
+PDCP-COUNT-Reset                                  N e1ap.extension id-PDCP-COUNT-Reset
+MBSSessionAssociatedInfoNonSupportToSupport       N e1ap.extension id-MBSSessionAssociatedInfoNonSupportToSupport
+VersionID                                         N e1ap.extension id-VersionID
+MBSAreaSessionID                                  N e1ap.extension id-MBSAreaSessionID
+Data-Forwarding-Information                       N e1ap.extension id-Secondary-PDU-Session-Data-Forwarding-Information
+Inactivity-Timer                                  N e1ap.extension id-MCBearerContextInactivityTimer
+MCBearerContextStatusChange                       N e1ap.extension id-MCBearerContextStatusChange
+SpecialTriggeringPurpose                          N e1ap.extension id-SpecialTriggeringPurpose
+PDUSetQoSParameters                               N e1ap.extension id-PDUSetQoSParameters
+N6JitterInformation                               N e1ap.extension id-N6JitterInformation
+ECNMarkingorCongestionInformationReportingRequest N e1ap.extension id-ECNMarkingorCongestionInformationReportingRequest
+ECNMarkingorCongestionInformationReportingStatus  N e1ap.extension id-ECNMarkingorCongestionInformationReportingStatus
+PDUSetbasedHandlingIndicator                      N e1ap.extension id-PDUSetbasedHandlingIndicator
+IndirectPathIndication                            N e1ap.extension id-IndirectPathIndication
+F1UTunnelNotEstablished                           N e1ap.extension id-F1UTunnelNotEstablished
+F1U-TNL-InfoToAdd-List                            N e1ap.extension id-F1U-TNL-InfoToAdd-List
+F1U-TNL-InfoAdded-List                            N e1ap.extension id-F1U-TNL-InfoAdded-List
+F1U-TNL-InfoToAddOrModify-List                    N e1ap.extension id-F1U-TNL-InfoToAddOrModify-List
+F1U-TNL-InfoAddedOrModified-List                  N e1ap.extension id-F1U-TNL-InfoAddedOrModified-List
+F1U-TNL-InfoToRelease-List                        N e1ap.extension id-F1U-TNL-InfoToRelease-List
+PSIbasedDiscardTimer                              N e1ap.extension id-PSIbasedDiscardTimer
+UserPlaneErrorIndicator                           N e1ap.extension id-UserPlaneErrorIndicator
+MaxDataBurstVolume                                N e1ap.extension id-MaximumDataBurstVolume
+BCBearerContextNGU-TNLInfoatNGRAN-Request         N e1ap.extension id-BCBearerContextNGU-TNLInfoatNGRAN-Request
+PDCPSNGapReport                                   N e1ap.extension id-PDCPSNGapReport
+UserPlaneFailureIndication                        N e1ap.extension id-UserPlaneFailureIndication
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -876,6 +916,18 @@ SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
 
 #.TYPE_ATTR
 UEInactivityInformation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+MT-SDT-Data-Size DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+
+#.TYPE_ATTR
+N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_N6Jitter_fmt)
+
+#.TYPE_ATTR
+N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_N6Jitter_fmt)
+
+#.TYPE_ATTR
+SDT-data-size-threshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
 
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");

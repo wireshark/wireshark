@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.8.0 (2024-03)
+-- 3GPP TS 37.483 V18.2.0 (2024-06)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -21,6 +21,7 @@ BEGIN
 
 IMPORTS
 
+	AssociatedSessionID,
 	Cause,
 	CriticalityDiagnostics,
 	GNB-CU-CP-MBS-E1AP-ID,
@@ -55,7 +56,6 @@ IMPORTS
 	DRB-To-Setup-Mod-List-EUTRAN,
 	DRB-Setup-Mod-List-EUTRAN,
 	DRB-Failed-Mod-List-EUTRAN,
-	ExtendedSliceSupportList,
 	PDU-Session-Resource-To-Setup-List,
 	PDU-Session-Resource-Setup-List,
 	PDU-Session-Resource-Failed-List,
@@ -137,12 +137,18 @@ IMPORTS
 	MCBearerContextToModifyRequired,
 	MCBearerContextToModifyConfirm,
 	MBSMulticastF1UContextDescriptor,
+	MBS-ServiceArea,
 	GNB-CU-UP-MBS-Support-Info,
 	SDTContinueROHC,
 	MDTPLMNModificationList,
 	InactivityInformationRequest,
 	UEInactivityInformation,
-	MBSSessionResourceNotification
+	MBSSessionResourceNotification,
+	MT-SDT-Information,
+	MT-SDT-Information-Request,
+	SDT-data-size-threshold,
+	SDT-data-size-threshold-Crossed
+
 
 
 FROM E1AP-IEs
@@ -159,6 +165,7 @@ FROM E1AP-IEs
 
 FROM E1AP-Containers
 
+	id-AssociatedSessionID,
 	id-Cause,
 	id-CriticalityDiagnostics,
 	id-gNB-CU-CP-UE-E1AP-ID,
@@ -285,9 +292,14 @@ FROM E1AP-Containers
 	id-gNB-CU-UP-MBS-Support-Info,
 	id-SDTContinueROHC,
 	id-ManagementBasedMDTPLMNModificationList,
+	id-MBS-ServiceArea,
 	id-InactivityInformationRequest,
 	id-UEInactivityInformation,
 	id-MBSSessionResourceNotification,
+	id-MT-SDT-Information,
+	id-MT-SDT-Information-Request,
+	id-SDT-data-size-threshold,
+	id-SDT-data-size-threshold-Crossed,
 	maxnoofErrors,
 	maxnoofSPLMNs,
 	maxnoofDRBs,
@@ -772,7 +784,9 @@ BearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UP-UE-E1AP-ID				CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE optional }|
 	{ ID id-MDTPollutedMeasurementIndicator		CRITICALITY ignore	TYPE MDTPollutedMeasurementIndicator			PRESENCE optional }|
 	{ ID id-UESliceMaximumBitRateList			CRITICALITY ignore	TYPE UESliceMaximumBitRateList				   PRESENCE optional }|
-	{ ID id-SCGActivationStatus					CRITICALITY ignore	TYPE SCGActivationStatus							PRESENCE optional },
+	{ ID id-SCGActivationStatus					CRITICALITY ignore	TYPE SCGActivationStatus							PRESENCE optional }|
+	{ ID id-MT-SDT-Information-Request			CRITICALITY ignore	TYPE MT-SDT-Information-Request				   PRESENCE optional }|
+	{ ID id-SDT-data-size-threshold				CRITICALITY ignore	TYPE SDT-data-size-threshold				PRESENCE optional },
 	...
 }
 
@@ -898,7 +912,9 @@ BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-SCGActivationStatus							CRITICALITY ignore	TYPE SCGActivationStatus					PRESENCE optional }|
 	{ ID id-SDTContinueROHC								CRITICALITY reject	TYPE SDTContinueROHC										PRESENCE optional }|
 	{ ID id-ManagementBasedMDTPLMNModificationList			CRITICALITY	ignore	TYPE MDTPLMNModificationList 							PRESENCE optional}|
-	{ ID id-InactivityInformationRequest			CRITICALITY ignore	TYPE InactivityInformationRequest						PRESENCE optional},
+	{ ID id-InactivityInformationRequest			CRITICALITY ignore	TYPE InactivityInformationRequest						PRESENCE optional}|
+	{ ID id-MT-SDT-Information-Request					CRITICALITY ignore	TYPE MT-SDT-Information-Request				PRESENCE optional }|
+	{ ID id-SDT-data-size-threshold						CRITICALITY ignore	TYPE SDT-data-size-threshold					PRESENCE optional },
 	...
 }
 
@@ -1204,7 +1220,9 @@ DLDataNotificationIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
 	{ ID id-PPI								CRITICALITY ignore	TYPE PPI							PRESENCE optional }|
-	{ ID id-PDU-Session-To-Notify-List		CRITICALITY ignore	TYPE PDU-Session-To-Notify-List		PRESENCE optional },
+	{ ID id-PDU-Session-To-Notify-List		CRITICALITY ignore	TYPE PDU-Session-To-Notify-List		PRESENCE optional }|
+	{ ID id-MT-SDT-Information				CRITICALITY ignore	TYPE MT-SDT-Information					PRESENCE optional }|
+	{ ID id-SDT-data-size-threshold-Crossed	CRITICALITY ignore	TYPE SDT-data-size-threshold-Crossed		PRESENCE optional },
 	...
 }
 
@@ -1212,7 +1230,7 @@ DLDataNotificationIEs E1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- UL Data Notification
+-- UL DATA NOTIFICATION
 --
 -- **************************************************************
 
@@ -1409,8 +1427,8 @@ DeactivateTraceIEs E1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 CellTrafficTrace ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
-...
+	protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
+	...
 }
 
 CellTrafficTraceIEs E1AP-PROTOCOL-IES ::= {
@@ -1419,7 +1437,7 @@ CellTrafficTraceIEs E1AP-PROTOCOL-IES ::= {
 	{ID id-TraceID					           CRITICALITY ignore	TYPE TraceID			            PRESENCE mandatory}|
 	{ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress		   PRESENCE mandatory	}|
 	{ID id-PrivacyIndicator					CRITICALITY ignore	TYPE PrivacyIndicator			        PRESENCE optional}|
-{ID id-URIaddress	                     CRITICALITY ignore	    TYPE URIaddress		            PRESENCE optional},
+	{ID id-URIaddress	                     CRITICALITY ignore	    TYPE URIaddress		            PRESENCE optional},
 	...
 }
 
@@ -1461,8 +1479,10 @@ ResourceStatusRequestIEs E1AP-PROTOCOL-IES ::= {
 -- WS modification: define a specific type
 --		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE optional}|
 		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE optional}|
+-- This IE shall be present if the Registration Request IE is set to the value “stop” --
 		{ ID id-RegistrationRequest				CRITICALITY reject		TYPE RegistrationRequest			PRESENCE mandatory}|
-		{ ID id-ReportCharacteristics			CRITICALITY reject		TYPE ReportCharacteristics		PRESENCE conditional}|
+		{ ID id-ReportCharacteristics			CRITICALITY reject		TYPE ReportCharacteristics		PRESENCE conditional}
+-- This IE shall be present if the Registration Request IE is set to the value "start". --|
 		{ ID id-ReportingPeriodicity			CRITICALITY ignore		TYPE ReportingPeriodicity			PRESENCE optional},
 	...
 }
@@ -1674,7 +1694,9 @@ BCBearerContextSetupRequest ::= SEQUENCE {
 BCBearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
 	{ ID id-GlobalMBSSessionID				CRITICALITY reject	TYPE 	GlobalMBSSessionID					PRESENCE mandatory	}|
-	{ ID id-BCBearerContextToSetup			CRITICALITY reject	TYPE 	BCBearerContextToSetup				PRESENCE mandatory	},
+	{ ID id-BCBearerContextToSetup			CRITICALITY reject	TYPE 	BCBearerContextToSetup				PRESENCE mandatory	}|
+	{ ID id-AssociatedSessionID				CRITICALITY ignore	TYPE 	AssociatedSessionID					PRESENCE optional	}|
+	{ ID id-MBS-ServiceArea					CRITICALITY ignore	TYPE 	MBS-ServiceArea						PRESENCE optional	},
 	...
 }
 

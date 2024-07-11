@@ -265,7 +265,7 @@ xnap_AveragePacketDelayValue_fmt(char *s, uint32_t v)
 static void
 xnap_N6Jitter_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%d)", (float)v/2, (int32_t)v);
 }
 
 typedef enum {
