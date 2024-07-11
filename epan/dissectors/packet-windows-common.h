@@ -2658,10 +2658,6 @@
     XXX( WERR_AMBIGUOUS_SYSTEM_DEVICE                      , 15250     ) /* 0x00003b92 */ \
     XXX( WERR_SYSTEM_DEVICE_NOT_FOUND                      , 15299     ) /* 0x00003bc3 */
 
-#if 0  /* WERR_... symbols not referenced within Wireshark */
-VALUE_STRING_ENUM2(WERR_errors);
-#endif
-VALUE_STRING_ARRAY2_GLOBAL_DCL(WERR_errors);  /* XXX: Remove once all PIDL generated dissectors ref WERR_errors_ext */
 extern value_string_ext WERR_errors_ext;
 
 /* Win32 errors.
@@ -5599,10 +5595,6 @@ extern value_string_ext WERR_errors_ext;
    XXX( HRES_ERROR_GRAPHICS_MCA_UNSUPPORTED_COLOR_TEMPERATURE, 3223725535U) /* 0xc02625df */ \
    XXX( HRES_ERROR_GRAPHICS_ONLY_CONSOLE_SESSION_SUPPORTED, 3223725536U) /* 0xc02625e0 */ \
 
-#if 0  /* HRES_... symbols not referenced within Wireshark */
-VALUE_STRING_ENUM2(HRES_errors);
-#endif
-VALUE_STRING_ARRAY2_GLOBAL_DCL(HRES_errors);  /* XXX: Remove once all PIDL generated dissectors ref HRES_errors_ext */
 extern value_string_ext HRES_errors_ext;
 
 
@@ -5700,7 +5692,6 @@ extern value_string_ext DOS_errors_ext;
 /*
  * NT error codes used by other dissectors.
  */
-extern const value_string NT_errors[]; /* XXX: Remove once all PIDL generated dissectors ref NT_errors_ext */
 extern value_string_ext NT_errors_ext;
 
 extern value_string_ext ms_country_codes_ext;

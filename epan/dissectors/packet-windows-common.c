@@ -212,16 +212,14 @@ static expert_field ei_nt_item_offs_out_of_range;
 
 /* WERR error codes */
 
-VALUE_STRING_ARRAY2_GLOBAL_DEF(WERR_errors); /* XXX: Remove GLOBAL_DEF once all PIDL generated dissectors
-						     ref WERR_errors_ext */
+VALUE_STRING_ARRAY2(WERR_errors);
 value_string_ext WERR_errors_ext = VALUE_STRING_EXT_INIT(WERR_errors);
 
 /*
  * HRES error codes.
  */
 
-VALUE_STRING_ARRAY2_GLOBAL_DEF(HRES_errors); /* XXX: Remove GLOBAL_DEF once all PIDL generated dissectors
-						     ref HRES_errors_ext */
+VALUE_STRING_ARRAY2(HRES_errors);
 value_string_ext HRES_errors_ext = VALUE_STRING_EXT_INIT(HRES_errors);
 
 
@@ -243,7 +241,7 @@ value_string_ext DOS_errors_ext = VALUE_STRING_EXT_INIT(DOS_errors);
  *
  *	https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
  */
-const value_string NT_errors[] = {
+static const value_string NT_errors[] = {
 	{ 0x00000000, "STATUS_SUCCESS" },
 	/*{ 0x00000000, "STATUS_WAIT_0" }, */
 	{ 0x00000001, "STATUS_WAIT_1" },
