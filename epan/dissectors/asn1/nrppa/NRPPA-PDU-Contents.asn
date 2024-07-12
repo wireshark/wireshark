@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.6.0 (2023-12)
+-- 3GPP TS 38.455 V18.2.0 (2024-06)
 --9.3.4	PDU Definitions
 --
 -- **************************************************************
@@ -79,7 +79,17 @@ IMPORTS
 	RequestType,
 	UE-TEG-ReportingPeriodicity,
 	MeasurementPeriodicityNR-AoA,
-	SRSTransmissionStatus
+	SRSTransmissionStatus,
+	CGI-NR,
+	TimeWindowInformation-SRS-List,
+	TimeWindowInformation-Measurement-List,
+	PosValidityAreaCellList,
+	SRSReservationType,
+	RequestedSRSPreconfigurationCharacteristics-List,
+	SRSPreconfiguration-List,
+	PosSRSResourceSet-Aggregation-List
+
+
 
 
 FROM NRPPA-IEs
@@ -158,7 +168,18 @@ FROM NRPPA-Containers
 	id-RequestType,
 	id-UE-TEG-ReportingPeriodicity,
 	id-MeasurementPeriodicityNR-AoA,
-	id-SRSTransmissionStatus
+	id-SRSTransmissionStatus,
+	id-NewNRCGI,
+	id-TimeWindowInformation-SRS-List,
+	id-TimeWindowInformation-Measurement-List,
+	id-PosValidityAreaCellList,
+	id-SRSReservationType,
+	id-NewCellIdentity,
+	id-RequestedSRSPreconfigurationCharacteristics-List,
+	id-SRSPreconfiguration-List,
+	id-SRSInformation,
+	id-PosSRSResourceSet-Aggregation-List
+
 
 
 
@@ -180,12 +201,12 @@ E-CIDMeasurementInitiationRequest-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-LMF-UE-Measurement-ID			CRITICALITY reject	TYPE UE-Measurement-ID					PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics				PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity				PRESENCE conditional}|
--- The IE shall be present if the Report Characteritics IE is set to “periodic” --
+-- The IE shall be present if the Report Characteritics IE is set to the value “periodic” --
 	{ ID id-MeasurementQuantities			CRITICALITY reject	TYPE MeasurementQuantities				PRESENCE mandatory}|
 	{ ID id-OtherRATMeasurementQuantities	CRITICALITY ignore	TYPE OtherRATMeasurementQuantities		PRESENCE optional}|
 	{ ID id-WLANMeasurementQuantities		CRITICALITY ignore	TYPE WLANMeasurementQuantities			PRESENCE optional}|
 	{ ID id-MeasurementPeriodicityNR-AoA	CRITICALITY reject	TYPE MeasurementPeriodicityNR-AoA		PRESENCE conditional},
--- The IE shall be present if the Report Characteritics IE is set to “periodic” and the MeasurementQuantities-Item IE in the MeasurementQuantities IE is set to the value "angleOfArrivalNR" --
+-- The IE shall be present if the Report Characteritics IE is set to the value “periodic” and the Measurement Quantities Value IE in the Measurement Quantities IE is set to the value "NR Angle of Arrival" --
 	...
 }
 
@@ -271,7 +292,7 @@ E-CIDMeasurementReport-IEs NRPPA-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- E-CID MEASUREMENT TERMINATION
+-- E-CID MEASUREMENT TERMINATION COMMAND
 --
 -- **************************************************************
 
@@ -440,8 +461,10 @@ PositioningInformationRequest-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-RequestedSRSTransmissionCharacteristics	CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional	}|
 	{ ID id-UEReportingInformation					CRITICALITY ignore	TYPE UEReportingInformation							PRESENCE optional	}|
 	{ ID id-UE-TEG-Info-Request						CRITICALITY ignore	TYPE UE-TEG-Info-Request								PRESENCE optional	}|
-	{ ID id-UE-TEG-ReportingPeriodicity				CRITICALITY reject	TYPE UE-TEG-ReportingPeriodicity					PRESENCE conditional	},
--- The IE shall be present if the UE TEG Info Request IE is set to “periodic”
+	{ ID id-UE-TEG-ReportingPeriodicity				CRITICALITY reject	TYPE UE-TEG-ReportingPeriodicity					PRESENCE conditional	}|
+-- This IE shall be present if the UE TEG Information Request IE is set to the value "periodic".
+	{ ID id-TimeWindowInformation-SRS-List			CRITICALITY reject	TYPE TimeWindowInformation-SRS-List				PRESENCE optional	}|
+	{ ID id-RequestedSRSPreconfigurationCharacteristics-List	CRITICALITY ignore	TYPE RequestedSRSPreconfigurationCharacteristics-List				PRESENCE optional	},
 	...
 }
 
@@ -457,10 +480,13 @@ PositioningInformationResponse ::= SEQUENCE {
 }
 
 PositioningInformationResponse-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
+	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration				PRESENCE optional}|
 	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
-	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional},
+	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional}|
+	{ ID id-NewNRCGI					CRITICALITY ignore	TYPE CGI-NR							PRESENCE optional}|
+	{ ID id-PosValidityAreaCellList		CRITICALITY ignore	TYPE PosValidityAreaCellList	PRESENCE optional}|
+	{ ID id-SRSPreconfiguration-List	CRITICALITY ignore	TYPE SRSPreconfiguration-List	PRESENCE optional},
 	...
 }
 
@@ -496,7 +522,8 @@ PositioningInformationUpdate-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
 	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
 	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional}|
-	{ ID id-SRSTransmissionStatus		CRITICALITY ignore	TYPE SRSTransmissionStatus	PRESENCE optional},
+	{ ID id-SRSTransmissionStatus		CRITICALITY ignore	TYPE SRSTransmissionStatus	PRESENCE optional}|
+	{ ID id-NewCellIdentity				CRITICALITY ignore	TYPE CGI-NR						PRESENCE optional},
 	...
 }
 
@@ -516,7 +543,7 @@ MeasurementRequest-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-TRP-MeasurementRequestList		CRITICALITY reject	TYPE TRP-MeasurementRequestList	PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics		PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity		PRESENCE conditional}|
--- The IE shall be present if the Report Characteritics IE is set to “periodic” –
+-- The IE shall be present if the Report Characteritics IE is set to the value “periodic” –
 	{ ID id-TRPMeasurementQuantities		CRITICALITY reject	TYPE TRPMeasurementQuantities	PRESENCE mandatory}|
 	{ ID id-SFNInitialisationTime			CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
 	{ ID id-SRSConfiguration				CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
@@ -528,7 +555,8 @@ MeasurementRequest-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-ResponseTime					CRITICALITY ignore	TYPE ResponseTime				PRESENCE optional}|
 	{ ID id-MeasurementCharacteristicsRequestIndicator			CRITICALITY ignore	TYPE MeasurementCharacteristicsRequestIndicator	PRESENCE optional}|
 	{ ID id-MeasurementTimeOccasion			CRITICALITY ignore	TYPE MeasurementTimeOccasion	PRESENCE optional}|
-	{ ID id-MeasurementAmount				CRITICALITY ignore	TYPE MeasurementAmount			PRESENCE optional},
+	{ ID id-MeasurementAmount				CRITICALITY ignore	TYPE MeasurementAmount			PRESENCE optional}|
+	{ ID id-TimeWindowInformation-Measurement-List	CRITICALITY ignore	TYPE TimeWindowInformation-Measurement-List			PRESENCE optional	},
 	...
 }
 
@@ -711,7 +739,8 @@ PositioningActivationRequest ::= SEQUENCE {
 
 PositioningActivationRequestIEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSType					CRITICALITY reject	TYPE SRSType					PRESENCE mandatory	} |
-	{ ID id-ActivationTime			CRITICALITY ignore	TYPE RelativeTime1900				PRESENCE optional	},
+	{ ID id-ActivationTime			CRITICALITY ignore	TYPE RelativeTime1900				PRESENCE optional	}|
+	{ ID id-PosSRSResourceSet-Aggregation-List	CRITICALITY ignore TYPE PosSRSResourceSet-Aggregation-List		PRESENCE optional },
 	...
 }
 
@@ -922,6 +951,24 @@ MeasurementActivation-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-PRS-Measurements-Info-List	CRITICALITY ignore	TYPE PRS-Measurements-Info-List		PRESENCE optional},
 	...
 }
+
+-- **************************************************************
+--
+-- SRS INFORMATION RESERVATION NOTIFICATION
+--
+-- **************************************************************
+
+SRSInformationReservationNotification	::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ SRSInformationReservationNotification-IEs}},
+	...
+}
+
+SRSInformationReservationNotification-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-SRSReservationType	CRITICALITY ignore	TYPE SRSReservationType								PRESENCE mandatory}|
+	{ ID id-SRSInformation		CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics		PRESENCE optional },
+	...
+}
+
 
 
 END

@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.6.0 (2023-12)
+-- 3GPP TS 38.455 V18.2.0 (2024-06)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -48,6 +48,8 @@ id-positioningDeactivation										ProcedureCode ::= 18
 id-pRSConfigurationExchange										ProcedureCode ::= 19
 id-measurementPreconfiguration									ProcedureCode ::= 20
 id-measurementActivation										ProcedureCode ::= 21
+id-sRSInformationReservationNotification						ProcedureCode ::= 22
+
 
 -- **************************************************************
 --
@@ -106,6 +108,16 @@ maxNumResourcesPerAngle						INTEGER ::= 24
 maxnoAzimuthAngles							INTEGER ::= 3600
 maxnoElevationAngles						INTEGER ::= 1801
 maxnoPRSTRPs								INTEGER ::= 256
+maxnoVACell									INTEGER ::= 32
+maxnoaggregatedPosSRS-Resources				INTEGER ::= 3
+maxnoaggregatedPosSRS-ResourceSets			INTEGER ::= 48
+maxnoAggPosPRSResourceSets					INTEGER ::= 3
+maxnoofTimeWindowSRS						INTEGER ::= 16
+maxnoofTimeWindowMeas						INTEGER ::= 16
+maxnoPreconfiguredSRS						INTEGER ::= 16
+maxnoofHopsMinusOne							INTEGER ::= 5
+maxnoAggCombinations						INTEGER ::= 2
+
 
 
 
@@ -225,6 +237,54 @@ id-repetitionFactorExtended										ProtocolIE-ID ::= 108
 id-StartRBHopping												ProtocolIE-ID ::= 109
 id-StartRBIndex													ProtocolIE-ID ::= 110
 id-transmissionCombn8											ProtocolIE-ID ::= 111
+id-ExtendedResourceSymbolOffset									ProtocolIE-ID ::= 112
+id-NewNRCGI														ProtocolIE-ID ::= 113
+id-Mobile-TRP-LocationInformation								ProtocolIE-ID ::= 114
+id-Mobile-IAB-MT-UE-ID											ProtocolIE-ID ::= 115
+id-MobileAccessPointLocation									ProtocolIE-ID ::= 116
+id-CommonTAParameters											ProtocolIE-ID ::= 117
+id-UE-Rx-Tx-Time-Diff											ProtocolIE-ID ::= 118
+id-SCS-480														ProtocolIE-ID ::= 119
+id-SCS-960														ProtocolIE-ID ::= 120
+id-Bandwidth-Aggregation-Request-Indication						ProtocolIE-ID ::= 121
+id-PosSRSResourceSet-Aggregation-List							ProtocolIE-ID ::= 122
+id-TimingReportingGranularityFactorExtended						ProtocolIE-ID ::= 123
+id-TimeWindowInformation-SRS-List								ProtocolIE-ID ::= 124
+id-TimeWindowInformation-Measurement-List						ProtocolIE-ID ::= 125
+id-UL-RSCPMeas													ProtocolIE-ID ::= 126
+id-SymbolIndex													ProtocolIE-ID ::= 127
+id-PosValidityAreaCellList 										ProtocolIE-ID ::= 128
+id-SRSReservationType											ProtocolIE-ID ::= 129
+id-PRSBWAggregationRequestIndication							ProtocolIE-ID ::= 130
+id-AggregatedPosSRSResourceID-List								ProtocolIE-ID ::= 131
+id-AggregatedPRSResourceSetList									ProtocolIE-ID ::= 132
+id-TRPPhaseQuality												ProtocolIE-ID ::= 133
+id-NewCellIdentity												ProtocolIE-ID ::= 134
+id-ValidityAreaSpecificSRSInformation							ProtocolIE-ID ::= 135
+id-RequestedSRSPreconfigurationCharacteristics-List				ProtocolIE-ID ::= 136
+id-SRSPreconfiguration-List										ProtocolIE-ID ::= 137
+id-SRSInformation												ProtocolIE-ID ::= 138
+id-TxHoppingConfiguration										ProtocolIE-ID ::= 139
+id-MeasuredFrequencyHops										ProtocolIE-ID ::= 140
+id-ReportingGranularitykminus1									ProtocolIE-ID ::= 141
+id-ReportingGranularitykminus2									ProtocolIE-ID ::= 142
+id-ReportingGranularitykminus3									ProtocolIE-ID ::= 143
+id-ReportingGranularitykminus4									ProtocolIE-ID ::= 144
+id-ReportingGranularitykminus5									ProtocolIE-ID ::= 145
+id-ReportingGranularitykminus6									ProtocolIE-ID ::= 146
+id-ReportingGranularitykminus1AdditionalPath					ProtocolIE-ID ::= 147
+id-ReportingGranularitykminus2AdditionalPath					ProtocolIE-ID ::= 148
+id-ReportingGranularitykminus3AdditionalPath					ProtocolIE-ID ::= 149
+id-ReportingGranularitykminus4AdditionalPath					ProtocolIE-ID ::= 150
+id-ReportingGranularitykminus5AdditionalPath					ProtocolIE-ID ::= 151
+id-ReportingGranularitykminus6AdditionalPath					ProtocolIE-ID ::= 152
+id-MeasuredResultsAssociatedInfoList							ProtocolIE-ID ::= 153
+id-PointA														ProtocolIE-ID ::= 154
+id-NR-PCI														ProtocolIE-ID ::= 155
+id-SCS-SpecificCarrier											ProtocolIE-ID ::= 156
+id-MeasBasedOnAggregatedResources								ProtocolIE-ID ::= 157
+
+
 
 
 
