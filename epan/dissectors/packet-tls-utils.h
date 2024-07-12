@@ -206,6 +206,8 @@ typedef enum {
 #define SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT05            0x0f739bbc1b666d05 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-05 */
 #define SSL_HND_QUIC_TP_ENABLE_MULTIPATH                    0x0f739bbc1b666d06 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-06 */
 #define SSL_HND_QUIC_TP_INITIAL_MAX_PATHS                   0x0f739bbc1b666d07 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-07 */
+#define SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID                 0x0f739bbc1b666d09 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-09 */
+
 /*
  * Lookup tables
  */
@@ -1085,6 +1087,7 @@ typedef struct ssl_common_dissect {
         int hs_ext_quictp_parameter_other_version;
         int hs_ext_quictp_parameter_enable_multipath;
         int hs_ext_quictp_parameter_initial_max_paths;
+        int hs_ext_quictp_parameter_initial_max_path_id;
 
         int esni_suite;
         int esni_record_digest_length;
@@ -2513,6 +2516,11 @@ ssl_common_dissect_t name;
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_initial_max_paths,             \
       { "Initial Max Paths", prefix ".quic.parameter.initial_max_paths", \
+        FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_path_id,           \
+      { "Initial Max Path ID", prefix ".quic.parameter.initial_max_path_id", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
