@@ -69,6 +69,8 @@ GNSS-EarthOrientationParameters
 GNSS-Integrity-ServiceAlert-r17
 GNSS-Integrity-ServiceParameters-r17
 GNSS-IonosphericModel
+GNSS-LOS-NLOS-GriddedIndications-r18
+GNSS-LOS-NLOS-GridPoints-r18
 GNSS-NavigationModel
 GNSS-RealTimeIntegrity
 GNSS-ReferenceTime
@@ -85,9 +87,11 @@ GNSS-SSR-ClockCorrectionsSet2-r17
 GNSS-SSR-CodeBias-r15
 GNSS-SSR-CorrectionPoints-r16
 GNSS-SSR-GriddedCorrection-r16
+GNSS-SSR-IOD-Update-r18
 GNSS-SSR-OrbitCorrections-r15
 GNSS-SSR-OrbitCorrectionsSet2-r17
 GNSS-SSR-PhaseBias-r16
+GNSS-SSR-SatellitePCVResiduals-r18
 GNSS-SSR-STEC-Correction-r16
 GNSS-SSR-URA-r16
 GNSS-SSR-URA-Set2-r17
@@ -104,7 +108,12 @@ NavIC-DifferentialCorrections-r16
 NavIC-GridModelParameter-r16
 NR-DL-PRS-AssistanceData-r16
 NR-DL-PRS-TRP-TEG-Info-r17
+NR-IntegrityParameters-r18
+NR-IntegrityRiskParameters-r18
+NR-IntegrityServiceAlert-r18
+NR-IntegrityServiceParameters-r18
 NR-On-Demand-DL-PRS-Configurations-r17
+NR-PRU-DL-Info-r18
 NR-TRP-BeamAntennaInfo-r17
 NR-UEB-TRP-LocationData-r16
 NR-UEB-TRP-RTD-Info-r16
@@ -119,7 +128,7 @@ Velocity
 #.FIELD_RENAME
 CellGlobalIdGERAN/cellIdentity cellGlobalIdGERAN_cellIdentity
 LocationCoordinates/polygon locationCoordinates_polygon
-UTC-ModelSet4/utcDN UTC-ModelSet4_utcDN
+UTC-ModelSet4/utcDN uTC-ModelSet4_utcDN
 
 #.FIELD_ATTR
 CellGlobalIdGERAN/cellIdentity  ABBREV=cellGlobalIdGERAN.cellIdentity
@@ -1847,6 +1856,12 @@ BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
     case LPP_POS_SIB_TYPE_1_10:
       dissect_GNSS_Integrity_ServiceAlert_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
+    case LPP_POS_SIB_TYPE_1_11:
+      dissect_GNSS_LOS_NLOS_GridPoints_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_12:
+      dissect_GNSS_SSR_IOD_Update_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
     case LPP_POS_SIB_TYPE_2_1:
       dissect_GNSS_TimeModelList_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
@@ -1931,6 +1946,12 @@ BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
     case LPP_POS_SIB_TYPE_2_25:
       dissect_NavIC_GridModelParameter_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
+    case LPP_POS_SIB_TYPE_2_26:
+      dissect_GNSS_LOS_NLOS_GriddedIndications_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_27:
+      dissect_GNSS_SSR_SatellitePCVResiduals_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
     case LPP_POS_SIB_TYPE_3_1:
       dissect_OTDOA_UE_Assisted_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
@@ -1957,6 +1978,21 @@ BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
       break;
     case LPP_POS_SIB_TYPE_6_6:
       dissect_NR_On_Demand_DL_PRS_Configurations_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_7:
+      dissect_NR_PRU_DL_Info_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_7_1:
+      dissect_NR_IntegrityRiskParameters_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_7_2:
+      dissect_NR_IntegrityServiceParameters_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_7_3:
+      dissect_NR_IntegrityServiceAlert_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_7_4:
+      dissect_NR_IntegrityParameters_r18_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;
