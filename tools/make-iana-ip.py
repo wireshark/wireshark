@@ -11,13 +11,11 @@ Make-iana-ip creates a file containing information about IPv4/IPv6 allocation bl
 '''
 
 import csv
-import html
 import io
 import ipaddress
 import os
 import re
 import sys
-import ctypes
 import urllib.request, urllib.error, urllib.parse
 
 def exit_msg(msg=None, status=1):
@@ -185,7 +183,6 @@ def dump_registry(db, fd, reg):
     reg.dump(fd)
 
 def main():
-    this_dir = os.path.dirname(__file__)
     iana_path = os.path.join('epan', 'iana-ip-data.c')
 
     try:

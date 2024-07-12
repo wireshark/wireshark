@@ -46,7 +46,7 @@ def get_url_lines(url):
     except urllib.error.URLError as err:
         exit_msg("URL error fetching {0}: {1}".format(url, err.reason))
     except OSError as err:
-        exit_msg("OS error fetching {0}".format(url, err.strerror))
+        exit_msg("OS error fetching {0}: {1}".format(url, err.strerror))
     except Exception:
         exit_msg("Unexpected error:", sys.exc_info()[0])
 
@@ -274,7 +274,7 @@ def main():
     strip_re_l.append(re.compile('^\s*{\s*&hf_param_.*},')) # Must all be on one line
 
     for strip_re in strip_re_l:
-        dissector_lines = [l for l in dissector_lines if not strip_re.search(l)]
+        dissector_lines = [line for line in dissector_lines if not strip_re.search(line)]
 
     # Find our value strings
     value_string_re = re.compile('static\s+const\s+value_string\s+([A-Za-z0-9_]+_vals)')

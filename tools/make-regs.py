@@ -143,7 +143,7 @@ if __name__ == "__main__":
     outfile = sys.argv[2]
     if sys.argv[3].startswith("@"):
         with open(sys.argv[3][1:]) as f:
-            infiles = [l.strip() for l in f.readlines()]
+            infiles = [line.strip() for line in f.readlines()]
     else:
         infiles = sys.argv[3:]
 

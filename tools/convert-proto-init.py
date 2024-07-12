@@ -37,14 +37,14 @@ def convert_file(file):
             #
             # static expert_field ei_proto_a_expert_1 = EI_INIT;
             #
-            lines = re.sub(rf'^((?://\s*|/[*]+\s*)?(?:static\s*|       )?(?:g?int|expert_field)\s*(?:proto|hf|ett|ei)_[\w_]+)\s*=\s*(?:-\s*1|EI_INIT)\s*', rf'\1', lines, flags=re.MULTILINE)
+            lines = re.sub(r'^((?://\s*|/[*]+\s*)?(?:static\s*|       )?(?:g?int|expert_field)\s*(?:proto|hf|ett|ei)_[\w_]+)\s*=\s*(?:-\s*1|EI_INIT)\s*', r'\1', lines, flags=re.MULTILINE)
     except IsADirectoryError:
         sys.stderr.write(f'{file} is a directory.\n')
         return
     except UnicodeDecodeError:
         sys.stderr.write(f"{file} isn't valid UTF-8.\n")
         return
-    except:
+    except Exception:
         sys.stderr.write(f'Unable to open {file}.\n')
         return
 

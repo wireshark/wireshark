@@ -10,7 +10,6 @@
 
 
 import argparse
-import itertools
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -382,7 +381,6 @@ def gen_fields_table(st, dt, sh, o=sys.stdout):
             size = int(t.get('size')) if t is not None else 0
             rep = ''
             fh = f'{m.get("name").upper()}_FH_IDX'
-            sub = ''
             if is_padding(t):
                 print(f'        {c} {{ ETI_PADDING, 0, {size}, 0, 0 }}', file=o)
             elif is_fixed_point(t):
@@ -519,7 +517,7 @@ def gen_usage_table(min_templateid, n, ts, ams, o=sys.stdout):
     #     (cf. the uidx DISSECTOR_ASSER_CMPUINIT() before the switch statement)
     #     when the ETI_EOF of the message whose usage information comes last
     #     is reached
-    print(f'        , 0 // filler', file=o)
+    print('        , 0 // filler', file=o)
     print('    };', file=o)
     xs = [ '-1' ] * n
     t2n = dict(ts)
