@@ -1,4 +1,4 @@
--- ﻿3GPP TS 36.455 V16.1.0 (2020-09)
+-- 3GPP TS 36.455 V18.1.0 (2024-06)
 --
 
 -- **************************************************************
@@ -8,10 +8,10 @@
 -- **************************************************************
 
 LPPA-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lppa (6) version1 (1) lppa-Containers (5)}
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -28,7 +28,7 @@ IMPORTS
 	Criticality,
 	Presence,
 	PrivateIE-ID,
-	ProtocolIE-ID	
+	ProtocolIE-ID
 FROM LPPA-CommonDataTypes;
 
 -- **************************************************************
@@ -117,11 +117,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-Single-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Single-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::=
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field { LPPA-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
@@ -136,7 +136,7 @@ ProtocolIE-Field { LPPA-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair { LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+ProtocolIE-ContainerPair { LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -168,7 +168,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, LPPA-P
 --
 -- **************************************************************
 
-ProtocolExtensionContainer { LPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+ProtocolExtensionContainer { LPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -184,7 +184,7 @@ ProtocolExtensionField { LPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUEN
 --
 -- **************************************************************
 
-PrivateIE-Container { LPPA-PRIVATE-IES : IEsSetParam} ::= 
+PrivateIE-Container { LPPA-PRIVATE-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 

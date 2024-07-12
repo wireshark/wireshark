@@ -1,4 +1,4 @@
--- ﻿3GPP TS 36.455 V16.1.0 (2020-09)
+-- 3GPP TS 36.455 V18.1.0 (2024-06)
 --
 
 -- **************************************************************
@@ -8,15 +8,15 @@
 -- **************************************************************
 
 LPPA-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lppa (6) version1 (1) lppa-IEs (2) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
-IMPORTS	
-	
+IMPORTS
+
 	id-MeasurementQuantities-Item,
 	id-ResultsPerSSB-Index-List,
 	id-ResultsPerSSB-Index-Item,
@@ -54,7 +54,7 @@ FROM LPPA-CommonDataTypes
 
 	ProtocolExtensionContainer{},
 	ProtocolIE-Single-Container{},
-	
+
 	LPPA-PROTOCOL-EXTENSION,
 	LPPA-PROTOCOL-IES
 FROM LPPA-Containers;
@@ -350,7 +350,7 @@ MeasurementQuantitiesValue ::= ENUMERATED {
 MeasuredResults ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF MeasuredResultsValue
 
 
-MeasuredResultsValue ::= CHOICE { 
+MeasuredResultsValue ::= CHOICE {
 	valueAngleOfArrival				INTEGER (0..719),
 	valueTimingAdvanceType1			INTEGER (0..7690),
 	valueTimingAdvanceType2			INTEGER (0..7690),
@@ -411,7 +411,7 @@ NPRSSubframePartB ::=			SEQUENCE {
 	startingsubframeoffset		ENUMERATED {zero, one-Eighth, two-Eighths, three-Eighths, four-Eighths, five-Eighths, six-Eighths, seven-Eighths, ...},
 	nPRSMutingConfiguration		NPRSMutingConfiguration 		OPTIONAL,
 	...,
-	sIB1-NB-Subframe-TDD			ENUMERATED {	sf0, sf4, sf0and5, ...} 		OPTIONAL	
+	sIB1-NB-Subframe-TDD			ENUMERATED {	sf0, sf4, sf0and5, ...} 		OPTIONAL
 
 }
 
@@ -497,7 +497,7 @@ OTDOACell-Information-Item ::= CHOICE {
 	tAC							TAC,
 	eARFCN						EARFCN,
 	pRS-Bandwidth				PRS-Bandwidth,
-	pRS-ConfigurationIndex		PRS-Configuration-Index, 
+	pRS-ConfigurationIndex		PRS-Configuration-Index,
 	cPLength					CPLength,
 	numberOfDlFrames			NumberOfDlFrames,
 	numberOfAntennaPorts		NumberOfAntennaPorts,
@@ -514,7 +514,7 @@ OTDOACell-Information-Item ::= CHOICE {
 	nPRSConfiguration			NPRSConfiguration,
 	offsetNBChanneltoEARFCN		OffsetNBChanneltoEARFCN,
 	operationModeInfo			OperationModeInfo,
-	nPRS-ID						INTEGER (0..4095, ...), 
+	nPRS-ID						INTEGER (0..4095, ...),
 	dL-Bandwidth				DL-Bandwidth,
 	pRSOccasionGroup			PRSOccasionGroup,
 	pRSFreqHoppingConfig		PRSFrequencyHoppingConfiguration,
@@ -599,31 +599,31 @@ PosSIB-Segments-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 
 
 PosSIB-Type ::= ENUMERATED {
-	posSibType1-1, 
-	posSibType1-2, 
-	posSibType1-3, 
-	posSibType1-4, 
+	posSibType1-1,
+	posSibType1-2,
+	posSibType1-3,
+	posSibType1-4,
 	posSibType1-5,
-	posSibType1-6, 
-	posSibType1-7, 
-	posSibType2-1, 
-	posSibType2-2, 
+	posSibType1-6,
+	posSibType1-7,
+	posSibType2-1,
+	posSibType2-2,
 	posSibType2-3,
-	posSibType2-4, 
-	posSibType2-5, 
-	posSibType2-6, 
-	posSibType2-7, 
+	posSibType2-4,
+	posSibType2-5,
+	posSibType2-6,
+	posSibType2-7,
 	posSibType2-8,
-	posSibType2-9, 
-	posSibType2-10, 
-	posSibType2-11, 
-	posSibType2-12, 
-	posSibType2-13, 
-	posSibType2-14, 
-	posSibType2-15, 
+	posSibType2-9,
+	posSibType2-10,
+	posSibType2-11,
+	posSibType2-12,
+	posSibType2-13,
+	posSibType2-14,
+	posSibType2-15,
 	posSibType2-16,
-	posSibType2-17, 
-	posSibType2-18, 
+	posSibType2-17,
+	posSibType2-18,
 	posSibType2-19,
 	posSibType3-1,
 	...,
@@ -819,7 +819,7 @@ SRSConfigurationForOneCell ::= SEQUENCE {
 	srs-HoppingBandwidth		ENUMERATED {hbw0, hbw1, hbw2, hbw3},
 	srs-cyclicShift				ENUMERATED {cs0, cs1, cs2, cs3, cs4, cs5, cs6, cs7},
 	srs-ConfigIndex				INTEGER (0..1023),
-	maxUpPts					ENUMERATED {true}			OPTIONAL,	-- Cond ifTDD
+	maxUpPts					ENUMERATED {true}			OPTIONAL,	-- This IE shall be present if the UL-EARFCN IE refers to TDD operation. --
 	transmissionComb			INTEGER (0..1),
 	freqDomainPosition			INTEGER (0..23),
 	groupHoppingEnabled			BOOLEAN,
