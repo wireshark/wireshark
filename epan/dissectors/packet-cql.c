@@ -193,9 +193,9 @@ static const value_string cql_direction_names[] = {
 };
 
 typedef enum {
-	CQL_BATCH_FLAG_SERIAL_CONSISTENCY = 0x10,
-	CQL_BATCH_FLAG_DEFAULT_TIMESTAMP = 0x020,
-	CQL_BATCH_FLAG_WITH_NAME_FOR_VALUES = 0x040
+	CQL_BATCH_FLAG_SERIAL_CONSISTENCY =   0x10,
+	CQL_BATCH_FLAG_DEFAULT_TIMESTAMP =    0x20,
+	CQL_BATCH_FLAG_WITH_NAME_FOR_VALUES = 0x40
 } cql_batch_flags;
 
 typedef enum {

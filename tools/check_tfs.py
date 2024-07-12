@@ -499,7 +499,7 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
         with open(filename, 'r') as f:
             contents = f.read()
             for c in common_tfs:
-                m = re.search(r'TFS\(\s*\&' + c + '\s*\)', contents)
+                m = re.search(r'TFS\(\s*\&' + c + r'\s*\)', contents)
                 if m:
                     if not c in common_usage:
                         common_usage[c] = 1
