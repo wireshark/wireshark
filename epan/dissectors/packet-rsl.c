@@ -319,7 +319,7 @@ static const value_string rsl_msg_disc_vals[] = {
     {  0x04,    "Dedicated Channel Management messages" },
     {  0x06,    "Common Channel Management messages" },
     {  0x08,    "TRX Management messages" },
-    {  0x16,    "Location Services messages" },
+    {  0x10,    "Location Services messages" },
     {  0x3f,    "ip.access Vendor Specific messages" },
     {  0x55,    "HUAWEI Paging Extension" },
     { 0,            NULL }
