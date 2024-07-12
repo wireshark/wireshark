@@ -406,10 +406,10 @@ static const string_string known_faa_mode_indicators[] = {
     {"U", "Quectel Querk, Unsafe"},
     {NULL, NULL}};
 
-static uint8_t calculate_checksum(tvbuff_t *tvb, const gint start, const gint length)
+static uint8_t calculate_checksum(tvbuff_t *tvb, const int start, const int length)
 {
     uint8_t checksum = 0;
-    for (gint i = start; i < start + length; i++)
+    for (int i = start; i < start + length; i++)
     {
         checksum ^= tvb_get_guint8(tvb, i);
     }
@@ -422,15 +422,15 @@ static uint8_t calculate_checksum(tvbuff_t *tvb, const gint start, const gint le
  * If separator is not found, return the offset of end of tvbuff.
  * If offset is out of bounds, return the offset of end of tvbuff.
  **/
-static gint
-tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const gint offset)
+static int
+tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const int offset)
 {
     if (tvb_captured_length_remaining(tvb, offset) == 0)
     {
         return tvb_captured_length(tvb);
     }
 
-    gint end_of_field_offset = tvb_find_guint8(tvb, offset, -1, ',');
+    int end_of_field_offset = tvb_find_guint8(tvb, offset, -1, ',');
     if (end_of_field_offset == -1)
     {
         return tvb_captured_length(tvb);
@@ -441,7 +441,7 @@ tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const gint offset)
 /* Add a zero length item which indicates an expected but missing field */
 static proto_item *
 proto_tree_add_missing_field(proto_tree *tree, packet_info *pinfo, int hf, tvbuff_t *tvb,
-                             const gint offset)
+                             const int offset)
 {
     proto_item *ti = NULL;
     ti = proto_tree_add_item(tree, hf, tvb, offset, 0, ENC_ASCII);
@@ -454,17 +454,17 @@ proto_tree_add_missing_field(proto_tree *tree, packet_info *pinfo, int hf, tvbuf
  * Returns length including separator
  **/
 static int
-dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                             int hf_time, int hf_hour, int hf_minute, int hf_second, int ett_time)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf_time, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     ti = proto_tree_add_item(tree, hf_time, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
     if (end_of_field_offset - offset == 0)
     {
@@ -472,9 +472,9 @@ dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else if (end_of_field_offset - offset >= 6)
     {
-        const guint8 *hour = NULL;
-        const guint8 *minute = NULL;
-        const guint8 *second = NULL;
+        const uint8_t *hour = NULL;
+        const uint8_t *minute = NULL;
+        const uint8_t *second = NULL;
         proto_tree *time_subtree = proto_item_add_subtree(ti, ett_time);
 
         proto_tree_add_item_ret_string(time_subtree, hf_hour,
@@ -500,16 +500,16 @@ dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect a single field containing a dimensionless value. Returns length including separator */
 static int
-dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf, const char *suffix)
+dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf, const char *suffix)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     ti = proto_tree_add_item(tree, hf, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
     if (end_of_field_offset - offset == 0)
     {
@@ -527,16 +527,16 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
  **/
 static int
 dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                         gint offset, int hf,
-                                         wmem_allocator_t *scope, const guint8 **retval)
+                                         int offset, int hf,
+                                         wmem_allocator_t *scope, const uint8_t **retval)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     proto_item *ti = proto_tree_add_item_ret_string(tree, hf,
                                                     tvb, offset, end_of_field_offset - offset, ENC_ASCII,
                                                     scope, retval);
@@ -559,17 +559,17 @@ dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, prot
  * Returns length including separator
  **/
 static int
-dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                 int hf_latitude, int hf_degree, int hf_minute, int hf_direction, int ett_latitude)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf_latitude, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     ti = proto_tree_add_item(tree, hf_latitude, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
     if (end_of_field_offset - offset == 0)
     {
@@ -579,9 +579,9 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     else if (end_of_field_offset - offset >= 4)
     {
-        const guint8 *degree = NULL;
-        const guint8 *minute = NULL;
-        const guint8 *direction = NULL;
+        const uint8_t *degree = NULL;
+        const uint8_t *minute = NULL;
+        const uint8_t *direction = NULL;
         proto_tree *latitude_subtree = proto_item_add_subtree(ti, ett_latitude);
 
         proto_tree_add_item_ret_string(latitude_subtree, hf_degree,
@@ -609,17 +609,17 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * Returns length including separator
  **/
 static int
-dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                  int hf_longitude, int hf_degree, int hf_minute, int hf_direction, int ett_latitude)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf_longitude, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     ti = proto_tree_add_item(tree, hf_longitude, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
     if (end_of_field_offset - offset == 0)
     {
@@ -629,9 +629,9 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
     else if (end_of_field_offset - offset >= 5)
     {
-        const guint8 *degree = NULL;
-        const guint8 *minute = NULL;
-        const guint8 *direction = NULL;
+        const uint8_t *degree = NULL;
+        const uint8_t *minute = NULL;
+        const uint8_t *direction = NULL;
         proto_tree *longitude_subtree = proto_item_add_subtree(ti, ett_latitude);
 
         proto_tree_add_item_ret_string(longitude_subtree, hf_degree,
@@ -657,17 +657,17 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* Dissect a required gps quality field. Returns length including separator */
 static int
-dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    const guint8 *quality = NULL;
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const uint8_t *quality = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
                                         pinfo->pool, &quality);
@@ -687,18 +687,18 @@ dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     The text of the field must match the `expected_text` or expert info `invalid_ei` is
     added to the field. An empty field is allowed. Returns length including separator */
 static int
-dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf,
-                                  const guint8 *expected_text, expert_field *invalid_ei)
+dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf,
+                                  const uint8_t *expected_text, expert_field *invalid_ei)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    const guint8 *text = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const uint8_t *text = NULL;
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
                                         pinfo->pool, &text);
@@ -715,17 +715,17 @@ dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 /* Dissect a optional FAA mode indicator field. Returns length including separator */
 static int
-dissect_nmea0183_field_faa_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+dissect_nmea0183_field_faa_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    const guint8 *mode = NULL;
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const uint8_t *mode = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
                                         pinfo->pool, &mode);
@@ -742,17 +742,17 @@ dissect_nmea0183_field_faa_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* Dissect a optional A/V status field. Returns length including separator */
 static int
-dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf)
 {
-    if (offset > (gint)tvb_captured_length(tvb))
+    if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
         return 0;
     }
 
     proto_item *ti = NULL;
-    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    const guint8 *mode = NULL;
+    int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const uint8_t *mode = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
                                         pinfo->pool, &mode);
@@ -771,7 +771,7 @@ dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
+    int offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence, NULL, "DPT sentence - Depth of Water");
@@ -789,7 +789,7 @@ dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
+    int offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -834,7 +834,7 @@ dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
+    int offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -863,7 +863,7 @@ dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset = 0;
+    int offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -880,7 +880,7 @@ dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
+    int offset = 0;
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "ZDA sentence - Time & Date");
@@ -906,7 +906,7 @@ dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset = 0;
+    int offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -915,7 +915,7 @@ dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     /* In an unknown sentence, the name of each field is unknown. Find all field by splitting at a comma. */
     while (tvb_captured_length_remaining(tvb, offset) > 0)
     {
-        gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+        int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
         proto_item *ti = proto_tree_add_item(subtree, hf_nmea0183_unknown_field,
                                              tvb, offset, end_of_field_offset - offset, ENC_ASCII);
         if (end_of_field_offset - offset == 0)
@@ -930,11 +930,11 @@ dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;
-    gint start_checksum_offset = 0;
-    const guint8 *talker_id = NULL;
-    const guint8 *sentence_id = NULL;
-    const guint8 *checksum = NULL;
+    int offset = 0;
+    int start_checksum_offset = 0;
+    const uint8_t *talker_id = NULL;
+    const uint8_t *sentence_id = NULL;
+    const uint8_t *checksum = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMEA 0183");
     /* Clear the info column */
