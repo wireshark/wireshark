@@ -1970,41 +1970,36 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 case 0x00:
                     break;
                 case DPOE_OPCODE_GET_REQUEST:
-                    leaf_branch = tvb_get_ntoh24(tvb, offset);
                     variable_length = 0;
-                    if (leaf_branch == DPOE_LB_ONU_OBJ || leaf_branch == DPOE_LB_LINK_OBJ || \
-                        leaf_branch == DPOE_LB_USER_PORT_OBJ || leaf_branch == DPOE_LB_NETWORK_PORT_OBJ ||
-                        leaf_branch == DPOE_LB_MC_LL_OBJ) {
-                        dpoe_opcode_request_item = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
-                        offset += 3;
-                        variable_length = tvb_get_guint8(tvb, offset);
-                        offset += 1;
-                        if (variable_length == 1) {
-                            /* Add User Port or Link instance */
-                            dpoe_opcode_request_tree = proto_item_add_subtree(dpoe_opcode_request_item, ett_dpoe_opcode);
-                            if (leaf_branch == DPOE_LB_USER_PORT_OBJ) {
-                                proto_tree_add_item(dpoe_opcode_request_tree, hf_oam_dpoe_user_port_object, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            } else {
-                                proto_tree_add_item(dpoe_opcode_request_tree, hf_oampdu_variable_value, tvb, offset, 1, ENC_NA);
-                            }
-                        }
-                    } else if (leaf_branch == DPOE_LB_QUEUE_OBJ) {
-                        dpoe_opcode_request_item = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
-                        offset += 3;
-                        variable_length = tvb_get_guint8(tvb, offset);
-                        offset += 1;
-                        if (variable_length == 4) {
-                            /* Add Queue object instance */
-                            dpoe_opcode_request_tree = proto_item_add_subtree(dpoe_opcode_request_item, ett_dpoe_opcode);
-                            dissect_oampdu_add_queue_object(dpoe_opcode_request_tree, tvb, offset);
-                        }
-                    }
-                    offset += variable_length;
-                    next_byte = tvb_get_guint8(tvb, offset);
                     while (next_byte != 0x00) {
-                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
-                        offset += 3;
-                        next_byte = tvb_get_guint8(tvb, offset);
+                        leaf_branch = tvb_get_ntoh24(tvb, offset);
+                        if (leaf_branch == DPOE_LB_ONU_OBJ || leaf_branch == DPOE_LB_LINK_OBJ || \
+                            leaf_branch == DPOE_LB_USER_PORT_OBJ || leaf_branch == DPOE_LB_NETWORK_PORT_OBJ ||
+                            leaf_branch == DPOE_LB_MC_LL_OBJ || leaf_branch == DPOE_LB_QUEUE_OBJ) {
+                            dpoe_opcode_request_item = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
+                            offset += 3;
+                            variable_length = tvb_get_guint8(tvb, offset);
+                            offset += 1;
+                            if (variable_length == 1) {
+                                /* Add User Port or Link instance */
+                                dpoe_opcode_request_tree = proto_item_add_subtree(dpoe_opcode_request_item, ett_dpoe_opcode);
+                                if (leaf_branch == DPOE_LB_USER_PORT_OBJ) {
+                                    proto_tree_add_item(dpoe_opcode_request_tree, hf_oam_dpoe_user_port_object, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                } else {
+                                    proto_tree_add_item(dpoe_opcode_request_tree, hf_oampdu_variable_value, tvb, offset, 1, ENC_NA);
+                                }
+                            } else if (variable_length == 4 && leaf_branch == DPOE_LB_QUEUE_OBJ) {
+                                /* Add Queue object instance */
+                                dpoe_opcode_request_tree = proto_item_add_subtree(dpoe_opcode_request_item, ett_dpoe_opcode);
+                                dissect_oampdu_add_queue_object(dpoe_opcode_request_tree, tvb, offset);
+                            }
+                            offset += variable_length;
+                            next_byte = tvb_get_guint8(tvb, offset);
+                        } else {
+                            proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
+                            offset += 3;
+                            next_byte = tvb_get_guint8(tvb, offset);
+                        }
                     }
                     break;
                 case DPOE_OPCODE_GET_RESPONSE: /* Get-Response */
