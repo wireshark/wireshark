@@ -80,6 +80,7 @@ static int hf_zabbix_response;
 static int hf_zabbix_success;
 static int hf_zabbix_failed;
 static int hf_zabbix_config_revision;
+static int hf_zabbix_hostmap_revision;
 static int hf_zabbix_session;
 static int hf_zabbix_version;
 
@@ -212,6 +213,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint64_t datalen;
     int64_t agent_variant = 0;
     int64_t config_revision = -1;
+    int64_t hostmap_revision = -1;
     bool is_compressed;
     bool is_large_packet;
     bool is_too_large = false;
@@ -396,6 +398,16 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     session = json_get_string(json_str, tokens, "session");
     if (json_get_double(json_str, tokens, "config_revision", &temp_double)) {
         config_revision = (int64_t)temp_double;
+    }
+    if (json_get_double(json_str, tokens, "hostmap_revision", &temp_double)) {
+        hostmap_revision = (int64_t)temp_double;
+    } else {
+        jsmntok_t *proxy_group_object = json_get_object(json_str, tokens, "proxy_group");
+        if (proxy_group_object) {
+            if (json_get_double(json_str, proxy_group_object, "hostmap_revision", &temp_double)) {
+                hostmap_revision = (int64_t)temp_double;
+            }
+        }
     }
     request_type = json_get_string(json_str, tokens, "request");
     response_status = json_get_string(json_str, tokens, "response");
@@ -644,13 +656,13 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_item_set_text(ti, "Zabbix Response for passive checks");
         col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Response for passive checks");
     }
-    else if (data_object || data_array) {
+    else if (data_object || data_array || tokens->size == 0) {
         /* No other match above, let's assume this is server sending incremental
          * configuration to a proxy
          */
         ADD_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_CONFIG);
-        if (data_object && (data_object->size == 0)) {
-            /* Empty data object */
+        if ((data_object && (data_object->size == 0)) || tokens->size == 0) {
+            /* Empty data object or the whole JSON is empty */
             oper_response |= ZABBIX_RESPONSE_NOCHANGE;
         }
         else if (data_array) {
@@ -815,6 +827,9 @@ show_agent_outputs:
     }
     if (config_revision > -1) {
         proto_tree_add_int64(zabbix_tree, hf_zabbix_config_revision, NULL, 0, 0, config_revision);
+    }
+    if (hostmap_revision > -1) {
+        proto_tree_add_int64(zabbix_tree, hf_zabbix_hostmap_revision, NULL, 0, 0, hostmap_revision);
     }
     if (session) {
         proto_tree_add_string(zabbix_tree, hf_zabbix_session, NULL, 0, 0, session);
@@ -1160,6 +1175,11 @@ proto_register_zabbix(void)
         },
         { &hf_zabbix_config_revision,
             { "Config revision", "zabbix.config_revision",
+            FT_INT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_zabbix_hostmap_revision,
+            { "Hostmap revision", "zabbix.hostmap_revision",
             FT_INT64, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
