@@ -13,9 +13,7 @@ The Bluetooth SIG Repository: https://bitbucket.org/bluetooth-SIG/public/src/mai
 and processes the YAML into human-readable strings to go into packet-bluetooth.c.
 '''
 
-import re
 import sys
-import string
 import urllib.request, urllib.error, urllib.parse
 import yaml
 

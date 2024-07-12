@@ -19,7 +19,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 import urllib.request
 import re
 
@@ -227,8 +226,8 @@ def main():
         try:
             with open(args.commitmsg) as f:
                 return 0 if verify_body(f.read()) else 1
-        except:
-            print("Couldn't verify body of message from file '", + args.commitmsg + "'");
+        except Exception:
+            print("Couldn't verify body of message from file '", + args.commitmsg + "'")
             return 1
 
 

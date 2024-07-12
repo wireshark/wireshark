@@ -103,7 +103,7 @@ def convert_file(file):
     except UnicodeDecodeError:
         sys.stderr.write(f"{file} isn't valid UTF-8.\n")
         return
-    except:
+    except Exception:
         sys.stderr.write(f'Unable to open {file}.\n')
         return
 

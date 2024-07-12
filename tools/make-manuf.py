@@ -230,7 +230,6 @@ def prefix_to_oui(prefix, prefix_map):
     return '{}/{:d}'.format(oui, int(pfx_len)), kind
 
 def main():
-    this_dir = os.path.dirname(__file__)
     manuf_path = os.path.join('epan', 'manuf-data.c')
 
     ieee_d = {
@@ -246,7 +245,7 @@ def main():
         MA_S: {},
     }
 
-    min_total = 35000; # 35830 as of 2018-09-05
+    min_total = 35000 # 35830 as of 2018-09-05
     total_added = 0
 
     # Add IEEE entries from each of their databases

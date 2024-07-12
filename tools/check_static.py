@@ -61,14 +61,14 @@ class CalledSymbols:
         # Run command to check symbols.
         command = ['nm', object_file]
         for f in subprocess.check_output(command).splitlines():
-            l = str(f)[2:-1]
+            line = str(f)[2:-1]
             # Lines might, or might not, have an address before letter and symbol.
             p1 = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
             p2 = re.compile(r'[ ]* ([a-zA-Z]) (.*)')
 
-            m = p1.match(l)
+            m = p1.match(line)
             if not m:
-                m = p2.match(l)
+                m = p2.match(line)
             if m:
                 letter = m.group(1)
                 function_name = m.group(2)
@@ -113,15 +113,15 @@ class DefinedSymbols:
         command = ['nm', object_file]
         for f in subprocess.check_output(command).splitlines():
             # Line consists of whitespace, [address], letter, symbolName
-            l = str(f)[2:-1]
+            line = str(f)[2:-1]
             p = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
-            m = p.match(l)
+            m = p.match(line)
             if m:
                 letter = m.group(1)
                 function_name = m.group(2)
                 # Globally-defined symbols. Would be 't' or 'd' if already static..
                 if letter in 'TD':
-                    self.addDefinedSymbol(function_name, l)
+                    self.addDefinedSymbol(function_name, line)
 
     def addDefinedSymbol(self, symbol, line):
         self.global_symbols[symbol] = line
@@ -156,7 +156,7 @@ class DefinedSymbols:
     def checkIfSymbolsAreCalled(self, called_symbols):
         global issues_found
         for f in self.global_symbols:
-            if not f in called_symbols:
+            if f not in called_symbols:
                 mentioned_in_header = self.mentionedInHeaders(f)
                 fun = self.global_symbols[f]
                 print(self.filename, '' if not self.from_generated_file else '(GENERATED)',
@@ -299,7 +299,7 @@ elif args.open:
     for f in files:
         files.append(f)
     for f in files_staged:
-        if not f in files:
+        if f not in files:
             files.append(f)
 else:
     # Find all dissector files from folder.

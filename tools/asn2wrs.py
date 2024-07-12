@@ -45,7 +45,7 @@ import os
 import os.path
 import time
 import getopt
-import traceback
+#import traceback
 
 try:
     from ply import lex
@@ -645,9 +645,9 @@ class EthCtx:
             return False
 
     def value_max(self, a, b):
-        if (a == 'MAX') or (b == 'MAX'): return 'MAX';
-        if a == 'MIN': return b;
-        if b == 'MIN': return a;
+        if (a == 'MAX') or (b == 'MAX'): return 'MAX'
+        if a == 'MIN': return b
+        if b == 'MIN': return a
         try:
             if (int(a) > int(b)):
                 return a
@@ -658,9 +658,9 @@ class EthCtx:
         return "MAX((%s),(%s))" % (a, b)
 
     def value_min(self, a, b):
-        if (a == 'MIN') or (b == 'MIN'): return 'MIN';
-        if a == 'MAX': return b;
-        if b == 'MAX': return a;
+        if (a == 'MIN') or (b == 'MIN'): return 'MIN'
+        if a == 'MAX': return b
+        if b == 'MAX': return a
         try:
             if (int(a) < int(b)):
                 return a
@@ -724,7 +724,7 @@ class EthCtx:
                 val = self.type[t]['val']
                 (ftype, display) = val.eth_ftype(self)
                 attr.update({ 'TYPE' : ftype, 'DISPLAY' : display,
-                              'STRINGS' : val.eth_strings(), 'BITMASK' : '0' });
+                              'STRINGS' : val.eth_strings(), 'BITMASK' : '0' })
             else:
                 attr.update(self.type[t]['attr'])
                 attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
@@ -1061,7 +1061,7 @@ class EthCtx:
 
     #--- eth_clean --------------------------------------------------------------
     def eth_clean(self):
-        self.proto = self.proto_opt;
+        self.proto = self.proto_opt
         #--- ASN.1 tables ----------------
         self.assign = {}
         self.assign_ord = []
@@ -1243,14 +1243,12 @@ class EthCtx:
         for t in self.eth_type_ord:
             bits = self.eth_type[t]['val'].eth_named_bits()
             if (bits):
-                old_val = 0
                 for (val, id) in bits:
                     self.named_bit.append({'name' : id, 'val' : val,
                                             'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, asn2c(id)),
                                             'ftype'   : 'FT_BOOLEAN', 'display' : '8',
                                             'strings' : 'NULL',
                                             'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
-                    old_val = val + 1
             if self.eth_type[t]['val'].eth_need_tree():
                 self.eth_type[t]['tree'] = "ett_%s_%s" % (self.eth_type[t]['proto'], t)
             else:
@@ -1614,7 +1612,7 @@ class EthCtx:
 
     #--- eth_out_pdu_decl ----------------------------------------------------------
     def eth_out_pdu_decl(self, f):
-        t = self.eth_hf[f]['ethtype']
+        #t = self.eth_hf[f]['ethtype']
         out = ''
         if (not self.eth_hf[f]['pdu']['export']):
             out += 'static '
@@ -1994,7 +1992,7 @@ class EthCtx:
             if first_decl:
                 fx.write('  /*--- Syntax registrations ---*/\n')
                 first_decl = False
-            fx.write('  %sregister_ber_syntax_dissector(%s, proto_%s, dissect_%s_PDU);\n' % (new_prefix, k, self.eproto, reg['pdu']));
+            fx.write('  %sregister_ber_syntax_dissector(%s, proto_%s, dissect_%s_PDU);\n' % (new_prefix, k, self.eproto, reg['pdu']))
             fempty=False
         self.output.file_close(fx, discard=fempty)
 
@@ -2338,13 +2336,13 @@ class EthCnf:
         return name in self.fn and self.fn[name]['FN_BODY']
     def get_fn_text(self, name, ctx):
         if (name not in self.fn):
-            return '';
+            return ''
         if (not self.fn[name][ctx]):
-            return '';
+            return ''
         self.fn[name][ctx]['used'] = True
         out = self.fn[name][ctx]['text']
         if (not self.suppress_line):
-            out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], rel_dissector_path(self.fn[name][ctx]['fn']), out);
+            out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], rel_dissector_path(self.fn[name][ctx]['fn']), out)
         return out
 
     def add_pdu(self, par, fn, lineno):
@@ -2966,7 +2964,7 @@ class EthOut:
     #--- output_fname -------------------------------------------------------
     def output_fname(self, ftype, ext='c'):
         fn = ''
-        if not ext in ('cnf',):
+        if ext not in ('cnf',):
             fn += 'packet-'
         fn += self.outnm
         if (ftype):
@@ -3063,10 +3061,10 @@ class EthOut:
 
         include = re.compile(r'^\s*#\s*include\s+[<"](?P<fname>[^>"]+)[>"]', re.IGNORECASE)
 
-        cont_linenum = 0;
+        cont_linenum = 0
 
         while (True):
-            cont_linenum = cont_linenum + 1;
+            cont_linenum = cont_linenum + 1
             line = fin.readline()
             if (line == ''): break
             ifile = None
@@ -3748,9 +3746,9 @@ class Module (Node):
 class Module_Body (Node):
     def to_python (self, ctx):
         # XXX handle exports, imports.
-        l = [x.to_python (ctx) for x in self.assign_list]
-        l = [a for a in l if a != '']
-        return "\n".join (l)
+        list = [x.to_python (ctx) for x in self.assign_list]
+        list = [a for a in list if a != '']
+        return "\n".join(list)
 
     def to_eth(self, ectx):
         # Exports
@@ -4093,7 +4091,8 @@ class SeqType (SqType):
             autotag = True
             lst = self.all_components()
             for e in (self.elt_list):
-                if e.val.HasOwnTag(): autotag = False; break;
+                if e.val.HasOwnTag(): autotag = False
+                break
         # expand COMPONENTS OF
         if self.need_components():
             if components_available:
@@ -4113,7 +4112,7 @@ class SeqType (SqType):
                             e.val.SetName("eag_v%s" % (e.val.ver))
                         else:
                             e.val.SetName("eag_%d" % (eag_num))
-                            eag_num += 1;
+                            eag_num += 1
             else:  # expand
                 new_ext_list = []
                 for e in (self.ext_list):
@@ -4498,10 +4497,10 @@ class ChoiceType (Type):
         if (ectx.NeedTags() and (ectx.tag_def == 'AUTOMATIC')):
             autotag = True
             for e in (self.elt_list):
-                if e.HasOwnTag(): autotag = False; break;
+                if e.HasOwnTag(): autotag = False; break
             if autotag and hasattr(self, 'ext_list'):
                 for e in (self.ext_list):
-                    if e.HasOwnTag(): autotag = False; break;
+                    if e.HasOwnTag(): autotag = False; break
         # do autotag
         if autotag:
             atag = 0
@@ -5613,7 +5612,7 @@ class BitStringType (Type):
         if (self.named_list):
             sorted_list = self.named_list
             sorted_list.sort()
-            expected_bit_no = 0;
+            expected_bit_no = 0
             for e in (sorted_list):
             # Fill the table with "spare_bit" for "un named bits"
                 if (int(e.val) != 0) and (expected_bit_no != int(e.val)):
@@ -7350,7 +7349,7 @@ def p_cls_syntax_4 (t):
 
 def p_cls_syntax_5 (t):
     'cls_syntax : CODE Value'
-    fld = get_class_field(t[1]);
+    fld = get_class_field(t[1])
     t[0] = { fld : t[2] }
     if isinstance(t[2], ChoiceValue):
         fldt = fld + '.' + t[2].choice
@@ -8074,7 +8073,7 @@ def asn2wrs_main():
     global quiet
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:qFTo:O:c:I:eESs:kLCr:");
+        opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:qFTo:O:c:I:eESs:kLCr:")
     except getopt.GetoptError:
         eth_usage(); sys.exit(2)
     if len(args) < 1:
@@ -8097,10 +8096,10 @@ def asn2wrs_main():
     ectx.merge_modules = False
     ectx.group_by_prot = False
     ectx.conform.last_group = 0
-    ectx.conform.suppress_line = False;
+    ectx.conform.suppress_line = False
     ectx.output.outnm = None
     ectx.output.single_file = None
-    ectx.constraints_check = False;
+    ectx.constraints_check = False
     for o, a in opts:
         if o in ("-h", "-?"):
             eth_usage(); sys.exit(2)
@@ -8138,7 +8137,7 @@ def asn2wrs_main():
             if a: par.append(a)
             ectx.conform.set_opt(o, par, "commandline", 0)
 
-    (ld, yd, pd) = (0, 0, 0);
+    (ld, yd, pd) = (0, 0, 0)
     if ectx.dbg('l'): ld = 1
     if ectx.dbg('y'): yd = 1
     if ectx.dbg('p'): pd = 2

@@ -18,7 +18,6 @@ import sys
 import shutil
 import argparse
 import signal
-import re
 from pathlib import Path
 
 
@@ -190,8 +189,6 @@ def test_file(filename):
 
     # Don't want to delete 'self-includes', so prepare filename.
     module_name = Path(filename).stem
-    extension = Path(filename).suffix
-
     module_header = module_name + '.h'
 
     # Loop around, finding all possible include lines to comment out

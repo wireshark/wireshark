@@ -209,15 +209,9 @@ class Item:
             if self.check_bit(self.mask_value, n):
                 self.bits_set += 1
 
-    def check_bit(self, value, n):
-        return (value & (0x1 << n)) != 0
-
-
     def __str__(self):
         return 'Item ({0} "{1}" {2} type={3}:{4} strings={5} mask={6})'.format(self.filename, self.label, self.filter,
                                                                                self.item_type, self.type_modifier, self.strings, self.mask)
-
-
 
     def set_mask_value(self, macros):
         try:
@@ -226,11 +220,10 @@ class Item:
             # Substitute mask if found as a macro..
             if self.mask in macros:
                 self.mask = macros[self.mask]
-            elif any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in self.mask):
                 self.mask_read = False
                 self.mask_value = 0
                 return
-
 
             # Read according to the appropriate base.
             if self.mask.startswith('0x'):
@@ -239,7 +232,7 @@ class Item:
                 self.mask_value = int(self.mask, 8)
             else:
                 self.mask_value = int(self.mask, 10)
-        except:
+        except Exception:
             self.mask_read = False
             self.mask_value = 0
 
@@ -261,8 +254,7 @@ class Item:
                 try:
                     # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
                     return int((int(self.type_modifier) + 3)/4)*4
-                except:
-                    #print('oops', self)
+                except Exception:
                     return 0
         else:
             if self.item_type in field_widths:
@@ -332,7 +324,6 @@ def findValueStrings(filename):
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
 def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
-    is_generated = isGeneratedFile(filename)
     items = {}
     with open(filename, 'r', encoding="utf8", errors="ignore") as f:
         contents = f.read()
@@ -501,7 +492,7 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
             for c in common_tfs:
                 m = re.search(r'TFS\(\s*\&' + c + r'\s*\)', contents)
                 if m:
-                    if not c in common_usage:
+                    if c not in common_usage:
                         common_usage[c] = 1
                     else:
                         common_usage[c] += 1

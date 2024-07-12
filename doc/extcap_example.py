@@ -36,7 +36,6 @@ import re
 import argparse
 import time
 import struct
-import array
 from threading import Thread
 
 ERROR_USAGE          = 0

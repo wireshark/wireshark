@@ -9,6 +9,14 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import sys
+import getopt
+import csv
+import re
+import collections
+import urllib.request, urllib.error, urllib.parse
+import codecs
+
 iana_svc_url = 'https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv'
 
 __doc__ = '''\
@@ -18,13 +26,6 @@ url defaults to
     %s
 ''' % (iana_svc_url)
 
-import sys
-import getopt
-import csv
-import re
-import collections
-import urllib.request, urllib.error, urllib.parse
-import codecs
 
 services_file = 'epan/services-data.c'
 
@@ -105,7 +106,7 @@ def parse_rows(svc_fd):
         if description == service or description == service.replace("-", " "):
             description = None
 
-        if not port in services_map:
+        if port not in services_map:
             services_map[port] = collections.OrderedDict()
 
         # Remove some duplicates (first entry wins)
@@ -117,7 +118,7 @@ def parse_rows(svc_fd):
         if proto_exists:
             continue
 
-        if not service in services_map[port]:
+        if service not in services_map[port]:
             services_map[port][service] = [description]
         services_map[port][service].append(proto)
 

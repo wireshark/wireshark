@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import sys
-import os
 import fnmatch
 
 IGNORE_CONF = "pre-commit-ignore.conf"
@@ -29,8 +28,8 @@ def load_checkignore(path):
             patterns = f.read()
     except OSError as err:
         sys.exit(str(err))
-    ign = [l.strip() for l in patterns.splitlines()]
-    ign = [l for l in ign if l and not l.startswith("#")]
+    ign = [line.strip() for line in patterns.splitlines()]
+    ign = [line for line in ign if line and not line.startswith("#")]
     return ign
 
 ignore_list = load_checkignore(ignore_path)

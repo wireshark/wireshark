@@ -47,12 +47,12 @@ class Call:
         if length:
             try:
                 self.length = int(length)
-            except:
+            except Exception:
                 if length.isupper():
                     if length in macros:
                         try:
                             self.length = int(macros[length])
-                        except:
+                        except Exception:
                             pass
                 pass
 
@@ -148,7 +148,6 @@ class APICheck:
                                 length = m.group(3)
 
                         # Add call. We have length if re had 3 groups.
-                        num_groups = self.p.groups
                         self.calls.append(Call(m.group(2),
                                                macros,
                                                line_number=line_number,
@@ -163,7 +162,6 @@ class APICheck:
         # Walk past any l.s. 0 bits in value
         n = 0
 
-        mask_start = n
         # Walk through any bits that are set and check they are in mask
         while self.check_bit(value, n) and n <= 63:
             if not self.check_bit(mask, n):
@@ -191,7 +189,7 @@ class APICheck:
                             warnings_found += 1
 
             # Needs a +ve length
-            if self.positive_length and call.length != None:
+            if self.positive_length and call.length is not None:
                 if call.length != -1 and call.length <= 0:
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
                           self.file + ':' + str(call.line_number) +
@@ -200,7 +198,7 @@ class APICheck:
 
             if call.hf_name in items_defined:
                 # Is type allowed?
-                if not items_defined[call.hf_name].item_type in self.allowed_types:
+                if items_defined[call.hf_name].item_type not in self.allowed_types:
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
                           self.file + ':' + str(call.line_number) +
                           ' with type ' + items_defined[call.hf_name].item_type)
@@ -226,7 +224,7 @@ class APICheck:
                             warnings_found += 1
 
             if check_missing_items:
-                if call.hf_name in items_declared and not call.hf_name in items_defined and not call.hf_name in items_declared_extern:
+                if call.hf_name in items_declared and call.hf_name not in items_defined and call.hf_name not in items_declared_extern:
                 #not in common_hf_var_names:
                     print('Warning:', self.file + ':' + str(call.line_number),
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
@@ -284,7 +282,7 @@ class ProtoTreeAddItemCheck(APICheck):
                         enc = m.group(3)
                         hf_name = m.group(1)
                         if not enc.startswith('ENC_'):
-                            if not enc in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
+                            if enc not in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
                                             'p_mq_parm->mq_str_enc', 'p_mq_parm->mq_int_enc',
                                             'iEnc', 'strid_enc', 'iCod', 'nl_data->encoding',
                                             'argp->info->encoding', 'gquic_info->encoding', 'writer_encoding',
@@ -343,7 +341,7 @@ class ProtoTreeAddItemCheck(APICheck):
                                 'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
                             warnings_found += 1
             elif check_missing_items:
-                if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
+                if call.hf_name in items_declared and call.hf_name not in items_declared_extern:
                 #not in common_hf_var_names:
                     print('Warning:', self.file + ':' + str(call.line_number),
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
@@ -570,7 +568,7 @@ class ValueString:
             value,label = m.group(1), m.group(2)
             if value in macros:
                 value = macros[value]
-            elif any(not c in '0123456789abcdefABCDEFxX' for c in value):
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in value):
                 self.valid = False
                 return
 
@@ -584,7 +582,7 @@ class ValueString:
                     value = int(value, 8)
                 else:
                     value = int(value, 10)
-            except:
+            except Exception:
                 return
 
             global warnings_found
@@ -634,7 +632,7 @@ class ValueString:
         span = self.max_value - self.min_value + 1
         if num_items > 4 and span > num_items and (span-num_items <=1):
             for val in range(self.min_value, self.max_value):
-                if not val in self.parsed_vals:
+                if val not in self.parsed_vals:
                     print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries)')
                     global warnings_found
                     warnings_found += 1
@@ -652,7 +650,7 @@ class ValueString:
             # Be forgiving about first or last entry
             first_val = list(self.parsed_vals)[0]
             last_val =  list(self.parsed_vals)[-1]
-            if not first_val in matching_label_entries or not last_val in matching_label_entries:
+            if first_val not in matching_label_entries or last_val not in matching_label_entries:
                 return
             print('Warning:', self.file, ': value_string', self.name, 'Labels match value except for 1!', matching_label_entries, num_items, self)
 
@@ -710,12 +708,12 @@ class RangeString:
             min,max,label = m.group(1), m.group(2), m.group(3)
             if min in macros:
                 min = macros[min]
-            elif any(not c in '0123456789abcdefABCDEFxX' for c in min):
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in min):
                 self.valid = False
                 return
             if max in macros:
                 max = macros[max]
-            elif any(not c in '0123456789abcdefABCDEFxX' for c in max):
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in max):
                 self.valid = False
                 return
 
@@ -738,7 +736,7 @@ class RangeString:
                     max = int(max, 8)
                 else:
                     max = int(max, 10)
-            except:
+            except Exception:
                 return
 
             # Now check what we've found.
@@ -958,7 +956,7 @@ class Item:
 
         # Optionally check that mask bits are contiguous
         if check_mask:
-            if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00' }:
+            if self.mask_read and mask not in { 'NULL', '0x0', '0', '0x00' }:
                 self.check_contiguous_bits(mask)
                 self.check_num_digits(self.mask)
                 # N.B., if last entry in set is removed, see around 18,000 warnings
@@ -1063,7 +1061,7 @@ class Item:
             # Substitute mask if found as a macro..
             if self.mask in macros:
                 self.mask = macros[self.mask]
-            elif any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in self.mask):
                 self.mask_read = False
                 self.mask_value = 0
                 #print(self.filename, 'Could not read:', '"' + self.mask + '"')
@@ -1076,7 +1074,7 @@ class Item:
                 self.mask_value = int(self.mask, 8)
             else:
                 self.mask_value = int(self.mask, 10)
-        except:
+        except Exception:
             self.mask_read = False
             self.mask_value = 0
 
@@ -1092,7 +1090,7 @@ class Item:
             # Substitute display if found as a macro..
             if display in macros:
                 display = macros[display]
-            elif any(not c in '0123456789abcdefABCDEFxX' for c in display):
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in display):
                 self.display_read = False
                 self.display_value = 0
                 return
@@ -1104,7 +1102,7 @@ class Item:
                 self.display_value = int(display, 8)
             else:
                 self.display_value = int(display, 10)
-        except:
+        except Exception:
             self.display_read = False
             self.display_value = 0
 
@@ -1195,7 +1193,7 @@ class Item:
 
         # Look up the field width
         field_width = 0
-        if not self.item_type in field_widths:
+        if self.item_type not in field_widths:
             print('unexpected item_type is ', self.item_type)
             field_width = 64
         else:
@@ -1233,7 +1231,7 @@ class Item:
                 try:
                     # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
                     return int((int(self.display) + 3)/4)*4
-                except:
+                except Exception:
                     return None
         else:
             if self.item_type in field_widths:
@@ -1323,13 +1321,11 @@ class Item:
     def check_mask_if_in_field_array(self, mask, field_arrays):
         # Work out if this item appears in a field array
         found = False
-        array_name = None
         for arr in field_arrays:
             list = field_arrays[arr][0]
             if self.hf in list:
                 # These need to have a mask - don't judge for being 0
                 found = True
-                array_name = arr
                 break
 
         if found:
@@ -1447,8 +1443,8 @@ class CombinedCallsCheck:
                 # More compelling if close together..
                 if call.line_number>prev.line_number and call.line_number-prev.line_number <= 4:
                     scope_different = False
-                    for l in range(prev.line_number, call.line_number-1):
-                        if lines[l].find('{') != -1 or lines[l].find('}') != -1 or lines[l].find('else') != -1 or lines[l].find('break;') != -1 or lines[l].find('if ') != -1:
+                    for no in range(prev.line_number, call.line_number-1):
+                        if lines[no].find('{') != -1 or lines[no].find('}') != -1 or lines[no].find('else') != -1 or lines[no].find('break;') != -1 or lines[no].find('if ') != -1:
                             scope_different = True
                             break
                     # Also more compelling if check for and scope changes { } in lines in-between?
@@ -1668,7 +1664,7 @@ def find_field_arrays(filename, all_fields, all_hf):
         for m in matches:
             name = m.group(1)
             # Ignore if not used in a call to an _add_bitmask_ API
-            if not name in all_fields:
+            if name not in all_fields:
                 continue
 
             fields_text = m.group(2)
@@ -1944,7 +1940,7 @@ elif args.open:
     # Only interested in dissector files.
     files_staged = list(filter(lambda f : is_dissector_file(f), files_staged))
     for f in files_staged:
-        if not f in files:
+        if f not in files:
             files.append(f)
 else:
     # Find all dissector files.

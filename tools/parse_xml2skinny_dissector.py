@@ -239,7 +239,7 @@ def xml2obj(src):
         def get_req_resp_keys(self, req_resp):
             for field in self._children:
                 key = field.get_req_resp_key()
-                if not key is None and not key in req_resp:
+                if key is not None and key not in req_resp:
                     req_resp.append(key)
 
         def declaration(self):
@@ -292,7 +292,7 @@ def xml2obj(src):
                 self.decr_indent()
                 ret += self.indent_out('}\n')
 
-            return ret;
+            return ret
 
     class Integer(DataNode):
         def __init__(self):
@@ -343,12 +343,12 @@ def xml2obj(src):
                     ret += self.indent_out('{\n')
                 self.incr_indent()
                 variable = 'counter_%d' %indentation
-                ret += self.indent_out('uint32_t %s = 0;\n' %(variable));
+                ret += self.indent_out('uint32_t %s = 0;\n' %(variable))
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref:%s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
                 else:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [max:%s]");\n' %(self.name, size))
-                ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable));
+                ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable))
                 if self.basemessage.dynamic == "no" and self.size_fieldname:
                     self.incr_indent()
                     ret += self.indent_out('if (%s < %s) {\n' %(variable,self.size_fieldname))
@@ -417,7 +417,6 @@ def xml2obj(src):
 
         def declaration(self):
             ret = ''
-            prevvalue = 0
             enum_sizes = {'uint32':4,'uint16':2,'uint8':1}
             if self.type in enum_sizes:
                 self.intsize = enum_sizes[self.type]
@@ -477,12 +476,12 @@ def xml2obj(src):
                     ret += self.indent_out('{\n')
                 self.incr_indent()
                 variable = 'counter_%d' %indentation
-                ret += self.indent_out('uint32_t %s = 0;\n' %(variable));
+                ret += self.indent_out('uint32_t %s = 0;\n' %(variable))
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref: %s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
                 else:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [max:%s]");\n' %(self.name, size))
-                ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable));
+                ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable))
                 if self.basemessage.dynamic == "no" and self.size_fieldname:
                     self.incr_indent()
                     ret += self.indent_out('if (%s < %s) {\n' %(variable,self.size_fieldname))
@@ -755,9 +754,9 @@ def xml2obj(src):
         def dissect(self):
             ret = ''
             if self.make_additional_info == "yes":
-                ret += self.indent_out('read_skinny_ipv4or6(cursor, &%s);\n' %(self.name));
-            ret += self.indent_out('dissect_skinny_ipv4or6(cursor, hf_skinny_%s_ipv4, hf_skinny_%s_ipv6);\n' %(self.name, self.name));
-            return ret;
+                ret += self.indent_out('read_skinny_ipv4or6(cursor, &%s);\n' %(self.name))
+            ret += self.indent_out('dissect_skinny_ipv4or6(cursor, hf_skinny_%s_ipv4, hf_skinny_%s_ipv6);\n' %(self.name, self.name))
+            return ret
 
     class XML(DataNode):
         def __init__(self):
@@ -848,7 +847,7 @@ def xml2obj(src):
                 self.incr_indent()
                 if debug:
                     ret += self.indent_out('/* start struct : %s / size: %d */\n' %(self.name, self.intsize))
-                ret += self.indent_out('uint32_t %s = 0;\n' %(variable));
+                ret += self.indent_out('uint32_t %s = 0;\n' %(variable))
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref:%s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, self.maxsize, self.size_fieldname))
                     if self.maxsize:
@@ -859,7 +858,7 @@ def xml2obj(src):
                 else:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [max:%s]");\n' %(self.name, size))
 
-                ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable));
+                ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable))
                 if self.basemessage.dynamic == "no" and self.size_fieldname:
                     self.incr_indent()
                     ret += self.indent_out('if (%s < %s) {\n' %(variable,self.size_fieldname))
@@ -906,7 +905,7 @@ def xml2obj(src):
             if self.size_fieldname:
                 ret += self.indent_out('} else {\n')
                 self.incr_indent()
-                ret += self.indent_out('ptvcursor_advance(cursor, (%s * %s));%s\n' %(self.size_fieldname, self.intsize, ' /* guard kicked in -> skip the rest */' if debug else ''));
+                ret += self.indent_out('ptvcursor_advance(cursor, (%s * %s));%s\n' %(self.size_fieldname, self.intsize, ' /* guard kicked in -> skip the rest */' if debug else ''))
                 self.decr_indent()
             ret += self.indent_out('} /* end struct size guard */\n' if debug else '}\n')
 
@@ -948,7 +947,6 @@ def xml2obj(src):
         def dissect(self):
             ret = ''
             ifblock = self.indent_out('if')
-            skip = 0
             #ret += self.indent_out('/* Union : %s / maxsize: %s */\n' %(self.name, self.maxsize))
 
             if (self.fields is not None and len(self.fields)):

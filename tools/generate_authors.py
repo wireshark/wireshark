@@ -16,10 +16,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import argparse
-import io
 import re
 import subprocess
-import sys
 
 
 def get_git_authors():

@@ -41,7 +41,6 @@ def open_url_zipped(url):
     return zipfile.ZipFile(io.BytesIO(body))
 
 def main():
-    this_dir = os.path.dirname(__file__)
     isobus_output_path = os.path.join('epan', 'dissectors',  'packet-isobus-parameters.h')
 
     isobus_zip_url = [ "https://www.isobus.net/isobus/attachments/", "isoExport_csv.zip"]
@@ -132,7 +131,7 @@ def main():
             pgn_id, pgn_name, = row[:2]
             if not pgn_name.startswith("Proprietary B"):
                 pgn_names[int(pgn_id)] = pgn_name.replace("\"","'")
-        except:
+        except Exception:
             pass
 
     # prepare output file
@@ -164,7 +163,7 @@ def main():
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
-    output_fd.write("static value_string_ext isobus_industry_groups_ext = VALUE_STRING_EXT_INIT(_isobus_industry_groups);\n\n");
+    output_fd.write("static value_string_ext isobus_industry_groups_ext = VALUE_STRING_EXT_INIT(_isobus_industry_groups);\n\n")
 
     # Write Vehicle System Names
     output_fd.write("/* key: 256 * Industry-Group-ID + Vehicle-Group-ID */\n")
@@ -175,7 +174,7 @@ def main():
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
-    output_fd.write("static value_string_ext isobus_vehicle_systems_ext = VALUE_STRING_EXT_INIT(_isobus_vehicle_systems);\n\n");
+    output_fd.write("static value_string_ext isobus_vehicle_systems_ext = VALUE_STRING_EXT_INIT(_isobus_vehicle_systems);\n\n")
 
     # Write Global Name Functions
     output_fd.write("static const value_string _isobus_global_name_functions[] = {\n")
@@ -185,7 +184,7 @@ def main():
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
-    output_fd.write("static value_string_ext isobus_global_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_global_name_functions);\n\n");
+    output_fd.write("static value_string_ext isobus_global_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_global_name_functions);\n\n")
 
      # IG Specific Global Name Functions
     output_fd.write("/* key: 65536 * Industry-Group-ID + 256 * Vehicle-System-ID + Function-ID */\n")
@@ -196,7 +195,7 @@ def main():
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
-    output_fd.write("static value_string_ext isobus_ig_specific_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_ig_specific_name_functions);\n\n");
+    output_fd.write("static value_string_ext isobus_ig_specific_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_ig_specific_name_functions);\n\n")
 
     # Write Manufacturers
     output_fd.write("static const value_string _isobus_manufacturers[] = {\n")
@@ -206,7 +205,7 @@ def main():
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
-    output_fd.write("static value_string_ext isobus_manufacturers_ext = VALUE_STRING_EXT_INIT(_isobus_manufacturers);\n\n");
+    output_fd.write("static value_string_ext isobus_manufacturers_ext = VALUE_STRING_EXT_INIT(_isobus_manufacturers);\n\n")
 
     # PGN Names
     output_fd.write("static const value_string _isobus_pgn_names[] = {\n")
@@ -216,7 +215,7 @@ def main():
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
-    output_fd.write("static value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);\n\n");
+    output_fd.write("static value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);\n\n")
 
     output_fd.write("#endif /* __PACKET_ISOBUS_PARAMETERS_H__ */")
 if __name__ == '__main__':
