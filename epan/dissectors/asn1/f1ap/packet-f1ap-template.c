@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V17.8.0 (2024-03)
+ * References: 3GPP TS 38.473 V18.2.0 (2024-06)
  */
 
 #include "config.h"
@@ -28,6 +28,7 @@
 #include "packet-pdcp-nr.h"
 #include "packet-lte-rrc.h"
 #include "packet-nrppa.h"
+#include "packet-lpp.h"
 
 #define PNAME  "F1 Application Protocol"
 #define PSNAME "F1AP"
@@ -114,7 +115,7 @@ static int ett_f1ap_MeasurementsToActivate;
 static int ett_f1ap_NRUERLFReportContainer;
 static int ett_f1ap_RACH_Config_Common;
 static int ett_f1ap_RACH_Config_Common_IAB;
-static int ett_f1ap_RACHReportContainer;
+static int ett_f1ap_RAReportContainer;
 static int ett_f1ap_ReferenceTime;
 static int ett_f1ap_ReportCharacteristics;
 static int ett_f1ap_SIB10_message;
@@ -125,6 +126,7 @@ static int ett_f1ap_SIB15_message;
 static int ett_f1ap_SIB17_message;
 static int ett_f1ap_SIB20_message;
 static int ett_f1ap_SL_PHY_MAC_RLC_Config;
+static int ett_f1ap_SL_PHY_MAC_RLC_ConfigExt;
 static int ett_f1ap_SL_RLC_ChannelToAddModList;
 static int ett_f1ap_SL_ConfigDedicatedEUTRA_Info;
 static int ett_f1ap_TDD_UL_DLConfigCommonNR;
@@ -149,6 +151,12 @@ static int ett_f1ap_UL_GapFR2_Config;
 static int ett_f1ap_ConfigRestrictInfoDAPS;
 static int ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo;
 static int ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT;
+static int ett_f1ap_JointorDLTCIStateID;
+static int ett_f1ap_ULTCIStateID;
+static int ett_f1ap_ReferenceConfigurationInformation;
+static int ett_f1ap_LTMCFRAResourceConfig;
+static int ett_f1ap_location_Information;
+static int ett_f1ap_velocity_Information;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -308,6 +316,27 @@ struct f1ap_tap_t {
 #define MTYPE_MEASUREMENT_ACTIVATION                       134
 #define MTYPE_QOE_INFORMATION_TRANSFER                     135
 #define MTYPE_POS_SYSTEM_INFORMATION_DELIVERY_COMMAND      136
+#define MTYPE_DU_CU_CELL_SWITCH_NOTIFICATION               137
+#define MTYPE_CU_DU_CELL_SWITCH_NOTIFICATION               138
+#define MTYPE_DU_CU_TA_INFORMATION_TRANSFER                139
+#define MTYPE_CU_DU_TA_INFORMATION_TRANSFER                140
+#define MTYPE_QOE_INFORMATION_TRANSFER_CONTROL             141
+#define MTYPE_RACH_INDICATION                              142
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST        143
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE       144
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE        145
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT         146
+#define MTYPE_MIAB_F1_SETUP_TRIGGERING                     147
+#define MTYPE_MIAB_F1_SETUP_OUTCOME_NOTIFICATION           148
+#define MTYPE_MULTICAST_CONTEXT_NOTIFICATION_INDICATION    149
+#define MTYPE_MULTICAST_CONTEXT_NOTIFICATION_CONFIRM       150
+#define MTYPE_MULTICAST_CONTEXT_NOTIFICATION_REFUSE        151
+#define MTYPE_MULTICAST_COMMON_CONFIGURATION_REQUEST       152
+#define MTYPE_MULTICAST_COMMON_CONFIGURATION_RESPONSE      153
+#define MTYPE_MULTICAST_COMMON_CONFIGURATION_REFUSE        154
+#define MTYPE_BROADCAST_TRANSPORT_RESOURCE_REQUEST         155
+#define MTYPE_DU_CU_ACCESS_AND_MOBILITY_INDICATION         156
+#define MTYPE_SRS_INFORMATION_RESERVATION_NOTIFICATION     157
 
 static const value_string mtype_names[] = {
     { MTYPE_RESET,     "Reset" },
@@ -446,6 +475,27 @@ static const value_string mtype_names[] = {
     { MTYPE_MEASUREMENT_ACTIVATION, "MeasurementActivation" },
     { MTYPE_QOE_INFORMATION_TRANSFER, "QoEInformationTransfer" },
     { MTYPE_POS_SYSTEM_INFORMATION_DELIVERY_COMMAND, "PosSystemInformationDeliveryCommand" },
+    { MTYPE_DU_CU_CELL_SWITCH_NOTIFICATION, "DUCUCellSwitchNotification" },
+    { MTYPE_CU_DU_CELL_SWITCH_NOTIFICATION, "CUDUCellSwitchNotification" },
+    { MTYPE_DU_CU_TA_INFORMATION_TRANSFER, "DUCUTAInformationTransfer" },
+    { MTYPE_CU_DU_TA_INFORMATION_TRANSFER, "CUDUTAInformationTransfer" },
+    { MTYPE_QOE_INFORMATION_TRANSFER_CONTROL, "QoEInformationTransferControl" },
+    { MTYPE_RACH_INDICATION, "RachIndication" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST, "TimingSynchronisationStatusRequest" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE, "TimingSynchronisationStatusResponse" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE, "TimingSynchronisationStatusFailure" },
+    { MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT, "TimingSynchronisationStatusReport" },
+    { MTYPE_MIAB_F1_SETUP_TRIGGERING, "MIABF1SetupTriggering" },
+    { MTYPE_MIAB_F1_SETUP_OUTCOME_NOTIFICATION, "MIABF1SetupOutcomeNotification" },
+    { MTYPE_MULTICAST_CONTEXT_NOTIFICATION_INDICATION, "MulticastContextNotificationIndication" },
+    { MTYPE_MULTICAST_CONTEXT_NOTIFICATION_CONFIRM, "MulticastContextNotificationConfirm" },
+    { MTYPE_MULTICAST_CONTEXT_NOTIFICATION_REFUSE, "MulticastContextNotificationRefuse" },
+    { MTYPE_MULTICAST_COMMON_CONFIGURATION_REQUEST, "MulticastCommonConfigurationRequest" },
+    { MTYPE_MULTICAST_COMMON_CONFIGURATION_RESPONSE, "MulticastCommonConfigurationResponse" },
+    { MTYPE_MULTICAST_COMMON_CONFIGURATION_REFUSE, "MulticastCommonConfigurationRefuse" },
+    { MTYPE_BROADCAST_TRANSPORT_RESOURCE_REQUEST, "BroadcastTransportResourceRequest" },
+    { MTYPE_DU_CU_ACCESS_AND_MOBILITY_INDICATION, "DUCUAccessAndMobilityIndication" },
+    { MTYPE_SRS_INFORMATION_RESERVATION_NOTIFICATION, "SRSInformationReservationNotification" },
     { 0,  NULL }
 };
 static value_string_ext mtype_names_ext = VALUE_STRING_EXT_INIT(mtype_names);
@@ -521,6 +571,12 @@ static void
 f1ap_ExtendedPacketDelayBudget_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
+}
+
+static void
+f1ap_N6Jitter_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%d)", (float)v/2, (int32_t)v);
 }
 
 static f1ap_private_data_t*
@@ -818,7 +874,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_NRUERLFReportContainer,
     &ett_f1ap_RACH_Config_Common,
     &ett_f1ap_RACH_Config_Common_IAB,
-    &ett_f1ap_RACHReportContainer,
+    &ett_f1ap_RAReportContainer,
     &ett_f1ap_ReferenceTime,
     &ett_f1ap_ReportCharacteristics,
     &ett_f1ap_SIB10_message,
@@ -829,6 +885,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SIB17_message,
     &ett_f1ap_SIB20_message,
     &ett_f1ap_SL_PHY_MAC_RLC_Config,
+    &ett_f1ap_SL_PHY_MAC_RLC_ConfigExt,
     &ett_f1ap_SL_RLC_ChannelToAddModList,
     &ett_f1ap_SL_ConfigDedicatedEUTRA_Info,
     &ett_f1ap_TDD_UL_DLConfigCommonNR,
@@ -853,6 +910,12 @@ void proto_register_f1ap(void) {
     &ett_f1ap_ConfigRestrictInfoDAPS,
     &ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo,
     &ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT,
+    &ett_f1ap_JointorDLTCIStateID,
+    &ett_f1ap_ULTCIStateID,
+    &ett_f1ap_ReferenceConfigurationInformation,
+    &ett_f1ap_LTMCFRAResourceConfig,
+    &ett_f1ap_location_Information,
+    &ett_f1ap_velocity_Information,
 #include "packet-f1ap-ettarr.c"
   };
 

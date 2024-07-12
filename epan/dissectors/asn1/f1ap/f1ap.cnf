@@ -31,7 +31,6 @@ ProtocolIE-ID
 Presence
 ProtocolIE-ContainerPair
 ProtocolIE-FieldPair
-PRS-ID
 #.END
 
 
@@ -119,7 +118,7 @@ id-UEContextSetup                           ProcedureCode
 id-UEContextRelease                         ProcedureCode
 id-UEContextModification                    ProcedureCode
 id-UEContextModificationRequired            ProcedureCode
-id-UEMobilityCommand                        ProcedureCode
+id-procedure-code-9-not-to-be-used          ProcedureCode
 id-UEContextReleaseRequest                  ProcedureCode
 id-InitialULRRCMessageTransfer              ProcedureCode
 id-DLRRCMessageTransfer                     ProcedureCode
@@ -182,9 +181,9 @@ id-MulticastDistributionSetup               ProcedureCode
 id-MulticastDistributionRelease             ProcedureCode
 id-PDCMeasurementInitiation                 ProcedureCode
 id-PDCMeasurementReport                     ProcedureCode
-id-PDCMeasurementInitiationRequest          ProcedureCode
-id-PDCMeasurementInitiationResponse         ProcedureCode
-id-PDCMeasurementInitiationFailure          ProcedureCode
+id-procedure-code-72-not-to-be-used         ProcedureCode
+id-procedure-code-73-not-to-be-used         ProcedureCode
+id-procedure-code-74-not-to-be-used         ProcedureCode
 id-pRSConfigurationExchange                 ProcedureCode
 id-measurementPreconfiguration              ProcedureCode
 id-measurementActivation                    ProcedureCode
@@ -192,6 +191,21 @@ id-QoEInformationTransfer                   ProcedureCode
 id-PDCMeasurementTerminationCommand         ProcedureCode
 id-PDCMeasurementFailureIndication          ProcedureCode
 id-PosSystemInformationDeliveryCommand      ProcedureCode
+id-DUCUCellSwitchNotification               ProcedureCode
+id-CUDUCellSwitchNotification               ProcedureCode
+id-DUCUTAInformationTransfer                ProcedureCode
+id-CUDUTAInformationTransfer                ProcedureCode
+id-QoEInformationTransferControl            ProcedureCode
+id-RachIndication                           ProcedureCode
+id-TimingSynchronisationStatus              ProcedureCode
+id-TimingSynchronisationStatusReport        ProcedureCode
+id-MIABF1SetupTriggering                    ProcedureCode
+id-MIABF1SetupOutcomeNotification           ProcedureCode
+id-MulticastContextNotification             ProcedureCode
+id-MulticastCommonConfiguration             ProcedureCode
+id-BroadcastTransportResourceRequest        ProcedureCode
+id-DUCUAccessAndMobilityIndication          ProcedureCode
+id-SRSInformationReservationNotification    ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -237,7 +251,7 @@ id-gNB-DU-ID                                         ProtocolIE-ID
 id-GNB-DU-Served-Cells-Item                          ProtocolIE-ID
 id-gNB-DU-Served-Cells-List                          ProtocolIE-ID
 id-gNB-DU-Name                                       ProtocolIE-ID
-id-NRCellID                                          ProtocolIE-ID
+id-ProtocolIE-ID-46-not-to-be-used                   ProtocolIE-ID
 id-oldgNB-DU-UE-F1AP-ID                              ProtocolIE-ID
 id-ResetType                                         ProtocolIE-ID
 id-ResourceCoordinationTransferContainer             ProtocolIE-ID
@@ -326,7 +340,7 @@ id-GNB-CU-TNL-Association-Failed-To-Setup-List       ProtocolIE-ID
 id-GNB-CU-TNL-Association-Failed-To-Setup-Item       ProtocolIE-ID
 id-DRB-Notify-Item                                   ProtocolIE-ID
 id-DRB-Notify-List                                   ProtocolIE-ID
-id-NotficationControl                                ProtocolIE-ID
+id-ProtocolIE-ID-138-not-to-be-used                  ProtocolIE-ID
 id-RANAC                                             ProtocolIE-ID
 id-PWSSystemInformation                              ProtocolIE-ID
 id-RepetitionPeriod                                  ProtocolIE-ID
@@ -429,8 +443,8 @@ id-RRCContainer-RRCSetupComplete                     ProtocolIE-ID
 id-TraceActivation                                   ProtocolIE-ID
 id-TraceID                                           ProtocolIE-ID
 id-Neighbour-Cell-Information-List                   ProtocolIE-ID
-id-SymbolAllocInSlot                                 ProtocolIE-ID
-id-NumDLULSymbols                                    ProtocolIE-ID
+id-ProtocolIE-ID-246-not-to-be-used                  ProtocolIE-ID
+id-ProtocolIE-ID-247-not-to-be-used                  ProtocolIE-ID
 id-AdditionalRRMPriorityIndex                        ProtocolIE-ID
 id-DUCURadioInformationType                          ProtocolIE-ID
 id-CUDURadioInformationType                          ProtocolIE-ID
@@ -542,7 +556,7 @@ id-ULCarrierList                                     ProtocolIE-ID
 id-FrequencyShift7p5khz                              ProtocolIE-ID
 id-SSB-PositionsInBurst                              ProtocolIE-ID
 id-NRPRACHConfig                                     ProtocolIE-ID
-id-RACHReportInformationList                         ProtocolIE-ID
+id-RAReportList                                      ProtocolIE-ID
 id-RLFReportInformationList                          ProtocolIE-ID
 id-TDD-UL-DLConfigCommonNR                           ProtocolIE-ID
 id-CNPacketDelayBudgetDownlink                       ProtocolIE-ID
@@ -628,12 +642,12 @@ id-NR-U-Channel-List                                 ProtocolIE-ID
 id-NR-U                                              ProtocolIE-ID
 id-Coverage-Modification-Notification                ProtocolIE-ID
 id-CCO-Assistance-Information                        ProtocolIE-ID
-id-Neighbor-node-CCO-Assistance-Information-List     ProtocolIE-ID
+id-ProtocolIE-ID-448-not-to-be-used                  ProtocolIE-ID
 id-CellsForSON-List                                  ProtocolIE-ID
 id-MIMOPRBusageInformation                           ProtocolIE-ID
 id-gNB-CU-MBS-F1AP-ID                                ProtocolIE-ID
 id-gNB-DU-MBS-F1AP-ID                                ProtocolIE-ID
-id-MBS-Area-Session-ID                               ProtocolIE-ID
+id-ProtocolIE-ID-453-not-to-be-used                  ProtocolIE-ID
 id-MBS-CUtoDURRCInformation                          ProtocolIE-ID
 id-MBS-Session-ID                                    ProtocolIE-ID
 id-SNSSAI                                            ProtocolIE-ID
@@ -754,7 +768,7 @@ id-PRSConfigRequestType                              ProtocolIE-ID
 id-MeasurementTimeOccasion                           ProtocolIE-ID
 id-MeasurementCharacteristicsRequestIndicator        ProtocolIE-ID
 id-UEReportingInformation                            ProtocolIE-ID
-id-PosConextRevIndication                            ProtocolIE-ID
+id-PosContextRevIndication                           ProtocolIE-ID
 id-TRPBeamAntennaInformation                         ProtocolIE-ID
 id-NRRedCapUEIndication                              ProtocolIE-ID
 id-Redcap-Bcast-Information                          ProtocolIE-ID
@@ -846,9 +860,9 @@ id-PEISubgroupingSupportIndication                   ProtocolIE-ID
 id-NeedForGapsInfoNR                                 ProtocolIE-ID
 id-NeedForGapNCSGInfoNR                              ProtocolIE-ID
 id-NeedForGapNCSGInfoEUTRA                           ProtocolIE-ID
-id-procedure-code-668-not-to-be-used                 ProtocolIE-ID
-id-procedure-code-669-not-to-be-used                 ProtocolIE-ID
-id-procedure-code-670-not-to-be-used                 ProtocolIE-ID
+id-ProtocolIE-ID-668-not-to-be-used                  ProtocolIE-ID
+id-ProtocolIE-ID-669-not-to-be-used                  ProtocolIE-ID
+id-ProtocolIE-ID-670-not-to-be-used                  ProtocolIE-ID
 id-Source-MRB-ID                                     ProtocolIE-ID
 id-PosMeasurementPeriodicityNR-AoA                   ProtocolIE-ID
 id-RedCapIndication                                  ProtocolIE-ID
@@ -890,6 +904,143 @@ id-DedicatedSIDeliveryIndication                     ProtocolIE-ID
 id-Configured-BWP-List                               ProtocolIE-ID
 id-Preconfigured-measurement-GAP-Request             ProtocolIE-ID
 id-BWP-Id                                            ProtocolIE-ID
+id-NetworkControlledRepeaterAuthorized               ProtocolIE-ID
+id-MT-SDT-Information                                ProtocolIE-ID
+id-ExtendedResourceSymbolOffset                      ProtocolIE-ID
+id-NeedForInterruptionInfoNR                         ProtocolIE-ID
+id-SDT-Volume-Threshold                              ProtocolIE-ID
+id-SupportedUETypeList                               ProtocolIE-ID
+id-MusimCapabilityRestrictionIndication              ProtocolIE-ID
+id-duplicationIndication                             ProtocolIE-ID
+id-LTMInformation-Setup                              ProtocolIE-ID
+id-LTMConfigurationIDMappingList                     ProtocolIE-ID
+id-LTMInformation-Modify                             ProtocolIE-ID
+id-LTMCells-ToBeReleased-List                        ProtocolIE-ID
+id-ProtocolIE-ID-724-not-to-be-used                  ProtocolIE-ID
+id-LTMConfiguration                                  ProtocolIE-ID
+id-EarlySyncInformation-Request                      ProtocolIE-ID
+id-EarlySyncInformation                              ProtocolIE-ID
+id-EarlySyncCandidateCellInformation-List            ProtocolIE-ID
+id-LTMCellSwitchInformation                          ProtocolIE-ID
+id-DUtoCUTAInformation-List                          ProtocolIE-ID
+id-ProtocolIE-ID-731-not-to-be-used                  ProtocolIE-ID
+id-dRB-List                                          ProtocolIE-ID
+id-DeactivationIndication                            ProtocolIE-ID
+id-RAReportIndicationList                            ProtocolIE-ID
+id-ChannelOccupancyTimePercentageUL                  ProtocolIE-ID
+id-SuccessfulPSCellChangeReportInformationList       ProtocolIE-ID
+id-RadioResourceStatusNR-U                           ProtocolIE-ID
+id-FiveG-ProSeLayer2Multipath                        ProtocolIE-ID
+id-FiveG-ProSeLayer2UEtoUERelay                      ProtocolIE-ID
+id-FiveG-ProSeLayer2UEtoUERemote                     ProtocolIE-ID
+id-PathAdditionInformation                           ProtocolIE-ID
+id-Recommended-SSBs-List                             ProtocolIE-ID
+id-Recommended-SSBs-for-Paging-List                  ProtocolIE-ID
+id-SSBs-withinTheCell-tobe-Activated-List            ProtocolIE-ID
+id-Cells-With-SSBs-Activated-List                    ProtocolIE-ID
+id-Cells-Allowed-to-be-Deactivated-List              ProtocolIE-ID
+id-Cells-Allowed-to-be-Deactivated-List-Item         ProtocolIE-ID
+id-Coverage-Modification-Cause                       ProtocolIE-ID
+id-RANTSSRequestType                                 ProtocolIE-ID
+id-RANTimingSynchronisationStatusInfo                ProtocolIE-ID
+id-TSCTrafficCharacteristicsFeedback                 ProtocolIE-ID
+id-RANfeedbacktype                                   ProtocolIE-ID
+id-Mobile-TRP-LocationInformation                    ProtocolIE-ID
+id-Mobile-IAB-MT-UE-ID                               ProtocolIE-ID
+id-Target-gNB-ID                                     ProtocolIE-ID
+id-Target-gNB-IP-address                             ProtocolIE-ID
+id-Target-SeGW-IP-address                            ProtocolIE-ID
+id-Activated-Cells-Mapping-List                      ProtocolIE-ID
+id-Activated-Cells-Mapping-List-Item                 ProtocolIE-ID
+id-F1SetupOutcome                                    ProtocolIE-ID
+id-RRC-Terminating-IAB-Donor-Related-Info            ProtocolIE-ID
+id-RRC-Terminating-IAB-Donor-gNB-ID                  ProtocolIE-ID
+id-NCGI-to-be-Updated-List                           ProtocolIE-ID
+id-NCGI-to-be-Updated-List-Item                      ProtocolIE-ID
+id-Mobile-IAB-MTUserLocationInformation              ProtocolIE-ID
+id-MobileAccessPointLocation                         ProtocolIE-ID
+id-AssociatedSessionID                               ProtocolIE-ID
+id-IndicationMCInactiveReception                     ProtocolIE-ID
+id-MulticastCU2DURRCInfo                             ProtocolIE-ID
+id-MBSMulticastSessionReceptionState                 ProtocolIE-ID
+id-F1UTunnelNotEstablished                           ProtocolIE-ID
+id-MulticastDU2CURRCInfo                             ProtocolIE-ID
+id-SIB24-message                                     ProtocolIE-ID
+id-MulticastCU2DUCommonRRCInfo                       ProtocolIE-ID
+id-PDUSetQoSParameters                               ProtocolIE-ID
+id-N6JitterInformation                               ProtocolIE-ID
+id-ECNMarkingorCongestionInformationReportingRequest ProtocolIE-ID
+id-ECNMarkingorCongestionInformationReportingStatus  ProtocolIE-ID
+id-NRA2XServicesAuthorized                           ProtocolIE-ID
+id-LTEA2XServicesAuthorized                          ProtocolIE-ID
+id-NRUESidelinkAggregateMaximumBitrateForA2X         ProtocolIE-ID
+id-LTEUESidelinkAggregateMaximumBitrateForA2X        ProtocolIE-ID
+id-NReRedCapUEIndication                             ProtocolIE-ID
+id-ERedcap-Bcast-Information                         ProtocolIE-ID
+id-NRPaginglongeDRXInformationforRRCINACTIVE         ProtocolIE-ID
+id-SCPAC-Request                                     ProtocolIE-ID
+id-Target-F1-Terminating-Donor-gNB-ID                ProtocolIE-ID
+id-MobileIAB-Barred                                  ProtocolIE-ID
+id-Broadcast-MRBs-Transport-Request-List             ProtocolIE-ID
+id-Broadcast-MRBs-Transport-Request-Item             ProtocolIE-ID
+id-S-CPACLowerLayerReferenceConfigRequest            ProtocolIE-ID
+id-S-CPAC-Configuration                              ProtocolIE-ID
+id-MusimCandidateBandList                            ProtocolIE-ID
+id-DLLBTFailureInformationRequest                    ProtocolIE-ID
+id-DLLBTFailureInformationList                       ProtocolIE-ID
+id-PSIbasedSDUdiscardUL                              ProtocolIE-ID
+id-SIB22-message                                     ProtocolIE-ID
+id-CUtoDUTAInformation-List                          ProtocolIE-ID
+id-U2URLCChannelQoS                                  ProtocolIE-ID
+id-SL-PHY-MAC-RLC-ConfigExt                          ProtocolIE-ID
+id-SLPositioning-Ranging-Service-Info                ProtocolIE-ID
+id-TimeWindowInformation-SRS-List                    ProtocolIE-ID
+id-TimeWindowInformation-Measurement-List            ProtocolIE-ID
+id-UL-RSCP                                           ProtocolIE-ID
+id-BW-Aggregation-Request-Indication                 ProtocolIE-ID
+id-ReportingGranularitykminus1                       ProtocolIE-ID
+id-ReportingGranularitykminus2                       ProtocolIE-ID
+id-ReportingGranularitykminus1additionalpath         ProtocolIE-ID
+id-ReportingGranularitykminus2additionalpath         ProtocolIE-ID
+id-TimingReportingGranularityFactorExtended          ProtocolIE-ID
+id-SRSPosRRCInactiveValidityAreaConfig               ProtocolIE-ID
+id-PosValidityAreaCellList                           ProtocolIE-ID
+id-SRSReservationType                                ProtocolIE-ID
+id-SymbolIndex                                       ProtocolIE-ID
+id-PRSBandwidthAggregationRequestIndication          ProtocolIE-ID
+id-AggregatedPosSRSResourceIDList                    ProtocolIE-ID
+id-AggregatedPRSResourceSetList                      ProtocolIE-ID
+id-PhaseQuality                                      ProtocolIE-ID
+id-MeasuredFrequencyHops                             ProtocolIE-ID
+id-TxHoppingConfiguration                            ProtocolIE-ID
+id-ReportingGranularitykminus3                       ProtocolIE-ID
+id-ReportingGranularitykminus4                       ProtocolIE-ID
+id-ReportingGranularitykminus5                       ProtocolIE-ID
+id-ReportingGranularitykminus6                       ProtocolIE-ID
+id-ReportingGranularitykminus3additionalpath         ProtocolIE-ID
+id-ReportingGranularitykminus4additionalpath         ProtocolIE-ID
+id-ReportingGranularitykminus5additionalpath         ProtocolIE-ID
+id-ReportingGranularitykminus6additionalpath         ProtocolIE-ID
+id-AggregatedPosSRSResourceSetList                   ProtocolIE-ID
+id-RequestedSRSPreconfigurationCharacteristics-List  ProtocolIE-ID
+id-SRSPreconfiguration-List                          ProtocolIE-ID
+id-SRSInformation                                    ProtocolIE-ID
+id-ValidityAreaSpecificSRSInformation                ProtocolIE-ID
+id-E-CID-MeasuredResultsAssociatedInfoList           ProtocolIE-ID
+id-XR-Bcast-Information                              ProtocolIE-ID
+id-MaxDataBurstVolume                                ProtocolIE-ID
+id-TAInformation-List                                ProtocolIE-ID
+id-NonIntegerDRXCycle                                ProtocolIE-ID
+id-PointA                                            ProtocolIE-ID
+id-SCS-SpecificCarrier                               ProtocolIE-ID
+id-NR-PCI                                            ProtocolIE-ID
+id-PeerUE-ID                                         ProtocolIE-ID
+id-EarlySyncServingCellInformation                   ProtocolIE-ID
+id-RANSharingAssistanceInformation                   ProtocolIE-ID
+id-LTMCFRAResourceConfig-List                        ProtocolIE-ID
+id-F1U-PathFailure                                   ProtocolIE-ID
+id-MeasBasedOnAggregatedResources                    ProtocolIE-ID
+id-SIB23-message                                     ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1173,7 +1324,7 @@ CellMeasurementResultList                         N f1ap.ies id-CellMeasurementR
 HardwareLoadIndicator                             N f1ap.ies id-HardwareLoadIndicator
 ReportingPeriodicity                              N f1ap.ies id-ReportingPeriodicity
 TNLCapacityIndicator                              N f1ap.ies id-TNLCapacityIndicator
-RACHReportInformationList                         N f1ap.ies id-RACHReportInformationList
+RAReportList                                      N f1ap.ies id-RAReportList
 RLFReportInformationList                          N f1ap.ies id-RLFReportInformationList
 ReportingRequestType                              N f1ap.ies id-ReportingRequestType
 TimeReferenceInformation                          N f1ap.ies id-TimeReferenceInformation
@@ -1318,7 +1469,7 @@ PRSConfigRequestType                              N f1ap.ies id-PRSConfigRequest
 MeasurementTimeOccasion                           N f1ap.ies id-MeasurementTimeOccasion
 MeasurementCharacteristicsRequestIndicator        N f1ap.ies id-MeasurementCharacteristicsRequestIndicator
 UEReportingInformation                            N f1ap.ies id-UEReportingInformation
-PosConextRevIndication                            N f1ap.ies id-PosConextRevIndication
+PosContextRevIndication                           N f1ap.ies id-PosContextRevIndication
 TRPBeamAntennaInformation                         N f1ap.ies id-TRPBeamAntennaInformation
 NRRedCapUEIndication                              N f1ap.ies id-NRRedCapUEIndication
 PagingDRX                                         N f1ap.ies id-RANUEPagingDRX
@@ -1410,6 +1561,91 @@ UE-MulticastMRBs-Setupnew-Item                    N f1ap.ies id-UE-MulticastMRBs
 TransmissionCombn8                                N f1ap.ies id-transmissionCombn8
 DedicatedSIDeliveryIndication                     N f1ap.ies id-DedicatedSIDeliveryIndication
 Configured-BWP-List                               N f1ap.ies id-Configured-BWP-List
+NetworkControlledRepeaterAuthorized               N f1ap.ies id-NetworkControlledRepeaterAuthorized
+MT-SDT-Information                                N f1ap.ies id-MT-SDT-Information
+SDT-Volume-Threshold                              N f1ap.ies id-SDT-Volume-Threshold
+SupportedUETypeList                               N f1ap.ies id-SupportedUETypeList
+LTMInformation-Setup                              N f1ap.ies id-LTMInformation-Setup
+LTMConfigurationIDMappingList                     N f1ap.ies id-LTMConfigurationIDMappingList
+LTMInformation-Modify                             N f1ap.ies id-LTMInformation-Modify
+LTMCells-ToBeReleased-List                        N f1ap.ies id-LTMCells-ToBeReleased-List
+LTMConfiguration                                  N f1ap.ies id-LTMConfiguration
+EarlySyncInformation-Request                      N f1ap.ies id-EarlySyncInformation-Request
+EarlySyncInformation                              N f1ap.ies id-EarlySyncInformation
+EarlySyncCandidateCellInformation-List            N f1ap.ies id-EarlySyncCandidateCellInformation-List
+LTMCellSwitchInformation                          N f1ap.ies id-LTMCellSwitchInformation
+DUtoCUTAInformation-List                          N f1ap.ies id-DUtoCUTAInformation-List
+DeactivationIndication                            N f1ap.ies id-DeactivationIndication
+RAReportIndicationList                            N f1ap.ies id-RAReportIndicationList
+SuccessfulPSCellChangeReportInformationList       N f1ap.ies id-SuccessfulPSCellChangeReportInformationList
+PathAdditionInformation                           N f1ap.ies id-PathAdditionInformation
+Recommended-SSBs-for-Paging-List                  N f1ap.ies id-Recommended-SSBs-for-Paging-List
+Cells-With-SSBs-Activated-List                    N f1ap.ies id-Cells-With-SSBs-Activated-List
+Cells-Allowed-to-be-Deactivated-List              N f1ap.ies id-Cells-Allowed-to-be-Deactivated-List
+Cells-Allowed-to-be-Deactivated-List-Item         N f1ap.ies id-Cells-Allowed-to-be-Deactivated-List-Item
+RANTSSRequestType                                 N f1ap.ies id-RANTSSRequestType
+RANTimingSynchronisationStatusInfo                N f1ap.ies id-RANTimingSynchronisationStatusInfo
+Mobile-TRP-LocationInformation                    N f1ap.ies id-Mobile-TRP-LocationInformation
+GlobalGNB-ID                                      N f1ap.ies id-Target-gNB-ID
+TransportLayerAddress                             N f1ap.ies id-Target-gNB-IP-address
+TransportLayerAddress                             N f1ap.ies id-Target-SeGW-IP-address
+Activated-Cells-Mapping-List                      N f1ap.ies id-Activated-Cells-Mapping-List
+Activated-Cells-Mapping-List-Item                 N f1ap.ies id-Activated-Cells-Mapping-List-Item
+F1SetupOutcome                                    N f1ap.ies id-F1SetupOutcome
+RRC-Terminating-IAB-Donor-Related-Info            N f1ap.ies id-RRC-Terminating-IAB-Donor-Related-Info
+GlobalGNB-ID                                      N f1ap.ies id-RRC-Terminating-IAB-Donor-gNB-ID
+NCGI-to-be-Updated-List                           N f1ap.ies id-NCGI-to-be-Updated-List
+NCGI-to-be-Updated-List-Item                      N f1ap.ies id-NCGI-to-be-Updated-List-Item
+Mobile-IAB-MTUserLocationInformation              N f1ap.ies id-Mobile-IAB-MTUserLocationInformation
+AssociatedSessionID                               N f1ap.ies id-AssociatedSessionID
+IndicationMCInactiveReception                     N f1ap.ies id-IndicationMCInactiveReception
+MulticastCU2DURRCInfo                             N f1ap.ies id-MulticastCU2DURRCInfo
+MBSMulticastSessionReceptionState                 N f1ap.ies id-MBSMulticastSessionReceptionState
+MulticastDU2CURRCInfo                             N f1ap.ies id-MulticastDU2CURRCInfo
+MulticastCU2DUCommonRRCInfo                       N f1ap.ies id-MulticastCU2DUCommonRRCInfo
+NRA2XServicesAuthorized                           N f1ap.ies id-NRA2XServicesAuthorized
+LTEA2XServicesAuthorized                          N f1ap.ies id-LTEA2XServicesAuthorized
+NRUESidelinkAggregateMaximumBitrate               N f1ap.ies id-NRUESidelinkAggregateMaximumBitrateForA2X
+LTEUESidelinkAggregateMaximumBitrate              N f1ap.ies id-LTEUESidelinkAggregateMaximumBitrateForA2X
+NReRedCapUEIndication                             N f1ap.ies id-NReRedCapUEIndication
+NRPaginglongeDRXInformationforRRCINACTIVE         N f1ap.ies id-NRPaginglongeDRXInformationforRRCINACTIVE
+GlobalGNB-ID                                      N f1ap.ies id-Target-F1-Terminating-Donor-gNB-ID
+Broadcast-MRBs-Transport-Request-List             N f1ap.ies id-Broadcast-MRBs-Transport-Request-List
+Broadcast-MRBs-Transport-Request-Item             N f1ap.ies id-Broadcast-MRBs-Transport-Request-Item
+S-CPAC-Configuration                              N f1ap.ies id-S-CPAC-Configuration
+DLLBTFailureInformationRequest                    N f1ap.ies id-DLLBTFailureInformationRequest
+DLLBTFailureInformationList                       N f1ap.ies id-DLLBTFailureInformationList
+CUtoDUTAInformation-List                          N f1ap.ies id-CUtoDUTAInformation-List
+PC5QoSParameters                                  N f1ap.ies id-U2URLCChannelQoS
+SLPositioning-Ranging-Service-Info                N f1ap.ies id-SLPositioning-Ranging-Service-Info
+TimeWindowInformation-SRS-List                    N f1ap.ies id-TimeWindowInformation-SRS-List
+TimeWindowInformation-Measurement-List            N f1ap.ies id-TimeWindowInformation-Measurement-List
+UL-RSCP                                           N f1ap.ies id-UL-RSCP
+ReportingGranularitykminus1                       N f1ap.ies id-ReportingGranularitykminus1
+ReportingGranularitykminus2                       N f1ap.ies id-ReportingGranularitykminus2
+ReportingGranularitykminus1AdditionalPath         N f1ap.ies id-ReportingGranularitykminus1additionalpath
+ReportingGranularitykminus2AdditionalPath         N f1ap.ies id-ReportingGranularitykminus2additionalpath
+SRSPosRRCInactiveValidityAreaConfig               N f1ap.ies id-SRSPosRRCInactiveValidityAreaConfig
+SRSReservationType                                N f1ap.ies id-SRSReservationType
+PhaseQuality                                      N f1ap.ies id-PhaseQuality
+ReportingGranularitykminus3                       N f1ap.ies id-ReportingGranularitykminus3
+ReportingGranularitykminus4                       N f1ap.ies id-ReportingGranularitykminus4
+ReportingGranularitykminus5                       N f1ap.ies id-ReportingGranularitykminus5
+ReportingGranularitykminus6                       N f1ap.ies id-ReportingGranularitykminus6
+ReportingGranularitykminus3AdditionalPath         N f1ap.ies id-ReportingGranularitykminus3additionalpath
+ReportingGranularitykminus4AdditionalPath         N f1ap.ies id-ReportingGranularitykminus4additionalpath
+ReportingGranularitykminus5AdditionalPath         N f1ap.ies id-ReportingGranularitykminus5additionalpath
+ReportingGranularitykminus6AdditionalPath         N f1ap.ies id-ReportingGranularitykminus6additionalpath
+AggregatedPosSRSResourceSetList                   N f1ap.ies id-AggregatedPosSRSResourceSetList
+RequestedSRSPreconfigurationCharacteristics-List  N f1ap.ies id-RequestedSRSPreconfigurationCharacteristics-List
+SRSPreconfiguration-List                          N f1ap.ies id-SRSPreconfiguration-List
+RequestedSRSTransmissionCharacteristics           N f1ap.ies id-SRSInformation
+TAInformation-List                                N f1ap.ies id-TAInformation-List
+NonIntegerDRXCycle                                N f1ap.ies id-NonIntegerDRXCycle
+EarlySyncServingCellInformation                   N f1ap.ies id-EarlySyncServingCellInformation
+RANSharingAssistanceInformation                   N f1ap.ies id-RANSharingAssistanceInformation
+LTMCFRAResourceConfig-List                        N f1ap.ies id-LTMCFRAResourceConfig-List
+F1U-PathFailure                                   N f1ap.ies id-F1U-PathFailure
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1589,6 +1825,58 @@ StartRBIndex                                      N f1ap.extension id-startRBInd
 ServCellInfoList                                  N f1ap.extension id-ServCellInfoList
 Preconfigured-measurement-GAP-Request             N f1ap.extension id-Preconfigured-measurement-GAP-Request
 BWP-Id                                            N f1ap.extension id-BWP-Id
+ExtendedResourceSymbolOffset                      N f1ap.extension id-ExtendedResourceSymbolOffset
+NeedForInterruptionInfoNR                         N f1ap.extension id-NeedForInterruptionInfoNR
+MusimCapabilityRestrictionIndication              N f1ap.extension id-MusimCapabilityRestrictionIndication
+DuplicationIndication                             N f1ap.extension id-duplicationIndication
+DRB-List                                          N f1ap.extension id-dRB-List
+ChannelOccupancyTimePercentage                    N f1ap.extension id-ChannelOccupancyTimePercentageUL
+RadioResourceStatusNR-U                           N f1ap.extension id-RadioResourceStatusNR-U
+FiveG-ProSeLayer2Multipath                        N f1ap.extension id-FiveG-ProSeLayer2Multipath
+FiveG-ProSeLayer2UEtoUERelay                      N f1ap.extension id-FiveG-ProSeLayer2UEtoUERelay
+FiveG-ProSeLayer2UEtoUERemote                     N f1ap.extension id-FiveG-ProSeLayer2UEtoUERemote
+Recommended-SSBs-List                             N f1ap.extension id-Recommended-SSBs-List
+SSBs-toBeActivated-List                           N f1ap.extension id-SSBs-withinTheCell-tobe-Activated-List
+CCO-issue-detection                               N f1ap.extension id-Coverage-Modification-Cause
+TSCTrafficCharacteristicsFeedback                 N f1ap.extension id-TSCTrafficCharacteristicsFeedback
+RANfeedbacktype                                   N f1ap.extension id-RANfeedbacktype
+Mobile-TRP-LocationInformation                    N f1ap.extension id-Mobile-TRP-LocationInformation
+Mobile-IAB-MT-UE-ID                               N f1ap.extension id-Mobile-IAB-MT-UE-ID
+Mobile-TRP-LocationInformation                    N f1ap.extension id-MobileAccessPointLocation
+F1UTunnelNotEstablished                           N f1ap.extension id-F1UTunnelNotEstablished
+SIB24-message                                     N f1ap.extension id-SIB24-message
+PDUSetQoSParameters                               N f1ap.extension id-PDUSetQoSParameters
+N6JitterInformation                               N f1ap.extension id-N6JitterInformation
+ECNMarkingorCongestionInformationReportingRequest N f1ap.extension id-ECNMarkingorCongestionInformationReportingRequest
+ECNMarkingorCongestionInformationReportingStatus  N f1ap.extension id-ECNMarkingorCongestionInformationReportingStatus
+ERedcap-Bcast-Information                         N f1ap.extension id-ERedcap-Bcast-Information
+SCPAC-Request                                     N f1ap.extension id-SCPAC-Request
+MobileIAB-Barred                                  N f1ap.extension id-MobileIAB-Barred
+S-CPACLowerLayerReferenceConfigRequest            N f1ap.extension id-S-CPACLowerLayerReferenceConfigRequest
+MusimCandidateBandList                            N f1ap.extension id-MusimCandidateBandList
+PSIbasedSDUdiscardUL                              N f1ap.extension id-PSIbasedSDUdiscardUL
+SIB22-message                                     N f1ap.extension id-SIB22-message
+SL-PHY-MAC-RLC-ConfigExt                          N f1ap.extension id-SL-PHY-MAC-RLC-ConfigExt
+BW-Aggregation-Request-Indication                 N f1ap.extension id-BW-Aggregation-Request-Indication
+TimingReportingGranularityFactorExtended          N f1ap.extension id-TimingReportingGranularityFactorExtended
+PosValidityAreaCellList                           N f1ap.extension id-PosValidityAreaCellList
+SymbolIndex                                       N f1ap.extension id-SymbolIndex
+PRSBandwidthAggregationRequestIndication          N f1ap.extension id-PRSBandwidthAggregationRequestIndication
+AggregatedPosSRSResourceIDList                    N f1ap.extension id-AggregatedPosSRSResourceIDList
+AggregatedPRSResourceSetList                      N f1ap.extension id-AggregatedPRSResourceSetList
+MeasuredFrequencyHops                             N f1ap.extension id-MeasuredFrequencyHops
+TxHoppingConfiguration                            N f1ap.extension id-TxHoppingConfiguration
+AggregatedPosSRSResourceSetList                   N f1ap.extension id-AggregatedPosSRSResourceSetList
+ValidityAreaSpecificSRSInformation                N f1ap.extension id-ValidityAreaSpecificSRSInformation
+E-CID-MeasuredResultsAssociatedInfoList           N f1ap.extension id-E-CID-MeasuredResultsAssociatedInfoList
+XR-Bcast-Information                              N f1ap.extension id-XR-Bcast-Information
+MaxDataBurstVolume                                N f1ap.extension id-MaxDataBurstVolume
+PointA                                            N f1ap.extension id-PointA
+SCS-SpecificCarrier                               N f1ap.extension id-SCS-SpecificCarrier
+NRPCI                                             N f1ap.extension id-NR-PCI
+PeerUE-ID                                         N f1ap.extension id-PeerUE-ID
+MeasBasedOnAggregatedResources                    N f1ap.extension id-MeasBasedOnAggregatedResources
+SIB23-message                                     N f1ap.extension id-SIB23-message
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -1804,6 +2092,42 @@ MeasurementActivation                    N f1ap.proc.imsg id-measurementActivati
 QoEInformationTransfer                   N f1ap.proc.imsg id-QoEInformationTransfer
 
 PosSystemInformationDeliveryCommand      N f1ap.proc.imsg id-PosSystemInformationDeliveryCommand
+
+DUCUCellSwitchNotification               N f1ap.proc.imsg id-DUCUCellSwitchNotification
+
+CUDUCellSwitchNotification               N f1ap.proc.imsg id-CUDUCellSwitchNotification
+
+DUCUTAInformationTransfer                N f1ap.proc.imsg id-DUCUTAInformationTransfer
+
+CUDUTAInformationTransfer                N f1ap.proc.imsg id-CUDUTAInformationTransfer
+
+QoEInformationTransferControl            N f1ap.proc.imsg id-QoEInformationTransferControl
+
+RachIndication                           N f1ap.proc.imsg id-RachIndication
+
+TimingSynchronisationStatusRequest       N f1ap.proc.imsg id-TimingSynchronisationStatus
+TimingSynchronisationStatusResponse      N f1ap.proc.sout id-TimingSynchronisationStatus
+TimingSynchronisationStatusFailure       N f1ap.proc.uout id-TimingSynchronisationStatus
+
+TimingSynchronisationStatusReport        N f1ap.proc.imsg id-TimingSynchronisationStatusReport
+
+MIABF1SetupTriggering                    N f1ap.proc.imsg id-MIABF1SetupTriggering
+
+MIABF1SetupOutcomeNotification           N f1ap.proc.imsg id-MIABF1SetupOutcomeNotification
+
+MulticastContextNotificationIndication   N f1ap.proc.imsg id-MulticastContextNotification
+MulticastContextNotificationConfirm      N f1ap.proc.sout id-MulticastContextNotification
+MulticastContextNotificationRefuse       N f1ap.proc.uout id-MulticastContextNotification
+
+MulticastCommonConfigurationRequest      N f1ap.proc.imsg id-MulticastCommonConfiguration
+MulticastCommonConfigurationResponse     N f1ap.proc.sout id-MulticastCommonConfiguration
+MulticastCommonConfigurationRefuse       N f1ap.proc.uout id-MulticastCommonConfiguration
+
+BroadcastTransportResourceRequest        N f1ap.proc.imsg id-BroadcastTransportResourceRequest
+
+DUCUAccessAndMobilityIndication          N f1ap.proc.imsg id-DUCUAccessAndMobilityIndication
+
+SRSInformationReservationNotification    N f1ap.proc.imsg id-SRSInformationReservationNotification
 
 #.FN_BODY AdditionalSIBMessageList-Item/additionalSIB VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -2594,11 +2918,11 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     dissect_nr_rrc_RACH_ConfigCommon_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RACHReportContainer VAL_PTR = &param_tvb
+#.FN_BODY RAReportContainer VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RACHReportContainer);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RAReportContainer);
     dissect_nr_rrc_RA_ReportList_r16_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -2689,6 +3013,14 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SL_PHY_MAC_RLC_Config);
     dissect_nr_rrc_SL_PHY_MAC_RLC_Config_r16_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SL-PHY-MAC-RLC-ConfigExt VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SL_PHY_MAC_RLC_ConfigExt);
+    dissect_nr_rrc_SL_PHY_MAC_RLC_Config_v1700_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY SL-RLC-ChannelToAddModList VAL_PTR = &param_tvb
@@ -2903,6 +3235,75 @@ SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
 %(DEFAULT_BODY)s
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   f1ap_data->gdb_cu_ue_f1ap_id = id;
+
+#.FN_BODY JointorDLTCIStateID VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (param_tvb && lte_rrc_conn_reconf_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_JointorDLTCIStateID);
+    dissect_nr_rrc_TCI_StateId_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULTCIStateID VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (param_tvb && lte_rrc_conn_reconf_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_ULTCIStateID);
+    dissect_nr_rrc_TCI_UL_StateId_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ReferenceConfigurationInformation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (param_tvb && lte_rrc_conn_reconf_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_ReferenceConfigurationInformation);
+    dissect_nr_rrc_CellGroupConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMCFRAResourceConfig VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (param_tvb && lte_rrc_conn_reconf_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_LTMCFRAResourceConfig);
+    dissect_nr_rrc_RACH_ConfigDedicated_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MBS-Multicast-MRB-Item/mRB-PDCP-Config-Broadcast VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (param_tvb && lte_rrc_conn_reconf_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mRB_PDCP_Config_Broadcast);
+    dissect_nr_rrc_MRB_PDCP_ConfigBroadcast_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY Mobile-TRP-LocationInformation/location-Information VAL_PTR = &location_coordinate_tvb
+  tvbuff_t *location_coordinate_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (location_coordinate_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_location_Information);
+    dissect_lpp_LocationCoordinates_PDU(location_coordinate_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY Mobile-TRP-LocationInformation/velocity-Information VAL_PTR = &location_coordinate_tvb
+  tvbuff_t *location_coordinate_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (location_coordinate_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_velocity_Information);
+    dissect_lpp_Velocity_PDU(location_coordinate_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_N6Jitter_fmt)
+
+#.TYPE_ATTR
+N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_N6Jitter_fmt)
 
 #.FN_HDR Reset
   set_message_label(actx, MTYPE_RESET);
@@ -3404,6 +3805,69 @@ SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
 #.FN_HDR PosSystemInformationDeliveryCommand
   set_message_label(actx, MTYPE_POS_SYSTEM_INFORMATION_DELIVERY_COMMAND);
   set_stats_message_type(actx->pinfo, MTYPE_POS_SYSTEM_INFORMATION_DELIVERY_COMMAND);
+#.FN_HDR DUCUCellSwitchNotification
+  set_message_label(actx, MTYPE_DU_CU_CELL_SWITCH_NOTIFICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_DU_CU_CELL_SWITCH_NOTIFICATION);
+#.FN_HDR CUDUCellSwitchNotification
+  set_message_label(actx, MTYPE_CU_DU_CELL_SWITCH_NOTIFICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_CU_DU_CELL_SWITCH_NOTIFICATION);
+#.FN_HDR DUCUTAInformationTransfer
+  set_message_label(actx, MTYPE_DU_CU_TA_INFORMATION_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_DU_CU_TA_INFORMATION_TRANSFER);
+#.FN_HDR CUDUTAInformationTransfer
+  set_message_label(actx, MTYPE_CU_DU_TA_INFORMATION_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_CU_DU_TA_INFORMATION_TRANSFER);
+#.FN_HDR QoEInformationTransferControl
+  set_message_label(actx, MTYPE_QOE_INFORMATION_TRANSFER_CONTROL);
+  set_stats_message_type(actx->pinfo, MTYPE_QOE_INFORMATION_TRANSFER_CONTROL);
+#.FN_HDR RachIndication
+  set_message_label(actx, MTYPE_RACH_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_RACH_INDICATION);
+#.FN_HDR TimingSynchronisationStatusRequest
+  set_message_label(actx, MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST);
+#.FN_HDR TimingSynchronisationStatusResponse
+  set_message_label(actx, MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE);
+#.FN_HDR TimingSynchronisationStatusFailure
+  set_message_label(actx, MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE);
+#.FN_HDR TimingSynchronisationStatusReport
+  set_message_label(actx, MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT);
+#.FN_HDR MIABF1SetupTriggering
+  set_message_label(actx, MTYPE_MIAB_F1_SETUP_TRIGGERING);
+  set_stats_message_type(actx->pinfo, MTYPE_MIAB_F1_SETUP_TRIGGERING);
+#.FN_HDR MIABF1SetupOutcomeNotification
+  set_message_label(actx, MTYPE_MIAB_F1_SETUP_OUTCOME_NOTIFICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_MIAB_F1_SETUP_OUTCOME_NOTIFICATION);
+#.FN_HDR MulticastContextNotificationIndication
+  set_message_label(actx, MTYPE_MULTICAST_CONTEXT_NOTIFICATION_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_MULTICAST_CONTEXT_NOTIFICATION_INDICATION);
+#.FN_HDR MulticastContextNotificationConfirm
+  set_message_label(actx, MTYPE_MULTICAST_CONTEXT_NOTIFICATION_CONFIRM);
+  set_stats_message_type(actx->pinfo, MTYPE_MULTICAST_CONTEXT_NOTIFICATION_CONFIRM);
+#.FN_HDR MulticastContextNotificationRefuse
+  set_message_label(actx, MTYPE_MULTICAST_CONTEXT_NOTIFICATION_REFUSE);
+  set_stats_message_type(actx->pinfo, MTYPE_MULTICAST_CONTEXT_NOTIFICATION_REFUSE);
+#.FN_HDR MulticastCommonConfigurationRequest
+  set_message_label(actx, MTYPE_MULTICAST_COMMON_CONFIGURATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_MULTICAST_COMMON_CONFIGURATION_REQUEST);
+#.FN_HDR MulticastCommonConfigurationResponse
+  set_message_label(actx, MTYPE_MULTICAST_COMMON_CONFIGURATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_MULTICAST_COMMON_CONFIGURATION_RESPONSE);
+#.FN_HDR MulticastCommonConfigurationRefuse
+  set_message_label(actx, MTYPE_MULTICAST_COMMON_CONFIGURATION_REFUSE);
+  set_stats_message_type(actx->pinfo, MTYPE_MULTICAST_COMMON_CONFIGURATION_REFUSE);
+#.FN_HDR BroadcastTransportResourceRequest
+  set_message_label(actx, MTYPE_BROADCAST_TRANSPORT_RESOURCE_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_BROADCAST_TRANSPORT_RESOURCE_REQUEST);
+#.FN_HDR DUCUAccessAndMobilityIndication
+  set_message_label(actx, MTYPE_DU_CU_ACCESS_AND_MOBILITY_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_DU_CU_ACCESS_AND_MOBILITY_INDICATION);
+#.FN_HDR SRSInformationReservationNotification
+  set_message_label(actx, MTYPE_SRS_INFORMATION_RESERVATION_NOTIFICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_SRS_INFORMATION_RESERVATION_NOTIFICATION);
 #.END
 
 #

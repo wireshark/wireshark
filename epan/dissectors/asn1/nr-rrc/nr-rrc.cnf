@@ -96,6 +96,7 @@ PosMeasGapPreConfigToAddModList-r17_PDU
 PosMeasGapPreConfigToReleaseList-r17_PDU
 RA-ReportList-r16_PDU
 RACH-ConfigCommon_PDU
+RACH-ConfigDedicated_PDU
 RadioBearerConfig_PDU
 ReferenceTime-r16_PDU
 ReportConfigToAddMod_PDU
@@ -130,9 +131,12 @@ SidelinkUEInformationNR-r16_PDU
 SL-ConfigDedicatedEUTRA-Info-r16_PDU
 SL-ConfigDedicatedNR-r16_PDU
 SL-PHY-MAC-RLC-Config-r16_PDU
+SL-PHY-MAC-RLC-Config-v1700_PDU
 SL-RLC-ChannelToAddModList-r17_PDU
 SRS-PosRRC-InactiveConfig-r17_PDU
 SuccessHO-Report-r17_PDU
+TCI-StateId_PDU
+TCI-UL-StateId-r17_PDU
 TDD-UL-DL-ConfigCommon_PDU
 UE-CapabilityRAT-ContainerList_PDU
 UE-CapabilityRequestFilterCommon_PDU
@@ -195,6 +199,7 @@ PosMeasGapPreConfigToAddModList-r17
 PosMeasGapPreConfigToReleaseList-r17
 RA-ReportList-r16
 RACH-ConfigCommon
+RACH-ConfigDedicated
 RadioBearerConfig
 ReferenceTime-r16
 ReportConfigToAddMod
@@ -233,9 +238,12 @@ SL-ConfigDedicatedNR-r16
 SL-MeasResultListRelay-r17
 SL-MeasResultRelay-r17
 SL-PHY-MAC-RLC-Config-r16
+SL-PHY-MAC-RLC-Config-v1700
 SL-RLC-ChannelToAddModList-r17
 SRS-PosRRC-InactiveConfig-r17
 SuccessHO-Report-r17
+TCI-StateId
+TCI-UL-StateId-r17
 TDD-UL-DL-ConfigCommon
 UE-CapabilityRAT-ContainerList
 UE-CapabilityRequestFilterCommon
