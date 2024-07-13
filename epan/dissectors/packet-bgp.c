@@ -261,15 +261,17 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_243                243 /* Deprecated [RFC8093] */
 
 /*EVPN Route Types */
-#define EVPN_AD_ROUTE           1
-#define EVPN_MAC_ROUTE          2
-#define EVPN_INC_MCAST_TREE     3
-#define EVPN_ETH_SEGMENT_ROUTE  4
-#define EVPN_IP_PREFIX_ROUTE    5 /* draft-rabadan-l2vpn-evpn-prefix-advertisement */
-#define EVPN_MC_ETHER_TAG_ROUTE 6 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
-#define EVPN_IGMP_JOIN_ROUTE    7 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
-#define EVPN_IGMP_LEAVE_ROUTE   8 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
-#define EVPN_S_PMSI_A_D_ROUTE   10 /* draft-ietf-bess-evpn-bum-procedure-updates-7 */
+#define EVPN_AD_ROUTE                   1
+#define EVPN_MAC_ROUTE                  2
+#define EVPN_INC_MCAST_TREE             3
+#define EVPN_ETH_SEGMENT_ROUTE          4
+#define EVPN_IP_PREFIX_ROUTE            5  /* draft-rabadan-l2vpn-evpn-prefix-advertisement */
+#define EVPN_MC_ETHER_TAG_ROUTE         6  /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+#define EVPN_IGMP_JOIN_ROUTE            7  /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+#define EVPN_IGMP_LEAVE_ROUTE           8  /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+#define EVPN_PER_REG_I_PMSI_A_D_ROUTE   9  /* draft-ietf-bess-evpn-bum-procedure-updates-7 */
+#define EVPN_S_PMSI_A_D_ROUTE           10 /* draft-ietf-bess-evpn-bum-procedure-updates-7 */
+#define EVPN_LEAF_A_D_ROUTE             11 /* draft-ietf-bess-evpn-bum-procedure-updates-7 */
 
 #define EVPN_IGMP_MC_FLAG_V1                0x01
 #define EVPN_IGMP_MC_FLAG_V2                0x02
@@ -1110,15 +1112,17 @@ static const value_string bgptypevals[] = {
 };
 
 static const value_string evpnrtypevals[] = {
-    { EVPN_AD_ROUTE,           "Ethernet AD Route" },
-    { EVPN_MAC_ROUTE,          "MAC Advertisement Route" },
-    { EVPN_INC_MCAST_TREE,     "Inclusive Multicast Route" },
-    { EVPN_ETH_SEGMENT_ROUTE,  "Ethernet Segment Route" },
-    { EVPN_IP_PREFIX_ROUTE,    "IP Prefix route" },
-    { EVPN_MC_ETHER_TAG_ROUTE, "Selective Multicast Ethernet Tag Route" },
-    { EVPN_IGMP_JOIN_ROUTE,    "IGMP Join Synch Route" },
-    { EVPN_IGMP_LEAVE_ROUTE,   "IGMP Leave Synch Route" },
-    { EVPN_S_PMSI_A_D_ROUTE,   "S-PMSI A-D Route" },
+    { EVPN_AD_ROUTE,                   "Ethernet AD Route" },
+    { EVPN_MAC_ROUTE,                  "MAC Advertisement Route" },
+    { EVPN_INC_MCAST_TREE,             "Inclusive Multicast Route" },
+    { EVPN_ETH_SEGMENT_ROUTE,          "Ethernet Segment Route" },
+    { EVPN_IP_PREFIX_ROUTE,            "IP Prefix route" },
+    { EVPN_MC_ETHER_TAG_ROUTE,         "Selective Multicast Ethernet Tag Route" },
+    { EVPN_IGMP_JOIN_ROUTE,            "IGMP Join Synch Route" },
+    { EVPN_IGMP_LEAVE_ROUTE,           "IGMP Leave Synch Route" },
+    { EVPN_PER_REG_I_PMSI_A_D_ROUTE,   "Per-Region I-PMSI A-D route" },
+    { EVPN_S_PMSI_A_D_ROUTE,           "S-PMSI A-D Route" },
+    { EVPN_LEAF_A_D_ROUTE,             "Leaf A-D route" },
     { 0, NULL }
 };
 
