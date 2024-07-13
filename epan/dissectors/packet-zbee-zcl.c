@@ -194,6 +194,8 @@ static const value_string zbee_zcl_cmd_names[] = {
     { ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP,  "Write Attributes Structured Response" },
     { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC,       "Discover Commands Received" },
     { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC_RESP,  "Discover Commands Received Response" },
+    { ZBEE_ZCL_CMD_DISCOVER_ATTR_EXTENDED,       "Discover Attributes Extended" },
+    { ZBEE_ZCL_CMD_DISCOVER_ATTR_EXTENDED_RESP,  "Discover Attributes Extended Response" },
     { 0, NULL }
 };
 
@@ -1879,21 +1881,24 @@ static void dissect_zcl_discover_cmd_attr_extended_resp(tvbuff_t *tvb, packet_in
     proto_tree* sub_tree = NULL;
     guint tvb_len;
     guint i = 0;
-    gint discovery_complete = -1;
-    guint16 attr_id = 0;
     gboolean client_attr = direction == ZBEE_ZCL_FCF_TO_SERVER;
-    discovery_complete = dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_dis);
-    if(discovery_complete == 0){
-        tvb_len = tvb_captured_length(tvb);
-        while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ){
-            sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 4, ett_zbee_zcl_attr[i], NULL, "Extended Attribute Information");
-            i++;
-            attr_id = tvb_get_letohs(tvb, *offset);
-            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code, client_attr);
-            dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id, mfr_code, client_attr);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_access_ctrl, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-            *offset += 1;
-        }
+
+    /** Discovery Complete */
+    dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_dis);
+
+    tvb_len = tvb_captured_length(tvb);
+    while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 4, ett_zbee_zcl_attr[i], NULL, "Extended Attribute Information");
+        i++;
+
+        /** Attribute identifier */
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code, client_attr);
+
+        /** Attribute data type */
+        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
+
+        /** Attribute access control */
+        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_access_ctrl);
     }
 }
 
