@@ -13272,10 +13272,6 @@ a:hover {
         <translation>ファイルが見つかりませんでした</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">目次(&amp;C)</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>Tshark</translation>
     </message>
@@ -13539,10 +13535,6 @@ a:hover {
     <message>
         <source>Wireless Toolbar</source>
         <translation>無線ツールバー</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">ヘルプ目次</translation>
     </message>
     <message>
         <source>FAQs</source>

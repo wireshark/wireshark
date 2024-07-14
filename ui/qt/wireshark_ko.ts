@@ -13269,10 +13269,6 @@ a:hover {
         <translation>찾은 파일 없음</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">내용(&amp;C)</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13536,10 +13532,6 @@ a:hover {
     <message>
         <source>Wireless Toolbar</source>
         <translation>무선 도구 모음</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">도움말 내용</translation>
     </message>
     <message>
         <source>FAQs</source>

@@ -13305,10 +13305,6 @@ a:hover {
         <translation>Keine Dateien gefunden</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">&amp;Inhalt</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13572,10 +13568,6 @@ a:hover {
     <message>
         <source>Wireless Toolbar</source>
         <translation>Wireless Toolbar</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">Hilfe Inhalt</translation>
     </message>
     <message>
         <source>FAQs</source>

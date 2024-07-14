@@ -13128,10 +13128,6 @@ a:hover {
         <translation>Не знайдено жодного файлу</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">&amp;Зміст</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>

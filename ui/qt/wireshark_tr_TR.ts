@@ -13269,10 +13269,6 @@ a:üzerine gelin{
         <translation>Dosya bulunamadı</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">&amp;İçerik</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13536,10 +13532,6 @@ a:üzerine gelin{
     <message>
         <source>Wireless Toolbar</source>
         <translation>Kablosuz Araç Çubuğu</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">Yardım içeriği</translation>
     </message>
     <message>
         <source>FAQs</source>

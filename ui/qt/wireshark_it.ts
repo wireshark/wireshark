@@ -8894,7 +8894,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>THROUGHPUT</source>
-        <translation type="unfinished"></translation>
+        <translation>THROUGHPUT</translation>
     </message>
     <message>
         <source>LOAD</source>
@@ -13300,10 +13300,6 @@ a:hover {
         <translation>File non trovati</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">&amp;Contenuti</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13567,10 +13563,6 @@ a:hover {
     <message>
         <source>Wireless Toolbar</source>
         <translation>Barra degli strumenti wireless</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">Contenuti della guida</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -14338,11 +14330,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuale &amp;utente</translation>
     </message>
     <message>
         <source>Wireshark User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuale utente di Wireshark</translation>
     </message>
     <message>
         <source>Display Filters</source>

@@ -13326,10 +13326,6 @@ a:hover {
         <translation>Nie znaleziono pliku</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">Podrę&amp;cznik</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13593,10 +13589,6 @@ a:hover {
     <message>
         <source>Wireless Toolbar</source>
         <translation>Pasek sniffera WiFi</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">Pomoc</translation>
     </message>
     <message>
         <source>FAQs</source>

@@ -13204,10 +13204,6 @@ a:hover {
         <translation>未找到文件</translation>
     </message>
     <message>
-        <source>&amp;Contents</source>
-        <translation type="vanished">内容(&amp;C)</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13471,10 +13467,6 @@ a:hover {
     <message>
         <source>Wireless Toolbar</source>
         <translation>无线工具栏</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation type="vanished">帮助内容</translation>
     </message>
     <message>
         <source>FAQs</source>

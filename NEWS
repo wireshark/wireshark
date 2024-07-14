@@ -380,6 +380,9 @@ Wireshark 4.3.0 Release Notes
        per-packet encapsulation (creating interfaces on demand as
        necessary) when writing pcapng Issue 16403[34]
 
+     • Editcap has an `--extract-secrets` option to extract embedded
+       decryption secrets from a capture file. Issue 18197[35]
+
   Removed Features and Support
 
      • The tshark `-G` option with no argument is deprecated and will be
@@ -432,7 +435,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[35] on the Wireshark web site.
+   be found on the download page[36] on the Wireshark web site.
 
  File Locations
 
@@ -447,24 +450,24 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[36] and on the
+  Community support is available on Wireshark’s Q&A site[37] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[37].
+  for all of Wireshark’s mailing lists can be found on the web site[38].
 
-  Bugs and feature requests can be reported on the issue tracker[38].
+  Bugs and feature requests can be reported on the issue tracker[39].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[39].
+  SharkFest[40].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[40].
+  at wiresharkfoundation.org[41].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[41].
+  A complete FAQ is available on the Wireshark web site[42].
 
  References
 
@@ -502,10 +505,11 @@ Wireshark 4.3.0 Release Notes
   32. https://www.lua.org/manual/5.3/manual.html#8
   33. https://www.lua.org/manual/5.2/manual.html#8
   34. https://gitlab.com/wireshark/wireshark/-/issues/16403
-  35. https://www.wireshark.org/download.html
-  36. https://ask.wireshark.org/
-  37. https://www.wireshark.org/lists/
-  38. https://gitlab.com/wireshark/wireshark/-/issues
-  39. https://sharkfest.wireshark.org
-  40. https://wiresharkfoundation.org
-  41. https://www.wireshark.org/faq.html
+  35. https://gitlab.com/wireshark/wireshark/-/issues/18197
+  36. https://www.wireshark.org/download.html
+  37. https://ask.wireshark.org/
+  38. https://www.wireshark.org/lists/
+  39. https://gitlab.com/wireshark/wireshark/-/issues
+  40. https://sharkfest.wireshark.org
+  41. https://wiresharkfoundation.org
+  42. https://www.wireshark.org/faq.html
