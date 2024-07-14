@@ -1789,7 +1789,7 @@ bool WiresharkMainWindow::testCaptureFileClose(QString before_what, FileCloseCon
                 return false;
             }
 
-            QMessageBox msg_dialog;
+            QMessageBox msg_dialog(this);
             QString question;
             QString infotext;
             QPushButton *save_button;
