@@ -1563,12 +1563,12 @@ proto_register_btlmp(void)
             NULL, HFILL }
         },
         {  &hf_param_feature_page2_byte0[1],
-            { "Connectionless Peripheral Broadcast - Central",        "btlmp.feature.page2.csbcentral",
+            { "Connectionless Peripheral Broadcast - Central",        "btlmp.feature.page2.cpbcentral",
             FT_UINT8, BASE_DEC, NULL, 0x01,
             NULL, HFILL }
         },
         {  &hf_param_feature_page2_byte0[2],
-            { "Connectionless Peripheral Broadcast - Peripheral",         "btlmp.feature.page2.csbperipheral",
+            { "Connectionless Peripheral Broadcast - Peripheral",         "btlmp.feature.page2.cpbperipheral",
             FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL }
         },

@@ -218,8 +218,8 @@ static int hf_lmp_feature_le_supported_host;
 static int hf_lmp_feature_simultaneous_le_and_br_edr_host;
 static int hf_lmp_feature_secure_connections_host;
 static int hf_lmp_feature_reserved_68_71;
-static int hf_lmp_feature_csb_central_operation;
-static int hf_lmp_feature_csb_peripheral_operation;
+static int hf_lmp_feature_cpb_central_operation;
+static int hf_lmp_feature_cpb_peripheral_operation;
 static int hf_lmp_feature_synchronization_train;
 static int hf_lmp_feature_synchronization_scan;
 static int hf_lmp_feature_inquiry_response_notification_event;
@@ -1713,8 +1713,8 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
         break;
     case 2:
-        proto_tree_add_item(lmp_tree, hf_lmp_feature_csb_central_operation,                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(lmp_tree, hf_lmp_feature_csb_peripheral_operation,               tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_cpb_central_operation,                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_cpb_peripheral_operation,               tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(lmp_tree, hf_lmp_feature_synchronization_train,                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(lmp_tree, hf_lmp_feature_synchronization_scan,                   tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(lmp_tree, hf_lmp_feature_inquiry_response_notification_event,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -7906,13 +7906,13 @@ proto_register_bthci_evt(void)
            FT_UINT8, BASE_HEX, NULL, 0xF0,
            NULL, HFILL}
         },
-        { &hf_lmp_feature_csb_central_operation,
-          {"Connectionless Peripheral Broadcast Central Operation", "bthci_evt.lmp_features.csb_central_operation",
+        { &hf_lmp_feature_cpb_central_operation,
+          {"Connectionless Peripheral Broadcast Central Operation", "bthci_evt.lmp_features.cpb_central_operation",
            FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}
         },
-        { &hf_lmp_feature_csb_peripheral_operation,
-          {"Connectionless Peripheral Broadcast Peripheral Operation", "bthci_evt.lmp_features.csb_peripheral_operation",
+        { &hf_lmp_feature_cpb_peripheral_operation,
+          {"Connectionless Peripheral Broadcast Peripheral Operation", "bthci_evt.lmp_features.cpb_peripheral_operation",
            FT_BOOLEAN, 8, NULL, 0x02,
            NULL, HFILL}
         },

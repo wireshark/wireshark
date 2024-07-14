@@ -63,8 +63,8 @@ static int hf_packet_header_type_esco_br;
 static int hf_packet_header_type_esco_edr;
 static int hf_packet_header_type_acl_br;
 static int hf_packet_header_type_acl_edr;
-static int hf_packet_header_type_csb_br;
-static int hf_packet_header_type_csb_edr;
+static int hf_packet_header_type_cpb_br;
+static int hf_packet_header_type_cpb_edr;
 static int hf_packet_header_flow_control;
 static int hf_packet_header_acknowledge_indication;
 static int hf_packet_header_sequence_number;
@@ -77,8 +77,8 @@ static int hf_packet_header_broken_type_esco_br;
 static int hf_packet_header_broken_type_esco_edr;
 static int hf_packet_header_broken_type_acl_br;
 static int hf_packet_header_broken_type_acl_edr;
-static int hf_packet_header_broken_type_csb_br;
-static int hf_packet_header_broken_type_csb_edr;
+static int hf_packet_header_broken_type_cpb_br;
+static int hf_packet_header_broken_type_cpb_edr;
 static int hf_packet_header_broken_flow_control;
 static int hf_packet_header_broken_acknowledge_indication;
 static int hf_packet_header_broken_sequence_number;
@@ -184,8 +184,8 @@ static dissector_table_t  packet_type_esco_br_table;
 static dissector_table_t  packet_type_esco_edr_table;
 static dissector_table_t  packet_type_acl_br_table;
 static dissector_table_t  packet_type_acl_edr_table;
-static dissector_table_t  packet_type_csb_br_table;
-static dissector_table_t  packet_type_csb_edr_table;
+static dissector_table_t  packet_type_cpb_br_table;
+static dissector_table_t  packet_type_cpb_edr_table;
 
 static dissector_handle_t btlmp_handle;
 static dissector_handle_t btl2cap_handle;
@@ -253,7 +253,7 @@ static const value_string payload_transport_rate_transport_vals[] = {
     { 0x01, "SCO" },
     { 0x02, "eSCO" },
     { 0x03, "ACL" },
-    { 0x04, "CSB" },
+    { 0x04, "CPB" },
     { 0,    NULL }
 };
 
@@ -261,7 +261,7 @@ static const value_string payload_transport_rate_transport_vals[] = {
 #define TRANSPORT_SCO   0x10
 #define TRANSPORT_eSCO  0x20
 #define TRANSPORT_ACL   0x30
-#define TRANSPORT_CSB   0x40
+#define TRANSPORT_CPB   0x40
 
 
 static const value_string payload_transport_rate_payload_vals[] = {
@@ -404,7 +404,7 @@ static const value_string packet_type_acl_edr_vals[] = {
     { 0,    NULL }
 };
 
-static const value_string packet_type_csb_br_vals[] = {
+static const value_string packet_type_cpb_br_vals[] = {
     { 0x00, "NULL" },
     { 0x01, "reserved" },
     { 0x02, "reserved" },
@@ -424,7 +424,7 @@ static const value_string packet_type_csb_br_vals[] = {
     { 0,    NULL }
 };
 
-static const value_string packet_type_csb_edr_vals[] = {
+static const value_string packet_type_cpb_edr_vals[] = {
     { 0x00, "NULL" },
     { 0x01, "reserved" },
     { 0x02, "reserved" },
@@ -855,18 +855,18 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_edr_vals, "Unknown");
             packet_type_table = packet_type_acl_edr_table;
-        } else if (payload_and_transport == (TRANSPORT_CSB | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_csb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
+            proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
             packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
-            packet_type_str = val_to_str_const(packet_type, packet_type_csb_br_vals, "Unknown");
-            packet_type_table = packet_type_csb_br_table;
-        } else if (payload_and_transport == (TRANSPORT_CSB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_csb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
+            packet_type_table = packet_type_cpb_br_table;
+        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
+            proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
             packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
-            packet_type_str = val_to_str_const(packet_type, packet_type_csb_edr_vals, "Unknown");
-            packet_type_table = packet_type_csb_edr_table;
+            packet_type_str = val_to_str_const(packet_type, packet_type_cpb_edr_vals, "Unknown");
+            packet_type_table = packet_type_cpb_edr_table;
         } else if ((payload_and_transport >> 4) == TRANSPORT_ANY) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
@@ -920,18 +920,18 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_edr_vals, "Unknown");
             packet_type_table = packet_type_acl_edr_table;
-        } else if (payload_and_transport == (TRANSPORT_CSB | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_csb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
+            proto_tree_add_item(header_tree, hf_packet_header_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
             packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
-            packet_type_str = val_to_str_const(packet_type, packet_type_csb_br_vals, "Unknown");
-            packet_type_table = packet_type_csb_br_table;
-        } else if (payload_and_transport == (TRANSPORT_CSB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_csb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
+            packet_type_table = packet_type_cpb_br_table;
+        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
+            proto_tree_add_item(header_tree, hf_packet_header_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
             packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
-            packet_type_str = val_to_str_const(packet_type, packet_type_csb_edr_vals, "Unknown");
-            packet_type_table = packet_type_csb_edr_table;
+            packet_type_str = val_to_str_const(packet_type, packet_type_cpb_edr_vals, "Unknown");
+            packet_type_table = packet_type_cpb_edr_table;
         } else if ((payload_and_transport >> 4) == TRANSPORT_ANY) {
             proto_tree_add_item(header_tree, hf_packet_header_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
@@ -1355,7 +1355,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        default:
            break;
        }
-   } else if (payload_and_transport == (TRANSPORT_CSB | PAYLOAD_BR)) {
+   } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
        switch (packet_type) {
        case 0: // NULL
            isochronous_length = 0;
@@ -1416,7 +1416,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        default:
            break;
        }
-   } else if (payload_and_transport == (TRANSPORT_CSB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
+   } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
        switch (packet_type) {
        case 0: // NULL
            isochronous_length = 0;
@@ -2100,14 +2100,14 @@ proto_register_btbredr_rf(void)
             FT_UINT32, BASE_HEX, VALS(packet_type_acl_edr_vals), 0x00000078,
             NULL, HFILL }
         },
-        {  &hf_packet_header_type_csb_br,
+        {  &hf_packet_header_type_cpb_br,
             { "Type",                                           "btbredr_rf.packet_header.type",
-            FT_UINT32, BASE_HEX, VALS(packet_type_csb_br_vals), 0x00000078,
+            FT_UINT32, BASE_HEX, VALS(packet_type_cpb_br_vals), 0x00000078,
             NULL, HFILL }
         },
-        {  &hf_packet_header_type_csb_edr,
+        {  &hf_packet_header_type_cpb_edr,
             { "Type",                                           "btbredr_rf.packet_header.type",
-            FT_UINT32, BASE_HEX, VALS(packet_type_csb_edr_vals), 0x00000078,
+            FT_UINT32, BASE_HEX, VALS(packet_type_cpb_edr_vals), 0x00000078,
             NULL, HFILL }
         },
         {  &hf_packet_header_flow_control,
@@ -2175,14 +2175,14 @@ proto_register_btbredr_rf(void)
             FT_UINT32, BASE_HEX, VALS(packet_type_acl_edr_vals), 0x00007800,
             NULL, HFILL }
         },
-        {  &hf_packet_header_broken_type_csb_br,
+        {  &hf_packet_header_broken_type_cpb_br,
             { "Type",                                           "btbredr_rf.packet_header.type",
-            FT_UINT32, BASE_HEX, VALS(packet_type_csb_br_vals), 0x00007800,
+            FT_UINT32, BASE_HEX, VALS(packet_type_cpb_br_vals), 0x00007800,
             NULL, HFILL }
         },
-        {  &hf_packet_header_broken_type_csb_edr,
+        {  &hf_packet_header_broken_type_cpb_edr,
             { "Type",                                           "btbredr_rf.packet_header.type",
-            FT_UINT32, BASE_HEX, VALS(packet_type_csb_edr_vals), 0x00007800,
+            FT_UINT32, BASE_HEX, VALS(packet_type_cpb_edr_vals), 0x00007800,
             NULL, HFILL }
         },
         {  &hf_packet_header_broken_flow_control,
@@ -2521,8 +2521,8 @@ proto_register_btbredr_rf(void)
     packet_type_esco_edr_table = register_dissector_table("btbredr_rf.packet_type.esco.edr", "BT Packet Type for eSCO EDR", proto_btbredr_rf, FT_UINT8, BASE_HEX);
     packet_type_acl_br_table   = register_dissector_table("btbredr_rf.packet_type.acl.br",   "BT Packet Type for ACL BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX);
     packet_type_acl_edr_table  = register_dissector_table("btbredr_rf.packet_type.acl.edr",  "BT Packet Type for ACL EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX);
-    packet_type_csb_br_table   = register_dissector_table("btbredr_rf.packet_type.csb.br",   "BT Packet Type for CSB BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX);
-    packet_type_csb_edr_table  = register_dissector_table("btbredr_rf.packet_type.csb.edr",  "BT Packet Type for CSB EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_cpb_br_table   = register_dissector_table("btbredr_rf.packet_type.cpb.br",   "BT Packet Type for CPB BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_cpb_edr_table  = register_dissector_table("btbredr_rf.packet_type.cpb.edr",  "BT Packet Type for CPB EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX);
 
     expert_module = expert_register_protocol(proto_btbredr_rf);
     expert_register_field_array(expert_module, ei, array_length(ei));

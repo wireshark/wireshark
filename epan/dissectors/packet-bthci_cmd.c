@@ -585,12 +585,12 @@ static int hf_bthci_cmd_connectionless_peripheral_broadcast;
 static int hf_bthci_cmd_lt_addr;
 static int hf_bthci_cmd_interval_min;
 static int hf_bthci_cmd_interval_max;
-static int hf_bthci_cmd_csb_supervision_to;
+static int hf_bthci_cmd_cpb_supervision_to;
 static int hf_bthci_cmd_connectionless_peripheral_broadcast_receive;
 static int hf_bthci_cmd_clock_offset_32;
-static int hf_bthci_cmd_next_csb_clock;
+static int hf_bthci_cmd_next_cpb_clock;
 static int hf_bthci_cmd_remote_timing_accuracy;
-static int hf_bthci_cmd_csb_skip;
+static int hf_bthci_cmd_cpb_skip;
 static int hf_bthci_cmd_afh_channel_map;
 static int hf_bthci_cmd_synchronization_scan_to;
 static int hf_bthci_cmd_c192;
@@ -643,9 +643,9 @@ static int hf_bthci_mws_pattern_type;
 static int hf_bthci_cmd_sync_train_to;
 static int hf_bthci_cmd_service_data;
 static int hf_bthci_cmd_secure_connection_host_support;
-static int hf_bthci_cmd_csb_fragment;
-static int hf_bthci_cmd_csb_data_length;
-static int hf_bthci_cmd_csb_data;
+static int hf_bthci_cmd_cpb_fragment;
+static int hf_bthci_cmd_cpb_data_length;
+static int hf_bthci_cmd_cpb_data;
 static int hf_bthci_cmd_authenticated_payload_timeout;
 static int hf_bthci_cmd_extended_inquiry_length;
 static int hf_bthci_cmd_min_encryption_key_size;
@@ -2623,7 +2623,7 @@ static const value_string mws_pattern_type_vals[] = {
     {0, NULL }
 };
 
-static const value_string csb_fragment_vals[] = {
+static const value_string cpb_fragment_vals[] = {
     { 0x00, "Continuation" },
     { 0x01, "Start" },
     { 0x02, "End" },
@@ -3256,7 +3256,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_interval_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_csb_supervision_to, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_cpb_supervision_to, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             break;
@@ -3275,16 +3275,16 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_next_csb_clock, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_next_cpb_clock, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_csb_supervision_to, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_cpb_supervision_to, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(tree, hf_bthci_cmd_remote_timing_accuracy, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_csb_skip, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_cpb_skip, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_packet_type, ett_packet_type, hfx_bthci_cmd_packet_type, ENC_LITTLE_ENDIAN);
@@ -4285,13 +4285,13 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             proto_tree_add_item(tree, hf_bthci_cmd_lt_addr, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_csb_fragment, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_cpb_fragment, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item_ret_uint(tree, hf_bthci_cmd_csb_data_length, tvb, offset, 1, ENC_NA, &data_length);
+            proto_tree_add_item_ret_uint(tree, hf_bthci_cmd_cpb_data_length, tvb, offset, 1, ENC_NA, &data_length);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_csb_data, tvb, offset, data_length, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_cpb_data, tvb, offset, data_length, ENC_NA);
             offset += data_length;
 
             }
@@ -8831,8 +8831,8 @@ proto_register_bthci_cmd(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_csb_supervision_to,
-          { "Supervision To", "bthci_cmd.csb_supervision_to",
+        { &hf_bthci_cmd_cpb_supervision_to,
+          { "Supervision To", "bthci_cmd.cpb_supervision_to",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -8846,8 +8846,8 @@ proto_register_bthci_cmd(void)
             FT_UINT32, BASE_HEX, NULL, 0x0FFFFFFF,
             "Bits 0-27 of the Clock Offset between CLKNreceiver-CLKNtransmitter", HFILL }
         },
-        { &hf_bthci_cmd_next_csb_clock,
-          { "Next CSB Clock", "bthci_cmd.next_csb_clock",
+        { &hf_bthci_cmd_next_cpb_clock,
+          { "Next CPB Clock", "bthci_cmd.next_cpb_clock",
             FT_UINT32, BASE_HEX, NULL, 0x0FFFFFFF,
             "Bits 0-27 of the Clock Offset between CLKperipheral-CLK", HFILL }
         },
@@ -8856,8 +8856,8 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_csb_skip,
-          { "CSB Skip", "bthci_cmd.csb_skip",
+        { &hf_bthci_cmd_cpb_skip,
+          { "CPB Skip", "bthci_cmd.cpb_skip",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -9124,18 +9124,18 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_csb_fragment,
-          { "CSB Fragment", "bthci_cmd.csb.fragment",
-            FT_UINT8, BASE_HEX, VALS(csb_fragment_vals), 0x0,
+        { &hf_bthci_cmd_cpb_fragment,
+          { "CPB Fragment", "bthci_cmd.cpb.fragment",
+            FT_UINT8, BASE_HEX, VALS(cpb_fragment_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_csb_data_length,
-          { "CSB Data Length", "bthci_cmd.csb.data_length",
+        { &hf_bthci_cmd_cpb_data_length,
+          { "CPB Data Length", "bthci_cmd.cpb.data_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_csb_data,
-          { "CSB Data", "bthci_cmd.csb.data",
+        { &hf_bthci_cmd_cpb_data,
+          { "CPB Data", "bthci_cmd.cpb.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
