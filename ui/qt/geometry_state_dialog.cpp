@@ -55,6 +55,20 @@ void GeometryStateDialog::loadGeometry(int width, int height, const QString &dia
     }
 }
 
+#ifndef Q_OS_MAC
+void GeometryStateDialog::setWindowModality(Qt::WindowModality modality)
+{
+    if (modality != windowModality()) {
+        if (modality == Qt::NonModal) {
+            setParent(nullptr, windowFlags());
+        } else {
+            setParent(parent_, windowFlags());
+        }
+    }
+    QDialog::setWindowModality(modality);
+}
+#endif
+
 void GeometryStateDialog::loadSplitterState(QSplitter *splitter)
 {
     if (splitter == nullptr) {
