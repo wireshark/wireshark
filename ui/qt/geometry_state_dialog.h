@@ -48,6 +48,12 @@ public:
 // (aka https://bugreports.qt.io/browse/QTBUG-46701 ), which claims to
 // be fixed in Qt 6.2.0
 //
+// Also, on Windows (and probably others) if the dialog is application modal
+// (e.g. setWindowModality(Qt::ApplicationModal) is called), then it is
+// always on top. However, on Linux/Wayland/Mutter/GTK (and maybe others) an
+// application modal dialog needs to be parented in order to be always on top
+// (we want it always on top if modal.) Issue #19099.
+//
 // Pass in the parent on macOS and NULL elsewhere so that we have an
 // independent window that un-maximizes correctly.
 //

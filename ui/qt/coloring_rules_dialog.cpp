@@ -315,7 +315,7 @@ void ColoringRulesDialog::changeColor(bool foreground)
     if (!current.isValid())
         return;
 
-    QColorDialog *color_dlg = new QColorDialog();
+    QColorDialog *color_dlg = new QColorDialog(this);
     color_dlg->setCurrentColor(colorRuleModel_.data(current, foreground ? Qt::ForegroundRole : Qt::BackgroundRole).toString());
 
     connect(color_dlg, &QColorDialog::colorSelected, std::bind(&ColoringRulesDialog::colorChanged, this, foreground, std::placeholders::_1));
