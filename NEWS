@@ -1,4 +1,4 @@
-Wireshark 4.2.6 Release Notes
+Wireshark 4.2.7 Release Notes
 
  What is Wireshark?
 
@@ -16,11 +16,9 @@ Wireshark 4.2.6 Release Notes
   Bug Fixes
 
    If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will
-   need to download and install[2] Wireshark 4.2.6 or later by hand.
+   need to download and install[2] Wireshark 4.2.7 or later by hand.
 
-   A regression in the TCP Stream Graph "Time Sequence (tcptrace)"
-   receive window line behavior introduced in 4.0.15 and 4.2.5 has been
-   fixed. Issue 19846[3]
+   The following vulnerabilities have been fixed:
 
    The following bugs have been fixed:
 
@@ -45,8 +43,10 @@ Wireshark 4.2.6 Release Notes
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  4.2.6. You can find release notes for prior versions at the following
+  4.2.7. You can find release notes for prior versions at the following
   locations:
+
+    • Wireshark 4.2.6[3]
 
     • Wireshark 4.2.5[4]
 
@@ -108,7 +108,7 @@ Wireshark 4.2.6 Release Notes
 
    1. https://wiresharkfoundation.org
    2. https://www.wireshark.org/download.html
-   3. https://gitlab.com/wireshark/wireshark/-/issues/19846
+   3. https://www.wireshark.org/docs/relnotes/wireshark-4.2.6.html
    4. https://www.wireshark.org/docs/relnotes/wireshark-4.2.5.html
    5. https://www.wireshark.org/docs/relnotes/wireshark-4.2.4.html
    6. https://www.wireshark.org/docs/relnotes/wireshark-4.2.3.html
