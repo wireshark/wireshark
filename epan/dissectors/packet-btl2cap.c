@@ -116,7 +116,7 @@ static int hf_btl2cap_continuation_to;
 static int hf_btl2cap_reassembled_in;
 static int hf_btl2cap_min_interval;
 static int hf_btl2cap_max_interval;
-static int hf_btl2cap_slave_latency;
+static int hf_btl2cap_peripheral_latency;
 static int hf_btl2cap_timeout_multiplier;
 static int hf_btl2cap_conn_param_result;
 static int hf_btl2cap_credits;
@@ -2017,7 +2017,7 @@ static int
 dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
-    uint16_t max_interval, slave_latency;
+    uint16_t max_interval, peripheral_latency;
 
     item = proto_tree_add_item(tree, hf_btl2cap_min_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset) * 1.25);
@@ -2026,11 +2026,11 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset) * 1.25);
     max_interval = tvb_get_letohs(tvb, offset);
     offset += 2;
-    item = proto_tree_add_item(tree, hf_btl2cap_slave_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    slave_latency = tvb_get_letohs(tvb, offset);
+    item = proto_tree_add_item(tree, hf_btl2cap_peripheral_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    peripheral_latency = tvb_get_letohs(tvb, offset);
 
-    if(slave_latency >= 500 || max_interval == 0 ||
-       slave_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
+    if(peripheral_latency >= 500 || max_interval == 0 ||
+       peripheral_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
         expert_add_info(pinfo, item, &ei_btl2cap_parameter_mismatch);
 
     offset += 2;
@@ -3573,8 +3573,8 @@ proto_register_btl2cap(void)
             FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_btl2cap_slave_latency,
-          { "Slave Latency",           "btl2cap.slave_latency",
+        { &hf_btl2cap_peripheral_latency,
+          { "Peripheral Latency",           "btl2cap.peripheral_latency",
             FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_ll_connection_event, 0,
             NULL, HFILL }
         },

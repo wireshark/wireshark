@@ -2260,7 +2260,7 @@ static const value_string btmesh_publishperiod_resolution_vals[] = {
 };
 
 static const value_string btmesh_friendship_credentials_flag_vals[] = {
-    { 0x00, "Master security material is used" },
+    { 0x00, "Central security material is used" },
     { 0x01, "Friendship security material is used" },
     { 0, NULL }
 };
@@ -3554,7 +3554,7 @@ k4(uat_btmesh_record_t *key_set)
 }
 
 static bool
-create_master_security_keys(uat_btmesh_record_t * net_key_set)
+create_central_security_keys(uat_btmesh_record_t * net_key_set)
 {
     uint8_t p[1] = { 0 };
     size_t plen = 1;
@@ -3684,7 +3684,7 @@ format_vendor_model(char *buf, uint32_t value) {
 
 static void
 format_publish_appkeyindex_model(char *buf, uint32_t value) {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, ((value & 0x1000) ? "Friendship" : "Master"));
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, ((value & 0x1000) ? "Friendship" : "Central"));
 }
 
 static void
@@ -8212,7 +8212,7 @@ uat_btmesh_record_update_cb(void *r, char **err)
         memset(rec->encryptionkey, 0, 16 * sizeof(uint8_t));
         g_free(rec->privacykey);
         rec->privacykey = g_new(uint8_t, 16);
-        if (*err == NULL && create_master_security_keys(rec)) {
+        if (*err == NULL && create_central_security_keys(rec)) {
             rec->valid++;
         }
     } else {

@@ -27,8 +27,8 @@ typedef enum {
 } btle_AA_category_t;
 
 #define BTLE_DIR_UNKNOWN 0
-#define BTLE_DIR_MASTER_SLAVE 1
-#define BTLE_DIR_SLAVE_MASTER 2
+#define BTLE_DIR_CENTRAL_PERIPHERAL 1
+#define BTLE_DIR_PERIPHERAL_CENTRAL 2
 
 #define BTLE_PDU_TYPE_UNKNOWN       0 /* Unknown physical channel PDU */
 #define BTLE_PDU_TYPE_ADVERTISING   1 /* Advertising physical channel PDU */
@@ -46,7 +46,7 @@ typedef struct {
     unsigned crc_valid_at_capture: 1;
     unsigned mic_checked_at_capture: 1;
     unsigned mic_valid_at_capture: 1;
-    unsigned direction: 2; /* 0 Unknown, 1 Master -> Slave, 2 Slave -> Master */
+    unsigned direction: 2; /* 0 Unknown, 1 Central -> Peripheral, 2 Peripheral -> Central */
     unsigned aux_pdu_type_valid: 1;
     unsigned event_counter_valid: 1;
     uint8_t pdu_type;

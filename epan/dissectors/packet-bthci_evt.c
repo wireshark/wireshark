@@ -8923,7 +8923,7 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_features_peripheral_initiated_features_exchange,
-          { "Peripheral-Initiated Features Exchange",           "bthci_evt.le_features.slave_initiated_features_exchange",
+          { "Peripheral-Initiated Features Exchange",           "bthci_evt.le_features.peripheral_initiated_features_exchange",
             FT_BOOLEAN, 64, NULL, 0x0000000000000008,
             NULL, HFILL }
         },

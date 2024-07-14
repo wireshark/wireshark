@@ -155,7 +155,7 @@ static int hf_btatt_appearance_subcategory_outdoor_sports_activity;
 static int hf_btatt_peripheral_privacy_flag;
 static int hf_btatt_minimum_connection_interval;
 static int hf_btatt_maximum_connection_interval;
-static int hf_btatt_slave_latency;
+static int hf_btatt_peripheral_latency;
 static int hf_btatt_connection_supervision_timeout_multiplier;
 static int hf_btatt_reconnection_address;
 static int hf_btatt_alert_level;
@@ -5591,7 +5591,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         proto_tree_add_item(tree, hf_btatt_maximum_connection_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(tree, hf_btatt_slave_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_btatt_peripheral_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_connection_supervision_timeout_multiplier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -12588,8 +12588,8 @@ proto_register_btatt(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
-        {&hf_btatt_slave_latency,
-            {"Slave Latency", "btatt.slave_latency",
+        {&hf_btatt_peripheral_latency,
+            {"Peripheral Latency", "btatt.peripheral_latency",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },

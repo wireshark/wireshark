@@ -72,8 +72,8 @@ static wmem_tree_t *chandle_tree;
 
 static const value_string role_vals[] = {
     { 0, "Unknown" },
-    { 1, "Master" },
-    { 2, "Slave" },
+    { 1, "Central" },
+    { 2, "Peripheral" },
     { 0, NULL }
 };
 

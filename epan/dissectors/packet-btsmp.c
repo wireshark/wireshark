@@ -90,7 +90,7 @@ static const value_string opcode_vals[] = {
     {0x04, "Pairing Random"},
     {0x05, "Pairing Failed"},
     {0x06, "Encryption Information"},
-    {0x07, "Master Identification"},
+    {0x07, "Central Identification"},
     {0x08, "Identity Information"},
     {0x09, "Identity Address Information"},
     {0x0A, "Signing Information"},
@@ -332,7 +332,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 16;
         break;
 
-    case 0x07: /* Master Identification */
+    case 0x07: /* Central Identification */
         proto_tree_add_item(st, hf_btsmp_ediv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         proto_tree_add_item(st, hf_btsmp_random, tvb, offset, 8, ENC_NA);

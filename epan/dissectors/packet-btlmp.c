@@ -1383,12 +1383,12 @@ proto_register_btlmp(void)
             NULL, HFILL }
         },
         {  &hf_param_feature_page0_byte4[4],
-            { "AFH capable slave",                              "btlmp.feature.page0.afhcapableslave",
+            { "AFH capable peripheral",                              "btlmp.feature.page0.afhcapableperipheral",
             FT_UINT8, BASE_DEC, NULL, 0x08,
             NULL, HFILL }
         },
         {  &hf_param_feature_page0_byte4[5],
-            { "AFH classification slave",                       "btlmp.feature.page0.afhclassificationslave",
+            { "AFH classification peripheral",                       "btlmp.feature.page0.afhclassificationperipheral",
             FT_UINT8, BASE_DEC, NULL, 0x10,
             NULL, HFILL }
         },
@@ -1428,12 +1428,12 @@ proto_register_btlmp(void)
             NULL, HFILL }
         },
         {  &hf_param_feature_page0_byte5[4],
-            { "AFH capable master",                             "btlmp.feature.page0.afhcapablemaster",
+            { "AFH capable central",                             "btlmp.feature.page0.afhcapablecentral",
             FT_UINT8, BASE_DEC, NULL, 0x08,
             NULL, HFILL }
         },
         {  &hf_param_feature_page0_byte5[5],
-            { "AFH classification master",                      "btlmp.feature.page0.afhclassificationmaster",
+            { "AFH classification central",                      "btlmp.feature.page0.afhclassificationcentral",
             FT_UINT8, BASE_DEC, NULL, 0x10,
             NULL, HFILL }
         },
@@ -1563,12 +1563,12 @@ proto_register_btlmp(void)
             NULL, HFILL }
         },
         {  &hf_param_feature_page2_byte0[1],
-            { "Connectionless Slave Broadcast - Master",        "btlmp.feature.page2.csbmaster",
+            { "Connectionless Peripheral Broadcast - Central",        "btlmp.feature.page2.csbcentral",
             FT_UINT8, BASE_DEC, NULL, 0x01,
             NULL, HFILL }
         },
         {  &hf_param_feature_page2_byte0[2],
-            { "Connectionless Slave Broadcast - Slave",         "btlmp.feature.page2.csbslave",
+            { "Connectionless Peripheral Broadcast - Peripheral",         "btlmp.feature.page2.csbperipheral",
             FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL }
         },

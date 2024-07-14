@@ -203,8 +203,8 @@ typedef struct _device_info_t {
     int8_t   dir;
 } device_info_t;
 
-#define BDADDR_MASTER  0
-#define BDADDR_SLAVE   1
+#define BDADDR_CENTRAL  0
+#define BDADDR_PERIPHERAL   1
 
 typedef struct _btbredr_frame_info_t {
     unsigned retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */
@@ -560,7 +560,7 @@ lookup_connection_info(uint32_t interface_id, uint32_t adapter_id, uint32_t lap,
     if (!cinfo)
         return NULL;
     if (cinfo->interface_id != interface_id || cinfo->adapter_id != adapter_id ||
-        extract_lap(cinfo->bd_addr[BDADDR_MASTER]) != lap || cinfo->lt_addr != ltaddr)
+        extract_lap(cinfo->bd_addr[BDADDR_CENTRAL]) != lap || cinfo->lt_addr != ltaddr)
         return NULL;
     return cinfo;
 }
@@ -573,10 +573,10 @@ btbredr_rf_add_esco_link(connection_info_t *cinfo, packet_info *pinfo, uint8_t h
     wmem_tree_key_t key[6];
     if (!cinfo || !pinfo || ltaddr >= 8 || !ltaddr)
         return NULL;
-    lap = extract_lap(cinfo->bd_addr[BDADDR_MASTER]);
+    lap = extract_lap(cinfo->bd_addr[BDADDR_CENTRAL]);
     ecinfo = lookup_connection_info(cinfo->interface_id, cinfo->adapter_id, lap, ltaddr, pinfo->num);
-    if (ecinfo && (memcmp(cinfo->bd_addr[BDADDR_MASTER], ecinfo->bd_addr[BDADDR_MASTER], 6) ||
-                   memcmp(cinfo->bd_addr[BDADDR_SLAVE], ecinfo->bd_addr[BDADDR_SLAVE], 6) ||
+    if (ecinfo && (memcmp(cinfo->bd_addr[BDADDR_CENTRAL], ecinfo->bd_addr[BDADDR_CENTRAL], 6) ||
+                   memcmp(cinfo->bd_addr[BDADDR_PERIPHERAL], ecinfo->bd_addr[BDADDR_PERIPHERAL], 6) ||
                    !ecinfo->esco || ecinfo->escohandle != handle || ecinfo->escosize[0] != pktszms ||
                    ecinfo->escosize[1] != pktszsm))
         ecinfo = NULL;
@@ -588,8 +588,8 @@ btbredr_rf_add_esco_link(connection_info_t *cinfo, packet_info *pinfo, uint8_t h
     ecinfo->lt_addr        = ltaddr;
     ecinfo->timestamp      = cinfo->timestamp;
     ecinfo->btclock        = cinfo->btclock;
-    memcpy(ecinfo->bd_addr[BDADDR_MASTER], cinfo->bd_addr[BDADDR_MASTER], 6);
-    memcpy(ecinfo->bd_addr[BDADDR_SLAVE], cinfo->bd_addr[BDADDR_SLAVE], 6);
+    memcpy(ecinfo->bd_addr[BDADDR_CENTRAL], cinfo->bd_addr[BDADDR_CENTRAL], 6);
+    memcpy(ecinfo->bd_addr[BDADDR_PERIPHERAL], cinfo->bd_addr[BDADDR_PERIPHERAL], 6);
     ecinfo->escosize[0] = pktszms;
     ecinfo->escosize[1] = pktszsm;
     ecinfo->escohandle = handle;
@@ -618,13 +618,13 @@ btbredr_rf_remove_esco_link(connection_info_t *cinfo, packet_info *pinfo, uint8_
     wmem_tree_key_t key[6];
     if (!cinfo || !pinfo)
         return;
-    lap = extract_lap(cinfo->bd_addr[BDADDR_MASTER]);
+    lap = extract_lap(cinfo->bd_addr[BDADDR_CENTRAL]);
     for (uint32_t ltaddr = 1; ltaddr < 8; ++ltaddr) {
         ecinfo = lookup_connection_info(cinfo->interface_id, cinfo->adapter_id, lap, ltaddr, pinfo->num);
         if (!ecinfo)
             continue;
-        if (memcmp(cinfo->bd_addr[BDADDR_MASTER], ecinfo->bd_addr[BDADDR_MASTER], 6) ||
-            memcmp(cinfo->bd_addr[BDADDR_SLAVE], ecinfo->bd_addr[BDADDR_SLAVE], 6) ||
+        if (memcmp(cinfo->bd_addr[BDADDR_CENTRAL], ecinfo->bd_addr[BDADDR_CENTRAL], 6) ||
+            memcmp(cinfo->bd_addr[BDADDR_PERIPHERAL], ecinfo->bd_addr[BDADDR_PERIPHERAL], 6) ||
             !ecinfo->esco || ecinfo->escohandle != handle)
             continue;
         key[0].length = 1;
@@ -768,7 +768,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     if (device_info) {
-        direction = (device_info->dir == pinfo->p2p_dir) ? BDADDR_MASTER : BDADDR_SLAVE;
+        direction = (device_info->dir == pinfo->p2p_dir) ? BDADDR_CENTRAL : BDADDR_PERIPHERAL;
         uap = device_info->bd_addr[2];
     }
 
@@ -1907,8 +1907,8 @@ dissect_btbredr_fhs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         connection_info = lookup_connection_info(interface_id, adapter_id, lap, ltaddr, pinfo->num);
         if (!pinfo->fd->visited) {
             if (connection_info && fhs_data->device_info &&
-                !memcmp(connection_info->bd_addr[BDADDR_SLAVE], null_bd_addr, 6))
-                memcpy(connection_info->bd_addr[BDADDR_SLAVE], fhs_data->device_info->bd_addr, 6);
+                !memcmp(connection_info->bd_addr[BDADDR_PERIPHERAL], null_bd_addr, 6))
+                memcpy(connection_info->bd_addr[BDADDR_PERIPHERAL], fhs_data->device_info->bd_addr, 6);
             if (!connection_info && device_info) {
                 wmem_tree_key_t key[6];
                 key[0].length = 1;
@@ -1929,9 +1929,9 @@ dissect_btbredr_fhs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 connection_info->lt_addr        = ltaddr;
                 connection_info->timestamp      = pinfo->abs_ts;
                 connection_info->btclock        = (ltaddr_clk_pgscan >> 3) & 0x3ffffff;
-                memcpy(connection_info->bd_addr[BDADDR_MASTER], device_info->bd_addr, 6);
+                memcpy(connection_info->bd_addr[BDADDR_CENTRAL], device_info->bd_addr, 6);
                 if (fhs_data->device_info)
-                    memcpy(connection_info->bd_addr[BDADDR_SLAVE], fhs_data->device_info->bd_addr, 6);
+                    memcpy(connection_info->bd_addr[BDADDR_PERIPHERAL], fhs_data->device_info->bd_addr, 6);
                 wmem_tree_insert32_array(connection_info_tree, key, connection_info);
              }
         }

@@ -255,9 +255,9 @@ static const value_string broadcom_sco_pcm_interface_frame_type_vals[] = {
     { 0, NULL }
 };
 
-static const value_string broadcom_mode_slave_master_vals[] = {
-    { 0x00,  "Slave" },
-    { 0x01,  "Master" },
+static const value_string broadcom_mode_peripheral_central_vals[] = {
+    { 0x00,  "Peripheral" },
+    { 0x01,  "Central" },
     { 0, NULL }
 };
 
@@ -1267,12 +1267,12 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_broadcom_sco_pcm_interface_sync_mode,
             { "SCO PCM Interface Sync Mode",               "bthci_vendor.broadcom.sco.interface.sync_mode",
-            FT_UINT8, BASE_HEX, VALS(broadcom_mode_slave_master_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(broadcom_mode_peripheral_central_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_sco_pcm_interface_clock_mode,
             { "SCO PCM Interface Clock Mode",              "bthci_vendor.broadcom.sco.interface.clock_mode",
-            FT_UINT8, BASE_HEX, VALS(broadcom_mode_slave_master_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(broadcom_mode_peripheral_central_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_pcm_shift_mode,
@@ -1307,7 +1307,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_broadcom_sco_i2s_pcm_interface_role,
             { "SCO I2S PCM Interface Role",                "bthci_vendor.broadcom.pcm.i2s_pcm_interface.role",
-            FT_UINT8, BASE_HEX, VALS(broadcom_mode_slave_master_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(broadcom_mode_peripheral_central_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_sco_i2s_pcm_interface_sample_rate,

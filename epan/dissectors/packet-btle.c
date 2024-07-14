@@ -36,8 +36,8 @@ static int proto_nordic_ble;
 static int hf_access_address;
 static int hf_coding_indicator;
 static int hf_crc;
-static int hf_master_bd_addr;
-static int hf_slave_bd_addr;
+static int hf_central_bd_addr;
+static int hf_peripheral_bd_addr;
 static int hf_length;
 static int hf_advertising_header;
 static int hf_advertising_header_pdu_type;
@@ -138,7 +138,7 @@ static int hf_control_feature_set;
 static int hf_control_feature_set_le_encryption;
 static int hf_control_feature_set_connection_parameters_request_procedure;
 static int hf_control_feature_set_extended_reject_indication;
-static int hf_control_feature_set_slave_initiated_features_exchange;
+static int hf_control_feature_set_peripheral_initiated_features_exchange;
 static int hf_control_feature_set_le_ping;
 static int hf_control_feature_set_le_pkt_len_ext;
 static int hf_control_feature_set_ll_privacy;
@@ -201,10 +201,10 @@ static int hf_control_offset_5;
 static int hf_control_channel_map;
 static int hf_control_random_number;
 static int hf_control_encrypted_diversifier;
-static int hf_control_master_session_key_diversifier;
-static int hf_control_master_session_initialization_vector;
-static int hf_control_slave_session_key_diversifier;
-static int hf_control_slave_session_initialization_vector;
+static int hf_control_central_session_key_diversifier;
+static int hf_control_central_session_initialization_vector;
+static int hf_control_peripheral_session_key_diversifier;
+static int hf_control_peripheral_session_initialization_vector;
 static int hf_control_max_rx_octets;
 static int hf_control_max_rx_time;
 static int hf_control_max_tx_octets;
@@ -218,16 +218,16 @@ static int hf_control_phys_update_le_coded_phy;
 static int hf_control_phys_reserved_bits;
 static int hf_control_tx_phys;
 static int hf_control_rx_phys;
-static int hf_control_m_to_s_phy;
-static int hf_control_m_to_s_phy_le_1m_phy;
-static int hf_control_m_to_s_phy_le_2m_phy;
-static int hf_control_m_to_s_phy_le_coded_phy;
-static int hf_control_m_to_s_phy_reserved_bits;
-static int hf_control_s_to_m_phy;
-static int hf_control_s_to_m_phy_le_1m_phy;
-static int hf_control_s_to_m_phy_le_2m_phy;
-static int hf_control_s_to_m_phy_le_coded_phy;
-static int hf_control_s_to_m_phy_reserved_bits;
+static int hf_control_c_to_p_phy;
+static int hf_control_c_to_p_phy_le_1m_phy;
+static int hf_control_c_to_p_phy_le_2m_phy;
+static int hf_control_c_to_p_phy_le_coded_phy;
+static int hf_control_c_to_p_phy_reserved_bits;
+static int hf_control_p_to_c_phy;
+static int hf_control_p_to_c_phy_le_1m_phy;
+static int hf_control_p_to_c_phy_le_2m_phy;
+static int hf_control_p_to_c_phy_le_coded_phy;
+static int hf_control_p_to_c_phy_reserved_bits;
 static int hf_control_phys;
 static int hf_control_phys_le_1m_phy;
 static int hf_control_phys_le_2m_phy;
@@ -256,23 +256,23 @@ static int hf_control_sync_sync_conn_event_counter;
 static int hf_control_sleep_clock_accuracy;
 static int hf_control_cig_id;
 static int hf_control_cis_id;
-static int hf_control_max_sdu_m_to_s;
+static int hf_control_max_sdu_c_to_p;
 static int hf_control_rfu_1;
 static int hf_control_framed;
-static int hf_control_max_sdu_s_to_m;
+static int hf_control_max_sdu_p_to_c;
 static int hf_control_rfu_2;
-static int hf_control_sdu_interval_m_to_s;
+static int hf_control_sdu_interval_c_to_p;
 static int hf_control_rfu_3;
-static int hf_control_sdu_interval_s_to_m;
+static int hf_control_sdu_interval_p_to_c;
 static int hf_control_rfu_4;
-static int hf_control_max_pdu_m_to_s;
-static int hf_control_max_pdu_s_to_m;
+static int hf_control_max_pdu_c_to_p;
+static int hf_control_max_pdu_p_to_c;
 static int hf_control_num_sub_events;
 static int hf_control_sub_interval;
-static int hf_control_bn_m_to_s;
-static int hf_control_bn_s_to_m;
-static int hf_control_ft_m_to_s;
-static int hf_control_ft_s_to_m;
+static int hf_control_bn_c_to_p;
+static int hf_control_bn_p_to_c;
+static int hf_control_ft_c_to_p;
+static int hf_control_ft_p_to_c;
 static int hf_control_iso_interval;
 static int hf_control_cis_offset_min;
 static int hf_control_cis_offset_max;
@@ -343,8 +343,8 @@ static int ett_data_header_cte_info;
 static int ett_features;
 static int ett_tx_phys;
 static int ett_rx_phys;
-static int ett_m_to_s_phy;
-static int ett_s_to_m_phy;
+static int ett_c_to_p_phy;
+static int ett_p_to_c_phy;
 static int ett_phys;
 static int ett_pwr_phy;
 static int ett_cte;
@@ -379,7 +379,7 @@ static int * const hfx_control_feature_set_1[] = {
     &hf_control_feature_set_le_encryption,
     &hf_control_feature_set_connection_parameters_request_procedure,
     &hf_control_feature_set_extended_reject_indication,
-    &hf_control_feature_set_slave_initiated_features_exchange,
+    &hf_control_feature_set_peripheral_initiated_features_exchange,
     &hf_control_feature_set_le_ping,
     &hf_control_feature_set_le_pkt_len_ext,
     &hf_control_feature_set_ll_privacy,
@@ -460,19 +460,19 @@ static int * const hfx_control_phys_update[] = {
     NULL
 };
 
-static int * const hfx_control_m_to_s_phy[] = {
-    &hf_control_m_to_s_phy_le_1m_phy,
-    &hf_control_m_to_s_phy_le_2m_phy,
-    &hf_control_m_to_s_phy_le_coded_phy,
-    &hf_control_m_to_s_phy_reserved_bits,
+static int * const hfx_control_c_to_p_phy[] = {
+    &hf_control_c_to_p_phy_le_1m_phy,
+    &hf_control_c_to_p_phy_le_2m_phy,
+    &hf_control_c_to_p_phy_le_coded_phy,
+    &hf_control_c_to_p_phy_reserved_bits,
     NULL
 };
 
-static int * const hfx_control_s_to_m_phy[] = {
-    &hf_control_s_to_m_phy_le_1m_phy,
-    &hf_control_s_to_m_phy_le_2m_phy,
-    &hf_control_s_to_m_phy_le_coded_phy,
-    &hf_control_s_to_m_phy_reserved_bits,
+static int * const hfx_control_p_to_c_phy[] = {
+    &hf_control_p_to_c_phy_le_1m_phy,
+    &hf_control_p_to_c_phy_le_2m_phy,
+    &hf_control_p_to_c_phy_le_coded_phy,
+    &hf_control_p_to_c_phy_reserved_bits,
     NULL
 };
 
@@ -650,8 +650,8 @@ typedef struct _connection_info_t {
     uint32_t access_address;
     uint32_t crc_init;
 
-    uint8_t  master_bd_addr[6];
-    uint8_t  slave_bd_addr[6];
+    uint8_t  central_bd_addr[6];
+    uint8_t  peripheral_bd_addr[6];
 
     uint16_t connection_parameter_update_instant;
     connection_parameter_info_t *connection_parameter_update_info;
@@ -659,7 +659,7 @@ typedef struct _connection_info_t {
     /* Connection information */
     /* Data used on the first pass to get info from previous frame, result will be in per_packet_data */
     unsigned first_data_frame_seen : 1;
-    direction_info_t direction_info[3];  /* UNKNOWN, MASTER_SLAVE and SLAVE_MASTER */
+    direction_info_t direction_info[3];  /* UNKNOWN, CENTRAL_PERIPHERAL and PERIPHERAL_CENTRAL */
 } connection_info_t;
 
 /* Store information about a broadcast isochronous connection */
@@ -669,7 +669,7 @@ typedef struct _broadcastiso_connection_info_t {
     uint32_t adapter_id;
     uint32_t access_address;
 
-    uint8_t  master_bd_addr[6];
+    uint8_t  central_bd_addr[6];
 } broadcastiso_connection_info_t;
 
 /* */
@@ -776,7 +776,7 @@ typedef enum
     LL_CTRL_OPCODE_PAUSE_ENC_RSP = 0x0B,
     LL_CTRL_OPCODE_VERSION_IND = 0x0C,
     LL_CTRL_OPCODE_REJECT_IND = 0x0D,
-    LL_CTRL_OPCODE_SLAVE_FEATURE_REQ = 0x0E,
+    LL_CTRL_OPCODE_PERIPHERAL_FEATURE_REQ = 0x0E,
     LL_CTRL_OPCODE_CONNECTION_PARAM_REQ = 0x0F,
     LL_CTRL_OPCODE_CONNECTION_PARAM_RSP = 0x10,
     LL_CTRL_OPCODE_REJECT_EXT_IND = 0x11,
@@ -822,7 +822,7 @@ static const value_string control_opcode_vals[] = {
     { LL_CTRL_OPCODE_PAUSE_ENC_RSP, "LL_PAUSE_ENC_RSP" },
     { LL_CTRL_OPCODE_VERSION_IND, "LL_VERSION_IND" },
     { LL_CTRL_OPCODE_REJECT_IND, "LL_REJECT_IND" },
-    { LL_CTRL_OPCODE_SLAVE_FEATURE_REQ, "LL_SLAVE_FEATURE_REQ" },
+    { LL_CTRL_OPCODE_PERIPHERAL_FEATURE_REQ, "LL_PERIPHERAL_FEATURE_REQ" },
     { LL_CTRL_OPCODE_CONNECTION_PARAM_REQ, "LL_CONNECTION_PARAM_REQ" },
     { LL_CTRL_OPCODE_CONNECTION_PARAM_RSP, "LL_CONNECTION_PARAM_RSP" },
     { LL_CTRL_OPCODE_REJECT_EXT_IND, "LL_REJECT_EXT_IND" },
@@ -1229,33 +1229,33 @@ dissect_cis_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
     proto_tree_add_item(btle_tree, hf_control_cis_id, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_m_to_s_phy, ett_m_to_s_phy, hfx_control_m_to_s_phy, ENC_NA);
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_c_to_p_phy, ett_c_to_p_phy, hfx_control_c_to_p_phy, ENC_NA);
     offset += 1;
 
-    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_s_to_m_phy, ett_s_to_m_phy, hfx_control_s_to_m_phy, ENC_NA);
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_p_to_c_phy, ett_p_to_c_phy, hfx_control_p_to_c_phy, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(btle_tree, hf_control_max_sdu_m_to_s, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_max_sdu_c_to_p, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_rfu_1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_framed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(btle_tree, hf_control_max_sdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_max_sdu_p_to_c, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_rfu_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(btle_tree, hf_control_sdu_interval_m_to_s, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_sdu_interval_c_to_p, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_rfu_3, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(btle_tree, hf_control_sdu_interval_s_to_m, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_sdu_interval_p_to_c, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_rfu_4, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(btle_tree, hf_control_max_pdu_m_to_s, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_max_pdu_c_to_p, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(btle_tree, hf_control_max_pdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_max_pdu_p_to_c, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(btle_tree, hf_control_num_sub_events, tvb, offset, 1, ENC_NA);
@@ -1264,14 +1264,14 @@ dissect_cis_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
     proto_tree_add_item(btle_tree, hf_control_sub_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(btle_tree, hf_control_bn_m_to_s, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(btle_tree, hf_control_bn_s_to_m, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(btle_tree, hf_control_bn_c_to_p, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(btle_tree, hf_control_bn_p_to_c, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(btle_tree, hf_control_ft_m_to_s, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(btle_tree, hf_control_ft_c_to_p, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(btle_tree, hf_control_ft_s_to_m, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(btle_tree, hf_control_ft_p_to_c, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     item = proto_tree_add_item_ret_uint(btle_tree, hf_control_iso_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interval);
@@ -1765,7 +1765,7 @@ static void control_proc_add_frame(tvbuff_t *tvb,
         !control_proc_is_complete(pinfo->num, control_proc_other_direction) &&
         control_proc_contains_instant(last_control_proc_info->proc_opcode) &&
         control_proc_contains_instant(control_proc_other_direction->proc_opcode)) {
-        if (direction == BTLE_DIR_MASTER_SLAVE &&
+        if (direction == BTLE_DIR_CENTRAL_PERIPHERAL &&
             opcode != LL_CTRL_OPCODE_REJECT_IND &&
             opcode != LL_CTRL_OPCODE_REJECT_EXT_IND) {
           /* Continuing a control procedure when the peer has initiated an incompatible control procedure.
@@ -1882,7 +1882,7 @@ dissect_ad_eir(tvbuff_t *tvb, uint32_t interface_id, uint32_t adapter_id, uint32
             nconnection_info->access_address = seed_access_address;
 
             if (src_bd_addr)
-                memcpy(nconnection_info->master_bd_addr, src_bd_addr, 6);
+                memcpy(nconnection_info->central_bd_addr, src_bd_addr, 6);
 
             wmem_tree_insert32_array(broadcastiso_connection_info_tree, key, nconnection_info);
         }
@@ -2085,10 +2085,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (wmem_tree) {
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (connection_info) {
-                set_address(&pinfo->net_src, AT_ETHER, 6, connection_info->master_bd_addr);
+                set_address(&pinfo->net_src, AT_ETHER, 6, connection_info->central_bd_addr);
                 copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
-                memcpy(src_bd_addr, connection_info->master_bd_addr, 6);
+                memcpy(src_bd_addr, connection_info->central_bd_addr, 6);
             }
         }
 
@@ -2375,14 +2375,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 connection_info->access_address = connection_access_address;
                 connection_info->crc_init       = connect_ind_crc_init;
 
-                memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
-                memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
+                memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
+                memcpy(connection_info->peripheral_bd_addr,  dst_bd_addr, 6);
 
                 /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
                  * as the direction must be known for request/response matching. */
-                connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs =
+                connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
                         wmem_tree_new(wmem_file_scope());
-                connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
+                connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
                         wmem_tree_new(wmem_file_scope());
 
                 wmem_tree_insert32_array(connection_info_tree, key, connection_info);
@@ -2543,13 +2543,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     connection_info->access_address = connection_access_address;
 
                     if (flags & 0x01)
-                        memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
+                        memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
 
                     /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
                      * as the direction must be known for request/response matching. */
-                    connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs =
+                    connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
                         wmem_tree_new(wmem_file_scope());
-                    connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
+                    connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
                         wmem_tree_new(wmem_file_scope());
 
                     wmem_tree_insert32_array(periodic_adv_info_tree, key, connection_info);
@@ -2784,7 +2784,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (btle_context) {
             direction = btle_context->direction;
-            other_direction = (direction == BTLE_DIR_SLAVE_MASTER) ? BTLE_DIR_MASTER_SLAVE : BTLE_DIR_SLAVE_MASTER;
+            other_direction = (direction == BTLE_DIR_PERIPHERAL_CENTRAL) ? BTLE_DIR_CENTRAL_PERIPHERAL : BTLE_DIR_PERIPHERAL_CENTRAL;
         }
 
         btle_frame_info_t *btle_frame_info = NULL;
@@ -2812,24 +2812,24 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
                 str_addr_dst = (char *) wmem_alloc(pinfo->pool, str_addr_len);
 
-                sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, connection_info->master_bd_addr);
+                sub_item = proto_tree_add_ether(btle_tree, hf_central_bd_addr, tvb, 0, 0, connection_info->central_bd_addr);
                 proto_item_set_generated(sub_item);
 
-                sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_info->slave_bd_addr);
+                sub_item = proto_tree_add_ether(btle_tree, hf_peripheral_bd_addr, tvb, 0, 0, connection_info->peripheral_bd_addr);
                 proto_item_set_generated(sub_item);
 
                 switch (direction) {
-                case BTLE_DIR_MASTER_SLAVE:
-                    snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_info->access_address);
-                    snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_info->access_address);
-                    set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->master_bd_addr), connection_info->master_bd_addr);
-                    set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->slave_bd_addr), connection_info->slave_bd_addr);
+                case BTLE_DIR_CENTRAL_PERIPHERAL:
+                    snprintf(str_addr_src, str_addr_len, "Central_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_dst, str_addr_len, "Peripheral_0x%08x", connection_info->access_address);
+                    set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->central_bd_addr), connection_info->central_bd_addr);
+                    set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->peripheral_bd_addr), connection_info->peripheral_bd_addr);
                     break;
-                case BTLE_DIR_SLAVE_MASTER:
-                    snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_info->access_address);
-                    snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_info->access_address);
-                    set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->slave_bd_addr), connection_info->slave_bd_addr);
-                    set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->master_bd_addr), connection_info->master_bd_addr);
+                case BTLE_DIR_PERIPHERAL_CENTRAL:
+                    snprintf(str_addr_src, str_addr_len, "Peripheral_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_dst, str_addr_len, "Central_0x%08x", connection_info->access_address);
+                    set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->peripheral_bd_addr), connection_info->peripheral_bd_addr);
+                    set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->central_bd_addr), connection_info->central_bd_addr);
                     break;
                 default:
                     /* BTLE_DIR_UNKNOWN */
@@ -2848,18 +2848,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 /* Retrieve the last initiated control procedures. */
                 if (btle_pdu_type == BTLE_PDU_TYPE_DATA) {
-                    last_control_proc[BTLE_DIR_MASTER_SLAVE] =
-                        (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs, pinfo->num);
-                    last_control_proc[BTLE_DIR_SLAVE_MASTER] =
-                        (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs, pinfo->num);
+                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL] =
+                        (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs, pinfo->num);
+                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL] =
+                        (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs, pinfo->num);
 
                     if (!pinfo->fd->visited && btle_context && btle_context->event_counter_valid) {
                         control_proc_complete_if_instant_reached(pinfo->num,
                                                                  btle_context->event_counter,
-                                                                 last_control_proc[BTLE_DIR_MASTER_SLAVE]);
+                                                                 last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL]);
                         control_proc_complete_if_instant_reached(pinfo->num,
                                                                  btle_context->event_counter,
-                                                                 last_control_proc[BTLE_DIR_SLAVE_MASTER]);
+                                                                 last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL]);
                     }
                 }
 
@@ -2881,8 +2881,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         connection_info->first_data_frame_seen = 1;
                         btle_frame_info->retransmit = 0;
                         btle_frame_info->ack = 1;
-                        connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].prev_seq_num = 0;
-                        connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].prev_seq_num = 1;
+                        connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].prev_seq_num = 0;
+                        connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].prev_seq_num = 1;
                     }
                     else {
                         uint8_t seq_num = !!(oct & 0x8), next_expected_seq_num = !!(oct & 0x4);
@@ -3213,31 +3213,31 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_CONNECTION_UPDATE_IND can only be sent from master to slave.
+                    /* The LL_CONNECTION_UPDATE_IND can only be sent from central to peripheral.
                      * It can either be sent as the first packet of the connection update procedure,
                      * or as the last packet in the connection parameter request procedure. */
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_CONNECTION_PARAM_REQ, 2)) {
                             control_proc_add_last_frame(tvb,
                                                         pinfo,
                                                         btle_tree,
                                                         control_opcode,
                                                         direction,
-                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                        last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                         2);
                         } else if (control_proc_can_add_frame(pinfo,
-                                                              last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                              last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                               LL_CTRL_OPCODE_CONNECTION_PARAM_REQ, 1)) {
                             control_proc_add_last_frame(tvb,
                                                         pinfo,
                                                         btle_tree,
                                                         control_opcode,
                                                         direction,
-                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
-                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                        last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
+                                                        last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                         1);
                         } else {
                             control_proc_info_t *proc_info;
@@ -3257,7 +3257,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             }
 
                         }
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3274,12 +3274,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_CHANNEL_MAP_REQ can only be sent from master to slave.
+                    /* The LL_CHANNEL_MAP_REQ can only be sent from central to peripheral.
                      * It can either be sent as the first packet of the channel map update procedure,
                      * or as the last packet in the minimum number of used channels procedure. */
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                       last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                        LL_CTRL_OPCODE_MIN_USED_CHANNELS_IND, 1)) {
                             control_proc_add_frame_with_instant(tvb,
                                                                 pinfo,
@@ -3287,8 +3287,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                                 btle_context,
                                                                 control_opcode,
                                                                 direction,
-                                                                last_control_proc[BTLE_DIR_SLAVE_MASTER],
-                                                                last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                                last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
+                                                                last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                                 1,
                                                                 item_value);
                         } else {
@@ -3308,7 +3308,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                 }
                             }
                         }
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3329,50 +3329,50 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_encrypted_diversifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(btle_tree, hf_control_master_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(btle_tree, hf_control_central_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
                 offset += 8;
 
-                proto_tree_add_item(btle_tree, hf_control_master_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(btle_tree, hf_control_central_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_ENC_REQ can only be sent from master to slave. */
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    /* The LL_ENC_REQ can only be sent from central to peripheral. */
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                           connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
                                            last_control_proc[other_direction],
                                            control_opcode);
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
 
                 break;
             case LL_CTRL_OPCODE_ENC_RSP:
-                proto_tree_add_item(btle_tree, hf_control_slave_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(btle_tree, hf_control_peripheral_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
                 offset += 8;
 
-                proto_tree_add_item(btle_tree, hf_control_slave_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(btle_tree, hf_control_peripheral_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_ENC_REQ can only be sent from slave to master. */
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    /* The LL_ENC_REQ can only be sent from peripheral to central. */
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_ENC_REQ, 1)) {
                             control_proc_add_frame(tvb,
                                                    pinfo,
                                                    btle_tree,
                                                    control_opcode,
                                                    direction,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                   last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                    1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3381,23 +3381,23 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_START_ENC_REQ:
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_START_ENC_REQ can only be sent from slave to master. */
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    /* The LL_START_ENC_REQ can only be sent from peripheral to central. */
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_ENC_REQ, 2)) {
                             control_proc_add_frame(tvb,
                                                    pinfo,
                                                    btle_tree,
                                                    control_opcode,
                                                    direction,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                   last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                    2);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3408,29 +3408,29 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     /* This is either frame 4 or 5 of the procedure */
-                    if (direction == BTLE_DIR_MASTER_SLAVE &&
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL &&
                         control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                    LL_CTRL_OPCODE_ENC_REQ, 3)) {
                         control_proc_add_frame(tvb,
                                                pinfo,
                                                btle_tree,
                                                control_opcode,
                                                direction,
-                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                               last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                               last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                3);
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER &&
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL &&
                                control_proc_can_add_frame(pinfo,
-                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                           LL_CTRL_OPCODE_ENC_REQ, 4)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     4);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3467,13 +3467,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_FEATURE_REQ:
                 offset = dissect_feature_set(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_FEATURE_REQ can only be sent from master to slave. */
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    /* The LL_FEATURE_REQ can only be sent from central to peripheral. */
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
                                            last_control_proc[other_direction],
                                            control_opcode);
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3487,7 +3487,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                    LL_CTRL_OPCODE_FEATURE_REQ, 1) ||
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
-                                                   LL_CTRL_OPCODE_SLAVE_FEATURE_REQ, 1)) {
+                                                   LL_CTRL_OPCODE_PERIPHERAL_FEATURE_REQ, 1)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
@@ -3509,13 +3509,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_PAUSE_ENC_REQ can only be sent from master to slave. */
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    /* The LL_PAUSE_ENC_REQ can only be sent from central to peripheral. */
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                           connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
                                            last_control_proc[other_direction],
                                            control_opcode);
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3525,29 +3525,29 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
 
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (direction == BTLE_DIR_SLAVE_MASTER &&
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL &&
                         control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                    LL_CTRL_OPCODE_PAUSE_ENC_REQ, 1)) {
                         control_proc_add_frame(tvb,
                                                pinfo,
                                                btle_tree,
                                                control_opcode,
                                                direction,
-                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                               last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                               last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                1);
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE &&
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL &&
                                control_proc_can_add_frame(pinfo,
-                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                           LL_CTRL_OPCODE_PAUSE_ENC_REQ, 2)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     2);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3593,51 +3593,51 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
 
                 /* LL_REJECT_IND my be sent as:
-                 *  - A response to the LL_ENQ_REQ from the master
-                 *  - After the LL_ENC_RSP from the slave */
+                 *  - A response to the LL_ENQ_REQ from the central
+                 *  - After the LL_ENC_RSP from the peripheral */
                 if (connection_info && !btle_frame_info->retransmit) {
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_ENC_REQ, 1)) {
                             control_proc_add_last_frame(tvb,
                                                         pinfo,
                                                         btle_tree,
                                                         control_opcode,
                                                         direction,
-                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                        last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                         1);
                         } else if (control_proc_can_add_frame(pinfo,
-                                                              last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                              last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                               LL_CTRL_OPCODE_ENC_REQ, 2)) {
                             control_proc_add_last_frame(tvb,
                                                         pinfo,
                                                         btle_tree,
                                                         control_opcode,
                                                         direction,
-                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                        last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                         2);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
 
                 break;
-            case LL_CTRL_OPCODE_SLAVE_FEATURE_REQ:
+            case LL_CTRL_OPCODE_PERIPHERAL_FEATURE_REQ:
                 offset = dissect_feature_set(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_SLAVE_FEATURE_REQ can only be sent from slave to master. */
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    /* The LL_PERIPHERAL_FEATURE_REQ can only be sent from peripheral to central. */
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
                                            last_control_proc[other_direction],
                                            control_opcode);
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3659,24 +3659,24 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_CONNECTION_PARAM_RSP can only be sent from slave to master
-                     * as a response to a master initiated procedure */
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    /* The LL_CONNECTION_PARAM_RSP can only be sent from peripheral to central
+                     * as a response to a central initiated procedure */
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_CONNECTION_PARAM_REQ, 1)) {
                             control_proc_add_frame(tvb,
                                                    pinfo,
                                                    btle_tree,
                                                    control_opcode,
                                                    direction,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                   last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                    1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3690,8 +3690,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
 
                 /* LL_REJECT_EXT_IND my be sent as:
-                 *  - A response to the LL_ENQ_REQ from the master
-                 *  - After the LL_ENC_RSP from the slave
+                 *  - A response to the LL_ENQ_REQ from the central
+                 *  - After the LL_ENC_RSP from the peripheral
                  *  - As a response to LL_CONNECTION_PARAM_REQ
                  *  - As a response to LL_CONNECTION_PARAM_RSP
                  *  - As a response during the phy update procedure.
@@ -3702,29 +3702,29 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  *  - As a response to a LL_SUBRATE_REQ
                  */
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (direction == BTLE_DIR_SLAVE_MASTER &&
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL &&
                         control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                    LL_CTRL_OPCODE_ENC_REQ, 1)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     1);
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER &&
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL &&
                                control_proc_can_add_frame(pinfo,
-                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                           LL_CTRL_OPCODE_ENC_REQ, 2)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     2);
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
@@ -3760,26 +3760,26 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                     last_control_proc[direction],
                                                     1);
                     } else if (control_proc_can_add_frame(pinfo,
-                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                           LL_CTRL_OPCODE_CIS_REQ, 1)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     1);
                     } else if (control_proc_can_add_frame(pinfo,
-                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                           LL_CTRL_OPCODE_CIS_REQ, 2)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     2);
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
@@ -3793,15 +3793,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                     last_control_proc[direction],
                                                     1);
                     } else if (control_proc_can_add_frame(pinfo,
-                                                          last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                          last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                           LL_CTRL_OPCODE_SUBRATE_REQ, 1)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                     1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3880,23 +3880,23 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_PHY_RSP:
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_PHY_RSP can only be sent from slave to master. */
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    /* The LL_PHY_RSP can only be sent from peripheral to central. */
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_PHY_REQ, 1)) {
                             control_proc_add_frame(tvb,
                                                    pinfo,
                                                    btle_tree,
                                                    control_opcode,
                                                    direction,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                   last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                    1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3906,13 +3906,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             {
                 uint64_t phy_c_to_p, phy_p_to_c;
 
-                item = proto_tree_add_bitmask_ret_uint64(btle_tree, tvb, offset, hf_control_m_to_s_phy, ett_m_to_s_phy, hfx_control_phys_update, ENC_NA, &phy_c_to_p);
+                item = proto_tree_add_bitmask_ret_uint64(btle_tree, tvb, offset, hf_control_c_to_p_phy, ett_c_to_p_phy, hfx_control_phys_update, ENC_NA, &phy_c_to_p);
                 if (phy_c_to_p == 0) {
                     proto_item_append_text(item, ", No change");
                 }
                 offset += 1;
 
-                item = proto_tree_add_bitmask_ret_uint64(btle_tree, tvb, offset, hf_control_s_to_m_phy, ett_s_to_m_phy, hfx_control_phys_update, ENC_NA, &phy_p_to_c);
+                item = proto_tree_add_bitmask_ret_uint64(btle_tree, tvb, offset, hf_control_p_to_c_phy, ett_p_to_c_phy, hfx_control_phys_update, ENC_NA, &phy_p_to_c);
                 if (phy_p_to_c == 0) {
                     proto_item_append_text(item, ", No change");
                 }
@@ -3929,10 +3929,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_PHY_UPDATE_IND can only be sent from master to slave. */
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    /* The LL_PHY_UPDATE_IND can only be sent from central to peripheral. */
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         if (control_proc_can_add_frame(pinfo,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        LL_CTRL_OPCODE_PHY_REQ, 2)) {
                             control_proc_add_frame_with_instant(tvb,
                                                                 pinfo,
@@ -3940,12 +3940,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                                 btle_context,
                                                                 control_opcode,
                                                                 direction,
-                                                                last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                                last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                                last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                                last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                                 2,
                                                                 item_value);
                         } else if (control_proc_can_add_frame(pinfo,
-                                                              last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                              last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                               LL_CTRL_OPCODE_PHY_REQ, 1)){
                             control_proc_add_frame_with_instant(tvb,
                                                                 pinfo,
@@ -3953,14 +3953,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                                 btle_context,
                                                                 control_opcode,
                                                                 direction,
-                                                                last_control_proc[BTLE_DIR_SLAVE_MASTER],
-                                                                last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                                last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
+                                                                last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                                 1,
                                                                 item_value);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -3975,8 +3975,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
 
                 if (connection_info && !btle_frame_info->retransmit) {
-                    /* The LL_MIN_USED_CHANNELS_IND can only be sent from slave to master. */
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    /* The LL_MIN_USED_CHANNELS_IND can only be sent from peripheral to central. */
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         control_proc_info_t *proc_info;
                         proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                        connection_info->direction_info[direction].control_procs,
@@ -3987,7 +3987,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (proc_info) {
                             proc_info->last_frame = pinfo->num;
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -4069,12 +4069,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_CIS_REQ:
                 offset = dissect_cis_req(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                           connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
-                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                           connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
+                                           last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                            control_opcode);
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -4083,15 +4083,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_cis_rsp(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                    LL_CTRL_OPCODE_CIS_REQ, 1)) {
                         control_proc_add_frame(tvb,
                                                pinfo,
                                                btle_tree,
                                                control_opcode,
                                                direction,
-                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                               last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                               last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -4122,15 +4122,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     nconnection_info->access_address = connection_access_address;
 
                     if (connection_info) {
-                        memcpy(nconnection_info->master_bd_addr, connection_info->master_bd_addr, 6);
-                        memcpy(nconnection_info->slave_bd_addr,  connection_info->slave_bd_addr,  6);
+                        memcpy(nconnection_info->central_bd_addr, connection_info->central_bd_addr, 6);
+                        memcpy(nconnection_info->peripheral_bd_addr,  connection_info->peripheral_bd_addr,  6);
                     }
 
                     /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
                      * as the direction must be known for request/response matching. */
-                    nconnection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs =
+                    nconnection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
                         wmem_tree_new(wmem_file_scope());
-                    nconnection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
+                    nconnection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
                         wmem_tree_new(wmem_file_scope());
 
                     wmem_tree_insert32_array(connection_info_tree, key, nconnection_info);
@@ -4145,15 +4145,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_cis_ind(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                    LL_CTRL_OPCODE_CIS_REQ, 2)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                     2);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -4221,12 +4221,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_SUBRATE_REQ:
                 offset = dissect_subrate_req(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                           connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs,
-                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                           connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs,
+                                           last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                            control_opcode);
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -4235,21 +4235,21 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_subrate_ind(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
                     if (control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                    LL_CTRL_OPCODE_SUBRATE_REQ, 1)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
                                                     control_opcode,
                                                     direction,
-                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
-                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
+                                                    last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                     1);
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         control_proc_info_t *proc_info;
                         proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                                       connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
-                                                       last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                       connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
+                                                       last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
@@ -4264,18 +4264,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_CHANNEL_REPORTING_IND:
                 offset = dissect_channel_reporting_ind(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         control_proc_info_t *proc_info;
                         proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                                       connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
-                                                       last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                       connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
+                                                       last_control_proc[BTLE_DIR_PERIPHERAL_CENTRAL],
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
                         if (proc_info) {
                             proc_info->last_frame = pinfo->num;
                         }
-                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -4283,18 +4283,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case LL_CTRL_OPCODE_CHANNEL_STATUS_IND:
                 offset = dissect_channel_status_ind(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
-                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                    if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
                         control_proc_info_t *proc_info;
                         proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                                       connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs,
+                                                       last_control_proc[BTLE_DIR_CENTRAL_PERIPHERAL],
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
                         if (proc_info) {
                             proc_info->last_frame = pinfo->num;
                         }
-                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                    } else if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
                 }
@@ -4388,16 +4388,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             broadcastiso_connection_info = (broadcastiso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (broadcastiso_connection_info) {
                 char   *str_addr_src;
-                /* Holds "Master" + access_address + NULL, which is the longest string */
+                /* Holds "Central" + access_address + NULL, which is the longest string */
                 int     str_addr_len = 17 + 1;
 
                 str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
 
-                sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, broadcastiso_connection_info->master_bd_addr);
+                sub_item = proto_tree_add_ether(btle_tree, hf_central_bd_addr, tvb, 0, 0, broadcastiso_connection_info->central_bd_addr);
                 proto_item_set_generated(sub_item);
 
-                snprintf(str_addr_src, str_addr_len, "Master_0x%08x", broadcastiso_connection_info->access_address);
-                set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->master_bd_addr), broadcastiso_connection_info->master_bd_addr);
+                snprintf(str_addr_src, str_addr_len, "Central_0x%08x", broadcastiso_connection_info->access_address);
+                set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->central_bd_addr), broadcastiso_connection_info->central_bd_addr);
                 clear_address(&pinfo->dl_dst);
 
                 set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(str_addr_src)+1, str_addr_src);
@@ -4521,13 +4521,13 @@ proto_register_btle(void)
             FT_UINT8, BASE_DEC, VALS(le_coding_indicators), 0x3,
             NULL, HFILL }
         },
-        { &hf_master_bd_addr,
-            { "Master Address",                  "btle.master_bd_addr",
+        { &hf_central_bd_addr,
+            { "Central Address",                  "btle.central_bd_addr",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_slave_bd_addr,
-            { "Slave Address",                   "btle.slave_bd_addr",
+        { &hf_peripheral_bd_addr,
+            { "Peripheral Address",                   "btle.peripheral_bd_addr",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5016,8 +5016,8 @@ proto_register_btle(void)
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_control_feature_set_slave_initiated_features_exchange,
-            { "Slave Initiated Features Exchange",    "btle.control.feature_set.slave_initiated_features_exchange",
+        { &hf_control_feature_set_peripheral_initiated_features_exchange,
+            { "Peripheral Initiated Features Exchange",    "btle.control.feature_set.peripheral_initiated_features_exchange",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
@@ -5331,23 +5331,23 @@ proto_register_btle(void)
             FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_master_session_key_diversifier,
-            { "Master Session Key Diversifier",  "btle.control.master_session_key_diversifier",
+        { &hf_control_central_session_key_diversifier,
+            { "Central Session Key Diversifier",  "btle.control.central_session_key_diversifier",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_slave_session_key_diversifier,
-            { "Slave Session Key Diversifier",   "btle.control.slave_session_key_diversifier",
+        { &hf_control_peripheral_session_key_diversifier,
+            { "Peripheral Session Key Diversifier",   "btle.control.peripheral_session_key_diversifier",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_master_session_initialization_vector,
-            { "Master Session Initialization Vector",      "btle.control.master_session_initialization_vector",
+        { &hf_control_central_session_initialization_vector,
+            { "Central Session Initialization Vector",      "btle.control.central_session_initialization_vector",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_slave_session_initialization_vector,
-            { "Slave Session Initialization Vector",       "btle.control.slave_session_initialization_vector",
+        { &hf_control_peripheral_session_initialization_vector,
+            { "Peripheral Session Initialization Vector",       "btle.control.peripheral_session_initialization_vector",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5416,52 +5416,52 @@ proto_register_btle(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_m_to_s_phy,
-            { "Master to Slave PHY", "btle.control.m_to_s_phy",
+        { &hf_control_c_to_p_phy,
+            { "Central to Peripheral PHY", "btle.control.m_to_s_phy",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_m_to_s_phy_le_1m_phy,
+        { &hf_control_c_to_p_phy_le_1m_phy,
             { "LE 1M PHY", "btle.control.m_to_s_phy.le_1m_phy",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_control_m_to_s_phy_le_2m_phy,
+        { &hf_control_c_to_p_phy_le_2m_phy,
             { "LE 2M PHY", "btle.control.m_to_s_phy.le_2m_phy",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_control_m_to_s_phy_le_coded_phy,
+        { &hf_control_c_to_p_phy_le_coded_phy,
             { "LE Coded PHY", "btle.control.m_to_s_phy.le_coded_phy",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_control_m_to_s_phy_reserved_bits,
+        { &hf_control_c_to_p_phy_reserved_bits,
             { "Reserved for future use", "btle.control.m_to_s_phy.reserved",
             FT_UINT8, BASE_DEC, NULL, 0xF8,
             NULL, HFILL }
         },
-        { &hf_control_s_to_m_phy,
-            { "Slave to Master PHY", "btle.control.s_to_m_phy",
+        { &hf_control_p_to_c_phy,
+            { "Peripheral to Central PHY", "btle.control.s_to_m_phy",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_s_to_m_phy_le_1m_phy,
+        { &hf_control_p_to_c_phy_le_1m_phy,
             { "LE 1M PHY", "btle.control.s_to_m_phy.le_1m_phy",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_control_s_to_m_phy_le_2m_phy,
+        { &hf_control_p_to_c_phy_le_2m_phy,
             { "LE 2M PHY", "btle.control.s_to_m_phy.le_2m_phy",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_control_s_to_m_phy_le_coded_phy,
+        { &hf_control_p_to_c_phy_le_coded_phy,
             { "LE Coded PHY", "btle.control.s_to_m_phy.le_coded_phy",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_control_s_to_m_phy_reserved_bits,
+        { &hf_control_p_to_c_phy_reserved_bits,
             { "Reserved for future use", "btle.control.s_to_m_phy.reserved",
             FT_UINT8, BASE_DEC, NULL, 0xF8,
             NULL, HFILL }
@@ -5606,8 +5606,8 @@ proto_register_btle(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_max_sdu_m_to_s,
-            { "Max_SDU_M_To_S",                  "btle.control.max_sdu_m_to_s",
+        { &hf_control_max_sdu_c_to_p,
+            { "Max_SDU_C_To_P",                  "btle.control.max_sdu_c_to_p",
             FT_UINT16, BASE_DEC, NULL, 0x0fff,
             NULL, HFILL }
         },
@@ -5621,8 +5621,8 @@ proto_register_btle(void)
             FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },
-        { &hf_control_max_sdu_s_to_m,
-            { "Max_SDU_S_To_M",                  "btle.control.max_sdu_s_to_m",
+        { &hf_control_max_sdu_p_to_c,
+            { "Max_SDU_P_To_C",                  "btle.control.max_sdu_p_to_c",
             FT_UINT16, BASE_DEC, NULL, 0x0fff,
             NULL, HFILL }
         },
@@ -5631,8 +5631,8 @@ proto_register_btle(void)
             FT_UINT16, BASE_DEC, NULL, 0xf000,
             "Reserved for Future Use", HFILL }
         },
-        { &hf_control_sdu_interval_m_to_s,
-            { "SDU_Interval_M_To_S",             "btle.control.sdu_interval_m_to_s",
+        { &hf_control_sdu_interval_c_to_p,
+            { "SDU_Interval_C_To_P",             "btle.control.sdu_interval_c_to_p",
             FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
             NULL, HFILL }
         },
@@ -5641,8 +5641,8 @@ proto_register_btle(void)
             FT_UINT24, BASE_DEC, NULL, 0xf00000,
             "Reserved for Future Use", HFILL }
         },
-        { &hf_control_sdu_interval_s_to_m,
-            { "SDU_Interval_S_To_M",             "btle.control.sdu_interval_s_to_m",
+        { &hf_control_sdu_interval_p_to_c,
+            { "SDU_Interval_P_To_C",             "btle.control.sdu_interval_p_to_c",
             FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
             NULL, HFILL }
         },
@@ -5651,13 +5651,13 @@ proto_register_btle(void)
             FT_UINT24, BASE_DEC, NULL, 0xf00000,
             "Reserved for Future Use", HFILL }
         },
-        { &hf_control_max_pdu_m_to_s,
-            { "Max_PDU_M_To_S",                  "btle.control.max_pdu_m_to_s",
+        { &hf_control_max_pdu_c_to_p,
+            { "Max_PDU_C_To_P",                  "btle.control.max_pdu_c_to_p",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_max_pdu_s_to_m,
-            { "Max_PDU_S_To_M",                  "btle.control.max_pdu_s_to_m",
+        { &hf_control_max_pdu_p_to_c,
+            { "Max_PDU_P_To_C",                  "btle.control.max_pdu_p_to_c",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5671,23 +5671,23 @@ proto_register_btle(void)
             FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_bn_m_to_s,
-            { "BN_M_To_S",                       "btle.control.bn_m_to_s",
+        { &hf_control_bn_c_to_p,
+            { "BN_C_To_P",                       "btle.control.bn_c_to_p",
             FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
-        { &hf_control_bn_s_to_m,
-            { "BN_S_To_M",                       "btle.control.bn_s_to_m",
+        { &hf_control_bn_p_to_c,
+            { "BN_P_To_C",                       "btle.control.bn_p_to_c",
             FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
-        { &hf_control_ft_m_to_s,
-            { "FT_M_To_S",                       "btle.control.ft_m_to_s",
+        { &hf_control_ft_c_to_p,
+            { "FT_C_To_P",                       "btle.control.ft_c_to_p",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_ft_s_to_m,
-            { "FT_S_To_M",                       "btle.control.ft_s_to_m",
+        { &hf_control_ft_p_to_c,
+            { "FT_P_To_C",                       "btle.control.ft_p_to_c",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -6059,8 +6059,8 @@ proto_register_btle(void)
         &ett_features,
         &ett_tx_phys,
         &ett_rx_phys,
-        &ett_m_to_s_phy,
-        &ett_s_to_m_phy,
+        &ett_c_to_p_phy,
+        &ett_p_to_c_phy,
         &ett_phys,
         &ett_pwr_phy,
         &ett_cte,

@@ -97,10 +97,10 @@ static const value_string le_pdus[] =
 {
     { 0, "Advertising or Data (Unspecified Direction)" },
     { 1, "Auxiliary Advertising" },
-    { 2, "Data, Master to Slave" },
-    { 3, "Data, Slave to Master" },
-    { 4, "Connected Isochronous, Master to Slave" },
-    { 5, "Connected Isochronous, Slave to Master" },
+    { 2, "Data, Central to Peripheral" },
+    { 3, "Data, Peripheral to Central" },
+    { 4, "Connected Isochronous, Central to Peripheral" },
+    { 5, "Connected Isochronous, Peripheral to Central" },
     { 6, "Broadcast Isochronous" },
     { 7, "Reserved" },
     { 0, NULL }
@@ -190,24 +190,24 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         context.aux_pdu_type = (flags & 0x3000) >> 12;
         context.aux_pdu_type_valid = true;
         break;
-    case 2: // Data, Master to Slave
+    case 2: // Data, Central to Peripheral
         context.pdu_type = BTLE_PDU_TYPE_DATA;
-        context.direction = BTLE_DIR_MASTER_SLAVE;
+        context.direction = BTLE_DIR_CENTRAL_PERIPHERAL;
         pinfo->p2p_dir = P2P_DIR_SENT;
         break;
-    case 3: // Data, Slave to Master
+    case 3: // Data, Peripheral to Central
         context.pdu_type = BTLE_PDU_TYPE_DATA;
-        context.direction = BTLE_DIR_SLAVE_MASTER;
+        context.direction = BTLE_DIR_PERIPHERAL_CENTRAL;
         pinfo->p2p_dir = P2P_DIR_RECV;
         break;
-    case 4: // Connected Isochronous, Master to Slave
+    case 4: // Connected Isochronous, Central to Peripheral
         context.pdu_type = BTLE_PDU_TYPE_CONNECTEDISO;
-        context.direction = BTLE_DIR_MASTER_SLAVE;
+        context.direction = BTLE_DIR_CENTRAL_PERIPHERAL;
         pinfo->p2p_dir = P2P_DIR_SENT;
         break;
-    case 5: // Connected Isochronous, Slave to Master
+    case 5: // Connected Isochronous, Peripheral to Central
         context.pdu_type = BTLE_PDU_TYPE_CONNECTEDISO;
-        context.direction = BTLE_DIR_SLAVE_MASTER;
+        context.direction = BTLE_DIR_PERIPHERAL_CENTRAL;
         pinfo->p2p_dir = P2P_DIR_RECV;
         break;
     case 6: // Broadcast Isochronous
