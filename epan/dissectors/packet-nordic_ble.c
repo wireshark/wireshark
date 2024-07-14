@@ -155,7 +155,7 @@
  *
  *  Flags EVENT_PACKET_DATA (0x06)
  *   0000000x = CRC       (0 = Incorrect, 1 = OK)
- *   000000x0 = Direction (0 = Slave -> Master, 1 = Master -> Slave)
+ *   000000x0 = Direction (0 = Peripheral -> Central, 1 = Central -> Peripheral)
  *   00000x00 = Encrypted (0 = No, 1 = Yes)
  *   0000x000 = MIC       (0 = Incorrect, 1 = OK)
  *   0xxx0000 = PHY       (0 = 1M, 1 = 2M, 2 = Coded, rest unused)
@@ -257,8 +257,8 @@ static expert_field ei_nordic_ble_unknown_version;
 
 static const true_false_string direction_tfs =
 {
-    "Master -> Slave",
-    "Slave -> Master"
+    "Central -> Peripheral",
+    "Peripheral -> Central"
 };
 
 static const value_string le_phys[] =
@@ -370,14 +370,14 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
 
     if (context->pdu_type == BTLE_PDU_TYPE_DATA) {
         if (dir) {
-            set_address(&pinfo->src, AT_STRINGZ, 7, "Master");
-            set_address(&pinfo->dst, AT_STRINGZ, 6, "Slave");
-            context->direction = BTLE_DIR_MASTER_SLAVE;
+            set_address(&pinfo->src, AT_STRINGZ, 7, "Central");
+            set_address(&pinfo->dst, AT_STRINGZ, 6, "Peripheral");
+            context->direction = BTLE_DIR_CENTRAL_PERIPHERAL;
             pinfo->p2p_dir = P2P_DIR_SENT;
         } else {
-            set_address(&pinfo->src, AT_STRINGZ, 6, "Slave");
-            set_address(&pinfo->dst, AT_STRINGZ, 7, "Master");
-            context->direction = BTLE_DIR_SLAVE_MASTER;
+            set_address(&pinfo->src, AT_STRINGZ, 6, "Peripheral");
+            set_address(&pinfo->dst, AT_STRINGZ, 7, "Central");
+            context->direction = BTLE_DIR_PERIPHERAL_CENTRAL;
             pinfo->p2p_dir = P2P_DIR_RECV;
         }
     }
