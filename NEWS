@@ -1,4 +1,4 @@
-Wireshark 4.0.16 Release Notes
+Wireshark 4.0.17 Release Notes
 
  What is Wireshark?
 
@@ -12,6 +12,8 @@ Wireshark 4.0.16 Release Notes
    A regression in the TCP Stream Graph "Time Sequence (tcptrace)"
    receive window line behavior introduced in 4.0.15 and 4.2.5 has been
    fixed. Issue 19846[1]
+
+   The following vulnerabilities have been fixed:
 
    The following bugs have been fixed:
 
@@ -36,40 +38,42 @@ Wireshark 4.0.16 Release Notes
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  4.0.16. You can find release notes for prior versions at the following
+  4.0.17. You can find release notes for prior versions at the following
   locations:
 
-    • Wireshark 4.0.15[2]
+    • Wireshark 4.0.16[2]
 
-    • Wireshark 4.0.14[3]
+    • Wireshark 4.0.15[3]
 
-    • Wireshark 4.0.13[4]
+    • Wireshark 4.0.14[4]
 
-    • Wireshark 4.0.12[5]
+    • Wireshark 4.0.13[5]
 
-    • Wireshark 4.0.11[6]
+    • Wireshark 4.0.12[6]
 
-    • Wireshark 4.0.10[7]
+    • Wireshark 4.0.11[7]
 
-    • Wireshark 4.0.9[8]
+    • Wireshark 4.0.10[8]
 
-    • Wireshark 4.0.8[9]
+    • Wireshark 4.0.9[9]
 
-    • Wireshark 4.0.7[10]
+    • Wireshark 4.0.8[10]
 
-    • Wireshark 4.0.6[11]
+    • Wireshark 4.0.7[11]
 
-    • Wireshark 4.0.5[12]
+    • Wireshark 4.0.6[12]
 
-    • Wireshark 4.0.4[13]
+    • Wireshark 4.0.5[13]
 
-    • Wireshark 4.0.3[14]
+    • Wireshark 4.0.4[14]
 
-    • Wireshark 4.0.2[15]
+    • Wireshark 4.0.3[15]
 
-    • Wireshark 4.0.1[16]
+    • Wireshark 4.0.2[16]
 
-    • Wireshark 4.0.0[17]
+    • Wireshark 4.0.1[17]
+
+    • Wireshark 4.0.0[18]
 
  Getting Wireshark
 
@@ -81,7 +85,7 @@ Wireshark 4.0.16 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[18] on the Wireshark web site.
+   be found on the download page[19] on the Wireshark web site.
 
  File Locations
 
@@ -96,48 +100,49 @@ Wireshark 4.0.16 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[19] and on the
+  Community support is available on Wireshark’s Q&A site[20] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[20].
+  for all of Wireshark’s mailing lists can be found on the web site[21].
 
-  Bugs and feature requests can be reported on the issue tracker[21].
+  Bugs and feature requests can be reported on the issue tracker[22].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[22].
+  SharkFest[23].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[23].
+  at wiresharkfoundation.org[24].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[24].
+  A complete FAQ is available on the Wireshark web site[25].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/19846
-   2. https://www.wireshark.org/docs/relnotes/wireshark-4.0.15.html
-   3. https://www.wireshark.org/docs/relnotes/wireshark-4.0.14.html
-   4. https://www.wireshark.org/docs/relnotes/wireshark-4.0.13.html
-   5. https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html
-   6. https://www.wireshark.org/docs/relnotes/wireshark-4.0.11.html
-   7. https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html
-   8. https://www.wireshark.org/docs/relnotes/wireshark-4.0.9.html
-   9. https://www.wireshark.org/docs/relnotes/wireshark-4.0.8.html
-  10. https://www.wireshark.org/docs/relnotes/wireshark-4.0.7.html
-  11. https://www.wireshark.org/docs/relnotes/wireshark-4.0.6.html
-  12. https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html
-  13. https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html
-  14. https://www.wireshark.org/docs/relnotes/wireshark-4.0.3.html
-  15. https://www.wireshark.org/docs/relnotes/wireshark-4.0.2.html
-  16. https://www.wireshark.org/docs/relnotes/wireshark-4.0.1.html
-  17. https://www.wireshark.org/docs/relnotes/wireshark-4.0.0.html
-  18. https://www.wireshark.org/download.html
-  19. https://ask.wireshark.org/
-  20. https://www.wireshark.org/lists/
-  21. https://gitlab.com/wireshark/wireshark/-/issues
-  22. https://sharkfest.wireshark.org
-  23. https://wiresharkfoundation.org
-  24. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/docs/relnotes/wireshark-4.0.16.html
+   3. https://www.wireshark.org/docs/relnotes/wireshark-4.0.15.html
+   4. https://www.wireshark.org/docs/relnotes/wireshark-4.0.14.html
+   5. https://www.wireshark.org/docs/relnotes/wireshark-4.0.13.html
+   6. https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html
+   7. https://www.wireshark.org/docs/relnotes/wireshark-4.0.11.html
+   8. https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html
+   9. https://www.wireshark.org/docs/relnotes/wireshark-4.0.9.html
+  10. https://www.wireshark.org/docs/relnotes/wireshark-4.0.8.html
+  11. https://www.wireshark.org/docs/relnotes/wireshark-4.0.7.html
+  12. https://www.wireshark.org/docs/relnotes/wireshark-4.0.6.html
+  13. https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html
+  14. https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html
+  15. https://www.wireshark.org/docs/relnotes/wireshark-4.0.3.html
+  16. https://www.wireshark.org/docs/relnotes/wireshark-4.0.2.html
+  17. https://www.wireshark.org/docs/relnotes/wireshark-4.0.1.html
+  18. https://www.wireshark.org/docs/relnotes/wireshark-4.0.0.html
+  19. https://www.wireshark.org/download.html
+  20. https://ask.wireshark.org/
+  21. https://www.wireshark.org/lists/
+  22. https://gitlab.com/wireshark/wireshark/-/issues
+  23. https://sharkfest.wireshark.org
+  24. https://wiresharkfoundation.org
+  25. https://www.wireshark.org/faq.html
