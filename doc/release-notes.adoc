@@ -282,6 +282,9 @@ The following features are new (or have been significantly updated) since versio
   ** The graph layer order and order in the legend always matches the
      order in the table, and the legend appears properly. wsbuglink:13854[]
 
+  ** The legend can be moved to other corners of the graph by right-clicking
+     on it and selecting from a context menu.
+
   ** Graphs with both lines and data point symbols are treated as line
      graphs, not scatter plots, for purposes of displaying zero values.
 

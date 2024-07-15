@@ -253,6 +253,7 @@ private slots:
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);
     void selectedFrameChanged(QList<int> frames);
+    void moveLegend();
 
     void resetAxes();
     void updateStatistics(void);
