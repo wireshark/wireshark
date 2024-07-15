@@ -172,7 +172,7 @@ static const value_string category [] = {
 /* Cyclic data alignment */
 static const value_string cyclic_align [] = {
 	{ 0, "8bit" },
-	{ 1, "8bit" },
+	{ 1, "8bit" },   /* TODO: is this correct? */
 	{ 2, "16bit" },
 	{ 4, "32bit" },
 	{ 8, "64bit" },
@@ -1038,16 +1038,12 @@ static int add_cyclic_frame_query(int offset, tvbuff_t *tvb, proto_tree* ecmp_tr
 /* a function to add a cyclic frame */
 static int add_cyclic_frame(int offset, tvbuff_t *tvb, proto_tree* ecmp_tree )
 {
-	guint8 scheme;
+	guint32 scheme;
 	proto_item *ecmp_scheme_item = NULL;
 	proto_tree *ecmp_scheme_tree = NULL;
 	proto_tree_add_item(ecmp_tree, hf_ecmp_cyclic_link_num, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(ecmp_tree, hf_ecmp_cyclic_align, tvb, offset++, 1, ENC_BIG_ENDIAN);
-
-	/* get scheme */
-	scheme = tvb_get_guint8(tvb, offset);
-
-	ecmp_scheme_item = proto_tree_add_item(ecmp_tree, hf_ecmp_cyclic_scheme, tvb, offset++, 1, ENC_BIG_ENDIAN);
+	ecmp_scheme_item = proto_tree_add_item_ret_uint(ecmp_tree, hf_ecmp_cyclic_scheme, tvb, offset++, 1, ENC_BIG_ENDIAN, &scheme);
 
 	if (scheme == 1) {
 		/* Create a new sub tree spawning off the scheme byte for the synchronisation scheme data to be placed. */
