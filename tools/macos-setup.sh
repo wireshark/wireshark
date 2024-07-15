@@ -510,7 +510,7 @@ uninstall_libtool() {
         echo "Uninstalling GNU libtool:"
         cd libtool-$installed_libtool_version
         $DO_MV "$installation_prefix/bin/glibtool" "$installation_prefix/bin/libtool"
-        $DO_MV "$installation_prefix/glibtoolize" "$installation_prefix/bin/libtoolize"
+        $DO_MV "$installation_prefix/bin/glibtoolize" "$installation_prefix/bin/libtoolize"
         $DO_MAKE_UNINSTALL
         make distclean
         cd ..
