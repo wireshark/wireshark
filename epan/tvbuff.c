@@ -1005,7 +1005,7 @@ tvb_get_ptr(tvbuff_t *tvb, const int offset, const int length)
 
 /* ---------------- */
 uint8_t
-tvb_get_guint8(tvbuff_t *tvb, const int offset)
+tvb_get_uint8(tvbuff_t *tvb, const int offset)
 {
 	const uint8_t *ptr;
 
@@ -1014,7 +1014,7 @@ tvb_get_guint8(tvbuff_t *tvb, const int offset)
 }
 
 int8_t
-tvb_get_gint8(tvbuff_t *tvb, const int offset)
+tvb_get_int8(tvbuff_t *tvb, const int offset)
 {
 	const uint8_t *ptr;
 
@@ -1153,7 +1153,7 @@ tvb_get_ntohi64(tvbuff_t *tvb, const int offset)
 }
 
 uint16_t
-tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohs(tvb, offset);
 	} else {
@@ -1162,7 +1162,7 @@ tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int16_t
-tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohis(tvb, offset);
 	} else {
@@ -1171,7 +1171,7 @@ tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint32_t
-tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh24(tvb, offset);
 	} else {
@@ -1180,7 +1180,7 @@ tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int32_t
-tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi24(tvb, offset);
 	} else {
@@ -1189,7 +1189,7 @@ tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint32_t
-tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohl(tvb, offset);
 	} else {
@@ -1198,7 +1198,7 @@ tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int32_t
-tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohil(tvb, offset);
 	} else {
@@ -1207,7 +1207,7 @@ tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh40(tvb, offset);
 	} else {
@@ -1216,7 +1216,7 @@ tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi40(tvb, offset);
 	} else {
@@ -1225,7 +1225,7 @@ tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh48(tvb, offset);
 	} else {
@@ -1234,7 +1234,7 @@ tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi48(tvb, offset);
 	} else {
@@ -1243,7 +1243,7 @@ tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh56(tvb, offset);
 	} else {
@@ -1252,7 +1252,7 @@ tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi56(tvb, offset);
 	} else {
@@ -1261,7 +1261,7 @@ tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh64(tvb, offset);
 	} else {
@@ -1270,7 +1270,7 @@ tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi64(tvb, offset);
 	} else {

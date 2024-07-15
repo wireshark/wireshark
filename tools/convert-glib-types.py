@@ -82,6 +82,25 @@ format_spec_map = {
     'G_GUINT64_FORMAT': 'PRIu64',
 }
 
+tvb_api_map = {
+    'tvb_get_guint8': 'tvb_get_uint8',
+    'tvb_get_gint8': 'tvb_get_int8',
+    'tvb_get_guint16': 'tvb_get_uint16',
+    'tvb_get_gint16': 'tvb_get_int16',
+    'tvb_get_guint24': 'tvb_get_uint24',
+    'tvb_get_gint24': 'tvb_get_int24',
+    'tvb_get_guint32': 'tvb_get_uint32',
+    'tvb_get_gint32': 'tvb_get_int32',
+    'tvb_get_guint40': 'tvb_get_uint40',
+    'tvb_get_gint40': 'tvb_get_int40',
+    'tvb_get_guint48': 'tvb_get_uint48',
+    'tvb_get_gint48': 'tvb_get_int48',
+    'tvb_get_guint56': 'tvb_get_uint56',
+    'tvb_get_gint56': 'tvb_get_int56',
+    'tvb_get_guint64': 'tvb_get_uint64',
+    'tvb_get_gint64': 'tvb_get_int64',
+}
+
 def convert_file(file):
     lines = ''
     try:
@@ -97,6 +116,8 @@ def convert_file(file):
                 lines = re.sub(rf'\b{glib_tf_define}\b([^\'"])', rf'{c99_define}\1', lines, flags=re.MULTILINE)
             for glib_fmt_spec, c99_fmt_spec in format_spec_map.items():
                 lines = re.sub(rf'\b{glib_fmt_spec}\b', rf'{c99_fmt_spec}', lines, flags=re.MULTILINE)
+            for glib_api, c99_api in tvb_api_map.items():
+                lines = re.sub(rf'\b{glib_api}\b', rf'{c99_api}', lines, flags=re.MULTILINE)
     except IsADirectoryError:
         sys.stderr.write(f'{file} is a directory.\n')
         return

@@ -740,7 +740,7 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 break;
             case ETI_STRING:
                 {{
-                    uint8_t c = tvb_get_guint8(tvb, off);
+                    uint8_t c = tvb_get_uint8(tvb, off);
                     if (c)
                         proto_tree_add_item(t, hf_{proto}[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, ENC_ASCII);
                     else {{
@@ -767,7 +767,7 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     switch (fields[fidx].size) {{
                         case 1:
                             {{
-                                uint8_t x = tvb_get_guint8(tvb, off);
+                                uint8_t x = tvb_get_uint8(tvb, off);
                                 if (x == UINT8_MAX) {{
                                     proto_tree_add_uint_format_value(t, hf_{proto}[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xff)");
                                     counter[fields[fidx].counter_off] = 0;
@@ -903,7 +903,7 @@ dissect_{proto}(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 dissect_{proto}(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data)
 {{
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4 /* bytes to read for bodylen */,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 4 /* bytes to read for bodylen */,
             get_{proto}_message_len, dissect_{proto}_message, data);
     return tvb_captured_length(tvb);
 }}

@@ -44,20 +44,20 @@ my @register;
 my $script_name = File::Spec->abs2rel ($0,  $srcdir);
 
 my %basictype = (
-    char =>   { size => 1, encoding => 'ENC_ASCII|ENC_NA', type => 'FT_STRING', base => 'BASE_NONE',    get => 'tvb_get_guint8',  list => 'listOfByte', },
-    void =>   { size => 1, encoding => 'ENC_NA',           type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'tvb_get_guint8',  list => 'listOfByte', },
-    BYTE =>   { size => 1, encoding => 'ENC_NA',           type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'tvb_get_guint8',  list => 'listOfByte', },
-    CARD8 =>  { size => 1, encoding => 'byte_order',       type => 'FT_UINT8',  base => 'BASE_HEX_DEC', get => 'tvb_get_guint8',  list => 'listOfByte', },
-    CARD16 => { size => 2, encoding => 'byte_order',       type => 'FT_UINT16', base => 'BASE_HEX_DEC', get => 'tvb_get_guint16', list => 'listOfCard16', },
-    CARD32 => { size => 4, encoding => 'byte_order',       type => 'FT_UINT32', base => 'BASE_HEX_DEC', get => 'tvb_get_guint32', list => 'listOfCard32', },
-    CARD64 => { size => 8, encoding => 'byte_order',       type => 'FT_UINT64', base => 'BASE_HEX_DEC', get => 'tvb_get_guint64', list => 'listOfCard64', },
-    INT8 =>   { size => 1, encoding => 'byte_order',       type => 'FT_INT8',   base => 'BASE_DEC',     get => 'tvb_get_guint8',  list => 'listOfByte', },
-    INT16 =>  { size => 2, encoding => 'byte_order',       type => 'FT_INT16',  base => 'BASE_DEC',     get => 'tvb_get_guint16', list => 'listOfInt16', },
-    INT32 =>  { size => 4, encoding => 'byte_order',       type => 'FT_INT32',  base => 'BASE_DEC',     get => 'tvb_get_guint32', list => 'listOfInt32', },
-    INT64 =>  { size => 8, encoding => 'byte_order',       type => 'FT_INT64',  base => 'BASE_DEC',     get => 'tvb_get_guint64', list => 'listOfInt64', },
+    char =>   { size => 1, encoding => 'ENC_ASCII|ENC_NA', type => 'FT_STRING', base => 'BASE_NONE',    get => 'tvb_get_uint8',  list => 'listOfByte', },
+    void =>   { size => 1, encoding => 'ENC_NA',           type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'tvb_get_uint8',  list => 'listOfByte', },
+    BYTE =>   { size => 1, encoding => 'ENC_NA',           type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'tvb_get_uint8',  list => 'listOfByte', },
+    CARD8 =>  { size => 1, encoding => 'byte_order',       type => 'FT_UINT8',  base => 'BASE_HEX_DEC', get => 'tvb_get_uint8',  list => 'listOfByte', },
+    CARD16 => { size => 2, encoding => 'byte_order',       type => 'FT_UINT16', base => 'BASE_HEX_DEC', get => 'tvb_get_uint16', list => 'listOfCard16', },
+    CARD32 => { size => 4, encoding => 'byte_order',       type => 'FT_UINT32', base => 'BASE_HEX_DEC', get => 'tvb_get_uint32', list => 'listOfCard32', },
+    CARD64 => { size => 8, encoding => 'byte_order',       type => 'FT_UINT64', base => 'BASE_HEX_DEC', get => 'tvb_get_uint64', list => 'listOfCard64', },
+    INT8 =>   { size => 1, encoding => 'byte_order',       type => 'FT_INT8',   base => 'BASE_DEC',     get => 'tvb_get_uint8',  list => 'listOfByte', },
+    INT16 =>  { size => 2, encoding => 'byte_order',       type => 'FT_INT16',  base => 'BASE_DEC',     get => 'tvb_get_uint16', list => 'listOfInt16', },
+    INT32 =>  { size => 4, encoding => 'byte_order',       type => 'FT_INT32',  base => 'BASE_DEC',     get => 'tvb_get_uint32', list => 'listOfInt32', },
+    INT64 =>  { size => 8, encoding => 'byte_order',       type => 'FT_INT64',  base => 'BASE_DEC',     get => 'tvb_get_uint64', list => 'listOfInt64', },
     float =>  { size => 4, encoding => 'byte_order',       type => 'FT_FLOAT',  base => 'BASE_NONE',    get => 'tvb_get_ieee_float',   list => 'listOfFloat', },
     double => { size => 8, encoding => 'byte_order',       type => 'FT_DOUBLE', base => 'BASE_NONE',    get => 'tvb_get_ieee_double',  list => 'listOfDouble', },
-    BOOL =>   { size => 1, encoding => 'byte_order',       type => 'FT_BOOLEAN',base => 'BASE_NONE',    get => 'tvb_get_guint8',  list => 'listOfByte', },
+    BOOL =>   { size => 1, encoding => 'byte_order',       type => 'FT_BOOLEAN',base => 'BASE_NONE',    get => 'tvb_get_uint8',  list => 'listOfByte', },
 );
 
 my %simpletype;  # Reset at the beginning of each extension
@@ -201,7 +201,7 @@ sub mesa_type {
     if($name eq 'enum') {
         # enum does not have a direct X equivalent
         $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX|BASE_EXT_STRING',
-                              get => 'tvb_get_guint32', list => 'listOfCard32',
+                              get => 'tvb_get_uint32', list => 'listOfCard32',
                               val => '&mesa_enum_ext', };
         return;
     }
@@ -398,7 +398,7 @@ eot
             my $get = $info->{'get'};
 
             if ($e->att('counter') or $type_param{$fieldname}) {
-                if ($get ne "tvb_get_guint8") {
+                if ($get ne "tvb_get_uint8") {
                     print $impl "    $fieldname = $get(tvb, *offsetp, $encoding);\n";
                 } else {
                     print $impl "    $fieldname = $get(tvb, *offsetp);\n";
@@ -797,7 +797,7 @@ sub dissect_element($$$$$;$$)
                     say $impl "field$fieldsize(tvb, offsetp, t, $regname, byte_order);";
                 } elsif ($e->att('mask')) {
                     if ($refref->{field}{$fieldname}) {
-                        if ($get ne "tvb_get_guint8") {
+                        if ($get ne "tvb_get_uint8") {
                             say $impl $indent."f_$fieldname = $get(tvb, *offsetp, byte_order);";
                         } else {
                             say $impl $indent."f_$fieldname = $get(tvb, *offsetp);";
@@ -819,7 +819,7 @@ sub dissect_element($$$$$;$$)
                     say $impl $indent."*offsetp += $size;";
                 } else {
                     if ($refref->{field}{$fieldname}) {
-                        if ($get ne "tvb_get_guint8") {
+                        if ($get ne "tvb_get_uint8") {
                             say $impl $indent."f_$fieldname = $get(tvb, *offsetp, byte_order);";
                         } else {
                             say $impl $indent."f_$fieldname = $get(tvb, *offsetp);";
@@ -872,7 +872,7 @@ sub dissect_element($$$$$;$$)
                     say $impl $indent."{";
                     say $impl $indent."    int i;";
                     say $impl $indent."    for (i = 0; i < $lencalc; i++) {";
-                    if ($get ne "tvb_get_guint8") {
+                    if ($get ne "tvb_get_uint8") {
                         say $impl $indent."        sumof_$fieldname += $get(tvb, *offsetp + i * $size, byte_order);";
                     } else {
                         say $impl $indent."        sumof_$fieldname += $get(tvb, *offsetp + i * $size);";
@@ -1140,7 +1140,7 @@ eot
                     my $fname = $e->att('name');
                     if (defined($refs{$fname})) {
                         my $get = $info->{'get'};
-                        if ($get ne "tvb_get_guint8") {
+                        if ($get ne "tvb_get_uint8") {
                             say $impl "    f_$fname = $info->{'get'}(tvb, *offsetp + size + $size, byte_order);";
                         } else {
                             say $impl "    f_$fname = $info->{'get'}(tvb, *offsetp + size + $size);";
@@ -1439,13 +1439,13 @@ eot
             $length = dissect_element($e, $varpat, $humanpat, $length, $refs);
             if ($first) {
                 $first = 0;
-                say $impl '    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);';
+                say $impl '    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);';
                 say $impl '    proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,';
                 say $impl '            "%d ('.$header.'-'.$name.')", sequence_number);';
                 say $impl '    *offsetp += 2;';
 
                 if ($refs->{field}{length}) {
-                    say $impl '    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);';
+                    say $impl '    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);';
                 }
                 if ($refs->{length}) {
                     say $impl '    length = f_length * 4 + 32;';
@@ -1466,7 +1466,7 @@ sub defxid(@) {
     my $name;
     while ($name = shift) {
         my $qualname = qualname($name);
-        $simpletype{$qualname} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32',  base => 'BASE_HEX',  get => 'tvb_get_guint32', list => 'listOfCard32', };
+        $simpletype{$qualname} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32',  base => 'BASE_HEX',  get => 'tvb_get_uint32', list => 'listOfCard32', };
         $type_name{$name} = $qualname;
     }
 }
@@ -1856,9 +1856,9 @@ static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
         proto_item *ti;
         proto_tree *tt;
 
-        len = tvb_get_guint16(tvb, *offsetp, byte_order);
+        len = tvb_get_uint16(tvb, *offsetp, byte_order);
 
-        op = tvb_get_guint16(tvb, *offsetp + 2, byte_order);
+        op = tvb_get_uint16(tvb, *offsetp + 2, byte_order);
         ti = proto_tree_add_uint(t, hf_x11_glx_render_op_name, tvb, *offsetp, len, op);
 
         tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);

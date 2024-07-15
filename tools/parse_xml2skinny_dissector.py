@@ -361,14 +361,14 @@ def xml2obj(src):
                     elif (self.intsize == 2):
                         ret += self.indent_out('%s = tvb_get_ntohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
                     else:
-                        ret += self.indent_out('%s = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
+                        ret += self.indent_out('%s = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
                 else:
                     if (self.intsize == 4):
                         ret += self.indent_out('%s = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
                     elif (self.intsize == 2):
                         ret += self.indent_out('%s = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
                     else:
-                        ret += self.indent_out('%s = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
+                        ret += self.indent_out('%s = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
 
             if self.name in si_fields.keys():
                 if self.endianness == "big":
@@ -496,7 +496,7 @@ def xml2obj(src):
                 elif (self.intsize == 2):
                     ret += self.indent_out('%s = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
                 else:
-                    ret += self.indent_out('%s = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
+                    ret += self.indent_out('%s = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
 
             ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %d, %s);\n' %(self.name, self.intsize, endian))
 
