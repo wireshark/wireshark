@@ -196,6 +196,7 @@ static int hf_quic_mp_ps_path_identifier;
 static int hf_quic_mp_ps_path_status_sequence_number;
 static int hf_quic_mp_ps_path_status;
 static int hf_quic_mp_maximum_paths;
+static int hf_quic_mp_maximum_path_identifier;
 
 static expert_field ei_quic_connection_unknown;
 static expert_field ei_quic_ft_unknown;
@@ -692,6 +693,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_MP_NEW_CONNECTION_ID     0x15228c09 /* multipath-draft-07 */
 #define FT_MP_RETIRE_CONNECTION_ID  0x15228c0a /* multipath-draft-07 */
 #define FT_MAX_PATHS                0x15228c0b /* multipath-draft-07 */
+#define FT_MAX_PATH_ID              0x15228c0c /* multipath-draft-09 */
 #define FT_TIME_STAMP               0x02F5
 
 static const range_string quic_frame_type_vals[] = {
@@ -734,6 +736,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x15228c09, 0x15228c09, "MP_NEW_CONNECTION_ID" }, /* >= multipath-draft-07 */
     { 0x15228c0a, 0x15228c0a, "MP_RETIRE_CONNECTION_ID" }, /* >= multipath-draft-07 */
     { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-07 */
+    { 0x15228c0c, 0x15228c0c, "MAX_PATH_ID" }, /* >= multipath-draft-09 */
     { 0,    0,        NULL },
 };
 
@@ -2781,6 +2784,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
              */
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MP");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_paths, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
+        }
+        break;
+        case FT_MAX_PATH_ID:{
+            gint32 length;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MPI");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
         }
         break;
@@ -5091,7 +5102,11 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-
+       { &hf_quic_mp_maximum_path_identifier,
+          { "Maximum Path identifier", "quic.mp_maximum_path_id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
 
         { &hf_quic_short_reserved,
           { "Reserved", "quic.short.reserved",
