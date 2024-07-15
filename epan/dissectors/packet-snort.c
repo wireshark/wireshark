@@ -519,7 +519,7 @@ static bool snort_parse_fast_line(const char *line, Alert_t *alert)
 /**
  * snort_parse_user_comment()
  *
- * Parse line as written by TraceWranger
+ * Parse line as written by TraceWrangler
  * e.g. "1:2011768:4 - ET WEB_SERVER PHP tags in HTTP POST"
  */
 static bool snort_parse_user_comment(const char *line, Alert_t *alert)
