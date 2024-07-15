@@ -680,10 +680,6 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_DATAGRAM_LENGTH          0x31
 #define FT_IMMEDIATE_ACK_DRAFT05    0xac /* ack-frequency-draft-05 */
 #define FT_ACK_FREQUENCY            0xaf
-#define FT_ACK_MP_DRAFT04           0xbaba00 /* multipath-draft-04 */
-#define FT_ACK_MP_ECN_DRAFT04       0xbaba01 /* multipath-draft-04 */
-#define FT_PATH_ABANDON_DRAFT04     0xbaba05 /* multipath-draft-04 */
-#define FT_PATH_STATUS_DRAFT04      0xbaba06 /* multipath-draft-04 */
 #define FT_MP_ACK                   0x15228c00
 #define FT_MP_ACK_ECN               0x15228c01
 #define FT_PATH_ABANDON             0x15228c05
@@ -2284,9 +2280,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_ACK:
         case FT_ACK_ECN:
         case FT_MP_ACK:
-        case FT_MP_ACK_ECN:
-        case FT_ACK_MP_DRAFT04:
-        case FT_ACK_MP_ECN_DRAFT04:{
+        case FT_MP_ACK_ECN:{
             guint64 ack_range_count;
             gint32 lenvar;
 
@@ -2298,13 +2292,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_ECN");
                 break;
                 case FT_MP_ACK:
-                case FT_ACK_MP_DRAFT04:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
                 case FT_MP_ACK_ECN:
-                case FT_ACK_MP_ECN_DRAFT04:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
@@ -2337,7 +2329,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             /* ECN Counts. */
-            if (frame_type == FT_ACK_ECN || frame_type == FT_MP_ACK_ECN || frame_type == FT_ACK_MP_ECN_DRAFT04 ) {
+            if (frame_type == FT_ACK_ECN || frame_type == FT_MP_ACK_ECN ) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
@@ -2653,14 +2645,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_CONNECTION_CLOSE_TPT:
         case FT_CONNECTION_CLOSE_APP:
-        case FT_PATH_ABANDON_DRAFT04:
         case FT_PATH_ABANDON:{
             gint32 len_reasonphrase, len_frametype, len_error_code;
             guint64 len_reason = 0;
             guint64 error_code;
             const char *tls_alert = NULL;
 
-            if (frame_type == FT_PATH_ABANDON_DRAFT04 || frame_type == FT_PATH_ABANDON) {
+            if ( frame_type == FT_PATH_ABANDON) {
                 gint32 lenvar;
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", PA");
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
@@ -2752,7 +2743,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
         }
         break;
-        case FT_PATH_STATUS_DRAFT04:
         case FT_PATH_STATUS:
         case FT_PATH_STANDBY:
         case FT_PATH_AVAILABLE:{
@@ -2765,7 +2755,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
-            if (frame_type == FT_PATH_STATUS || frame_type == FT_PATH_STATUS_DRAFT04) {
+            if (frame_type == FT_PATH_STATUS ) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
                 offset += (guint32)length;
             }
