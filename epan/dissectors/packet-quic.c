@@ -684,8 +684,8 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_ACK_MP_ECN_DRAFT04       0xbaba01 /* multipath-draft-04 */
 #define FT_PATH_ABANDON_DRAFT04     0xbaba05 /* multipath-draft-04 */
 #define FT_PATH_STATUS_DRAFT04      0xbaba06 /* multipath-draft-04 */
-#define FT_ACK_MP                   0x15228c00
-#define FT_ACK_MP_ECN               0x15228c01
+#define FT_MP_ACK                   0x15228c00
+#define FT_MP_ACK_ECN               0x15228c01
 #define FT_PATH_ABANDON             0x15228c05
 #define FT_PATH_STATUS              0x15228c06 /* multipath-draft-05 */
 #define FT_PATH_STANDBY             0x15228c07 /* multipath-draft-06 */
@@ -728,7 +728,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0xbaba00, 0xbaba01, "ACK_MP" }, /* multipath-draft-04 */
     { 0xbaba05, 0xbaba05, "PATH_ABANDON" }, /* multipath-draft-04 */
     { 0xbaba06, 0xbaba06, "PATH_STATUS" }, /* multipath-draft-04 */
-    { 0x15228c00, 0x15228c01, "ACK_MP" }, /* >= multipath-draft-05 */
+    { 0x15228c00, 0x15228c01, "MP_ACK" }, /* >= multipath-draft-05 */
     { 0x15228c05, 0x15228c05, "PATH_ABANDON" }, /* >= multipath-draft-05 */
     { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
     { 0x15228c07, 0x15228c07, "PATH_STANDBY" }, /* >= multipath-draft-06 */
@@ -2283,8 +2283,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_ACK:
         case FT_ACK_ECN:
-        case FT_ACK_MP:
-        case FT_ACK_MP_ECN:
+        case FT_MP_ACK:
+        case FT_MP_ACK_ECN:
         case FT_ACK_MP_DRAFT04:
         case FT_ACK_MP_ECN_DRAFT04:{
             guint64 ack_range_count;
@@ -2297,15 +2297,15 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_ACK_ECN:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_ECN");
                 break;
-                case FT_ACK_MP:
+                case FT_MP_ACK:
                 case FT_ACK_MP_DRAFT04:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_MP");
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
-                case FT_ACK_MP_ECN:
+                case FT_MP_ACK_ECN:
                 case FT_ACK_MP_ECN_DRAFT04:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_MP_ECN");
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
@@ -2337,7 +2337,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             /* ECN Counts. */
-            if (frame_type == FT_ACK_ECN || frame_type == FT_ACK_MP_ECN || frame_type == FT_ACK_MP_ECN_DRAFT04 ) {
+            if (frame_type == FT_ACK_ECN || frame_type == FT_MP_ACK_ECN || frame_type == FT_ACK_MP_ECN_DRAFT04 ) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
