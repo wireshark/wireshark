@@ -2801,6 +2801,7 @@ static int ett_xnap_cellmeasurementFailedReportCharacteristics;
 static int ett_xnap_nodemeasurementFailedReportCharacteristics;
 static int ett_xnap_ReportCharacteristicsForDataCollection;
 static int ett_xnap_SRSConfiguration;
+static int ett_xnap_PSCellListContainer;
 static int ett_xnap_PrivateIE_ID;
 static int ett_xnap_ProtocolIE_Container;
 static int ett_xnap_ProtocolIE_Field;
@@ -21121,8 +21122,16 @@ dissect_xnap_PSCellHistoryInformationRetrieve(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_xnap_PSCellListContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_PSCellListContainer);
+    dissect_lte_rrc_CellIdListNR_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -41232,6 +41241,7 @@ void proto_register_xnap(void) {
     &ett_xnap_nodemeasurementFailedReportCharacteristics,
     &ett_xnap_ReportCharacteristicsForDataCollection,
     &ett_xnap_SRSConfiguration,
+    &ett_xnap_PSCellListContainer,
     &ett_xnap_PrivateIE_ID,
     &ett_xnap_ProtocolIE_Container,
     &ett_xnap_ProtocolIE_Field,

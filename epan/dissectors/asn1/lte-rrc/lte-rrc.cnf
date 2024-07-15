@@ -655,6 +655,7 @@ T-StatusProhibit
 WLAN-backhaulRate-r12
 
 #.EXPORTS
+CellIdListNR-r18_PDU
 CellsToAddModListNR-r15_PDU
 DL-CarrierConfigCommon-NB-r14_PDU
 DL-DCCH-Message_PDU
@@ -703,6 +704,7 @@ VisitedCellInfoList-r12_PDU
 #.END
 
 #.PDU
+CellIdListNR-r18
 CellsToAddModListNR-r15
 DL-CarrierConfigCommon-NB-r14
 HandoverCommand
@@ -2336,6 +2338,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB32");
 
+#.FN_HDR SystemInformationBlockType33-r18
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB33");
+
 #.FN_HDR SystemInformationBlockPos-r15
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIBPos");
@@ -3696,6 +3702,18 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 #.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-20a-v1770
   private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_20a);
 
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-11-v1800
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_11);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-12-v1800
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_12);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-26-v1800
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_26);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-27-v1800
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_27);
+
 #.FN_BODY SystemInformationBlockPos-r15/assistanceDataSIB-Element-r15 VAL_PTR = &assist_data_sib_elem_tvb
   tvbuff_t *assist_data_sib_elem_tvb = NULL;
 
@@ -3747,6 +3765,13 @@ TimeOffsetUTC-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   if (cond_reconfig_exec_cond_scg_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_triggerConditionSN_r17);
     dissect_nr_rrc_CondReconfigExecCondSCG_r17_PDU(cond_reconfig_exec_cond_scg_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ReferenceLocation-r18 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree, NULL);
   }
 
 #
@@ -3938,6 +3963,9 @@ SL-V2X-PreconfigCommPool-r14/threshS-RSSI-CBR-r14 DISPLAY=BASE_CUSTOM STRINGS=CF
 
 #.FN_HDR SystemInformationBlockType32-NB-r17
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB32");
+
+#.FN_HDR SystemInformationBlockType33-NB-r18
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB33");
 
 #.TYPE_ATTR
 MasterInformationBlock-NB/schedulingInfoSIB1-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext

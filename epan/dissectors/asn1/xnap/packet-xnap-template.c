@@ -166,6 +166,7 @@ static int ett_xnap_cellmeasurementFailedReportCharacteristics;
 static int ett_xnap_nodemeasurementFailedReportCharacteristics;
 static int ett_xnap_ReportCharacteristicsForDataCollection;
 static int ett_xnap_SRSConfiguration;
+static int ett_xnap_PSCellListContainer;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -687,6 +688,7 @@ void proto_register_xnap(void) {
     &ett_xnap_nodemeasurementFailedReportCharacteristics,
     &ett_xnap_ReportCharacteristicsForDataCollection,
     &ett_xnap_SRSConfiguration,
+    &ett_xnap_PSCellListContainer,
 #include "packet-xnap-ettarr.c"
   };
 

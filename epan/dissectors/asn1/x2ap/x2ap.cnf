@@ -950,6 +950,15 @@ CHO-HandoverWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 CHO-HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_cho_handover_window_duration_fmt)
 #.END
 
+#.FN_BODY PSCellListContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_PSCellListContainer);
+    dissect_lte_rrc_CellIdListNR_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_HDR HandoverRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequest");
 #.FN_HDR HandoverRequestAcknowledge

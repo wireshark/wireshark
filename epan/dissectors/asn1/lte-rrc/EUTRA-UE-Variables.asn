@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.8.0 (2024-03)
+-- 3GPP TS 36.331 V18.2.0 (2024-06)
 
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -74,7 +74,7 @@ FROM EUTRA-RRC-Definitions;
 
 
 VarConditionalReconfiguration ::= SEQUENCE {
-	 -- Conditional reconfigurations list
+	-- Conditional reconfigurations list
 	condReconfigurationList-r16			CondReconfigurationToAddModList-r16
 	OPTIONAL
 }
@@ -145,7 +145,8 @@ VarLogMeasReport-r11 ::=			SEQUENCE {
 	tce-Id-r10							OCTET STRING (SIZE (1)),
 	plmn-IdentityList-r11				PLMN-IdentityList3-r11,
 	absoluteTimeInfo-r10				AbsoluteTimeInfo-r10,
-	logMeasInfoList-r10					LogMeasInfoList2-r10
+	logMeasInfoList-r10					LogMeasInfoList2-r10,
+	sigLoggedMeasType-r18				ENUMERATED {true}
 }
 
 LogMeasInfoList2-r10 ::=				SEQUENCE (SIZE (1..maxLogMeas-r10)) OF LogMeasInfo-r10

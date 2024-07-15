@@ -188,6 +188,7 @@ static int ett_x2ap_UERadioCapability;
 static int ett_x2ap_LastVisitedPSCell_Item;
 static int ett_x2ap_NRRAReportContainer;
 static int ett_x2ap_rAT_RestrictionInformation;
+static int ett_x2ap_PSCellListContainer;
 #include "packet-x2ap-ett.c"
 
 /* Forward declarations */
@@ -740,6 +741,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_LastVisitedPSCell_Item,
     &ett_x2ap_NRRAReportContainer,
     &ett_x2ap_rAT_RestrictionInformation,
+    &ett_x2ap_PSCellListContainer,
 #include "packet-x2ap-ettarr.c"
   };
 
