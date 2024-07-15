@@ -83,6 +83,11 @@ static int hf_oran_numSymbol;
 static int hf_oran_ef;
 static int hf_oran_beamId;
 
+static int hf_oran_ciCompHdr;
+static int hf_oran_ciCompHdrIqWidth;
+static int hf_oran_ciCompHdrMeth;
+static int hf_oran_ciCompOpt;
+
 static int hf_oran_extension;
 static int hf_oran_exttype;
 static int hf_oran_extlen;
@@ -135,6 +140,8 @@ static int hf_oran_bfwCompParam;
 
 static int hf_oran_iSample;
 static int hf_oran_qSample;
+
+static int hf_oran_ciCompParam;
 
 static int hf_oran_blockScaler;
 static int hf_oran_compBitWidth;
@@ -244,6 +251,8 @@ static gint ett_oran_offset_start_prb_num_prb;
 static gint ett_oran_prb_cisamples;
 static gint ett_oran_cisample;
 static gint ett_oran_udcomphdr;
+static gint ett_oran_cicomphdr;
+static gint ett_oran_cicompparam;
 static gint ett_oran_bfwcomphdr;
 static gint ett_oran_bfwcompparam;
 static gint ett_oran_ext19_port;
@@ -616,6 +625,12 @@ static const value_string lbtPdschRes_vals[] = {
     {1, "currently sensing – indicates the O-RU has not yet acquired the channel"},
     {2, "success – indicates that the channel was successfully acquired"},
     {3, "Failure – indicates expiration of the LBT timer. The LBT process should be reset"},
+    {0,   NULL}
+};
+
+static const value_string ci_comp_opt_vals[] = {
+    {0, "compression per UE, one ciCompParam exists before the I/Q value of each UE"},
+    {1, "compression per PRB, one ciCompParam exists before the I/Q value of each PRB"},
     {0,   NULL}
 };
 
@@ -1137,7 +1152,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* bfwCompParam */
     bool compression_method_supported = false;
-    guint32  exponent = 0;
+    guint exponent;
     offset = dissect_bfwCompParam(tvb, bundle_tree, pinfo, offset, comp_meth_ti,
                                   bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
@@ -1199,11 +1214,48 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     return (bit_offset+7)/8;
 }
 
+/* Return new bit offset.  in/out will always be byte-aligned.. */
+static int dissect_ciCompParam(tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, guint bit_offset,
+                               guint comp_meth, guint8 *exponent)
+{
+    /* Subtree */
+    proto_item *cicompparam_ti = proto_tree_add_string_format(tree, hf_oran_ciCompParam,
+                                                            tvb, bit_offset/8, 1, "",
+                                                            "ciCompParam");
+    proto_tree *cicompparam_tree = proto_item_add_subtree(cicompparam_ti, ett_oran_cicompparam);
+    guint32 ci_exponent;
+
+    /* Contents differ by compression method */
+    switch (comp_meth) {
+        case COMP_NONE:
+            break;
+        case COMP_BLOCK_FP:
+            proto_tree_add_item(cicompparam_tree, hf_oran_reserved_4bits, tvb, bit_offset/8, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(cicompparam_tree, hf_oran_exponent,
+                                         tvb, bit_offset/8, 1, ENC_BIG_ENDIAN, &ci_exponent);
+            *exponent = ci_exponent;
+            proto_item_append_text(cicompparam_ti, " (Exponent=%u)", ci_exponent);
+            bit_offset += 8; /* one byte */
+            break;
+
+        case COMP_BLOCK_SCALE:
+        case COMP_U_LAW:
+            /* TODO: handle (separate) details) */
+            bit_offset += 8;
+            break;
+        default:
+            /* reserved, ? bytes of zeros.. */
+            break;
+    }
+
+    return bit_offset;
+}
 
 /* Section 7.
  * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-                                  guint32 sectionType, proto_item *protocol_item)
+                                  guint32 sectionType, proto_item *protocol_item,
+                                  guint8 ci_iq_width, guint8 ci_comp_meth, guint ci_comp_opt)
 {
     guint offset = 0;
     proto_tree *c_section_tree = NULL;
@@ -1260,9 +1312,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* [ef] (extension flag) */
         switch (sectionType) {
-            case SEC_C_NORMAL:            /* Section Type "1" */
-            case SEC_C_PRACH:             /* Section Type "3" */
-            case SEC_C_UE_SCHED:          /* Section Type "5" */
+            case SEC_C_NORMAL:            /* Section Type 1 */
+            case SEC_C_PRACH:             /* Section Type 3 */
+            case SEC_C_UE_SCHED:          /* Section Type 5 */
                 proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
                 break;
             default:
@@ -1280,13 +1332,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* Section type specific fields (after 'numSymbol') */
         switch (sectionType) {
-            case SEC_C_UNUSED_RB:    /* Section Type "0" - Table 5.4 */
+            case SEC_C_UNUSED_RB:    /* Section Type 0 - Table 5.4 */
                 /* reserved */
                 proto_tree_add_item(c_section_tree, hf_oran_rsvd16, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 break;
 
-            case SEC_C_NORMAL:       /* Section Type "1" - Table 5.5 */
+            case SEC_C_NORMAL:       /* Section Type 1 - Table 5.5 */
                 /* beamId */
                 beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
                 offset += 2;
@@ -1294,7 +1346,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_item_append_text(sectionHeading, ", BeamId: %d", beamId);
                 break;
 
-            case SEC_C_PRACH:       /* Section Type "3" - Table 5.6 */
+            case SEC_C_PRACH:       /* Section Type 3 - Table 5.6 */
             {
                 /* beamId */
                 beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
@@ -1315,7 +1367,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            case SEC_C_UE_SCHED:   /* Section Type "5" - Table 5.7 */
+            case SEC_C_UE_SCHED:   /* Section Type 5 - Table 5.7 */
                 /* ueId */
                 proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
                 offset += 2;
@@ -1327,7 +1379,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
         }
     }
-    else if (sectionType == SEC_C_CH_INFO) {  /* Section Type "6" */
+    else if (sectionType == SEC_C_CH_INFO) {  /* Section Type 6 */
         /* ef */
         proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
         /* ueId */
@@ -1363,6 +1415,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             proto_item_append_text(sectionHeading, " (UEId=%u  PRB %u, %u antennas", ueId, startPrbc, num_trx);
         }
 
+        bool first_prb = true;
+        guint8 exponent = 0;
         for (prb=startPrbc; prb < startPrbc+numPrbc; prb++) {
 
             /* PRB subtree */
@@ -1372,11 +1426,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                                  "", "PRB=%u", prb);
             proto_tree *prb_tree = proto_item_add_subtree(prb_ti, ett_oran_prb_cisamples);
 
+            /* There may be a ciCompParam here.. */
+            if (first_prb || ci_comp_opt==1) {
+                bit_offset = dissect_ciCompParam(tvb, prb_tree, pinfo, bit_offset, ci_comp_meth, &exponent);
+            }
+            first_prb = false;
+
             /* Antennas */
             for (m=0; m < num_trx; m++) {
 
                 guint sample_offset = bit_offset / 8;
-                guint8 sample_extent = ((bit_offset + (16*2)) / 8) - sample_offset;
+                guint8 sample_extent = ((bit_offset + (ci_iq_width*2)) / 8) - sample_offset;
 
                 /* Create subtree for antenna */
                 proto_item *sample_ti = proto_tree_add_string_format(prb_tree, hf_oran_ciSample,
@@ -1386,29 +1446,29 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* I */
                 /* Get bits, and convert to float. */
-                guint32 bits = tvb_get_bits(tvb, bit_offset, 16, ENC_BIG_ENDIAN);
-                gfloat value = uncompressed_to_float(bits);
+                guint32 bits = tvb_get_bits(tvb, bit_offset, ci_iq_width, ENC_BIG_ENDIAN);
+                gfloat value = decompress_value(bits, ci_comp_meth, ci_iq_width, exponent);
 
                 /* Add to tree. */
                 proto_tree_add_float_format_value(sample_tree, hf_oran_ciIsample, tvb, bit_offset/8, (16+7)/8, value, "#%u=%f", m, value);
-                bit_offset += 16;
+                bit_offset += ci_iq_width;
                 proto_item_append_text(sample_ti, "I%u=%f ", m, value);
 
                 /* Q */
                 /* Get bits, and convert to float. */
-                bits = tvb_get_bits(tvb, bit_offset, 16, ENC_BIG_ENDIAN);
-                value = uncompressed_to_float(bits);
+                bits = tvb_get_bits(tvb, bit_offset, ci_iq_width, ENC_BIG_ENDIAN);
+                value = decompress_value(bits, ci_comp_meth, ci_iq_width, exponent);
 
                 /* Add to tree. */
                 proto_tree_add_float_format_value(sample_tree, hf_oran_ciQsample, tvb, bit_offset/8, (16+7)/8, value, "#%u=%f", m, value);
-                bit_offset += 16;
+                bit_offset += ci_iq_width;
                 proto_item_append_text(sample_ti, "Q%u=%f ", m, value);
             }
             proto_item_set_len(prb_ti, (bit_offset-prb_start_offset)/8);
         }
         offset = (bit_offset/8);
     }
-    else if (sectionType == SEC_C_LAA) {   /* Section Type "7" */
+    else if (sectionType == SEC_C_LAA) {   /* Section Type 7 */
         /* 7.2.5 Table 6.4-6 */
 
         /* laaMsgType */
@@ -2503,6 +2563,47 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     return offset;
 }
 
+/* Dissect ciCompHdr (channel information compression header, 7.5.2.15) */
+/* bit_width and comp_meth are out params */
+static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
+                             guint *bit_width, guint *comp_meth, guint8 *comp_opt)
+{
+    /* Subtree */
+    proto_item *cicomphdr_ti = proto_tree_add_string_format(tree, hf_oran_ciCompHdr,
+                                                         tvb, offset, 1, "",
+                                                         "ciCompHdr");
+    proto_tree *cicomphdr_tree = proto_item_add_subtree(cicomphdr_ti, ett_oran_cicomphdr);
+
+    /* ciIqWidth */
+    guint32 hdr_iq_width;
+    proto_item *iq_width_item = proto_tree_add_item_ret_uint(cicomphdr_tree, hf_oran_ciCompHdrIqWidth , tvb, offset, 1, ENC_NA, &hdr_iq_width);
+    hdr_iq_width = (hdr_iq_width) ? hdr_iq_width : 16;
+    if (bit_width) {
+        *bit_width = hdr_iq_width;
+    }
+    proto_item_append_text(iq_width_item, " (%u bits)", hdr_iq_width);
+
+    /* ciCompMeth */
+    guint32 ci_comp_meth;
+    proto_tree_add_item_ret_uint(cicomphdr_tree, hf_oran_ciCompHdrMeth, tvb, offset, 1, ENC_NA, &ci_comp_meth);
+    if (comp_meth) {
+        *comp_meth = ci_comp_meth;
+    }
+
+    /* ciCompOpt */
+    guint32 opt;
+    proto_tree_add_item_ret_uint(cicomphdr_tree, hf_oran_ciCompOpt, tvb, offset, 1, ENC_NA, &opt);
+    *comp_opt = opt;
+    offset += 1;
+
+    /* Summary */
+    proto_item_append_text(cicomphdr_ti, " (IqWidth=%u, ciCompMeth=%s, ciCompOpt=%s)",
+                           hdr_iq_width,
+                           rval_to_str_const(ci_comp_meth, ud_comp_header_meth, "Unknown"),
+                           (comp_opt) ?  "compression per PRB" : "compression per UE");
+    return offset;
+}
+
 
 /* Control plane dissector (section 7). */
 static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2581,13 +2682,15 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* Section-specific fields (white entries in Section Type diagrams) */
     guint bit_width = 0;
+    guint ci_comp_method = 0;
+    guint8 ci_comp_opt = 0;
 
     guint32 scs, slots_per_subframe;
     guint32 num_ues = 0;
     proto_item *ti;
 
     switch (sectionType) {
-        case SEC_C_UNUSED_RB:   /* Section Type "0" */
+        case SEC_C_UNUSED_RB:   /* Section Type 0 */
             /* timeOffset */
             proto_tree_add_item(section_tree, hf_oran_timeOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -2605,8 +2708,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 1;
             break;
 
-        case SEC_C_NORMAL:      /* Section Type "1" */
-        case SEC_C_UE_SCHED:    /* Section Type "5" */
+        case SEC_C_NORMAL:      /* Section Type 1 */
+        case SEC_C_UE_SCHED:    /* Section Type 5 */
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width, NULL);
             /* reserved */
@@ -2614,7 +2717,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 1;
             break;
 
-        case SEC_C_PRACH:       /* Section Type "3" */
+        case SEC_C_PRACH:       /* Section Type 3 */
             /* timeOffset */
             proto_tree_add_item(section_tree, hf_oran_timeOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -2636,9 +2739,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             /* numberOfUEs */
             proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfUEs, tvb, offset, 1, ENC_NA, &num_ues);
             offset += 1;
-            /* reserved */
-            proto_tree_add_item(section_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
-            offset += 1;
+            /* ciCompHdr (was reserved) */
+            offset = dissect_cicomphdr(tvb, pinfo, section_tree, offset, &bit_width, &ci_comp_method, &ci_comp_opt);
 
             /* Number of sections may not be filled in, so set to the number of UEs */
             if (nSections == 0) {
@@ -2665,7 +2767,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Dissect each C section */
     for (guint32 i = 0; i < nSections; ++i) {
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
-        offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item);
+        offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item,
+                                         bit_width, ci_comp_method, ci_comp_opt);
     }
 
     /* Expert error if we are short of tvb by > 3 bytes */
@@ -3570,6 +3673,17 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 7.5.3.32 */
+        {&hf_oran_ciCompParam,
+         {"ciCompParam", "oran_fh_cus.ciCompParam",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "channel information compression parameter",
+          HFILL}
+        },
+
+
+
         /* Table 7.5.3.32-1 */
         {&hf_oran_blockScaler,
          {"blockScaler", "oran_fh_cus.blockScaler",
@@ -3812,6 +3926,39 @@ proto_register_oran(void)
             NULL, 0x0,
             "This is a calculated field for the RefA ID, which provides a reference in time",
             HFILL }
+        },
+
+
+        /* Section 7.5.2.15 */
+        {&hf_oran_ciCompHdr,
+         {"ciCompHdr", "oran_fh_cus.ciCompHdr",
+          FT_STRING, BASE_NONE,
+          NULL, 0x00,
+          NULL,
+          HFILL}
+        },
+        { &hf_oran_ciCompHdrMeth,
+         {"User Data Compression Method", "oran_fh_cus.ciCompHdrMeth",
+          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(ud_comp_header_meth), 0x0e,
+          "Defines the compression method for "
+          "the user data in every section in the C-Plane message",
+          HFILL}
+         },
+        { &hf_oran_ciCompHdrIqWidth,
+         {"User Data IQ width", "oran_fh_cus.udCompHdrWidth",
+          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(ud_comp_header_width), 0xf0,
+          "Defines the IQ bit width "
+          "for the user data in every section in the C-Plane message",
+          HFILL}
+        },
+        { &hf_oran_ciCompOpt,
+         {"ciCompOpt", "oran_fh_cus.ciCompOpt",
+          FT_UINT8, BASE_DEC,
+          VALS(ci_comp_opt_vals), 0x01,
+          NULL,
+          HFILL}
         },
 
         /* 7.7.11.7 */
@@ -4240,6 +4387,8 @@ proto_register_oran(void)
         &ett_oran_prb_cisamples,
         &ett_oran_cisample,
         &ett_oran_udcomphdr,
+        &ett_oran_cicomphdr,
+        &ett_oran_cicompparam,
         &ett_oran_bfwcomphdr,
         &ett_oran_bfwcompparam,
         &ett_oran_ext19_port,
