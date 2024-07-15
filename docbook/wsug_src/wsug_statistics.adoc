@@ -446,7 +446,9 @@ The sum of the values of the field specified in “Y Field” per interval.
 
 COUNT FRAMES(Y Field):::
 The number of frames that contain the field specified in “Y Field” per interval.
-Unlike the plain “Packets” graph, this always displays <<ChStatIOGraphsMissingValues, zero values>>.
+// Unlike the plain “Packets” graph, this always displays <<ChStatIOGraphsMissingValues, zero values>>.
+// Above is no longer true. COUNT FRAMES is now exactly the same as Packets, except that the Y Field
+// is used instead of just the filter. Everything you can graph with one you can graph with the other.
 
 COUNT FIELDS(Y Field):::
 The number of instances of the field specified in “Y Field” per interval.
@@ -456,13 +458,10 @@ MAX(Y Field), MIN(Y Field), AVG(Y Field):::
 The maximum, minimum, and arithmetic mean values of the specified “Y Field” per interval.
 For MAX and MIN values, hovering and clicking the graph will show and take you to the packet with the MAX or MIN value in the interval instead of the most recent packet.
 
-// io_graph_item.c says:
-// "LOAD graphs plot the QUEUE-depth of the connection over time"
-// (for response time fields such as smb.time, rpc.time, etc.)
-// This interval is expressed in milliseconds.
 LOAD(Y Field):::
-If the “Y Field” is a relative time value, this is the sum of the “Y Field” values divided by the interval time.
-This can be useful for tracking response times.
+The queue depth, i.e., number of concurrent requests or calls, in each interval expressed in Erlangs.
+Requires “Y Field” be a relative time value, and treats it as the duration of an event which
+ended in the containing packet. Useful for response time fields like `smb.time`.
 
 THROUGHPUT(Y Field):::
 If the “Y Field” is a payload counted in Bytes (as frame.len, ip.len, ipv6.plen..), this is the throughput expressed in bits per second.
@@ -471,7 +470,12 @@ Y Field::
 The display filter field from which to extract values for the Y axis calculations listed above.
 
 SMA Period::
-Show an average of values over a specified period of intervals.
+Show a simple moving average of values over a specified period of intervals.
+
+Y Axis Factor::
+Scale the Y axis for this graph by multiplying by a constant factor, e.g. to
+graph bits if the “Y Field” contains bytes, or to present multiple graphs at
+a similar scale.
 
 The chart as a whole can be configured using the controls under the graph list:
 
@@ -479,10 +483,14 @@ btn:[{plus}]::
 Add a new graph.
 
 btn:[-]::
-Add a new graph.
+Remove the selected graph(s).
 
 btn:[Copy]::
-Copy the selected graph.
+Copy the selected graph(s).
+
+btn:[⌃]:: Move the selected graph(s) up in the list.
+
+btn:[⌄]:: Move the selected graph(s) down in the list.
 
 btn:[Clear]::
 Remove all graphs.
@@ -507,12 +515,14 @@ Show a graph legend.
 
 The main dialog buttons along the bottom let you do the following:
 
-The btn:[Help] button will take you to this section of the User’s Guide.
+btn:[Help] will take you to this section of the User’s Guide.
 
-The btn:[Copy] button will copy values from selected graphs to the clipboard in CSV
+btn:[Reset] will autoscale the axes to full display all graphs.
+
+btn:[Copy] will copy values from selected graphs to the clipboard in CSV
 (Comma Separated Values) format.
 
-btn:[Copy from] will let you copy graphs from another profile.
+btn:[Copy from] will let you copy graphs from another profile to the current dialog.
 
 btn:[Close] will close this dialog.
 
@@ -528,17 +538,20 @@ You can see a list of useful keyboard shortcuts by right-clicking on the graph.
 [discrete]
 ==== Missing Values Are Zero
 
-Wireshark's I/O Graph window doesn’t distinguish between missing and zero values.
-For scatter plots it is assumed that zero values indicate missing data, and those values are omitted.
-Zero values are shown in line graphs, and bar charts.
-
-// No longer true as of eb4e2cca69.
-// For _plain_ (Packets, Bytes, and Bits) scatter plots, it is assumed that zero values indicate missing data, and those values are omitted.
-// Zero values are shown in line graphs, bar charts, and _calculated_ scatter plots.
-// Scatter plots are considered calculated if they have a calculated Y axis field or if a moving average is set.
+Wireshark's I/O Graph window counts or calculates summary statistics over intervals.
+If a packet or field does not occur in a given interval, the calculation might yield zero.
+This is particularly likely for very small intervals. For "counting" graphs
+(Packets, Bytes, Bits, COUNT FRAMES, COUNT FIELDS) zero values are omitted from scatter
+plots, but shown in line graphs and bar charts. For the summary statistics SUM, MAX, and AVG,
+values are always omitted if the Y field was not present in the interval.
+For LOAD graphs, values are omitted if no field's time indicated that an event was
+was present in the interval.
+(Note for LOAD graphs that a response time can contribute to earlier intervals than
+the one containing the packet if the duration is longer than the interval.)
 
 // If you need to display zero values in a scatter plot, you can do so by making the Y Axis a calculated field.
 // For example, the calculated equivalent of “Packets” is a “COUNT FRAMES” Y Axis with a Y Field set to “frame”.
+// XXX - No longer true as of eb4e2cca69.
 
 [#ChStatSRT]
 
