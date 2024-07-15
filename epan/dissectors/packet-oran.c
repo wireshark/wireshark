@@ -262,6 +262,9 @@ static expert_field ei_oran_invalid_eaxc_bit_width;
 static expert_field ei_oran_extlen_zero;
 static expert_field ei_oran_rbg_size_reserved;
 static expert_field ei_oran_frame_length;
+static expert_field ei_oran_numprbc_ext21_zero;
+static expert_field ei_oran_ci_prb_group_size_reserved;
+
 
 
 /* These are the message types handled by this dissector */
@@ -634,11 +637,10 @@ static const true_false_string tfs_partial_full_sf = {
   "full SF"
 };
 
-/* Config (and worked-out allocations) bundles for ext11 (dynamic BFW) */
+/* Config for (and later, worked-out allocations) bundles for ext11 (dynamic BFW) */
 typedef struct {
     /* Ext 6 config */
-    bool    ext6_set;
-
+    bool     ext6_set;
     guint8   ext6_rbg_size;      /* number of PRBs allocated by bitmask */
 
     guint8   ext6_num_bits_set;
@@ -660,6 +662,10 @@ typedef struct {
     guint    ext13_start_prbs[MAX_BFW_EXT13_ALLOCATIONS];
     /* TODO: store nextSymbolId here too? */
 
+    /* Ext 21 config */
+    bool     ext21_set;
+    guint8   ext21_ci_prb_group_size;
+
     /* Results (after calling ext11_work_out_bundles()) */
     guint32  num_bundles;
 #define MAX_BFW_BUNDLES 512
@@ -671,7 +677,7 @@ typedef struct {
 } ext11_settings_t;
 
 
-/* Work out bundle allocation for ext 11.  Take into account ext6, ext12 or ext13 in this section before ext 11. */
+/* Work out bundle allocation for ext 11.  Take into account ext6/ext21, ext12 or ext13 in this section before ext 11. */
 /* Won't be called with numBundPrb=0 */
 static void ext11_work_out_bundles(guint startPrbc,
                                    guint numPrbc,
@@ -681,6 +687,16 @@ static void ext11_work_out_bundles(guint startPrbc,
     /* Allocation configured by ext 6 */
     if (settings->ext6_set) {
         guint bundles_per_entry = (settings->ext6_rbg_size / numBundPrb);
+
+        /* Maybe also be affected by ext 21 */
+        if (settings->ext21_set) {
+            /* N.B., have already checked that numPrbc is not 0 */
+
+            /* ciPrbGroupSize overrides number of contiguous PRBs in group */
+            bundles_per_entry = (settings->ext6_rbg_size / settings->ext21_ci_prb_group_size);
+
+            /* numPrbc is the number of PRB groups per antenna - handled in call to dissect_bfw_bundle() */
+        }
 
         guint bundles_set = 0;
         for (guint8 n=0; n < settings->ext6_num_bits_set; n++) {
@@ -694,14 +710,16 @@ static void ext11_work_out_bundles(guint startPrbc,
                 if (settings->bundles[bundles_set].start > (startPrbc+numPrbc-1)) {
                     break;
                 }
+                /* Bundle consists of numBundPrb bundles */
                 settings->bundles[bundles_set].end = startPrbc+prb_start+((m+1)*numBundPrb)-1;
                 if (settings->bundles[bundles_set].end > (startPrbc+numPrbc-1)) {
                     /* Extends beyond end, so counts but is an orphan bundle */
                     settings->bundles[bundles_set].end = numPrbc;
                     settings->bundles[bundles_set].is_orphan = true;
                 }
-                bundles_set++;
-                if (bundles_set == MAX_BFW_BUNDLES) {
+
+                /* Get out if have reached array bound */
+                if (++bundles_set == MAX_BFW_BUNDLES) {
                     return;
                 }
             }
@@ -1079,6 +1097,7 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
 /* Bundle of PRBs/TRX I/Q samples (ext 11) */
 static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset,
                                   proto_item *comp_meth_ti, guint32 bfwcomphdr_comp_meth,
+                                  guint32 num_weights_per_bundle,
                                   guint8 iq_width,
                                   guint bundle_number,
                                   guint first_prb, guint last_prb, bool is_orphan)
@@ -1093,11 +1112,21 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
 
     /* Create Bundle root */
-    proto_item *bundle_ti = proto_tree_add_string_format(tree, hf_oran_bfw_bundle,
-                                                         tvb, offset, 0, "",
-                                                         "%s: (PRBs %3u-%3u)",
-                                                         bundle_name,
-                                                         first_prb, last_prb);
+    proto_item *bundle_ti;
+    if (first_prb != last_prb) {
+        bundle_ti = proto_tree_add_string_format(tree, hf_oran_bfw_bundle,
+                                                 tvb, offset, 0, "",
+                                                 "%s: (PRBs %3u-%3u)",
+                                                 bundle_name,
+                                                 first_prb, last_prb);
+    }
+    else {
+        bundle_ti = proto_tree_add_string_format(tree, hf_oran_bfw_bundle,
+                                                 tvb, offset, 0, "",
+                                                 "%s: (PRB %3u)",
+                                                 bundle_name,
+                                                 first_prb);
+    }
     proto_tree *bundle_tree = proto_item_add_subtree(bundle_ti, ett_oran_bfw_bundle);
 
     /* Generated bundle id */
@@ -1131,11 +1160,11 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* Number of weights per bundle (from preference) */
     proto_item *wpb_ti = proto_tree_add_uint(bundle_tree, hf_oran_num_weights_per_bundle, tvb, 0, 0,
-                                             pref_num_weights_per_bundle);
+                                             num_weights_per_bundle);
     proto_item_set_generated(wpb_ti);
 
     /* Add the weights for this bundle */
-    for (guint m=0; m < pref_num_weights_per_bundle; m++) {
+    for (guint m=0; m < num_weights_per_bundle; m++) {
 
         /* Create subtree */
         bfw_offset = bit_offset / 8;
@@ -1190,6 +1219,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_item *beamId_ti = NULL;
     bool beamId_ignored = false;
 
+    proto_item *numprbc_ti = NULL;
+
     /* Config affecting ext11 bundles (initially unset) */
     ext11_settings_t ext11_settings;
     memset(&ext11_settings, 0, sizeof(ext11_settings));
@@ -1214,7 +1245,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_startPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbc);
         offset += 2;
         /* numPrbc */
-        proto_item *numprbc_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
+        numprbc_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
         if (numPrbc == 0) {
             proto_item_append_text(numprbc_ti, " (all PRBs - configured as %u)", pref_data_plane_section_total_rbs);
         }
@@ -1970,6 +2001,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                         offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
+                                                    (ext11_settings.ext21_set) ?
+                                                        numPrbc :
+                                                        pref_num_weights_per_bundle,
                                                     iq_width,
                                                     b,                                 /* bundle number */
                                                     ext11_settings.bundles[b].start,
@@ -2376,13 +2410,36 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
             case 21:  /* Variable PRB group size for channel information */
+            {
                 /* ciPrbGroupSize */
-                proto_tree_add_item(extension_tree, hf_oran_ci_prb_group_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                guint32 ci_prb_group_size;
+                proto_item *prb_group_size_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_ci_prb_group_size, tvb, offset, 1, ENC_BIG_ENDIAN, &ci_prb_group_size);
+                switch (ci_prb_group_size) {
+                    case 0:
+                    case 1:
+                    case 255:
+                        /* Reserved value */
+                        expert_add_info_format(pinfo, prb_group_size_ti, &ei_oran_ci_prb_group_size_reserved,
+                                               "SE 11 ciPrbGroupSize is reserved value %u - must be 2-254",
+                                               ci_prb_group_size);
+
+                        break;
+                    default:
+                        ext11_settings.ext21_set = true;
+                        ext11_settings.ext21_ci_prb_group_size = ci_prb_group_size;
+
+                        if (numPrbc ==0) {
+                            expert_add_info(pinfo, numprbc_ti, &ei_oran_numprbc_ext21_zero);
+                        }
+                        break;
+                }
+
                 offset += 1;
                 /* reserved (8 bits) */
                 proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, offset*8, 8, ENC_BIG_ENDIAN);
                 offset += 1;
                 break;
+            }
 
             case 22:  /* ACK/NACK request */
                 proto_tree_add_item(extension_tree, hf_oran_ack_nack_req_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4203,6 +4260,8 @@ proto_register_oran(void)
         { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen - zero is reserved value", EXPFILL }},
         { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize - zero is reserved value", EXPFILL }},
         { &ei_oran_frame_length, { "oran_fh_cus.frame_length", PI_MALFORMED, PI_ERROR, "there should be 0-3 bytes remaining after PDU in frame", EXPFILL }},
+        { &ei_oran_numprbc_ext21_zero, { "oran_fh_cus.numprbc-ext21-zero", PI_MALFORMED, PI_ERROR, "numPrbc shall not be set to 0 when ciPrbGroupSize is configured", EXPFILL }},
+        { &ei_oran_ci_prb_group_size_reserved, { "oran_fh_cus.ci_prb_group_size_reserved", PI_MALFORMED, PI_WARN, "ciPrbGroupSize should be 2-254", EXPFILL }},
     };
 
     /* Register the protocol name and description */
