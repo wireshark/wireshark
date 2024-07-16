@@ -12,7 +12,7 @@
 
 /* Notes to Adding dissectors for Vendor specific TLVs:
  * 1. Create a dissect_<vendorname> function with the following prototype:
- *   dissect_foovendor(tvbuff_t *tvb, proto_tree *tree, gint vsif_len)
+ *   dissect_foovendor(tvbuff_t *tvb, proto_tree *tree, int vsif_len)
  * 2. vsif_len will be the *entire* length of the vsif TLV (including the
  *   Vendor ID TLV, which is 5 bytes long).
  * 3. Create a new 'case' statement in dissect_vsif, for your specific Vendor
@@ -93,14 +93,14 @@ static int hf_docsis_vsif_tlv_unknown;
 
 
 /* Initialize the subtree pointers */
-static gint ett_docsis_vsif;
-static gint ett_docsis_vsif_ipprec;
-static gint ett_docsis_vsif_gex_ecm;
-static gint ett_docsis_vsif_gex_sav;
-static gint ett_docsis_vsif_gex_sav_spr;
-static gint ett_docsis_vsif_gex_cmam;
-static gint ett_docsis_vsif_gex_imja;
-static gint ett_docsis_vsif_gex_imja_ssr;
+static int ett_docsis_vsif;
+static int ett_docsis_vsif_ipprec;
+static int ett_docsis_vsif_gex_ecm;
+static int ett_docsis_vsif_gex_sav;
+static int ett_docsis_vsif_gex_sav_spr;
+static int ett_docsis_vsif_gex_cmam;
+static int ett_docsis_vsif_gex_imja;
+static int ett_docsis_vsif_gex_imja_ssr;
 
 
 static expert_field ei_docsis_vsif_tlvlen_bad;
@@ -135,15 +135,15 @@ static const value_string authorization_action_vals[] = {
 #define IP_PREC_BW      0x02
 
 static void dissect_general_extension_information (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-                          gint vsif_len);
+                          int vsif_len);
 
 
 static void
-dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint vsif_len)
+dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int vsif_len)
 {
   /* Start at pos = 5, since tvb includes the Vendor ID field */
   int pos = 5;
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *ipprec_tree;
   proto_item *ipprec_item;
   int templen;
@@ -214,10 +214,10 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 {
   proto_item *it;
   proto_tree *vsif_tree;
-  guint8 type;
-  guint8 length;
-  guint32 value;
-  gint vsif_len;
+  uint8_t type;
+  uint8_t length;
+  uint32_t value;
+  int vsif_len;
 
   /* get the reported length of the VSIF TLV */
   vsif_len = tvb_reported_length_remaining (tvb, 0);
@@ -265,11 +265,11 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 #define GEX_ECM_EXPLICIT_EXTENDED_CMTS_MIC_DIGEST_SUBTYPE 3
 
 static void
-dissect_extended_cmts_mic(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_extended_cmts_mic(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_item *ecm_it;
   proto_tree *ecm_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   ecm_it = proto_tree_add_item (tree, hf_docsis_vsif_gex_ecm, tvb, start, len, ENC_NA);
@@ -302,11 +302,11 @@ dissect_extended_cmts_mic(tvbuff_t * tvb, proto_tree *tree, int start, guint16 l
 #define GEX_SAV_STATIC_PREFIX_LENGTH 2
 
 static void
-dissect_sav_static_prefix_rule(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, guint16 len)
+dissect_sav_static_prefix_rule(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, uint16_t len)
 {
   proto_item *sav_spr_it;
   proto_tree *sav_spr_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   sav_spr_it = proto_tree_add_item (tree, hf_docsis_vsif_gex_sav_static_prefix_rule, tvb, start, len, ENC_NA);
@@ -349,11 +349,11 @@ dissect_sav_static_prefix_rule(tvbuff_t * tvb, packet_info * pinfo,  proto_tree 
 
 
 static void
-dissect_sav(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, guint16 len)
+dissect_sav(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, uint16_t len)
 {
   proto_item *sav_it;
   proto_tree *sav_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   sav_it = proto_tree_add_item (tree, hf_docsis_vsif_gex_sav, tvb, start, len, ENC_NA);
@@ -386,11 +386,11 @@ dissect_sav(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, g
 #define GEX_CM_FORBIDDEN_UPSTREAM_ATTRIBUTE_MASK 4
 
 static void
-dissect_cable_modem_attribute_masks(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, int start, guint16 len)
+dissect_cable_modem_attribute_masks(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, int start, uint16_t len)
 {
   proto_item *cmam_it;
   proto_tree *cmam_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   cmam_it = proto_tree_add_item (tree, hf_docsis_vsif_gex_cmam, tvb, start, len, ENC_NA);
@@ -442,11 +442,11 @@ dissect_cable_modem_attribute_masks(tvbuff_t * tvb, packet_info * pinfo, proto_t
 
 
 static void
-dissect_ip_multicast_join_authorization_static_session_rule(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, int start, guint16 len)
+dissect_ip_multicast_join_authorization_static_session_rule(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, int start, uint16_t len)
 {
   proto_item *imja_ssr_it;
   proto_tree *imja_ssr_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   imja_ssr_it = proto_tree_add_item (tree, hf_docsis_vsif_gex_imja_ssr, tvb, start, len, ENC_NA);
@@ -512,11 +512,11 @@ dissect_ip_multicast_join_authorization_static_session_rule(tvbuff_t * tvb, pack
 
 
 static void
-dissect_ip_multicast_join_authorization(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, guint16 len)
+dissect_ip_multicast_join_authorization(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, uint16_t len)
 {
   proto_item *imja_it;
   proto_tree *imja_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   imja_it = proto_tree_add_item (tree, hf_docsis_vsif_gex_imja, tvb, start, len, ENC_NA);
@@ -567,11 +567,11 @@ dissect_ip_multicast_join_authorization(tvbuff_t * tvb, packet_info * pinfo,  pr
 
 
 static void
-dissect_general_extension_information (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint vsif_len)
+dissect_general_extension_information (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int vsif_len)
 {
   /* Start at pos = 5, since tvb includes the Vendor ID field */
   int pos = 5;
-  guint8 type, length;
+  uint8_t type, length;
 
   while (pos < vsif_len)
     {
@@ -832,7 +832,7 @@ proto_register_docsis_vsif (void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_docsis_vsif,
     &ett_docsis_vsif_ipprec,
     &ett_docsis_vsif_gex_ecm,

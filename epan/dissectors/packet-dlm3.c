@@ -343,31 +343,31 @@ static int hf_dlm3_rl_name_padding;
 static int hf_dlm3_rl_lvb;
 
 /* Initialize the subtree pointers */
-static gint ett_dlm3;
-static gint ett_dlm3_version;
+static int ett_dlm3;
+static int ett_dlm3_version;
 
-static gint ett_dlm3_opts;
-static gint ett_dlm3_options;
-static gint ett_dlm3_next_cmd;
+static int ett_dlm3_opts;
+static int ett_dlm3_options;
+static int ett_dlm3_next_cmd;
 
-static gint ett_dlm3_msg;
-static gint ett_dlm3_m_exflags;
-static gint ett_dlm3_sbflags;
-static gint ett_dlm3_m_flags;
-static gint ett_dlm3_m_asts;
+static int ett_dlm3_msg;
+static int ett_dlm3_m_exflags;
+static int ett_dlm3_sbflags;
+static int ett_dlm3_m_flags;
+static int ett_dlm3_m_asts;
 
-static gint ett_dlm3_rcom;
-static gint ett_dlm3_rcom_status;
-static gint ett_dlm3_rcom_lock;
-static gint ett_dlm3_rcom_config;
+static int ett_dlm3_rcom;
+static int ett_dlm3_rcom_status;
+static int ett_dlm3_rcom_lock;
+static int ett_dlm3_rcom_config;
 
-static gint ett_dlm3_rs_flags;
+static int ett_dlm3_rs_flags;
 
-static gint ett_dlm3_rf_lsflags;
-static gint ett_dlm3_rl_exflags;
-static gint ett_dlm3_rl_flags;
-static gint ett_dlm3_rl_asts;
-static gint ett_dlm3_rl_name;
+static int ett_dlm3_rf_lsflags;
+static int ett_dlm3_rl_exflags;
+static int ett_dlm3_rl_flags;
+static int ett_dlm3_rl_asts;
+static int ett_dlm3_rl_name;
 
 
 /*
@@ -571,9 +571,9 @@ static int * const rl_asts_fields[] = {
 /* Code to actually dissect the packets */
 static void
 dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 guint length, int offset)
+                 unsigned length, int offset)
 {
-  guint32     m_type;
+  uint32_t    m_type;
 
   m_type   = tvb_get_letohl(tvb, offset);
   proto_tree_add_uint(tree,
@@ -672,7 +672,7 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_dlm3_rcom_status(tvbuff_t *tvb, proto_tree *tree,
-                         guint length, int offset)
+                         unsigned length, int offset)
 {
   if ((length - offset) < ( 4 * 2 + 8 ))
     return;
@@ -694,13 +694,13 @@ dissect_dlm3_rcom_status(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
-                       guint length, int offset)
+                       unsigned length, int offset)
 {
   proto_item *sub_item;
   proto_tree *sub_tree;
   int         sub_offset;
-  guint16     namelen;
-  guint32     exflags;
+  uint16_t    namelen;
+  uint32_t    exflags;
 
 
   if ((length - offset) < ( 4 * 8 + 4 + 1 * 4 + 2 * 2
@@ -806,7 +806,7 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree,
-                         guint length, int offset)
+                         unsigned length, int offset)
 {
   if ((length - offset) < ( 4 + 4 + 8 ))
     return;
@@ -830,9 +830,9 @@ dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint length, int offset, guint32 h_version)
+                  unsigned length, int offset, uint32_t h_version)
 {
-  guint32     rc_type;
+  uint32_t    rc_type;
 
   proto_item *sub_item;
   proto_tree *sub_tree;
@@ -896,7 +896,7 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_dlm3_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
-               guint8 h_cmd, guint32 h_version, guint length, int offset)
+               uint8_t h_cmd, uint32_t h_version, unsigned length, int offset)
 {
   proto_item *sub_item;
   proto_tree *sub_tree;
@@ -965,13 +965,13 @@ dissect_dlm3_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 static int
 dissect_dlm3_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
-               guint8 h_cmd, guint32 h_version, guint length)
+               uint8_t h_cmd, uint32_t h_version, unsigned length)
 {
   proto_item *sub_item, *opts_item;
   proto_tree *sub_tree, *opts_tree;
   int        offset, tlv_offset;
-  guint o_nextcmd;
-  guint16 o_optlen, tmp, t_len;
+  unsigned o_nextcmd;
+  uint16_t o_optlen, tmp, t_len;
 
   switch (h_cmd) {
   case DLM3_MSG:
@@ -1117,9 +1117,9 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 {
   proto_item *item;
   proto_tree *tree;
-  guint      length;
-  guint32    h_version;
-  guint8     h_cmd;
+  unsigned   length;
+  uint32_t   h_version;
+  uint8_t    h_cmd;
   int        ret = 0;
 
 
@@ -1172,7 +1172,7 @@ dissect_dlm3_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 }
 
 /* determine PDU length of protocol foo */
-static guint
+static unsigned
 get_dlm3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   return tvb_get_letohs(tvb, offset + DLM_HEADER_LEN - 2 - 1 - 1);
@@ -1181,7 +1181,7 @@ get_dlm3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
 static int
 dissect_tcp_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DLM_HEADER_LEN - 1 - 1,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, DLM_HEADER_LEN - 1 - 1,
                    get_dlm3_message_len, dissect_dlm3_message, data);
   return tvb_captured_length(tvb);
 }
@@ -1776,7 +1776,7 @@ proto_register_dlm3(void)
         NULL, HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_dlm3,
     &ett_dlm3_version,
 

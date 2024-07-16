@@ -66,11 +66,11 @@ static int hf_dcc_requests;
 static int hf_dcc_pad;
 static int hf_dcc_unused;
 
-static gint ett_dcc;
-static gint ett_dcc_opnums;
-static gint ett_dcc_op;
-static gint ett_dcc_ck;
-static gint ett_dcc_trace;
+static int ett_dcc;
+static int ett_dcc_opnums;
+static int ett_dcc_op;
+static int ett_dcc_ck;
+static int ett_dcc_trace;
 
 static expert_field ei_dcc_len;
 
@@ -89,7 +89,7 @@ static expert_field ei_dcc_len;
 	while (tvb_offset_exists(tvb, offset+endpad)) { \
 		left = tvb_reported_length_remaining(tvb,offset) - endpad; \
 		tvb_find_line_end(tvb, offset, left, &next_offset, \
-		    FALSE); \
+		    false); \
 		proto_tree_add_item(dcc_optree, hf_label, tvb, offset, \
 			next_offset - offset, ENC_ASCII|ENC_NA); \
 		offset = next_offset; \
@@ -545,7 +545,7 @@ proto_register_dcc(void)
 				NULL, 0, NULL, HFILL }},
 		};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dcc,
 		&ett_dcc_op,
 		&ett_dcc_ck,

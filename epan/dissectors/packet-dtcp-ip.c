@@ -37,9 +37,9 @@ void proto_reg_handoff_dtcp_ip(void);
 
 static dissector_handle_t dtcp_ip_handle;
 
-static gint ett_dtcp_ip;
-static gint ett_dtcp_ip_ctrl;
-static gint ett_dtcp_ip_ake_procedure;
+static int ett_dtcp_ip;
+static int ett_dtcp_ip_ctrl;
+static int ett_dtcp_ip_ake_procedure;
 
 static int hf_dtcp_ip_type;
 static int hf_dtcp_ip_length;
@@ -68,7 +68,7 @@ static const value_string subfct[] = {
     { 0, NULL }
 };
 
-static int * const ake_procedure_fields[] = { /* must be int, not gint */
+static int * const ake_procedure_fields[] = { /* must be int, not int */
     &hf_dtcp_ip_ake_proc_full,
     &hf_dtcp_ip_ake_proc_ex_full,
     NULL
@@ -93,44 +93,44 @@ static const value_string ctrl_status[] = {
 
 
 /* check if the packet is actually DTCP-IP */
-static gboolean
+static bool
 dtcp_ip_check_packet(tvbuff_t *tvb)
 {
-    guint  offset = 0;
-    guint8   type;
-    guint16  length;
+    unsigned  offset = 0;
+    uint8_t  type;
+    uint16_t length;
 
     /* a minimum DTCP-IP AKE packet has Type (1 byte),
        Length (2 bytes) and Control (8 bytes) */
     if (tvb_reported_length(tvb) < 1+2+CTRL_LEN)
-        return FALSE;
+        return false;
 
     type = tvb_get_guint8(tvb, offset);
     /* all DTCP-IP AKE packets have type 1 */
     if (type != 1)
-        return FALSE;
+        return false;
     offset++;
 
     /* length field is length of the control block +
        length of ake_info */
     length = tvb_get_ntohs(tvb, offset);
     if (length < CTRL_LEN)
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 static int
 dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data _U_)
 {
-    guint        offset = 0;
-    guint16      length;
+    unsigned     offset = 0;
+    uint16_t     length;
     proto_item  *pi;
     proto_tree  *dtcp_ip_tree, *dtcp_ip_ctrl_tree;
-    guint8       subfct_val;
-    const gchar *subfct_str;
-    gint         ake_info_len;
+    uint8_t      subfct_val;
+    const char *subfct_str;
+    int          ake_info_len;
 
 
     if (!dtcp_ip_check_packet(tvb))
@@ -204,7 +204,7 @@ dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
     if (ake_info_len > 0) {
         proto_tree_add_item(dtcp_ip_tree, hf_dtcp_ip_ake_info,
                 tvb, offset, ake_info_len, ENC_NA);
-        offset += (guint)ake_info_len;
+        offset += (unsigned)ake_info_len;
     }
 
     return offset;
@@ -266,7 +266,7 @@ proto_register_dtcp_ip(void)
                 NULL, 0, NULL, HFILL } }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dtcp_ip,
         &ett_dtcp_ip_ctrl,
         &ett_dtcp_ip_ake_procedure

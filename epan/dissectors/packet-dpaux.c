@@ -86,12 +86,12 @@ static int * const reg00004_fields[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_dpaux;
-static gint ett_register;
+static int ett_dpaux;
+static int ett_register;
 
 struct dpaux_transaction {
-    gboolean is_native;
-    guint32 addr;
+    bool is_native;
+    uint32_t addr;
 };
 
 enum {
@@ -119,8 +119,8 @@ struct bitfield_data {
 };
 
 struct dpaux_register {
-    guint32 addr;
-    guint8 type;
+    uint32_t addr;
+    uint8_t type;
     union {
         struct bitfield_data bitfield;
     } data;
@@ -166,12 +166,12 @@ dissect_dpaux_register(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 type = tvb_get_bits8(tvb, 0, 1);
-    guint8 mot = tvb_get_bits8(tvb, 1, 1);
-    guint8 cmd = tvb_get_bits8(tvb, 2, 2);
-    guint32 addr = tvb_get_bits32(tvb, 4, 20, ENC_BIG_ENDIAN);
-    guint8 len = tvb_get_guint8(tvb, 3) + 1;
-    gboolean is_read = cmd & 0x1;
+    uint8_t type = tvb_get_bits8(tvb, 0, 1);
+    uint8_t mot = tvb_get_bits8(tvb, 1, 1);
+    uint8_t cmd = tvb_get_bits8(tvb, 2, 2);
+    uint32_t addr = tvb_get_bits32(tvb, 4, 20, ENC_BIG_ENDIAN);
+    uint8_t len = tvb_get_guint8(tvb, 3) + 1;
+    bool is_read = cmd & 0x1;
 
     conversation_t *conversation = NULL;
     struct dpaux_transaction *transaction = NULL;
@@ -213,8 +213,8 @@ dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dpaux_from_sink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 cmd = tvb_get_bits8(tvb, 2, 2);
-    guint8 len = (tvb_reported_length(tvb) > 1) ? tvb_reported_length(tvb) -1 : 0;
+    uint8_t cmd = tvb_get_bits8(tvb, 2, 2);
+    uint8_t len = (tvb_reported_length(tvb) > 1) ? tvb_reported_length(tvb) -1 : 0;
     conversation_t *conversation = NULL;
     struct dpaux_transaction *transaction = NULL;
     proto_item *ti;
@@ -295,7 +295,7 @@ dissect_dpaux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *ti;
     proto_tree *dpaux_tree;
-    gboolean from_source = FALSE;
+    bool from_source = false;
     struct dpaux_info *dpaux_info = (struct dpaux_info*)data;
 
     if (dpaux_info != NULL)
@@ -380,7 +380,7 @@ proto_register_dpaux(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dpaux,
         &ett_register,
     };

@@ -22,7 +22,7 @@ static int proto_ipdc;
 /* static int hf_ipdc_esg_bootstrap_xml; */
 
 /* Initialize the subtree pointers */
-static gint ett_ipdc;
+static int ett_ipdc;
 
 
 enum {
@@ -72,7 +72,7 @@ proto_register_dvb_ipdc(void)
     };
 #endif
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipdc,
     };
 

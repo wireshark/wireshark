@@ -68,7 +68,7 @@ static int hf_dsi_error;
 static int hf_dsi_length;
 static int hf_dsi_reserved;
 
-static gint ett_dsi;
+static int ett_dsi;
 
 static int hf_dsi_open_type;
 static int hf_dsi_open_len;
@@ -84,9 +84,9 @@ static int hf_dsi_attn_flag_reconnect;
 static int hf_dsi_attn_flag_time;
 static int hf_dsi_attn_flag_bitmap;
 
-static gint ett_dsi_open;
-static gint ett_dsi_attn;
-static gint ett_dsi_attn_flag;
+static int ett_dsi_open;
+static int ett_dsi_attn;
+static int ett_dsi_attn_flag;
 
 static const value_string dsi_attn_flag_vals[] = {
 	{0x0, "Reserved" },                                           /* 0000 */
@@ -149,12 +149,12 @@ static const value_string func_vals[] = {
 	{0,                   NULL } };
 static value_string_ext func_vals_ext = VALUE_STRING_EXT_INIT(func_vals);
 
-static gint
-dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint dsi_length)
+static int
+dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, int offset, int dsi_length)
 {
 	proto_tree      *tree;
-	guint8		type;
-	guint8		len;
+	uint8_t		type;
+	uint8_t		len;
 
 	tree = proto_tree_add_subtree(dsi_tree, tvb, offset, -1, ett_dsi_open, NULL, "Open Session");
 
@@ -187,12 +187,12 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint 
 	return offset;
 }
 
-static gint
-dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
+static int
+dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, int offset)
 {
 	proto_tree      *tree;
 	proto_item	*ti;
-	guint16		flag;
+	uint16_t		flag;
 
 	if (!tvb_reported_length_remaining(tvb,offset))
 		return offset;
@@ -220,10 +220,10 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
 	proto_tree      *dsi_tree;
 	proto_item	*dsi_ti;
-	guint8		dsi_flags,dsi_command;
-	guint16		dsi_requestid;
-	gint32		dsi_code;
-	guint32		dsi_length;
+	uint8_t		dsi_flags,dsi_command;
+	uint16_t		dsi_requestid;
+	int32_t		dsi_code;
+	uint32_t		dsi_length;
 	struct		atp_asp_dsi_info atp_asp_dsi_info;
 
 
@@ -314,11 +314,11 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_dsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	guint32 plen;
-	guint8	dsi_flags,dsi_command;
+	uint32_t plen;
+	uint8_t	dsi_flags,dsi_command;
 
 	dsi_flags = tvb_get_guint8(tvb, offset);
 	dsi_command = tvb_get_guint8(tvb, offset+ 1);
@@ -444,7 +444,7 @@ proto_register_dsi(void)
 		    "Attention extended bitmap", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dsi,
 		&ett_dsi_open,
 		&ett_dsi_attn,

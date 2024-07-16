@@ -43,7 +43,7 @@ static int hf_data;
 static int hf_value;
 static int hf_text;
 
-static gint ett_db_lsp;
+static int ett_db_lsp;
 
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -76,9 +76,9 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
   proto_tree *db_lsp_tree;
   proto_item *db_lsp_item;
-  gint        offset = 0;
-  guint8      type, opvalue;
-  guint16     magic, length;
+  int         offset = 0;
+  uint8_t     type, opvalue;
+  uint16_t    magic, length;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_set_str (pinfo->cinfo, COL_INFO, PNAME);
@@ -132,7 +132,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   return tvb_reported_length(tvb);
 }
 
-static guint
+static unsigned
 get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb,
                     int offset, void *data _U_)
 {
@@ -157,7 +157,7 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
   proto_tree *db_lsp_tree;
   proto_item *db_lsp_item;
-  gint        offset = 0;
+  int         offset = 0;
   heur_dtbl_entry_t *hdtbl_entry;
   proto_tree *data_subtree;
 
@@ -220,7 +220,7 @@ proto_register_db_lsp (void)
         NULL, HFILL } },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_db_lsp,
   };
 

@@ -58,7 +58,7 @@ enum {
 
 /* ETSI EN 300 175-3 V2.3.0  6.2.4 and Annex E */
 /* scramble table with corrections by Jakub Hruska */
-static const guint8 scrt[8][31]=
+static const uint8_t scrt[8][31]=
 {
 	{0x3B, 0xCD, 0x21, 0x5D, 0x88, 0x65, 0xBD, 0x44, 0xEF, 0x34, 0x85, 0x76, 0x21, 0x96, 0xF5, 0x13, 0xBC, 0xD2, 0x15, 0xD8, 0x86, 0x5B, 0xD4, 0x4E, 0xF3, 0x48, 0x57, 0x62, 0x19, 0x6F, 0x51},
 	{0x32, 0xDE, 0xA2, 0x77, 0x9A, 0x42, 0xBB, 0x10, 0xCB, 0x7A, 0x89, 0xDE, 0x69, 0x0A, 0xEC, 0x43, 0x2D, 0xEA, 0x27, 0x79, 0xA4, 0x2B, 0xB1, 0x0C, 0xB7, 0xA8, 0x9D, 0xE6, 0x90, 0xAE, 0xC4},
@@ -78,14 +78,14 @@ static dissector_handle_t dect_handle;
 static int proto_dect;
 
 
-static gint ett_dect;
-static gint ett_columns;
-static gint ett_afield;
-static gint ett_ahead;
-static gint ett_atail;
-static gint ett_aqt;
-static gint ett_bfield;
-static gint ett_bfdescrdata;
+static int ett_dect;
+static int ett_columns;
+static int ett_afield;
+static int ett_ahead;
+static int ett_atail;
+static int ett_aqt;
+static int ett_bfield;
+static int ett_bfdescrdata;
 
 static int hf_dect_transceivermode;
 static int hf_dect_preamble;
@@ -1133,15 +1133,15 @@ static const value_string PTRFPPower_vals[]=
 
 
 static unsigned char
-dect_getbit(guint8 *data, int bit)
+dect_getbit(uint8_t *data, int bit)
 {
-	guint8 byte=data[bit/8];
+	uint8_t byte=data[bit/8];
 
 	return (byte>>bit%8)&1;
 }
 
 static void
-dect_setbit(guint8 *data, int bit, guint8 value)
+dect_setbit(uint8_t *data, int bit, uint8_t value)
 {
 	if(!value)
 		data[bit/8]&=~(1<<(bit%8));
@@ -1150,13 +1150,13 @@ dect_setbit(guint8 *data, int bit, guint8 value)
 }
 
 /* EN 300 175-3 V2.3.0  6.2.5.4 */
-static guint8
-calc_xcrc(guint8* data, guint8 length)
+static uint8_t
+calc_xcrc(uint8_t* data, uint8_t length)
 {
-	guint8 bits[21];
-	guint8 gp=0x1;
-	guint8 crc;
-	guint8 next;
+	uint8_t bits[21];
+	uint8_t gp=0x1;
+	uint8_t crc;
+	uint8_t next;
 	int y, x;
 
 	memset(bits, 0, sizeof(bits));
@@ -1199,13 +1199,13 @@ calc_xcrc(guint8* data, guint8 length)
 }
 
 /* EN 300 175-3 V2.3.0  6.2.5.2 */
-static guint16
-calc_rcrc(guint8* data)
+static uint16_t
+calc_rcrc(uint8_t* data)
 {
-	guint16 gp=0x0589; /* 10000010110001001 without the leading 1 */
+	uint16_t gp=0x0589; /* 10000010110001001 without the leading 1 */
 
-	guint16 crc;
-	guint8 next;
+	uint16_t crc;
+	uint8_t next;
 	int y, x;
 
 	crc=data[0]<<8|data[1];
@@ -1240,13 +1240,13 @@ calc_rcrc(guint8* data)
 }
 
 /* ETSI EN 300 175-3 V2.3.0  6.2.1.3 */
-static gint
-dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
-	packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, proto_tree *DectTree, proto_tree *ColumnsTree)
+static int
+dissect_bfield(bool dect_packet_type _U_, uint8_t ba,
+	packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *DectTree, proto_tree *ColumnsTree)
 {
-	guint8 xcrc/*, xcrclen*/;
-	guint16 blen;
-	gint start_offset;
+	uint8_t xcrc/*, xcrclen*/;
+	uint16_t blen;
+	int start_offset;
 	const char *bfield_str;
 	const char *bfield_short_str;
 
@@ -1256,8 +1256,8 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 	proto_item *bfdescrdatati   = NULL;
 	proto_tree *BFDescrData	    = NULL;
 
-	guint8 bfield_data[DECT_BFIELD_DATA_SIZE];
-	guint bfield_length = tvb_reported_length_remaining(tvb, offset);
+	uint8_t bfield_data[DECT_BFIELD_DATA_SIZE];
+	unsigned bfield_length = tvb_reported_length_remaining(tvb, offset);
 
 	if (bfield_length > DECT_BFIELD_DATA_SIZE)
 		bfield_length = DECT_BFIELD_DATA_SIZE;
@@ -1326,11 +1326,11 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 
 	if(blen<=bfield_length)
 	{
-		gint fn;
-		guint16 x, y;
+		int fn;
+		uint16_t x, y;
 		for(fn=0;fn<8;fn++)
 		{
-			guint16 bytecount=0;
+			uint16_t bytecount=0;
 
 			offset=start_offset;
 
@@ -1389,12 +1389,12 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 
 /* ETSI EN 300 175-3 V2.3.0  6.2.1.2 */
 static void
-dissect_afield(gboolean dect_packet_type, guint8 *ba,
-	packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, proto_tree *DectTree, proto_tree *ColumnsTree)
+dissect_afield(bool dect_packet_type, uint8_t *ba,
+	packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *DectTree, proto_tree *ColumnsTree)
 {
-	guint8 ta;
-	guint8 rcrcdat[8];
-	guint16 computed_rcrc;
+	uint8_t ta;
+	uint8_t rcrcdat[8];
+	uint16_t computed_rcrc;
 	wmem_strbuf_t *afield_str;
 
 	proto_item *afieldti	= NULL;
@@ -1404,8 +1404,8 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	proto_tree *AHead	= NULL;
 	proto_tree *ATail	= NULL;
 
-	guint8	header, tail_0, tail_1, tail_2, tail_3, tail_4;
-	guint16	rcrc;
+	uint8_t	header, tail_0, tail_1, tail_2, tail_3, tail_4;
+	uint16_t	rcrc;
 
 	afield_str = wmem_strbuf_new(pinfo->pool, NULL);
 
@@ -1940,11 +1940,11 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item *ti		=NULL;
 	proto_item *typeti	=NULL;
 	proto_tree *DectTree	=NULL;
-	gint offset		=0;
+	int offset		=0;
 
-	guint16			type;
-	guint			pkt_len;
-	guint8			ba;
+	uint16_t			type;
+	unsigned			pkt_len;
+	uint8_t			ba;
 
 	/************************** Custom Columns ****************************/
 	proto_item *columnstreeti;
@@ -2558,7 +2558,7 @@ proto_register_dect(void)
 
 
 	/* Setup protocol subtree array */
-	static gint *ett[]=
+	static int *ett[]=
 	{
 		&ett_dect,
 		&ett_columns,

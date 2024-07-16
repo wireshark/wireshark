@@ -105,9 +105,9 @@ static dissector_handle_t dmx_text_handle;
 /*
  * Here are the global variables associated with the preferences for DMX
  */
-static gint global_disp_chan_val_type;
-static gint global_disp_col_count     = 16;
-static gint global_disp_chan_nr_type;
+static int global_disp_chan_val_type;
+static int global_disp_col_count     = 16;
+static int global_disp_chan_nr_type;
 
 static int
 dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -127,9 +127,9 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		};
 		wmem_strbuf_t *chan_str = wmem_strbuf_create(pinfo->pool);
 		proto_item    *item;
-		guint16        length,r,c,row_count;
-		guint8         v;
-		guint          offset   = 0;
+		uint16_t       length,r,c,row_count;
+		uint8_t        v;
+		unsigned       offset   = 0;
 
 		proto_tree    *ti = proto_tree_add_item(tree, proto_dmx_chan, tvb, offset, -1, ENC_NA);
 		proto_tree    *dmx_chan_tree = proto_item_add_subtree(ti, ett_dmx_chan);
@@ -171,11 +171,11 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	return tvb_captured_length(tvb);
 }
 
-static guint8
-dmx_sip_checksum(tvbuff_t *tvb, guint length)
+static uint8_t
+dmx_sip_checksum(tvbuff_t *tvb, unsigned length)
 {
-	guint8    sum = DMX_SC_SIP;
-	guint  i;
+	uint8_t   sum = DMX_SC_SIP;
+	unsigned  i;
 	for (i = 0; i < length; i++)
 		sum += tvb_get_guint8(tvb, i);
 	return sum;
@@ -188,8 +188,8 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		guint    offset = 0;
-		guint    byte_count;
+		unsigned offset = 0;
+		unsigned byte_count;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_sip, tvb,
 							offset, -1, ENC_NA);
@@ -276,8 +276,8 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		guint    offset = 0;
-		guint    size, i, test_data_is_ok;
+		unsigned offset = 0;
+		unsigned size, i, test_data_is_ok;
 		proto_tree *test_data_tree;
 		proto_item *item;
 
@@ -292,15 +292,15 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		offset += size;
 
 		if (size == DMX_TEST_PACKET_SIZE) {
-			test_data_is_ok = TRUE;
+			test_data_is_ok = true;
 			for (i = 0; i < DMX_TEST_PACKET_SIZE; i++) {
 				if (tvb_get_guint8(tvb, i) != DMX_TEST_VALUE) {
-					test_data_is_ok = FALSE;
+					test_data_is_ok = false;
 					break;
 				}
 			}
 		} else {
-			test_data_is_ok = FALSE;
+			test_data_is_ok = false;
 		}
 
 		if (test_data_is_ok) {
@@ -309,10 +309,10 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 			test_data_tree = proto_item_add_subtree(item, ett_dmx_test);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_good, tvb,
-							offset, size, TRUE);
+							offset, size, true);
 			proto_item_set_generated(item);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_bad, tvb,
-							offset, size, FALSE);
+							offset, size, false);
 			proto_item_set_generated(item);
 		} else {
 			proto_item_append_text(ti, ", Data incorrect");
@@ -320,10 +320,10 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 			test_data_tree = proto_item_add_subtree(item, ett_dmx_test);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_good, tvb,
-							offset, size, FALSE);
+							offset, size, false);
 			proto_item_set_generated(item);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_bad, tvb,
-								offset, size, TRUE);
+								offset, size, true);
 			proto_item_set_generated(item);
 		}
 	}
@@ -337,8 +337,8 @@ dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		guint offset = 0;
-		guint size;
+		unsigned offset = 0;
+		unsigned size;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_text, tvb,
 							offset, -1, ENC_NA);
@@ -364,8 +364,8 @@ static int
 dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	tvbuff_t *next_tvb;
-	guint     offset = 0;
-	guint8    start_code;
+	unsigned  offset = 0;
+	uint8_t   start_code;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -378,7 +378,7 @@ dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	if (!dissector_try_uint_new(dmx_dissector_table, start_code, tvb, pinfo,
-                             tree, TRUE, NULL)) {
+                             tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
@@ -421,7 +421,7 @@ proto_register_dmx_chan(void)
 				NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dmx_chan
 	};
 
@@ -460,19 +460,19 @@ proto_register_dmx_chan(void)
 					"DMX Display channel value type",
 					"The way DMX values are displayed",
 					&global_disp_chan_val_type,
-					disp_chan_val_types, FALSE);
+					disp_chan_val_types, false);
 
 	prefs_register_enum_preference(dmx_chan_module, "dmx_disp_chan_nr_type",
 					"DMX Display channel nr. type",
 					"The way DMX channel numbers are displayed",
 					&global_disp_chan_nr_type,
-					disp_chan_nr_types, FALSE);
+					disp_chan_nr_types, false);
 
 	prefs_register_enum_preference(dmx_chan_module, "dmx_disp_col_count",
 					"DMX Display Column Count",
 					"The number of columns for the DMX display",
 					&global_disp_col_count,
-					col_count, FALSE);
+					col_count, false);
 }
 
 void
@@ -570,7 +570,7 @@ proto_register_dmx_sip(void)
 				NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dmx_sip
 	};
 
@@ -607,7 +607,7 @@ proto_register_dmx_test(void)
 				"True: test data is incorrect; False: test data is correct", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dmx_test
 	};
 
@@ -637,7 +637,7 @@ proto_register_dmx_text(void)
 				NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dmx_text
 	};
 

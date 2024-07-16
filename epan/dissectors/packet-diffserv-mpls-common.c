@@ -45,12 +45,12 @@ const value_string phbid_bit15_vals[] = {
 
 void
 dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
-                             int offset, int **hfindexes, gint **etts)
+                             int offset, int **hfindexes, int **etts)
 {
     proto_item  *ti = NULL, *sub_ti;
     proto_tree  *tree2 = NULL, *phbid_subtree;
     int exp;
-    guint16 phbid;
+    uint16_t phbid;
 
     switch (type) {
     case 1:  /* E-LSP */

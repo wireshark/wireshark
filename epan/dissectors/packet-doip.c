@@ -424,15 +424,15 @@ static int hf_nack_code;
 /*
  * Trees
  */
-static gint ett_doip;
-static gint ett_header;
-static gint ett_address;
+static int ett_doip;
+static int ett_header;
+static int ett_address;
 
 
 /* Misc */
 static dissector_handle_t doip_handle;
 static dissector_handle_t uds_handle;
-static gint proto_doip;
+static int proto_doip;
 
 
 /* expert info items */
@@ -444,17 +444,17 @@ static expert_field ei_doip_illegal_length_field;
  */
 
 typedef struct _generic_one_id_string {
-    guint   id;
-    gchar  *name;
+    unsigned   id;
+    char   *name;
 } generic_one_id_string_t;
 
 static void
-doip_uat_free_key(gpointer key) {
+doip_uat_free_key(void *key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
 static void
-simple_free(gpointer data) {
+simple_free(void *data) {
     /* we need to free because of the g_strdup in post_update*/
     g_free(data);
 }
@@ -476,15 +476,15 @@ update_generic_one_identifier_16bit(void *r, char **err) {
 
     if (rec->id > 0xffff) {
         *err = ws_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
-        return FALSE;
+        return false;
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
         *err = g_strdup("Name cannot be empty");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -496,8 +496,8 @@ free_generic_one_id_string_cb(void*r) {
 }
 
 static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, guint data_num, GHashTable *ht) {
-    guint   i;
+post_update_one_id_string_template_cb(generic_one_id_string_t *data, unsigned data_num, GHashTable *ht) {
+    unsigned   i;
     int    *key = NULL;
 
     for (i = 0; i < data_num; i++) {
@@ -532,7 +532,7 @@ ht_lookup_name(GHashTable* ht, unsigned int identifier) {
 
 static GHashTable *data_doip_diag_addresses;
 static generic_one_id_string_t* doip_diag_addresses;
-static guint doip_diag_address_count;
+static unsigned doip_diag_address_count;
 
 UAT_HEX_CB_DEF(doip_diag_addresses, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(doip_diag_addresses, name, generic_one_id_string_t)
@@ -551,13 +551,13 @@ post_update_doip_diag_addresses(void) {
 }
 
 static proto_item *
-doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, int hfindex_name, tvbuff_t* tvb, const gint start, gint length, const guint encoding, guint *diag_addr) {
-    guint diag_addr_tmp;
+doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, int hfindex_name, tvbuff_t* tvb, const int start, int length, const unsigned encoding, unsigned *diag_addr) {
+    unsigned diag_addr_tmp;
     proto_item *ti;
     proto_tree *tree;
 
     ti = proto_tree_add_item_ret_uint(doip_tree, hfindex, tvb, start, length, encoding, &diag_addr_tmp);
-    const gchar *name = ht_lookup_name(data_doip_diag_addresses, diag_addr_tmp);
+    const char *name = ht_lookup_name(data_doip_diag_addresses, diag_addr_tmp);
     if (name != NULL) {
         proto_item_append_text(ti, " (%s)", name);
         tree = proto_item_add_subtree(ti, ett_address);
@@ -582,7 +582,7 @@ doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, int hfindex_n
 
 static GHashTable *data_doip_payload_types;
 static generic_one_id_string_t* doip_payload_types;
-static guint doip_payload_type_count;
+static unsigned doip_payload_type_count;
 
 UAT_HEX_CB_DEF(doip_payload_types, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(doip_payload_types, name, generic_one_id_string_t)
@@ -600,10 +600,10 @@ post_update_doip_payload_types(void) {
     post_update_one_id_string_template_cb(doip_payload_types, doip_payload_type_count, data_doip_payload_types);
 }
 
-static const gchar*
-resolve_doip_payload_type(wmem_allocator_t *scope, guint16 payload_type, gboolean is_col)
+static const char*
+resolve_doip_payload_type(wmem_allocator_t *scope, uint16_t payload_type, bool is_col)
 {
-    const gchar *tmp = ht_lookup_name(data_doip_payload_types, payload_type);
+    const char *tmp = ht_lookup_name(data_doip_payload_types, payload_type);
 
     /* lets look at the static values, if nothing is configured */
     if (tmp == NULL) {
@@ -630,8 +630,8 @@ resolve_doip_payload_type(wmem_allocator_t *scope, guint16 payload_type, gboolea
 static void
 add_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *doip_tree)
 {
-    guint32 len;
-    guint32 payload_type;
+    uint32_t len;
+    uint32_t payload_type;
 
     proto_tree *subtree = proto_tree_add_subtree(doip_tree, tvb, DOIP_VERSION_OFFSET, DOIP_HEADER_LEN, ett_header, NULL, "Header");
     proto_tree_add_item(subtree, hf_doip_version, tvb, DOIP_VERSION_OFFSET, DOIP_VERSION_LEN, ENC_BIG_ENDIAN);
@@ -669,7 +669,7 @@ add_vehicle_identification_vin_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 
 
 static void
-add_routing_activation_request_fields(proto_tree *doip_tree, tvbuff_t *tvb, guint8 version)
+add_routing_activation_request_fields(proto_tree *doip_tree, tvbuff_t *tvb, uint8_t version)
 {
     doip_prototree_add_with_resolv(doip_tree, hf_source_address, hf_source_address_name, tvb, DOIP_ROUTING_ACTIVATION_REQ_SRC_OFFSET, DOIP_ROUTING_ACTIVATION_REQ_SRC_LEN, ENC_BIG_ENDIAN, NULL);
 
@@ -751,7 +751,7 @@ static void
 add_diagnostic_message_fields(proto_tree *doip_tree, tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     doip_info_t doip_info;
-    guint32 tmp;
+    uint32_t tmp;
 
     doip_prototree_add_with_resolv(doip_tree, hf_source_address, hf_source_address_name, tvb, DOIP_DIAG_COMMON_SOURCE_OFFSET, DOIP_DIAG_COMMON_SOURCE_LEN, ENC_BIG_ENDIAN, &tmp);
     doip_info.source_address = tmp;
@@ -796,8 +796,8 @@ add_diagnostic_message_nack_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 static void
 dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 version = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
-    guint16 payload_type = tvb_get_ntohs(tvb, DOIP_TYPE_OFFSET);
+    uint8_t version = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
+    uint16_t payload_type = tvb_get_ntohs(tvb, DOIP_TYPE_OFFSET);
 
     /* Set protocol and clear information columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DoIP");
@@ -899,11 +899,11 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* determine PDU length of protocol DoIP */
-static guint
+static unsigned
 get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p _U_)
 {
-    guint8 ver1 = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
-    guint8 ver2 = tvb_get_guint8(tvb, DOIP_INV_VERSION_OFFSET);
+    uint8_t ver1 = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
+    uint8_t ver2 = tvb_get_guint8(tvb, DOIP_INV_VERSION_OFFSET);
 
     if (ver1 != ((~ver2) & 0xff)) {
         /* if ver2 is not the inverse of ver1, we are not at the start of a DoIP message! */
@@ -912,7 +912,7 @@ get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p 
     }
 
     /* PDU Length = length field value + header length */
-    guint32 ret = tvb_get_ntohl(tvb, offset + DOIP_LENGTH_OFFSET) + DOIP_HEADER_LEN;
+    uint32_t ret = tvb_get_ntohl(tvb, offset + DOIP_LENGTH_OFFSET) + DOIP_HEADER_LEN;
 
     if (ret < DOIP_HEADER_LEN || ret > 0x7fffffff) {
         /* catch illegal length fields (overflow or too big) */
@@ -934,7 +934,7 @@ dissect_doip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static int
 dissect_doip(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DOIP_HEADER_LEN, get_doip_message_len, dissect_doip_pdu, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, DOIP_HEADER_LEN, get_doip_message_len, dissect_doip_pdu, data);
     return tvb_captured_length(tvb);
 }
 
@@ -1241,7 +1241,7 @@ proto_register_doip(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_doip,
         &ett_header,
         &ett_address
@@ -1276,7 +1276,7 @@ proto_register_doip(void)
     doip_diag_addr_uat = uat_new("Diagnostic Addresses",
         sizeof(generic_one_id_string_t),        /* record size           */
         DATAFILE_DOIP_DIAG_ADDRESSES,           /* filename              */
-        TRUE,                                   /* from profile          */
+        true,                                   /* from profile          */
         (void**)&doip_diag_addresses,           /* data_ptr              */
         &doip_diag_address_count,               /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* but not fields        */
@@ -1295,7 +1295,7 @@ proto_register_doip(void)
     doip_payload_type_uat = uat_new("Payload Types",
         sizeof(generic_one_id_string_t),        /* record size           */
         DATAFILE_DOIP_PAYLOAD_TYPES,            /* filename              */
-        TRUE,                                   /* from profile          */
+        true,                                   /* from profile          */
         (void**)&doip_payload_types,            /* data_ptr              */
         &doip_payload_type_count,               /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* but not fields        */

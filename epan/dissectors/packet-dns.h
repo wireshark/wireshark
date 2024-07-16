@@ -25,7 +25,7 @@ extern const value_string dns_classes[];
  * Return int name_len: byte length of "name".
  */
 int get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const gchar **name, gint* name_len);
+    const char **name, int* name_len);
 
 #define MAX_DNAME_LEN   255             /* maximum domain name length */
 

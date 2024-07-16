@@ -39,8 +39,8 @@ static int hf_dvb_bat_original_network_id;
 static int hf_dvb_bat_reserved4;
 static int hf_dvb_bat_transport_descriptors_length;
 
-static gint ett_dvb_bat;
-static gint ett_dvb_bat_transport_stream;
+static int ett_dvb_bat;
+static int ett_dvb_bat_transport_stream;
 
 
 #define DVB_BAT_RESERVED1_MASK                      0xC0
@@ -80,8 +80,8 @@ static int
 dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-    guint   offset = 0, length = 0, ts_loop_end;
-    guint16 ts_id, descriptor_len, ts_loop_len;
+    unsigned   offset = 0, length = 0, ts_loop_end;
+    uint16_t ts_id, descriptor_len, ts_loop_len;
 
     proto_item *ti;
     proto_tree *dvb_bat_tree;
@@ -226,7 +226,7 @@ proto_register_dvb_bat(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_bat,
         &ett_dvb_bat_transport_stream
     };

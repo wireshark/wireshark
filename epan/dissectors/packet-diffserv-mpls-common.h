@@ -33,6 +33,6 @@ extern const value_string phbid_bit15_vals[];
 
 void
 dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
-			     int offset, int **hfindexes, gint **etts);
+			     int offset, int **hfindexes, int **etts);
 
 #endif

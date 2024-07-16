@@ -199,20 +199,20 @@ static int hf_drda_outovropt;
 static int hf_drda_dyndtafmt;
 static int hf_drda_pktobj;
 
-static gint ett_drda;
-static gint ett_drda_ddm;
-static gint ett_drda_ddm_format;
-static gint ett_drda_param;
-static gint ett_drda_monitor;
-static gint ett_drda_rslsetflg;
-static gint ett_drda_sqlcagrp;
-static gint ett_drda_sqlcaxgrp;
-static gint ett_drda_sqldhgrp;
-static gint ett_drda_sqldagrp;
-static gint ett_drda_sqldoptgrp;
-static gint ett_drda_sqludtgrp;
-static gint ett_drda_sqldxgrp;
-static gint ett_drda_sqldiaggrp;
+static int ett_drda;
+static int ett_drda_ddm;
+static int ett_drda_ddm_format;
+static int ett_drda_param;
+static int ett_drda_monitor;
+static int ett_drda_rslsetflg;
+static int ett_drda_sqlcagrp;
+static int ett_drda_sqlcaxgrp;
+static int ett_drda_sqldhgrp;
+static int ett_drda_sqldagrp;
+static int ett_drda_sqldoptgrp;
+static int ett_drda_sqludtgrp;
+static int ett_drda_sqldxgrp;
+static int ett_drda_sqldiaggrp;
 
 static expert_field ei_drda_opcode_invalid_length;
 static expert_field ei_drda_undecoded;
@@ -234,10 +234,10 @@ ENUM_VAL_T_ARRAY_STATIC(typdefnam_vals);
 
 /* Preferences */
 static bool drda_desegment = true;
-static guint drda_default_sqlam = 7;
-static gint drda_default_typdefnam = TYPDEFNAM_X86;
-static gint drda_default_ccsidsbc = IANA_CS_UTF_8;
-static gint drda_default_ccsidmbc = IANA_CS_UTF_8;
+static unsigned drda_default_sqlam = 7;
+static int drda_default_typdefnam = TYPDEFNAM_X86;
+static int drda_default_ccsidsbc = IANA_CS_UTF_8;
+static int drda_default_ccsidmbc = IANA_CS_UTF_8;
 
 #define DRDA_MAGIC  0xD0
 
@@ -904,8 +904,8 @@ static const range_string drda_null_ind_rvals[] =
 
 typedef struct _drda_encoding_t {
     enum_typdefnam_t typdefnam;
-    guint sbc;
-    guint mbc;
+    unsigned sbc;
+    unsigned mbc;
 } drda_encoding_t;
 
 typedef struct _drda_flow_t {
@@ -919,14 +919,14 @@ typedef struct _drda_conv_info_t {
 
     address srv_addr;
     port_type srv_ptype;
-    guint srv_port;
+    unsigned srv_port;
 } drda_conv_info_t;
 
 typedef struct _drda_pdu_info_t {
-    guint sqlam;
+    unsigned sqlam;
     enum_typdefnam_t typdefnam;
-    guint sbc;
-    guint mbc;
+    unsigned sbc;
+    unsigned mbc;
 } drda_pdu_info_t;
 
 static drda_flow_t*
@@ -975,7 +975,7 @@ drda_get_conv_info(packet_info *pinfo)
 }
 
 static drda_pdu_info_t*
-drda_get_pdu_info(packet_info *pinfo, guint32 correl, gboolean is_server)
+drda_get_pdu_info(packet_info *pinfo, uint32_t correl, bool is_server)
 {
     drda_pdu_info_t *pdu_info;
 
@@ -1008,8 +1008,8 @@ drda_get_pdu_info(packet_info *pinfo, guint32 correl, gboolean is_server)
             pdu_info->mbc = encoding->mbc;
         } else {
             pdu_info->typdefnam = drda_default_typdefnam;
-            pdu_info->sbc = mibenum_charset_to_encoding((guint)drda_default_ccsidsbc);
-            pdu_info->mbc = mibenum_charset_to_encoding((guint)drda_default_ccsidmbc);
+            pdu_info->sbc = mibenum_charset_to_encoding((unsigned)drda_default_ccsidsbc);
+            pdu_info->mbc = mibenum_charset_to_encoding((unsigned)drda_default_ccsidmbc);
         }
 
         p_set_proto_data(pinfo->pool, pinfo, proto_drda, correl, pdu_info);
@@ -1020,15 +1020,15 @@ drda_get_pdu_info(packet_info *pinfo, guint32 correl, gboolean is_server)
 }
 
 static void
-drda_set_server(drda_conv_info_t *conv_info, address *addr, port_type ptype, guint32 port)
+drda_set_server(drda_conv_info_t *conv_info, address *addr, port_type ptype, uint32_t port)
 {
     copy_address_wmem(wmem_file_scope(), &conv_info->srv_addr, addr);
     conv_info->srv_ptype = ptype;
     conv_info->srv_port = port;
 }
 
-static gboolean
-drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
+static bool
+drda_packet_from_server(packet_info *pinfo, uint32_t command, uint8_t dsstyp)
 {
     drda_conv_info_t *conv_info = drda_get_conv_info(pinfo);
     if (conv_info->srv_addr.type != AT_NONE) {
@@ -1041,13 +1041,13 @@ drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
     case DRDA_CP_ACCRDB:
         /* Client */
         drda_set_server(conv_info, &pinfo->dst, pinfo->ptype, pinfo->destport);
-        return FALSE;
+        return false;
 
     case DRDA_CP_EXCSATRD:
     case DRDA_CP_ACCRDBRM:
         /* Server (EXCSATRD is OBJDSS, which itself is inconclusive.) */
         drda_set_server(conv_info, &pinfo->src, pinfo->ptype, pinfo->srcport);
-        return TRUE;
+        return true;
 
     }
     /* The above commands are the ones that matter the most for determining
@@ -1057,11 +1057,11 @@ drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
     case DRDA_DSSFMT_RQSDSS:
     case DRDA_DSSFMT_NORPYDSS:
         drda_set_server(conv_info, &pinfo->dst, pinfo->ptype, pinfo->destport);
-        return FALSE;
+        return false;
 
     case DRDA_DSSFMT_RPYDSS:
         drda_set_server(conv_info, &pinfo->src, pinfo->ptype, pinfo->srcport);
-        return TRUE;
+        return true;
 
     default:
         /* We will be using the default values from the prefs anyway, since
@@ -1070,13 +1070,13 @@ drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
         break;
     }
 
-    return FALSE;
+    return false;
 }
 
 static int
-dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, guint32 *value)
+dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, uint32_t *value)
 {
-    guint endian;
+    unsigned endian;
     switch (pdu_info->typdefnam) {
     case TYPDEFNAM_370:
     case TYPDEFNAM_400:
@@ -1094,9 +1094,9 @@ dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_fdoca_integer64(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, guint64 *value)
+dissect_fdoca_integer64(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, uint64_t *value)
 {
-    guint endian;
+    unsigned endian;
     switch (pdu_info->typdefnam) {
     case TYPDEFNAM_370:
     case TYPDEFNAM_400:
@@ -1123,7 +1123,7 @@ dissect_fdoca_fcs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, int
 static int
 dissect_fdoca_vcs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
 {
-    guint32 item_len;
+    uint32_t item_len;
     proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &item_len);
     offset += 2;
     proto_tree_add_item(tree, hf_index, tvb, offset, item_len, pdu_info->sbc);
@@ -1133,7 +1133,7 @@ dissect_fdoca_vcs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, con
 static int
 dissect_fdoca_vcm(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
 {
-    guint32 item_len;
+    uint32_t item_len;
     proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &item_len);
     offset += 2;
     proto_tree_add_item(tree, hf_index, tvb, offset, item_len, pdu_info->mbc);
@@ -1143,10 +1143,10 @@ dissect_fdoca_vcm(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, con
 static int
 dissect_fdoca_nocs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
 {
-    guint32 null_ind, item_length;
+    uint32_t null_ind, item_length;
     proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         proto_tree_add_item_ret_uint(tree, hf_drda_clob_length, tvb, offset, 4, ENC_BIG_ENDIAN, &item_length);
         offset += 4;
         proto_tree_add_item(tree, hf_index, tvb, offset, item_length, pdu_info->sbc);
@@ -1158,10 +1158,10 @@ dissect_fdoca_nocs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, co
 static int
 dissect_fdoca_nocm(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
 {
-    guint32 null_ind, item_length;
+    uint32_t null_ind, item_length;
     proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         proto_tree_add_item_ret_uint(tree, hf_drda_clob_length, tvb, offset, 4, ENC_BIG_ENDIAN, &item_length);
         offset += 4;
         proto_tree_add_item(tree, hf_index, tvb, offset, item_length, pdu_info->mbc);
@@ -1174,7 +1174,7 @@ static int
 dissect_drda_typdefnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
-    const guint8 *typdefnam;
+    const uint8_t *typdefnam;
 
     proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8, pinfo->pool, &typdefnam);
     for (int i = 0; typdefnam_vals[i].name != NULL; i++) {
@@ -1200,7 +1200,7 @@ dissect_drda_sqlstt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 
     int offset = 0;
 
-    guint32 sqlstt_length;
+    uint32_t sqlstt_length;
 
     /* If SECMGR is Level 6 and higher, it's possible to select a SECMEC
      * that means that the security-sensitive DDM/FD:OCA objects are encrypted.
@@ -1255,13 +1255,13 @@ dissect_drda_sqldiaggrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *subtree;
     int offset = 0;
 
-    guint32 null_ind;
+    uint32_t null_ind;
 
     ti = proto_tree_add_item(tree, hf_drda_sqldiaggrp, tvb, offset, 1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_drda_sqldiaggrp);
     proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         proto_tree_add_expert(subtree, pinfo, &ei_drda_undecoded, tvb, offset, 2);
     }
     proto_item_set_end(ti, tvb, offset);
@@ -1285,13 +1285,13 @@ dissect_drda_sqludtgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     int offset = 0;
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
-    guint32 null_ind;
+    uint32_t null_ind;
 
     ti = proto_tree_add_item(tree, hf_drda_sqludtgrp, tvb, offset, 1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_drda_sqludtgrp);
     proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         if (pdu_info->sqlam > 6) {
             offset = dissect_fdoca_integer(subtree, hf_drda_sqludtxtype, tvb, offset, 4, pdu_info, NULL);
             offset = dissect_fdoca_vcs(subtree, hf_drda_rdbnam, tvb, offset, pdu_info);
@@ -1362,13 +1362,13 @@ dissect_drda_sqldxgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     int offset = 0;
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
-    guint32 null_ind;
+    uint32_t null_ind;
 
     ti = proto_tree_add_item(tree, hf_drda_sqldxgrp, tvb, offset, 1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_drda_sqldxgrp);
     proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         offset = dissect_fdoca_integer(subtree, hf_drda_sqlxkeymem, tvb, offset, 2, pdu_info, NULL);
         offset = dissect_fdoca_integer(subtree, hf_drda_sqlxupdateable, tvb, offset, 2, pdu_info, NULL);
         offset = dissect_fdoca_integer(subtree, hf_drda_sqlxgenerated, tvb, offset, 2, pdu_info, NULL);
@@ -1528,7 +1528,7 @@ dissect_drda_sqldhgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     proto_tree *sqldhgrp_tree;
     int offset = 0, len;
 
-    guint32 null_ind;
+    uint32_t null_ind;
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
@@ -1536,7 +1536,7 @@ dissect_drda_sqldhgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     sqldhgrp_tree = proto_item_add_subtree(sqldhgrp_ti, ett_drda_sqldhgrp);
     proto_tree_add_item_ret_uint(sqldhgrp_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         len = 2;
         offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldhold, tvb, offset, len, pdu_info, NULL);
         offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldreturn, tvb, offset, len, pdu_info, NULL);
@@ -1574,7 +1574,7 @@ dissect_drda_sqldoptgrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *subtree;
     int offset = 0;
 
-    guint32 null_ind;
+    uint32_t null_ind;
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
@@ -1582,7 +1582,7 @@ dissect_drda_sqldoptgrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     subtree = proto_item_add_subtree(sqldoptgrp_ti, ett_drda_sqldoptgrp);
     proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         offset = dissect_fdoca_integer(subtree, hf_drda_sqlunnamed, tvb, offset, 2, pdu_info, NULL);
         offset = dissect_fdoca_vcm(subtree, hf_drda_sqlname, tvb, offset, pdu_info);
         offset = dissect_fdoca_vcs(subtree, hf_drda_sqlname, tvb, offset, pdu_info);
@@ -1596,7 +1596,7 @@ dissect_drda_sqldoptgrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         if (pdu_info->sqlam >= 10) {
             expert_ti = proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
             offset++;
-            if ((gint8)null_ind >= 0) {
+            if ((int8_t)null_ind >= 0) {
                 expert_add_info(pinfo, expert_ti, &ei_drda_undecoded);
                 /* XXX: What is this? It's not in Version 5 of the spec. */
             }
@@ -1686,7 +1686,7 @@ dissect_drda_sqldagrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_tree *subtree;
     int offset = 0;
 
-    //guint32 null_ind;
+    //uint32_t null_ind;
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
@@ -1741,7 +1741,7 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *subtree, *sqlcard_tree;
     int offset = 0, len = 4;
 
-    guint32 null_ind, length;
+    uint32_t null_ind, length;
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
@@ -1749,7 +1749,7 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     sqlcard_tree = proto_item_add_subtree(sqlcard_ti, ett_drda_sqlcagrp);
     proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
     offset++;
-    if ((gint8)null_ind >= 0) {
+    if ((int8_t)null_ind >= 0) {
         len = 4;
         offset = dissect_fdoca_integer(sqlcard_tree, hf_drda_sqlcode, tvb, offset, len, pdu_info, NULL);
         len = 5;
@@ -1760,7 +1760,7 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         /* SQLCAXGRP (nullable) */
         proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
         offset++;
-        if ((gint8)null_ind >= 0) {
+        if ((int8_t)null_ind >= 0) {
             ti = proto_tree_add_item(sqlcard_tree, hf_drda_sqlcaxgrp, tvb, offset, 35, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_drda_sqlcaxgrp);
             /* Earlier than SQLAM Level 7, the RDBName follows here, and is
@@ -1800,7 +1800,7 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
              */
             proto_tree_add_item_ret_uint(subtree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
             offset += 2;
-            gint end_offset;
+            int end_offset;
             while ((end_offset = tvb_find_guint8(tvb, offset, length, 0xFF)) != -1) {
                 proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, end_offset - offset, pdu_info->mbc);
                 length -= (end_offset + 1 - offset);
@@ -1847,7 +1847,7 @@ dissect_drda_sqldard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
     int offset = 0;
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
-    guint32 numrows;
+    uint32_t numrows;
 
     offset = dissect_drda_sqlcard(tvb, pinfo, tree, data);
 
@@ -1855,7 +1855,7 @@ dissect_drda_sqldard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
         offset += dissect_drda_sqldhgrp(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data);
     }
     offset = dissect_fdoca_integer(tree, hf_drda_sqlnum, tvb, offset, 2, pdu_info, &numrows);
-    for (guint32 i = 0; i < numrows; ++i) {
+    for (uint32_t i = 0; i < numrows; ++i) {
         offset += dissect_drda_sqldagrp(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data);
     }
     return offset;
@@ -1991,8 +1991,8 @@ static const value_string drda_ccsid_vals[] = {
     { 0, NULL }
 };
 
-static guint
-ccsid_to_encoding(guint32 ccsid)
+static unsigned
+ccsid_to_encoding(uint32_t ccsid)
 {
     switch (ccsid) {
 
@@ -2023,7 +2023,7 @@ static int
 dissect_drda_ccsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
-    guint32 ccsid;
+    uint32_t ccsid;
 
     proto_tree_add_item_ret_uint(tree, hf_drda_ccsid, tvb, 0, 2, ENC_BIG_ENDIAN, &ccsid);
     switch (pinfo->match_uint) {
@@ -2089,7 +2089,7 @@ dissect_drda_pkgnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     proto_item *ti_length;
     int offset = 0;
-    guint32 length;
+    uint32_t length;
 
     /* The PKGNAMCSN can have one of the following two formats depending on the
      * length of the RDBNAM, RDBCOLID, and PKGID contained therein:
@@ -2407,10 +2407,10 @@ dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
-    gint offset = 0;
-    guint32 mgrlvln;
-    guint16 iParameterCP;
-    gint iLengthParam = 4;
+    int offset = 0;
+    uint32_t mgrlvln;
+    uint16_t iParameterCP;
+    int iLengthParam = 4;
 
     while (tvb_reported_length_remaining(tvb, offset) >= 2)
     {
@@ -2466,10 +2466,10 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     proto_tree *drda_tree_sub;
     proto_item *ti;
-    gint offset = 0;
+    int offset = 0;
 
-    guint16 iParameterCP;
-    gint iLengthParam;
+    uint16_t iParameterCP;
+    int iLengthParam;
 
     /* All objects in DDM are modeled as either scalars or collections.
      * A collection has the length before each element.
@@ -2488,7 +2488,7 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
             proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, data)) {
+            if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, data)) {
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
             }
@@ -2503,7 +2503,7 @@ static int
 dissect_drda_codpntdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
-    guint32 codpnt;
+    uint32_t codpnt;
 
     ti = proto_tree_add_item_ret_uint(tree, hf_drda_param_codepoint, tvb, 0, 2, ENC_BIG_ENDIAN, &codpnt);
     proto_item_append_text(ti, " - %s", val_to_str_ext(codpnt, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
@@ -2517,18 +2517,18 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree  *drdaroot_tree;
     proto_tree  *drda_tree_sub;
     proto_item  *ti, *ddm_ti, *ti_length;
-    gint offset = 0;
+    int offset = 0;
 
     drda_conv_info_t *conv_info;
     drda_flow_t      *flow;
     drda_pdu_info_t  *pdu_info;
-    guint64 flags;
-    guint32 iLength, iCommand, correl;
+    uint64_t flags;
+    uint32_t iLength, iCommand, correl;
 
-    guint16 iParameterCP;
-    guint8 dsstyp;
-    gboolean is_server = FALSE;
-    gint iLengthParam;
+    uint16_t iParameterCP;
+    uint8_t dsstyp;
+    bool is_server = false;
+    int iLengthParam;
 
     static int * const format_flags[] = {
         &hf_drda_ddm_fmt_reserved,
@@ -2568,7 +2568,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     pdu_info = drda_get_pdu_info(pinfo, correl, is_server);
 
     /* There are a few command objects treated differently, like SNDPKT */
-    if (!dissector_try_uint_new(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree, FALSE, pdu_info)) {
+    if (!dissector_try_uint_new(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree, false, pdu_info)) {
         /* The number of attributes is variable */
         offset = 10;
         while (tvb_reported_length_remaining(tvb, offset) >= 2)
@@ -2584,7 +2584,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, pdu_info)) {
+                if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, pdu_info)) {
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
                 }
@@ -2614,7 +2614,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_drda_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return (tvb_get_ntohs(tvb, offset));
@@ -2639,7 +2639,7 @@ dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tvb_captured_length(tvb) >= 10)
     {
         /* The first header is 6 bytes long, so the length in the second header should 6 bytes less */
-        guint16 cOuterLength, cInnerLength;
+        uint16_t cOuterLength, cInnerLength;
         cOuterLength = tvb_get_ntohs(tvb, 0);
         cInnerLength = tvb_get_ntohs(tvb, 6);
         if ((tvb_get_guint8(tvb, 2) == DRDA_MAGIC) && ((cOuterLength - cInnerLength) == 6))
@@ -3327,7 +3327,7 @@ proto_register_drda(void)
             NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_drda,
         &ett_drda_ddm,
         &ett_drda_ddm_format,
@@ -3383,7 +3383,7 @@ proto_register_drda(void)
                         "Data Type Definition to use in the absence of"
                         " ACCRDB and ACCRDBRM commands.",
                         &drda_default_typdefnam,
-                        typdefnam_vals, FALSE);
+                        typdefnam_vals, false);
 
     prefs_register_enum_preference(drda_module, "ccsidsbc",
                         "Default Single-byte encoding for FD:OCA data",
@@ -3391,7 +3391,7 @@ proto_register_drda(void)
                         " in the absence of CCSIDSBC TYPDEFOVR parameter.",
                         &drda_default_ccsidsbc,
                         ws_supported_mibenum_vals_character_sets_ev_array,
-                        FALSE);
+                        false);
 
     prefs_register_enum_preference(drda_module, "ccsidmbc",
                         "Default Mixed-byte encoding for FD:OCA data",
@@ -3399,7 +3399,7 @@ proto_register_drda(void)
                         " in the absence of CCSIDMBC TYPDEFOVR parameter.",
                         &drda_default_ccsidmbc,
                         ws_supported_mibenum_vals_character_sets_ev_array,
-                        FALSE);
+                        false);
 
     drda_tcp_handle = register_dissector("drda", dissect_drda_tcp, proto_drda);
 }

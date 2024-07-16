@@ -30,7 +30,7 @@ static int hf_dvb_data_mpe_last_section_number;
 static int hf_dvb_data_mpe_dst_mac;
 static int hf_dvb_data_mpe_dst_mac_scrambled;
 
-static gint ett_dvb_data_mpe;
+static int ett_dvb_data_mpe;
 
 static expert_field ei_dvb_data_mpe_reserved_not_one;
 static expert_field ei_dvb_data_mpe_payload_scrambled;
@@ -65,13 +65,13 @@ static int
 dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-    guint       offset = 0, tot_len = 0;
-    guint32     reserved, address_scrambling, payload_scrambling, llc_snap_flag;
+    unsigned    offset = 0, tot_len = 0;
+    uint32_t    reserved, address_scrambling, payload_scrambling, llc_snap_flag;
     int         i;
 
     proto_item *ti;
     proto_tree *dvb_data_mpe_tree;
-    guchar     *dst = (guchar*)wmem_alloc(pinfo->pool, 6);
+    unsigned char     *dst = (unsigned char*)wmem_alloc(pinfo->pool, 6);
     address     dst_addr;
     tvbuff_t   *data_tvb;
 
@@ -199,7 +199,7 @@ proto_register_dvb_data_mpe(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_data_mpe,
     };
 

@@ -53,7 +53,7 @@ static int * const input_fields[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_dpauxmon;
+static int ett_dpauxmon;
 
 static const value_string packet_type_vals[] = {
     { DPAUXMON_DATA, "Data" },
@@ -76,7 +76,7 @@ dissect_dpauxmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *dpauxmon_tree;
-    guint32 packet_type;
+    uint32_t packet_type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPAUXMON");
     col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
@@ -118,7 +118,7 @@ void
 proto_register_dpauxmon(void)
 {
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dpauxmon
     };
 
@@ -173,12 +173,12 @@ proto_register_dpauxmon(void)
 void
 proto_reg_handoff_dpauxmon(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     dpaux_handle = find_dissector_add_dependency("dpaux", proto_dpauxmon);
 
     if (!initialized) {
-        initialized = TRUE;
+        initialized = true;
     } else {
         dissector_delete_uint("wtap_encap", WTAP_ENCAP_DPAUXMON, dpauxmon_handle);
     }

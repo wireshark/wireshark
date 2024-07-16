@@ -465,13 +465,13 @@ static const value_string dpnss_man_code_vals[] = {
 
 
 typedef struct {
-    gint        id_code_no;
+    int         id_code_no;
     const char *compact_name;
     const char *name;
-    gint        par1_num;
-    gint        par2_num;
-    gint        par3_num;
-    gint        par4_num;
+    int         par1_num;
+    int         par2_num;
+    int         par3_num;
+    int         par4_num;
 } dpnns_sup_serv_set_t;
 
 static const dpnns_sup_serv_set_t dpnns_sup_serv_set[] = {
@@ -735,7 +735,7 @@ static const dpnns_sup_serv_set_t dpnns_sup_serv_set[] = {
 static int
 dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint8 octet, type_of_data;
+    uint8_t octet, type_of_data;
 
     octet = tvb_get_guint8(tvb,offset);
     type_of_data = (octet & 0x70)>>4;
@@ -900,7 +900,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, 
 {
 
     int     par_len;
-    gchar * par_data;
+    char * par_data;
 
     par_len = par_end_offset - par_start_offset;
     if (par_len==0) {
@@ -1064,26 +1064,26 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, 
  */
 
 static int
-dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     proto_tree *sup_str_tree;
-    gint        start_offset, hash_offset, tvb_end_offset, sup_inf_str_end_offset, str_no;
-    gint        par_start_offset, par_end_offset, number_of_found_par;
-    gint        sup_inf_str_len, par_type_num;
-    guint       sup_str_num = 0;
-    guint8      octet;
-    gboolean    last_string = FALSE;
-    gboolean    has_par;
+    int         start_offset, hash_offset, tvb_end_offset, sup_inf_str_end_offset, str_no;
+    int         par_start_offset, par_end_offset, number_of_found_par;
+    int         sup_inf_str_len, par_type_num;
+    unsigned    sup_str_num = 0;
+    uint8_t     octet;
+    bool        last_string = false;
+    bool        has_par;
 
     tvb_end_offset = tvb_reported_length(tvb);
 
     str_no = 1;
-    while ((offset<tvb_end_offset)&&(last_string == FALSE)) {
+    while ((offset<tvb_end_offset)&&(last_string == false)) {
         octet = tvb_get_guint8(tvb,offset);
         if (octet == '*') {
             /* Supplementary Information String */
             start_offset = offset;
-            has_par = TRUE;
+            has_par = true;
             number_of_found_par = 0;
             /* offset points to start of supplementary information string */
             offset++;
@@ -1098,7 +1098,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             sup_inf_str_end_offset = tvb_find_guint8(tvb, offset, hash_offset-offset, '*');
             if (sup_inf_str_end_offset==-1) {
                 /* no parameters */
-                has_par = FALSE;
+                has_par = false;
                 sup_inf_str_end_offset = hash_offset;
             }
             sup_inf_str_len = sup_inf_str_end_offset - offset;
@@ -1116,7 +1116,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                     if (par_end_offset == -1) {
                         /* last parameter */
                         par_end_offset = hash_offset;
-                        has_par = FALSE;
+                        has_par = false;
                     }
                     switch (number_of_found_par) {
                     case 1:
@@ -1146,7 +1146,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             offset = hash_offset+1;
             str_no++;
         } else {
-            last_string = TRUE;
+            last_string = true;
             proto_tree_add_item(tree, hf_dpnss_dest_addr, tvb, offset, -1, ENC_ASCII);
         }
     }
@@ -1161,7 +1161,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *sic_field_tree, *ind_field_tree;
     int         offset = 0;
     int         tvb_end_offset;
-    guint8      octet;
+    uint8_t     octet;
 
     tvb_end_offset = tvb_reported_length(tvb);
 
@@ -1245,7 +1245,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *sel_field_tree, *sic_field_tree, *ind_field_tree;
     int         offset = 0;
     int         tvb_end_offset;
-    guint8      octet;
+    uint8_t     octet;
 
     tvb_end_offset = tvb_reported_length(tvb);
 
@@ -1335,7 +1335,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *sel_field_tree, *sic_field_tree, *ind_field_tree;
     int         offset = 0;
     int         tvb_end_offset;
-    guint8      octet;
+    uint8_t     octet;
 
     tvb_end_offset = tvb_reported_length(tvb);
     proto_tree_add_item(tree, hf_dpnss_cc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1449,7 +1449,7 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     int         offset = 0;
     proto_item *item, *group_item;
     proto_tree *dpnss_tree;
-    guint8      octet;
+    uint8_t     octet;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPNSS");
@@ -1619,7 +1619,7 @@ proto_register_dpnss(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dpnss,
         &ett_dpnss_sel_field,
         &ett_dpnss_sic_field,

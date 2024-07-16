@@ -81,24 +81,24 @@ static int hf_dsr_fs_opt_destflowid_id;
 static int hf_dsr_fs_opt_destflowid_dest;
 
 /* Initialize the subtree pointers */
-static gint ett_dsr;
+static int ett_dsr;
 /* DSR options tree */
-static gint ett_dsr_options;
-static gint ett_dsr_rreq_opt;
-static gint ett_dsr_rrep_opt;
-static gint ett_dsr_rerr_opt;
-static gint ett_dsr_ackreq_opt;
-static gint ett_dsr_ack_opt;
-static gint ett_dsr_srcrt_opt;
-static gint ett_dsr_padn_opt;
-static gint ett_dsr_pad1_opt;
-static gint ett_dsr_fs_timeout_opt;
-static gint ett_dsr_fs_destflowid_opt;
+static int ett_dsr_options;
+static int ett_dsr_rreq_opt;
+static int ett_dsr_rrep_opt;
+static int ett_dsr_rerr_opt;
+static int ett_dsr_ackreq_opt;
+static int ett_dsr_ack_opt;
+static int ett_dsr_srcrt_opt;
+static int ett_dsr_padn_opt;
+static int ett_dsr_pad1_opt;
+static int ett_dsr_fs_timeout_opt;
+static int ett_dsr_fs_destflowid_opt;
 
 /* hoplist trees */
-static gint ett_dsr_rreq_hoplist;
-static gint ett_dsr_rrep_hoplist;
-static gint ett_dsr_srcrt_hoplist;
+static int ett_dsr_rreq_hoplist;
+static int ett_dsr_rrep_hoplist;
+static int ett_dsr_srcrt_hoplist;
 
 /* A sample #define of the minimum length (in bytes) of the protocol data.
  * If data is received with fewer than this many bytes it is rejected by
@@ -156,10 +156,10 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti_main, *ti, *ti_hoplist;
     proto_tree *dsr_tree, *opt_tree, *options_tree, *opt_hoplist_tree;
     /* Other misc. local variables. */
-    guint offset = 0;           /* Global offset in DSR packet */
-    guint offset_in_option = 0; /* Per-option offset */
-    guint nexthdr, opt_tot_len, opt_len, opt_type, opt_id, opt_err_type, flowstate_hdr;
-    guint i;
+    unsigned offset = 0;           /* Global offset in DSR packet */
+    unsigned offset_in_option = 0; /* Per-option offset */
+    unsigned nexthdr, opt_tot_len, opt_len, opt_type, opt_id, opt_err_type, flowstate_hdr;
+    unsigned i;
 
     tvbuff_t *next_tvb;
 
@@ -707,7 +707,7 @@ proto_register_dsr(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dsr,
         &ett_dsr_options,
         &ett_dsr_rreq_opt,

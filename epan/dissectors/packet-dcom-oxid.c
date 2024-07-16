@@ -41,15 +41,15 @@ static int hf_oxid_Unknown2;
 static int hf_oxid_ds_array;
 
 
-static gint ett_oxid;
+static int ett_oxid;
 
 static e_guid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
-static guint16  ver_oxid;
+static uint16_t ver_oxid;
 
 
 static int
 dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_setid, NULL);
@@ -60,9 +60,9 @@ dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
@@ -77,9 +77,9 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
@@ -94,13 +94,13 @@ dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16SeqNum;
-    guint16 u16AddToSet;
-    guint16 u16DelFromSet;
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
+    uint16_t u16SeqNum;
+    uint16_t u16AddToSet;
+    uint16_t u16DelFromSet;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
 
     offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_setid, NULL);
@@ -145,10 +145,10 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16PingBackoffFactor;
-    guint32 u32HResult;
+    uint16_t u16PingBackoffFactor;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
@@ -168,10 +168,10 @@ dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16ProtSeqs;
-    guint32 u32ArraySize;
+    uint16_t u16ProtSeqs;
+    uint32_t u32ArraySize;
 
 
     offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
@@ -194,15 +194,15 @@ dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
     e_guid_t ipid;
-    guint32 u32AuthnHint;
-    guint16 u16VersionMajor;
-    guint16 u16VersionMinor;
-    guint32 u32HResult;
+    uint32_t u32AuthnHint;
+    uint16_t u16VersionMajor;
+    uint16_t u16VersionMinor;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
@@ -236,9 +236,9 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                proto_tree *tree, dcerpc_info *di, guint8 *drep) {
-    guint16 u16VersionMajor;
-    guint16 u16VersionMinor;
+                proto_tree *tree, dcerpc_info *di, uint8_t *drep) {
+    uint16_t u16VersionMajor;
+    uint16_t u16VersionMinor;
 
     offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, di, drep, &u16VersionMajor, &u16VersionMinor);
 
@@ -308,7 +308,7 @@ proto_register_oxid (void)
         { &hf_oxid_Unknown2,
                   { "unknown 8 bytes 2", "oxid.unknown2", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_oxid
     };
     proto_oxid = proto_register_protocol ("DCOM OXID Resolver", "IOXIDResolver", "oxid");

@@ -24,7 +24,7 @@ static int proto_daytime;
 static int hf_daytime_string;
 static int hf_response_request;
 
-static gint ett_daytime;
+static int ett_daytime;
 
 /* This dissector works for TCP and UDP daytime packets */
 #define DAYTIME_PORT 13
@@ -69,7 +69,7 @@ proto_register_daytime(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_daytime,
   };
 

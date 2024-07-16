@@ -38,7 +38,7 @@ void proto_reg_handoff_dvb_s2_table(void);
 #define DVB_S2_RCS_TABLE_DECODING      0
 #define DVB_S2_RCS2_TABLE_DECODING     1
 
-static gint dvb_s2_rcs_version = DVB_S2_RCS2_TABLE_DECODING;
+static int dvb_s2_rcs_version = DVB_S2_RCS2_TABLE_DECODING;
 
 /* Initialize the protocol and registered fields */
 static int proto_dvb_s2_table;
@@ -485,35 +485,35 @@ static int hf_dvb_s2_table_ra_ac_defaults_for_ra_load_control;
 static int hf_dvb_s2_table_crc32;
 
 /* Initialize the subtree pointers */
-static gint ett_dvb_s2_hdr_table_network_routing;
-static gint ett_dvb_s2_hdr_table;
-static gint ett_dvb_s2_hdr_table_sf;
-static gint ett_dvb_s2_hdr_table_sf_frame;
-static gint ett_dvb_s2_hdr_table_desc;
-static gint ett_dvb_s2_hdr_table_frame;
-static gint ett_dvb_s2_hdr_table_frame_assign;
-static gint ett_dvb_s2_hdr_table_entry;
-static gint ett_dvb_s2_hdr_table_mac24;
-static gint ett_dvb_s2_hdr_table_frametype;
-static gint ett_dvb_s2_hdr_table_frame_ID;
-static gint ett_dvb_s2_hdr_table_frame_ID_timeslot;
-static gint ett_dvb_s2_hdr_table_frametype_section;
-static gint ett_dvb_s2_hdr_table_lls;
-static gint ett_dvb_s2_hdr_table_rc;
-static gint ett_dvb_s2_hdr_table_raac;
-static gint ett_dvb_s2_hdr_table_txmode;
-static gint ett_dvb_s2_hdr_table_txtype;
-static gint ett_dvb_s2_hdr_table_txtype_ypattern;
-static gint ett_dvb_s2_hdr_table_txtype_wpattern;
-static gint ett_dvb_s2_hdr_table_txtype_uwsymbol;
-static gint ett_dvb_s2_hdr_table_txtype_uwsegment;
-static gint ett_dvb_s2_hdr_table_satellite;
-static gint ett_dvb_s2_hdr_table_multiplex;
-static gint ett_dvb_s2_hdr_table_pt;
-static gint ett_dvb_s2_hdr_table_pt_ms;
-static gint ett_dvb_s2_hdr_table_pt_ms_exclusion;
-static gint ett_dvb_s2_hdr_tbtp_frame;
-static gint ett_dvb_s2_hdr_tbtp_frame_btp;
+static int ett_dvb_s2_hdr_table_network_routing;
+static int ett_dvb_s2_hdr_table;
+static int ett_dvb_s2_hdr_table_sf;
+static int ett_dvb_s2_hdr_table_sf_frame;
+static int ett_dvb_s2_hdr_table_desc;
+static int ett_dvb_s2_hdr_table_frame;
+static int ett_dvb_s2_hdr_table_frame_assign;
+static int ett_dvb_s2_hdr_table_entry;
+static int ett_dvb_s2_hdr_table_mac24;
+static int ett_dvb_s2_hdr_table_frametype;
+static int ett_dvb_s2_hdr_table_frame_ID;
+static int ett_dvb_s2_hdr_table_frame_ID_timeslot;
+static int ett_dvb_s2_hdr_table_frametype_section;
+static int ett_dvb_s2_hdr_table_lls;
+static int ett_dvb_s2_hdr_table_rc;
+static int ett_dvb_s2_hdr_table_raac;
+static int ett_dvb_s2_hdr_table_txmode;
+static int ett_dvb_s2_hdr_table_txtype;
+static int ett_dvb_s2_hdr_table_txtype_ypattern;
+static int ett_dvb_s2_hdr_table_txtype_wpattern;
+static int ett_dvb_s2_hdr_table_txtype_uwsymbol;
+static int ett_dvb_s2_hdr_table_txtype_uwsegment;
+static int ett_dvb_s2_hdr_table_satellite;
+static int ett_dvb_s2_hdr_table_multiplex;
+static int ett_dvb_s2_hdr_table_pt;
+static int ett_dvb_s2_hdr_table_pt_ms;
+static int ett_dvb_s2_hdr_table_pt_ms_exclusion;
+static int ett_dvb_s2_hdr_tbtp_frame;
+static int ett_dvb_s2_hdr_tbtp_frame_btp;
 
 static const value_string table_modcods[] = {
     { 0, "DUMMY PLFRAME"},
@@ -894,7 +894,7 @@ static const value_string table_mobility_command_value[] = {
 static int dissect_dvb_s2_table_correct_msg(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree)
 {
     int new_off = 0;
-    guint8 time_correction_flag, frequency_correction_flag, power_correction_flag, power_control_flag;
+    uint8_t time_correction_flag, frequency_correction_flag, power_correction_flag, power_control_flag;
 
     time_correction_flag =  tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TIME_CORRECT_FLAG_MASK;
     frequency_correction_flag =  tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_FREQ_CORRECT_FLAG_MASK;
@@ -936,8 +936,8 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     int cur_desc, lls_size, rc_size, raac_size, new_off = 0;
     int start_off = 0;
     int linkage_type = 0;
-    guint32 hand_over_type = 0;
-    guint32 origin_type = 0;
+    uint32_t hand_over_type = 0;
+    uint32_t origin_type = 0;
     int remaning_data = 0;
     int capacity_type_flag = 0;
     int traffic_burst_type = 0;
@@ -959,13 +959,13 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     int group_count = 0;
     int version_length = 0;
 
-    guint8 desc_tag, desc_length;
+    uint8_t desc_tag, desc_length;
     proto_tree *dvb_s2_hdr_table_desc_tree, *dvb_s2_hdr_table_mac24_tree, *dvb_s2_hdr_table_lls_tree,
                *dvb_s2_hdr_table_rc_tree, *dvb_s2_hdr_table_raac_tree, *dvb_s2_hdr_table_network_routing_tree;
     proto_item *ti;
 
-    guint8 mac24_count, cur_mac24, lls_count, cur_lls, rc_count, cur_rc, raac_count, cur_raac;
-    guint8 dedicated_access, random_access, constant_assign_provided, volume_allowed, defaults_field_size;
+    uint8_t mac24_count, cur_mac24, lls_count, cur_lls, rc_count, cur_rc, raac_count, cur_raac;
+    uint8_t dedicated_access, random_access, constant_assign_provided, volume_allowed, defaults_field_size;
 
     for(cur_desc=0 ; cur_desc<=desc_loop_count ; cur_desc++)
     {
@@ -1367,7 +1367,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 }
                 break;
             case (DVB_S2_TABLE_DESC_NETWORK_LAYER_INFO):
-                dissect_snmp_pdu(tvb, cur_off + new_off, pinfo, dvb_s2_hdr_table_desc_tree, 1, ett_dvb_s2_hdr_table_desc, FALSE);
+                dissect_snmp_pdu(tvb, cur_off + new_off, pinfo, dvb_s2_hdr_table_desc_tree, 1, ett_dvb_s2_hdr_table_desc, false);
                 new_off += desc_length;
                 break;
             case (DVB_S2_TABLE_DESC_CORRECTION_CONTROL):
@@ -1484,7 +1484,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
 static int dissect_dvb_s2_table_sct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree)
 {
     int sf_start_offset, new_off = 0;
-    guint8      superframe_loop_count, frame_loop_count;
+    uint8_t     superframe_loop_count, frame_loop_count;
     int         cur_sf, cur_frame;
     proto_item *ti, *tf;
 
@@ -1545,7 +1545,7 @@ static int dissect_dvb_s2_table_sct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     return new_off;
 }
 
-static int dissect_dvb_s2_table_tim(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, gboolean isUnicast, packet_info *pinfo)
+static int dissect_dvb_s2_table_tim(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, bool isUnicast, packet_info *pinfo)
 {
     int desc_loop_count, new_off = 0;
     int table_id = 0;
@@ -1574,10 +1574,10 @@ static int dissect_dvb_s2_table_tim(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
 }
 
 
-static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, guint16 table_len)
+static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, uint16_t table_len)
 {
     int frame_loop_count, frame_start_offset, btp_start_offset, cur_frame, btp_loop_count, btp, new_off = 0;
-    guint8 multiple_channel_flag = 0;
+    uint8_t multiple_channel_flag = 0;
     proto_item *ti, *tf;
     proto_tree *dvb_s2_hdr_tbtp_frame_tree, *dvb_s2_hdr_tbtp_frame_btp_tree;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_tbtp_group_id, tvb, cur_off + new_off, 1, ENC_NA);
@@ -1631,11 +1631,11 @@ static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb
 }
 
 
-static int dissect_dvb_s2_table_tbtp2(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, guint16 table_len)
+static int dissect_dvb_s2_table_tbtp2(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, uint16_t table_len)
 {
     int frame_loop_count, frame_start_offset, assign_start_offset, cur_frame, cur_assign, new_off = 0;
-    guint16 assignment_loop_count;
-    guint8 assignment_format = 0;
+    uint16_t assignment_loop_count;
+    uint8_t assignment_format = 0;
     proto_item *ti, *tf;
     proto_tree *dvb_s2_hdr_table_frame_tree, *dvb_s2_hdr_table_frame_assign_tree;
 
@@ -1810,7 +1810,7 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     proto_tree  *dvb_s2_hdr_table_txtype_tree, *dvb_s2_hdr_table_txtype_uwsegment_tree,
                 *dvb_s2_hdr_table_txtype_ypattern_tree, *dvb_s2_hdr_table_txtype_wpattern_tree,
                 *dvb_s2_hdr_table_txtype_uwsymbol_tree;
-    guint8 tx_format, tx_type, y_period, w_period, modulation_scheme, param_interleaver;
+    uint8_t tx_format, tx_type, y_period, w_period, modulation_scheme, param_interleaver;
 
     txtype_count = tvb_get_guint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_tx_type_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
@@ -2174,10 +2174,10 @@ static int dissect_dvb_s2_table_smt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     return new_off;
 }
 
-static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, guint8 table_id, packet_info *pinfo)
+static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, uint8_t table_id, packet_info *pinfo)
 {
     int desc_off, desc_count, max_multiplex_off, mux_start_off, new_off = 0;
-    guint16 network_descriptors_length, multiplex_streams_spec_length, transport_descriptors_length;
+    uint16_t network_descriptors_length, multiplex_streams_spec_length, transport_descriptors_length;
     proto_item *ti;
     proto_tree  *dvb_s2_hdr_table_multiplex_tree;
 
@@ -2244,7 +2244,7 @@ static int dissect_dvb_s2_table_mmt2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     int protocol_count, cur_protocol, pt_start_off, ms_count, cur_ms, ms_start_off, exclusion_count, cur_exclusion, new_off = 0;
     proto_item *ti_pt, *ti_ms, *ti_exc;
     proto_tree  *dvb_s2_hdr_table_protocol_tree, *dvb_s2_hdr_table_protocol_ms_tree, *dvb_s2_hdr_table_protocol_ms_excl_tree;
-    guint8 address_size;
+    uint8_t address_size;
 
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_svn_number, tvb, cur_off + new_off, 2, ENC_NA);
     new_off += 2;
@@ -2303,15 +2303,15 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int         new_off                      = 0;
     int         cur_off                      = 0;
-    guint16     data_len                     = 0;
-    guint8      table_id                     = 0;
-    guint8      mac_1 = 0;
-    guint8      mac_2 = 0;
-    guint8      mac_3 = 0;
-    guint8      mac_4 = 0;
-    guint8      mac_5 = 0;
-    guint8      mac_6 = 0;
-    gboolean    dvb_s2_isUnicast         = TRUE;
+    uint16_t    data_len                     = 0;
+    uint8_t     table_id                     = 0;
+    uint8_t     mac_1 = 0;
+    uint8_t     mac_2 = 0;
+    uint8_t     mac_3 = 0;
+    uint8_t     mac_4 = 0;
+    uint8_t     mac_5 = 0;
+    uint8_t     mac_6 = 0;
+    bool        dvb_s2_isUnicast         = true;
 
     proto_item *ti = NULL;
     proto_tree *dvb_s2_hdr_table_tree;
@@ -4519,7 +4519,7 @@ void proto_register_dvb_s2_table(void)
         }
     };
 
-    static gint *ett_table[] = {
+    static int *ett_table[] = {
         &ett_dvb_s2_hdr_table,
         &ett_dvb_s2_hdr_table_sf,
         &ett_dvb_s2_hdr_table_network_routing,
@@ -4569,7 +4569,7 @@ void proto_register_dvb_s2_table(void)
                                    "defines RCS protocol version",
                                    "defines the RCS protocol version used in table dissection",
                                    &dvb_s2_rcs_version,
-                                   rcs_version, FALSE);
+                                   rcs_version, false);
 }
 
 void proto_reg_handoff_dvb_s2_table(void)

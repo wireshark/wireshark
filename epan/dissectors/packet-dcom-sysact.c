@@ -21,18 +21,18 @@ void proto_reg_handoff_ISystemActivator(void);
 
 static int proto_ISystemActivator;
 
-static gint ett_isystemactivator;
+static int ett_isystemactivator;
 static int hf_opnum;
 static int hf_sysact_actproperties;
 /* static int hf_sysact_unknown; */
 
-static gint ett_actproperties;
+static int ett_actproperties;
 static int hf_sysact_totalsize;
 static int hf_sysact_res;
 
-static gint ett_commonheader;
-static gint ett_propguids;
-static gint ett_properties;
+static int ett_commonheader;
+static int ett_propguids;
+static int ett_properties;
 static int hf_sysact_customhdrsize;
 static int hf_sysact_dstctx;
 static int hf_sysact_actpropnumber;
@@ -43,8 +43,8 @@ static int hf_sysact_actpropclsid;
 static int hf_sysact_actpropsize;
 
 
-static gint ett_dcom_spclsysprop;
-static gint ett_dcom_reserved;
+static int ett_dcom_spclsysprop;
+static int ett_dcom_reserved;
 static int hf_sysact_spsysprop_sid;
 static int hf_sysact_spsysprop_remotethissid;
 static int hf_sysact_spsysprop_cltimpersonating;
@@ -57,7 +57,7 @@ static int hf_sysact_spsysprop_flags;
 /* static int hf_sysact_spsysprop_procid; */
 /* static int hf_sysact_spsysprop_hwnd; */
 
-static gint ett_dcom_instantianinfo;
+static int ett_dcom_instantianinfo;
 static int hf_sysact_instninfo_clsid;
 static int hf_sysact_instninfo_clsctx;
 static int hf_sysact_instninfo_actflags;
@@ -67,18 +67,18 @@ static int hf_sysact_instninfo_instflags;
 static int hf_sysact_instninfo_entiresize;
 static int hf_sysact_instninfo_iid;
 
-static gint ett_dcom_actctxinfo;
+static int ett_dcom_actctxinfo;
 static int hf_sysact_actctxinfo_cltok;
 static int hf_sysact_context;
 
-static gint ett_dcom_instanceinfo;
+static int ett_dcom_instanceinfo;
 static int hf_sysact_instinfo_mode;
 static int hf_sysact_instinfo_stg;
 
-static gint ett_dcom_istorage;
+static int ett_dcom_istorage;
 static int hf_sysact_istg;
 
-static gint ett_dcom_context;
+static int ett_dcom_context;
 static int hf_sysact_ctx_id;
 static int hf_sysact_ctx_flags;
 static int hf_sysact_ctx_res;
@@ -88,42 +88,42 @@ static int hf_sysact_ctx_mashflags;
 static int hf_sysact_ctx_count;
 static int hf_sysact_ctx_frozen;
 
-static gint ett_dcom_securityinfo;
+static int ett_dcom_securityinfo;
 static int hf_sysact_si_authflalgs;
 static int hf_sysact_si_ci_res;
 static int hf_sysact_si_ci_string;
 static int hf_sysact_si_serverinfo;
 
-static gint ett_dcom_locationinfo;
+static int ett_dcom_locationinfo;
 static int hf_sysact_li_string;
 static int hf_sysact_li_procid;
 static int hf_sysact_li_apartid;
 static int hf_sysact_li_ctxid;
 
-static gint ett_dcom_scmrqstinfo;
-static gint ett_dcom_rmtrqst;
+static int ett_dcom_scmrqstinfo;
+static int ett_dcom_rmtrqst;
 
 static int hf_sysact_sri_cltimplvl;
 static int hf_sysact_sri_protseqnum;
 static int hf_sysact_sri_protseq;
 
-static gint ett_dcom_propsoutput;
+static int ett_dcom_propsoutput;
 static int hf_sysact_pi_ifnum;
 static int hf_sysact_pi_retval;
 static int hf_sysact_pi_interf;
 static int hf_sysact_pi_iid;
 
-static gint ett_dcom_scmrespinfo;
-static gint ett_dcom_rmtresp;
-static gint ett_dcom_oxidbinding;
+static int ett_dcom_scmrespinfo;
+static int ett_dcom_rmtresp;
+static int ett_dcom_oxidbinding;
 static int hf_sysact_scmri_rmtunknid;
 static int hf_sysact_scmri_authhint;
 static int hf_sysact_scmri_binding;
 static int hf_sysact_scmri_oxid;
 static int hf_sysact_unused_buffer;
 
-static gint ett_typeszcommhdr;
-static gint ett_typeszprivhdr;
+static int ett_typeszcommhdr;
+static int ett_typeszprivhdr;
 static int hf_typeszch;
 static int hf_typeszph;
 static int hf_typesz_ver;
@@ -133,7 +133,7 @@ static int hf_typesz_filler;
 static int hf_typesz_buflen;
 
 static e_guid_t uuid_ISystemActivator = { 0x000001a0, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
-static guint16  ver_ISystemActivator;
+static uint16_t ver_ISystemActivator;
 
 /*static e_guid_t clsid_ActivationPropertiesIn = { 0x00000338, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };*/
 /*static e_guid_t clsid_ActivationPropertiesOut = { 0x00000339, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };*/
@@ -185,21 +185,21 @@ static const value_string ts_endian_vals[] = {
 
 typedef struct property_guids {
     e_guid_t guid[MAX_ACTPROP_LIMIT];
-    guint32  size[MAX_ACTPROP_LIMIT];
-    guint32  id_idx;
-    guint32  size_idx;
+    uint32_t size[MAX_ACTPROP_LIMIT];
+    uint32_t id_idx;
+    uint32_t size_idx;
 } property_guids_t;
 
 /* Type Serialization Version 1 */
 static int
-dissect_TypeSzCommPrivHdr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_TypeSzCommPrivHdr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    guint8 drep_tmp;
-    guint8 endian = 0x10;
-    gint   old_offset;
+    uint8_t drep_tmp;
+    uint8_t endian = 0x10;
+    int    old_offset;
 
     /* Common Header use little endian */
     sub_item = proto_tree_add_item(tree, hf_typeszch, tvb, offset, 0, ENC_NA);
@@ -239,8 +239,8 @@ dissect_TypeSzCommPrivHdr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 static int
-dissect_dcom_Property_Guid(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                            proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_Property_Guid(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                            proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     property_guids_t *pg;
 
@@ -260,16 +260,16 @@ dissect_dcom_Property_Guid(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_ActivationPropertiesCustomerHdr_PropertyGuids(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ActivationPropertiesCustomerHdr_PropertyGuids(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, dissect_dcom_Property_Guid);
     return offset;
 }
 
 static int
-dissect_dcom_Property_Size(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                            proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_Property_Size(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                            proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     property_guids_t *pg;
 
@@ -289,21 +289,21 @@ dissect_dcom_Property_Size(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_ActivationPropertiesCustomerHdr_PropertySizes(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ActivationPropertiesCustomerHdr_PropertySizes(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, dissect_dcom_Property_Size);
     return offset;
 }
 
 static int
-dissect_dcom_ActivationPropertiesCustomerHdr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ActivationPropertiesCustomerHdr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32   u32TotalSize;
-    guint32   u32CustomHdrSize;
-    guint32   u32ActPropNumber;
-    gint      old_offset;
+    uint32_t  u32TotalSize;
+    uint32_t  u32CustomHdrSize;
+    uint32_t  u32ActPropNumber;
+    int       old_offset;
 
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -344,8 +344,8 @@ dissect_dcom_ActivationPropertiesCustomerHdr(tvbuff_t *tvb, gint offset, packet_
 
 
 static int
-dissect_dcom_ActivationProperty(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, e_guid_t *clsid, gint size)
+dissect_dcom_ActivationProperty(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, e_guid_t *clsid, int size)
 {
     dcom_dissect_fn_t routine = NULL;
 
@@ -361,16 +361,16 @@ dissect_dcom_ActivationProperty(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 static int
-dissect_dcom_ActivationPropertiesBody(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ActivationPropertiesBody(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gint      old_offset;
+    int       old_offset;
 
     proto_item *sub_item;
     proto_tree *sub_tree;
     property_guids_t *pg;
-    guint32 i;
-    guint32 min_idx;
+    uint32_t i;
+    uint32_t min_idx;
 
     pg = (property_guids_t*)di->private_data;
 
@@ -395,15 +395,15 @@ dissect_dcom_ActivationPropertiesBody(tvbuff_t *tvb, gint offset, packet_info *p
 }
 
 static int
-dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size _U_)
+dissect_dcom_ActivationProperties(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size _U_)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
     property_guids_t *old_pg = NULL;
 
-    guint32    u32TotalSize;
-    guint32    u32Res;
+    uint32_t   u32TotalSize;
+    uint32_t   u32Res;
 
     sub_item = proto_tree_add_item(tree, hf_sysact_actproperties, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_actproperties);
@@ -427,12 +427,12 @@ dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo
 
 
 static int
-dissect_dcom_IStorage(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size _U_)
+dissect_dcom_IStorage(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size _U_)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    gint        old_offset;
+    int         old_offset;
 
     old_offset = offset;
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_dcom_istorage, &sub_item, "IStorage");
@@ -445,14 +445,14 @@ dissect_dcom_IStorage(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_IContext(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size _U_)
+dissect_dcom_IContext(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size _U_)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    gint        old_offset;
+    int         old_offset;
 
-    guint32    u32Count;
+    uint32_t   u32Count;
 
     old_offset = offset;
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_dcom_context, &sub_item, "Context");
@@ -487,11 +487,11 @@ dissect_dcom_IContext(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree, *tr;
-    gint old_offset, len, i;
+    int old_offset, len, i;
 
     old_offset = offset;
 
@@ -530,7 +530,7 @@ dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, gint offset, packet_info *pi
  *            hf_sysact_spsysprop_hwnd, NULL);
  *
  */
-    tr = proto_tree_add_subtree(sub_tree, tvb, offset, sizeof(guint32)*8,
+    tr = proto_tree_add_subtree(sub_tree, tvb, offset, sizeof(uint32_t)*8,
                              ett_dcom_reserved, NULL, "Reserved: 8 DWORDs");
     for (i = 0; i < 8; i++) {
         offset = dissect_dcom_DWORD(tvb, offset, pinfo, tr, di, drep,
@@ -551,8 +551,8 @@ dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, gint offset, packet_info *pi
 }
 
 static int
-dissect_dcom_InterfaceId(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                            proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_InterfaceId(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                            proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, di, drep,
                         hf_sysact_instninfo_iid, NULL);
@@ -560,8 +560,8 @@ dissect_dcom_InterfaceId(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_InstantiationInfoIids(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_InstantiationInfoIids(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
             dissect_dcom_InterfaceId);
@@ -570,11 +570,11 @@ dissect_InstantiationInfoIids(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_InstantiationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_InstantiationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -625,8 +625,8 @@ dissect_dcom_InstantiationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_ActCtxInfo_PropCtx(tvbuff_t *tvb _U_, gint offset,
-        packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+dissect_ActCtxInfo_PropCtx(tvbuff_t *tvb _U_, int offset,
+        packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
     /*TBD*/
     return offset;
@@ -634,8 +634,8 @@ dissect_ActCtxInfo_PropCtx(tvbuff_t *tvb _U_, gint offset,
 
 
 static int
-dissect_ActCtxInfo_CltCtx(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_ActCtxInfo_CltCtx(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     if (di->conformant_run) {
         return offset;
@@ -647,11 +647,11 @@ dissect_ActCtxInfo_CltCtx(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -696,8 +696,8 @@ dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, gint offset, packet_info *pinf
 
 
 static int
-dissect_InstInfo_IfdROT(tvbuff_t *tvb _U_, gint offset,
-        packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+dissect_InstInfo_IfdROT(tvbuff_t *tvb _U_, int offset,
+        packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
     /*TBD*/
     return offset;
@@ -705,8 +705,8 @@ dissect_InstInfo_IfdROT(tvbuff_t *tvb _U_, gint offset,
 
 
 static int
-dissect_InstInfo_IfdStg(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_InstInfo_IfdStg(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     if (di->conformant_run) {
         return offset;
@@ -719,11 +719,11 @@ dissect_InstInfo_IfdStg(tvbuff_t *tvb, gint offset,
 
 
 static int
-dissect_dcom_InstanceInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-              proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_InstanceInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+              proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -775,12 +775,12 @@ dissect_dcom_InstanceInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 static int
-dissect_dcom_COSERVERINFO(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex)
+dissect_dcom_COSERVERINFO(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    gint old_offset;
+    int old_offset;
 
     if (di->conformant_run) {
         return offset;
@@ -808,8 +808,8 @@ dissect_dcom_COSERVERINFO(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_SI_ServerInfo(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_SI_ServerInfo(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_COSERVERINFO(tvb, offset, pinfo, tree, di, drep,
             hf_sysact_si_serverinfo);
@@ -817,11 +817,11 @@ dissect_dcom_SI_ServerInfo(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_SecurtiyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_SecurtiyInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -857,11 +857,11 @@ dissect_dcom_SecurtiyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_LocationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_LocationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -902,8 +902,8 @@ dissect_dcom_LocationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_ProtoSeq(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ProtoSeq(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                        proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                         hf_sysact_sri_protseq, NULL);
@@ -912,8 +912,8 @@ dissect_dcom_ProtoSeq(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_ProtoSeqArray(tvbuff_t *tvb, gint offset,
-                    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ProtoSeqArray(tvbuff_t *tvb, int offset,
+                    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
             dissect_dcom_ProtoSeq);
@@ -921,12 +921,12 @@ dissect_dcom_ProtoSeqArray(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_customREMOTE_REQUEST_SCM_INFO(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_customREMOTE_REQUEST_SCM_INFO(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    gint old_offset;
+    int old_offset;
 
     if (di->conformant_run) {
         return offset;
@@ -949,11 +949,11 @@ dissect_dcom_customREMOTE_REQUEST_SCM_INFO(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_ScmRqstInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_ScmRqstInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -989,8 +989,8 @@ dissect_dcom_ScmRqstInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_IfId(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_IfId(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                        proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, di, drep,
             hf_sysact_pi_iid, NULL);
@@ -998,8 +998,8 @@ dissect_dcom_IfId(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_IfIds(tvbuff_t *tvb, gint offset,
-                    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_IfIds(tvbuff_t *tvb, int offset,
+                    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
             dissect_dcom_IfId);
@@ -1007,8 +1007,8 @@ dissect_dcom_IfIds(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_ReturnVal(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                            proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ReturnVal(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                            proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                         hf_sysact_pi_retval, NULL);
@@ -1016,8 +1016,8 @@ dissect_dcom_ReturnVal(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_ReturnVals(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_ReturnVals(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
             dissect_dcom_ReturnVal);
@@ -1025,8 +1025,8 @@ dissect_dcom_ReturnVals(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_OneInterfData(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_OneInterfData(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, di, drep,
             hf_sysact_pi_interf, NULL);
@@ -1034,8 +1034,8 @@ dissect_OneInterfData(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_OneInterfDataPtr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                            proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_OneInterfDataPtr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                            proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep,
             dissect_OneInterfData, NDR_POINTER_UNIQUE, "InterfacePtr", -1);
@@ -1047,8 +1047,8 @@ dissect_dcom_OneInterfDataPtr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * the interfaces returned by the server.
  */
 static int
-dissect_dcom_InterfData(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_InterfData(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
             dissect_dcom_OneInterfDataPtr);
@@ -1057,11 +1057,11 @@ dissect_dcom_InterfData(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_dcom_PropsOutInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_PropsOutInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -1108,12 +1108,12 @@ dissect_dcom_PropsOutInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  *} DUALSTRINGARRAY;
  */
 static int
-dissect_dcom_OxidBindings(tvbuff_t *tvb, gint offset,
-                    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_OxidBindings(tvbuff_t *tvb, int offset,
+                    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    gint old_offset;
+    int old_offset;
 
     if (di->conformant_run) {
         return offset;
@@ -1132,12 +1132,12 @@ dissect_dcom_OxidBindings(tvbuff_t *tvb, gint offset,
 
 
 static int
-dissect_dcom_customREMOTE_REPLY_SCM_INFO(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+dissect_dcom_customREMOTE_REPLY_SCM_INFO(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    gint old_offset;
+    int old_offset;
 
     if (di->conformant_run) {
         return offset;
@@ -1165,11 +1165,11 @@ dissect_dcom_customREMOTE_REPLY_SCM_INFO(tvbuff_t *tvb, gint offset,
 
 
 static int
-dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size)
 {
     proto_tree *sub_tree;
-    gint old_offset, len;
+    int old_offset, len;
 
     old_offset = offset;
 
@@ -1226,7 +1226,7 @@ sysact_register_routines(void)
 
 static int
 dissect_remsysact_remotecreateinstance_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
     sysact_register_routines();
@@ -1242,7 +1242,7 @@ dissect_remsysact_remotecreateinstance_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remsysact_remotecreateinstance_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     sysact_register_routines();
 
@@ -1259,7 +1259,7 @@ dissect_remsysact_remotecreateinstance_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remsysact_remotegetclassobject_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     sysact_register_routines();
 
@@ -1272,7 +1272,7 @@ dissect_remsysact_remotegetclassobject_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remsysact_remotegetclassobject_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     sysact_register_routines();
 
@@ -1488,7 +1488,7 @@ proto_register_ISystemActivator (void)
 
 
     /* Tree */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_isystemactivator,
         &ett_actproperties,
         &ett_properties,

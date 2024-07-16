@@ -103,19 +103,19 @@ static int hf_dtpt_blob_data;
 static int hf_dtpt_connect_addr;
 static int hf_dtpt_padding;
 
-static gint ett_dtpt;
-static gint ett_dtpt_flags;
-static gint ett_dtpt_queryset;
-static gint ett_dtpt_wstring;
-static gint ett_dtpt_guid;
-static gint ett_dtpt_protocols;
-static gint ett_dtpt_protocol;
-static gint ett_dtpt_cs_addrs;
-static gint ett_dtpt_cs_addr1;
-static gint ett_dtpt_cs_addr2;
-static gint ett_dtpt_sockaddr;
-static gint ett_dtpt_blobraw;
-static gint ett_dtpt_blob;
+static int ett_dtpt;
+static int ett_dtpt_flags;
+static int ett_dtpt_queryset;
+static int ett_dtpt_wstring;
+static int ett_dtpt_guid;
+static int ett_dtpt_protocols;
+static int ett_dtpt_protocol;
+static int ett_dtpt_cs_addrs;
+static int ett_dtpt_cs_addr1;
+static int ett_dtpt_cs_addr2;
+static int ett_dtpt_sockaddr;
+static int ett_dtpt_blobraw;
+static int ett_dtpt_blob;
 
 
 
@@ -216,12 +216,12 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 
 static int
-dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, int hfindex)
+dissect_dtpt_wstring(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, int hfindex)
 {
-	guint32	wstring_length;
-	guint32	wstring_size;
+	uint32_t	wstring_length;
+	uint32_t	wstring_size;
 	char	*wstring_data = NULL;
-	guint32	wstring_padding = 0;
+	uint32_t	wstring_padding = 0;
 
 	wstring_length = tvb_get_letohl(tvb, offset);
 	wstring_data = tvb_get_string_enc(pinfo->pool, tvb, offset+4, wstring_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
@@ -252,16 +252,16 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info 
 }
 
 static int
-dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, int hfindex)
+dissect_dtpt_guid(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, int hfindex)
 {
-	guint32	guid_length;
+	uint32_t	guid_length;
 
 	guid_length = tvb_get_letohl(tvb, offset);
 	if (tree) {
 		e_guid_t	guid;
 		proto_item	*dtpt_guid_item = NULL;
 		proto_tree	*dtpt_guid_tree = NULL;
-		const gchar	*guid_name = NULL;
+		const char	*guid_name = NULL;
 
 		if (guid_length) {
 			tvb_get_guid(tvb, offset+4, &guid, ENC_LITTLE_ENDIAN);
@@ -300,13 +300,13 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pi
 }
 
 static int
-dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, int hfindex, int sockaddr_type)
+dissect_dtpt_sockaddr(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, int hfindex, int sockaddr_type)
 {
-	guint32	sockaddr_length = 0;
+	uint32_t	sockaddr_length = 0;
 	proto_item	*sockaddr_item = NULL;
 	proto_tree	*sockaddr_tree = NULL;
-	guint32		sockaddr_len1 = 0;
-	guint32		sockaddr_len2 = 0;
+	uint32_t		sockaddr_len1 = 0;
+	uint32_t		sockaddr_len2 = 0;
 
 	switch (sockaddr_type) {
 		case SOCKADDR_WITH_LEN:
@@ -336,14 +336,14 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
 	if (sockaddr_tree) {
 		switch (sockaddr_type) {
 			case SOCKADDR_WITH_LEN: {
-				guint16 family;
+				uint16_t family;
 
 				family = tvb_get_letohs(tvb, offset);
 				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
 						tvb, offset, 2, family);
 				switch (family) {
 					case WINSOCK_AF_INET: {
-						guint16 port;
+						uint16_t port;
 
 						port = tvb_get_ntohs(tvb,offset+2);
 						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
@@ -358,14 +358,14 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
 			}
 			break;
 			case SOCKADDR_CONNECT: {
-				guint32	family;
+				uint32_t	family;
 
 				family = tvb_get_letohl(tvb, offset+0);
 				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
 						tvb, offset+0, 4, family);
 				switch (family) {
 					case WINSOCK_AF_INET: {
-						guint16 port;
+						uint16_t port;
 
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+4, 4, ENC_NA);
 						port = tvb_get_ntohs(tvb,offset+8);
@@ -390,7 +390,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
 static int
 dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint		offset = 0;
+	unsigned		offset = 0;
 
 	/* First try to decode it as "normal" DTPT packets. */
 	offset = dissect_dtpt(tvb, pinfo, tree, NULL);
@@ -415,19 +415,19 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*dtpt_item;
 	proto_tree	*dtpt_tree;
 	proto_tree	*dtpt_queryset_tree;
-	guint		offset = 0;
-	guint32		queryset_rawsize;
-	guint32		queryset_size;
-	guint32		num_protocols;
-	guint32		protocols_length = 0;
-	guint32		addrs_start;
-	guint32		num_addrs;
-	guint32		addrs_length1 = 0;
+	unsigned		offset = 0;
+	uint32_t		queryset_rawsize;
+	uint32_t		queryset_size;
+	uint32_t		num_protocols;
+	uint32_t		protocols_length = 0;
+	uint32_t		addrs_start;
+	uint32_t		num_addrs;
+	uint32_t		addrs_length1 = 0;
 	proto_item	*dtpt_addrs_item = NULL;
 	proto_tree	*dtpt_addrs_tree = NULL;
-	guint32		blob_rawsize = 0;
-	guint32		blob_size = 0;
-	guint32		blob_data_length;
+	uint32_t		blob_rawsize = 0;
+	uint32_t		blob_size = 0;
+	uint32_t		blob_data_length;
 
 	queryset_rawsize = tvb_get_letohl(tvb, offset + 0);
 	if (queryset_rawsize != 60) return 0;
@@ -493,7 +493,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (dtpt_tree) {
 		proto_tree	*dtpt_protocols_tree = NULL;
-		guint32		i;
+		uint32_t		i;
 
 		dtpt_protocols_tree = proto_tree_add_subtree_format(dtpt_tree,
 				tvb, offset, 4+(num_protocols>0?4:0)+num_protocols*8,
@@ -540,8 +540,8 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4 + (num_addrs>0?4:0);
 
 	if (num_addrs>0) {
-		guint32	i;
-		guint32	offset2;
+		uint32_t	i;
+		uint32_t	offset2;
 
 		offset2 = offset + 24*num_addrs;
 
@@ -549,7 +549,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree	*dtpt_addr1_tree = NULL;
 			proto_item	*dtpt_addr2_item = NULL;
 			proto_tree	*dtpt_addr2_tree = NULL;
-			guint32		offset2_start;
+			uint32_t		offset2_start;
 
 			if (dtpt_addrs_tree) {
 				dtpt_addr1_tree = proto_tree_add_subtree_format(dtpt_addrs_tree,
@@ -642,9 +642,9 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
 	proto_tree	*dtpt_tree;
 	proto_item	*dtpt_item;
-	guint8		version;
-	guint8		message_type;
-	guint32		payload_size;
+	uint8_t		version;
+	uint8_t		message_type;
+	uint32_t		payload_size;
 
 	version = tvb_get_guint8(tvb, 0);
 	if (version != 1) return 0;
@@ -1138,7 +1138,7 @@ proto_register_dtpt(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dtpt,
 		&ett_dtpt_flags,
 		&ett_dtpt_queryset,

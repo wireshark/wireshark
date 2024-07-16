@@ -192,7 +192,7 @@ proto_register_ddtp(void)
             NULL, HFILL }},
     };
 
-    static gint *ett[] = { &ett_ddtp };
+    static int *ett[] = { &ett_ddtp };
 
     static ei_register_info ei[] = {
         { &ei_ddtp_msgtype, { "ddtp.msgtype.unknown", PI_PROTOCOL, PI_WARN, "Unknown type", EXPFILL }},

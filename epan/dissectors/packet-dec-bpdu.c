@@ -65,8 +65,8 @@ static int hf_dec_bpdu_hello_time;
 static int hf_dec_bpdu_max_age;
 static int hf_dec_bpdu_forward_delay;
 
-static gint ett_dec_bpdu;
-static gint ett_dec_bpdu_flags;
+static int ett_dec_bpdu;
+static int ett_dec_bpdu_flags;
 
 static const value_string protocol_id_vals[] = {
     { 0xe1, "DEC Spanning Tree Protocol" },
@@ -85,7 +85,7 @@ static const value_string bpdu_type_vals[] = {
 static int
 dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8  bpdu_type;
+    uint8_t bpdu_type;
     proto_tree *bpdu_tree;
     proto_item *ti;
     static int * const bpdu_flags[] = {
@@ -220,7 +220,7 @@ proto_register_dec_bpdu(void)
             FT_UINT8,       BASE_DEC,       NULL,   0x0,
             NULL, HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dec_bpdu,
         &ett_dec_bpdu_flags,
     };

@@ -21,18 +21,18 @@ static int proto_drb;
 
 static int hf_drb_len;
 
-static gint ett_drb;
-static gint ett_ref;
+static int ett_drb;
+static int ett_ref;
 
 void proto_register_drb(void);
 void proto_reg_handoff_drb(void);
 
-static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label)
+static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset, const char* label)
 {
-	guint32 len;
+	uint32_t len;
 	proto_tree* obj_tree;
-	gchar* type;
-	gchar* value;
+	char* type;
+	char* value;
 
 	len = tvb_get_guint32(tvb, *offset, ENC_BIG_ENDIAN);
 	obj_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 + len, ett_ref, NULL, label);
@@ -45,19 +45,19 @@ static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 		proto_item_append_text(obj_tree, "Value: %s", value);
 }
 
-static void dissect_drb_response(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
+static void dissect_drb_response(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset)
 {
 	col_append_str(pinfo->cinfo, COL_INFO, " (response)");
 	dissect_drb_object(tvb, pinfo, tree, offset, "Success");
 	dissect_drb_object(tvb, pinfo, tree, offset, "Response");
 }
 
-static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
+static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset)
 {
-	gint32 nargs;
-	gint32 i;
-	gint len;
-	gchar* loop_label;
+	int32_t nargs;
+	int32_t i;
+	int len;
+	char* loop_label;
 
 	col_append_str(pinfo->cinfo, COL_INFO, " (request)");
 	dissect_drb_object(tvb, pinfo, tree, offset, "Ref");
@@ -73,10 +73,10 @@ static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 
 static int dissect_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_tree* ti;
 	proto_tree* drb_tree;
-	guint8 type;
+	uint8_t type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRb");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -104,7 +104,7 @@ void proto_register_drb(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint* ett[] = {
+	static int* ett[] = {
 		&ett_drb,
 		&ett_ref
 	};

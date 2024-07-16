@@ -21,7 +21,7 @@ void proto_register_dplay(void);
 void proto_reg_handoff_dplay(void);
 
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset);
+static int dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, int offset);
 
 static int proto_dplay;
 
@@ -265,19 +265,19 @@ static int hf_dplay_type_29_password;
 static int hf_dplay_type_2f_dpid;
 
 /* various */
-static gint ett_dplay;
-static gint ett_dplay_header;
-static gint ett_dplay_sockaddr;
-static gint ett_dplay_data;
-static gint ett_dplay_enc_packet;
-static gint ett_dplay_flags;
-static gint ett_dplay_sess_desc_flags;
-static gint ett_dplay_pp_flags;
-static gint ett_dplay_spp_flags;
-static gint ett_dplay_spp_info_mask;
-static gint ett_dplay_type02_flags;
-static gint ett_dplay_type05_flags;
-static gint ett_dplay_type29_spp;
+static int ett_dplay;
+static int ett_dplay_header;
+static int ett_dplay_sockaddr;
+static int ett_dplay_data;
+static int ett_dplay_enc_packet;
+static int ett_dplay_flags;
+static int ett_dplay_sess_desc_flags;
+static int ett_dplay_pp_flags;
+static int ett_dplay_spp_flags;
+static int ett_dplay_spp_info_mask;
+static int ett_dplay_type02_flags;
+static int ett_dplay_type05_flags;
+static int ett_dplay_type29_spp;
 
 static const value_string dplay_command_val[] = {
     { 0x0001, "Enum Sessions Reply" },
@@ -385,10 +385,10 @@ static const value_string yes_no_val[] = {
 
 
 /* borrowed from epan/dissectors/packets-smb-common.c */
-static gint display_unicode_string(proto_tree *tree, gint hf_index, tvbuff_t *tvb, gint offset)
+static int display_unicode_string(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset)
 {
     char *str;
-    gint len;
+    int len;
 
     /* display a unicode string from the tree and return new offset */
 
@@ -398,7 +398,7 @@ static gint display_unicode_string(proto_tree *tree, gint hf_index, tvbuff_t *tv
     return  offset+len;
 }
 
-static gint dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_tree *sa_tree;
 
@@ -411,7 +411,7 @@ static gint dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     static int * const flags[] = {
         &hf_dplay_flags_no_sess_desc_changes,
@@ -454,10 +454,10 @@ static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 sn_len, ln_len, sd_len, pd_len, num_players, i;
-    gint size;
+    uint32_t sn_len, ln_len, sd_len, pd_len, num_players, i;
+    int size;
     static int * const flags[] = {
         &hf_dplay_pp_flag_sending,
         &hf_dplay_pp_flag_in_group,
@@ -514,9 +514,9 @@ static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint spp_get_value(guint32 length_type, tvbuff_t *tvb, gint offset, guint32 *value)
+static int spp_get_value(uint32_t length_type, tvbuff_t *tvb, int offset, uint32_t *value)
 {
-    gint len = 0;
+    int len = 0;
 
     *value = 0;
 
@@ -538,15 +538,15 @@ static gint spp_get_value(guint32 length_type, tvbuff_t *tvb, gint offset, guint
     return len;
 }
 
-static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 flags, is_sysplayer, info_mask;
-    guint32 have_short_name, have_long_name, sp_length_type, pd_length_type;
-    guint32 player_count_type, have_parent_id, shortcut_count_type;
-    guint32 player_data_length, sp_data_length, player_count, shortcut_count;
+    uint32_t flags, is_sysplayer, info_mask;
+    uint32_t have_short_name, have_long_name, sp_length_type, pd_length_type;
+    uint32_t player_count_type, have_parent_id, shortcut_count_type;
+    uint32_t player_data_length, sp_data_length, player_count, shortcut_count;
     proto_item *im_item = NULL;
     proto_tree *im_tree = NULL;
-    gint len;
+    int len;
     static int * const ssp_flags[] = {
         &hf_dplay_spp_flags_sending,
         &hf_dplay_spp_flags_in_group,
@@ -616,7 +616,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     }
 
     if (player_count_type) {
-        guint32 i;
+        uint32_t i;
 
         len = spp_get_value(player_count_type, tvb, offset, &player_count);
         proto_tree_add_item(tree, hf_dplay_spp_player_count, tvb, offset, len, ENC_LITTLE_ENDIAN);
@@ -631,7 +631,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     }
 
     if (shortcut_count_type) {
-        guint32 i;
+        uint32_t i;
 
         len = spp_get_value(shortcut_count_type, tvb, offset, &shortcut_count);
         proto_tree_add_item(tree, hf_dplay_spp_shortcut_count, tvb, offset, len, ENC_LITTLE_ENDIAN);
@@ -644,7 +644,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     return offset;
 }
 
-static gint dissect_security_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_security_desc(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_tree_add_item(tree, hf_dplay_sd_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_sd_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
@@ -655,9 +655,9 @@ static gint dissect_security_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_dplay_header(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_dplay_header(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 mixed, size, token;
+    uint32_t mixed, size, token;
 
     mixed = tvb_get_letohl(tvb, offset);
     size = mixed & 0x000FFFFF;
@@ -673,9 +673,9 @@ static gint dissect_dplay_header(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type01_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type01_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 name_offset;
+    uint32_t name_offset;
 
     offset = dissect_session_desc(tree, tvb, offset);
     name_offset = tvb_get_letohl(tvb, offset);
@@ -687,9 +687,9 @@ static gint dissect_type01_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 passwd_offset;
+    uint32_t passwd_offset;
     static int * const flags[] = {
         &hf_enum_sess_flag_passwd,
         &hf_enum_sess_flag_all,
@@ -709,7 +709,7 @@ static gint dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type05_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type05_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     static int * const flags[] = {
         &hf_dplay_type_05_secure,
@@ -725,9 +725,9 @@ static gint dissect_type05_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type07_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type07_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 sspi_offset, capi_offset;
+    uint32_t sspi_offset, capi_offset;
 
     proto_tree_add_item(tree, hf_dplay_type_07_dpid, tvb, offset, 4, ENC_NA); offset += 4;
     offset = dissect_security_desc(tree, tvb, offset);
@@ -750,9 +750,9 @@ static gint dissect_type07_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_player_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_player_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 pp_ofs;
+    uint32_t pp_ofs;
 
     proto_tree_add_item(tree, hf_dplay_multi_id_to, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_multi_player_id, tvb, offset, 4, ENC_NA); offset += 4;
@@ -767,9 +767,9 @@ static gint dissect_player_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type0f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type0f_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 data_size;
+    uint32_t data_size;
 
     proto_tree_add_item(tree, hf_dplay_type_0f_id_to, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_type_0f_id, tvb, offset, 4, ENC_NA); offset += 4;
@@ -782,9 +782,9 @@ static gint dissect_type0f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type13_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type13_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 pp_ofs, pw_ofs;
+    uint32_t pp_ofs, pw_ofs;
 
     proto_tree_add_item(tree, hf_dplay_type_13_id_to, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_type_13_player_id, tvb, offset, 4, ENC_NA); offset += 4;
@@ -802,9 +802,9 @@ static gint dissect_type13_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type15_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type15_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint16 second_message_type;
+    uint16_t second_message_type;
     proto_tree *enc_tree;
     second_message_type = tvb_get_letohs(tvb, 72);
 
@@ -850,7 +850,7 @@ static gint dissect_type15_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_ping_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_ping_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_tree_add_item(tree, hf_dplay_ping_id_from, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_ping_tick_count, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
@@ -858,9 +858,9 @@ static gint dissect_ping_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 sn_ofs, pw_ofs;
+    uint32_t sn_ofs, pw_ofs;
 
     proto_tree_add_item(tree, hf_dplay_type_1a_id_to, tvb, offset, 4, ENC_NA); offset += 4;
     sn_ofs = tvb_get_letohl(tvb, offset);
@@ -880,11 +880,11 @@ static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type29_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type29_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 password_offset = tvb_get_letohl(tvb, offset + 24);
-    gint player_count, group_count, shortcut_count;
-    gint i;
+    uint32_t password_offset = tvb_get_letohl(tvb, offset + 24);
+    int player_count, group_count, shortcut_count;
+    int i;
 
     player_count = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_type_29_player_count, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
@@ -927,7 +927,7 @@ static gint dissect_type29_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static gint dissect_type2f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_type2f_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_tree_add_item(tree, hf_dplay_type_2f_dpid, tvb, offset, 4, ENC_NA); offset += 4;
     return offset;
@@ -935,17 +935,17 @@ static gint dissect_type2f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 message_type;
-    guint16 second_message_type = G_MAXUINT16;
-    guint16 proto_version;
-    guint32 dplay_id;
-    guint8 play_id[] = {'p','l','a','y'};
+    uint16_t message_type;
+    uint16_t second_message_type = UINT16_MAX;
+    uint16_t proto_version;
+    uint32_t dplay_id;
+    uint8_t play_id[] = {'p','l','a','y'};
 
     dplay_id = tvb_get_letohl(tvb, 20);
     message_type = tvb_get_letohs(tvb, 24);
     proto_version = tvb_get_letohs(tvb, 26);
 
-    if(memcmp(play_id, (guint8 *)&dplay_id, 4) != 0)
+    if(memcmp(play_id, (uint8_t *)&dplay_id, 4) != 0)
     {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
         col_set_str(pinfo->cinfo,COL_INFO, "DPlay data packet");
@@ -975,7 +975,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *dplay_tree;
         proto_tree *dplay_header;
         proto_tree *dplay_data;
-        gint offset = 0;
+        int offset = 0;
 
         dplay_item = proto_tree_add_item(tree, proto_dplay, tvb, 0, -1, ENC_NA);
         dplay_tree = proto_item_add_subtree(dplay_item, ett_dplay);
@@ -1043,7 +1043,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 mixed, size, token;
+    uint32_t mixed, size, token;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
     col_set_str(pinfo->cinfo,COL_INFO, "DPlay player to player message");
@@ -1053,7 +1053,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         proto_item *dplay_item;
         proto_tree *dplay_tree;
         proto_tree *data_tree;
-        gint offset = 0;
+        int offset = 0;
 
         dplay_item = proto_tree_add_item(tree, proto_dplay, tvb, offset, -1, ENC_NA);
         dplay_tree = proto_item_add_subtree(dplay_item, ett_dplay);
@@ -1074,7 +1074,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 static bool heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 dplay_id, token;
+    uint32_t dplay_id, token;
 
     if(tvb_captured_length(tvb) < 25)
         return false;
@@ -1637,7 +1637,7 @@ void proto_register_dplay(void)
         NULL, 0x0, NULL, HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dplay,
         &ett_dplay_header,
         &ett_dplay_sockaddr,

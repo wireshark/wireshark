@@ -239,16 +239,16 @@ static int hf_dlt_storage_ecu_name;
 static int hf_dlt_storage_reserved;
 
 /* subtrees */
-static gint ett_dlt;
-static gint ett_dlt_hdr_type;
-static gint ett_dlt_ext_hdr;
-static gint ett_dlt_msg_info;
-static gint ett_dlt_payload;
-static gint ett_dlt_service_app_ids;
-static gint ett_dlt_service_app_id;
-static gint ett_dlt_service_ctx_id;
+static int ett_dlt;
+static int ett_dlt_hdr_type;
+static int ett_dlt_ext_hdr;
+static int ett_dlt_msg_info;
+static int ett_dlt_payload;
+static int ett_dlt_service_app_ids;
+static int ett_dlt_service_app_id;
+static int ett_dlt_service_ctx_id;
 
-static gint ett_dlt_storage;
+static int ett_dlt_storage;
 
 /***************************
  ****** String Tables ******
@@ -388,7 +388,7 @@ static expert_field ei_dlt_buffer_too_short;
 static expert_field ei_dlt_parsing_error;
 
 static void
-expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
     if (tvb!=NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_datatype, tvb, offset, length);
     }
@@ -396,7 +396,7 @@ expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t 
 }
 
 static void
-expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_length_datatype, tvb, offset, length);
     }
@@ -404,7 +404,7 @@ expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvb
 }
 
 static void
-expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_string_coding, tvb, offset, length);
     }
@@ -412,7 +412,7 @@ expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuf
 }
 
 static void
-expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_non_verbose_msg_type, tvb, offset, length);
     }
@@ -420,7 +420,7 @@ expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo
 }
 
 static void
-expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_buffer_too_short, tvb, offset, length);
     }
@@ -428,7 +428,7 @@ expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 }
 
 static void
-expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_parsing_error, tvb, offset, length);
     }
@@ -440,20 +440,20 @@ expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gi
  ****** Helper routines ******
  *****************************/
 
-gint32
-dlt_ecu_id_to_gint32(const gchar *ecu_id) {
+int32_t
+dlt_ecu_id_to_gint32(const char *ecu_id) {
     if (ecu_id == NULL) {
         return 0;
     }
 
-    gint32 ret = 0;
-    gint i;
-    guint shift = 32;
+    int32_t ret = 0;
+    int i;
+    unsigned shift = 32;
 
     /* DLT allows only up to 4 ASCII chars! Unused is 0x00 */
-    for (i = 0; i < (gint)strlen(ecu_id) && i < 4; i++) {
+    for (i = 0; i < (int)strlen(ecu_id) && i < 4; i++) {
         shift -= 8;
-        ret |= (gint32)ecu_id[i] << shift;
+        ret |= (int32_t)ecu_id[i] << shift;
     }
 
     return ret;
@@ -464,8 +464,8 @@ dlt_ecu_id_to_gint32(const gchar *ecu_id) {
  **********************************/
 
 static void
-sanitize_buffer(guint8 *buf, gint length, guint32 encoding) {
-    gint i = 0;
+sanitize_buffer(uint8_t *buf, int length, uint32_t encoding) {
+    int i = 0;
 
     for (i=0; i<length; i++) {
         /* UTF-8 uses the ASCII chars. So between 0x00 and 0x7f, we can treat it as ASCII. :) */
@@ -476,9 +476,9 @@ sanitize_buffer(guint8 *buf, gint length, guint32 encoding) {
     }
 }
 
-static guint32
-dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le _U_, guint32 type_info _U_, gint length) {
-    guint8 value = 0;
+static uint32_t
+dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le _U_, uint32_t type_info _U_, int length) {
+    uint8_t value = 0;
 
     if (length != 1 || tvb_captured_length_remaining(tvb, offset) < length) {
         expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, 0);
@@ -499,9 +499,9 @@ dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return length;
 }
 
-static guint32
-dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint32 type_info _U_, gint length) {
-    gint64 value = 0;
+static uint32_t
+dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le, uint32_t type_info _U_, int length) {
+    int64_t value = 0;
 
     if (tvb_captured_length_remaining(tvb, offset) < length) {
         return 0;
@@ -511,19 +511,19 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         switch (length) {
         case 1:
             proto_tree_add_item(tree, hf_dlt_int8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            value = (gint8)tvb_get_guint8(tvb, offset);
+            value = (int8_t)tvb_get_guint8(tvb, offset);
             break;
         case 2:
             proto_tree_add_item(tree, hf_dlt_int16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            value = (gint16)tvb_get_letohs(tvb, offset);
+            value = (int16_t)tvb_get_letohs(tvb, offset);
             break;
         case 4:
             proto_tree_add_item(tree, hf_dlt_int32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            value = (gint32)tvb_get_letohl(tvb, offset);
+            value = (int32_t)tvb_get_letohl(tvb, offset);
             break;
         case 8:
             proto_tree_add_item(tree, hf_dlt_int64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            value = (gint64)tvb_get_letoh64(tvb, offset);
+            value = (int64_t)tvb_get_letoh64(tvb, offset);
             break;
         case 16:
         default:
@@ -533,19 +533,19 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         switch (length) {
         case 1:
             proto_tree_add_item(tree, hf_dlt_int8, tvb, offset, 1, ENC_BIG_ENDIAN);
-            value = (gint8)tvb_get_guint8(tvb, offset);
+            value = (int8_t)tvb_get_guint8(tvb, offset);
             break;
         case 2:
             proto_tree_add_item(tree, hf_dlt_int16, tvb, offset, 2, ENC_BIG_ENDIAN);
-            value = (gint16)tvb_get_ntohs(tvb, offset);
+            value = (int16_t)tvb_get_ntohs(tvb, offset);
             break;
         case 4:
             proto_tree_add_item(tree, hf_dlt_int32, tvb, offset, 4, ENC_BIG_ENDIAN);
-            value = (gint32)tvb_get_ntohl(tvb, offset);
+            value = (int32_t)tvb_get_ntohl(tvb, offset);
             break;
         case 8:
             proto_tree_add_item(tree, hf_dlt_int64, tvb, offset, 8, ENC_BIG_ENDIAN);
-            value = (gint64)tvb_get_ntoh64(tvb, offset);
+            value = (int64_t)tvb_get_ntoh64(tvb, offset);
             break;
         case 16:
         default:
@@ -557,9 +557,9 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return length;
 }
 
-static guint32
-dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint32 type_info _U_, gint length) {
-    guint64 value = 0;
+static uint32_t
+dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le, uint32_t type_info _U_, int length) {
+    uint64_t value = 0;
 
     if (tvb_captured_length_remaining(tvb, offset) < length) {
         expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, 0);
@@ -616,9 +616,9 @@ dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return length;
 }
 
-static guint32
-dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint32 type_info _U_, gint length) {
-    gdouble value = 0.0;
+static uint32_t
+dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le, uint32_t type_info _U_, int length) {
+    double value = 0.0;
 
     if (tvb_captured_length_remaining(tvb, offset) < length) {
         expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, 0);
@@ -629,7 +629,7 @@ dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         switch (length) {
         case 4:
             proto_tree_add_item(tree, hf_dlt_float, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            value = (gdouble)tvb_get_letohieee_float(tvb, offset);
+            value = (double)tvb_get_letohieee_float(tvb, offset);
             break;
         case 8:
             proto_tree_add_item(tree, hf_dlt_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -644,7 +644,7 @@ dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         switch (length) {
         case 4:
             proto_tree_add_item(tree, hf_dlt_float, tvb, offset, 4, ENC_BIG_ENDIAN);
-            value = (gdouble)tvb_get_ntohieee_float(tvb, offset);
+            value = (double)tvb_get_ntohieee_float(tvb, offset);
             break;
         case 8:
             proto_tree_add_item(tree, hf_dlt_double, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -661,12 +661,12 @@ dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return length;
 }
 
-static guint32
-dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint32 type_info _U_, gint length _U_) {
-    guint16     len = 0;
-    guint8     *buf = NULL;
-    guint32     i = 0;
-    guint32     offset_orig = offset;
+static uint32_t
+dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le, uint32_t type_info _U_, int length _U_) {
+    uint16_t    len = 0;
+    uint8_t    *buf = NULL;
+    uint32_t    i = 0;
+    uint32_t    offset_orig = offset;
 
     if (tvb_captured_length_remaining(tvb, offset) < 2) {
         expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, 0);
@@ -687,7 +687,7 @@ dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     proto_tree_add_item(tree, hf_dlt_rawd, tvb, offset, len, ENC_NA);
 
-    buf = (guint8 *) tvb_memdup(pinfo->pool, tvb, offset, len);
+    buf = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, len);
     offset += len;
 
     for (i=0; i<len; i++) {
@@ -697,13 +697,13 @@ dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_
     return offset - offset_orig;
 }
 
-static guint32
-dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint32 type_info _U_, gint length _U_) {
-    guint16     str_len = 0;
-    guint32     encoding = 0;
-    guint8     *buf = NULL;
-    guint32     offset_orig = offset;
-    gint        tmp_length = 0;
+static uint32_t
+dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le, uint32_t type_info _U_, int length _U_) {
+    uint16_t    str_len = 0;
+    uint32_t    encoding = 0;
+    uint8_t    *buf = NULL;
+    uint32_t    offset_orig = offset;
+    int         tmp_length = 0;
     tvbuff_t   *subtvb = NULL;
 
     if (tvb_captured_length_remaining(tvb, offset) < 2) {
@@ -751,12 +751,12 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     return offset - offset_orig;
 }
 
-static guint32
-dissect_dlt_verbose_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le) {
-    guint32     type_info = 0;
-    guint8      length_field = 0;
-    gint        length = 0;
-    guint32     offset_orig = offset;
+static uint32_t
+dissect_dlt_verbose_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le) {
+    uint32_t    type_info = 0;
+    uint8_t     length_field = 0;
+    int         length = 0;
+    uint32_t    offset_orig = offset;
 
     /* we need at least the uint32 type info to decide on how much more bytes we need */
     if (tvb_captured_length_remaining(tvb, offset) < 4) {
@@ -826,11 +826,11 @@ dissect_dlt_verbose_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 }
 
-static guint32
-dissect_dlt_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint8 num_of_args) {
-    guint32     i = 0;
-    guint32     offset_orig = offset;
-    guint32     len_parsed = 5;
+static uint32_t
+dissect_dlt_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool payload_le, uint8_t num_of_args) {
+    uint32_t    i = 0;
+    uint32_t    offset_orig = offset;
+    uint32_t    len_parsed = 5;
 
     while (len_parsed>4 && i<num_of_args) {
         len_parsed = dissect_dlt_verbose_parameter(tvb, pinfo, tree, offset, payload_le);
@@ -842,22 +842,22 @@ dissect_dlt_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, gboolean payload_le, guint8 msg_type _U_,
-                                        guint8 msg_type_info_comb, guint32 message_id) {
+dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_t offset, bool payload_le, uint8_t msg_type _U_,
+                                        uint8_t msg_type_info_comb, uint32_t message_id) {
     proto_item     *ti = NULL;
     proto_tree     *subtree;
     proto_tree     *subtree2;
     proto_tree     *subtree3;
     int             ret = 0;
-    gint            len;
-    guint32         offset_orig;
-    guint           tmp_length = 0;
-    guint           encoding = ENC_BIG_ENDIAN;
-    guint           status;
-    guint           appid_count;
-    guint           ctxid_count;
-    guint           i;
-    guint           j;
+    int             len;
+    uint32_t        offset_orig;
+    unsigned        tmp_length = 0;
+    unsigned        encoding = ENC_BIG_ENDIAN;
+    unsigned        status;
+    unsigned        appid_count;
+    unsigned        ctxid_count;
+    unsigned        i;
+    unsigned        j;
 
     offset_orig = offset;
 
@@ -975,7 +975,7 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
         case DLT_SERVICE_ID_GET_SOFTWARE_VERSION:
             proto_tree_add_item(tree, hf_dlt_service_status, tvb, offset, 1, ENC_NA);
             proto_tree_add_item_ret_uint(tree, hf_dlt_service_length, tvb, offset + 1, 4, encoding, &tmp_length);
-            if ((guint)len >= 5 + tmp_length) {
+            if ((unsigned)len >= 5 + tmp_length) {
                 proto_tree_add_item(tree, hf_dlt_service_swVersion, tvb, offset + 5, tmp_length, ENC_ASCII | ENC_NA);
             } else {
                 expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, len);
@@ -992,8 +992,8 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 static bool
-dissect_dlt_non_verbose_payload_message_handoff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean payload_le,
-                                                guint8 msg_type, guint8 msg_type_info_comb, guint32 message_id, const guint8 *ecu_id) {
+dissect_dlt_non_verbose_payload_message_handoff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool payload_le,
+                                                uint8_t msg_type, uint8_t msg_type_info_comb, uint32_t message_id, const uint8_t *ecu_id) {
 
     dlt_info_t dlt_info;
 
@@ -1001,18 +1001,18 @@ dissect_dlt_non_verbose_payload_message_handoff(tvbuff_t *tvb, packet_info *pinf
     dlt_info.little_endian = payload_le;
     dlt_info.message_type = msg_type;
     dlt_info.message_type_info_comb = msg_type_info_comb;
-    dlt_info.ecu_id = (const gchar *)ecu_id;
+    dlt_info.ecu_id = (const char *)ecu_id;
 
     return dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &dlt_info);
 }
 
 static int
-dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, proto_tree *tree, guint32 offset, gboolean payload_le,
-                                guint8 msg_type, guint8 msg_type_info_comb, const guint8 *ecu_id) {
-    guint32         message_id = 0;
+dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, proto_tree *tree, uint32_t offset, bool payload_le,
+                                uint8_t msg_type, uint8_t msg_type_info_comb, const uint8_t *ecu_id) {
+    uint32_t        message_id = 0;
     tvbuff_t       *subtvb = NULL;
-    guint32         offset_orig = offset;
-    const gchar    *message_id_name = NULL;
+    uint32_t        offset_orig = offset;
+    const char     *message_id_name = NULL;
     proto_item     *ti;
 
     if (payload_le) {
@@ -1053,30 +1053,30 @@ dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *r
 }
 
 static int
-dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint32 offset_orig) {
+dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, uint32_t offset_orig) {
     proto_item     *ti;
     proto_tree     *dlt_tree = NULL;
     proto_tree     *ext_hdr_tree = NULL;
     proto_tree     *subtree = NULL;
-    guint32         offset = offset_orig;
+    uint32_t        offset = offset_orig;
 
-    guint8          header_type = 0;
-    gboolean        ext_header = FALSE;
-    gboolean        payload_le = FALSE;
-    guint16         length = 0;
+    uint8_t         header_type = 0;
+    bool            ext_header = false;
+    bool            payload_le = false;
+    uint16_t        length = 0;
 
-    guint8          msg_info = 0;
-    gboolean        verbose = FALSE;
-    guint8          msg_type = 0;
-    guint8          msg_type_info = 0;
-    guint8          msg_type_info_comb = 0;
+    uint8_t         msg_info = 0;
+    bool            verbose = false;
+    uint8_t         msg_type = 0;
+    uint8_t         msg_type_info = 0;
+    uint8_t         msg_type_info_comb = 0;
 
-    guint8          num_of_args = 0;
-    gdouble         timestamp = 0.0;
+    uint8_t         num_of_args = 0;
+    double          timestamp = 0.0;
 
-    gint            captured_length = tvb_captured_length_remaining(tvb, offset);
+    int             captured_length = tvb_captured_length_remaining(tvb, offset);
 
-    const guint8   *ecu_id = NULL;
+    const uint8_t  *ecu_id = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1179,14 +1179,14 @@ dissect_dlt_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return dissect_dlt(tvb, pinfo, tree, data, 0);
 }
 
-static guint
+static unsigned
 get_dlt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void* data _U_) {
     return tvb_get_ntohs(tvb, offset + 2);
 }
 
 static int
 dissect_dlt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DLT_MIN_SIZE_FOR_PARSING, get_dlt_message_len, dissect_dlt_msg, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, DLT_MIN_SIZE_FOR_PARSING, get_dlt_message_len, dissect_dlt_msg, data);
     return tvb_reported_length(tvb);
 }
 
@@ -1200,7 +1200,7 @@ dissect_dlt_storage_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree *dlt_storage_tree;
     proto_item *ti;
 
-    guint32     offset = 0;
+    uint32_t    offset = 0;
 
     ti = proto_tree_add_item(tree, proto_dlt_storage_header, tvb, offset, 16, ENC_NA);
     dlt_storage_tree = proto_item_add_subtree(ti, ett_dlt_storage);
@@ -1391,7 +1391,7 @@ void proto_register_dlt(void) {
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dlt,
         &ett_dlt_hdr_type,
         &ett_dlt_ext_hdr,
@@ -1460,7 +1460,7 @@ void proto_register_dlt_storage_header(void) {
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dlt_storage,
     };
 

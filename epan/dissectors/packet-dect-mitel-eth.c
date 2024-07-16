@@ -184,15 +184,15 @@ static int hf_dect_mitel_eth_mt_item_key;
 static int hf_dect_mitel_eth_mt_item_length;
 static int hf_dect_mitel_eth_mt_item_value;
 
-static gint ett_dect_mitel_eth;
+static int ett_dect_mitel_eth;
 
-static gint ett_dect_mitel_eth_rfpc_item;
+static int ett_dect_mitel_eth_rfpc_item;
 
-static gint ett_dect_mitel_eth_higher_layer_capabilities_flags;
-static gint ett_dect_mitel_eth_extended_capabilities_flags;
-static gint ett_dect_mitel_eth_mac_capabilities_flags;
-static gint ett_dect_mitel_eth_extended_capabilities2_mac_capability_flags;
-static gint ett_dect_mitel_eth_extended_capabilities2_flags;
+static int ett_dect_mitel_eth_higher_layer_capabilities_flags;
+static int ett_dect_mitel_eth_extended_capabilities_flags;
+static int ett_dect_mitel_eth_mac_capabilities_flags;
+static int ett_dect_mitel_eth_extended_capabilities2_mac_capability_flags;
+static int ett_dect_mitel_eth_extended_capabilities2_flags;
 
 static dissector_handle_t dlc_handle;
 
@@ -600,9 +600,9 @@ static const value_string dect_mitel_eth_mac_ho_failed_ind_reason_val[] = {
 	{ 0, NULL }
 };
 
-static guint dissect_dect_mitel_eth_mcei_field(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_mcei_field(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, unsigned offset)
 {
-	guint8 mcei;
+	uint8_t mcei;
 	mcei = tvb_get_guint8(tvb, offset);
 	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
@@ -621,7 +621,7 @@ RFPc Revision
 |      3 |   2 | Prog Software |
 |      5 |   2 | Hardware      |
  */
-static guint dissect_dect_mitel_eth_rfpc_revision(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_revision(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_revision_generation, tvb, offset, 1, ENC_NA);
 	offset++;
@@ -644,7 +644,7 @@ RFPc RFPI
 |      0 |   5 | RFPI    |
 See also ETSI EN 300 175-6 Chapter 5
  */
-static guint dissect_dect_mitel_eth_rfpc_rfpi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_rfpi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_rfpi_saris_available, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_rfpi_ari_class, tvb, offset, 1, ENC_NA);
@@ -660,7 +660,7 @@ RFPc Higher layer capabilities field
 | ------ | --- | ------- |
 |      0 |   2 | Flags   |
  */
-static guint dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	static int* const flags[] = {
 		&hf_dect_mitel_eth_rfpc_higher_layer_capabilities_connection_handover_supported,
@@ -693,7 +693,7 @@ RFPc Extended capabilities field
 |      0 |   2 | Wireless Relay Stations | 0x0FC0       |
 |      1 |   4 | Flags                   | 0x3FFFFFFFFF |
  */
-static guint dissect_dect_mitel_eth_rfpc_extended_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_extended_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	static int* const flags[] = {
 		&hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_data_services,
@@ -738,7 +738,7 @@ RFPc MAC capabilities field
 | ------ | --- | -------------------- | -------- |
 |      0 |   3 | MAC capability flags | 0x0FFFFF |
  */
-static guint dissect_dect_mitel_eth_rfpc_mac_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_mac_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	static int* const flags[] = {
 		&hf_dect_mitel_eth_rfpc_mac_capabilities_multibearer_connections,
@@ -788,7 +788,7 @@ RFPc Statistics data
 |     46 |   4 | Good frames           |
 |     50 |   2 | Handoff timer         |
  */
-static guint dissect_dect_mitel_eth_rfpc_statistic_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_statistic_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_statistic_data_bmc_connections_1_3, tvb, offset, 2, ENC_NA);
 	offset += 2;
@@ -841,7 +841,7 @@ RFPc RFP_PLI
 | ------ | --- | --------------------- |
 |      0 |   1 | PARK length indicator |
  */
-static guint dissect_dect_mitel_eth_rfpc_rfp_pli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_rfp_pli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_rfp_pli_length_indicator, tvb, offset, 1, ENC_NA);
 	offset ++;
@@ -856,7 +856,7 @@ RFPc Extended capabilities2 field
 |      0 |   2 | MAC capability flags    | 0x0FFF       |
 |      2 |   3 | Capability information  | 0xFFFFFF     |
  */
-static guint dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	static int* const mac_capability_flags[] = {
 		&hf_dect_mitel_eth_rfpc_extended_capabilities2_mac_capability_slot_type_long_640,
@@ -910,9 +910,9 @@ RFPc Message
 | ...     | ... | ...               |
 
  */
-static guint dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
-	guint8 message_type, item_type, item_length;
+	uint8_t message_type, item_type, item_length;
 	proto_tree *rfpc_item_tree;
 	proto_item *rfpc_item_tree_item;
 
@@ -976,7 +976,7 @@ MAC_CON_IND Message
 |      1 |   3 | PMID (in last 20bits) |
 |      4 |   1 | Flags                 |
 */
-static guint dissect_dect_mitel_eth_mac_con_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_con_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	static int *const mac_con_ind_flags[] = {
 		&hf_dect_mitel_eth_mac_con_ind_flag_handover,
@@ -1000,7 +1000,7 @@ MAC_DIS_IND Message
 |      0 |   1 | MCEI    |
 |      1 |   1 | Reason  |
 */
-static guint dissect_dect_mitel_eth_mac_dis_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_dis_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
@@ -1015,7 +1015,7 @@ MAC_PAGE_REQ Message
 | ------ | --- | --------------- |
 |      1 |   1 | Flags (unknown) |
  */
-static guint dissect_dect_mitel_eth_mac_page_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_page_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	pinfo->p2p_dir = P2P_DIR_SENT;
 	offset++;
@@ -1032,7 +1032,7 @@ MAC_ENC_KEY_REQ Message
 |      1 |   8 | Key       |
 |      9 |   1 | (Key?) ID |
  */
-static guint dissect_dect_mitel_eth_mac_enc_key_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_enc_key_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
@@ -1052,9 +1052,9 @@ MAC_ENC_EKS_IND Message
 |      2 |   1 | (Key?) ID | if Type == with ID |
 |      3 |   2 | PPN       | if Type == with ID |
  */
-static guint dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
-	guint8 type;
+	uint8_t type;
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_type, tvb, offset, 1, ENC_NA);
@@ -1076,7 +1076,7 @@ DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND Message
 |      0 |   1 | MCEI                  |
 |      1 |   3 | PMID (in last 20bits) |
  */
-static guint dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
@@ -1093,7 +1093,7 @@ DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES Message
 |      2 |   8 | Key       |
 |     11 |   1 | (Key?) ID |
  */
-static guint dissect_dect_mitel_eth_mac_ho_in_progress_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_ho_in_progress_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
@@ -1114,7 +1114,7 @@ MAC_HO_FAILED_IND Message
 |      0 |   1 | MCEI    |
 |      1 |   1 | Reason  |
  */
-static guint dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
@@ -1131,7 +1131,7 @@ MAC_INFO_IND Message
 |      1 |   3 | PMID (in last 20bits) |
 |      5 |     | String                |
 */
-static guint dissect_dect_mitel_eth_mac_info_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_info_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset)
 {
 	pinfo->p2p_dir = P2P_DIR_RECV;
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
@@ -1150,7 +1150,7 @@ MAC_CLEAR_DEF_CKEY_REQ Message
 | ------ | --- | --------------------- |
 |      0 |   3 | PMID (in last 20bits) |
 */
-static guint dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, guint offset)
+static unsigned dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset+=3;
@@ -1162,8 +1162,8 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_item *dect_mitel_eth_tree_item;
 	proto_tree *dect_mitel_eth_tree;
 
-	guint16 mitel_eth_len, payload_len;
-	guint8 prim_type, layer, mt_item_length;
+	uint16_t mitel_eth_len, payload_len;
+	uint8_t prim_type, layer, mt_item_length;
 	int offset = 0;
 	bool ip_encapsulated;
 	tvbuff_t *payload_tvb = NULL;
@@ -1983,7 +1983,7 @@ void proto_register_dect_mitel_eth(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dect_mitel_eth,
 		&ett_dect_mitel_eth_rfpc_item,
 		&ett_dect_mitel_eth_higher_layer_capabilities_flags,

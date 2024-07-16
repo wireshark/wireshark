@@ -4338,7 +4338,7 @@ static const value_string DIS_PDU_IffModeC_Strings[] =
 *******************************************************************************/
 
 /* DIS global */
-static gint proto_dis;
+static int proto_dis;
 static int hf_dis_proto_ver;
 static int hf_dis_exercise_id;
 static int hf_dis_pdu_type;
@@ -4822,116 +4822,116 @@ static int hf_dis_iff_mode_status;
 static int hf_dis_iff_mode_damage;
 static int hf_dis_iff_mode_malfunction;
 
-static gint ett_dis;
-static gint ett_dis_header;
-static gint ett_pdu_status;
-static gint ett_dis_po_header;
-static gint ett_dis_payload;
-static gint ett_entity;
-static gint ett_trackjam;
-static gint ett_dis_ens;
-static gint ett_radio_entity_type;
-static gint ett_entity_type;
-static gint ett_dis_crypto_key;
-static gint ett_antenna_location;
-static gint ett_rel_antenna_location;
-static gint ett_aggregate_dimensions;
-static gint ett_aggregate_orientation;
-static gint ett_aggregate_velocity;
-static gint ett_aggregate_id_list;
-static gint ett_entity_id_list;
-static gint ett_variable_datum;
+static int ett_dis;
+static int ett_dis_header;
+static int ett_pdu_status;
+static int ett_dis_po_header;
+static int ett_dis_payload;
+static int ett_entity;
+static int ett_trackjam;
+static int ett_dis_ens;
+static int ett_radio_entity_type;
+static int ett_entity_type;
+static int ett_dis_crypto_key;
+static int ett_antenna_location;
+static int ett_rel_antenna_location;
+static int ett_aggregate_dimensions;
+static int ett_aggregate_orientation;
+static int ett_aggregate_velocity;
+static int ett_aggregate_id_list;
+static int ett_entity_id_list;
+static int ett_variable_datum;
 
 
 
 
 
-static gint ett_modulation_type;
-static gint ett_modulation_parameters;
-static gint ett_entity_linear_velocity;
-static gint ett_entity_location;
-static gint ett_entity_orientation;
-static gint ett_entity_marking_text;
-static gint ett_aggregate_marking_text;
-static gint ett_entity_dead_reckoning_parameters;
-static gint ett_entity_linear_acceleration;
-static gint ett_entity_angular_velocity;
-static gint ett_environmental_environment_status;
-static gint ett_environmental_environment_type;
-static gint ett_aggregate_type;
-static gint ett_aggregate_center_of_mass;
-static gint ett_designator_spot_location;
-static gint ett_designator_spot_with_respect_to_designated_entity;
-static gint ett_designator_entity_linear_acceleration;
+static int ett_modulation_type;
+static int ett_modulation_parameters;
+static int ett_entity_linear_velocity;
+static int ett_entity_location;
+static int ett_entity_orientation;
+static int ett_entity_marking_text;
+static int ett_aggregate_marking_text;
+static int ett_entity_dead_reckoning_parameters;
+static int ett_entity_linear_acceleration;
+static int ett_entity_angular_velocity;
+static int ett_environmental_environment_status;
+static int ett_environmental_environment_type;
+static int ett_aggregate_type;
+static int ett_aggregate_center_of_mass;
+static int ett_designator_spot_location;
+static int ett_designator_spot_with_respect_to_designated_entity;
+static int ett_designator_entity_linear_acceleration;
 
 
 
 
 
-static gint ett_entity_appearance;
-static gint ett_variable_parameter;
-static gint ett_event_id;
-static gint ett_shafts;
-static gint ett_apas;
-static gint ett_underwater_acoustic_emission;
-static gint ett_acoustic_emitter_system;
-static gint ett_ua_location;
-static gint ett_ua_beams;
-static gint ett_ua_beam_data;
-static gint ett_emission_system;
-static gint ett_emitter_system;
-static gint ett_em_beam;
-static gint ett_emitter_location;
-static gint ett_em_fundamental_parameter_data;
-static gint ett_burst_descriptor;
-static gint ett_fire_location;
-static gint ett_linear_velocity;
-static gint ett_detonation_location;
-static gint ett_clock_time;
-static gint ett_fixed_datum;
-static gint ett_record;
-static gint ett_simulation_address;
-static gint ett_offset_vector;
-static gint ett_dis_signal_link16_network_header;
-static gint ett_dis_signal_link16_message_data;
-static gint ett_dis_signal_link16_jtids_header;
-static gint ett_iff_location;
-static gint ett_iff_system_id;
-static gint ett_iff_change_options;
-static gint ett_iff_fundamental_operational_data;
-static gint ett_iff_system_status;
-static gint ett_iff_information_layers;
-static gint ett_iff_modifier;
-static gint ett_iff_parameter_1;
-static gint ett_iff_rrb;
-static gint ett_iff_parameter_2;
-static gint ett_iff_parameter_3;
-static gint ett_iff_parameter_4;
-static gint ett_iff_mode_s_interrogator_identifier;
-static gint ett_iff_parameter_5;
-static gint ett_iff_parameter_6;
+static int ett_entity_appearance;
+static int ett_variable_parameter;
+static int ett_event_id;
+static int ett_shafts;
+static int ett_apas;
+static int ett_underwater_acoustic_emission;
+static int ett_acoustic_emitter_system;
+static int ett_ua_location;
+static int ett_ua_beams;
+static int ett_ua_beam_data;
+static int ett_emission_system;
+static int ett_emitter_system;
+static int ett_em_beam;
+static int ett_emitter_location;
+static int ett_em_fundamental_parameter_data;
+static int ett_burst_descriptor;
+static int ett_fire_location;
+static int ett_linear_velocity;
+static int ett_detonation_location;
+static int ett_clock_time;
+static int ett_fixed_datum;
+static int ett_record;
+static int ett_simulation_address;
+static int ett_offset_vector;
+static int ett_dis_signal_link16_network_header;
+static int ett_dis_signal_link16_message_data;
+static int ett_dis_signal_link16_jtids_header;
+static int ett_iff_location;
+static int ett_iff_system_id;
+static int ett_iff_change_options;
+static int ett_iff_fundamental_operational_data;
+static int ett_iff_system_status;
+static int ett_iff_information_layers;
+static int ett_iff_modifier;
+static int ett_iff_parameter_1;
+static int ett_iff_rrb;
+static int ett_iff_parameter_2;
+static int ett_iff_parameter_3;
+static int ett_iff_parameter_4;
+static int ett_iff_mode_s_interrogator_identifier;
+static int ett_iff_parameter_5;
+static int ett_iff_parameter_6;
 
 static dissector_handle_t link16_handle;
 
 typedef struct dis_header
 {
-    guint8 version;
-    guint8 pduType;
-    guint8 family;
+    uint8_t version;
+    uint8_t pduType;
+    uint8_t family;
 }
 dis_header_t;
 
 /* Forward declarations */
-static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
-static gint parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
+static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
+static int parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
 static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
-static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, guint8 paramType);
-static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, guint32 variableRecordType, guint16 record_length);
+static int parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t paramType);
+static int parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t variableRecordType, uint16_t record_length);
 
 
 /* globals to pass data between functions */
-static guint32 entityKind;
-static guint32 entityDomain;
+static uint32_t entityKind;
+static uint32_t entityDomain;
 
 /* Composite types
  */
@@ -4963,11 +4963,11 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
     proto_item  *ti;
     proto_tree  *sub_tree;
     /* some consts */
-    static guint MSEC_PER_HOUR = 60 * 60 * 1000;
-    static guint FSV = 0x7fffffff;
-    guint32 hour, uintVal;
-    guint64 ms;
-    guint isAbsolute = 0;
+    static unsigned MSEC_PER_HOUR = 60 * 60 * 1000;
+    static unsigned FSV = 0x7fffffff;
+    uint32_t hour, uintVal;
+    uint64_t ms;
+    unsigned isAbsolute = 0;
     nstime_t tv;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_clock_time, NULL, clock_name);
@@ -4979,7 +4979,7 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
     isAbsolute = uintVal & 1;
 
     /* convert TS to MS */
-    ms = (guint64)(uintVal >> 1) * MSEC_PER_HOUR / FSV;
+    ms = (uint64_t)(uintVal >> 1) * MSEC_PER_HOUR / FSV;
 
     tv.secs = (time_t)ms/1000;
     tv.nsecs = (int)(ms%1000)*1000000;
@@ -5000,13 +5000,13 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
    return (offset+8);
 }
 
-static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree, int offset, const char* name, gint ett, int hfkind, int hfdomain, int hfcountry, int hfcategory, int hfsubcategory, int hfspecific, int hfextra)
+static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree, int offset, const char* name, int ett, int hfkind, int hfdomain, int hfcountry, int hfcategory, int hfsubcategory, int hfspecific, int hfextra)
 {
-    guint16 entityCountry;
-    guint8 entityCategory;
-    guint8 entitySubcategory;
-    guint8 entitySpecific;
-    guint8 entityExtra;
+    uint16_t entityCountry;
+    uint8_t entityCategory;
+    uint8_t entitySubcategory;
+    uint8_t entitySpecific;
+    uint8_t entityExtra;
 
     proto_tree  *sub_tree;
     int hf_cat = hfcategory;
@@ -5112,10 +5112,10 @@ static int dissect_DIS_FIELDS_ENVIRONMENT_TYPE(tvbuff_t *tvb, proto_tree *tree, 
 }
 
 
-static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, guint16* systemModulation)
+static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, uint16_t* systemModulation)
 {
     proto_tree  *sub_tree;
-    guint32 majorModulation;
+    uint32_t majorModulation;
     int hf_mod_detail;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_modulation_type, NULL, "Modulation Type");
@@ -5260,8 +5260,8 @@ static int dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvbuff_t *tvb, proto_tree *t
     return offset;
 }
 
-static gint parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvbuff_t *tvb, proto_tree *tree,
-                                                          gint offset, guint8* messageType)
+static int parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvbuff_t *tvb, proto_tree *tree,
+                                                          int offset, uint8_t* messageType)
 {
     proto_tree  *sub_tree;
     nstime_t tv;
@@ -5308,10 +5308,10 @@ static gint parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvbuff_t *tvb, proto_t
 
 /* Parse Link 16 Message Data record (SISO-STD-002, Tables 5.2.5 through 5.2.12)
  */
-static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                                      guint32 encodingScheme, guint8 messageType)
+static int parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
+                                      uint32_t encodingScheme, uint8_t messageType)
 {
-    guint32 cache, value, i;
+    uint32_t cache, value, i;
     Link16State state;
     tvbuff_t *newtvb;
 
@@ -5340,7 +5340,7 @@ static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offs
         memset(&state, 0, sizeof(state));
 
         for (i = 0; i < (encodingScheme & 0x3FFF); i++) {
-            gint8 *word = (gint8 *)wmem_alloc(pinfo->pool, 10);
+            int8_t *word = (int8_t *)wmem_alloc(pinfo->pool, 10);
             if (!(i & 1)) {
                 word[0] = (cache >> 16) & 0xFF;
                 word[1] = (cache >> 24) & 0xFF;
@@ -5386,10 +5386,10 @@ static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offs
 
 /* Array records
  */
-static gint parseField_DIS_FIELDS_FIXED_DATUM(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+static int parseField_DIS_FIELDS_FIXED_DATUM(tvbuff_t *tvb, proto_tree *tree, int offset, const char* field_name, uint32_t num_items)
 {
     proto_tree  *sub_tree;
-    guint32 i;
+    uint32_t i;
 
 
     for (i = 0; i < num_items; i++)
@@ -5410,11 +5410,11 @@ static gint parseField_DIS_FIELDS_FIXED_DATUM(tvbuff_t *tvb, proto_tree *tree, g
     return offset;
 }
 
-static gint parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+static int parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree, int offset, const char* field_name, uint32_t num_items)
 {
     proto_item  *ti;
     proto_tree  *sub_tree;
-    guint32 i, data_length, lengthInBytes;
+    uint32_t i, data_length, lengthInBytes;
     unsigned char padding;
 
     for (i = 0; i < num_items; i++)
@@ -5449,10 +5449,10 @@ static gint parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree
     return offset;
 }
 
-static gint parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+static int parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvbuff_t *tvb, proto_tree *tree, int offset, const char* field_name, uint32_t num_items)
 {
     proto_tree  *sub_tree;
-    guint32 i;
+    uint32_t i;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, num_items*4, ett_fixed_datum, NULL, field_name);
 
@@ -5465,12 +5465,12 @@ static gint parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvbuff_t *tvb, proto_tree *tre
     return offset;
 }
 
-static gint parseField_DIS_FIELDS_VARIABLE_DATUM_IDS(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+static int parseField_DIS_FIELDS_VARIABLE_DATUM_IDS(tvbuff_t *tvb, proto_tree *tree, int offset, const char* field_name, uint32_t num_items)
 {
     return parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvb, tree, offset, field_name, num_items);
 }
 
-static gint parseField_TRACK_JAM(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name)
+static int parseField_TRACK_JAM(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
     proto_tree  *sub_tree;
 
@@ -5496,7 +5496,7 @@ static gint parseField_TRACK_JAM(tvbuff_t *tvb, proto_tree *tree, gint offset, c
 
 /* Array record contents - variable parameter records
  */
-static gint dissect_DIS_FIELDS_VP_ARTICULATED_PART(tvbuff_t *tvb, proto_tree *tree, gint offset)
+static int dissect_DIS_FIELDS_VP_ARTICULATED_PART(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_tree_add_item(tree, hf_dis_vp_change, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -5516,7 +5516,7 @@ static gint dissect_DIS_FIELDS_VP_ARTICULATED_PART(tvbuff_t *tvb, proto_tree *tr
     return offset;
 }
 
-static gint dissect_DIS_FIELDS_VP_ATTACHED_PART(tvbuff_t *tvb, proto_tree *tree, gint offset)
+static int dissect_DIS_FIELDS_VP_ATTACHED_PART(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_tree_add_item(tree, hf_dis_vp_attached_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -5532,7 +5532,7 @@ static gint dissect_DIS_FIELDS_VP_ATTACHED_PART(tvbuff_t *tvb, proto_tree *tree,
     return offset;
 }
 
-static gint dissect_DIS_FIELDS_VP_ENTITY_OFFSET(tvbuff_t *tvb, proto_tree *tree, gint offset)
+static int dissect_DIS_FIELDS_VP_ENTITY_OFFSET(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_tree  *sub_tree;
 
@@ -5556,7 +5556,7 @@ static gint dissect_DIS_FIELDS_VP_ENTITY_OFFSET(tvbuff_t *tvb, proto_tree *tree,
     return offset;
 }
 
-static gint dissect_DIS_FIELDS_VP_ENTITY_ASSOCIATION(tvbuff_t *tvb, proto_tree *tree, gint offset)
+static int dissect_DIS_FIELDS_VP_ENTITY_ASSOCIATION(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_tree_add_item(tree, hf_dis_vp_change_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -5631,7 +5631,7 @@ static int dissect_DIS_FIELDS_VR_APPLICATION_INITIALIZATION(tvbuff_t *tvb, proto
 
 static int dissect_DIS_FIELDS_VR_DATA_QUERY(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    guint32 numFixed;
+    uint32_t numFixed;
 
     numFixed = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_dis_vr_num_records, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6071,15 +6071,15 @@ static const value_string dis_pdu_status_aii_vals[] = {
 
 static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    static guint32 entitySite;
-    static guint32 entityApplication;
-    static guint32 entityEntity;
+    static uint32_t entitySite;
+    static uint32_t entityApplication;
+    static uint32_t entityEntity;
     proto_item *ti;
     proto_tree *sub_tree;
     proto_tree *sub_tree2;
-    guint8 variableParameterType, numVariable, entity_marking_character_set;
-    guint32 i;
-    const guint8 *entity_marking_text;
+    uint8_t variableParameterType, numVariable, entity_marking_character_set;
+    uint32_t i;
+    const uint8_t *entity_marking_text;
 
     entitySite = tvb_get_ntohs(tvb, offset);
     entityApplication = tvb_get_ntohs(tvb, offset+2);
@@ -6254,13 +6254,13 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    static guint32 entitySite;
-    static guint32 entityApplication;
-    static guint32 entityEntity;
+    static uint32_t entitySite;
+    static uint32_t entityApplication;
+    static uint32_t entityEntity;
     proto_item *ti;
     proto_tree *sub_tree;
-    guint8 variableParameterType, numVariable;
-    guint32 i;
+    uint8_t variableParameterType, numVariable;
+    uint32_t i;
 
     entitySite = tvb_get_ntohs(tvb, offset);
     entityApplication = tvb_get_ntohs(tvb, offset+2);
@@ -6431,7 +6431,7 @@ static int dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvbuff_t *tvb, packet
 {
     proto_item *emission_ti, *beam_ti;
     proto_tree *sub_tree, *sub_tree2, *fundamental_tree;
-    guint8 i, j, k, numVariable, numBeams, numTrackJamTargets;
+    uint8_t i, j, k, numVariable, numBeams, numTrackJamTargets;
 
     offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
@@ -6549,7 +6549,7 @@ static int dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvbuff_t *tvb, packet
 static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_tree *sub_tree, *sub_tree2;
-    guint8 i, numShafts, numApas, numUAEmitter, numUABeams = 0;
+    uint8_t i, numShafts, numApas, numUAEmitter, numUABeams = 0;
 
     offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
@@ -6683,17 +6683,17 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL,*field_tree = NULL;
-    guint16 site = 0, application = 0, entity = 0;
-    guint16 systemType = 0;
-    guint16 mode1 = 0, mode1_element1 = 0, mode1_element2 = 0;
-    guint16 rrb = 0, rrb_code = 0;
-    guint16 mode2 = 0, mode2_element1 = 0, mode2_element2 = 0, mode2_element3 = 0, mode2_element4 = 0;
-    guint16 mode3 = 0, mode3_element1 = 0, mode3_element2 = 0, mode3_element3 = 0, mode3_element4 = 0;
-    guint16 mode4 = 0;
-    guint16 modeS = 0, modeS_primary_type = 0, modeS_primary_code = 0, modeS_secondary_type = 0, modeS_secondary_code = 0;
-    guint16 parameter_5 = 0;
-    gint16 altitude = 0;
-    guint16 parameter_6 = 0, tcas_acas_indicator = 0, tcas_acas_type = 0, tcas_I_II_type = 0;
+    uint16_t site = 0, application = 0, entity = 0;
+    uint16_t systemType = 0;
+    uint16_t mode1 = 0, mode1_element1 = 0, mode1_element2 = 0;
+    uint16_t rrb = 0, rrb_code = 0;
+    uint16_t mode2 = 0, mode2_element1 = 0, mode2_element2 = 0, mode2_element3 = 0, mode2_element4 = 0;
+    uint16_t mode3 = 0, mode3_element1 = 0, mode3_element2 = 0, mode3_element3 = 0, mode3_element4 = 0;
+    uint16_t mode4 = 0;
+    uint16_t modeS = 0, modeS_primary_type = 0, modeS_primary_code = 0, modeS_secondary_type = 0, modeS_secondary_code = 0;
+    uint16_t parameter_5 = 0;
+    int16_t altitude = 0;
+    uint16_t parameter_6 = 0, tcas_acas_indicator = 0, tcas_acas_type = 0, tcas_I_II_type = 0;
 
     site = tvb_get_ntohs(tvb, offset);
     application = tvb_get_ntohs(tvb, offset+2);
@@ -6975,8 +6975,8 @@ static int dissect_DIS_PARSER_TRANSMITTER_PDU(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item* ti;
     proto_tree* sub_tree;
-    guint32 radioID, disRadioTransmitState, modulationParamLength;
-    guint16 systemModulation;
+    uint32_t radioID, disRadioTransmitState, modulationParamLength;
+    uint16_t systemModulation;
 
     offset = parseField_Entity(tvb, tree, offset, "Entity ID");
 
@@ -7074,7 +7074,7 @@ static int dissect_DIS_PARSER_TRANSMITTER_PDU(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_tree* sub_tree;
-    guint16 code_name;
+    uint16_t code_name;
 
     offset = parseField_Entity(tvb, tree, offset, "Designating Entity ID");
 
@@ -7131,7 +7131,7 @@ static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, 
 
 static int dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    gint8 source_line_id;
+    int8_t source_line_id;
     proto_tree_add_item(tree, hf_intercom_control_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -7173,9 +7173,9 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 {
     proto_item* ti;
     proto_tree* sub_tree;
-    guint32 radioID, encodingScheme, numSamples;
-    guint16 tdlType;
-    guint8 messageType;
+    uint32_t radioID, encodingScheme, numSamples;
+    uint16_t tdlType;
+    uint8_t messageType;
 
     offset = parseField_Entity(tvb, tree, offset, "Entity ID");
 
@@ -7233,7 +7233,7 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 
 static int dissect_DIS_PARSER_RECEIVER_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 radioID, disRadioReceiveState;
+    uint32_t radioID, disRadioReceiveState;
 
     offset = parseField_Entity(tvb, tree, offset, "Entity ID");
 
@@ -7305,8 +7305,8 @@ static int dissect_DIS_PARSER_DETONATION_PDU(tvbuff_t *tvb, packet_info *pinfo _
 {
     proto_item *ti;
     proto_tree *sub_tree;
-    guint8 variableParameterType, numVariable;
-    guint32 i;
+    uint8_t variableParameterType, numVariable;
+    uint32_t i;
 
     offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Target Entity ID");
@@ -7422,7 +7422,7 @@ static int dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvbuff_t *tvb, packet_info *pinfo 
 
 static int dissect_DIS_PARSER_ACTION_REQUEST_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7449,7 +7449,7 @@ static int dissect_DIS_PARSER_ACTION_REQUEST_PDU(tvbuff_t *tvb, packet_info *pin
 
 static int dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7476,7 +7476,7 @@ static int dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvbuff_t *tvb, packet_info *pi
 
 static int dissect_DIS_PARSER_EVENT_REPORT_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7503,7 +7503,7 @@ static int dissect_DIS_PARSER_EVENT_REPORT_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 static int dissect_DIS_PARSER_DATA_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7530,7 +7530,7 @@ static int dissect_DIS_PARSER_DATA_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 static int dissect_DIS_PARSER_DATA_QUERY_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7557,11 +7557,11 @@ static int dissect_DIS_PARSER_DATA_QUERY_PDU(tvbuff_t *tvb, packet_info *pinfo _
 
 static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 number_of_variable_datum_records;
+    uint32_t number_of_variable_datum_records;
     proto_tree *sub_tree;
-    const guint8 *marking_text;
-    static guint32 entitySite, entityApplication, entityEntity;
-    guint16 number_of_aggregates, number_of_entities, number_of_silent_aggregates_types, padding;
+    const uint8_t *marking_text;
+    static uint32_t entitySite, entityApplication, entityEntity;
+    uint16_t number_of_aggregates, number_of_entities, number_of_silent_aggregates_types, padding;
     int i;
 
     entitySite = tvb_get_ntohs(tvb, offset);
@@ -7694,7 +7694,7 @@ static int dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU(tvbuff_t *tvb, packet_in
 
 static int dissect_DIS_PARSER_COMMENT_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7771,7 +7771,7 @@ static int dissect_DIS_PARSER_STOP_FREEZE_R_PDU(tvbuff_t *tvb, packet_info *pinf
 
 static int dissect_DIS_PARSER_ACTION_REQUEST_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7804,7 +7804,7 @@ static int dissect_DIS_PARSER_ACTION_REQUEST_R_PDU(tvbuff_t *tvb, packet_info *p
 
 static int dissect_DIS_PARSER_DATA_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7834,7 +7834,7 @@ static int dissect_DIS_PARSER_DATA_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 static int dissect_DIS_PARSER_DATA_QUERY_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint32 numFixed, numVariable;
+    uint32_t numFixed, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -7888,8 +7888,8 @@ static int dissect_DIS_PARSER_APPLICATION_CONTROL_PDU(tvbuff_t *tvb, packet_info
 {
     proto_item* ti;
     proto_tree* sub_tree;
-    guint32 i, variableRecordType;
-    guint16 variableRecordLength, numVariable;
+    uint32_t i, variableRecordType;
+    uint16_t variableRecordLength, numVariable;
 
     offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
     offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
@@ -8071,9 +8071,9 @@ static int dissect_DIS_PARSER_NOMINATION_PO_PDU(tvbuff_t *tvb, packet_info *pinf
 
 /* Adjust an offset variable for proper alignment for a specified field length.
  */
-static gint alignOffset(gint offset, guint fieldLength)
+static int alignOffset(int offset, unsigned fieldLength)
 {
-    gint remainder = offset % fieldLength;
+    int remainder = offset % fieldLength;
     if (remainder != 0)
     {
         offset += fieldLength - remainder;
@@ -8082,22 +8082,22 @@ static gint alignOffset(gint offset, guint fieldLength)
 }
 
 /* Parse the Timestamp -- defined in spec in microseconds: DIS 1278.1-2012: sec 5.2.5, detailed in sec 6.2.88 */
-static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf_relative)
+static int parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_relative)
 {
    /* some consts */
-   static guint USEC_PER_HOUR = (guint)3600 * (guint)1000000;
-   static guint FSV = 0x7fffffff; /* 2^31-1 */
+   static unsigned USEC_PER_HOUR = (unsigned)3600 * (unsigned)1000000;
+   static unsigned FSV = 0x7fffffff; /* 2^31-1 */
    /* variables */
-   guint isAbsolute = 0;
-   guint32 uintVal;
-   guint64 usec;
+   unsigned isAbsolute = 0;
+   uint32_t uintVal;
+   uint64_t usec;
    nstime_t tv;
    proto_item* ti;
 
    /* used in timestamp formatting for display */
-   guint minutes;
-   guint seconds;
-   guint micros;
+   unsigned minutes;
+   unsigned seconds;
+   unsigned micros;
 
 
    offset = alignOffset(offset, 4);
@@ -8108,7 +8108,7 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
    isAbsolute = uintVal & 1;
 
    /* convert TS to uSec */
-   usec = (guint64)((uintVal >> 1) * (double)(USEC_PER_HOUR) / FSV);
+   usec = (uint64_t)((uintVal >> 1) * (double)(USEC_PER_HOUR) / FSV);
 
    tv.secs = (time_t)usec / 1000000;
    tv.nsecs = (int)(usec % 1000000) * 1000;
@@ -8118,9 +8118,9 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
     *  needed to pass along -- these below values are strictly
     *  for display.
     */
-   minutes = (guint)((usec / 1000000) / 60);
-   seconds = (guint)((usec - (minutes * 60 * 1000000)) / 1000000);
-   micros  = (guint)(usec - (minutes * 60 * 1000000) - (seconds * 1000000));
+   minutes = (unsigned)((usec / 1000000) / 60);
+   seconds = (unsigned)((usec - (minutes * 60 * 1000000)) / 1000000);
+   micros  = (unsigned)(usec - (minutes * 60 * 1000000) - (seconds * 1000000));
 
    ti = proto_tree_add_time_format_value(tree, hf_relative, tvb, offset, 4, &tv, "%02u:%02u.%06u", minutes, seconds, micros);
 
@@ -8137,7 +8137,7 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
 }
 
 /* Parse an Entity */
-static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name)
+static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
     proto_tree  *sub_tree;
 
@@ -8155,7 +8155,7 @@ static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, cons
     return offset;
 }
 
-static gint parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name)
+static int parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
     proto_tree  *sub_tree;
 
@@ -8175,7 +8175,7 @@ static gint parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, gint offset, c
 
 /* Parse a variable parameter field.
  */
-static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, guint8 paramType)
+static int parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t paramType)
 {
     /* Determine the parser to use based on the type */
     switch (paramType) {
@@ -8202,7 +8202,7 @@ static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint o
 
 /* Parse a variable record field.
  */
-static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, guint32 variableRecordType, guint16 record_length)
+static int parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t variableRecordType, uint16_t record_length)
 {
     /* Determine the parser to use based on the type */
     switch (variableRecordType) {
@@ -8232,7 +8232,7 @@ static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offs
     /* Should alignment padding be added */
     if (record_length % 8)
     {
-        guint32 alignmentPadding = (8 - (record_length % 8));
+        uint32_t alignmentPadding = (8 - (record_length % 8));
 
         proto_tree_add_item(tree, hf_dis_alignment_padding, tvb, offset, alignmentPadding, ENC_NA);
         offset += alignmentPadding;
@@ -8387,7 +8387,7 @@ static int parseDISHeader(tvbuff_t *tvb, proto_tree *tree, int offset, dis_heade
     return offset;
 }
 
-static int parsePOHeader(tvbuff_t *tvb, proto_tree *tree, int offset, guint8* pduType)
+static int parsePOHeader(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t* pduType)
 {
     proto_tree_add_item(tree, hf_dis_po_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -8412,7 +8412,7 @@ static int parsePOHeader(tvbuff_t *tvb, proto_tree *tree, int offset, guint8* pd
 }
 
 
-static gint parse_persistent_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, guint8 persistentObjectPduType)
+static int parse_persistent_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, uint8_t persistentObjectPduType)
 {
     switch (persistentObjectPduType)
     {
@@ -8435,7 +8435,7 @@ static gint parse_persistent_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, prot
     }
 }
 
-static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, guint8 pduType)
+static int parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, uint8_t pduType)
 {
     switch (pduType)
     {
@@ -8535,20 +8535,20 @@ static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */
-static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *dis_tree, *dis_header_tree;
     proto_item *dis_node;
     proto_tree *dis_payload_tree = NULL;
     proto_item *dis_payload_node = NULL;
 
-    gint offset = 0;
-    gint offsetBeforePayloadParse = 0;
+    int offset = 0;
+    int offsetBeforePayloadParse = 0;
 
-    const gchar *pduString = 0;
+    const char *pduString = 0;
 
     dis_header_t header;
-    guint8 persistentObjectPduType;
+    uint8_t persistentObjectPduType;
 
     /* DIS packets must be at least 12 bytes long.  DIS uses port 3000, by
      * default, but the Cisco Redundant Link Management protocol can also use
@@ -10960,7 +10960,7 @@ void proto_register_dis(void)
         };
 
     /* Setup protocol subtree array */
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_dis,
         &ett_dis_header,

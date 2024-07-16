@@ -26,9 +26,9 @@ static dissector_handle_t dvb_ait_handle;
 
 static int proto_dvb_ait;
 
-static gint ett_dvb_ait;
-static gint ett_dvb_ait_descr;
-static gint ett_dvb_ait_app;
+static int ett_dvb_ait;
+static int ett_dvb_ait_descr;
+static int ett_dvb_ait_app;
 
 static int hf_dvb_ait_test_app_flag;
 static int hf_dvb_ait_app_type;
@@ -129,13 +129,13 @@ static const value_string app_vis[] = {
 /* dissect the body of an application_descriptor
    offset points to the start of the body,
    i.e. to the first byte after the length field */
-static gint
-dissect_dvb_ait_app_desc_body(tvbuff_t *tvb, guint offset,
-        guint8 body_len, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_dvb_ait_app_desc_body(tvbuff_t *tvb, unsigned offset,
+        uint8_t body_len, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint   offset_start, offset_app_prof_start;
-    guint8  app_prof_len;
-    guint8  ver_maj, ver_min, ver_mic;
+    unsigned   offset_start, offset_app_prof_start;
+    uint8_t app_prof_len;
+    uint8_t ver_maj, ver_min, ver_mic;
 
     offset_start = offset;
 
@@ -169,16 +169,16 @@ dissect_dvb_ait_app_desc_body(tvbuff_t *tvb, guint offset,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
-    return (gint)(offset-offset_start);
+    return (int)(offset-offset_start);
 }
 
 
-static gint
-dissect_dvb_ait_app_name_desc_body(tvbuff_t *tvb, guint offset,
-        guint8 body_len, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_dvb_ait_app_name_desc_body(tvbuff_t *tvb, unsigned offset,
+        uint8_t body_len, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint   offset_start;
-    guint8  len;
+    unsigned   offset_start;
+    uint8_t len;
 
     offset_start = offset;
     while (offset-offset_start < body_len) {
@@ -192,17 +192,17 @@ dissect_dvb_ait_app_name_desc_body(tvbuff_t *tvb, guint offset,
           offset += 1+len;
     }
 
-    return (gint)(offset-offset_start);
+    return (int)(offset-offset_start);
 }
 
 
-static gint
-dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
-        guint8 body_len, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, unsigned offset,
+        uint8_t body_len, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint     offset_start;
-    guint16   proto_id;
-    gboolean  remote_connection;
+    unsigned  offset_start;
+    uint16_t  proto_id;
+    bool      remote_connection;
 
     offset_start = offset;
 
@@ -235,7 +235,7 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
             offset++;
         }
         else if (proto_id == TRPT_HTTP) {
-            guint8 url_base_len, url_ext_cnt, url_ext_len, i;
+            uint8_t url_base_len, url_ext_cnt, url_ext_len, i;
 
             url_base_len = tvb_get_guint8(tvb, offset);
             /* FT_UINT_STRING with one leading length byte */
@@ -262,17 +262,17 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
         }
     }
 
-    return (gint)(offset-offset_start);
+    return (int)(offset-offset_start);
 }
 
 
-static gint
-dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
+static int
+dissect_dvb_ait_descriptor(tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    gint        ret;
-    guint       offset_start;
-    guint8      tag, len;
+    int         ret;
+    unsigned    offset_start;
+    uint8_t     tag, len;
     proto_tree *descr_tree;
 
     tag = tvb_get_guint8(tvb, offset);
@@ -327,10 +327,10 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
                 break;
         }
 
-        ret = (gint)(offset-offset_start);
+        ret = (int)(offset-offset_start);
     }
     else
-        ret = (gint)proto_mpeg_descriptor_dissect(tvb, offset, tree);
+        ret = (int)proto_mpeg_descriptor_dissect(tvb, offset, tree);
 
     return ret;
 }
@@ -339,14 +339,14 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
 static int
 dissect_dvb_ait(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        offset=0;
+    int         offset=0;
     proto_item *ait_tree_ti = NULL, *app_tree_ti = NULL;
     proto_tree *ait_tree = NULL, *ait_app_tree = NULL;
-    gint        offset_loop_start, offset_inner_loop_start, offset_app_start;
-    guint16     descr_loop_len, app_loop_len;
-    gint        ret;
-    guint32     org_id;
-    guint16     app_id;
+    int         offset_loop_start, offset_inner_loop_start, offset_app_start;
+    uint16_t    descr_loop_len, app_loop_len;
+    int         ret;
+    uint32_t    org_id;
+    uint16_t    app_id;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Application Information Table (AIT)");
 
@@ -436,7 +436,7 @@ dissect_dvb_ait(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 void
 proto_register_dvb_ait(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_ait,
         &ett_dvb_ait_descr,
         &ett_dvb_ait_app

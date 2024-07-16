@@ -296,10 +296,10 @@ static int hf_dccp_option_reserved;
 static int hf_dccp_ccid_option_data;
 static int hf_dccp_option_unknown;
 
-static gint ett_dccp;
-static gint ett_dccp_options;
-static gint ett_dccp_options_item;
-static gint ett_dccp_feature;
+static int ett_dccp;
+static int ett_dccp_options;
+static int ett_dccp_options_item;
+static int ett_dccp_feature;
 
 static expert_field ei_dccp_option_len_bad;
 static expert_field ei_dccp_advertised_header_length_bad;
@@ -314,7 +314,7 @@ static bool dccp_summary_in_tree = true;
 static bool try_heuristic_first;
 static bool dccp_check_checksum  = true;
 static bool dccp_relative_seq    = true;
-static guint32  dccp_stream_count;
+static uint32_t dccp_stream_count;
 
 static void
 decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -558,14 +558,14 @@ dccpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, c
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
-    add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, true, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, false, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
 
     return TAP_PACKET_REDRAW;
 }
 
 /* Return the current stream count */
-guint32 get_dccp_stream_count(void)
+uint32_t get_dccp_stream_count(void)
 {
     return dccp_stream_count;
 }
@@ -576,7 +576,7 @@ dccp_filter_valid(packet_info *pinfo, void *user_data _U_)
     return proto_is_frame_protocol(pinfo->layers, "dccp");
 }
 
-static gchar*
+static char*
 dccp_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
@@ -598,7 +598,7 @@ dccp_build_filter(packet_info *pinfo, void *user_data _U_)
     return NULL;
 }
 
-static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+static char *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
     conversation_t *conv;
     struct dccp_analysis *dccpd;
@@ -623,16 +623,16 @@ static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinf
     return NULL;
 }
 
-static gchar *dccp_follow_index_filter(guint stream, guint sub_stream _U_)
+static char *dccp_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
 {
     return ws_strdup_printf("dccp.stream eq %u", stream);
 }
 
-static gchar *dccp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
+static char *dccp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
 {
-    const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
-    gchar         src_addr_str[WS_INET6_ADDRSTRLEN];
-    gchar         dst_addr_str[WS_INET6_ADDRSTRLEN];
+    const char   *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
+    char          src_addr_str[WS_INET6_ADDRSTRLEN];
+    char          dst_addr_str[WS_INET6_ADDRSTRLEN];
 
     address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
     address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
@@ -652,10 +652,10 @@ static gchar *dccp_follow_address_filter(address *src_addr, address *dst_addr, i
  * decode a variable-length number of nbytes starting at offset.  Based on
  * a concept by Arnaldo de Melo
  */
-static guint64
-dccp_ntoh_var(tvbuff_t *tvb, gint offset, guint nbytes)
+static uint64_t
+dccp_ntoh_var(tvbuff_t *tvb, int offset, unsigned nbytes)
 {
-    guint64       value = 0;
+    uint64_t      value = 0;
 
     switch (nbytes)
     {
@@ -688,9 +688,9 @@ dccp_ntoh_var(tvbuff_t *tvb, gint offset, guint nbytes)
 
 static void
 dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
-                        int offset, guint8 option_len)
+                        int offset, uint8_t option_len)
 {
-    guint8      feature_number = tvb_get_guint8(tvb, offset);
+    uint8_t     feature_number = tvb_get_guint8(tvb, offset);
     proto_item *dccp_item;
     proto_tree *feature_tree;
     int         i;
@@ -767,10 +767,10 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
      * in tvb and it should be options
      */
     int         offset      = offset_start;
-    guint8      option_type = 0;
-    guint8      option_len  = 0;
-    guint32     p;
-    guint8      mp_option_type = 0;
+    uint8_t     option_type = 0;
+    uint8_t     option_len  = 0;
+    uint32_t    p;
+    uint8_t     mp_option_type = 0;
 
     proto_item *option_item;
     proto_tree *option_tree;
@@ -1090,15 +1090,15 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
 /*
  * compute DCCP checksum coverage according to RFC 4340, section 9
 */
-static inline guint
-dccp_csum_coverage(const e_dccphdr *dccph, guint len)
+static inline unsigned
+dccp_csum_coverage(const e_dccphdr *dccph, unsigned len)
 {
-    guint cov;
+    unsigned cov;
 
     if (dccph->cscov == 0)
         return len;
 
-    cov = (dccph->data_offset + dccph->cscov - 1) * (guint)sizeof (guint32);
+    cov = (dccph->data_offset + dccph->cscov - 1) * (unsigned)sizeof (uint32_t);
     return (cov > len) ? len : cov;
 }
 
@@ -1111,15 +1111,15 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *dccp_item         = NULL;
     proto_item *hidden_item, *offset_item;
     vec_t      cksum_vec[4];
-    guint32    phdr[2];
-    guint      offset                     = 0;
-    guint      len                        = 0;
-    guint      reported_len               = 0;
-    guint      csum_coverage_len;
-    guint      advertised_dccp_header_len = 0;
-    guint      options_len                = 0;
-    guint64    seq;   /* Absolute or relative seq number (depending on DCCP_S_BASE_SEQ_SET) */
-    guint64    ack;   /* Absolute or relative ack number (depending on DCCP_S_BASE_SEQ_SET) */
+    uint32_t   phdr[2];
+    unsigned   offset                     = 0;
+    unsigned   len                        = 0;
+    unsigned   reported_len               = 0;
+    unsigned   csum_coverage_len;
+    unsigned   advertised_dccp_header_len = 0;
+    unsigned   options_len                = 0;
+    uint64_t   seq;   /* Absolute or relative seq number (depending on DCCP_S_BASE_SEQ_SET) */
+    uint64_t   ack;   /* Absolute or relative ack number (depending on DCCP_S_BASE_SEQ_SET) */
     e_dccphdr *dccph;
     conversation_t *conv = NULL;
     struct dccp_analysis *dccpd;
@@ -1202,17 +1202,17 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * XXX - make a bigger scatter-gather list once we do fragment
          * reassembly? */
         /* Set up the fields of the pseudo-header. */
-        SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
-        SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+        SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
+        SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
         switch (pinfo->src.type) {
         case AT_IPv4:
             phdr[0] = g_htonl((IP_PROTO_DCCP << 16) + reported_len);
-            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *) &phdr, 4);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *) &phdr, 4);
             break;
         case AT_IPv6:
             phdr[0] = g_htonl(reported_len);
             phdr[1] = g_htonl(IP_PROTO_DCCP);
-            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *) &phdr, 8);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *) &phdr, 8);
             break;
 
         default:
@@ -1928,7 +1928,7 @@ proto_register_dccp(void)
         { &hf_dccp_option_unknown, { "Unknown", "dccp.option_unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dccp,
         &ett_dccp_options,
         &ett_dccp_options_item,
@@ -1988,7 +1988,7 @@ proto_register_dccp(void)
         "Make the DCCP dissector use relative sequence numbers instead of absolute ones.",
         &dccp_relative_seq);
 
-    register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_endpoint_packet);
+    register_conversation_table(proto_dccp, false, dccpip_conversation_packet, dccpip_endpoint_packet);
     register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter, NULL);
     register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
                            dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count, NULL);

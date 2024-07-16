@@ -29,7 +29,7 @@
 
 WS_DLL_PUBLIC const value_string dvbci_event[];
 
-gint dvbci_set_addrs(guint8 event, packet_info *pinfo);
+int dvbci_set_addrs(uint8_t event, packet_info *pinfo);
 
 #endif
 

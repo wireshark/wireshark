@@ -81,7 +81,7 @@ static const int dvb_s2_modeadapt_sizes[] = {
 
 
 /* CRC table crc-8, poly=0xD5 */
-static guint8 crc8_table[256] = {
+static uint8_t crc8_table[256] = {
     0x00, 0xD5, 0x7F, 0xAA, 0xFE, 0x2B, 0x81, 0x54, 0x29, 0xFC, 0x56, 0x83, 0xD7, 0x02, 0xA8, 0x7D,
     0x52, 0x87, 0x2D, 0xF8, 0xAC, 0x79, 0xD3, 0x06, 0x7B, 0xAE, 0x04, 0xD1, 0x85, 0x50, 0xFA, 0x2F,
     0xA4, 0x71, 0xDB, 0x0E, 0x5A, 0x8F, 0x25, 0xF0, 0x8D, 0x58, 0xF2, 0x27, 0x73, 0xA6, 0x0C, 0xD9,
@@ -126,7 +126,7 @@ static const enum_val_t dvb_s2_modeadapt_enum[] = {
 
 static bool dvb_s2_full_dissection;
 static bool dvb_s2_df_dissection;
-static gint dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
+static int dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
 static bool dvb_s2_try_all_modeadapt = true;
 
 /* Initialize the protocol and registered fields */
@@ -189,15 +189,15 @@ static int hf_dvb_s2_gse_crc32;
 static int hf_dvb_s2_gse_crc32_status;
 
 /* Initialize the subtree pointers */
-static gint ett_dvb_s2_modeadapt;
-static gint ett_dvb_s2_modeadapt_acm;
+static int ett_dvb_s2_modeadapt;
+static int ett_dvb_s2_modeadapt_acm;
 
-static gint ett_dvb_s2_bb;
-static gint ett_dvb_s2_bb_matype1;
+static int ett_dvb_s2_bb;
+static int ett_dvb_s2_bb_matype1;
 
-static gint ett_dvb_s2_gse;
-static gint ett_dvb_s2_gse_hdr;
-static gint ett_dvb_s2_gse_ncr;
+static int ett_dvb_s2_gse;
+static int ett_dvb_s2_gse_hdr;
+static int ett_dvb_s2_gse_ncr;
 
 static expert_field ei_dvb_s2_bb_crc;
 static expert_field ei_dvb_s2_bb_header_ambiguous;
@@ -238,8 +238,8 @@ static expert_field ei_dvb_s2_gse_crc32;
  * API.
  */
 
-static gint ett_dvbs2_fragments;
-static gint ett_dvbs2_fragment;
+static int ett_dvbs2_fragments;
+static int ett_dvbs2_fragment;
 static int hf_dvbs2_fragments;
 static int hf_dvbs2_fragment;
 static int hf_dvbs2_fragment_overlap;
@@ -278,8 +278,8 @@ dvb_s2_gse_defragment_init(void)
                         &addresses_reassembly_table_functions);
 }
 
-static gint ett_dvb_s2_gse_fragments;
-static gint ett_dvb_s2_gse_fragment;
+static int ett_dvb_s2_gse_fragments;
+static int ett_dvb_s2_gse_fragment;
 static int hf_dvb_s2_gse_fragments;
 static int hf_dvb_s2_gse_fragment;
 static int hf_dvb_s2_gse_fragment_overlap;
@@ -858,7 +858,7 @@ static value_string_ext modeadapt_esno_ext = VALUE_STRING_EXT_INIT(modeadapt_esn
 
 /* *** DVB-S2 Base-Band Frame *** */
 
-#define DVB_S2_BB_HEADER_LEN    ((guint)10)
+#define DVB_S2_BB_HEADER_LEN    ((unsigned)10)
 
 #define DVB_S2_BB_OFFS_MATYPE1          0
 #define DVB_S2_BB_TSGS_MASK               0xC0
@@ -987,36 +987,36 @@ static const value_string gse_proto_next_header_str[] = {
 
 typedef struct {
     const conversation_t* conv;
-    guint32 isi;
+    uint32_t isi;
 } virtual_stream_key;
 
 static wmem_map_t *virtual_stream_hashtable;
-static guint virtual_stream_count = 1;
+static unsigned virtual_stream_count = 1;
 
 /* Hash functions */
-static gint
-virtual_stream_equal(gconstpointer v, gconstpointer w)
+static int
+virtual_stream_equal(const void *v, const void *w)
 {
     const virtual_stream_key *v1 = (const virtual_stream_key *)v;
     const virtual_stream_key *v2 = (const virtual_stream_key *)w;
-    gint result;
+    int result;
     result = (v1->conv == v2->conv && v1->isi == v2->isi);
     return result;
 }
 
-static guint
-virtual_stream_hash(gconstpointer v)
+static unsigned
+virtual_stream_hash(const void *v)
 {
     const virtual_stream_key *key = (const virtual_stream_key *)v;
-    guint hash_val = (GPOINTER_TO_UINT(key->conv)) ^ (key->isi << 16);
+    unsigned hash_val = (GPOINTER_TO_UINT(key->conv)) ^ (key->isi << 16);
     return hash_val;
 }
 
-static guint32
-virtual_stream_lookup(const conversation_t* conv, guint32 isi)
+static uint32_t
+virtual_stream_lookup(const conversation_t* conv, uint32_t isi)
 {
     virtual_stream_key key, *new_key;
-    guint32 virtual_isi;
+    uint32_t virtual_isi;
     key.conv = conv;
     key.isi = isi;
     virtual_isi = GPOINTER_TO_UINT(wmem_map_lookup(virtual_stream_hashtable, &key));
@@ -1043,7 +1043,7 @@ virtual_stream_init(void)
  * roll-off range for the entire conversation.
  */
 typedef struct {
-    guint32 use_low_ro;
+    uint32_t use_low_ro;
 } dvbs2_bb_conv_data;
 
 static dvbs2_bb_conv_data *
@@ -1067,9 +1067,9 @@ typedef struct {
     address src;
     address dst;
     port_type ptype;
-    guint32 srcport;
-    guint32 destport;
-    guint8  isi;
+    uint32_t srcport;
+    uint32_t destport;
+    uint8_t isi;
 } dvbs2_bb_data;
 
 /* GSE defragmentation related data, one set of data per conversation.
@@ -1087,7 +1087,7 @@ typedef struct {
 } gse_analysis_data;
 
 typedef struct {
-    guint8 labeltype;
+    uint8_t labeltype;
 } gse_frag_data;
 
 static gse_analysis_data *
@@ -1117,7 +1117,7 @@ get_gse_analysis_data(conversation_t *conv)
 }
 
 static gse_frag_data *
-get_gse_frag_data(gse_analysis_data *dvbs2_data, guint32 fragid, gboolean create)
+get_gse_frag_data(gse_analysis_data *dvbs2_data, uint32_t fragid, bool create)
 {
     gse_frag_data  *frag_data;
 
@@ -1130,7 +1130,7 @@ get_gse_frag_data(gse_analysis_data *dvbs2_data, guint32 fragid, gboolean create
 }
 
 static gse_frag_data *
-get_gse_subpacket_data(gse_analysis_data *dvbs2_data, guint32 num, guint32 fragid, gboolean create)
+get_gse_subpacket_data(gse_analysis_data *dvbs2_data, uint32_t num, uint32_t fragid, bool create)
 {
     gse_frag_data  *subpacket_data;
     wmem_tree_key_t subpacket_key[3];
@@ -1151,10 +1151,10 @@ get_gse_subpacket_data(gse_analysis_data *dvbs2_data, guint32 num, guint32 fragi
 }
 
 /* *** helper functions *** */
-static guint8 compute_crc8(tvbuff_t *p, guint8 len, guint offset)
+static uint8_t compute_crc8(tvbuff_t *p, uint8_t len, unsigned offset)
 {
     int    i;
-    guint8 crc = 0, tmp;
+    uint8_t crc = 0, tmp;
 
     for (i = 0; i < len; i++) {
         tmp = tvb_get_guint8(p, offset++);
@@ -1167,18 +1167,18 @@ static guint8 compute_crc8(tvbuff_t *p, guint8 len, guint offset)
 static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int         new_off                      = 0;
-    guint8      labeltype, isi = 0;
-    guint16     gse_hdr, data_len, packet_len, gse_proto = 0;
-    guint32     fragid, totlength, crc32_calc = 0;
+    uint8_t     labeltype, isi = 0;
+    uint16_t    gse_hdr, data_len, packet_len, gse_proto = 0;
+    uint32_t    fragid, totlength, crc32_calc = 0;
 
     proto_item *ti;
     proto_item *ttf;
     proto_tree *dvb_s2_gse_tree, *dvb_s2_gse_ncr_tree;
 
     tvbuff_t   *next_tvb, *data_tvb;
-    gboolean   dissected = FALSE;
+    bool       dissected = false;
     bool       update_col_info = true;
-    gboolean   complete = FALSE;
+    bool       complete = false;
 
     dvbs2_bb_data     *pdata;
     conversation_t    *conv;
@@ -1186,7 +1186,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     address save_src, save_dst;
     port_type save_ptype;
-    guint32 save_srcport, save_destport;
+    uint32_t save_srcport, save_destport;
 
     static int * const gse_header_bitfields[] = {
         &hf_dvb_s2_gse_hdr_start,
@@ -1265,7 +1265,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             if (!PINFO_FD_VISITED(pinfo)) {
                 gse_frag_data *frag_data;
                 if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_START_POS)) {
-                    frag_data = get_gse_frag_data(gse_data, fragid, TRUE);
+                    frag_data = get_gse_frag_data(gse_data, fragid, true);
                     frag_data->labeltype = labeltype;
                     /* Delete any previous in-progress reassembly if
                      * we get a new start packet. */
@@ -1281,21 +1281,21 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     if (data_tvb != NULL) {
                         DISSECTOR_ASSERT_NOT_REACHED();
                     }
-                    subpacket_data = get_gse_subpacket_data(gse_data, pinfo->num, fragid, TRUE);
+                    subpacket_data = get_gse_subpacket_data(gse_data, pinfo->num, fragid, true);
                     subpacket_data->labeltype = frag_data->labeltype;
                 } else {
-                    frag_data = get_gse_frag_data(gse_data, fragid, FALSE);
+                    frag_data = get_gse_frag_data(gse_data, fragid, false);
                     /* ETSI TS 102 601-1 A.2 Reassembly
                      * Discard the packet if no buffer is in the re-assembly
                      * state for the Frag ID (check with fragment_get).
                      */
                     if (frag_data && fragment_get(&dvb_s2_gse_reassembly_table, pinfo, fragid, NULL)) {
-                        subpacket_data = get_gse_subpacket_data(gse_data, pinfo->num, fragid, TRUE);
+                        subpacket_data = get_gse_subpacket_data(gse_data, pinfo->num, fragid, true);
                         subpacket_data->labeltype = frag_data->labeltype;
                     }
                 }
             } else {
-                subpacket_data = get_gse_subpacket_data(gse_data, pinfo->num, fragid, FALSE);
+                subpacket_data = get_gse_subpacket_data(gse_data, pinfo->num, fragid, false);
             }
             fragment_head *dvbs2_frag_head = NULL;
             if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
@@ -1312,7 +1312,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             if (next_tvb != NULL && subpacket_data) {
                 /* We have a reassembled packet. */
-                complete = TRUE;
+                complete = true;
                 labeltype = subpacket_data->labeltype;
                 crc32_calc = crc32_mpeg2_tvb_offset(next_tvb, 0, tvb_reported_length(next_tvb));
                 new_off = 0;
@@ -1321,7 +1321,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 /* Value of totlength field does not include itself or the
                  * CRC32.
                  */
-                if (totlength != (guint32)tvb_reported_length_remaining(next_tvb, new_off)) {
+                if (totlength != (uint32_t)tvb_reported_length_remaining(next_tvb, new_off)) {
                     expert_add_info(pinfo, ti, &ei_dvb_s2_gse_totlength_invalid);
                 }
             } else {
@@ -1334,7 +1334,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 }
             }
         } else {
-            complete = TRUE;
+            complete = true;
             next_tvb = tvb_new_subset_length(tvb, 0, packet_len);
         }
 
@@ -1407,7 +1407,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     if (dvb_s2_full_dissection)
                     {
                         call_dissector(ip_handle, data_tvb, pinfo, tree);
-                        dissected = TRUE;
+                        dissected = true;
                     }
                     break;
 
@@ -1415,7 +1415,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     if (dvb_s2_full_dissection)
                     {
                         call_dissector(ipv6_handle, data_tvb, pinfo, tree);
-                        dissected = TRUE;
+                        dissected = true;
                     }
                     break;
 
@@ -1423,20 +1423,20 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     if (dvb_s2_full_dissection)
                     {
                         call_dissector(eth_withoutfcs_handle, data_tvb, pinfo, tree);
-                        dissected = TRUE;
+                        dissected = true;
                     }
                     break;
 
                 case DVB_RCS2_SIGNAL_TABLE:
                     call_dissector(dvb_s2_table_handle, data_tvb, pinfo, tree);
-                    dissected = TRUE;
+                    dissected = true;
                     break;
 
                 case DVB_RCS2_NCR:
                     ttf = proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_ncr, data_tvb, 0, -1, ENC_NA);
                     dvb_s2_gse_ncr_tree = proto_item_add_subtree(ttf, ett_dvb_s2_gse_ncr);
                     proto_tree_add_item(dvb_s2_gse_ncr_tree, hf_dvb_s2_gse_data, data_tvb, 0, -1, ENC_NA);
-                    dissected = TRUE;
+                    dissected = true;
                     break;
 
                 default:
@@ -1451,7 +1451,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* add crc32 if last fragment */
         if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) && BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
-            guint flags = PROTO_CHECKSUM_NO_FLAGS;
+            unsigned flags = PROTO_CHECKSUM_NO_FLAGS;
             if (complete) {
                 flags = PROTO_CHECKSUM_VERIFY;
             }
@@ -1462,20 +1462,20 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return packet_len;
 }
 
-static gboolean test_dvb_s2_crc(tvbuff_t *tvb, guint offset) {
+static bool test_dvb_s2_crc(tvbuff_t *tvb, unsigned offset) {
 
-    guint8 input8;
+    uint8_t input8;
 
     /* only check BB Header and return */
     if (tvb_captured_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN))
-        return FALSE;
+        return false;
 
     input8 = tvb_get_guint8(tvb, offset + DVB_S2_BB_OFFS_CRC);
 
     if (compute_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, offset) != input8)
-        return FALSE;
+        return false;
     else
-        return TRUE;
+        return true;
 }
 
 
@@ -1495,12 +1495,12 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     dvbs2_bb_conv_data *conv_data;
     dvbs2_bb_data *pdata;
 
-    gboolean    npd, composite_init = FALSE;
-    guint8      input8, matype1, crc8, isi = 0, issyi;
-    guint8      sync_flag = 0;
-    guint16     input16, bb_data_len = 0, user_packet_length, syncd;
-    guint32     virtual_id;
-    guint       flags;
+    bool        npd, composite_init = false;
+    uint8_t     input8, matype1, crc8, isi = 0, issyi;
+    uint8_t     sync_flag = 0;
+    uint16_t    input16, bb_data_len = 0, user_packet_length, syncd;
+    uint32_t    virtual_id;
+    unsigned    flags;
 
     int         sub_dissected        = 0, flag_is_ms = 0, new_off = 0;
 
@@ -1572,7 +1572,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     proto_tree_add_uint_format(dvb_s2_bb_tree, hf_dvb_s2_bb_upl, tvb,
                                DVB_S2_BB_OFFS_UPL, 2, input16, "User Packet Length: %d bits (%d bytes)",
-                               (guint16) input16, (guint16) input16 / 8);
+                               (uint16_t) input16, (uint16_t) input16 / 8);
 
     new_off += 2;
     bb_data_len = input16 = tvb_get_ntohs(tvb, DVB_S2_BB_OFFS_DFL);
@@ -1653,7 +1653,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * pinfo->use_conv_addr_port_endpoints doesn't affect reassembly tables
      * in the default reassembly functions, either. So maybe the eventual
      * approach is to create a conversation key but set
-     * pinfo->use_conv_addr_port_endpoints back to FALSE, and also make the
+     * pinfo->use_conv_addr_port_endpoints back to false, and also make the
      * GSE and MP2T dissectors more (DVB BBF) conversation key aware,
      * including in their reassembly functions.
      */
@@ -1750,7 +1750,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 expert_add_info_format(pinfo, ti, &ei_dvb_s2_bb_npd_invalid,
                         "NPD is active on TS but UPL is only %d bytes",
                         user_packet_length);
-                npd = FALSE;
+                npd = false;
             }
             break;
         case MP2T_PACKET_SIZE + 1:
@@ -1778,7 +1778,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 expert_add_info_format(pinfo, ti, &ei_dvb_s2_bb_npd_invalid,
                         "NPD is active on TS but UPL is %d bytes",
                         user_packet_length);
-                npd = FALSE;
+                npd = false;
             }
             break;
         case MP2T_PACKET_SIZE + 3:
@@ -1838,7 +1838,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 ts_frag = stream_find_frag(ts_stream, pinfo->num, new_off);
                 if (ts_frag == NULL) {
                     ts_frag = stream_add_frag(ts_stream, pinfo->num, new_off,
-                            next_tvb, pinfo, TRUE);
+                            next_tvb, pinfo, true);
                 }
                 stream_process_reassembled(next_tvb, 0, pinfo,
                     "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL,
@@ -1852,7 +1852,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 ts_frag = stream_find_frag(ts_stream, pinfo->num, new_off);
                 if (ts_frag == NULL) {
                     ts_frag = stream_add_frag(ts_stream, pinfo->num, new_off,
-                            next_tvb, pinfo, FALSE);
+                            next_tvb, pinfo, false);
                 }
                 fd_head = stream_get_frag_data(ts_frag);
                 /* Don't put anything in the tree when SYNCD is 0 and there was
@@ -1864,7 +1864,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             tree);
                     if (next_tvb && tvb_reported_length(next_tvb) == user_packet_length) {
                         tsp_tvb = tvb_new_composite();
-                        composite_init = TRUE;
+                        composite_init = true;
                         tvb_composite_append(tsp_tvb, sync_tvb);
                         proto_tree_add_checksum(dvb_s2_bb_tree, next_tvb, 0,
                                 hf_dvb_s2_bb_up_crc, hf_dvb_s2_bb_up_crc_status,
@@ -1899,7 +1899,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         &ei_dvb_s2_bb_crc, pinfo, crc8, ENC_NA, flags);
                 if (!composite_init) {
                     tsp_tvb = tvb_new_composite();
-                    composite_init = TRUE;
+                    composite_init = true;
                 }
                 tvb_composite_append(tsp_tvb, sync_tvb);
                 new_off++;
@@ -1926,7 +1926,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 ts_frag = stream_find_frag(ts_stream, pinfo->num, new_off);
                 if (ts_frag == NULL) {
                     ts_frag = stream_add_frag(ts_stream, pinfo->num, new_off,
-                            next_tvb, pinfo, TRUE);
+                            next_tvb, pinfo, true);
                 }
                 stream_process_reassembled(next_tvb, 0, pinfo,
                         "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL, tree);
@@ -2177,7 +2177,7 @@ void proto_register_dvb_s2_modeadapt(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett_modeadapt[] = {
+    static int *ett_modeadapt[] = {
         &ett_dvb_s2_modeadapt,
         &ett_dvb_s2_modeadapt_acm
     };
@@ -2353,7 +2353,7 @@ void proto_register_dvb_s2_modeadapt(void)
                 NULL, 0x0, "The reassembled payload", HFILL }}
     };
 
-    static gint *ett_bb[] = {
+    static int *ett_bb[] = {
         &ett_dvb_s2_bb,
         &ett_dvb_s2_bb_matype1,
         &ett_dvbs2_fragments,
@@ -2495,7 +2495,7 @@ void proto_register_dvb_s2_modeadapt(void)
                 NULL, 0x0, "The reassembled payload", HFILL }}
     };
 
-    static gint *ett_gse[] = {
+    static int *ett_gse[] = {
         &ett_dvb_s2_gse,
         &ett_dvb_s2_gse_hdr,
         &ett_dvb_s2_gse_ncr,
@@ -2562,7 +2562,7 @@ void proto_register_dvb_s2_modeadapt(void)
     prefs_register_enum_preference(dvb_s2_modeadapt_module, "default_modeadapt",
         "Preferred Mode Adaptation Interface",
         "The preferred Mode Adaptation Interface",
-        &dvb_s2_default_modeadapt, dvb_s2_modeadapt_enum, FALSE);
+        &dvb_s2_default_modeadapt, dvb_s2_modeadapt_enum, false);
 
     prefs_register_bool_preference(dvb_s2_modeadapt_module, "try_all_modeadapt",
         "Try all Mode Adaptation Interface Types",

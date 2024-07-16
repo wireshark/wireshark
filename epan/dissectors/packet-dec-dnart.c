@@ -150,22 +150,22 @@ static int hf_dec_sess_src_name;
 static int hf_dec_sess_menu_ver;
 static int hf_dec_sess_rqstr_id;
 
-static gint ett_dec_rt;
-static gint ett_dec_routing_flags;
-static gint ett_dec_msg_flags;
-static gint ett_dec_rt_ctl_msg;
-static gint ett_dec_rt_nsp_msg;
-static gint ett_dec_rt_info_flags;
-static gint ett_dec_rt_list;
-static gint ett_dec_rt_rlist;
-static gint ett_dec_rt_state;
-static gint ett_dec_flow_control;
-static gint ett_dec_sess_contents;
+static int ett_dec_rt;
+static int ett_dec_routing_flags;
+static int ett_dec_msg_flags;
+static int ett_dec_rt_ctl_msg;
+static int ett_dec_rt_nsp_msg;
+static int ett_dec_rt_info_flags;
+static int ett_dec_rt_list;
+static int ett_dec_rt_rlist;
+static int ett_dec_rt_state;
+static int ett_dec_flow_control;
+static int ett_dec_sess_contents;
 
 static expert_field ei_dec_rt_checksum;
 
-static gint dec_dna_total_bytes_this_segment;
-static gint dec_dna_previous_total;
+static int dec_dna_total_bytes_this_segment;
+static int dec_dna_previous_total;
 
 static const value_string rt_msg_type_vals[] = {
     { 0x0   , "Initialization message" },
@@ -270,8 +270,8 @@ handle_nsp_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset,
-    guint8 nsp_msg_type);
+    unsigned offset,
+    uint8_t nsp_msg_type);
 
 
 static int
@@ -279,53 +279,53 @@ do_initialization_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *ctl_msg_tree,
-    guint offset);
+    unsigned offset);
 
 static int
 do_verification_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *ctl_msg_tree,
-    guint offset);
+    unsigned offset);
 
 static int
 do_hello_test_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *ctl_msg_tree,
-    guint offset);
+    unsigned offset);
 
 static int
 do_routing_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *ctl_msg_tree,
-    guint offset,
-    guint msg);
+    unsigned offset,
+    unsigned msg);
 
 static int
 do_hello_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *ctl_msg_tree,
-    guint offset,
-    guint msg);
+    unsigned offset,
+    unsigned msg);
 
 static int
 handle_connect_contents(
     tvbuff_t *tvb,
     proto_tree *tree,
-    guint offset);
+    unsigned offset);
 
 static int
 handle_disc_init_contents(
-    guint offset);
+    unsigned offset);
 
 static char *
-dnet_ntoa(wmem_allocator_t *pool, const guint8 *data)
+dnet_ntoa(wmem_allocator_t *pool, const uint8_t *data)
 {
     if (data[0] == 0xAA && data[1] == 0x00 && data[2] == 0x04 && data[3] == 0x00) {
-        guint16 dnet_addr = data[4] | (data[5] << 8);
+        uint16_t dnet_addr = data[4] | (data[5] << 8);
         return wmem_strdup_printf(pool, "%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
     }
     return NULL;
@@ -335,7 +335,7 @@ static void
 set_dnet_address(packet_info *pinfo, address *paddr_src, address *paddr_tgt)
 {
     if (paddr_tgt->type != AT_STRINGZ && paddr_src->type == AT_ETHER) {
-        char *addr = dnet_ntoa(pinfo->pool, (const guint8 *)paddr_src->data);
+        char *addr = dnet_ntoa(pinfo->pool, (const uint8_t *)paddr_src->data);
         if (addr != NULL)
             set_address(paddr_tgt, AT_STRINGZ, 1,
                     wmem_strdup(pinfo->pool, addr));
@@ -345,11 +345,11 @@ set_dnet_address(packet_info *pinfo, address *paddr_src, address *paddr_tgt)
 static int
 dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8  padding_length;
-    guint8  forward;
-    guint8  msg_flags;
-    guint   rt_visit_count, rt_zero = 0;
-    gint    offset;
+    uint8_t padding_length;
+    uint8_t forward;
+    uint8_t msg_flags;
+    unsigned   rt_visit_count, rt_zero = 0;
+    int     offset;
     proto_tree *rt_tree;
     proto_tree *flags_tree;
     proto_item *ti;
@@ -383,7 +383,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     flags_tree = proto_item_add_subtree(ti, ett_dec_routing_flags);
 
     if (msg_flags & RT_FLAGS_CTRL_MSG) {
-        guint8  ctl_msg_type;
+        uint8_t ctl_msg_type;
         proto_tree *ctl_msg_tree;
 
         ctl_msg_type = (msg_flags >> 1) & 0x7;
@@ -443,7 +443,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 3;
         ti = proto_tree_add_item(rt_tree, hf_dec_rt_dst_addr, tvb,
                 offset, 6, ENC_NA);
-        addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, offset, 6));
+        addr = dnet_ntoa(pinfo->pool, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
         }
@@ -454,7 +454,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 8;
         ti = proto_tree_add_item(rt_tree, hf_dec_rt_src_addr, tvb,
             offset, 6, ENC_NA);
-        addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, offset, 6));
+        addr = dnet_ntoa(pinfo->pool, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
         }
@@ -499,7 +499,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         /* It is not a routing control message */
         proto_tree *nsp_msg_tree;
         proto_item *ti_local;
-        guint8     nsp_msg_type;
+        uint8_t    nsp_msg_type;
 
         nsp_msg_type = tvb_get_guint8(tvb, offset);
            ti_local = proto_tree_add_uint(
@@ -536,11 +536,11 @@ do_initialization_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset)
+    unsigned offset)
 {
-    guint   my_offset = offset;
-    guint8  version, eco_nr, user_eco;
-    guint8  remainder_count;
+    unsigned   my_offset = offset;
+    uint8_t version, eco_nr, user_eco;
+    uint8_t remainder_count;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, initialization message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
@@ -576,10 +576,10 @@ do_verification_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset)
+    unsigned offset)
 {
-    guint   my_offset = offset;
-    guint8  remainder_count;
+    unsigned   my_offset = offset;
+    uint8_t remainder_count;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, verification message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
@@ -599,10 +599,10 @@ do_hello_test_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset)
+    unsigned offset)
 {
-    guint   my_offset = offset;
-    guint   remainder_count;
+    unsigned   my_offset = offset;
+    unsigned   remainder_count;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, hello/test message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
@@ -622,13 +622,13 @@ do_routing_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset,
-    guint msg)
+    unsigned offset,
+    unsigned msg)
 {
-    guint   my_offset = offset;
-    guint32 my_checksum = 1;
-    guint16 count, startid, rtginfo;
-    guint   remainder_count;
+    unsigned   my_offset = offset;
+    uint32_t my_checksum = 1;
+    uint16_t count, startid, rtginfo;
+    unsigned   remainder_count;
 
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
@@ -672,12 +672,12 @@ do_hello_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset,
-    guint msg)
+    unsigned offset,
+    unsigned msg)
 {
-    guint   my_offset = offset;
-    guint8  priority;
-    guint16 version, eco_nr, user_eco;
+    unsigned   my_offset = offset;
+    uint8_t priority;
+    uint16_t version, eco_nr, user_eco;
     proto_item *ti;
     char *addr;
     static int * const info_flags[] = {
@@ -699,7 +699,7 @@ do_hello_msg(
     my_offset +=3;
     ti = proto_tree_add_item(tree, hf_dec_rt_id, tvb,
         my_offset, 6, ENC_NA);
-    addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
+    addr = dnet_ntoa(pinfo->pool, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
     if (addr != NULL) {
         proto_item_append_text(ti, " (%s)", addr);
     }
@@ -729,7 +729,7 @@ do_hello_msg(
         my_offset += 8;
         ti = proto_tree_add_item(tree, hf_dec_rt_neighbor, tvb,
                 my_offset, 6, ENC_NA);
-        addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
+        addr = dnet_ntoa(pinfo->pool, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
         }
@@ -748,8 +748,8 @@ do_hello_msg(
          */
         proto_item  *ti_locala, *ti_ether;
         proto_tree *list_tree, *list_ether;
-        guint8 image_len;
-        guint8 item_len;
+        uint8_t image_len;
+        uint8_t item_len;
 
         /* image field is preceded by count of remainder of field */
         image_len = tvb_get_guint8(tvb, my_offset);
@@ -772,13 +772,13 @@ do_hello_msg(
             image_len -= 1;
             while (item_len > 0)
             {
-                guint8  pristate;
+                uint8_t pristate;
                 proto_item  *ti_localb;
                 proto_tree *pstate_tree;
 
                 ti_localb = proto_tree_add_item(list_ether, hf_dec_rt_router_id,
                     tvb, my_offset, 6, ENC_NA);
-                addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
+                addr = dnet_ntoa(pinfo->pool, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
                 if (addr != NULL) {
                     proto_item_append_text(ti_localb, " (%s)", addr);
                 }
@@ -804,14 +804,14 @@ handle_nsp_msg(
     tvbuff_t *tvb,
     packet_info *pinfo,
     proto_tree *tree,
-    guint offset,
-    guint8 nsp_msg_type)
+    unsigned offset,
+    uint8_t nsp_msg_type)
 {
     /* Offset in tvb now points at the first byte still to be handled */
-    guint      my_offset = offset;
-    gint       data_length;
-    guint16    ack_num, ack_dat, ack_oth, seg_num;
-    guint8     ls_flags, fc_val, services;
+    unsigned   my_offset = offset;
+    int        data_length;
+    uint16_t   ack_num, ack_dat, ack_oth, seg_num;
+    uint8_t    ls_flags, fc_val, services;
     proto_item  *ti;
     proto_tree *flow_control_tree;
 
@@ -1070,12 +1070,12 @@ static int
 handle_connect_contents(
     tvbuff_t *tvb,
     proto_tree *tree,
-    guint offset)
+    unsigned offset)
 {
-    guint my_offset = offset;
+    unsigned my_offset = offset;
     proto_item   *ti;
     proto_tree   *contents_tree;
-    guint8       dst_format, src_format, obj_type, image_len, menu_ver;
+    uint8_t      dst_format, src_format, obj_type, image_len, menu_ver;
 
     ti = proto_tree_add_item(tree, hf_dec_conn_contents,
         tvb, my_offset, -1, ENC_NA);
@@ -1164,9 +1164,9 @@ handle_connect_contents(
 
 static int
 handle_disc_init_contents(
-    guint offset)
+    unsigned offset)
 {
-    guint my_offset = offset;
+    unsigned my_offset = offset;
 
     return (my_offset);
 }
@@ -1434,7 +1434,7 @@ proto_register_dec_rt(void)
 
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dec_rt,
         &ett_dec_routing_flags,
         &ett_dec_msg_flags,

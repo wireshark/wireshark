@@ -519,77 +519,77 @@ static int hf_docsis_ucd_reassembled;
 
 
 /* Initialize the subtree pointers */
-static gint ett_docsis_tlv;
-static gint ett_docsis_tlv_cos;
-static gint ett_docsis_tlv_mcap;
-static gint ett_docsis_tlv_mcap_em;
-static gint ett_docsis_tlv_mcap_em_pref;
-static gint ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup;
-static gint ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup;
-static gint ett_docsis_tlv_mcap_down_lower_band_edge_conf;
-static gint ett_docsis_tlv_mcap_down_upper_band_edge_conf;
-static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge;
-static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge;
-static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge;
-static gint ett_docsis_tlv_mcap_advanced_band_plan;
-static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge_options_list;
-static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge_options_list;
-static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge_options_list;
-static gint ett_docsis_tlv_clsfr;
-static gint ett_docsis_tlv_clsfr_ip;
-static gint ett_docsis_tlv_clsfr_ip6;
-static gint ett_docsis_tlv_clsfr_ip6_tc;
-static gint ett_docsis_tlv_clsfr_eth;
-static gint ett_docsis_tlv_clsfr_err;
-static gint ett_docsis_tlv_phs;
-static gint ett_docsis_tlv_phs_err;
-static gint ett_docsis_tlv_clsfr_dot1q;
-static gint ett_docsis_tlv_reqxmitpol;
-static gint ett_docsis_tlv_sflow_err;
-static gint ett_docsis_tlv_svc_unavail;
-static gint ett_docsis_tlv_snmpv3_kick;
-static gint ett_docsis_tlv_ds_ch_list;
-static gint ett_docsis_tlv_ds_ch_list_single;
-static gint ett_docsis_tlv_ds_ch_list_range;
-static gint ett_docsis_tlv_ext_field;
-static gint ett_docsis_tlv_vendor_specific_cap;
-static gint ett_docsis_tlv_dut_filter;
-static gint ett_docsis_tlv_tcc;
-static gint ett_docsis_tlv_tcc_ucd;
-static gint ett_docsis_tlv_tcc_rng_parms;
-static gint ett_docsis_tlv_tcc_oudp;
-static gint ett_docsis_tlv_tcc_err;
-static gint ett_docsis_tlv_sid_cl;
-static gint ett_docsis_tlv_sid_cl_enc;
-static gint ett_docsis_tlv_sid_cl_enc_map;
-static gint ett_docsis_tlv_sid_cl_so;
-static gint ett_docsis_tlv_rcp;
-static gint ett_docsis_tlv_rcp_rcv_mod_enc;
-static gint ett_docsis_tlv_rcp_ch_bl_rng;
-static gint ett_docsis_tlv_rcp_rcv_ch;
-static gint ett_docsis_tlv_rcc;
-static gint ett_docsis_tlv_rcc_rcv_mod_enc;
-static gint ett_docsis_tlv_rcc_rcv_ch;
-static gint ett_docsis_tlv_rcc_partial_serv_down_chan;
-static gint ett_docsis_tlv_rcc_srcc;
-static gint ett_docsis_tlv_rcc_srcc_prim_ds_assign;
-static gint ett_docsis_tlv_rcc_srcc_ds_assign;
-static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign;
-static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list;
-static gint ett_docsis_tlv_rcc_err;
-static gint ett_docsis_tlv_dsid;
-static gint ett_docsis_tlv_dsid_ds_reseq;
-static gint ett_docsis_tlv_dsid_mc;
-static gint ett_docsis_tlv_dsid_mc_addr;
-static gint ett_docsis_tlv_sec_assoc;
-static gint ett_docsis_tlv_ch_asgn;
-static gint ett_docsis_cmts_mc_sess_enc;
-static gint ett_docsis_em_id_list_for_cm;
-static gint ett_docsis_tlv_tg_assignment;
-static gint ett_docsis_tlv_unknown;
-static gint ett_docsis_ucd_fragments;
-static gint ett_docsis_ucd_fragment;
-static gint ett_docsis_ucd_reassembled;
+static int ett_docsis_tlv;
+static int ett_docsis_tlv_cos;
+static int ett_docsis_tlv_mcap;
+static int ett_docsis_tlv_mcap_em;
+static int ett_docsis_tlv_mcap_em_pref;
+static int ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup;
+static int ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup;
+static int ett_docsis_tlv_mcap_down_lower_band_edge_conf;
+static int ett_docsis_tlv_mcap_down_upper_band_edge_conf;
+static int ett_docsis_tlv_mcap_dipl_down_lower_band_edge;
+static int ett_docsis_tlv_mcap_dipl_down_upper_band_edge;
+static int ett_docsis_tlv_mcap_dipl_up_upper_band_edge;
+static int ett_docsis_tlv_mcap_advanced_band_plan;
+static int ett_docsis_tlv_mcap_dipl_down_lower_band_edge_options_list;
+static int ett_docsis_tlv_mcap_dipl_down_upper_band_edge_options_list;
+static int ett_docsis_tlv_mcap_dipl_up_upper_band_edge_options_list;
+static int ett_docsis_tlv_clsfr;
+static int ett_docsis_tlv_clsfr_ip;
+static int ett_docsis_tlv_clsfr_ip6;
+static int ett_docsis_tlv_clsfr_ip6_tc;
+static int ett_docsis_tlv_clsfr_eth;
+static int ett_docsis_tlv_clsfr_err;
+static int ett_docsis_tlv_phs;
+static int ett_docsis_tlv_phs_err;
+static int ett_docsis_tlv_clsfr_dot1q;
+static int ett_docsis_tlv_reqxmitpol;
+static int ett_docsis_tlv_sflow_err;
+static int ett_docsis_tlv_svc_unavail;
+static int ett_docsis_tlv_snmpv3_kick;
+static int ett_docsis_tlv_ds_ch_list;
+static int ett_docsis_tlv_ds_ch_list_single;
+static int ett_docsis_tlv_ds_ch_list_range;
+static int ett_docsis_tlv_ext_field;
+static int ett_docsis_tlv_vendor_specific_cap;
+static int ett_docsis_tlv_dut_filter;
+static int ett_docsis_tlv_tcc;
+static int ett_docsis_tlv_tcc_ucd;
+static int ett_docsis_tlv_tcc_rng_parms;
+static int ett_docsis_tlv_tcc_oudp;
+static int ett_docsis_tlv_tcc_err;
+static int ett_docsis_tlv_sid_cl;
+static int ett_docsis_tlv_sid_cl_enc;
+static int ett_docsis_tlv_sid_cl_enc_map;
+static int ett_docsis_tlv_sid_cl_so;
+static int ett_docsis_tlv_rcp;
+static int ett_docsis_tlv_rcp_rcv_mod_enc;
+static int ett_docsis_tlv_rcp_ch_bl_rng;
+static int ett_docsis_tlv_rcp_rcv_ch;
+static int ett_docsis_tlv_rcc;
+static int ett_docsis_tlv_rcc_rcv_mod_enc;
+static int ett_docsis_tlv_rcc_rcv_ch;
+static int ett_docsis_tlv_rcc_partial_serv_down_chan;
+static int ett_docsis_tlv_rcc_srcc;
+static int ett_docsis_tlv_rcc_srcc_prim_ds_assign;
+static int ett_docsis_tlv_rcc_srcc_ds_assign;
+static int ett_docsis_tlv_rcc_srcc_ds_prof_assign;
+static int ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list;
+static int ett_docsis_tlv_rcc_err;
+static int ett_docsis_tlv_dsid;
+static int ett_docsis_tlv_dsid_ds_reseq;
+static int ett_docsis_tlv_dsid_mc;
+static int ett_docsis_tlv_dsid_mc_addr;
+static int ett_docsis_tlv_sec_assoc;
+static int ett_docsis_tlv_ch_asgn;
+static int ett_docsis_cmts_mc_sess_enc;
+static int ett_docsis_em_id_list_for_cm;
+static int ett_docsis_tlv_tg_assignment;
+static int ett_docsis_tlv_unknown;
+static int ett_docsis_ucd_fragments;
+static int ett_docsis_ucd_fragment;
+static int ett_docsis_ucd_reassembled;
 
 
 static expert_field ei_docsis_tlv_tlvlen_bad;
@@ -973,13 +973,13 @@ static const value_string extended_power_options_vals[] = {
 static const unit_name_string local_units_mhz = { " MHz", NULL };
 
 static void
-fourth_db(char *buf, guint32 value)
+fourth_db(char *buf, uint32_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
 }
 
 static void
-fourth_dbmv(char *buf, guint32 value)
+fourth_dbmv(char *buf, uint32_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dBmV", value/4.0);
 }
@@ -1006,8 +1006,8 @@ static const fragment_items ucd_frag_items = {
 
 /* Dissection */
 static void
-dissect_unknown_tlv(tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, guint16 len) {
-  guint type, length;
+dissect_unknown_tlv(tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, uint16_t len) {
+  unsigned type, length;
   proto_tree * unknown_tree;
   proto_item * unknown_item;
 
@@ -1035,9 +1035,9 @@ dissect_unknown_tlv(tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int s
 }
 
 static void
-dissect_phs_err (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, guint16 len)
+dissect_phs_err (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *err_tree;
   proto_item *err_item;
   int pos = start;
@@ -1088,9 +1088,9 @@ dissect_phs_err (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int star
 }
 
 static void
-dissect_phs (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, guint16 len)
+dissect_phs (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *phs_tree;
   proto_item *phs_item;
   int pos = start;
@@ -1252,9 +1252,9 @@ dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
 
 static void
 dissect_sflow_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                   guint16 len)
+                   uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *err_tree;
   proto_item *err_item;
   int pos = start;
@@ -1306,9 +1306,9 @@ dissect_sflow_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
 static void
 dissect_downstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_tree,
-                          proto_item* sflow_item, int start, guint16 len)
+                          proto_item* sflow_item, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   while (pos < (start + len))
@@ -1352,9 +1352,9 @@ dissect_downstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow
 
 static void
 dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_tree,
-                        proto_item* sflow_item, int start, guint16 len)
+                        proto_item* sflow_item, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   while (pos < (start + len))
@@ -1490,7 +1490,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_t
                 proto_tree_add_item (sflow_tree,
                                      hf_docsis_tlv_sflow_num_of_bytes_requested_mult, tvb, pos,
                                      length, ENC_BIG_ENDIAN);
-                                guint8 multiplier_val = tvb_get_guint8 (tvb, pos);
+                                uint8_t multiplier_val = tvb_get_guint8 (tvb, pos);
                                 if (multiplier_val != 1 && multiplier_val != 2 && multiplier_val != 4 &&
                                     multiplier_val != 8 && multiplier_val != 16)
                                     {
@@ -1513,10 +1513,10 @@ dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_t
 }
 
 static void
-dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len,
-               guint8 direction)
+dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, uint16_t len,
+               uint8_t direction)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *sflow_tree;
   proto_item *sflow_item;
   int pos = start;
@@ -1749,9 +1749,9 @@ dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
 
 static void
 dissect_dot1q_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                     guint16 len)
+                     uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dot1qclsfr_tree;
   proto_item *dot1qclsfr_item;
   int pos = start;
@@ -1806,9 +1806,9 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
 
 static void
 dissect_eth_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                   guint16 len)
+                   uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *ethclsfr_tree;
   proto_item *ethclsfr_item;
   int pos = start;
@@ -1868,9 +1868,9 @@ dissect_eth_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
 static void
 dissect_clsfr_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                   guint16 len)
+                   uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *err_tree;
   proto_tree *err_item;
   int pos = start;
@@ -1927,9 +1927,9 @@ dissect_clsfr_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
 static void
 dissect_ip_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                       guint16 len)
+                       uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *ipclsfr_tree;
   proto_tree *ipclsfr_item;
   int pos = start;
@@ -2073,7 +2073,7 @@ dissect_ip_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, in
 
 static void
 dissect_ip6_classifier_tc (tvbuff_t * tvb, proto_tree * tree, int start,
-                       guint16 len)
+                       uint16_t len)
 {
   proto_tree *ip6clsfr_tc_tree;
   proto_tree *ip6clsfr_tc_item;
@@ -2089,9 +2089,9 @@ dissect_ip6_classifier_tc (tvbuff_t * tvb, proto_tree * tree, int start,
 
 static void
 dissect_ip6_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                       guint16 len)
+                       uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *ip6clsfr_tree;
   proto_tree *ip6clsfr_item;
   int pos = start;
@@ -2199,9 +2199,9 @@ dissect_ip6_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, i
 
 static void
 dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                     guint16 len, guint8 direction)
+                     uint16_t len, uint8_t direction)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *clsfr_tree;
   proto_item *clsfr_item;
   int pos = start;
@@ -2332,9 +2332,9 @@ dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
 
 static void
 dissect_doc10cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                  guint16 len)
+                  uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *doc10cos_tree;
   proto_tree *doc10cos_item;
   int pos = start;
@@ -2382,10 +2382,10 @@ dissect_doc10cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
 
 static void
 dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
-                  guint16 len)
+                  uint16_t len)
 {
-  guint8 type, length;
-  guint32 tlv_value;
+  uint8_t type, length;
+  uint32_t tlv_value;
   proto_tree *mcap_tree, *tlv_tree;
   proto_tree *mcap_item, *tlv_item;
   int pos = start;
@@ -2832,7 +2832,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_EXT_US_TRNS_PWR:
             if (length == 1)
               {
-                guint power_raw;
+                unsigned power_raw;
                 proto_item * power_cap_it = proto_tree_add_item_ret_uint (mcap_tree, hf_docsis_tlv_mcap_ext_us_trans_power,
                                                                           tvb, pos, length, ENC_BIG_ENDIAN, &power_raw);
                 proto_item_append_text(power_cap_it, " (%.2f dB)", power_raw * 0.25);
@@ -3205,7 +3205,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
                                   ett_docsis_tlv_mcap_dipl_down_lower_band_edge_options_list, &tlv_item,
                                   ".82 Advanced Diplexer Downstream Lower Band Edge Options List");
 
-                for (guint8 i = 0; i < length; i = i + 2)
+                for (uint8_t i = 0; i < length; i = i + 2)
                   {
                     proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_tlv_mcap_adv_down_lower_band_edge_option,
                                       tvb, pos + i, 2, ENC_BIG_ENDIAN, &tlv_value);
@@ -3224,7 +3224,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
                                   ett_docsis_tlv_mcap_dipl_down_upper_band_edge_options_list, &tlv_item,
                                   ".83 Advanced Diplexer Downstream Upper Band Edge Options List");
 
-                for (guint8 i = 0; i < length; i = i + 2)
+                for (uint8_t i = 0; i < length; i = i + 2)
                   {
                     proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_tlv_mcap_adv_down_upper_band_edge_option,
                                       tvb, pos + i, 2, ENC_BIG_ENDIAN, &tlv_value);
@@ -3243,7 +3243,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
                                   ett_docsis_tlv_mcap_dipl_up_upper_band_edge_options_list, &tlv_item,
                                   ".84 Advanced Diplexer Upstream Upper Band Edge Options List");
 
-                for (guint8 i = 0; i < length; i = i + 2)
+                for (uint8_t i = 0; i < length; i = i + 2)
                   {
                     proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_tlv_mcap_adv_up_upper_band_edge_option,
                                       tvb, pos + i, 2, ENC_BIG_ENDIAN, &tlv_value);
@@ -3275,9 +3275,9 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
 }
 
 static void
-dissect_cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
+dissect_cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *cos_tree;
   proto_tree *cos_item;
   int pos = start;
@@ -3378,7 +3378,7 @@ dissect_cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, g
 }
 
 static void
-dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, int pos, guint16 length) {
+dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, int pos, uint16_t length) {
 
   proto_item *svc_unavail_it;
   proto_tree *svc_unavail_tree;
@@ -3399,10 +3399,10 @@ dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, int pos, guint16 length) 
 }
 
 static void
-dissect_snmpv3_kickstart(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, int start, guint16 len) {
+dissect_snmpv3_kickstart(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, int start, uint16_t len) {
   proto_item *snmpv3_it;
   proto_tree *snmpv3_tree;
-  guint8 type, length;
+  uint8_t type, length;
   int pos = start;
 
   snmpv3_it = proto_tree_add_item (tree,
@@ -3436,9 +3436,9 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, 
 
 static void
 dissect_ds_ch_list_single (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
-                           int start, guint16 len)
+                           int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *single_tree;
   proto_item *single_item;
   int pos = start;
@@ -3485,9 +3485,9 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree
 
 static void
 dissect_ds_ch_list_range (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
-                          int start, guint16 len)
+                          int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *range_tree;
   proto_item *range_item;
   int pos = start;
@@ -3556,9 +3556,9 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
 
 static void
 dissect_dut_filter (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
-                    int start, guint16 len)
+                    int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dut_tree;
   proto_item *dut_item;
   int pos = start;
@@ -3597,9 +3597,9 @@ dissect_dut_filter (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
 }
 
 static void
-dissect_ds_ch_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_ds_ch_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dschlst_tree;
   proto_item *dschlst_item;
   int pos = start;
@@ -3641,7 +3641,7 @@ dissect_ds_ch_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 }
 
 static void
-dissect_docsis_extension_field(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_docsis_extension_field(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *ext_field_tree;
   proto_item *ext_field_item;
@@ -3656,7 +3656,7 @@ dissect_docsis_extension_field(tvbuff_t * tvb, packet_info* pinfo, proto_tree *t
 }
 
 static void
-dissect_vendor_specific_capabilities(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_vendor_specific_capabilities(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *vend_spec_cap_tree;
   proto_item *vend_spec_cap_item;
@@ -3671,9 +3671,9 @@ dissect_vendor_specific_capabilities(tvbuff_t * tvb, packet_info* pinfo, proto_t
 }
 
 static void
-dissect_tcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_tcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *tccerr_tree;
   proto_tree *tccerr_item;
   int pos = start;
@@ -3719,9 +3719,9 @@ dissect_tcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 }
 
 static void
-dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rngparm_tree;
   proto_item *rngparm_item;
   int pos = start;
@@ -3805,7 +3805,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 }
 
 static void
-dissect_tcc_oudp(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_tcc_oudp(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *oudp_tree;
   proto_item *oudp_item;
@@ -3823,9 +3823,9 @@ dissect_tcc_oudp(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *crit_tree;
   proto_item *crit_item;
   int pos = start;
@@ -3897,9 +3897,9 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int
 }
 
 static void
-dissect_sid_cl_enc_map(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl_enc_map(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *map_tree;
   proto_item *map_item;
   int pos = start;
@@ -3959,9 +3959,9 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int
 }
 
 static void
-dissect_sid_cl_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *enc_tree;
   proto_item *enc_item;
   int pos = start;
@@ -4003,9 +4003,9 @@ dissect_sid_cl_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 }
 
 static void
-dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *sid_tree;
   proto_item *sid_item;
   int pos = start;
@@ -4048,13 +4048,13 @@ dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, 
 
 static void
 dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
-            proto_tree *tree, int start, guint16 len, gint* previous_channel_id)
+            proto_tree *tree, int start, uint16_t len, int* previous_channel_id)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *tcc_tree, *reassembled_ucd_tree;
   proto_item *tcc_item, *reassembled_ucd_item;
   int pos = start;
-  gint channel_id = -1;
+  int channel_id = -1;
 
   fragment_head* reassembled_ucd = NULL;
 
@@ -4253,9 +4253,9 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
 }
 
 static void
-dissect_ch_bl_rng(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_ch_bl_rng(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *chblrng_tree;
   proto_item *chblrng_item;
   int pos = start;
@@ -4303,9 +4303,9 @@ dissect_ch_bl_rng(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int star
 }
 
 static void
-dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcvmod_tree;
   proto_item *rcvmod_item;
   int pos = start;
@@ -4383,9 +4383,9 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
 }
 
 static void
-dissect_rcp_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcp_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcvch_tree;
   proto_item *rcvch_item;
   int pos = start;
@@ -4452,9 +4452,9 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
 static void
 dissect_rcp(tvbuff_t * tvb, packet_info * pinfo,
-            proto_tree *tree, int start, guint16 len)
+            proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcp_tree;
   proto_item *rcp_item;
   int pos = start;
@@ -4525,9 +4525,9 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo,
 }
 
 static void
-dissect_rcc_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcc_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcvmod_tree;
   proto_item *rcvmod_item;
   int pos = start;
@@ -4580,9 +4580,9 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
 }
 
 static void
-dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcvch_tree;
   proto_item *rcvch_item;
   int pos = start;
@@ -4647,7 +4647,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 }
 
 static void
-dissect_rcc_partial_serv_down_chan(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_partial_serv_down_chan(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *rcc_partial_serv_down_chan_tree;
   proto_item *rcc_partial_serv_down_chan_item;
@@ -4666,7 +4666,7 @@ dissect_rcc_partial_serv_down_chan(tvbuff_t * tvb, proto_tree *tree, int start, 
 }
 
 static void
-dissect_rcc_srcc_prim_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_srcc_prim_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *rcc_srcc_prim_ds_assign_tree;
   proto_item *rcc_srcc_prim_ds_assign_item;
@@ -4685,7 +4685,7 @@ dissect_rcc_srcc_prim_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, 
 }
 
 static void
-dissect_rcc_srcc_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_srcc_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *rcc_srcc_ds_assign_tree;
   proto_item *rcc_srcc_ds_assign_item;
@@ -4704,7 +4704,7 @@ dissect_rcc_srcc_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, guint
 }
 
 static void
-dissect_rcc_srcc_ds_prof_assign_prof_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_srcc_ds_prof_assign_prof_list(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *rcc_srcc_ds_prof_assign_prof_list_tree;
   proto_item *rcc_srcc_ds_prof_assign_prof_list_item;
@@ -4723,9 +4723,9 @@ dissect_rcc_srcc_ds_prof_assign_prof_list(tvbuff_t * tvb, proto_tree *tree, int 
 }
 
 static void
-dissect_rcc_srcc_ds_prof_assign(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcc_srcc_ds_prof_assign(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcc_srcc_ds_prof_assign_tree;
   proto_item *rcc_srcc_ds_prof_assign_item;
   int pos = start;
@@ -4763,9 +4763,9 @@ dissect_rcc_srcc_ds_prof_assign(tvbuff_t * tvb, packet_info* pinfo, proto_tree *
 }
 
 static void
-dissect_rcc_srcc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcc_srcc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcc_srcc_tree;
   proto_item *rcc_srcc_item;
   int pos = start;
@@ -4797,9 +4797,9 @@ dissect_rcc_srcc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start
 }
 
 static void
-dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *err_tree;
   proto_item *err_item;
   int pos = start;
@@ -4877,9 +4877,9 @@ dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 
 static void
 dissect_rcc(tvbuff_t * tvb, packet_info * pinfo,
-            proto_tree *tree, int start, guint16 len)
+            proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *rcc_tree;
   proto_item *rcc_item;
   int pos = start;
@@ -4947,9 +4947,9 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo,
 }
 
 static void
-dissect_dsid_ds_reseq(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_dsid_ds_reseq(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dsid_tree;
   proto_item *dsid_item;
   int pos = start;
@@ -5026,9 +5026,9 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 }
 
 static void
-dissect_dsid_mc_addr(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_dsid_mc_addr(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dsid_tree;
   proto_item *dsid_item;
   int pos = start;
@@ -5076,9 +5076,9 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int s
 }
 
 static void
-dissect_dsid_mc(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, guint16 len)
+dissect_dsid_mc(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dsid_tree;
   int pos = start;
 
@@ -5117,9 +5117,9 @@ dissect_dsid_mc(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start,
 }
 
 static void
-dissect_dsid(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, guint16 len)
+dissect_dsid(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *dsid_tree;
   proto_item *dsid_item;
   int pos = start;
@@ -5173,9 +5173,9 @@ dissect_dsid(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, gu
 }
 
 static void
-dissect_sec_assoc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_sec_assoc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *sec_tree;
   proto_item *sec_item;
   int pos = start;
@@ -5223,9 +5223,9 @@ dissect_sec_assoc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int star
 }
 
 static void
-dissect_ch_asgn(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_ch_asgn(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *asgn_tree;
   proto_item *asgn_item;
   int pos = start;
@@ -5273,9 +5273,9 @@ dissect_ch_asgn(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 }
 
 static void
-dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *mc_tree;
   proto_item *mc_item;
   int pos = start;
@@ -5328,7 +5328,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, i
 }
 
 static void
-dissect_em_id_list_for_cm(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_em_id_list_for_cm(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t len)
 {
   proto_tree *em_id_list_tree;
   proto_item *em_id_list_item;
@@ -5346,9 +5346,9 @@ dissect_em_id_list_for_cm(tvbuff_t * tvb, proto_tree *tree, int start, guint16 l
 }
 
 static void
-dissect_fdx_tg_assignment(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+dissect_fdx_tg_assignment(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, uint16_t len)
 {
-  guint8 type, length;
+  uint8_t type, length;
   proto_tree *tg_assignment_tree;
   proto_item *tg_assignment_item;
   int pos = start;
@@ -5408,10 +5408,10 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   proto_item *it;
   proto_tree *tlv_tree;
   int pos = 0;
-  gint total_len;
-  guint8 type, length;
-  guint16 x;
-  gint previous_channel_id = -1;
+  int total_len;
+  uint8_t type, length;
+  uint16_t x;
+  int previous_channel_id = -1;
 
   total_len = tvb_reported_length_remaining (tvb, 0);
 
@@ -8218,7 +8218,7 @@ proto_register_docsis_tlv (void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_docsis_tlv,
     &ett_docsis_tlv_cos,
     &ett_docsis_tlv_mcap,

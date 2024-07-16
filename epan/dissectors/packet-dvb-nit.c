@@ -36,8 +36,8 @@ static int hf_dvb_nit_original_network_id;
 static int hf_dvb_nit_reserved4;
 static int hf_dvb_nit_transport_descriptors_length;
 
-static gint ett_dvb_nit;
-static gint ett_dvb_nit_ts;
+static int ett_dvb_nit;
+static int ett_dvb_nit_ts;
 
 static dissector_handle_t dvb_nit_handle;
 
@@ -55,10 +55,10 @@ static int
 dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    guint       offset = 0;
-    guint       ts_desc_len, desc_loop_len, ts_end;
+    unsigned    offset = 0;
+    unsigned    ts_desc_len, desc_loop_len, ts_end;
 
-    guint16     tsid;
+    uint16_t    tsid;
 
     proto_item *ti;
     proto_tree *dvb_nit_tree;
@@ -203,7 +203,7 @@ proto_register_dvb_nit(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_nit,
         &ett_dvb_nit_ts
     };

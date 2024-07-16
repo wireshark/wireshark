@@ -174,11 +174,11 @@ static expert_field ei_docsis_frag_fcs_bad;
 static expert_field ei_docsis_eh_len;
 
 /* Initialize the subtree pointers */
-static gint ett_docsis;
-static gint ett_ehdr;
-static gint ett_docsis_fragments;
-static gint ett_docsis_fragment;
-static gint ett_addr;
+static int ett_docsis;
+static int ett_ehdr;
+static int ett_docsis_fragments;
+static int ett_docsis_fragment;
+static int ett_addr;
 
 static const value_string fctype_vals[] = {
   {FCTYPE_PACKET,   "Packet PDU"},
@@ -255,9 +255,9 @@ static const value_string unique_no_phs[] = {
 };
 
 /* Fragmentation Flags / Sequence */
-static guint8 frag_flags;
-static guint8 frag_seq;
-static guint16 frag_sid;
+static uint8_t frag_flags;
+static uint8_t frag_seq;
+static uint16_t frag_sid;
 
 /*
  * Defragmentation of DOCSIS
@@ -289,10 +289,10 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_e
 {
   proto_tree *ehdr_tree;
   proto_item *eh_length_item;
-  gint ehdrlen;
+  int ehdrlen;
   int pos;
-  guint8 type;
-  guint8 len;
+  uint8_t type;
+  uint8_t len;
 
   ehdrlen = tvb_get_guint8 (tvb, 1);
   pos = 4;
@@ -455,31 +455,31 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_e
 }
 
 /* Code to Dissect the Header Check Sequence field */
-/* Return FALSE in case FCS validation is enabled, but FCS is incorrect */
-/* Return TRUE in all other cases */
-static gboolean
-dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree, gint hdrlen)
+/* Return false in case FCS validation is enabled, but FCS is incorrect */
+/* Return true in all other cases */
+static bool
+dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree, int hdrlen)
 {
   /* dissect the header check sequence */
   if(docsis_check_fcs){
     /* CRC-CCITT(16+12+5+1) */
-    guint16 fcs = g_ntohs(crc16_ccitt_tvb(tvb, (hdrlen - 2)));
+    uint16_t fcs = g_ntohs(crc16_ccitt_tvb(tvb, (hdrlen - 2)));
     proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
-    return (tvb_get_ntohs(tvb, (hdrlen - 2)) == fcs) ? TRUE : FALSE;
+    return (tvb_get_ntohs(tvb, (hdrlen - 2)) == fcs) ? true : false;
   }
   else
   {
     proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
-  return TRUE;
+  return true;
 }
 
 /* Code to Dissect the extended header length / MAC Param field and Length field */
 /* The length field may condain a SID, but this logic is not handled here */
 static void
 dissect_exthdr_length_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree,
-                             guint8 exthdr, guint16 mac_parm, guint16 len_sid, guint16 *payload_length, bool *is_encrypted)
+                             uint8_t exthdr, uint16_t mac_parm, uint16_t len_sid, uint16_t *payload_length, bool *is_encrypted)
 {
   proto_item *length_item;
   if (exthdr == EXT_HDR_ON)
@@ -515,10 +515,10 @@ dissect_exthdr_length_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * d
 /* Print DST and SRC MACs and do not dissect the payload */
 /* Implementation inferred from packet-eth.c */
 static void
-dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, const guint8 fctype, const guint8 fcparm)
+dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, const uint8_t fctype, const uint8_t fcparm)
 {
-  guint32           offset, frame_len;
-  const guint8      *src_addr, *dst_addr;
+  uint32_t          offset, frame_len;
+  const uint8_t     *src_addr, *dst_addr;
   const char        *src_addr_name, *dst_addr_name;
   proto_item        *addr_item;
   proto_tree        *addr_tree=NULL;
@@ -586,21 +586,21 @@ dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 static int
 dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  guint8 fc = 0;
-  guint8 fctype = 0;
-  guint8 fcparm = 0;
-  guint8 exthdr = 0;
-  guint16 mac_parm = 0;
-  guint8 hdrlen = DOCSIS_MIN_HEADER_LEN;
-  guint16 len_sid = 0;
+  uint8_t fc = 0;
+  uint8_t fctype = 0;
+  uint8_t fcparm = 0;
+  uint8_t exthdr = 0;
+  uint16_t mac_parm = 0;
+  uint8_t hdrlen = DOCSIS_MIN_HEADER_LEN;
+  uint16_t len_sid = 0;
   tvbuff_t *next_tvb = NULL;
   tvbuff_t *mgt_tvb = NULL;
-  gint pdulen = 0;
-  guint16 payload_length = 0;
-  /* guint16 framelen = 0; */
-  gboolean save_fragmented;
+  int pdulen = 0;
+  uint16_t payload_length = 0;
+  /* uint16_t framelen = 0; */
+  bool save_fragmented;
   bool is_encrypted = false;
-  gboolean fcs_correct;
+  bool fcs_correct;
   proto_item *ti;
   proto_tree *docsis_tree;
 
@@ -789,7 +789,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         {
           /* Check if this is a fragmentation header */
           save_fragmented = pinfo->fragmented;
-          pinfo->fragmented = TRUE;
+          pinfo->fragmented = true;
 
           /* Dissect Length field for a PDU */
           dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
@@ -798,8 +798,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           if (fcs_correct)
           {
             /* Grab the Fragment FCS */
-            guint32 sent_fcs = tvb_get_ntohl(tvb, (hdrlen + len_sid - 4));
-            guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
+            uint32_t sent_fcs = tvb_get_ntohl(tvb, (hdrlen + len_sid - 4));
+            uint32_t fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
 
             /* Only defragment valid frames with a good FCS */
             if (sent_fcs == fcs)
@@ -817,9 +817,9 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                                                   NULL, docsis_tree);
 
               if (frag_flags == FRAG_LAST)
-                pinfo->fragmented = FALSE;
+                pinfo->fragmented = false;
               else
-                pinfo->fragmented = TRUE;
+                pinfo->fragmented = true;
 
               if (frag_msg) { /* Reassembled */
                 proto_item_append_text (ti, " (Message Reassembled)");
@@ -1197,7 +1197,7 @@ proto_register_docsis (void)
       { &ei_docsis_eh_len, { "docsis.ehdr.len.past_end", PI_MALFORMED, PI_ERROR, "Extended Header Length Invalid!", EXPFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
       &ett_docsis,
       &ett_ehdr,
       &ett_docsis_fragment,

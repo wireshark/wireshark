@@ -37,27 +37,27 @@ static int hf_remact_authn_hint;
 
 
 static int proto_remact;
-static gint ett_remact;
+static int ett_remact;
 static e_guid_t uuid_remact = { 0x4d9f4ab8, 0x7d1c, 0x11cf, { 0x86, 0x1e, 0x00, 0x20, 0xaf, 0x6e, 0x7c, 0x57 } };
-static guint16  ver_remact;
+static uint16_t ver_remact;
 
 
 static int
 dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
-				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-	guint32 u32ClientImpLevel;
-	guint32 u32Mode;
-	guint32 u32Interfaces;
-	guint32 u32Pointer;
-	guint32 u32ArraySize;
-	guint32 u32ItemIdx;
-	guint16 u16ProtSeqs;
+	uint32_t u32ClientImpLevel;
+	uint32_t u32Mode;
+	uint32_t u32Interfaces;
+	uint32_t u32Pointer;
+	uint32_t u32ArraySize;
+	uint32_t u32ItemIdx;
+	uint16_t u16ProtSeqs;
 	e_guid_t clsid;
 	e_guid_t iid;
 
-	gchar 	szObjName[1000] = { 0 };
-	guint32 u32ObjNameLen = sizeof(szObjName);
+	char 	szObjName[1000] = { 0 };
+	uint32_t u32ObjNameLen = sizeof(szObjName);
 
 	offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
@@ -114,17 +114,17 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
-				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-	guint32	u32Pointer;
+	uint32_t	u32Pointer;
 	e_guid_t ipid;
-	guint32	u32AuthnHint;
-	guint16	u16VersionMajor;
-	guint16	u16VersionMinor;
-	guint32	u32HResult;
-	guint32 u32ArraySize;
-	guint32 u32Idx;
-	guint32	u32VariableOffset;
+	uint32_t	u32AuthnHint;
+	uint16_t	u16VersionMajor;
+	uint16_t	u16VersionMinor;
+	uint32_t	u32HResult;
+	uint32_t u32ArraySize;
+	uint32_t u32Idx;
+	uint32_t	u32VariableOffset;
 
 
 	offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -223,7 +223,7 @@ proto_register_remact (void)
 		  { "AuthnHint", "remact.authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_remact
 	};
 

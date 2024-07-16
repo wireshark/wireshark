@@ -12,8 +12,8 @@
 #define __PACKET_DOIP_H__
 
 typedef struct doip_info {
-    guint16 target_address;
-    guint16 source_address;
+    uint16_t target_address;
+    uint16_t source_address;
 } doip_info_t;
 
 #endif /* __PACKET_DOIP_H__ */

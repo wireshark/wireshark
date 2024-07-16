@@ -227,10 +227,10 @@ static const true_false_string tfs_cap_netmask = {
 static int
 dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	guint8 m0,m1,m2,m3;
-	guint8 s0,s1,s2,s3;
-	guint8 metric;
-	guint32 ip;
+	uint8_t m0,m1,m2,m3;
+	uint8_t s0,s1,s2,s3;
+	uint8_t metric;
+	uint32_t ip;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree *tree;
@@ -311,7 +311,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	guint8 code;
+	uint8_t code;
 
 	/* version */
 	proto_tree_add_uint(parent_tree, hf_version, tvb, 0, 0, 3);
@@ -438,7 +438,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		break;
 	case DVMRP_V3_NEIGHBORS_2:
 		while (tvb_reported_length_remaining(tvb, offset)>=12) {
-			guint8 neighbor_count;
+			uint8_t neighbor_count;
 
 			/* local address */
 			proto_tree_add_item(parent_tree, hf_local,
@@ -499,8 +499,8 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 static int
 dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	guint8 code;
-	guint8 af=2; /* default */
+	uint8_t code;
+	uint8_t af=2; /* default */
 
 	/* version */
 	proto_tree_add_uint(parent_tree, hf_version, tvb, 0, 0, 1);
@@ -525,7 +525,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree *tree;
 		proto_item *item;
-		guint8 cmd,count;
+		uint8_t cmd,count;
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_commands,
@@ -869,7 +869,7 @@ proto_register_dvmrp(void)
 			{ "Neighbor Addr", "dvmrp.neighbor", FT_IPv4, BASE_NONE,
 			  NULL, 0, "DVMRP Neighbor Address", HFILL }}
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dvmrp,
 		&ett_commands,
 		&ett_capabilities,

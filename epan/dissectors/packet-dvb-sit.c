@@ -35,8 +35,8 @@ static int hf_dvb_sit_reserved_future_use3;
 static int hf_dvb_sit_running_status;
 static int hf_dvb_sit_service_descriptors_length;
 
-static gint ett_dvb_sit;
-static gint ett_dvb_sit_service;
+static int ett_dvb_sit;
+static int ett_dvb_sit_service;
 
 #define DVB_SIT_RESERVED_MASK                   0xC0
 #define DVB_SIT_VERSION_NUMBER_MASK             0x3E
@@ -64,9 +64,9 @@ static int
 dissect_dvb_sit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-    guint       offset = 0, length = 0;
-    guint       descriptor_len;
-    guint16     svc_id;
+    unsigned    offset = 0, length = 0;
+    unsigned    descriptor_len;
+    uint16_t    svc_id;
 
     proto_item *ti;
     proto_tree *dvb_sit_tree;
@@ -199,7 +199,7 @@ proto_register_dvb_sit(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_sit,
         &ett_dvb_sit_service
     };

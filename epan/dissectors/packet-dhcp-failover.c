@@ -122,10 +122,10 @@ static int hf_dhcpfo_infoblox_client_hostname;
 static int hf_dhcpfo_unknown_data;
 
 /* Initialize the subtree pointers */
-static gint ett_dhcpfo;
-static gint ett_fo_payload;
-static gint ett_fo_option;
-static gint ett_fo_payload_data;
+static int ett_dhcpfo;
+static int ett_fo_payload;
+static int ett_fo_option;
+static int ett_fo_payload_data;
 
 static expert_field ei_dhcpfo_bad_length;
 static expert_field ei_dhcpfo_message_digest_type_not_allowed;
@@ -198,8 +198,8 @@ static const value_string failover_vals[] =
 #define DHCP_FO_PD_OPTION_41                    41
 
 
-static const gchar VENDOR_SPECIFIC[] = "(vendor-specific)";
-static const gchar UNKNOWN_OPTION[] = "Unknown Option";
+static const char VENDOR_SPECIFIC[] = "(vendor-specific)";
+static const char UNKNOWN_OPTION[] = "Unknown Option";
 
 static const value_string option_code_vals[] =
 {
@@ -389,7 +389,7 @@ static const value_string serverflag_vals[] =
 };
 
 /* Code to actually dissect the packets */
-static guint
+static unsigned
 get_dhcpfo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
@@ -404,27 +404,27 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	int offset = 0;
 	proto_item *ti, *pi, *oi;
 	proto_tree *dhcpfo_tree = NULL, *payload_tree, *option_tree;
-	guint8 tls_request, tls_reply;
-	guint16 length;
-	guint type, serverflag;
+	uint8_t tls_request, tls_reply;
+	uint16_t length;
+	unsigned type, serverflag;
 	int poffset;
-	guint32 xid;
+	uint32_t xid;
 	nstime_t timex;
-	guint32 lease_expiration_time,
+	uint32_t lease_expiration_time,
 			potential_expiration_time, client_last_transaction_time,
 			start_time_of_state;
-	gboolean bogus_poffset, microsoft_style;
-	guint16 opcode, option_length;
-	guint8 htype, reject_reason, message_digest_type, binding_status;
-	const guint8 *vendor_class_str, *relationship_name_str;
-	const gchar *htype_str, *option_name;
-	gchar *lease_expiration_time_str, *potential_expiration_time_str,
+	bool bogus_poffset, microsoft_style;
+	uint16_t opcode, option_length;
+	uint8_t htype, reject_reason, message_digest_type, binding_status;
+	const uint8_t *vendor_class_str, *relationship_name_str;
+	const char *htype_str, *option_name;
+	char *lease_expiration_time_str, *potential_expiration_time_str,
 		  *client_last_transaction_time_str, *start_time_of_state_str;
-	guint32 mclt;
-	guint8 server_state, ms_client_type, ms_client_nap_status, ms_client_nap_capable;
-	guint32 max_unacked_bndupd, receive_timer,
+	uint32_t mclt;
+	uint8_t server_state, ms_client_type, ms_client_nap_status, ms_client_nap_capable;
+	uint32_t max_unacked_bndupd, receive_timer,
 			ms_client_nap_probation, ms_extended_address_state;
-	const guint8 *client_hostname_str, *ms_server_name_str, *ms_client_description_str,
+	const uint8_t *client_hostname_str, *ms_server_name_str, *ms_client_description_str,
 				 *ms_client_matched_policy_str;
 
 /* Make entries in Protocol column and Info column on summary display */
@@ -460,24 +460,24 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	offset += 1;
 
 	if (dhcpfo_microsoft_compatibility == DISSECT_MS_DHCP) {
-		microsoft_style = TRUE;
+		microsoft_style = true;
 	} else {
-		/* Set to FALSE, changed to TRUE later if autodetected */
-		microsoft_style = FALSE;
+		/* Set to false, changed to true later if autodetected */
+		microsoft_style = false;
 	}
 	poffset = tvb_get_guint8(tvb, offset);
 	if (poffset == 8) {
 		if (dhcpfo_microsoft_compatibility == AUTODETECT_MS_DHCP) {
-			microsoft_style = TRUE;
+			microsoft_style = true;
 		}
-		bogus_poffset = FALSE;
+		bogus_poffset = false;
 		proto_tree_add_uint_format_value(dhcpfo_tree,
 			hf_dhcpfo_poffset, tvb, offset, 1, poffset,
 			"%u (as per Draft, now treated as being %u)",
 			poffset, DHCPFO_FL_HDR_LEN);
 		poffset = DHCPFO_FL_HDR_LEN;
 	} else if (poffset < DHCPFO_FL_HDR_LEN) {
-		bogus_poffset = TRUE;
+		bogus_poffset = true;
 		if (tree) {
 			proto_tree_add_uint_format_value(dhcpfo_tree,
 			    hf_dhcpfo_poffset, tvb, offset, 1, poffset,
@@ -485,7 +485,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    poffset, DHCPFO_FL_HDR_LEN);
 		}
 	} else if (poffset > length) {
-		bogus_poffset = TRUE;
+		bogus_poffset = true;
 		if (tree) {
 			proto_tree_add_uint_format_value(dhcpfo_tree,
 			    hf_dhcpfo_poffset, tvb, offset, 1, poffset,
@@ -493,7 +493,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    poffset);
 		}
 	} else {
-		bogus_poffset = FALSE;
+		bogus_poffset = false;
 		if (tree) {
 			proto_tree_add_uint(dhcpfo_tree,
 			    hf_dhcpfo_poffset, tvb, offset, 1, poffset);
@@ -511,7 +511,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		timex.nsecs = 0;
 		proto_tree_add_time_format_value(dhcpfo_tree, hf_dhcpfo_time, tvb,
 		    offset, 4, &timex, "%s",
-		    abs_time_secs_to_str(pinfo->pool, timex.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+		    abs_time_secs_to_str(pinfo->pool, timex.secs, ABSOLUTE_TIME_LOCAL, true));
 	}
 	offset += 4;
 
@@ -627,7 +627,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 		case DHCP_FO_PD_CLIENT_IDENTIFIER:
 			{
-			const guint8* identifier;
+			const uint8_t* identifier;
 			/*
 			 * XXX - if this is truly like DHCP option 81,
 			 * we need to dissect it as such.
@@ -641,7 +641,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS:
-			if (microsoft_style == FALSE) {
+			if (microsoft_style == false) {
 				/* As specified in the draft: hardware type + hardware address */
 				if (option_length < 2) {
 					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "hardware address is too short");
@@ -701,7 +701,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_RELATIONSHIP_NAME:
-			if (microsoft_style == FALSE) {
+			if (microsoft_style == false) {
 				/* Parse as ASCII */
 				proto_tree_add_item_ret_string(option_tree,
 					hf_dhcpfo_relationship_name, tvb, offset,
@@ -736,7 +736,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_VENDOR_CLASS:
-			if (microsoft_style == FALSE) {
+			if (microsoft_style == false) {
 				/* Parse as ASCII */
 				proto_tree_add_item_ret_string(option_tree,
 					hf_dhcpfo_vendor_class, tvb, offset,
@@ -762,7 +762,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			lease_expiration_time =
 			    tvb_get_ntohl(tvb, offset);
 			lease_expiration_time_str =
-			    abs_time_secs_to_str(pinfo->pool, lease_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, lease_expiration_time, ABSOLUTE_TIME_LOCAL, true);
 
 			proto_item_append_text(oi, ", %s",
 			    lease_expiration_time_str);
@@ -784,7 +784,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    tvb_get_ntohl(tvb, offset);
 
 			potential_expiration_time_str =
-			    abs_time_secs_to_str(pinfo->pool, potential_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, potential_expiration_time, ABSOLUTE_TIME_LOCAL, true);
 
 			proto_item_append_text(oi, ", %s",
 			    potential_expiration_time_str);
@@ -805,7 +805,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			client_last_transaction_time =
 			    tvb_get_ntohl(tvb, offset);
 			client_last_transaction_time_str =
-			    abs_time_secs_to_str(pinfo->pool, client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, client_last_transaction_time, ABSOLUTE_TIME_LOCAL, true);
 
 			proto_item_append_text(oi, ", %s",
 			    client_last_transaction_time_str);
@@ -815,7 +815,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length,
 			    client_last_transaction_time,
 			    "%s",
-			    abs_time_secs_to_str(pinfo->pool, client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE));
+			    abs_time_secs_to_str(pinfo->pool, client_last_transaction_time, ABSOLUTE_TIME_LOCAL, true));
 			break;
 
 		case DHCP_FO_PD_START_TIME_OF_STATE:
@@ -826,7 +826,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			start_time_of_state =
 			    tvb_get_ntohl(tvb, offset);
 			start_time_of_state_str =
-			    abs_time_secs_to_str(pinfo->pool, start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, start_time_of_state, ABSOLUTE_TIME_LOCAL, true);
 
 			proto_item_append_text(oi, ", %s",
 			    start_time_of_state_str);
@@ -836,7 +836,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length,
 			    start_time_of_state,
 			    "%s",
-			    abs_time_secs_to_str(pinfo->pool, start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE));
+			    abs_time_secs_to_str(pinfo->pool, start_time_of_state, ABSOLUTE_TIME_LOCAL, true));
 			break;
 
 		case DHCP_FO_PD_SERVERSTATE:
@@ -908,7 +908,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_IP_FLAGS: {
-			if (microsoft_style == FALSE) {
+			if (microsoft_style == false) {
 				/* As specified in the draft: 16-bit flags */
 				static int * const ipflags[] = {
 					&hf_dhcpfo_ipflags_reserved,
@@ -993,7 +993,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		case DHCP_FO_PD_OPTION_30:
 			if (microsoft_style) {
 				/* Microsoft: Scope ID List */
-				guint16 local_offset = 0;
+				uint16_t local_offset = 0;
 				while (local_offset < option_length) {
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_ms_scope_id, tvb, offset+local_offset, 4, ENC_LITTLE_ENDIAN);
@@ -1472,7 +1472,7 @@ proto_register_dhcpfo(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dhcpfo,
 		&ett_fo_payload,
 		&ett_fo_option,
@@ -1507,7 +1507,7 @@ proto_register_dhcpfo(void)
 		"Microsoft Windows DHCP server compatibility",
 		"Enables the dissector to show Microsoft-formatted option fields correctly",
 		&dhcpfo_microsoft_compatibility,
-		microsoft_compatibility, FALSE);
+		microsoft_compatibility, false);
 
 	dhcpfo_handle = register_dissector("dhcpfo", dissect_dhcpfo, proto_dhcpfo);
 }

@@ -65,13 +65,13 @@ static int hf_dispatch_flags_propputref;
 #define DISPATCH_FLAGS_PROPPUT          4
 #define DISPATCH_FLAGS_PROPPUTREF       8
 
-static gint ett_dispatch_flags;
-static gint ett_dispatch_params;
-static gint ett_dispatch_excepinfo;
+static int ett_dispatch_flags;
+static int ett_dispatch_params;
+static int ett_dispatch_excepinfo;
 
 static e_guid_t uuid_dispatch = { 0x00020400, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
-static guint16  ver_dispatch;
-static gint ett_dispatch;
+static uint16_t ver_dispatch;
+static int ett_dispatch;
 static int proto_dispatch;
 
 
@@ -97,10 +97,10 @@ static const value_string dcom_lcid_vals[] = {
 
 int
 dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
-                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32TInfo;
-    guint32 u32HResult;
+    uint32_t u32TInfo;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -120,10 +120,10 @@ dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
 
 int
 dissect_IDispatch_GetTypeInfo_rqst(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                   packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32TInfo;
-    guint32 u32Lcid;
+    uint32_t u32TInfo;
+    uint32_t u32Lcid;
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
@@ -138,10 +138,10 @@ dissect_IDispatch_GetTypeInfo_rqst(tvbuff_t *tvb, int offset,
 
 int
 dissect_IDispatch_GetTypeInfo_resp(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                   packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
-    guint32 u32Pointer;
+    uint32_t u32HResult;
+    uint32_t u32Pointer;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -165,16 +165,16 @@ dissect_IDispatch_GetTypeInfo_resp(tvbuff_t *tvb, int offset,
 
 int
 dissect_IDispatch_GetIDsOfNames_rqst(tvbuff_t *tvb, int offset,
-                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     e_guid_t riid;
-    guint32  u32Lcid;
-    gchar    szName[1000] = { 0 };
-    guint32  u32Names;
-    guint32  u32ArraySize;
-    guint32  u32Pointer;
-    guint32  u32Tmp;
-    guint32  u32VariableOffset;
+    uint32_t u32Lcid;
+    char     szName[1000] = { 0 };
+    uint32_t u32Names;
+    uint32_t u32ArraySize;
+    uint32_t u32Pointer;
+    uint32_t u32Tmp;
+    uint32_t u32VariableOffset;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -213,12 +213,12 @@ dissect_IDispatch_GetIDsOfNames_rqst(tvbuff_t *tvb, int offset,
 
 int
 dissect_IDispatch_GetIDsOfNames_resp(tvbuff_t *tvb, int offset,
-                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32DispId;
-    guint32 u32ArraySize;
-    guint32 u32Tmp;
-    guint32 u32HResult;
+    uint32_t u32DispId;
+    uint32_t u32ArraySize;
+    uint32_t u32Tmp;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -247,22 +247,22 @@ dissect_IDispatch_GetIDsOfNames_resp(tvbuff_t *tvb, int offset,
 
 int
 dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
-                              packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                              packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32DispIdMember;
+    uint32_t u32DispIdMember;
     e_guid_t riid;
-    guint32 u32Lcid;
-    guint32 u32Flags;
-    guint32 u32Args;
-    guint32 u32NamedArgs;
-    guint32 u32Pointer;
-    guint32 u32Pointer2;
-    guint32 u32ArraySize;
-    guint32 u32VariableOffset;
-    guint32 u32VarRef;
-    guint32 u32VarRefIdx;
-    guint32 u32TmpOffset;
-    guint32 u32SubStart;
+    uint32_t u32Lcid;
+    uint32_t u32Flags;
+    uint32_t u32Args;
+    uint32_t u32NamedArgs;
+    uint32_t u32Pointer;
+    uint32_t u32Pointer2;
+    uint32_t u32ArraySize;
+    uint32_t u32VariableOffset;
+    uint32_t u32VarRef;
+    uint32_t u32VarRefIdx;
+    uint32_t u32TmpOffset;
+    uint32_t u32SubStart;
 
     proto_item *dispparams_item;
     proto_tree *dispparams_tree;
@@ -386,24 +386,24 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 
 int
 dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
-                              packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                              packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Pointer;
-    guint32 u32Pointer2;
-    guint32 u32Pointer3;
-    guint32 u32VariableOffset;
-    guint32 u32ArraySize;
-    guint32 u32SubStart;
-    guint16 u16Code;
-    guint16 u16Reserved;
-    guint32 u32HelpContext;
-    guint32 u32Reserved;
-    guint32 u32DeferredFillIn;
-    guint32 u32ArgErr;
-    guint32 u32HResult;
-    guint32 u32SCode;
-    guint32 u32VarRef;
-    gchar       szName[1000] = { 0 };
+    uint32_t u32Pointer;
+    uint32_t u32Pointer2;
+    uint32_t u32Pointer3;
+    uint32_t u32VariableOffset;
+    uint32_t u32ArraySize;
+    uint32_t u32SubStart;
+    uint16_t u16Code;
+    uint16_t u16Reserved;
+    uint32_t u32HelpContext;
+    uint32_t u32Reserved;
+    uint32_t u32DeferredFillIn;
+    uint32_t u32ArgErr;
+    uint32_t u32HResult;
+    uint32_t u32SCode;
+    uint32_t u32VarRef;
+    char        szName[1000] = { 0 };
     proto_item *excepinfo_item;
     proto_tree *excepinfo_tree;
 
@@ -579,7 +579,7 @@ proto_register_dcom_dispatch(void)
           { "SCode", "dispatch.scode", FT_UINT32, BASE_HEX, VALS(dcom_hresult_vals), 0x0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dispatch,
         &ett_dispatch_flags,
         &ett_dispatch_params,

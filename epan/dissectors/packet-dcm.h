@@ -61,7 +61,7 @@ extern "C" {
 #define DCM_VR_UV 34  /* Unsigned 64-bit Very Long */
 
 /* Following must be in the same order as the definitions above */
-static const gchar* dcm_tag_vr_lookup[] = {
+static const char* dcm_tag_vr_lookup[] = {
     "  ",
     "AE","AS","AT","CS","DA","DS","DT","FL",
     "FD","IS","LO","LT","OB","OD","OF","OL",
@@ -85,12 +85,12 @@ static const gchar* dcm_tag_vr_lookup[] = {
  */
 
 typedef struct dcm_tag {
-    const guint32 tag;
-    const gchar *description;
-    const gchar *vr;
-    const gchar *vm;
-    const gboolean is_retired;
-    const gboolean add_to_summary;          /* Add to parent's item description */
+    const uint32_t tag;
+    const char *description;
+    const char *vr;
+    const char *vm;
+    const bool is_retired;
+    const bool add_to_summary;          /* Add to parent's item description */
 } dcm_tag_t;
 
 static dcm_tag_t const dcm_tag_data[] = {
@@ -5285,9 +5285,9 @@ static dcm_tag_t const dcm_tag_data[] = {
  */
 
 typedef struct dcm_uid {
-    const gchar *value;
-    const gchar *name;
-    const gchar *type;
+    const char *value;
+    const char *name;
+    const char *type;
 } dcm_uid_t;
 
 #define DCM_UID_SOP_CLASS_VERIFICATION "1.2.840.10008.1.1"

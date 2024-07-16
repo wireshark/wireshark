@@ -14,11 +14,11 @@
 #define __PACKET_DLT_H__
 
 typedef struct dlt_info {
-    const gchar    *ecu_id;
-    guint32         message_id;
-    gboolean        little_endian;
-    guint8          message_type;
-    guint8          message_type_info_comb;
+    const char     *ecu_id;
+    uint32_t        message_id;
+    bool            little_endian;
+    uint8_t         message_type;
+    uint8_t         message_type_info_comb;
 } dlt_info_t;
 
 #define DLT_MSG_TYPE_LOG_MSG                            0x0
@@ -45,7 +45,7 @@ typedef struct dlt_info {
 #define DLT_MSG_TYPE_INFO_CTRL_RES                      0x26
 #define DLT_MSG_TYPE_INFO_CTRL_TIME                     0x36
 
-gint32
-dlt_ecu_id_to_gint32(const gchar *ecu_id);
+int32_t
+dlt_ecu_id_to_gint32(const char *ecu_id);
 
 #endif /* __PACKET_DLT_H__ */

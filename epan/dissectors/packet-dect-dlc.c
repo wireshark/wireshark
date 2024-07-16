@@ -26,11 +26,11 @@ void proto_register_dect_dlc(void);
 
 static int proto_dect_dlc;
 
-static gint hf_dect_dlc_address;
-static gint hf_dect_dlc_nlf;
-static gint hf_dect_dlc_lln;
-static gint hf_dect_dlc_sapi;
-static gint hf_dect_dlc_cr;
+static int hf_dect_dlc_address;
+static int hf_dect_dlc_nlf;
+static int hf_dect_dlc_lln;
+static int hf_dect_dlc_sapi;
+static int hf_dect_dlc_cr;
 
 static int hf_dect_dlc_control;
 static int hf_dect_dlc_n_r;
@@ -48,10 +48,10 @@ static int hf_dect_dlc_el;
 static int hf_dect_dlc_m;
 static int hf_dect_dlc_len;
 
-static gint ett_dect_dlc;
-static gint ett_dect_dlc_address;
-static gint ett_dect_dlc_control;
-static gint ett_dect_dlc_length;
+static int ett_dect_dlc;
+static int ett_dect_dlc_address;
+static int ett_dect_dlc_control;
+static int ett_dect_dlc_length;
 
 static dissector_handle_t data_handle;
 
@@ -71,8 +71,8 @@ static int hf_dect_dlc_fragment_count;
 static int hf_dect_dlc_reassembled_in;
 static int hf_dect_dlc_reassembled_length;
 
-static gint ett_dect_dlc_fragment;
-static gint ett_dect_dlc_fragments;
+static int ett_dect_dlc_fragment;
+static int ett_dect_dlc_fragments;
 
 static const fragment_items dect_dlc_frag_items = {
     /* Fragment subtrees */
@@ -102,7 +102,7 @@ static wmem_map_t *dect_dlc_last_n_s_map;
 #define DECT_DLC_M          0x02
 #define DECT_DLC_M_SHIFT    1
 
-static gboolean reassemble_dect_dlc = TRUE;
+static bool reassemble_dect_dlc = true;
 
 static const xdlc_cf_items dect_dlc_cf_items = {
 	&hf_dect_dlc_n_r,
@@ -151,20 +151,20 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree *dlc_tree, *addr_tree, *length_tree;
 	proto_item *dlc_ti, *addr_ti, *length_ti;
-	gboolean is_response = FALSE;
-	gboolean m;
+	bool is_response = false;
+	bool m;
 	int available_length;
 	int control;
 	tvbuff_t *payload;
-	guint8 cr, sapi, length, len, n_s;
+	uint8_t cr, sapi, length, len, n_s;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT-DLC");
 
 	cr = tvb_get_guint8(tvb, 0) & 0x02;
 	if (pinfo->p2p_dir == P2P_DIR_RECV)
-		is_response = cr ? FALSE : TRUE;
+		is_response = cr ? false : true;
 	else if (pinfo->p2p_dir == P2P_DIR_SENT)
-		is_response = cr ? TRUE : FALSE;
+		is_response = cr ? true : false;
 
 	dlc_ti = proto_tree_add_item(tree, proto_dect_dlc, tvb, 0, 3, ENC_NA);
 	dlc_tree = proto_item_add_subtree(dlc_ti, ett_dect_dlc);
@@ -180,7 +180,7 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	control = dissect_xdlc_control(tvb, 1, pinfo, dlc_tree, hf_dect_dlc_control,
 				ett_dect_dlc_control, &dect_dlc_cf_items, NULL, NULL, NULL,
-				is_response, FALSE, FALSE);
+				is_response, false, false);
 	n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
 
 	length_ti = proto_tree_add_item(dlc_tree, hf_dect_dlc_length, tvb, 2, 1, ENC_NA);
@@ -200,8 +200,8 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		{
 			fragment_head *fd_m = NULL;
 			tvbuff_t *reassembled = NULL;
-			guint32 fragment_id;
-			gboolean save_fragmented = pinfo->fragmented, add_frag;
+			uint32_t fragment_id;
+			bool save_fragmented = pinfo->fragmented, add_frag;
 
 			m = (length & DECT_DLC_M) >> DECT_DLC_M_SHIFT;
 			pinfo->fragmented = m;
@@ -211,15 +211,15 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (!PINFO_FD_VISITED(pinfo)) {
 				/* Check if new N(S) is equal to previous N(S) (to avoid adding retransmissions in reassembly table)
 				As GUINT_TO_POINTER macro does not allow to differentiate NULL from 0, use 1-8 range instead of 0-7 */
-				guint *p_last_n_s = (guint*)wmem_map_lookup(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id));
-				if (GPOINTER_TO_UINT(p_last_n_s) == (guint)(n_s+1)) {
-					add_frag = FALSE;
+				unsigned *p_last_n_s = (unsigned*)wmem_map_lookup(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id));
+				if (GPOINTER_TO_UINT(p_last_n_s) == (unsigned)(n_s+1)) {
+					add_frag = false;
 				} else {
-					add_frag = TRUE;
+					add_frag = true;
 					wmem_map_insert(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(n_s+1));
 				}
 			} else {
-				add_frag = TRUE;
+				add_frag = true;
 			}
 
 			if (add_frag) {
@@ -228,10 +228,10 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				the first fragment!	*/
 				fd_m = fragment_add_seq_next (&dect_dlc_reassembly_table, payload, 0,
 											pinfo,
-											fragment_id, /* guint32 ID for fragments belonging together */
+											fragment_id, /* uint32_t ID for fragments belonging together */
 											NULL,
-											/*n_s guint32 fragment sequence number */
-											len, /* guint32 fragment length */
+											/*n_s uint32_t fragment sequence number */
+											len, /* uint32_t fragment length */
 											m); /* More fragments? */
 
 				reassembled = process_reassembled_data(payload, 0, pinfo,
@@ -257,7 +257,7 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		{
 			if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
 				/* SABM frame; reset the last N(S) to an invalid value */
-				guint32 fragment_id = (conversation_get_id_from_elements(pinfo, CONVERSATION_GSMTAP, USE_LAST_ENDPOINT) << 3) | (sapi << 1) | pinfo->p2p_dir;
+				uint32_t fragment_id = (conversation_get_id_from_elements(pinfo, CONVERSATION_GSMTAP, USE_LAST_ENDPOINT) << 3) | (sapi << 1) | pinfo->p2p_dir;
 				wmem_map_insert(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(0));
 			}
 			if (!dissector_try_uint(dlc_sapi_dissector_table, sapi, payload, pinfo, tree))
@@ -428,7 +428,7 @@ void proto_register_dect_dlc(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dect_dlc,
 		&ett_dect_dlc_address,
 		&ett_dect_dlc_control,

@@ -12,7 +12,7 @@
 #define PACKET_DPAUX_H
 
 struct dpaux_info {
-	gboolean from_source;
+	bool from_source;
 };
 
 #endif

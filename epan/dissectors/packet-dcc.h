@@ -17,10 +17,10 @@
 /* Inserted below is dcc_proto.h from the dcc source distribution, with the
 	following changes made:
 
-:%s/u_in*t16_t/guint16/g
-:%s/u_in*t32_t/guint32/g
-:%s/u_ch*ar/guchar/g
-:%s/in*t32_t/gint32/g
+:%s/u_in*t16_t/uint16_t/g
+:%s/u_in*t32_t/uint32_t/g
+:%s/u_ch*ar/unsigned char/g
+:%s/in*t32_t/int32_t/g
 
 This includes more than is really necessary, but easier to just include whole
 header.
@@ -49,7 +49,7 @@ header.
  * to recognize retransmissions */
 #define DCC_MAX_DELAY_SEC   30
 
-typedef guint16 DCC_MS;
+typedef uint16_t DCC_MS;
 
 /* anonymous client delay */
 #define DCC_MAX_QDELAY_MS   (DCC_MAX_DELAY_SEC*1000)
@@ -98,7 +98,7 @@ typedef enum {
 #define DCC_CK_OK_PROTO(t) DCC_CK_OK_USER(t)	/* ok from clients */
 #define DCC_CK_OK_FLOD(t) DCC_CK_OK_DB(t)   /* ok in floods */
 
-typedef guchar DCC_CK_TYPE;
+typedef unsigned char DCC_CK_TYPE;
 
 
 typedef enum {
@@ -113,7 +113,7 @@ typedef enum {
     DCC_OP_DELETE			/* delete some checksums */
 } DCC_OPS;
 
-typedef guint32 DCC_CLNT_ID;
+typedef uint32_t DCC_CLNT_ID;
 #define DCC_ID_INVALID	    0
 #define DCC_ID_ANON	    1		/* anonymous (non-paying) client */
 #define DCC_ID_WHITE	    2		/* white-listed */
@@ -122,15 +122,15 @@ typedef guint32 DCC_CLNT_ID;
 #define	DCC_SRVR_ID_MAX	    32767	/* below are servers--must be 2**n-1 */
 #define DCC_CLNT_ID_MIN	    (DCC_SRVR_ID_MAX+1)
 #define DCC_CLNT_ID_MAX	    16777215
-typedef guint16 DCC_SRVR_ID;
+typedef uint16_t DCC_SRVR_ID;
 #define	DCC_SRVR_ID_AUTH (DCC_SRVR_ID_MAX+1)	/* client was authenticated */
 
 /* client's identification of its transaction */
 typedef struct {
-    guint32	h;			/* client host ID, e.g. IP address */
-    guint32	p;			/* process ID, serial #, timestamp */
-    guint32	r;			/* report ID */
-    guint32	t;			/* client (re)transmission # */
+    uint32_t	h;			/* client host ID, e.g. IP address */
+    uint32_t	p;			/* process ID, serial #, timestamp */
+    uint32_t	r;			/* report ID */
+    uint32_t	t;			/* client (re)transmission # */
 } DCC_OP_NUMS;
 
 /* The inter-DCC server flooding algorithm depends on unique-per-server
@@ -147,18 +147,18 @@ typedef struct {
 #define DCC_TS_USEC_MULT    (1<<DCC_TS_USEC_RSHIFT)
 #define DCC_TS_SEC_LSHIFT   17
 #define DCC_TS_USEC_MASK    ((1<<DCC_TS_SEC_LSHIFT) - 1)
-typedef guchar DCC_TS[6];
+typedef unsigned char DCC_TS[6];
 
 /* The start of any DCC packet.
  *	The length and version are early, since they are they only fields
  *	that are constrained in future versions. */
 typedef struct {
-    guint16	len;			/* total DCC packet length (for TCP) */
-    guchar	pkt_vers;		/* packet protocol version */
+    uint16_t	len;			/* total DCC packet length (for TCP) */
+    unsigned char	pkt_vers;		/* packet protocol version */
 #    define	 DCC_PKT_VERSION	4
 #    define	 DCC_PKT_VERSION_MIN	DCC_PKT_VERSION
 #    define	 DCC_PKT_VERSION_MAX    DCC_PKT_VERSION
-    guchar	op;			/* one of DCC_OPS */
+    unsigned char	op;			/* one of DCC_OPS */
     /* Identify the transaction.
      *	    Each client can have many hosts, each host can be multi-homed,
      *	    and each host can be running many processes talking to the
@@ -172,7 +172,7 @@ typedef struct {
     DCC_OP_NUMS	op_nums;		/* op_num.t must be last */
 } DCC_HDR;
 
-typedef guchar DCC_SIGNATURE[16];
+typedef unsigned char DCC_SIGNATURE[16];
 
 typedef struct {
     DCC_HDR	hdr;
@@ -211,19 +211,19 @@ typedef enum {
 
 typedef struct {			/* with operation DCC_OP_ADMN */
     DCC_HDR	hdr;
-    gint32	date;			/* seconds since epoch on caller */
-    guint32	val;			/* request type, buffer size, etc. */
-    guchar	aop;			/* one of DCC_AOPS */
-    guchar	pad[3];
+    int32_t	date;			/* seconds since epoch on caller */
+    uint32_t	val;			/* request type, buffer size, etc. */
+    unsigned char	aop;			/* one of DCC_AOPS */
+    unsigned char	pad[3];
     DCC_SIGNATURE signature;
 } DCC_ADMN_REQ;
 
 /* noisy response to some DCC_AOPS with operation DCC_OP_ADMN */
 typedef struct {
-    guchar	addr[16];
+    unsigned char	addr[16];
     DCC_CLNT_ID	id;
-    guint32	last_used;
-    guint32	requests;
+    uint32_t	last_used;
+    uint32_t	requests;
 } DCC_ADMN_RESP_CLIENTS;
 typedef union {
     char	string[80*22];
@@ -255,8 +255,8 @@ typedef char DCC_BRAND[64];
 /* administrative or NOP ok */
 typedef struct {
     DCC_HDR	hdr;
-    guchar	max_pkt_vers;		/* can handle this version */
-    guchar	unused;
+    unsigned char	max_pkt_vers;		/* can handle this version */
+    unsigned char	unused;
     DCC_MS	qdelay_ms;
     DCC_BRAND	brand;			/* identity or brandname of sender */
     DCC_SIGNATURE signature;
@@ -264,14 +264,14 @@ typedef struct {
 
 
 /* a reported checksum from a client */
-typedef guchar DCC_SUM[16];		/* for now all have 16 bytes */
+typedef unsigned char DCC_SUM[16];		/* for now all have 16 bytes */
 typedef struct {
     DCC_CK_TYPE	type;
-    guchar	len;			/* total length of this checksum */
+    unsigned char	len;			/* total length of this checksum */
     DCC_SUM	sum;
 } DCC_CK;
 
-typedef guint32 DCC_TGTS;		/* database is limited to 24 bits */
+typedef uint32_t DCC_TGTS;		/* database is limited to 24 bits */
 #define	DCC_TGTS_TOO_MANY   0x00fffff0	/* >= 16777200 targets */
 #define	DCC_TGTS_OK	    0x00fffff1	/* certified not spam */
 #define	DCC_TGTS_OK2	    0x00fffff2	/* half certified not spam */
@@ -303,9 +303,9 @@ typedef struct {
 /* DCC_OP_DELETE request to delete checksums */
 typedef struct {
     DCC_HDR	hdr;
-    gint32	date;			/* seconds since epoch on caller */
+    int32_t	date;			/* seconds since epoch on caller */
     DCC_CK	ck;
-    guchar	pad[2];			/* structure padding */
+    unsigned char	pad[2];			/* structure padding */
     DCC_SIGNATURE signature;
 } DCC_DELETE;
 
@@ -323,7 +323,7 @@ typedef struct {
  *	Only the sender understands sender positions except for these
  *	special values.  However, the special values imply that the position
  *	must be big endian. */
-typedef guchar DCC_FLOD_POS[8];
+typedef unsigned char DCC_FLOD_POS[8];
 /* special cases sent by the receiver back to the sender */
 #define DCC_FLOD_POS_END	0	/* receiver closing with message */
 #define DCC_FLOD_POS_END_REQ	1	/* receiver wants to stop */
@@ -338,17 +338,17 @@ typedef guchar DCC_FLOD_POS[8];
 /* report forwarded among servers */
 typedef struct {
     DCC_FLOD_POS pos;
-    guchar	tgts[sizeof(DCC_TGTS)];
-    guchar	srvr_id_auth[sizeof(DCC_SRVR_ID)];  /* receiving server */
+    unsigned char	tgts[sizeof(DCC_TGTS)];
+    unsigned char	srvr_id_auth[sizeof(DCC_SRVR_ID)];  /* receiving server */
     DCC_TS	ts;			/* date reported */
-    guchar	num_cks;
+    unsigned char	num_cks;
     DCC_CK	cks[DCC_QUERY_MAX];
 } DCC_FLOD;
 
 /* record of path taken by a report */
 #define DCC_NUM_FLOD_PATH ((int)(sizeof(DCC_SUM)/sizeof(DCC_SRVR_ID)))
 typedef struct {
-    guchar	hi, lo;
+    unsigned char	hi, lo;
 } DCC_FLOD_PATH_ID;
 
 typedef struct {
@@ -358,7 +358,7 @@ typedef struct {
 } FLOD_END;
 typedef struct {
     DCC_FLOD_POS    op;
-    guchar	    len;
+    unsigned char	    len;
     char	    str[DCC_FLOD_MAX_RESP];
 } FLOD_NOTE;
 #define FLOD_NOTE_OVHD ((int)sizeof(FLOD_NOTE)-DCC_FLOD_MAX_RESP)
@@ -377,8 +377,8 @@ typedef struct {
 #    define DCC_FLOD_VERSION_STR_LEN 64
     char	str[DCC_FLOD_VERSION_STR_LEN];
     DCC_SRVR_ID	sender_srvr_id;
-    guchar	turn;
-    guchar	unused[3];
+    unsigned char	turn;
+    unsigned char	unused[3];
 } DCC_FLOD_VERSION_BODY;
 typedef struct {
     DCC_FLOD_VERSION_BODY body;

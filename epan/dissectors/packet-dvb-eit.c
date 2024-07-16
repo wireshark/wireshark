@@ -40,8 +40,8 @@ static int hf_dvb_eit_running_status;
 static int hf_dvb_eit_free_ca_mode;
 static int hf_dvb_eit_descriptors_loop_length;
 
-static gint ett_dvb_eit;
-static gint ett_dvb_eit_event;
+static int ett_dvb_eit;
+static int ett_dvb_eit_event;
 
 
 #define DVB_EIT_RESERVED_MASK                     0xC0
@@ -74,9 +74,9 @@ static int
 dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-    guint       offset = 0, length = 0;
-    guint       descriptor_len;
-    guint16     evt_id;
+    unsigned    offset = 0, length = 0;
+    unsigned    descriptor_len;
+    uint16_t    evt_id;
 
     proto_item *ti;
     proto_tree *dvb_eit_tree;
@@ -134,7 +134,7 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         proto_tree_add_item(dvb_eit_event_tree, hf_dvb_eit_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if (tvb_memeql(tvb, offset, (const guint8*)"\xFF\xFF\xFF\xFF\xFF", 5)) {
+        if (tvb_memeql(tvb, offset, (const uint8_t*)"\xFF\xFF\xFF\xFF\xFF", 5)) {
             if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &start_time) < 0) {
                 proto_tree_add_time_format(dvb_eit_event_tree, hf_dvb_eit_start_time, tvb, offset, 5,
                                     &start_time, "Unparseable time");
@@ -258,7 +258,7 @@ proto_register_dvb_eit(void)
         } }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_eit,
         &ett_dvb_eit_event
     };

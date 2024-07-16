@@ -22,12 +22,12 @@ static dissector_handle_t dvb_tdt_handle;
 static int proto_dvb_tdt;
 static int hf_dvb_tdt_utc_time;
 
-static gint ett_dvb_tdt;
+static int ett_dvb_tdt;
 
 static int
 dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
 
     proto_item *ti;
     proto_tree *dvb_tdt_tree;
@@ -65,7 +65,7 @@ proto_register_dvb_tdt(void)
         } }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dvb_tdt
     };
 

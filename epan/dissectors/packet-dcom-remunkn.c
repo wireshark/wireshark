@@ -29,19 +29,19 @@ static int hf_remunk_iids;
 /* static int hf_remunk_flags; */
 static int hf_remunk_qiresult;
 
-static gint ett_remunk_reminterfaceref;
+static int ett_remunk_reminterfaceref;
 static int hf_remunk_reminterfaceref;
 static int hf_remunk_interface_refs;
 static int hf_remunk_public_refs;
 static int hf_remunk_private_refs;
 
 
-static gint ett_remunk_rqi_result;
+static int ett_remunk_rqi_result;
 
 
-static gint ett_remunk;
+static int ett_remunk;
 static e_guid_t uuid_remunk = { 0x00000131, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
-static guint16  ver_remunk;
+static uint16_t ver_remunk;
 static int proto_remunk;
 
 static e_guid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
@@ -52,27 +52,27 @@ static e_guid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 
 /* win2000 registry tells us: 0x00000143 IRemUnknown2 (7 methods) */
 /* There is some evidence, that the DCOM documentation is wrong, so using 143 for IRemUnknown2 now. */
 
-static gint ett_remunk2;
+static int ett_remunk2;
 static e_guid_t uuid_remunk2 = { 0x00000143, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
-static guint16  ver_remunk2;
+static uint16_t ver_remunk2;
 static int proto_remunk2;
 
 
 typedef struct remunk_remqueryinterface_call_s {
-    guint        iid_count;
+    unsigned     iid_count;
     e_guid_t    *iids;
 } remunk_remqueryinterface_call_t;
 
 
 static int
 dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
-                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     e_guid_t     ipid;
-    guint32      u32Refs;
-    guint16      u16IIDs;
-    guint32      u32ArraySize;
-    guint32      u32ItemIdx;
+    uint32_t     u32Refs;
+    uint16_t     u16IIDs;
+    uint32_t     u32ArraySize;
+    uint32_t     u32ItemIdx;
     e_guid_t     iid;
     remunk_remqueryinterface_call_t *call;
 
@@ -115,20 +115,20 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
-                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32Pointer;
-    guint32      u32ArraySize;
-    guint32      u32ItemIdx;
+    uint32_t     u32Pointer;
+    uint32_t     u32ArraySize;
+    uint32_t     u32ItemIdx;
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    guint32      u32HResult;
-    guint32      u32SubStart;
+    uint32_t     u32HResult;
+    uint32_t     u32SubStart;
     e_guid_t     iid;
     e_guid_t     iid_null = DCERPC_UUID_NULL;
     remunk_remqueryinterface_call_t *call = (remunk_remqueryinterface_call_t *)di->call_data->private_data;
-    guint64      oxid;
-    guint64      oid;
+    uint64_t     oxid;
+    uint64_t     oid;
     e_guid_t     ipid;
 
 
@@ -199,18 +199,18 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
-                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32Pointer;
-    guint32      u32IntRefs;
-    guint32      u32ItemIdx;
+    uint32_t     u32Pointer;
+    uint32_t     u32IntRefs;
+    uint32_t     u32ItemIdx;
     e_guid_t     ipid;
-    guint32      u32PublicRefs;
-    guint32      u32PrivateRefs;
-    const gchar *pszFormat;
+    uint32_t     u32PublicRefs;
+    uint32_t     u32PrivateRefs;
+    const char *pszFormat;
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    guint32      u32SubStart;
+    uint32_t     u32SubStart;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -325,7 +325,7 @@ proto_register_remunk (void)
           { "PrivateRefs", "remunk.private_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
     };
 
-    static gint *ett_remunk_array[] = {
+    static int *ett_remunk_array[] = {
         &ett_remunk,
         &ett_remunk_rqi_result,
         &ett_remunk2,

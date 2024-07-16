@@ -26,39 +26,39 @@ extern "C" {
 
 /* DCCP structs and definitions */
 typedef struct _e_dccphdr {
-    guint16 sport;
-    guint16 dport;
-    guint8 data_offset;
-    guint8 cscov;         /* 4 bits */
-    guint8 ccval;         /* 4 bits */
-    guint16 checksum;
-    guint8 reserved1;     /* 3 bits */
-    guint8 type;          /* 4 bits */
-    gboolean x;           /* 1 bits */
-    guint8 reserved2;     /* if x == 1 */
-    guint64 seq;          /* 48 or 24 bits sequence number */
+    uint16_t sport;
+    uint16_t dport;
+    uint8_t data_offset;
+    uint8_t cscov;         /* 4 bits */
+    uint8_t ccval;         /* 4 bits */
+    uint16_t checksum;
+    uint8_t reserved1;     /* 3 bits */
+    uint8_t type;          /* 4 bits */
+    bool x;           /* 1 bits */
+    uint8_t reserved2;     /* if x == 1 */
+    uint64_t seq;          /* 48 or 24 bits sequence number */
 
-    guint16 ack_reserved; /*
+    uint16_t ack_reserved; /*
                            * for all defined packet types except DCCP-Request
                            * and DCCP-Data
                            */
-    guint64 ack;           /* 48 or 24 bits acknowledgement sequence number */
+    uint64_t ack;           /* 48 or 24 bits acknowledgement sequence number */
 
-    guint32 service_code;
-    guint8 reset_code;
-    guint8 data1;
-    guint8 data2;
-    guint8 data3;
+    uint32_t service_code;
+    uint8_t reset_code;
+    uint8_t data1;
+    uint8_t data2;
+    uint8_t data3;
 
-    guint32 stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
+    uint32_t stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
 
     address ip_src;
     address ip_dst;
 } e_dccphdr;
 
 typedef struct _dccp_flow_t {
-	guint8  static_flags;   /* flags */
-	guint64 base_seq;       /* base seq number (used by relative sequence numbers) */
+	uint8_t static_flags;   /* flags */
+	uint64_t base_seq;       /* base seq number (used by relative sequence numbers) */
 } dccp_flow_t;
 
 struct dccp_analysis {
@@ -89,7 +89,7 @@ struct dccp_analysis {
 	 * index (as how it was done before). This prevents gaps in the
 	 * stream index numbering
 	 */
-	guint32		stream;
+	uint32_t		stream;
 
 	/* Remember the timestamp of the first frame seen in this dccp
 	 * conversation to be able to calculate a relative time compared
@@ -108,7 +108,7 @@ struct dccp_analysis {
  *
  * @return The number of DCCP streams
  */
-WS_DLL_PUBLIC guint32 get_dccp_stream_count(void);
+WS_DLL_PUBLIC uint32_t get_dccp_stream_count(void);
 
 #ifdef __cplusplus
 }

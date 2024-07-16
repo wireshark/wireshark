@@ -35,7 +35,7 @@ static int hf_distcc_sout;
 static int hf_distcc_doto_object;
 
 
-static gint ett_distcc;
+static int ett_distcc;
 
 static expert_field ei_distcc_short_pdu;
 
@@ -51,7 +51,7 @@ extern void proto_reg_handoff_distcc(void);
 static dissector_handle_t distcc_handle;
 
 #define CHECK_PDU_LEN(x) \
-    if(parameter>(guint)tvb_captured_length_remaining(tvb, offset) || parameter < 1){\
+    if(parameter>(unsigned)tvb_captured_length_remaining(tvb, offset) || parameter < 1){\
         len=tvb_captured_length_remaining(tvb, offset);\
         col_append_str(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
     } \
@@ -62,7 +62,7 @@ static dissector_handle_t distcc_handle;
     if(distcc_desegment && pinfo->can_desegment){\
         /* only attempt reassembly if we have the full segment */\
         if(tvb_captured_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){\
-            if(parameter>(guint)tvb_captured_length_remaining(tvb, offset)){\
+            if(parameter>(unsigned)tvb_captured_length_remaining(tvb, offset)){\
                 proto_tree_add_expert_format(tree, pinfo, &ei_distcc_short_pdu, tvb, offset-12, -1, "[Short " x " PDU]");\
                 pinfo->desegment_offset=offset-12;\
                 pinfo->desegment_len=parameter-tvb_captured_length_remaining(tvb, offset);\
@@ -72,7 +72,7 @@ static dissector_handle_t distcc_handle;
     }
 
 static int
-dissect_distcc_dist(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 parameter)
+dissect_distcc_dist(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t parameter)
 {
     proto_tree_add_uint_format(tree, hf_distcc_version, tvb, offset-12, 12, parameter, "DIST: %u", parameter);
 
@@ -82,7 +82,7 @@ dissect_distcc_dist(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 }
 
 static int
-dissect_distcc_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 parameter)
+dissect_distcc_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t parameter)
 {
     proto_tree_add_uint_format(tree, hf_distcc_version, tvb, offset-12, 12, parameter, "DONE: %u", parameter);
 
@@ -92,7 +92,7 @@ dissect_distcc_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 }
 
 static int
-dissect_distcc_stat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 parameter)
+dissect_distcc_stat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t parameter)
 {
     proto_tree_add_uint_format(tree, hf_distcc_stat, tvb, offset-12, 12, parameter, "STAT: %u", parameter);
 
@@ -102,7 +102,7 @@ dissect_distcc_stat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 }
 
 static int
-dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 parameter)
+dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t parameter)
 {
     proto_tree_add_uint(tree, hf_distcc_argc, tvb, offset-12, 12, parameter);
 
@@ -112,9 +112,9 @@ dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 }
 
 static int
-dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
+dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned parameter)
 {
-    gint len=(gint)parameter;
+    int len=(int)parameter;
     char *argv;
     proto_item* ti;
 
@@ -132,16 +132,16 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", argv);
 
-    if(len!=(gint)parameter){
+    if(len!=(int)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short ARGV PDU]");
     }
     return offset+len;
 }
 
 static int
-dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
+dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned parameter)
 {
-    gint len=(gint)parameter;
+    int len=(int)parameter;
     char *serr;
     proto_item* ti;
 
@@ -159,16 +159,16 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", serr);
 
-    if(len!=(gint)parameter){
+    if(len!=(int)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short SERR PDU]");
     }
     return offset+len;
 }
 
 static int
-dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
+dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned parameter)
 {
-    gint len=(gint)parameter;
+    int len=(int)parameter;
     char *sout;
     proto_item* ti;
 
@@ -186,7 +186,7 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", sout);
 
-    if(len!=(gint)parameter){
+    if(len!=(int)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short SOUT PDU]");
     }
     return offset+len;
@@ -194,9 +194,9 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
 
 static int
-dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
+dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned parameter)
 {
-    gint len=(gint)parameter;
+    int len=(int)parameter;
     proto_item* ti;
 
     CHECK_PDU_LEN("DOTI");
@@ -208,16 +208,16 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     ti = proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, ENC_ASCII);
 
-    if(len!=(gint)parameter){
+    if(len!=(int)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short DOTI PDU]");
     }
     return offset+len;
 }
 
 static int
-dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
+dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned parameter)
 {
-    gint len=(gint)parameter;
+    int len=(int)parameter;
     proto_item* ti;
 
     CHECK_PDU_LEN("DOTO");
@@ -229,7 +229,7 @@ dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     ti = proto_tree_add_item(tree, hf_distcc_doto_object, tvb, offset, len, ENC_NA);
 
-    if(len!=(gint)parameter){
+    if(len!=(int)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short DOTO PDU]");
     }
     return offset+len;
@@ -245,7 +245,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
     proto_tree *tree=NULL;
     proto_item *item=NULL;
     char buf[13];
-    guint32 parameter;
+    uint32_t parameter;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISTCC ");
@@ -258,7 +258,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
         tree = proto_item_add_subtree(item, ett_distcc);
     }
 
-    while (TRUE) {
+    while (true) {
         /* read the raw token (4 bytes) and parameter (8 bytes) */
         tvb_memcpy(tvb, buf, offset, 12);
         buf[12] = '\0';
@@ -335,7 +335,7 @@ proto_register_distcc(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_distcc,
     };
 

@@ -27,7 +27,7 @@ static int proto_dxl;
 static int hf_dxl_version;
 static int hf_dxl_type;
 
-static gint ett_dxl;
+static int ett_dxl;
 
 static expert_field ei_dxl_unsupported;
 
@@ -46,7 +46,7 @@ static const value_string dxl_message_types[] = {
 	{ 0, NULL }
 };
 
-static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl_tree, gint* offset)
+static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl_tree, int* offset)
 {
 	tvbuff_t* tvb_msgpack;
 
@@ -77,10 +77,10 @@ static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl
 
 static int dissect_dxl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	gint offset = 0;
+	int offset = 0;
 	proto_item* ti;
 	proto_tree* dxl_tree;
-	guint8 type;
+	uint8_t type;
 
 	ti = proto_tree_add_item(tree, proto_dxl, tvb, 0, -1, ENC_NA);
 	dxl_tree = proto_item_add_subtree(ti, ett_dxl);
@@ -125,7 +125,7 @@ void proto_register_dxl(void)
 		}
 	};
 
-	static gint* ett[] = {
+	static int* ett[] = {
 		&ett_dxl
 	};
 
