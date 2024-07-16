@@ -80,8 +80,8 @@ static int hf_hazelcast_flags_client;
 static int hf_hazelcast_flags_lockAddrNull;
 
 
-static gint ett_hazelcast;
-static gint ett_hazelcast_flags;
+static int ett_hazelcast;
+static int ett_hazelcast_flags;
 
 /* prefs */
 static bool hazelcast_desegment = true;
@@ -226,13 +226,13 @@ static value_string_ext responseTypes_ext = VALUE_STRING_EXT_INIT(responseTypes)
 
 
 /* Get the length of a single HAZELCAST message */
-static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                        int offset, void *data _U_)
 {
 
-    guint messageLength;
-    guint headerKeyLength;
-    guint headerValueLength;
+    unsigned messageLength;
+    unsigned headerKeyLength;
+    unsigned headerValueLength;
 
     messageLength = tvb_get_ntohl(tvb, offset);
 
@@ -249,23 +249,23 @@ static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
 
-    guint8  version;
+    uint8_t version;
 
-    guint8  flags;
-    guint8  operation;
+    uint8_t flags;
+    uint8_t operation;
 
-    guint8  lockCountFlag;
-    guint8  timeoutFlag;
-    guint8  ttlFlag;
-    guint8  txnFlag;
-    guint8  longValueFlag;
-    guint8  versionFlag;
-    guint8  lockAddrNullFlag;
+    uint8_t lockCountFlag;
+    uint8_t timeoutFlag;
+    uint8_t ttlFlag;
+    uint8_t txnFlag;
+    uint8_t longValueFlag;
+    uint8_t versionFlag;
+    uint8_t lockAddrNullFlag;
 
-    guint32 nameLength;
-    guint32 keyLength;
-    guint32 valueLength;
-    gint    offset = 0;
+    uint32_t nameLength;
+    uint32_t keyLength;
+    uint32_t valueLength;
+    int     offset = 0;
 
     proto_tree *hcast_tree = NULL;
     proto_tree *flag_tree = NULL;
@@ -536,7 +536,7 @@ void proto_register_hazelcast(void) {
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hazelcast,
         &ett_hazelcast_flags
     };

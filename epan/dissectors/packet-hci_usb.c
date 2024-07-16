@@ -29,9 +29,9 @@ static int hf_bthci_usb_setup_value;
 static int hf_bthci_usb_setup_adapter_id;
 static int hf_bthci_usb_setup_length;
 
-static gint ett_hci_usb;
-static gint ett_hci_usb_msg_fragment;
-static gint ett_hci_usb_msg_fragments;
+static int ett_hci_usb;
+static int ett_hci_usb_msg_fragment;
+static int ett_hci_usb_msg_fragments;
 
 static int hf_msg_fragments;
 static int hf_msg_fragment;
@@ -55,8 +55,8 @@ static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t bthci_sco_handle;
 
 typedef struct _fragment_info_t {
-    gint remaining_length;
-    gint fragment_id;
+    int remaining_length;
+    int fragment_id;
 } fragment_info_t;
 
 static const fragment_items hci_usb_msg_frag_items = {
@@ -94,18 +94,18 @@ static value_string_ext(request_vals_ext) = VALUE_STRING_EXT_INIT(request_vals);
 void proto_register_hci_usb(void);
 void proto_reg_handoff_hci_usb(void);
 
-static gint
+static int
 dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item        *ttree = NULL;
     proto_tree        *titem = NULL;
     proto_item        *pitem = NULL;
-    gint               offset = 0;
+    int                offset = 0;
     usb_conv_info_t   *usb_conv_info;
     tvbuff_t          *next_tvb = NULL;
     bluetooth_data_t  *bluetooth_data;
-    gint               p2p_dir_save;
-    guint32            session_id;
+    int                p2p_dir_save;
+    uint32_t           session_id;
     fragment_head     *reassembled;
 
     bluetooth_data = (bluetooth_data_t *) data;
@@ -193,7 +193,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         fragment_add_seq_check(&hci_usb_reassembly_table,
                                tvb, offset, pinfo, session_id, NULL,
-                               fragment_info->fragment_id, tvb_reported_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
+                               fragment_info->fragment_id, tvb_reported_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? false : true);
         if (fragment_info->remaining_length > 0)
             fragment_info->fragment_id += 1;
         else
@@ -210,7 +210,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
         proto_item_set_generated(pitem);
 
-        if (reassembled->len > (guint) tvb_reported_length_remaining(tvb, offset)) {
+        if (reassembled->len > (unsigned) tvb_reported_length_remaining(tvb, offset)) {
             next_tvb = process_reassembled_data(tvb, 0, pinfo,
                     "Reassembled HCI_USB",
                     reassembled, &hci_usb_msg_frag_items,
@@ -344,7 +344,7 @@ proto_register_hci_usb(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hci_usb,
         &ett_hci_usb_msg_fragment,
         &ett_hci_usb_msg_fragments,

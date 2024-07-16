@@ -46,9 +46,9 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 {
     proto_item *it;
     proto_tree *tr;
-    guint32 offset=0;
-    gint tvb_len;
-    guint16 codec_extra;
+    uint32_t offset=0;
+    int tvb_len;
+    uint16_t codec_extra;
 
     it=proto_tree_add_protocol_format(tree, proto_nonstd, tvb, 0, tvb_reported_length(tvb), "Microsoft NonStd");
     tr=proto_item_add_subtree(it, ett_nonstd);
@@ -105,7 +105,7 @@ proto_register_nonstd(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nonstd,
     };
 

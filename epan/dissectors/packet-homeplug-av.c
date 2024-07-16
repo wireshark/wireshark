@@ -715,100 +715,100 @@ static int hf_homeplug_av_st_iotecha_chan_start;
 /* End of ST/IoTecha fields */
 
 /* Subtrees ett */
-static gint ett_homeplug_av;
-static gint ett_homeplug_av_mmhdr;
-static gint ett_homeplug_av_mmtype;
-static gint ett_homeplug_av_fmi;
-static gint ett_homeplug_av_vendor;
-static gint ett_homeplug_av_public;
+static int ett_homeplug_av;
+static int ett_homeplug_av_mmhdr;
+static int ett_homeplug_av_mmtype;
+static int ett_homeplug_av_fmi;
+static int ett_homeplug_av_vendor;
+static int ett_homeplug_av_public;
 
-static gint ett_homeplug_av_fc;
-static gint ett_homeplug_av_sof;
-static gint ett_homeplug_av_sack;
-static gint ett_homeplug_av_rtscts;
-static gint ett_homeplug_av_sound;
-static gint ett_homeplug_av_rsof;
-static gint ett_homeplug_av_bcn;
-static gint ett_homeplug_av_bcn_payload;
-static gint ett_homeplug_av_cc_disc_list_cnf;
-static gint ett_homeplug_av_cc_sta_info;
-static gint ett_homeplug_av_cc_net_info;
-static gint ett_homeplug_av_cm_enc_pld_ind;
-static gint ett_homeplug_av_cm_enc_pld_rsp;
-static gint ett_homeplug_av_cm_set_key_req;
-static gint ett_homeplug_av_cm_set_key_cnf;
-static gint ett_homeplug_av_cm_get_key_req;
-static gint ett_homeplug_av_cm_get_key_cnf;
-static gint ett_homeplug_av_brg_infos_cnf;
-static gint ett_homeplug_av_cm_nw_infos_cnf;
-static gint ett_homeplug_av_nw_stats_cnf;
+static int ett_homeplug_av_fc;
+static int ett_homeplug_av_sof;
+static int ett_homeplug_av_sack;
+static int ett_homeplug_av_rtscts;
+static int ett_homeplug_av_sound;
+static int ett_homeplug_av_rsof;
+static int ett_homeplug_av_bcn;
+static int ett_homeplug_av_bcn_payload;
+static int ett_homeplug_av_cc_disc_list_cnf;
+static int ett_homeplug_av_cc_sta_info;
+static int ett_homeplug_av_cc_net_info;
+static int ett_homeplug_av_cm_enc_pld_ind;
+static int ett_homeplug_av_cm_enc_pld_rsp;
+static int ett_homeplug_av_cm_set_key_req;
+static int ett_homeplug_av_cm_set_key_cnf;
+static int ett_homeplug_av_cm_get_key_req;
+static int ett_homeplug_av_cm_get_key_cnf;
+static int ett_homeplug_av_brg_infos_cnf;
+static int ett_homeplug_av_cm_nw_infos_cnf;
+static int ett_homeplug_av_nw_stats_cnf;
 
-static gint ett_homeplug_av_get_sw_cnf;
-static gint ett_homeplug_av_wr_mem_req;
-static gint ett_homeplug_av_wr_mem_cnf;
-static gint ett_homeplug_av_rd_mem_req;
-static gint ett_homeplug_av_st_mac_req;
-static gint ett_homeplug_av_st_mac_cnf;
-static gint ett_homeplug_av_rd_mem_cnf;
-static gint ett_homeplug_av_get_nvm_cnf;
-static gint ett_homeplug_av_rs_dev_cnf;
-static gint ett_homeplug_av_wr_mod_req;
-static gint ett_homeplug_av_wr_mod_cnf;
-static gint ett_homeplug_av_wr_mod_ind;
-static gint ett_homeplug_av_rd_mod_req;
-static gint ett_homeplug_av_rd_mod_cnf;
-static gint ett_homeplug_av_mod_nvm_req;
-static gint ett_homeplug_av_mod_nvm_cnf;
-static gint ett_homeplug_av_wd_rpt_req;
-static gint ett_homeplug_av_wd_rpt_ind;
-static gint ett_homeplug_av_lnk_stats_req;
-static gint ett_homeplug_av_lnk_stats_cnf;
-static gint ett_homeplug_av_lnk_stats_tx;
-static gint ett_homeplug_av_lnk_stats_rx;
-static gint ett_homeplug_av_lnk_stats_rx_inv;
-static gint ett_homeplug_av_sniffer_req;
-static gint ett_homeplug_av_sniffer_cnf;
-static gint ett_homeplug_av_sniffer_ind;
-static gint ett_homeplug_av_sniffer_ind_data;
-static gint ett_homeplug_av_nw_info_cnf;
-static gint ett_homeplug_av_nw_info_sta_info;
-static gint ett_homeplug_av_nw_info_net_info;
-static gint ett_homeplug_av_cp_rpt_req;
-static gint ett_homeplug_av_cp_rpt_ind;
-static gint ett_homeplug_av_fr_lbk_req;
-static gint ett_homeplug_av_fr_lbk_cnf;
-static gint ett_homeplug_av_lbk_stat_cnf;
-static gint ett_homeplug_av_set_key_req;
-static gint ett_homeplug_av_set_key_cnf;
-static gint ett_homeplug_av_mfg_string_cnf;
-static gint ett_homeplug_av_rd_cblock_cnf;
-static gint ett_homeplug_av_cblock_hdr;
-static gint ett_homeplug_av_cblock;
-static gint ett_homeplug_av_set_sdram_req;
-static gint ett_homeplug_av_set_sdram_cnf;
-static gint ett_homeplug_av_host_action_ind;
-static gint ett_homeplug_av_host_action_rsp;
-static gint ett_homeplug_av_op_attr_req;
-static gint ett_homeplug_av_op_attr_cnf;
-static gint ett_homeplug_av_op_attr_data;
-static gint ett_homeplug_av_enet_phy_req;
-static gint ett_homeplug_av_enet_phy_cnf;
-static gint ett_homeplug_av_tone_map_tx_req;
-static gint ett_homeplug_av_tone_map_rx_req;
-static gint ett_homeplug_av_tone_map_tx_cnf;
-static gint ett_homeplug_av_tone_map_rx_cnf;
-static gint ett_homeplug_av_tone_map_carriers;
-static gint ett_homeplug_av_tone_map_carrier;
+static int ett_homeplug_av_get_sw_cnf;
+static int ett_homeplug_av_wr_mem_req;
+static int ett_homeplug_av_wr_mem_cnf;
+static int ett_homeplug_av_rd_mem_req;
+static int ett_homeplug_av_st_mac_req;
+static int ett_homeplug_av_st_mac_cnf;
+static int ett_homeplug_av_rd_mem_cnf;
+static int ett_homeplug_av_get_nvm_cnf;
+static int ett_homeplug_av_rs_dev_cnf;
+static int ett_homeplug_av_wr_mod_req;
+static int ett_homeplug_av_wr_mod_cnf;
+static int ett_homeplug_av_wr_mod_ind;
+static int ett_homeplug_av_rd_mod_req;
+static int ett_homeplug_av_rd_mod_cnf;
+static int ett_homeplug_av_mod_nvm_req;
+static int ett_homeplug_av_mod_nvm_cnf;
+static int ett_homeplug_av_wd_rpt_req;
+static int ett_homeplug_av_wd_rpt_ind;
+static int ett_homeplug_av_lnk_stats_req;
+static int ett_homeplug_av_lnk_stats_cnf;
+static int ett_homeplug_av_lnk_stats_tx;
+static int ett_homeplug_av_lnk_stats_rx;
+static int ett_homeplug_av_lnk_stats_rx_inv;
+static int ett_homeplug_av_sniffer_req;
+static int ett_homeplug_av_sniffer_cnf;
+static int ett_homeplug_av_sniffer_ind;
+static int ett_homeplug_av_sniffer_ind_data;
+static int ett_homeplug_av_nw_info_cnf;
+static int ett_homeplug_av_nw_info_sta_info;
+static int ett_homeplug_av_nw_info_net_info;
+static int ett_homeplug_av_cp_rpt_req;
+static int ett_homeplug_av_cp_rpt_ind;
+static int ett_homeplug_av_fr_lbk_req;
+static int ett_homeplug_av_fr_lbk_cnf;
+static int ett_homeplug_av_lbk_stat_cnf;
+static int ett_homeplug_av_set_key_req;
+static int ett_homeplug_av_set_key_cnf;
+static int ett_homeplug_av_mfg_string_cnf;
+static int ett_homeplug_av_rd_cblock_cnf;
+static int ett_homeplug_av_cblock_hdr;
+static int ett_homeplug_av_cblock;
+static int ett_homeplug_av_set_sdram_req;
+static int ett_homeplug_av_set_sdram_cnf;
+static int ett_homeplug_av_host_action_ind;
+static int ett_homeplug_av_host_action_rsp;
+static int ett_homeplug_av_op_attr_req;
+static int ett_homeplug_av_op_attr_cnf;
+static int ett_homeplug_av_op_attr_data;
+static int ett_homeplug_av_enet_phy_req;
+static int ett_homeplug_av_enet_phy_cnf;
+static int ett_homeplug_av_tone_map_tx_req;
+static int ett_homeplug_av_tone_map_rx_req;
+static int ett_homeplug_av_tone_map_tx_cnf;
+static int ett_homeplug_av_tone_map_rx_cnf;
+static int ett_homeplug_av_tone_map_carriers;
+static int ett_homeplug_av_tone_map_carrier;
 /* HPGP */
-static gint ett_homeplug_av_gp_cm_atten_char_profile;
-static gint ett_homeplug_av_gp_cm_slac_user_data_tlv;
+static int ett_homeplug_av_gp_cm_atten_char_profile;
+static int ett_homeplug_av_gp_cm_slac_user_data_tlv;
 
 /* ST/IoTecha specific subtrees */
-static gint ett_homeplug_av_st_iotecha_header;
-static gint ett_homeplug_av_st_iotecha_type_length_value;
-static gint ett_homeplug_av_st_iotecha_chanqual_int;
-static gint ett_homeplug_av_st_iotecha_chanqual_cbld;
-static gint ett_homeplug_av_st_iotecha_bss_entry;
+static int ett_homeplug_av_st_iotecha_header;
+static int ett_homeplug_av_st_iotecha_type_length_value;
+static int ett_homeplug_av_st_iotecha_chanqual_int;
+static int ett_homeplug_av_st_iotecha_chanqual_cbld;
+static int ett_homeplug_av_st_iotecha_bss_entry;
 /* End of ST/IoTecha specific subtrees */
 
 /* Saving vendor specific subtree */
@@ -2119,7 +2119,7 @@ static const value_string homeplug_av_gp_cm_validate_result_vals[] = {
 };
 
 /* We need third octet */
-#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_BROADCAST_MASK (((guint32)0xFF) << 16)
+#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_BROADCAST_MASK (((uint32_t)0xFF) << 16)
 
 static const value_string homeplug_av_gp_cm_slac_user_data_broadcast_vals[] = {
     { 0x00, "Unicast" },
@@ -2388,7 +2388,7 @@ static const value_string homeplug_av_st_iotecha_suppress_data_vals[] = {
 };
 
 static void
-adc_bitmask_base(gchar *buf, guint8 value) {
+adc_bitmask_base(char *buf, uint8_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "%s, %s, %s (%d)",
                (value & 0x01) ? "true" : "false",
                (value & 0x02) ? "true" : "false",
@@ -2401,7 +2401,7 @@ adc_bitmask_base(gchar *buf, guint8 value) {
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
-static int check_tvb_length(ptvcursor_t *cursor, const gint length)
+static int check_tvb_length(ptvcursor_t *cursor, const int length)
 {
     if (!cursor)
         return TVB_LEN_UNDEF;
@@ -2413,34 +2413,34 @@ static int check_tvb_length(ptvcursor_t *cursor, const gint length)
     return TVB_LEN_GREATEST;
 }
 
-static inline unsigned int homeplug_av_mmtype_msb_is_vendor(guint8 msb)
+static inline unsigned int homeplug_av_mmtype_msb_is_vendor(uint8_t msb)
 {
     return ((msb & (HOMEPLUG_AV_MMTYPE_MSB_VENDOR << HOMEPLUG_AV_MMTYPE_MSB_SHIFT)) ==
             (HOMEPLUG_AV_MMTYPE_MSB_VENDOR << HOMEPLUG_AV_MMTYPE_MSB_SHIFT));
 }
 
-static inline unsigned int homeplug_av_mmtype_msb_is_manufacturer(guint8 msb)
+static inline unsigned int homeplug_av_mmtype_msb_is_manufacturer(uint8_t msb)
 {
     return ((msb & (HOMEPLUG_AV_MMTYPE_MSB_MANUF << HOMEPLUG_AV_MMTYPE_MSB_SHIFT)) ==
             (HOMEPLUG_AV_MMTYPE_MSB_MANUF << HOMEPLUG_AV_MMTYPE_MSB_SHIFT));
 }
 
-static inline guint8 homeplug_av_get_mmhdr_size(guint8 mmv) {
+static inline uint8_t homeplug_av_get_mmhdr_size(uint8_t mmv) {
     /* Header in HomePlug AV 1.1 is 2 bytes larger (Fragmentation information) */
     return (mmv ? 5 : 3);
 }
 
 /* Dissection of MMHDR */
 static void
-dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint16 *homeplug_av_mmtype, guint32 *homeplug_av_oui)
+dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, uint8_t *homeplug_av_mmver, uint16_t *homeplug_av_mmtype, uint32_t *homeplug_av_oui)
 {
     proto_item *ti;
     proto_tree *ti_mmtype;
     /* Save in static variable */
     /* proto_tree *ti_vendor; */
     proto_tree *ti_public;
-    guint8 lsb, msb, mmv;
-    guint32 offset;
+    uint8_t lsb, msb, mmv;
+    uint32_t offset;
 
     offset = 0;
 
@@ -2931,7 +2931,7 @@ dissect_homeplug_av_rsof(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor, guint homeplug_av_mmver)
+dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, bool vendor, unsigned homeplug_av_mmver)
 {
     proto_item *it;
 
@@ -2970,7 +2970,7 @@ dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor, guint home
 }
 
 static void
-dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, bool vendor, uint8_t homeplug_av_mmver)
 {
     proto_item *it;
 
@@ -3059,10 +3059,10 @@ static void
 dissect_homeplug_av_cc_disc_list_cnf(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      num_stas;
-    guint8      sta;
-    guint8      num_nets;
-    guint8      net;
+    uint8_t     num_stas;
+    uint8_t     sta;
+    uint8_t     num_nets;
+    uint8_t     net;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3094,7 +3094,7 @@ static void
 dissect_homeplug_av_cm_enc_pld_ind(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      pid;
+    uint8_t     pid;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3197,7 +3197,7 @@ static void
 dissect_homeplug_av_cm_get_key_req(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      key_type;
+    uint8_t     key_type;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3253,9 +3253,9 @@ static void
 dissect_homeplug_av_get_brg_infos_cnf(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      bridging;
-    guint8      num_stas;
-    guint8      sta;
+    uint8_t     bridging;
+    uint8_t     num_stas;
+    uint8_t     sta;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3287,8 +3287,8 @@ static void
 dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      num_avlns;
-    guint8      net;
+    uint8_t     num_avlns;
+    uint8_t     net;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3303,7 +3303,7 @@ dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
 
         for (net = 0; net < num_avlns; net++) {
             /* Force HomePlug AV 1.0 layout here */
-            dissect_homeplug_av_nw_info_net(cursor, FALSE, 0);
+            dissect_homeplug_av_nw_info_net(cursor, false, 0);
         }
     }
     ptvcursor_pop_subtree(cursor);
@@ -3313,8 +3313,8 @@ static void
 dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      num_stas;
-    guint8      sta;
+    uint8_t     num_stas;
+    uint8_t     sta;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3329,7 +3329,7 @@ dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
 
         for (sta = 0; sta < num_stas; sta++) {
             /* Force HomePlug AV 1.0 layout here */
-            dissect_homeplug_av_nw_info_sta(cursor, FALSE, 0);
+            dissect_homeplug_av_nw_info_sta(cursor, false, 0);
         }
     }
     ptvcursor_pop_subtree(cursor);
@@ -3756,8 +3756,8 @@ static void
 dissect_homeplug_av_lnk_stats_rx(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      num_rx_interval;
-    guint8      interval;
+    uint8_t     num_rx_interval;
+    uint8_t     interval;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3787,8 +3787,8 @@ static void
 dissect_homeplug_av_lnk_stats_cnf(ptvcursor_t *cursor)
 {
     proto_item *it;
-    guint8      status;
-    guint8      direction;
+    uint8_t     status;
+    uint8_t     direction;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3872,9 +3872,9 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
     proto_item *it;
     proto_item *it_data;
     tvbuff_t   *tvb;
-    guint       offset;
+    unsigned    offset;
 
-    guint8 del_type;
+    uint8_t del_type;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3899,7 +3899,7 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
             del_type = tvb_get_guint8(tvb, offset);
 
             /* bitmask - we only want 3 bits of del_type */
-            guint8 bitmask = 0x07;
+            uint8_t bitmask = 0x07;
 
             del_type &= bitmask;
 
@@ -3944,12 +3944,12 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, uint8_t homeplug_av_mmver)
 {
     proto_item *it;
-    guint8      num_avlns;
-    guint8      num_stas;
-    guint8      sta;
+    uint8_t     num_avlns;
+    uint8_t     num_stas;
+    uint8_t     sta;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -3966,7 +3966,7 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
         if (num_avlns) {
-            dissect_homeplug_av_nw_info_net(cursor, TRUE, homeplug_av_mmver);
+            dissect_homeplug_av_nw_info_net(cursor, true, homeplug_av_mmver);
             num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                                       ptvcursor_current_offset(cursor));
             ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
@@ -3975,7 +3975,7 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
                 ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
 
             for (sta = 0; sta < num_stas; sta++) {
-                dissect_homeplug_av_nw_info_sta(cursor, TRUE, homeplug_av_mmver);
+                dissect_homeplug_av_nw_info_sta(cursor, true, homeplug_av_mmver);
             }
         }
     }
@@ -4394,7 +4394,7 @@ dissect_homeplug_av_get_enet_phy_cnf(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_tone_map_tx_req(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_tone_map_tx_req(ptvcursor_t *cursor, uint8_t homeplug_av_mmver)
 {
     proto_item *it;
 
@@ -4421,7 +4421,7 @@ dissect_homeplug_av_tone_map_tx_req(ptvcursor_t *cursor, guint8 homeplug_av_mmve
 }
 
 static void
-dissect_homeplug_av_tone_map_rx_req(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_tone_map_rx_req(ptvcursor_t *cursor, uint8_t homeplug_av_mmver)
 {
     proto_item *it;
 
@@ -4448,15 +4448,15 @@ dissect_homeplug_av_tone_map_rx_req(ptvcursor_t *cursor, guint8 homeplug_av_mmve
 }
 
 static void
-dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, guint16 num_carriers)
+dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, uint16_t num_carriers)
 {
     proto_item *it, *ittm;
-    guint8 hilo, hi_bits, lo_bits, hi_snr, lo_snr;
-    guint16 num_carrier_bytes, cb, cid;
-    guint16 num_act_carriers=0, total_bits=0, total_snr=0;
+    uint8_t hilo, hi_bits, lo_bits, hi_snr, lo_snr;
+    uint16_t num_carrier_bytes, cb, cid;
+    uint16_t num_act_carriers=0, total_bits=0, total_snr=0;
 
-    static const guint8 map_carrier2modbits[]    = { 0, 1, 2, 3,  4,  6,  8, 10, 12, 0, 0, 0, 0, 0, 0, 0 }; /* Carrier-Nibble to #Modulated-Bits Mapping */
-    static const guint8 map_carrier2modbitsSnr[] = { 0, 2, 4, 7, 10, 16, 22, 28, 36, 0, 0, 0, 0, 0, 0, 0 }; /* Carrier-Nibble to #Modulated-Bits-SNR Mapping */
+    static const uint8_t map_carrier2modbits[]    = { 0, 1, 2, 3,  4,  6,  8, 10, 12, 0, 0, 0, 0, 0, 0, 0 }; /* Carrier-Nibble to #Modulated-Bits Mapping */
+    static const uint8_t map_carrier2modbitsSnr[] = { 0, 2, 4, 7, 10, 16, 22, 28, 36, 0, 0, 0, 0, 0, 0, 0 }; /* Carrier-Nibble to #Modulated-Bits-SNR Mapping */
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4505,10 +4505,10 @@ dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, guint16 num_carriers)
 }
 
 static void
-dissect_homeplug_av_tone_map_tx_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_tone_map_tx_cnf(ptvcursor_t *cursor, uint8_t homeplug_av_mmver)
 {
     proto_item *it;
-    guint16     num_act_carriers;
+    uint16_t    num_act_carriers;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4553,10 +4553,10 @@ dissect_homeplug_av_tone_map_tx_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmve
 }
 
 static void
-dissect_homeplug_av_tone_map_rx_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_tone_map_rx_cnf(ptvcursor_t *cursor, uint8_t homeplug_av_mmver)
 {
     proto_item *it;
-    guint16     num_act_carriers;
+    uint16_t    num_act_carriers;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4645,8 +4645,8 @@ dissect_homeplug_av_cc_assoc_cnf(ptvcursor_t *cursor) {
 
 static void
 dissect_homeplug_av_cc_set_tei_map_ind(ptvcursor_t *cursor) {
-    guint8 numberOfSTA = 0;
-    guint iter = 0;
+    uint8_t numberOfSTA = 0;
+    unsigned iter = 0;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4677,8 +4677,8 @@ dissect_homeplug_av_cm_unassociated_sta_ind(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_slac_parm_req(ptvcursor_t *cursor) {
 
-    guint8 sectype,cipher_size;
-    guint16 Counter;
+    uint8_t sectype,cipher_size;
+    uint16_t Counter;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4699,7 +4699,7 @@ dissect_homeplug_av_gp_cm_slac_parm_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_slac_parm_cnf(ptvcursor_t *cursor) {
 
-    guint8 sectype;
+    uint8_t sectype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4721,8 +4721,8 @@ dissect_homeplug_av_gp_cm_slac_parm_cnf(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_atten_profile_ind(ptvcursor_t *cursor) {
 
-    guint8 group_size;
-    guint16 Counter;
+    uint8_t group_size;
+    uint16_t Counter;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4740,10 +4740,10 @@ dissect_homeplug_av_gp_cm_atten_profile_ind(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo) {
 
-    guint8 sectype, numgroups, val;
-    guint16 Counter_groups;
+    uint8_t sectype, numgroups, val;
+    uint16_t Counter_groups;
     proto_item *it;
-    gfloat avg;
+    float avg;
 
     avg = 0.0f;
 
@@ -4806,7 +4806,7 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
 static void
 dissect_homeplug_av_gp_cm_atten_char_rsp(ptvcursor_t *cursor) {
 
-    guint8 sectype;
+    uint8_t sectype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4830,7 +4830,7 @@ dissect_homeplug_av_gp_cm_atten_char_rsp(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_start_atten_char_ind(ptvcursor_t *cursor) {
 
-    guint8 sectype;
+    uint8_t sectype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4854,7 +4854,7 @@ dissect_homeplug_av_gp_cm_start_atten_char_ind(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_mnbc_sound_ind(ptvcursor_t *cursor) {
 
-    guint8 apptype,sectype;
+    uint8_t apptype,sectype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4883,7 +4883,7 @@ dissect_homeplug_av_gp_cm_mnbc_sound_ind(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_validate_req(ptvcursor_t *cursor) {
 
-    guint8 signaltype;
+    uint8_t signaltype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4901,7 +4901,7 @@ dissect_homeplug_av_gp_cm_validate_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_validate_cnf(ptvcursor_t *cursor) {
 
-    guint8 signaltype;
+    uint8_t signaltype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4919,9 +4919,9 @@ dissect_homeplug_av_gp_cm_validate_cnf(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_slac_match_req(ptvcursor_t *cursor) {
 
-    /* guint8 apptype;
-       guint16 length; */
-    guint8 sectype;
+    /* uint8_t apptype;
+       uint16_t length; */
+    uint8_t sectype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4950,9 +4950,9 @@ dissect_homeplug_av_gp_cm_slac_match_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_slac_match_cnf(ptvcursor_t *cursor) {
 
-    /* guint8 apptype;
-       guint16 length; */
-    guint8 sectype;
+    /* uint8_t apptype;
+       uint16_t length; */
+    uint8_t sectype;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -4983,7 +4983,7 @@ dissect_homeplug_av_gp_cm_slac_match_cnf(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_gp_cm_slac_user_data(ptvcursor_t *cursor) {
 
-    guint16 Type, Length,TypeLen;
+    uint16_t Type, Length,TypeLen;
     proto_item *it;
 
     if (!ptvcursor_tree(cursor))
@@ -5066,7 +5066,7 @@ dissect_homeplug_av_st_iotecha_status_standard(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_discover_tlv(ptvcursor_t *cursor) {
 
-    guint16 Type, Length,TypeLen;
+    uint16_t Type, Length,TypeLen;
     proto_item *it;
 
     if (!ptvcursor_tree(cursor))
@@ -5096,10 +5096,10 @@ dissect_homeplug_av_st_iotecha_stp_discover_tlv(ptvcursor_t *cursor) {
 }
 
 static void
-dissect_homeplug_av_st_iotecha_stp_get_bss_tlv(ptvcursor_t *cursor, guint8 count) {
+dissect_homeplug_av_st_iotecha_stp_get_bss_tlv(ptvcursor_t *cursor, uint8_t count) {
 
-    guint8 Type;
-    guint16 Counter, Length;
+    uint8_t Type;
+    uint16_t Counter, Length;
     proto_item *it;
 
     if (!ptvcursor_tree(cursor))
@@ -5186,8 +5186,8 @@ dissect_homeplug_av_st_iotecha_discover(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_get_tei_list_cnf(ptvcursor_t *cursor) {
 
-    guint8 TeiCount;
-    guint8 Counter;
+    uint8_t TeiCount;
+    uint8_t Counter;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5211,8 +5211,8 @@ dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_cnf(ptvcursor_t *cursor) {
 
-    guint8 AddrCount;
-    guint8 Counter;
+    uint8_t AddrCount;
+    uint8_t Counter;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5229,7 +5229,7 @@ dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_cnf(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_get_bss_list_cnf(ptvcursor_t *cursor) {
 
-    guint8 Count;
+    uint8_t Count;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5263,8 +5263,8 @@ static void
 dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_ind(ptvcursor_t *cursor) {
 
     proto_item *it;
-    guint8 tmi_count, int_count;
-    guint16 Counter;
+    uint8_t tmi_count, int_count;
+    uint16_t Counter;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5317,7 +5317,7 @@ dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_ind(ptvcursor_t *cursor) 
 static void
 dissect_homeplug_av_st_iotecha_stp_mfct_update_stage_req(ptvcursor_t *cursor) {
 
-    guint16 Length;
+    uint16_t Length;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5356,7 +5356,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_update_finish_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_mfct_get_item_req(ptvcursor_t *cursor) {
 
-    gint name_size;
+    int name_size;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5372,7 +5372,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_item_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_mfct_get_item_cnf(ptvcursor_t *cursor) {
 
-    gint name_size;
+    int name_size;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5389,7 +5389,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_item_cnf(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_mfct_get_keylist_cnf(ptvcursor_t *cursor) {
 
-    gint name_size;
+    int name_size;
 
     if (!ptvcursor_tree(cursor))
         return;
@@ -5420,9 +5420,9 @@ dissect_homeplug_av_st_iotecha_stp_fup_req(ptvcursor_t *cursor) {
 static void
 dissect_homeplug_av_st_iotecha_stp_cpstate_ind(ptvcursor_t *cursor, packet_info *pinfo) {
 
-    guint8 bitmask;
-    guint8 cp_state;
-    guint8 pwm_duty;
+    uint8_t bitmask;
+    uint8_t cp_state;
+    uint8_t pwm_duty;
 
     cp_state = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     pwm_duty = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+1);
@@ -5462,7 +5462,7 @@ dissect_homeplug_av_st_iotecha_stp_cpstate_ind(ptvcursor_t *cursor, packet_info 
 static void
 dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_info *pinfo) {
 
-    gint null_offset;
+    int null_offset;
 
 
     ptvcursor_advance(cursor, 4); // not used fields
@@ -5558,8 +5558,8 @@ dissect_homeplug_av_st_iotecha_stp_test_chan_atten_data_ind(ptvcursor_t *cursor)
 
 static void
 dissect_homeplug_av_mme_general(ptvcursor_t *cursor,
-                                guint8 homeplug_av_mmver,
-                                guint16 homeplug_av_mmtype,
+                                uint8_t homeplug_av_mmver,
+                                uint16_t homeplug_av_mmtype,
                                 packet_info *pinfo) {
     (void)homeplug_av_mmver;
     /* Public MMEs */
@@ -5651,7 +5651,7 @@ dissect_homeplug_av_mme_general(ptvcursor_t *cursor,
 }
 
 static void
-dissect_homeplug_av_mme_qualcomm(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 homeplug_av_mmtype) {
+dissect_homeplug_av_mme_qualcomm(ptvcursor_t *cursor, uint8_t homeplug_av_mmver, uint16_t homeplug_av_mmtype) {
     switch ((homeplug_av_mmetypes_qualcomm_type)homeplug_av_mmtype) {
     case HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_SW_CNF:
         dissect_homeplug_av_get_sw_cnf(cursor);
@@ -5795,8 +5795,8 @@ dissect_homeplug_av_mme_qualcomm(ptvcursor_t *cursor, guint8 homeplug_av_mmver, 
 
 static void
 dissect_homeplug_av_mme_st_iotecha(ptvcursor_t *cursor,
-                                   guint8 homeplug_av_mmver,
-                                   guint16 homeplug_av_mmtype,
+                                   uint8_t homeplug_av_mmver,
+                                   uint16_t homeplug_av_mmtype,
                                    packet_info *pinfo) {
     (void)homeplug_av_mmver;
     /* Parse head of the message */
@@ -5904,9 +5904,9 @@ dissect_homeplug_av_mme_st_iotecha(ptvcursor_t *cursor,
 
 static void
 dissect_homeplug_av_mme(ptvcursor_t *cursor,
-                        guint8 homeplug_av_mmver,
-                        guint16 homeplug_av_mmtype,
-                        guint32 homeplug_av_oui,
+                        uint8_t homeplug_av_mmver,
+                        uint16_t homeplug_av_mmtype,
+                        uint32_t homeplug_av_oui,
                         packet_info *pinfo)
 {
     if (!homeplug_av_oui) {
@@ -5924,9 +5924,9 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor,
 }
 
 static void
-info_column_filler_initial(guint8 homeplug_av_mmver,
-                           guint16 homeplug_av_mmtype,
-                           guint32 homeplug_av_oui,
+info_column_filler_initial(uint8_t homeplug_av_mmver,
+                           uint16_t homeplug_av_mmtype,
+                           uint32_t homeplug_av_oui,
                            packet_info *pinfo) {
     (void)homeplug_av_mmver;
 
@@ -5971,9 +5971,9 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_item  *ti;
     proto_tree  *homeplug_av_tree;
     ptvcursor_t *cursor;
-    guint8       homeplug_av_mmver;
-    guint16      homeplug_av_mmtype;
-    guint32      homeplug_av_oui;
+    uint8_t      homeplug_av_mmver;
+    uint16_t     homeplug_av_mmtype;
+    uint32_t     homeplug_av_oui;
 
     homeplug_av_oui = 0;
     ti_vendor = 0;
@@ -8336,7 +8336,7 @@ proto_register_homeplug_av(void)
         /* End of ST/IoTecha specific fields */
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_homeplug_av,
         &ett_homeplug_av_mmhdr,
         &ett_homeplug_av_mmtype,

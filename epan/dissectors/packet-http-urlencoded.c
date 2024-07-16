@@ -26,8 +26,8 @@ static int proto_urlencoded;
 static int hf_form_key;
 static int hf_form_value;
 
-static gint ett_form_urlencoded;
-static gint ett_form_keyvalue;
+static int ett_form_urlencoded;
+static int ett_form_keyvalue;
 
 static ws_mempbrk_pattern pbrk_key;
 static ws_mempbrk_pattern pbrk_value;
@@ -37,7 +37,7 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 {
 	const int orig_offset = offset;
 	int found_offset;
-	guint8 ch;
+	uint8_t ch;
 	char *tmp;
 	int len;
 
@@ -88,7 +88,7 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 		len += (found_offset - offset);
 		offset = found_offset;
 		if (ch == '%') {
-			guint8 ch1, ch2;
+			uint8_t ch1, ch2;
 
 			offset++;
 			ch1 = tvb_get_guint8(tvb, offset);
@@ -119,7 +119,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree	*url_tree;
 	proto_tree	*sub;
 	proto_item	*ti;
-	gint		offset = 0, next_offset, end_offset;
+	int		offset = 0, next_offset, end_offset;
 	const char	*data_name;
 	media_content_info_t *content_info;
 	tvbuff_t	*sequence_tvb;
@@ -210,7 +210,7 @@ proto_register_http_urlencoded(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_form_urlencoded,
 		&ett_form_keyvalue
 	};

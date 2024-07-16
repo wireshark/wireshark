@@ -76,16 +76,16 @@ static const value_string returncode_vals[] = {
     {0, NULL}
 };
 
-static gint ett_h1;
-static gint ett_block;
+static int ett_h1;
+static int ett_block;
 
 static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *h1_tree, *block_tree;
     proto_item *h1_ti, *block_ti;
-    gint offset = 0, offset_block_start;
-    guint8 h1_len;
-    guint8 block_type, block_len;
+    int offset = 0, offset_block_start;
+    uint8_t h1_len;
+    uint8_t block_type, block_len;
     tvbuff_t *next_tvb;
 
     if (tvb_captured_length(tvb) < 2) {
@@ -231,7 +231,7 @@ proto_register_h1 (void)
                 VALS (returncode_vals), 0x0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_h1,
         &ett_block,
     };

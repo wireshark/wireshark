@@ -30,8 +30,8 @@ static int proto_h248_CHP;
 static int hf_h248_CHP_mgcon;
 static int hf_h248_CHP_mgcon_reduction;
 
-static gint ett_h248_CHP;
-static gint ett_h248_CHP_mgcon;
+static int ett_h248_CHP;
+static int ett_h248_CHP_mgcon;
 
 static const value_string h248_CHP_prop_vals[] = {
 	{ 0, "chp (MG Congestion Handling)" },
@@ -83,7 +83,7 @@ void proto_register_h248_dot10(void) {
 		{ &hf_h248_CHP_mgcon_reduction, { "Reduction", "h248.chp.mgcon.reduction", FT_UINT32, BASE_DEC, NULL, 0, "Percentage of the load that the MGC is requested to block", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_h248_CHP,
 		&ett_h248_CHP_mgcon,
 	};

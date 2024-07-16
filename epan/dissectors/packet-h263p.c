@@ -44,10 +44,10 @@ static int hf_h263P_extra_hdr;
 
 
 /* H.263-1998 fields defining a sub tree */
-static gint ett_h263P;
-static gint ett_h263P_extra_hdr;
-static gint ett_h263P_payload;
-static gint ett_h263P_data;
+static int ett_h263P;
+static int ett_h263P_extra_hdr;
+static int ett_h263P_payload;
+static int ett_h263P_data;
 
 static dissector_handle_t h263P_handle;
 
@@ -62,8 +62,8 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *h263P_extr_hdr_tree = NULL;
     proto_tree *h263P_data_tree     = NULL;
     unsigned int offset             = 0;
-    guint16 data16, plen;
-    guint8 startcode;
+    uint16_t data16, plen;
+    uint8_t startcode;
 
     /*
     tvbuff_t *next_tvb;
@@ -134,7 +134,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       if (plen != 0){
           extra_hdr_item = proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, ENC_NA );
           h263P_extr_hdr_tree = proto_item_add_subtree( extra_hdr_item, ett_h263P_extra_hdr );
-          dissect_h263_picture_layer( tvb, pinfo, h263P_extr_hdr_tree, offset, plen, TRUE);
+          dissect_h263_picture_layer( tvb, pinfo, h263P_extr_hdr_tree, offset, plen, true);
           offset += plen;
       }
       if ((data16&0x0400)!=0){
@@ -160,7 +160,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                    * ( 1000 00x.)
                    */
                   col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
-                  dissect_h263_picture_layer( tvb, pinfo, h263P_data_tree, offset, -1, TRUE);
+                  dissect_h263_picture_layer( tvb, pinfo, h263P_data_tree, offset, -1, true);
                   break;
               case 0xfc:
               case 0xfe:
@@ -172,7 +172,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                    * Slice Start Code (SSC)
                    */
                   col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
-                  dissect_h263_group_of_blocks_layer( tvb, h263P_data_tree, offset,TRUE);
+                  dissect_h263_group_of_blocks_layer( tvb, h263P_data_tree, offset,true);
                   break;
               }
           }else{
@@ -354,7 +354,7 @@ proto_register_h263P(void)
 
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_h263P,
         &ett_h263P_extra_hdr,

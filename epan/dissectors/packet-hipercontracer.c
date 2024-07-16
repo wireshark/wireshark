@@ -28,14 +28,14 @@ void proto_reg_handoff_hipercontracer(void);
 static int proto_hipercontracer;
 
 /* Initialize the subtree pointers */
-static gint ett_hipercontracer;
+static int ett_hipercontracer;
 
-static gint hf_magic_number;
-static gint hf_send_ttl;
-static gint hf_round;
-static gint hf_checksum_tweak;
-static gint hf_seq_number;
-static gint hf_send_timestamp;
+static int hf_magic_number;
+static int hf_send_ttl;
+static int hf_round;
+static int hf_checksum_tweak;
+static int hf_seq_number;
+static int hf_send_timestamp;
 
 /* Setup list of header fields */
 static hf_register_info hf[] = {
@@ -53,26 +53,26 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 {
   proto_item* hipercontracer_item;
   proto_tree* hipercontracer_tree;
-  guint64     timestamp;
+  uint64_t    timestamp;
   nstime_t    t;
 
   // Check length
-  const guint length = tvb_captured_length(message_tvb);
+  const unsigned length = tvb_captured_length(message_tvb);
   if (length < 16)
-    return FALSE;
+    return false;
 
-  const guint32 magic = tvb_get_ntohl(message_tvb, 0);
+  const uint32_t magic = tvb_get_ntohl(message_tvb, 0);
 
   // Send TTL cannot be < 1
-  const guint8 sendTTL = tvb_get_guint8(message_tvb, 4);
+  const uint8_t sendTTL = tvb_get_guint8(message_tvb, 4);
   if (sendTTL < 1)
-    return FALSE;
+    return false;
 
-  const guint8 round = tvb_get_guint8(message_tvb, 5);
+  const uint8_t round = tvb_get_guint8(message_tvb, 5);
 
-  const guint16 checksumTweak = tvb_get_ntohs(message_tvb, 6);
+  const uint16_t checksumTweak = tvb_get_ntohs(message_tvb, 6);
 
-  guint64 sendTimeStamp = tvb_get_ntoh64(message_tvb, 8);
+  uint64_t sendTimeStamp = tvb_get_ntoh64(message_tvb, 8);
 
   /*
    * Don't dissect a SASL ldap message, which starts with the
@@ -90,17 +90,17 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
       sendTTL == 0x05 &&
       round == 0x04 &&
       (checksumTweak & 0xf8ff) == 0x00ff &&
-      (sendTimeStamp & G_GUINT64_CONSTANT(0xff00ff0000000000)) == 0)
-    return FALSE;
+      (sendTimeStamp & UINT64_C(0xff00ff0000000000)) == 0)
+    return false;
 
   // Check for plausible send time stamp:
   // * After:  01.01.2016 00:00:00.000000
   // * Before: 31.12.2099 23:59.59.999999
   // Time stamp is microseconds since 29.09.1976 00:00:00.000000.
-  sendTimeStamp += G_GUINT64_CONSTANT(212803200000000);
-  if ( (sendTimeStamp < G_GUINT64_CONSTANT(1451602800000000)) ||
-       (sendTimeStamp > G_GUINT64_CONSTANT(4102441199999999)) )
-    return FALSE;
+  sendTimeStamp += UINT64_C(212803200000000);
+  if ( (sendTimeStamp < UINT64_C(1451602800000000)) ||
+       (sendTimeStamp > UINT64_C(4102441199999999)) )
+    return false;
 
   col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, NULL, "HiPerConTracer");
 
@@ -122,7 +122,7 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   }
 
   // Time stamp is microseconds since 29.09.1976 00:00:00.000000.
-  timestamp = tvb_get_ntoh64(message_tvb, 8) + G_GUINT64_CONSTANT(212803200000000);
+  timestamp = tvb_get_ntoh64(message_tvb, 8) + UINT64_C(212803200000000);
   t.secs  = (time_t)(timestamp / 1000000);
   t.nsecs = (int)((timestamp - 1000000 * t.secs) * 1000);
   proto_tree_add_time(hipercontracer_tree, hf_send_timestamp, message_tvb, 8, 8, &t);
@@ -145,7 +145,7 @@ void
 proto_register_hipercontracer(void)
 {
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_hipercontracer
   };
 

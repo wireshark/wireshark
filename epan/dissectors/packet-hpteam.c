@@ -27,11 +27,11 @@ static const value_string hpteam_pid_vals[] = {
 	{ 0,		NULL }
 };
 
-static gint hf_hpteam;
-static gint hf_llc_hpteam_pid;
+static int hf_hpteam;
+static int hf_llc_hpteam_pid;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_hpteam;
+static int ett_hpteam;
 
 static dissector_handle_t hpteam_handle;
 
@@ -107,7 +107,7 @@ void proto_register_hpteam(void)
 		}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_hpteam
 	};
 

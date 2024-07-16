@@ -29,8 +29,8 @@ void proto_reg_handoff_hdcp2(void);
 
 static int proto_hdcp2;
 
-static gint ett_hdcp2;
-static gint ett_hdcp2_cert;
+static int ett_hdcp2;
+static int ett_hdcp2_cert;
 
 static int hf_hdcp2_msg_id;
 static int hf_hdcp2_r_tx;
@@ -102,8 +102,8 @@ static const value_string hdcp2_msg_id[] = {
 };
 
 typedef struct _msg_info_t {
-    guint8  id;
-    guint16 len;  /* number of bytes following initial msg_id field */
+    uint8_t id;
+    uint16_t len;  /* number of bytes following initial msg_id field */
 } msg_info_t;
 
 static wmem_map_t *msg_table;
@@ -130,9 +130,9 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     msg_info_t *mi;
     proto_item *pi;
     proto_tree *hdcp_tree, *cert_tree;
-    guint8 msg_id, version;
-    gboolean repeater, loc_precomp;
-    guint16 reserved, length;
+    uint8_t msg_id, version;
+    bool repeater, loc_precomp;
+    uint16_t reserved, length;
     ptvcursor_t *cursor;
 
     /* do the plausibility checks before setting up anything */
@@ -145,7 +145,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         return 0;
 
     mi = (msg_info_t *)wmem_map_lookup(msg_table,
-            GUINT_TO_POINTER((guint)msg_id));
+            GUINT_TO_POINTER((unsigned)msg_id));
     /* 1 -> start after msg_id byte */
     if (!mi || mi->len!=tvb_reported_length_remaining(tvb, 1))
         return 0;
@@ -281,7 +281,7 @@ dissect_hdcp2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 void
 proto_register_hdcp2(void)
 {
-    guint i;
+    unsigned i;
 
     static hf_register_info hf[] = {
         { &hf_hdcp2_msg_id,
@@ -356,7 +356,7 @@ proto_register_hdcp2(void)
 
 };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hdcp2,
         &ett_hdcp2_cert,
     };
@@ -373,8 +373,8 @@ proto_register_hdcp2(void)
     msg_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(msg_info); i++) {
         wmem_map_insert(msg_table,
-                GUINT_TO_POINTER((guint)msg_info[i].id),
-                (gpointer)(&msg_info[i]));
+                GUINT_TO_POINTER((unsigned)msg_info[i].id),
+                (void *)(&msg_info[i]));
     }
 
     proto_hdcp2 = proto_register_protocol("High bandwidth Digital Content Protection version 2", "HDCP2", "hdcp2");
@@ -393,12 +393,12 @@ proto_register_hdcp2(void)
 void
 proto_reg_handoff_hdcp2(void)
 {
-    static gboolean prefs_initialized = FALSE;
+    static bool prefs_initialized = false;
 
     if (!prefs_initialized) {
         heur_dissector_add ("tcp", dissect_hdcp2_heur, "HDCP2 over TCP", "hdcp2_tcp", proto_hdcp2, HEURISTIC_DISABLE);
 
-        prefs_initialized = TRUE;
+        prefs_initialized = true;
     }
 }
 

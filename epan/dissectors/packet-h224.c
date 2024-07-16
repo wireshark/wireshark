@@ -95,7 +95,7 @@ static int hf_h224_message_preset_number;
 static dissector_handle_t h224_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_h224;
+static int ett_h224;
 
 /* Definition of DLCI data priority's masks */
 #define H224_DATA_PRI_MASK      0xFCF0
@@ -125,14 +125,14 @@ static gint ett_h224;
 #define FECC_MSG_STORE_AS_PRESET_REQ            0x06
 #define FECC_MSG_ACTIVATE_PRESET_REQ            0x07
 
-static guint dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
-static guint dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
-static guint dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
-static guint dissect_h224_non_standard_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
+static unsigned dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset);
+static unsigned dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset);
+static unsigned dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset);
+static unsigned dissect_h224_non_standard_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset);
 
 typedef struct {
     int optcode;
-    guint (*decode) (tvbuff_t*, proto_tree*, guint);
+    unsigned (*decode) (tvbuff_t*, proto_tree*, unsigned);
 } h224_opt_t;
 
 static const h224_opt_t h224opt[] = {
@@ -177,10 +177,10 @@ static const true_false_string tfs_in_out = { "In", "Out" };
 
 static value_string_ext h224_client_data_ext = VALUE_STRING_EXT_INIT(h224_client_data_type);
 
-static guint
-dissect_h224_standard_clients_ids(tvbuff_t* tvb, proto_tree* tree, guint offset, guint8 client_id)
+static unsigned
+dissect_h224_standard_clients_ids(tvbuff_t* tvb, proto_tree* tree, unsigned offset, uint8_t client_id)
 {
-    guint32 manufacturer_code;
+    uint32_t manufacturer_code;
 
     if (client_id == H224_EXTENED_CLIENT_ID) {
         proto_tree_add_item(tree, hf_h224_extended_client_id_list, tvb, offset, 1, ENC_NA);
@@ -206,14 +206,14 @@ dissect_h224_standard_clients_ids(tvbuff_t* tvb, proto_tree* tree, guint offset,
     return offset;
 }
 
-static guint
-dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
+static unsigned
+dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
-    guint16 type;
-    guint8 num;
-    guint8 oct;
-    guint8 source_id;
-    guint8 zero_offset;
+    uint16_t type;
+    uint8_t num;
+    uint8_t oct;
+    uint8_t source_id;
+    uint8_t zero_offset;
     proto_tree *ext_tree;
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
@@ -305,10 +305,10 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
     return offset;
 }
 
-static guint
-dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
+static unsigned
+dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
-    guint8 oct;
+    uint8_t oct;
     proto_tree *ext_tree;
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
@@ -330,7 +330,7 @@ dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
     switch(oct) {
         case FECC_MSG_START_ACTION_REQ:
         {
-            guint16 timeout;
+            uint16_t timeout;
             proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_message_action, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_message_reserved_b7b4, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -377,7 +377,7 @@ dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
     return offset;
 }
 
-static guint dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset) {
+static unsigned dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset) {
     proto_tree *ext_tree;
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
@@ -387,7 +387,7 @@ static guint dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, 
     return offset;
 }
 
-static guint dissect_h224_non_standard_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset) {
+static unsigned dissect_h224_non_standard_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset) {
     proto_tree *ext_tree;
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
@@ -402,8 +402,8 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 {
     proto_item* ti;
     proto_tree* h224_tree;
-    guint       offset = 0;
-    guint8 oct;
+    unsigned    offset = 0;
+    uint8_t oct;
 
 
     /* Set the Protocol column in the summary display */
@@ -746,7 +746,7 @@ proto_register_h224(void)
             NULL, HFILL }
         },
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_h224
     };
 

@@ -55,17 +55,17 @@ dissector_handle_t hl7_handle;
 
 static int proto_hl7;
 
-static gint hf_hl7_raw;
-static gint hf_hl7_raw_segment;
-static gint hf_hl7_llp_sob;
-static gint hf_hl7_llp_eob;
-static gint hf_hl7_message_type;
-static gint hf_hl7_event_type;
-static gint hf_hl7_segment;
-static gint hf_hl7_field;
+static int hf_hl7_raw;
+static int hf_hl7_raw_segment;
+static int hf_hl7_llp_sob;
+static int hf_hl7_llp_eob;
+static int hf_hl7_message_type;
+static int hf_hl7_event_type;
+static int hf_hl7_segment;
+static int hf_hl7_field;
 
-static gint ett_hl7;
-static gint ett_hl7_segment;
+static int ett_hl7;
+static int ett_hl7_segment;
 
 static expert_field ei_hl7_malformed;
 
@@ -675,19 +675,19 @@ static const string_string hl7_event_type_vals[] = {
     { NULL, NULL }
 };
 
-static gboolean
+static bool
 event_present(const struct msh *msh) {
-    return msh->trigger_event[0] == 0 ? FALSE : TRUE;
+    return msh->trigger_event[0] == 0 ? false : true;
 }
 
 static int
-parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
           struct msh *msh)
 {
-    gint segment_len = -1;
-    gint end_of_segment_offset = -1;
-    gint field_separator_offset = -1;
-    gint field_number = 0;
+    int segment_len = -1;
+    int end_of_segment_offset = -1;
+    int field_separator_offset = -1;
+    int field_number = 0;
 
     /* initialize msh */
     msh->trigger_event[0] ='\0';
@@ -711,7 +711,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
     /* FF: even if HL7 2.3.1 says each segment must be terminated with CR
      * we look either for a CR or an LF or both (I did find a system out
      * there that uses both) */
-    segment_len = tvb_find_line_end(tvb, offset, -1, NULL, TRUE);
+    segment_len = tvb_find_line_end(tvb, offset, -1, NULL, true);
     if (segment_len == -1) {
         expert_add_info_format(pinfo, NULL, &ei_hl7_malformed,
                                "Segments must be terminated with CR");
@@ -763,19 +763,19 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
 
 static void
 dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
-                    gint offset, gint segment_len, gint segment_len_crlf _U_,
+                    int offset, int segment_len, int segment_len_crlf _U_,
                     const struct msh *msh _U_)
 {
     /* segment layout xyz|a|b||||c|d\rxyz|a|b|c||||d... */
     proto_tree *segment_tree = NULL;
     proto_item *ti = NULL;
     char *field_str = NULL;
-    gint end_of_segment_offset = 0;
-    gint field_separator_offset = 0;
-    gint field_num = 0;
-    gint field_len = 0;
-    gint segment_consumed = 0;
-    gboolean last_field = FALSE;
+    int end_of_segment_offset = 0;
+    int field_separator_offset = 0;
+    int field_num = 0;
+    int field_len = 0;
+    int segment_consumed = 0;
+    bool last_field = false;
 
     /* calculate where the segment ends */
     end_of_segment_offset = offset + segment_len;
@@ -795,7 +795,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
             /* we do not have a field separator */
             if (segment_consumed != segment_len) {
                 /* this is the last field */
-                last_field = TRUE;
+                last_field = true;
                 field_len = segment_len - segment_consumed;
                 segment_consumed += field_len + 1;
             } else {
@@ -850,12 +850,12 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
 }
 
 static void
-dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
+dissect_hl7_message(tvbuff_t *tvb, unsigned tvb_offset, int len,
                     packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint offset = tvb_offset;
-    guint sob_offset = offset;
-    guint eob_offset = offset + len - 2;
+    unsigned offset = tvb_offset;
+    unsigned sob_offset = offset;
+    unsigned eob_offset = offset + len - 2;
     proto_tree *hl7_tree = NULL;
     proto_item *ti = NULL;
     struct msh msh = {0};
@@ -907,13 +907,13 @@ dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
 
     /* body */
     while (offset < eob_offset) {
-        gint next_offset = -1;
-        gint segment_len = -1;
-        gint segment_len_crlf = -1;
+        int next_offset = -1;
+        int segment_len = -1;
+        int segment_len_crlf = -1;
         /* FF: even if HL7 2.3.1 says each segment must be terminated with CR
          * we look either for a CR or an LF or both (I did find a system out
          * there that uses both) */
-        segment_len = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+        segment_len = tvb_find_line_end(tvb, offset, -1, &next_offset, true);
         if (segment_len == -1) {
             expert_add_info_format(pinfo, NULL, &ei_hl7_malformed,
                                    "Segments must be terminated with CR");
@@ -934,11 +934,11 @@ dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
 static int
 dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
 
     while (offset < tvb_reported_length(tvb)) {
-        gint available = tvb_reported_length_remaining(tvb, offset);
-        gint llp_eob_offset = tvb_find_guint16(tvb, offset, offset + available, LLP_EOB);
+        int available = tvb_reported_length_remaining(tvb, offset);
+        int llp_eob_offset = tvb_find_guint16(tvb, offset, offset + available, LLP_EOB);
 
         if (llp_eob_offset == -1) {
             /* we ran out of data: ask for more */
@@ -949,7 +949,7 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         /* tvb_find_ utilities return the *start* of the signature, here we
          * take care of the LLP_EOB bytes */
-        gint llp_block_len = llp_eob_offset - offset + 2;
+        int llp_block_len = llp_eob_offset - offset + 2;
 
         /* FF: nasty case, check whether the capture started after the SOB
          * transmission. If this is the case we display these trailing bytes
@@ -964,7 +964,7 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* FF: ok we got a complete LLP block '0x0B HL7-message 0x1C 0x0D',
          * do the dissection */
         dissect_hl7_message(tvb, offset, llp_block_len, pinfo, tree, data);
-        offset += (guint)llp_block_len;
+        offset += (unsigned)llp_block_len;
     }
 
     /* if we get here, then the end of the tvb matched with the end of a
@@ -1002,7 +1002,7 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
      * to continue the next processing from the beginning of the PDU
      * (desegment_offset = 0) because we did not consume/dissect
      * anything in this cycle. */
-    gint llp_eob_offset = tvb_find_guint16(tvb, 0, -1, LLP_EOB);
+    int llp_eob_offset = tvb_find_guint16(tvb, 0, -1, LLP_EOB);
 
     if (llp_eob_offset == -1) {
         pinfo->desegment_offset = 0;
@@ -1065,7 +1065,7 @@ proto_register_hl7(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hl7,
         &ett_hl7_segment,
     };

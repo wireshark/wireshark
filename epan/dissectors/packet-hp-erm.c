@@ -44,7 +44,7 @@ static dissector_handle_t hp_erm_handle;
 #define PROTO_LONG_NAME  "HP encapsulated remote mirroring"
 
 static int  proto_hp_erm;
-static gint ett_hp_erm;
+static int ett_hp_erm;
 static int  hf_hp_erm_unknown1;
 static int  hf_hp_erm_unknown2;
 static int  hf_hp_erm_unknown3;
@@ -137,7 +137,7 @@ proto_register_hp_erm(void)
             0x0000007F, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hp_erm,
     };
 

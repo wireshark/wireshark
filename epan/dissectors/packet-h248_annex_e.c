@@ -29,8 +29,8 @@ void proto_register_h248_annex_e(void);
 */
 static int proto_h248_annex_E;
 
-static gboolean h248_e_implicit;
-static gboolean implicit;
+static bool h248_e_implicit;
+static bool implicit;
 
 /* H.248.1 E.1  Generic Package */
 static int hf_h248_pkg_generic;
@@ -43,9 +43,9 @@ static int hf_h248_pkg_generic_sc_meth;
 static int hf_h248_pkg_generic_sc_slid;
 static int hf_h248_pkg_generic_sc_rid;
 
-static gint ett_h248_pkg_generic_cause_evt;
-static gint ett_h248_pkg_generic;
-static gint ett_h248_pkg_generic_sc_evt;
+static int ett_h248_pkg_generic_cause_evt;
+static int ett_h248_pkg_generic;
+static int ett_h248_pkg_generic_sc_evt;
 
 static const value_string h248_pkg_generic_props_vals[] = {
 	{ 0,"Generic Package - Annex E (g)" },
@@ -134,7 +134,7 @@ static int hf_h248_pkg_root_mgc_provisionalresponsetimervalue;
 static int hf_h248_pkg_root_mgc_orginalpendinglimit;
 static int hf_h248_pkg_root_mg_orginalpendinglimit;
 
-static gint ett_h248_pkg_root_params;
+static int ett_h248_pkg_root_params;
 
 static const value_string h248_pkg_root_props_vals[] = {
 	{ 0x0000, "Base Root Package - Annex E (root)" },
@@ -183,8 +183,8 @@ static int hf_h248_pkg_tonegen_sig_pt_tl;
 static int hf_h248_pkg_tonegen_sig_pt_ind;
 static int hf_h248_pkg_tonegen_sig_pg_btd;
 
-static gint ett_h248_pkg_tonegen_params;
-static gint ett_h248_pkg_tonegen_sig_pt;
+static int ett_h248_pkg_tonegen_params;
+static int ett_h248_pkg_tonegen_sig_pt;
 
 static const value_string h248_pkg_tonegen_props_vals[] = {
 	{ 0x0000, "Tone Generator - Annex E (tonegen)" },
@@ -245,10 +245,10 @@ static int hf_h248_pkg_tonedet_evt_tl_param;
 static int hf_h248_pkg_tonedet_evt_dur_param;
 static int hf_h248_pkg_tonedet_evt_tid_param;
 
-static gint ett_h248_pkg_tonedet;
-static gint ett_h248_pkg_tonedet_evt_std;
-static gint ett_h248_pkg_tonedet_evt_etd;
-static gint ett_h248_pkg_tonedet_evt_ltd;
+static int ett_h248_pkg_tonedet;
+static int ett_h248_pkg_tonedet_evt_std;
+static int ett_h248_pkg_tonedet_evt_etd;
+static int ett_h248_pkg_tonedet_evt_ltd;
 
 static const value_string h248_pkg_tonedet_props_vals[] = {
 	{ 0x0000, "Tone Detection Package - Annex E  (tonedet)" },
@@ -324,24 +324,24 @@ static int hf_h248_pkg_dg_sig_ds;
 static int hf_h248_pkg_dg_sig_do;
 static int hf_h248_pkg_dg_sig_params;
 
-static gint ett_h248_pkg_dg;
-static gint ett_h248_pkg_dg_sig_pt;
-static gint ett_h248_pkg_dg_sig_d0;
-static gint ett_h248_pkg_dg_sig_d1;
-static gint ett_h248_pkg_dg_sig_d2;
-static gint ett_h248_pkg_dg_sig_d3;
-static gint ett_h248_pkg_dg_sig_d4;
-static gint ett_h248_pkg_dg_sig_d5;
-static gint ett_h248_pkg_dg_sig_d6;
-static gint ett_h248_pkg_dg_sig_d7;
-static gint ett_h248_pkg_dg_sig_d8;
-static gint ett_h248_pkg_dg_sig_d9;
-static gint ett_h248_pkg_dg_sig_da;
-static gint ett_h248_pkg_dg_sig_db;
-static gint ett_h248_pkg_dg_sig_dc;
-static gint ett_h248_pkg_dg_sig_dd;
-static gint ett_h248_pkg_dg_sig_ds;
-static gint ett_h248_pkg_dg_sig_do;
+static int ett_h248_pkg_dg;
+static int ett_h248_pkg_dg_sig_pt;
+static int ett_h248_pkg_dg_sig_d0;
+static int ett_h248_pkg_dg_sig_d1;
+static int ett_h248_pkg_dg_sig_d2;
+static int ett_h248_pkg_dg_sig_d3;
+static int ett_h248_pkg_dg_sig_d4;
+static int ett_h248_pkg_dg_sig_d5;
+static int ett_h248_pkg_dg_sig_d6;
+static int ett_h248_pkg_dg_sig_d7;
+static int ett_h248_pkg_dg_sig_d8;
+static int ett_h248_pkg_dg_sig_d9;
+static int ett_h248_pkg_dg_sig_da;
+static int ett_h248_pkg_dg_sig_db;
+static int ett_h248_pkg_dg_sig_dc;
+static int ett_h248_pkg_dg_sig_dd;
+static int ett_h248_pkg_dg_sig_ds;
+static int ett_h248_pkg_dg_sig_do;
 
 static const value_string h248_pkg_dg_props_vals[] = {
 	{ 0x0000, "Basic DTMF Generator Package - Annex E (dg)" },
@@ -477,11 +477,11 @@ static int hf_h248_pkg_dd_evt_tid_param;
 #endif
 
 #if 0
-static gint ett_h248_pkg_dd;
-static gint ett_h248_pkg_dd_evt_ce;
-static gint ett_h248_pkg_dd_evt_std;
-static gint ett_h248_pkg_dd_evt_etd;
-static gint ett_h248_pkg_dd_evt_ltd;
+static int ett_h248_pkg_dd;
+static int ett_h248_pkg_dd_evt_ce;
+static int ett_h248_pkg_dd_evt_std;
+static int ett_h248_pkg_dd_evt_etd;
+static int ett_h248_pkg_dd_evt_ltd;
 
 static const value_string h248_pkg_dd_props_vals[] = {
 	{ 0x0000, "DTMF Detection Package - Annex E (dd)" },
@@ -581,17 +581,17 @@ static int hf_h248_pkg_cg_sig_prt;
 static int hf_h248_pkg_cg_sig_cw;
 static int hf_h248_pkg_cg_sig_cr;
 
-static gint ett_h248_pkg_cg_params;
-static gint ett_h248_pkg_cg_sig_pt;
-static gint ett_h248_pkg_cg_sig_dt;
-static gint ett_h248_pkg_cg_sig_rt;
-static gint ett_h248_pkg_cg_sig_bt;
-static gint ett_h248_pkg_cg_sig_ct;
-static gint ett_h248_pkg_cg_sig_sit;
-static gint ett_h248_pkg_cg_sig_wt;
-static gint ett_h248_pkg_cg_sig_prt;
-static gint ett_h248_pkg_cg_sig_cw;
-static gint ett_h248_pkg_cg_sig_cr;
+static int ett_h248_pkg_cg_params;
+static int ett_h248_pkg_cg_sig_pt;
+static int ett_h248_pkg_cg_sig_dt;
+static int ett_h248_pkg_cg_sig_rt;
+static int ett_h248_pkg_cg_sig_bt;
+static int ett_h248_pkg_cg_sig_ct;
+static int ett_h248_pkg_cg_sig_sit;
+static int ett_h248_pkg_cg_sig_wt;
+static int ett_h248_pkg_cg_sig_prt;
+static int ett_h248_pkg_cg_sig_cw;
+static int ett_h248_pkg_cg_sig_cr;
 
 static const value_string h248_pkg_cg_props_vals[] = {
 	{ 0x0000, "Call Progress Tones Generator - Annex E (cg)" },
@@ -663,7 +663,7 @@ static h248_package_t h248_pkg_cg = {
 /* H.248.1 E.8 - Call Tones Detection Package */
 static int hf_h248_pkg_cd;
 
-static gint ett_h248_pkg_cd;
+static int ett_h248_pkg_cd;
 
 static const value_string h248_pkg_cd_params_vals[] = {
 	{ 0x0000, "Call Progress Tones Detection Package (cd)" },
@@ -697,12 +697,12 @@ static int hf_h248_pkg_al_evt_onhook_par_init;
 static int hf_h248_pkg_al_evt_offhook_par_init;
 static int hf_h248_pkg_al_evt_flashhook_par_mindur;
 
-static gint ett_h248_pkg_al;
-static gint ett_h248_pkg_al_sig_cadence;
-static gint ett_h248_pkg_al_sig_freq;
-static gint ett_h248_pkg_al_evt_onhook;
-static gint ett_h248_pkg_al_evt_offhook;
-static gint ett_h248_pkg_al_evt_flashhook;
+static int ett_h248_pkg_al;
+static int ett_h248_pkg_al_sig_cadence;
+static int ett_h248_pkg_al_sig_freq;
+static int ett_h248_pkg_al_evt_onhook;
+static int ett_h248_pkg_al_evt_offhook;
+static int ett_h248_pkg_al_evt_flashhook;
 
 static const value_string h248_pkg_al_props_vals[] = {
 	{ 0x0000, "Analog Line Supervision Package - Annex E (al)" },
@@ -810,7 +810,7 @@ static h248_package_t h248_pkg_al = {
 
 /* H.248.1 E.10 - Basic Continuity Package */
 static int hf_h248_pkg_ct;
-static gint ett_h248_pkg_ct;
+static int ett_h248_pkg_ct;
 
 static const value_string h248_pkg_ct_props_vals[] = {
 	{ 0x0000, "Basic Continuity Package (ct)" },
@@ -837,7 +837,7 @@ static h248_package_t h248_pkg_ct = {
 
 /* H.248.1 E.11 Network Package */
 static int hf_h248_pkg_nt;
-static gint ett_h248_pkg_nt;
+static int ett_h248_pkg_nt;
 
 static const value_string h248_pkg_nt_props_evt_stats_vals[] = {
 	{ 0x0000, "Network Package (nt)" },
@@ -865,7 +865,7 @@ static h248_package_t h248_pkg_nt = {
 static int hf_h248_pkg_rtp;
 static int hf_h248_pkg_rtp_stat_ps;
 
-static gint ett_h248_pkg_rtp;
+static int ett_h248_pkg_rtp;
 
 #if 0
 static const value_string h248_pkg_rtp_stat_vals[] _U_ = {
@@ -909,7 +909,7 @@ static int hf_h248_pkg_tdmc;
 static int hf_h248_pkg_tdmc_ec;
 static int hf_h248_pkg_tdmc_gain;
 
-static gint ett_h248_pkg_tdmc;
+static int ett_h248_pkg_tdmc;
 
 static const value_string h248_pkg_tdmc_props_vals[] = {
 	{ 0x0000, "TDM Circuit Package - Annex E (tdmc)" },
@@ -1053,7 +1053,7 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_tdmc_gain, { "Gain", "h248.tdmc.gain", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		/* generic 0x0001 */
 		&ett_h248_pkg_generic_cause_evt,
 		&ett_h248_pkg_generic,

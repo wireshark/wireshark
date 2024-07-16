@@ -285,9 +285,9 @@ static int proto_hiqnet;
 
 static int hf_hiqnet_version;
 
-static gint ett_hiqnet;
-static gint ett_hiqnet_flags;
-static gint ett_hiqnet_cats;
+static int ett_hiqnet;
+static int ett_hiqnet_flags;
+static int ett_hiqnet_cats;
 
 static int hf_hiqnet_headerlen;
 static int hf_hiqnet_messagelen;
@@ -433,7 +433,7 @@ static dissector_handle_t hiqnet_udp_handle;
 static dissector_handle_t hiqnet_tcp_handle;
 
 static void
-hiqnet_display_vdobjectaddr(proto_tree *hiqnet_tree, int hf_hiqnet, tvbuff_t *tvb, gint offset) {
+hiqnet_display_vdobjectaddr(proto_tree *hiqnet_tree, int hf_hiqnet, tvbuff_t *tvb, int offset) {
     proto_tree_add_bytes_format_value(hiqnet_tree, hf_hiqnet, tvb, offset, 4, NULL,
         "%u.%u.%u.%u",
         tvb_get_guint8(tvb, offset), /* Virtual Device address */
@@ -443,8 +443,8 @@ hiqnet_display_vdobjectaddr(proto_tree *hiqnet_tree, int hf_hiqnet, tvbuff_t *tv
 }
 
 
-static gint
-hiqnet_display_tcpipnetinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
+static int
+hiqnet_display_tcpipnetinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int offset) {
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_macaddr, tvb, offset, 6, ENC_NA);
     offset += 6;
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_dhcp, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -459,8 +459,8 @@ hiqnet_display_tcpipnetinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint
 }
 
 
-static gint
-hiqnet_display_rs232netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
+static int
+hiqnet_display_rs232netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int offset) {
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_comid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_baudrate, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -477,9 +477,9 @@ hiqnet_display_rs232netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint
 }
 
 
-static gint
-hiqnet_display_netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
-    guint netid = 0;
+static int
+hiqnet_display_netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int offset) {
+    unsigned netid = 0;
     netid = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_netid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -493,9 +493,9 @@ hiqnet_display_netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offs
 }
 
 
-static gint
-hiqnet_display_sernum(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
-    gint str_len;
+static int
+hiqnet_display_sernum(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int offset) {
+    int str_len;
     str_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_sernumlen, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -505,8 +505,8 @@ hiqnet_display_sernum(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offse
 }
 
 
-static gint
-hiqnet_display_paramsub(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
+static int
+hiqnet_display_paramsub(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int offset) {
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_pubparmid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -526,10 +526,10 @@ hiqnet_display_paramsub(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint off
 
 
 /* TODO: decode flags for attributes and parameters */
-static gint
-hiqnet_display_data(proto_tree *hiqnet_payload_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset) {
-    guint32 datatype;
-    guint32 datalen;
+static int
+hiqnet_display_data(proto_tree *hiqnet_payload_tree, packet_info *pinfo, tvbuff_t *tvb, int offset) {
+    uint32_t datatype;
+    uint32_t datalen;
     proto_item* ti;
 
     ti = proto_tree_add_item_ret_uint(hiqnet_payload_tree, hf_hiqnet_datatype, tvb, offset, 1, ENC_BIG_ENDIAN, &datatype);
@@ -611,28 +611,28 @@ hiqnet_display_data(proto_tree *hiqnet_payload_tree, packet_info *pinfo, tvbuff_
 static int
 dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8 headerlen = 0;
-    guint32 messagelen = 0;
-    guint16 srcdev = 0;
-    guint8 srcvdaddr = 0;
-    guint8 srcob0addr = 0;
-    guint8 srcob1addr = 0;
-    guint8 srcob2addr = 0;
-    guint16 dstdev = 0;
-    guint8 dstvdaddr = 0;
-    guint8 dstob0addr = 0;
-    guint8 dstob1addr = 0;
-    guint8 dstob2addr = 0;
-    guint16 messageid = 0;
-    guint16 flags = 0;
-    guint16 paramcount = 0;
-    guint16 subcount = 0;
-    guint16 attrcount = 0;
-    gint str_len = 0;
-    guint16 vdscount = 0;
-    guint16 eventscount = 0;
-    guint16 objcount = 0;
-    guint16 ifacecount = 0;
+    uint8_t headerlen = 0;
+    uint32_t messagelen = 0;
+    uint16_t srcdev = 0;
+    uint8_t srcvdaddr = 0;
+    uint8_t srcob0addr = 0;
+    uint8_t srcob1addr = 0;
+    uint8_t srcob2addr = 0;
+    uint16_t dstdev = 0;
+    uint8_t dstvdaddr = 0;
+    uint8_t dstob0addr = 0;
+    uint8_t dstob1addr = 0;
+    uint8_t dstob2addr = 0;
+    uint16_t messageid = 0;
+    uint16_t flags = 0;
+    uint16_t paramcount = 0;
+    uint16_t subcount = 0;
+    uint16_t attrcount = 0;
+    int str_len = 0;
+    uint16_t vdscount = 0;
+    uint16_t eventscount = 0;
+    uint16_t objcount = 0;
+    uint16_t ifacecount = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HiQnet");
     /* Clear out stuff in the info column */
@@ -670,7 +670,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree *hiqnet_subscription_tree = NULL;
         proto_tree *hiqnet_object_tree = NULL;
         proto_tree *hiqnet_ifaces_tree = NULL;
-        gint offset = 0;
+        int offset = 0;
 
         messagelen = tvb_get_ntohl(tvb, 2);
         ti = proto_tree_add_item(tree, proto_hiqnet, tvb, 0, messagelen, ENC_NA);
@@ -1065,7 +1065,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 
-static guint
+static unsigned
 get_hiqnet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* length is at offset + 2 */
@@ -1078,7 +1078,7 @@ get_hiqnet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_hiqnet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 6,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 6,
                      get_hiqnet_pdu_len, dissect_hiqnet_pdu, data);
     return tvb_captured_length(tvb);
 }
@@ -1086,11 +1086,11 @@ dissect_hiqnet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_hiqnet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint      offset = 0;
+    int       offset = 0;
     tvbuff_t *next_tvb;
-    gint      offset_before;
-    guint     plen;
-    guint     captured_length;
+    int       offset_before;
+    unsigned  plen;
+    unsigned  captured_length;
 
     /* loop on (possibly multiple) hiqnet PDUs in UDP payload */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -1779,7 +1779,7 @@ proto_register_hiqnet(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hiqnet,
         &ett_hiqnet_flags,
         &ett_hiqnet_cats

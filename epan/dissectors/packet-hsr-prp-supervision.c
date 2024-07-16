@@ -54,7 +54,7 @@ static int hf_hsr_prp_supervision_red_box_mac_address;
 static int hf_hsr_prp_supervision_vdan_mac_address;
 
 /* Initialize the subtree pointers */
-static gint ett_hsr_prp_supervision;
+static int ett_hsr_prp_supervision;
 
 /* Code to actually dissect the packets */
 static int
@@ -62,9 +62,9 @@ dissect_hsr_prp_supervision(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *hsr_prp_supervision_tree;
-    guint8 tlv_type;
-    guint8 tlv_length;
-    guint16 sup_version;
+    uint8_t tlv_type;
+    uint8_t tlv_length;
+    uint16_t sup_version;
     int offset;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSR/PRP");
@@ -225,7 +225,7 @@ void proto_register_hsr_prp_supervision(void)
     };
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hsr_prp_supervision
     };
 

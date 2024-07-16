@@ -176,9 +176,9 @@ static int hf_h248_pkg_annexc_clcack;
 
 static expert_field ei_h248_sdp_media_port_invalid;
 
-static gint ett_annexc;
-static gint ett_vpvc;
-static gint ett_codec;
+static int ett_annexc;
+static int ett_vpvc;
+static int ett_codec;
 
 static const value_string h248_annexc_package_properties_vals[] = {
 	{ 0x0000, "Media stream properties H.248.1 Annex C" },
@@ -746,8 +746,8 @@ static void dissect_h248_annexc_acodec(proto_tree* tree,
 	tvbuff_t* new_tvb;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((bool*)implicit_p) : false, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 
 	tree = proto_item_add_subtree(asn1_ctx.created_item,ett_codec);
 	len = tvb_reported_length(new_tvb);
@@ -763,8 +763,8 @@ static void dissect_h248_annexc_BIR(proto_tree* tree,
 	tvbuff_t* new_tvb = NULL;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((bool*)implicit_p) : false, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 
 	if ( new_tvb && h248_info->term && ! h248_info->term->bir ) {
 		h248_info->term->bir = tvb_bytes_to_str(wmem_file_scope(), new_tvb,0,tvb_reported_length(new_tvb));
@@ -780,8 +780,8 @@ static void dissect_h248_annexc_NSAP(proto_tree* tree,
 	tvbuff_t* new_tvb = NULL;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((bool*)implicit_p) : false, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb) {
 		dissect_nsap(new_tvb, 0,tvb_reported_length(new_tvb), tree);
 		if ( h248_info->term && ! h248_info->term->nsap) {
@@ -801,8 +801,8 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 	tvbuff_t* new_tvb = NULL;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((bool*)implicit_p) : false, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb)
 		dissect_q931_bearer_capability_ie(new_tvb, 0, tvb_reported_length(new_tvb), tree);
 }
@@ -810,8 +810,8 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 static void dissect_h248_annexc_SDP(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p _U_) {
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_restricted_string(FALSE, BER_UNI_TAG_IA5String,
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_restricted_string(false, BER_UNI_TAG_IA5String,
 		&asn1_ctx, tree, tvb, 0, hfid,
 		NULL);
 }
@@ -821,8 +821,8 @@ static void dissect_h248_annexc_SDP_C(proto_tree* tree, tvbuff_t* tvb, packet_in
 	tvbuff_t *param_tvb = NULL;
 	proto_item *ti;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_restricted_string(FALSE, BER_UNI_TAG_IA5String,
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_restricted_string(false, BER_UNI_TAG_IA5String,
 		&asn1_ctx, tree, tvb, 0, hfid,
 		&param_tvb);
 
@@ -837,10 +837,10 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 	tvbuff_t *param_tvb = NULL;
 	proto_item *ti;
 	int offset, next_offset, tokenlen;
-	gchar *port_str;
+	char *port_str;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_restricted_string(FALSE, BER_UNI_TAG_IA5String,
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+	dissect_ber_restricted_string(false, BER_UNI_TAG_IA5String,
 		&asn1_ctx, tree, tvb, 0, hfid,
 		&param_tvb);
 
@@ -853,8 +853,8 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 				tokenlen = next_offset - offset;
 				port_str = tvb_get_string_enc(pinfo->pool, param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
 				if (g_ascii_isdigit(port_str[0])) {
-					gint32 port = -1;
-					gboolean port_valid;
+					int32_t port = -1;
+					bool port_valid;
 					port_valid = ws_strtoi32(port_str, NULL, &port);
 					ti = proto_tree_add_uint(tree, hf_h248_sdp_media_port, param_tvb, offset, tokenlen, port);
 					proto_item_set_generated(ti);
@@ -867,7 +867,7 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 	}
 }
 
-static gboolean h248_c_implicit = TRUE;
+static bool h248_c_implicit = true;
 
 static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x1001, &hf_h248_pkg_annexc_media, h248_param_ber_integer, NULL },
@@ -1555,7 +1555,7 @@ void proto_register_h248_annex_c(void) {
 		    NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_annexc,
 		&ett_vpvc,
 		&ett_codec

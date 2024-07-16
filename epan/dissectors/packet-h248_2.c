@@ -30,8 +30,8 @@ static int proto_h248_2;
 static int hf_h248_2_dtone_dtt_obs_evt;
 static int hf_h248_2_dtone_dtt_obs_evt_val;
 
-static gint ett_h248_2;
-static gint ett_h248_2_dtone_dtt_obs_evt;
+static int ett_h248_2;
+static int ett_h248_2_dtone_dtt_obs_evt;
 
 
 static const value_string hf_h248_2_dtone_dtt_obs_evt_val_values[] = {
@@ -129,7 +129,7 @@ void proto_register_h248_dot2(void) {
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_h248_2,
         &ett_h248_2_dtone_dtt_obs_evt,
     };

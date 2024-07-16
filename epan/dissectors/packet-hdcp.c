@@ -27,7 +27,7 @@ static int proto_hdcp;
 
 static wmem_tree_t *transactions;
 
-static gint ett_hdcp;
+static int ett_hdcp;
 
 static int hf_hdcp_reg;
 static int hf_hdcp_resp_in;
@@ -55,9 +55,9 @@ static int hf_hdcp_link_vfy;
 #define REG_BSTATUS 0x41
 
 typedef struct _hdcp_transaction_t {
-    guint32 rqst_frame;
-    guint32 resp_frame;
-    guint8 rqst_type;
+    uint32_t rqst_frame;
+    uint32_t resp_frame;
+    uint8_t rqst_type;
 } hdcp_transaction_t;
 
 static const value_string hdcp_reg[] = {
@@ -76,13 +76,13 @@ static const value_string hdcp_reg[] = {
 static int
 dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8 reg;
+    uint8_t reg;
     proto_item *pi;
     ptvcursor_t *cursor;
     proto_tree *hdcp_tree;
     hdcp_transaction_t *hdcp_trans;
     proto_item *it;
-    guint64 a_ksv, b_ksv;
+    uint64_t a_ksv, b_ksv;
 
     /* XXX check if the packet is really HDCP? */
 
@@ -297,7 +297,7 @@ proto_register_hdcp(void)
                 FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hdcp
     };
 

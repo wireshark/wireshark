@@ -47,7 +47,7 @@ static int hf_hsfz_ident_string;
 static int hf_hsfz_data;
 
 /*** protocol tree items ***/
-static gint ett_hsfz;
+static int ett_hsfz;
 
 /* Control Words */
 #define	HSFZ_CTRLWORD_DIAGNOSTIC_REQ_RES        0x0001
@@ -86,8 +86,8 @@ static const value_string hsfz_ctrlwords[] = {
  ********* Configuration **********
  **********************************/
 typedef struct _udf_one_id_string {
-    guint	id;
-    gchar*	name;
+    unsigned	id;
+    char*	name;
 } udf_one_id_string_t;
 
 /*** Hash Tables for lookup data ***/
@@ -97,7 +97,7 @@ static bool hsfz_check_header;
 static bool hsfz_show_uds_in_ack;
 
 static udf_one_id_string_t *udf_diag_addr;
-static guint udf_diag_addr_num;
+static unsigned udf_diag_addr_num;
 
 static void *
 udf_copy_one_id_string_cb(void* n, const void* o, size_t size _U_) {
@@ -121,7 +121,7 @@ udf_free_one_id_string_cb(void *r)   {
 }
 
 static void
-udf_free_one_id_string_data(gpointer data _U_)  {
+udf_free_one_id_string_data(void *data _U_)  {
     /* nothing to free here since we did not malloc data in udf_post_update_one_id_string_template_cb */
 }
 
@@ -147,13 +147,13 @@ UAT_HEX_CB_DEF(udf_diag_addr, id, udf_one_id_string_t)
 UAT_CSTRING_CB_DEF(udf_diag_addr, name, udf_one_id_string_t)
 
 static void
-udf_free_key(gpointer key) {
+udf_free_key(void *key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
 static void
-udf_post_update_one_id_string_template_cb(udf_one_id_string_t *udf_data, guint udf_data_num, GHashTable *ht) {
-    guint i;
+udf_post_update_one_id_string_template_cb(udf_one_id_string_t *udf_data, unsigned udf_data_num, GHashTable *ht) {
+    unsigned i;
     int *key = NULL;
     int tmp;
 
@@ -180,8 +180,8 @@ udf_post_update_diag_addr_cb(void) {
 }
 
 static char*
-get_name_from_ht_diag_addr(guint identifier) {
-    guint key = identifier;
+get_name_from_ht_diag_addr(unsigned identifier) {
+    unsigned key = identifier;
 
     if (ht_diag_addr == NULL) {
         return NULL;
@@ -195,14 +195,14 @@ get_name_from_ht_diag_addr(guint identifier) {
  ****** The dissector itself ******
  **********************************/
 
-static guint8
-dissect_hsfz_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, int hf_specific_address) {
+static uint8_t
+dissect_hsfz_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int hf_specific_address) {
     proto_item *ti;
-    guint32 tmp;
+    uint32_t tmp;
     char *name;
 
     ti = proto_tree_add_item_ret_uint(tree, hf_specific_address, tvb, offset, 1, ENC_NA, &tmp);
-    name = get_name_from_ht_diag_addr((guint)tmp);
+    name = get_name_from_ht_diag_addr((unsigned)tmp);
     if (name != NULL) {
         proto_item_append_text(ti, " (%s)", name);
     }
@@ -210,30 +210,30 @@ dissect_hsfz_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
     ti = proto_tree_add_item(tree, hf_hsfz_address, tvb, offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(ti);
 
-    return (guint8)tmp;
+    return (uint8_t)tmp;
 }
 
 static int
 dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_item *ti_root;
 
-    guint32 offset = 0;
-    guint32 real_length = 0;
+    uint32_t offset = 0;
+    uint32_t real_length = 0;
 
-    guint8 source_addr;
-    guint8 target_addr;
+    uint8_t source_addr;
+    uint8_t target_addr;
 
     if (tvb_captured_length_remaining(tvb, 0) < HSFZ_HDR_LEN) {
         return 0;
     }
     col_set_str(pinfo->cinfo, COL_PROTOCOL, HSFZ_NAME);
 
-    guint32 hsfz_length = tvb_get_ntohl(tvb, 0);
-    guint16 hsfz_ctrlword = tvb_get_ntohs(tvb, 4);
-    const gchar *ctrlword_description = val_to_str(hsfz_ctrlword, hsfz_ctrlwords, "Unknown 0x%04x");
+    uint32_t hsfz_length = tvb_get_ntohl(tvb, 0);
+    uint16_t hsfz_ctrlword = tvb_get_ntohs(tvb, 4);
+    const char *ctrlword_description = val_to_str(hsfz_ctrlword, hsfz_ctrlwords, "Unknown 0x%04x");
 
-    const gchar *col_string = col_get_text(pinfo->cinfo, COL_INFO);
-    if (col_string!=NULL && g_str_has_prefix(col_string, (gchar *)&"HSFZ\0")) {
+    const char *col_string = col_get_text(pinfo->cinfo, COL_INFO);
+    if (col_string!=NULL && g_str_has_prefix(col_string, (char *)&"HSFZ\0")) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " / %s %s", HSFZ_NAME, ctrlword_description);
     } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", HSFZ_NAME, ctrlword_description);
@@ -278,7 +278,7 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     case HSFZ_CTRLWORD_VEHICLE_IDENT_DATA:
         if (hsfz_length > 0) {
-            const guint8 *ident_data;
+            const uint8_t *ident_data;
             proto_tree_add_item_ret_string(hsfz_tree, hf_hsfz_ident_string, tvb, offset, hsfz_length, ENC_ASCII, pinfo->pool, &ident_data);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ident_data);
         }
@@ -304,11 +304,11 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return HSFZ_HDR_LEN + hsfz_length;
 }
 
-static guint
+static unsigned
 get_hsfz_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void* data _U_) {
     /* The length [uint32] does not include the header itself */
-    guint32 length = tvb_get_ntohl(tvb, offset);
-    guint16 ctrlwd = tvb_get_ntohs(tvb, offset + 4);
+    uint32_t length = tvb_get_ntohl(tvb, offset);
+    uint16_t ctrlwd = tvb_get_ntohs(tvb, offset + 4);
 
     /* if heuristic check active: */
     if (hsfz_check_header && (length > 0x000fffff || ctrlwd > 0x00ff )) {
@@ -320,7 +320,7 @@ get_hsfz_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void* da
 
 static int
 dissect_hsfz_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, HSFZ_HDR_LEN, get_hsfz_message_len, dissect_hsfz_message, NULL);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, HSFZ_HDR_LEN, get_hsfz_message_len, dissect_hsfz_message, NULL);
     return tvb_captured_length(tvb);
 }
 
@@ -352,7 +352,7 @@ void proto_register_hsfz(void) {
     };
 
     /* entries in the protocol tree */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hsfz,
     };
 
@@ -379,7 +379,7 @@ void proto_register_hsfz(void) {
     udf_diag_addr_uat = uat_new("Diagnostic Addresses",
         sizeof(udf_one_id_string_t),            /* record size           */
         "HSFZ_diagnostics_addresses",           /* filename              */
-        TRUE,                                   /* from_profile          */
+        true,                                   /* from_profile          */
         (void**)&udf_diag_addr,                 /* data_ptr              */
         &udf_diag_addr_num,                     /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* specifies addresses   */

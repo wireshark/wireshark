@@ -16,8 +16,8 @@
 #define __PACKET_HSFZ_H__
 
 typedef struct hsfz_info {
-    guint8 target_address;
-    guint8 source_address;
+    uint8_t target_address;
+    uint8_t source_address;
 } hsfz_info_t;
 
 #endif /* __PACKET_HSFZ_H__ */

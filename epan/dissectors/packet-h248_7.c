@@ -39,9 +39,9 @@ static int hf_h248_an_apv_spi;
 static int hf_h248_an_apv_sp;
 static int hf_h248_an_apv_di;
 
-static gint ett_h248_an;
-static gint ett_h248_an_apf;
-static gint ett_h248_an_apv;
+static int ett_h248_an;
+static int ett_h248_an_apf;
+static int ett_h248_an_apv;
 
 static const value_string h248_an_prop_vals[] = {
 	{ 0, "Generic Announcement Package (an) (H.248.7)" },
@@ -147,7 +147,7 @@ void proto_register_h248_7(void) {
 
 		};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_h248_an,
 		&ett_h248_an_apf,
 		&ett_h248_an_apv

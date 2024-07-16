@@ -397,12 +397,12 @@ static int hf_hip_encrypted_parameter_data;
 static int hf_hip_fqdn;
 static int hf_hip_nai;
 
-static gint ett_hip;
-static gint ett_hip_controls;
-static gint ett_hip_tlv;
-static gint ett_hip_tlv_data;
-static gint ett_hip_tlv_host_id_hdr;
-static gint ett_hip_locator_data;
+static int ett_hip;
+static int ett_hip_controls;
+static int ett_hip_tlv;
+static int ett_hip_tlv_data;
+static int ett_hip_tlv_host_id_hdr;
+static int ett_hip_locator_data;
 
 static expert_field ei_hip_tlv_host_id_len;
 /* static expert_field ei_hip_tlv_host_id_e_len; */
@@ -411,26 +411,26 @@ static expert_field ei_hip_checksum;
 
 /* Dissect the HIP packet */
 static void
-dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp)
+dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool udp)
 {
     proto_tree *hip_tree, *hip_tlv_tree=NULL;
     proto_item *ti, *ti_tlv;
     int length, offset = 0, newoffset = 0;
-    guint16 control_h, checksum_h;
-    guint16 tlv_type_h, tlv_length_h; /* For storing in host order */
-    guint len;
-    guint reported_len;
+    uint16_t control_h, checksum_h;
+    uint16_t tlv_type_h, tlv_length_h; /* For storing in host order */
+    unsigned len;
+    unsigned reported_len;
     vec_t cksum_vec[4];
-    guint32 phdr[2];
+    uint32_t phdr[2];
 
     /* Payload format RFC 5201 section 5.1 */
     /* hiph_proto; */                 /* payload protocol              */
-    guint8 hiph_hdr_len;              /* header length                 */
-    guint8 hiph_shim6_fixed_bit_s;    /* This is always 0              */
-    guint8 hiph_packet_type;          /* packet type                   */
-    guint8 hiph_res_ver, hiph_version, hiph_reserved;
+    uint8_t hiph_hdr_len;              /* header length                 */
+    uint8_t hiph_shim6_fixed_bit_s;    /* This is always 0              */
+    uint8_t hiph_packet_type;          /* packet type                   */
+    uint8_t hiph_res_ver, hiph_version, hiph_reserved;
                                         /* byte for reserved and version */
-    guint8 hiph_shim6_fixed_bit_p;    /* This is always 1              */
+    uint8_t hiph_shim6_fixed_bit_p;    /* This is always 1              */
     /* checksum_h */                  /* checksum                      */
     /* control_h */                   /* control                       */
     /* HIP parameters ...  */
@@ -489,19 +489,19 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     len = tvb_captured_length(tvb);
     if (!pinfo->fragmented && len >= reported_len) {
             /* IPv4 or IPv6 addresses */
-            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
-            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
 
             /* the rest of the pseudo-header */
             if (pinfo->src.type == AT_IPv6) {
                     phdr[0] = reported_len;
                     phdr[0] = g_htonl(phdr[0]);   /* Note: g_htonl() macro may eval arg multiple times */
                     phdr[1] = g_htonl(IP_PROTO_HIP);
-                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
             } else {
                     phdr[0] = (IP_PROTO_HIP<<16)+reported_len;
                     phdr[0] = g_htonl(phdr[0]);  /* Note: g_htonl() macro may eval arg multiple times */
-                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 4);
+                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 4);
             }
             /* pointer to the HIP header (packet data) */
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_len);
@@ -560,14 +560,14 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 static int
 dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_hip_common(tvb, pinfo, tree, FALSE);
+    dissect_hip_common(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint32 nullbytes;
+    uint32_t nullbytes;
     tvbuff_t *newtvb;
 
     if (tvb_captured_length(tvb) < 4)
@@ -578,7 +578,7 @@ dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         return 0;
 
     newtvb = tvb_new_subset_remaining(tvb, 4);
-    dissect_hip_common(newtvb, pinfo, tree, TRUE);
+    dissect_hip_common(newtvb, pinfo, tree, true);
 
     return tvb_captured_length(tvb);
 }
@@ -589,11 +589,11 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
 {
         proto_tree *t=NULL;
         proto_item *ti_tlv, *ti_loc, *hi_len_item, *e_len_item, *arg_item;
-        guint8 n, algorithm, reg_type;
-        guint16 trans, hi_len, di_len, di_type, e_len, pv_len;
-        guint32 reserved, hi_hdr;
-        guint8 transport_proto;
-        guint8 locator_type;
+        uint8_t n, algorithm, reg_type;
+        uint16_t trans, hi_len, di_len, di_type, e_len, pv_len;
+        uint32_t reserved, hi_hdr;
+        uint8_t transport_proto;
+        uint8_t locator_type;
         int newoffset, newlen, hi_t;
 
         /* move over the TLV */
@@ -1562,7 +1562,7 @@ proto_register_hip(void)
 
         };
 
-        static gint *ett[] = {
+        static int *ett[] = {
                 &ett_hip,
                 &ett_hip_controls,
                 &ett_hip_tlv,

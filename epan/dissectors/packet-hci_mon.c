@@ -43,8 +43,8 @@ static int hf_command_length;
 static int hf_command;
 static int hf_event;
 
-static gint ett_hci_mon;
-static gint ett_flags;
+static int ett_hci_mon;
+static int ett_flags;
 
 static expert_field ei_unknown_data;
 
@@ -232,25 +232,25 @@ static value_string_ext(event_vals_ext) = VALUE_STRING_EXT_INIT(event_vals);
 void proto_register_hci_mon(void);
 void proto_reg_handoff_hci_mon(void);
 
-static gint
+static int
 dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_tree       *hci_mon_item;
     proto_item       *hci_mon_tree;
     proto_item       *sub_item;
-    gint              offset = 0;
-    guint16           opcode;
-    guint16           adapter_id;
+    int               offset = 0;
+    uint16_t          opcode;
+    uint16_t          adapter_id;
     bluetooth_data_t *bluetooth_data;
     tvbuff_t         *next_tvb;
-    guint32          *adapter_disconnect_in_frame;
+    uint32_t         *adapter_disconnect_in_frame;
     wmem_tree_t      *subtree;
     wmem_tree_key_t  key[4];
-    guint32          k_interface_id;
-    guint32          k_adapter_id;
-    guint32          k_frame_number;
-    guint32          ident_length;
-    guint32          command_length;
+    uint32_t         k_interface_id;
+    uint32_t         k_adapter_id;
+    uint32_t         k_frame_number;
+    uint32_t         ident_length;
+    uint32_t         command_length;
     static int * const flags_fields[] = {
         &hf_flags_trusted_socket,
         NULL
@@ -319,14 +319,14 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     key[1].key    = &k_adapter_id;
 
     if (!pinfo->fd->visited && opcode == 0x01) { /* Delete Index */
-        guint32           *disconnect_in_frame;
+        uint32_t          *disconnect_in_frame;
 
         key[2].length = 1;
         key[2].key    = &k_frame_number;
         key[3].length = 0;
         key[3].key    = NULL;
 
-        disconnect_in_frame = wmem_new(wmem_file_scope(), guint32);
+        disconnect_in_frame = wmem_new(wmem_file_scope(), uint32_t);
 
         if (disconnect_in_frame) {
             *disconnect_in_frame = pinfo->num;
@@ -339,7 +339,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     key[2].key    = NULL;
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(adapter_to_disconnect_in_frame, key);
-    adapter_disconnect_in_frame = (subtree) ? (guint32 *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
+    adapter_disconnect_in_frame = (subtree) ? (uint32_t *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
     if (adapter_disconnect_in_frame) {
         bluetooth_data->adapter_disconnect_in_frame = adapter_disconnect_in_frame;
     } else {
@@ -358,7 +358,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(hci_mon_tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        offset = dissect_bd_addr(hf_bd_addr, pinfo, hci_mon_tree, tvb, offset, TRUE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+        offset = dissect_bd_addr(hf_bd_addr, pinfo, hci_mon_tree, tvb, offset, true, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
         proto_tree_add_item(hci_mon_tree, hf_name, tvb, offset, 8, ENC_NA | ENC_ASCII);
         offset += 8;
@@ -402,7 +402,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case OPCODE_INDEX_INFO:
-        offset = dissect_bd_addr(hf_bd_addr, pinfo, hci_mon_tree, tvb, offset, TRUE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+        offset = dissect_bd_addr(hf_bd_addr, pinfo, hci_mon_tree, tvb, offset, true, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
         proto_tree_add_item(hci_mon_tree, hf_manufacturer, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -638,7 +638,7 @@ proto_register_hci_mon(void)
         { &ei_unknown_data, { "hci_mon.unknown_data", PI_PROTOCOL, PI_WARN, "Unknown data", EXPFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hci_mon,
         &ett_flags
     };

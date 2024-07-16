@@ -44,7 +44,7 @@ static int hf_h261_vmvd;
 static int hf_h261_data;
 
 /* H.261 fields defining a sub tree */
-static gint ett_h261;
+static int ett_h261;
 
 static int
 dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
@@ -224,7 +224,7 @@ proto_register_h261(void)
 		},
 };
 
-	static gint *ett[] =
+	static int *ett[] =
 	{
 		&ett_h261,
 	};

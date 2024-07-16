@@ -87,19 +87,19 @@ static int hf_hclnfsd_gids;
 static int hf_hclnfsd_uids;
 static int hf_hclnfsd_password;
 
-static gint ett_hclnfsd;
-static gint ett_hclnfsd_gids;
-static gint ett_hclnfsd_groups;
-static gint ett_hclnfsd_uids;
-static gint ett_hclnfsd_usernames;
-static gint ett_hclnfsd_printqueues;
-static gint ett_hclnfsd_printjob;
-static gint ett_hclnfsd_auth_ident;
+static int ett_hclnfsd;
+static int ett_hclnfsd_gids;
+static int ett_hclnfsd_groups;
+static int ett_hclnfsd_uids;
+static int ett_hclnfsd_usernames;
+static int ett_hclnfsd_printqueues;
+static int ett_hclnfsd_printjob;
+static int ett_hclnfsd_auth_ident;
 
 static int
 dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 ngids, ngids_i;
+	uint32_t ngids, ngids_i;
 	proto_tree *gidtree = NULL;
 	proto_item *giditem = NULL;
 
@@ -183,7 +183,7 @@ hclnfsd_decode_obscure(wmem_allocator_t *pool, const char *ident, int ident_len)
 static int
 dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 request_type;
+	uint32_t request_type;
 	const char *ident = NULL;
 	char *ident_decoded;
 	char *username = NULL;
@@ -238,7 +238,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_hclnfsd_authorize_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 status;
+	uint32_t status;
 	int offset = 0;
 
 	status = tvb_get_ntohl(tvb, offset);
@@ -308,7 +308,7 @@ dissect_hclnfsd_return_host_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 dissect_hclnfsd_uid_to_name_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 nuids, nuids_i;
+	uint32_t nuids, nuids_i;
 	proto_tree *uidtree = NULL;
 	proto_item *uiditem = NULL;
 	int offset = 0;
@@ -333,7 +333,7 @@ dissect_hclnfsd_uid_to_name_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static int
 dissect_hclnfsd_uid_to_name_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 nusers, nusers_i;
+	uint32_t nusers, nusers_i;
 	proto_tree *usertree = NULL;
 	proto_item *useritem = NULL;
 	int offset = 0;
@@ -376,7 +376,7 @@ dissect_hclnfsd_name_to_uid_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 dissect_hclnfsd_share_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	guint32 request_type;
+	uint32_t request_type;
 	int offset = 0;
 
 	proto_tree_add_item_ret_uint(tree, hf_hclnfsd_request_type, tvb, offset,
@@ -404,7 +404,7 @@ dissect_hclnfsd_share_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_hclnfsd_share_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 request_type;
+	uint32_t request_type;
 	int offset = 0;
 
 	request_type = tvb_get_ntohl(tvb, offset);
@@ -465,7 +465,7 @@ dissect_hclnfsd_lock_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static int
 dissect_hclnfsd_lock_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 request_type;
+	uint32_t request_type;
 	int offset = 0;
 
 	proto_tree_add_item_ret_uint(tree, hf_hclnfsd_request_type, tvb, offset,
@@ -524,7 +524,7 @@ dissect_hclnfsd_unlock_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint nqueues, nqueues_i;
+	unsigned nqueues, nqueues_i;
 	proto_item *queuesitem = NULL;
 	proto_tree *queuestree = NULL;
 	int offset = 0;
@@ -571,7 +571,7 @@ dissect_hclnfsd_get_printq_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint datafollows;
+	unsigned datafollows;
 	proto_item *queueitem = NULL;
 	proto_tree *queuetree = NULL;
 	proto_item *jobitem;
@@ -872,7 +872,7 @@ proto_register_hclnfsd(void)
 		    NULL, HFILL }
 		},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_hclnfsd,
 		&ett_hclnfsd_gids,
 		&ett_hclnfsd_groups,

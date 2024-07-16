@@ -24,7 +24,7 @@ static int proto_hci_h4;
 static int hf_hci_h4_type;
 static int hf_hci_h4_direction;
 
-static gint ett_hci_h4;
+static int ett_hci_h4;
 
 static dissector_handle_t hci_h4_handle;
 
@@ -48,10 +48,10 @@ static const value_string hci_h4_direction_vals[] = {
 void proto_register_hci_h4(void);
 void proto_reg_handoff_hci_h4(void);
 
-static gint
+static int
 dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint8             type;
+    uint8_t            type;
     tvbuff_t          *next_tvb;
     proto_item        *main_item;
     proto_tree        *main_tree;
@@ -94,7 +94,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 
     next_tvb = tvb_new_subset_remaining(tvb, 1);
-    if (!dissector_try_uint_new(hci_h4_table, type, next_tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(hci_h4_table, type, next_tvb, pinfo, tree, true, bluetooth_data)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
@@ -118,7 +118,7 @@ proto_register_hci_h4(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hci_h4,
     };
 

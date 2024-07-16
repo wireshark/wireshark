@@ -57,7 +57,7 @@ static int hf_type;
 
 static dissector_table_t ethertype_subdissector_table;
 /* Initialize the subtree pointers */
-static gint ett_hsr_frame;
+static int ett_hsr_frame;
 
 /* Code to actually dissect the packets */
 static int
@@ -66,8 +66,8 @@ dissect_hsr_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_item *ti;
     proto_tree *hsr_tree;
     tvbuff_t *next_tvb;
-    guint16 etype;
-    guint16 lsdu_size, lsdu_size_correct;
+    uint16_t etype;
+    uint16_t lsdu_size, lsdu_size_correct;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSR");
 
@@ -160,7 +160,7 @@ void proto_register_hsr(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hsr_frame,
     };
 

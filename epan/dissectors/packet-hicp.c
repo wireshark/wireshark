@@ -46,7 +46,7 @@ static int hf_hicp_src;
 
 static expert_field ei_hicp_error;
 
-static gint ett_hicp;
+static int ett_hicp;
 
 #define HICP_PORT 3250
 #define HICP_MIN_LENGTH 2
@@ -87,13 +87,13 @@ dissect_hicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item* error_pi;
     proto_tree* hicp_tree;
 
-    guint offset = 0;
-    gint lengthp = 0;
-    gdouble ext_value = 0;
+    unsigned offset = 0;
+    int lengthp = 0;
+    double ext_value = 0;
 
     const char* parameters_ptr = NULL;
-    gchar** parameters = NULL;
-    gchar* parameter_value = NULL;
+    char** parameters = NULL;
+    char* parameter_value = NULL;
 
 	/* Check that the packet does not start with the header of Secure Host IP Configuration Protocol (SHICP). */
     if ((tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFFE) == 0xABC0) {
@@ -108,8 +108,8 @@ dissect_hicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     hicp_tree = proto_item_add_subtree(ti, ett_hicp);
 
     parameters_ptr = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &lengthp, ENC_ASCII);
-    parameters = wmem_strsplit(pinfo->pool, (const gchar*)parameters_ptr, HICP_DELIMITER, -1);
-    for (guint i = 0; i < g_strv_length(parameters); i++) {
+    parameters = wmem_strsplit(pinfo->pool, (const char*)parameters_ptr, HICP_DELIMITER, -1);
+    for (unsigned i = 0; i < g_strv_length(parameters); i++) {
         if (g_strrstr(parameters[i], " = ") != NULL) {
             parameter_value = &(g_strrstr(parameters[i], " = "))[3];
         }
@@ -119,70 +119,70 @@ dissect_hicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         else {
             parameter_value = "";
         }
-        if (g_ascii_strncasecmp(parameters[i], HICP_MODULE_SCAN_COMMAND, (gsize)strlen(HICP_MODULE_SCAN_COMMAND)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (gint)strlen(parameters[i]), HICP_MODULE_SCAN_COMMAND);
+        if (g_ascii_strncasecmp(parameters[i], HICP_MODULE_SCAN_COMMAND, (size_t)strlen(HICP_MODULE_SCAN_COMMAND)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (int)strlen(parameters[i]), HICP_MODULE_SCAN_COMMAND);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Request message, Command: %s", HICP_MODULE_SCAN_COMMAND);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_CONFIG_COMMAND, (gsize)strlen(HICP_CONFIG_COMMAND)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (gint)strlen(parameters[i]), HICP_CONFIG_COMMAND);
-            proto_tree_add_string(hicp_tree, hf_hicp_target, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_CONFIG_COMMAND, (size_t)strlen(HICP_CONFIG_COMMAND)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (int)strlen(parameters[i]), HICP_CONFIG_COMMAND);
+            proto_tree_add_string(hicp_tree, hf_hicp_target, tvb, offset, (int)strlen(parameters[i]), parameter_value);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Request message, Command: %s", HICP_CONFIG_COMMAND);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Module MAC address: %s", parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_WINK_COMMAND, (gsize)strlen(HICP_WINK_COMMAND)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (gint)strlen(parameters[i]), HICP_WINK_COMMAND);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_WINK_COMMAND, (size_t)strlen(HICP_WINK_COMMAND)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (int)strlen(parameters[i]), HICP_WINK_COMMAND);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Request message, Command: %s", HICP_WINK_COMMAND);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_PROTOCOL_VERSION, (gsize)strlen(HICP_PROTOCOL_VERSION)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (gint)strlen(parameters[i]), HICP_MODULE_SCAN_COMMAND);
-            proto_tree_add_string(hicp_tree, hf_hicp_proto_version, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_PROTOCOL_VERSION, (size_t)strlen(HICP_PROTOCOL_VERSION)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_cmd, tvb, offset, (int)strlen(parameters[i]), HICP_MODULE_SCAN_COMMAND);
+            proto_tree_add_string(hicp_tree, hf_hicp_proto_version, tvb, offset, (int)strlen(parameters[i]), parameter_value);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Response message, Command: %s", HICP_MODULE_SCAN_COMMAND);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_FB_TYPE, (gsize)strlen(HICP_FB_TYPE)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_fb_type, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_FB_TYPE, (size_t)strlen(HICP_FB_TYPE)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_fb_type, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_MODULE_VERSION, (gsize)strlen(HICP_MODULE_VERSION)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_module_version, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_MODULE_VERSION, (size_t)strlen(HICP_MODULE_VERSION)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_module_version, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_MAC, (gsize)strlen(HICP_MAC)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_mac, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_MAC, (size_t)strlen(HICP_MAC)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_mac, tvb, offset, (int)strlen(parameters[i]), parameter_value);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Module MAC address: %s", parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_IP, (gsize)strlen(HICP_IP)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_ip, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_IP, (size_t)strlen(HICP_IP)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_ip, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_SN, (gsize)strlen(HICP_SN)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_sn, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_SN, (size_t)strlen(HICP_SN)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_sn, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_GW, (gsize)strlen(HICP_GW)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_gw, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_GW, (size_t)strlen(HICP_GW)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_gw, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_DHCP, (gsize)strlen(HICP_DHCP)) == 0) {
+        else if (g_ascii_strncasecmp(parameters[i], HICP_DHCP, (size_t)strlen(HICP_DHCP)) == 0) {
             proto_tree_add_string(hicp_tree,
                 hf_hicp_dhcp,
                 tvb,
                 offset,
-                (gint)strlen(parameters[i]),
+                (int)strlen(parameters[i]),
                 g_ascii_strcasecmp(parameter_value, "ON") == 0 ? "Enabled" : "Disabled");
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_PSWD_REQUIRED, (gsize)strlen(HICP_PSWD_REQUIRED)) == 0) {
+        else if (g_ascii_strncasecmp(parameters[i], HICP_PSWD_REQUIRED, (size_t)strlen(HICP_PSWD_REQUIRED)) == 0) {
             proto_tree_add_string(hicp_tree,
                 hf_hicp_pswd_required,
                 tvb,
                 offset,
-                (gint)strlen(parameters[i]),
+                (int)strlen(parameters[i]),
                 g_ascii_strcasecmp(parameter_value, "ON") == 0 ? "Required" : "Not required");
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_HN, (gsize)strlen(HICP_HN)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_hn, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_HN, (size_t)strlen(HICP_HN)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_hn, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_DNS1, (gsize)strlen(HICP_DNS1)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_dns1, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_DNS1, (size_t)strlen(HICP_DNS1)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_dns1, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_DNS2, (gsize)strlen(HICP_DNS2)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_dns2, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_DNS2, (size_t)strlen(HICP_DNS2)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_dns2, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_EXT, (gsize)strlen(HICP_EXT)) == 0) {
+        else if (g_ascii_strncasecmp(parameters[i], HICP_EXT, (size_t)strlen(HICP_EXT)) == 0) {
             ext_value = g_ascii_strtod(parameter_value, NULL);
             if (ext_value == 1) {
                 parameter_value = HICP_WINK_COMMAND;
@@ -190,48 +190,48 @@ dissect_hicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             else if (ext_value == 0) {
                 parameter_value = "None";
             }
-            proto_tree_add_string(hicp_tree, hf_hicp_ext, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+            proto_tree_add_string(hicp_tree, hf_hicp_ext, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_PSWD, (gsize)strlen(HICP_PSWD)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_pswd, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_PSWD, (size_t)strlen(HICP_PSWD)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_pswd, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_NEW_PSWD, (gsize)strlen(HICP_NEW_PSWD)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_new_pswd, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_NEW_PSWD, (size_t)strlen(HICP_NEW_PSWD)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_new_pswd, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_NEW_MAC, (gsize)strlen(HICP_NEW_MAC)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_new_mac, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_NEW_MAC, (size_t)strlen(HICP_NEW_MAC)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_new_mac, tvb, offset, (int)strlen(parameters[i]), parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_RECONFIGURED, (gsize)strlen(HICP_RECONFIGURED)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_status, tvb, offset, (gint)strlen(parameters[i]), HICP_RECONFIGURED);
-            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_RECONFIGURED, (size_t)strlen(HICP_RECONFIGURED)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_status, tvb, offset, (int)strlen(parameters[i]), HICP_RECONFIGURED);
+            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (int)strlen(parameters[i]), parameter_value);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Respond message, Command: %s", HICP_CONFIG_COMMAND);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Module MAC address: %s", parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_INVALID_PSWD, (gsize)strlen(HICP_INVALID_PSWD)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
-            error_pi = proto_tree_add_string(hicp_tree, hf_hicp_error, tvb, offset, (gint)strlen(parameters[i]), HICP_INVALID_PSWD);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_INVALID_PSWD, (size_t)strlen(HICP_INVALID_PSWD)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (int)strlen(parameters[i]), parameter_value);
+            error_pi = proto_tree_add_string(hicp_tree, hf_hicp_error, tvb, offset, (int)strlen(parameters[i]), HICP_INVALID_PSWD);
             expert_add_info(pinfo, error_pi, &ei_hicp_error);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Error: %s", HICP_INVALID_PSWD);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Command: %s, Module MAC address: %s", HICP_CONFIG_COMMAND, parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_INVALID_CONFIG, (gsize)strlen(HICP_INVALID_CONFIG)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
-            error_pi = proto_tree_add_string(hicp_tree, hf_hicp_error, tvb, offset, (gint)strlen(parameters[i]), HICP_INVALID_CONFIG);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_INVALID_CONFIG, (size_t)strlen(HICP_INVALID_CONFIG)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (int)strlen(parameters[i]), parameter_value);
+            error_pi = proto_tree_add_string(hicp_tree, hf_hicp_error, tvb, offset, (int)strlen(parameters[i]), HICP_INVALID_CONFIG);
             expert_add_info(pinfo, error_pi, &ei_hicp_error);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Error: %s", HICP_INVALID_CONFIG);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Command: %s, Module MAC address: %s", HICP_CONFIG_COMMAND, parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_EXECUTED, (gsize)strlen(HICP_EXECUTED)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_status, tvb, offset, (gint)strlen(parameters[i]), HICP_EXECUTED);
-            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_EXECUTED, (size_t)strlen(HICP_EXECUTED)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_status, tvb, offset, (int)strlen(parameters[i]), HICP_EXECUTED);
+            proto_tree_add_string(hicp_tree, hf_hicp_src, tvb, offset, (int)strlen(parameters[i]), parameter_value);
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "Respond message, Command: %s", HICP_WINK_COMMAND);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Module MAC address: %s", parameter_value);
         }
-        else if (g_ascii_strncasecmp(parameters[i], HICP_TO, (gsize)strlen(HICP_TO)) == 0) {
-            proto_tree_add_string(hicp_tree, hf_hicp_target, tvb, offset, (gint)strlen(parameters[i]), parameter_value);
+        else if (g_ascii_strncasecmp(parameters[i], HICP_TO, (size_t)strlen(HICP_TO)) == 0) {
+            proto_tree_add_string(hicp_tree, hf_hicp_target, tvb, offset, (int)strlen(parameters[i]), parameter_value);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Module MAC address: %s", parameter_value);
         }
-        offset += (guint)strlen(parameters[i]) + (guint)strlen(HICP_DELIMITER);
+        offset += (unsigned)strlen(parameters[i]) + (unsigned)strlen(HICP_DELIMITER);
     }
 
     return tvb_captured_length(tvb);
@@ -371,7 +371,7 @@ proto_register_hicp(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hicp
     };
 

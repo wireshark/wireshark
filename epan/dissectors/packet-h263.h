@@ -32,8 +32,8 @@
 extern const value_string h263_srcformat_vals[];
 
 /* XXX: these ought to be reworked to use the normal call_dissector interface. */
-int dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length, gboolean is_rfc4626);
-int dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_rfc4626);
+int dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, bool is_rfc4626);
+int dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, int offset, bool is_rfc4626);
 
 
 #endif

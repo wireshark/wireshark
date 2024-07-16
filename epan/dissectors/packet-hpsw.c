@@ -43,8 +43,8 @@ static int hf_hpsw_device_id_data;
 static int hf_hpsw_data;
 
 
-static gint ett_hpsw;
-static gint ett_hpsw_tlv;
+static int ett_hpsw;
+static int ett_hpsw_tlv;
 
 static expert_field ei_hpsw_tlvlength_bad;
 
@@ -85,7 +85,7 @@ static const value_string hpsw_tlv_type_vals[] = {
 
 static void
 dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
-                 proto_tree *tree, proto_item *ti, guint8 type)
+                 proto_tree *tree, proto_item *ti, uint8_t type)
 {
     switch (type) {
 
@@ -220,8 +220,8 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree *hp_tree;
     proto_tree *tlv_tree;
     proto_item *ti;
-    guint8      version;
-    gint        offset = 0;
+    uint8_t     version;
+    int         offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP");
     col_set_str(pinfo->cinfo, COL_INFO, "HP Switch Protocol");
@@ -238,7 +238,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     while ( tvb_reported_length_remaining(tvb, offset) > 0 )
     {
-        guint8 type, length;
+        uint8_t type, length;
 
         type   = tvb_get_guint8(tvb, offset);
         length = tvb_get_guint8(tvb, offset+1);
@@ -332,7 +332,7 @@ proto_register_hpsw(void)
             NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hpsw,
         &ett_hpsw_tlv
     };

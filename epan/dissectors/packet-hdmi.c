@@ -27,8 +27,8 @@ static int proto_hdmi;
 static dissector_handle_t hdmi_handle;
 static dissector_handle_t hdcp_handle;
 
-static gint ett_hdmi;
-static gint ett_hdmi_edid;
+static int ett_hdmi;
+static int ett_hdmi_edid;
 
 static int hf_hdmi_addr;
 static int hf_hdmi_edid_offset;
@@ -63,7 +63,7 @@ static const value_string hdmi_addr[] = {
     { 0, NULL }
 };
 
-#define EDID_HDR_VALUE G_GUINT64_CONSTANT(0x00ffffffffffff00)
+#define EDID_HDR_VALUE UINT64_C(0x00ffffffffffff00)
 
 /* grab 5 bits, from bit n to n+4, from a big-endian number x
    map those bits to a capital letter such that A == 1, B == 2, ... */
@@ -72,15 +72,15 @@ static const value_string hdmi_addr[] = {
 
 /* dissect EDID data from the receiver
    return the offset after the dissected data */
-static gint
-dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hdmi_edid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *yi;
     proto_tree *edid_tree;
-    guint64     edid_hdr;
-    guint16     manf_id;
-    gchar       manf_id_str[4]; /* 3 letters + 0-termination */
-    guint8      week, year;
+    uint64_t    edid_hdr;
+    uint16_t    manf_id;
+    char        manf_id_str[4]; /* 3 letters + 0-termination */
+    uint8_t     week, year;
     int         year_hf;
 
     edid_tree = proto_tree_add_subtree(tree, tvb,
@@ -139,8 +139,8 @@ dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tr
 static int
 dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8      addr;
-    gint        offset=0;
+    uint8_t     addr;
+    int         offset=0;
     proto_item *pi;
     proto_tree *hdmi_tree;
 
@@ -195,9 +195,9 @@ dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 }
 
 static void
-hdmi_fmt_edid_version( gchar *result, guint32 revision )
+hdmi_fmt_edid_version( char *result, uint32_t revision )
 {
-   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (uint8_t)(( revision & 0xFF00 ) >> 8), (uint8_t)(revision & 0xFF) );
 }
 
 void
@@ -237,7 +237,7 @@ proto_register_hdmi(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hdmi,
         &ett_hdmi_edid
     };

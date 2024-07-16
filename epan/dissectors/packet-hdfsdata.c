@@ -91,7 +91,7 @@ static int hf_hdfsdata_sourcenode;
 static int hf_hdfsdata_currentpipeline;
 static int hf_hdfsdata_node;
 
-static gint ett_hdfsdata;
+static int ett_hdfsdata;
 
 static dissector_handle_t hdfsdata_handle;
 
@@ -100,7 +100,7 @@ static dissector_handle_t hdfsdata_handle;
    value is the first byte of the vint/vlong
    returns the total number of bytes (1 to 9) */
 static int
-decode_vint_size (gint8 value) {
+decode_vint_size (int8_t value) {
   if (value >= -112) {
     return 1;
   } else if (value < -120) {
@@ -112,14 +112,14 @@ decode_vint_size (gint8 value) {
 /* Taken from HDFS
    converts a variable length number into a long and discovers how many bytes it is
    returns the decoded number */
-static guint
+static unsigned
 dissect_variable_length_long (tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* offset)
 {
   int byte_count = 1;
   int idx = 0;
-  guint i = 0;
-  gint8 first_byte = tvb_get_guint8(tvb, *offset);
-  guint size = 0;
+  unsigned i = 0;
+  int8_t first_byte = tvb_get_guint8(tvb, *offset);
+  unsigned size = 0;
 
   int len = decode_vint_size(first_byte);
   if (len == 1) {
@@ -198,7 +198,7 @@ static void
 dissect_read_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 {
   int len = 0;
-  guint32 chunksize;
+  uint32_t chunksize;
 
   /* 4 bytes = data length */
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_datalength, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -365,7 +365,7 @@ dissect_write_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 }
 
 /* determine PDU length of protocol  */
-static guint
+static unsigned
 get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* get data packet len, add FIRST_READ_FRAGMENT_LEN for first fragment (before len),
@@ -432,7 +432,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     } else {
 
-      guint8 op = tvb_get_guint8(tvb, 2);
+      uint8_t op = tvb_get_guint8(tvb, 2);
 
       /* READ  request */
       if ((tvb_reported_length(tvb)) >= MIN_READ_REQ && op == READ_OP) {
@@ -479,9 +479,9 @@ dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
   int frame_header_len = 0;
 
-  gboolean need_reassemble = FALSE;
-  guint8 op = 0;
-  gboolean only_packet = tvb_reported_length(tvb) == 1 || (tvb_reported_length(tvb) == 2 &&
+  bool need_reassemble = false;
+  uint8_t op = 0;
+  bool only_packet = tvb_reported_length(tvb) == 1 || (tvb_reported_length(tvb) == 2 &&
     tvb_get_ntohs(tvb, 0) == STATUS_SUCCESS);
 
   if (tvb_reported_length(tvb) >= 3)
@@ -491,7 +491,7 @@ dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     !(tvb_reported_length(tvb) >= MIN_WRITE_REQ && op == WRITE_OP) && !(tvb_reported_length(tvb) == END_PACKET_LEN &&
     !tvb_get_ntohl(tvb, 0) && !tvb_get_ntohl(tvb, 4))) {
 
-    need_reassemble = TRUE;
+    need_reassemble = true;
   }
 
   /* setting the header size for the different types of packets */
@@ -753,7 +753,7 @@ proto_register_hdfsdata(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_hdfsdata
     };
 

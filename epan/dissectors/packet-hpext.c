@@ -35,14 +35,14 @@ static int hf_hpext_dxsap;
 static int hf_hpext_reserved;
 static int hf_hpext_sxsap;
 
-static gint ett_hpext;
+static int ett_hpext;
 
 static int
 dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*hpext_tree = NULL;
 	proto_item	*ti = NULL;
-	guint16		dxsap, sxsap;
+	uint16_t		dxsap, sxsap;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HPEXT");
@@ -96,7 +96,7 @@ proto_register_hpext(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_hpext
 	};
 
