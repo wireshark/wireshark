@@ -23,6 +23,9 @@ public:
     void updateStyleSheet();
 
 protected:
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    virtual void showEvent(QShowEvent *e) override;
+#endif
     virtual bool event(QEvent *event);
 
 private:

@@ -128,6 +128,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
         connect(this, &DisplayFilterEdit::returnPressed, this, &DisplayFilterEdit::applyDisplayFilter);
     }
 
+    setDefaultPlaceholderText();
+
     connect(this, &DisplayFilterEdit::textChanged, this,
             static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
 
