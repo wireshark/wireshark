@@ -29,11 +29,11 @@ static int hf_echo_data;
 static int hf_echo_request;
 static int hf_echo_response;
 
-static gint ett_echo;
+static int ett_echo;
 
 static int dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  gboolean    request;
+  bool        request;
   proto_tree *echo_tree;
   proto_item *ti, *hidden_item;
 
@@ -69,7 +69,7 @@ void proto_register_echo(void)
         NULL, 0x0, NULL, HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_echo
   };
 

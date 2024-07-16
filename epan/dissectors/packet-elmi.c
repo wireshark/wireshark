@@ -28,9 +28,9 @@ void proto_reg_handoff_elmi(void);
 
 static dissector_handle_t elmi_handle;
 
-static gint ett_elmi;
-static gint ett_elmi_info_elem;
-static gint ett_elmi_sub_info_elem;
+static int ett_elmi;
+static int ett_elmi_info_elem;
+static int ett_elmi_sub_info_elem;
 
 static int hf_elmi_ver;
 static int hf_elmi_msg_type;
@@ -143,12 +143,12 @@ static const value_string elmi_evc_type[] = {
     { 0, NULL }
 };
 
-static gint
+static int
 dissect_elmi_sub_info_elem(
-        tvbuff_t *tvb, gint offset, proto_tree *tree)
+        tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    gint        offset_start;
-    guint8      sub_tag, len;
+    int         offset_start;
+    uint8_t     sub_tag, len;
     proto_item *tree_pi;
     proto_tree *sub_info_elem_tree = tree;
 
@@ -233,12 +233,12 @@ dissect_elmi_sub_info_elem(
 
 }
 
-static gint
+static int
 dissect_elmi_info_elem(
-        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+        tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint        offset_start;
-    guint8      tag, len, ret;
+    int         offset_start;
+    uint8_t     tag, len, ret;
     proto_item *tree_pi;
     proto_tree *info_elem_tree;
 
@@ -338,9 +338,9 @@ dissect_elmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item *pi;
     proto_tree *elmi_tree;
-    gint        offset=0;
-    guint8      msg_type;
-    gint        ret;
+    int         offset=0;
+    uint8_t     msg_type;
+    int         ret;
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "E-LMI");
@@ -502,7 +502,7 @@ proto_register_elmi(void)
                 TFS(&tfs_applicable_not_applicable), 0x80, NULL, HFILL } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_elmi,
         &ett_elmi_info_elem,
         &ett_elmi_sub_info_elem

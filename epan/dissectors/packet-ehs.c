@@ -194,17 +194,17 @@ static dissector_handle_t ehs_handle;
 static dissector_handle_t ccsds_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_ehs;
-static gint ett_ehs_primary_header;
-static gint ett_ehs_secondary_header;
-static gint ett_ehs_data_zone;
-static gint ett_ehs_cnt_time;
-static gint ett_ehs_obt_time;
-static gint ett_ehs_udsm_start_time;
-static gint ett_ehs_udsm_stop_time;
-static gint ett_ehs_ground_receipt_time;
-static gint ett_ehs_major_frame;
-static gint ett_ehs_minor_frame;
+static int ett_ehs;
+static int ett_ehs_primary_header;
+static int ett_ehs_secondary_header;
+static int ett_ehs_data_zone;
+static int ett_ehs_cnt_time;
+static int ett_ehs_obt_time;
+static int ett_ehs_udsm_start_time;
+static int ett_ehs_udsm_stop_time;
+static int ett_ehs_ground_receipt_time;
+static int ett_ehs_major_frame;
+static int ett_ehs_minor_frame;
 
 /* EHS protocol types */
 typedef enum EHS_Protocol_Type
@@ -1062,7 +1062,7 @@ static int
 dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int         offset = 0;
-  guint16     first_word;
+  uint16_t    first_word;
 
   tvbuff_t   *new_tvb;
 
@@ -1920,7 +1920,7 @@ proto_register_ehs(void)
     };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ehs,
     &ett_ehs_primary_header,
     &ett_ehs_secondary_header,

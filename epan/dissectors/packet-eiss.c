@@ -72,9 +72,9 @@ static int hf_eiss_sed_time_value;
 static int hf_eiss_sed_reserved;
 static int hf_eiss_sed_descriptor_length;
 
-static gint ett_eiss;
-static gint ett_eiss_platform_id;
-static gint ett_eiss_desc;
+static int ett_eiss;
+static int ett_eiss_platform_id;
+static int ett_eiss_desc;
 
 static expert_field ei_eiss_platform_id_length;
 static expert_field ei_eiss_invalid_section_length;
@@ -114,8 +114,8 @@ static const range_string aid_control_code_values[] = {
 	{    0,    0, NULL }
 };
 
-static guint
-dissect_etv_bif_platform_ids(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static unsigned
+dissect_etv_bif_platform_ids(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
 	proto_tree *platform_tree;
 
@@ -142,16 +142,16 @@ dissect_etv_bif_platform_ids(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return 15;
 }
 
-static guint
-dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+static unsigned
+dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
 	proto_tree *sub_tree;
-	guint       tag;
+	unsigned    tag;
 
 	tag = tvb_get_guint8(tvb, offset);
 
 	if (0xe0 == tag) {
-		guint total_length;
+		unsigned total_length;
 
 		total_length = tvb_get_guint8(tvb, offset+1);
 		sub_tree = proto_tree_add_subtree(tree, tvb, offset, (2+total_length),
@@ -207,7 +207,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 					offset, 4, ENC_BIG_ENDIAN);
 		return 6;
 	} else if (0xe2 == tag) {
-		guint     tmp;
+		unsigned  tmp;
 		tvbuff_t *payload;
 
 		tmp = tvb_get_ntohs(tvb, offset+1);
@@ -240,18 +240,18 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 static int
 dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint       offset = 0, packet_length, sect_len;
+	unsigned    offset = 0, packet_length, sect_len;
 	proto_item *ti;
 	proto_item *pi;
 	proto_tree *eiss_tree;
 	proto_item *items[PACKET_MPEG_SECT_PI__SIZE];
 	bool        ssi;
-	guint       reserved;
-	guint8      reserved2;
-	guint8      sect_num, last_sect_num;
+	unsigned    reserved;
+	uint8_t     reserved2;
+	uint8_t     sect_num, last_sect_num;
 
-	guint16 eiss_application_type;
-	guint8 platform_id_length;
+	uint16_t eiss_application_type;
+	uint8_t platform_id_length;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EISS");
 
@@ -263,7 +263,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	packet_length = sect_len + 3 - 4; /* + for the header, - for the crc */
 
-	if (FALSE != ssi) {
+	if (false != ssi) {
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__SSI];
 
@@ -327,7 +327,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	offset++;
 
 	while (0 < platform_id_length) {
-		guint tmp;
+		unsigned tmp;
 
 		tmp = dissect_etv_bif_platform_ids(tvb, eiss_tree, offset);
 		offset += tmp;
@@ -535,7 +535,7 @@ proto_register_eiss(void)
 		} }
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_eiss,
 		&ett_eiss_platform_id,
 		&ett_eiss_desc,

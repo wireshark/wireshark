@@ -100,11 +100,11 @@ static expert_field ei_elasticsearch_unsupported_address_type;
 
 
 /* Trees */
-static gint ett_elasticsearch;
-static gint ett_elasticsearch_address;
-static gint ett_elasticsearch_discovery_node;
-static gint ett_elasticsearch_status_flags;
-static gint ett_elasticsearch_header;
+static int ett_elasticsearch;
+static int ett_elasticsearch_address;
+static int ett_elasticsearch_discovery_node;
+static int ett_elasticsearch_status_flags;
+static int ett_elasticsearch_header;
 
 /* Forward declarations */
 static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
@@ -131,7 +131,7 @@ static const value_string status_flag_message_type[] = {
     { 0, NULL }
 };
 
-static void elasticsearch_format_version(gchar *buf, guint32 value) {
+static void elasticsearch_format_version(char *buf, uint32_t value) {
     snprintf(buf, ELASTICSEARCH_VERSION_LABEL_LENGTH, "%d.%d.%d (%d)", (value / 1000000) % 100,
             (value / 10000) % 100, (value/ 100) % 100, value);
 }
@@ -139,7 +139,7 @@ static void elasticsearch_format_version(gchar *buf, guint32 value) {
 static vint_t read_vint(tvbuff_t *tvb, int offset){
     /* See: org.elasticsearch.common.io.stream.StreamInput#readVInt */
     vint_t vint;
-    guint8 b = tvb_get_guint8(tvb, offset);
+    uint8_t b = tvb_get_guint8(tvb, offset);
     vint.value = b & 0x7F;
     if ((b & 0x80) == 0) {
         vint.length = 1;
@@ -188,10 +188,10 @@ static int elasticsearch_partial_dissect_address(tvbuff_t *tvb, packet_info *pin
     proto_tree *address_tree;
     proto_item *address_item;
     int start_offset;
-    guint8 es_address_format;
-    guint8 address_length;
+    uint8_t es_address_format;
+    uint8_t address_length;
     vstring_t address_name;
-    guint16 address_type_id;
+    uint16_t address_type_id;
 
     /* Store this away for later */
     start_offset = offset;
@@ -362,20 +362,20 @@ static int elasticsearch_binary_header_is_valid(tvbuff_t *tvb){
     return tvb_captured_length(tvb) >= 2 && tvb_get_ntohs(tvb, 0) == ELASTICSEARCH_BINARY_HEADER_TOKEN;
 }
 
-static int elasticsearch_transport_status_flag_is_a_response(gint8 transport_status_flags) {
+static int elasticsearch_transport_status_flag_is_a_response(int8_t transport_status_flags) {
     return transport_status_flags & ELASTICSEARCH_STATUS_FLAG_RESPONSE;
 }
 
-static int transport_status_flag_is_a_request(gint8 transport_status_flags){
+static int transport_status_flag_is_a_request(int8_t transport_status_flags){
     return !elasticsearch_transport_status_flag_is_a_response(transport_status_flags);
 }
 
-static int elasticsearch_is_compressed(gint8 transport_status_flags){
+static int elasticsearch_is_compressed(int8_t transport_status_flags){
 
     return transport_status_flags & ELASTICSEARCH_STATUS_FLAG_COMPRESSED;
 }
 
-static void elasticsearch_decode_binary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gint8 transport_status_flags, guint32 version) {
+static void elasticsearch_decode_binary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int8_t transport_status_flags, uint32_t version) {
 
     int i;
     vint_t features;
@@ -403,7 +403,7 @@ static void elasticsearch_decode_binary_request(tvbuff_t *tvb, packet_info *pinf
     }
 }
 
-static void append_status_info_to_column(packet_info *pinfo, gint8 transport_status_flags) {
+static void append_status_info_to_column(packet_info *pinfo, int8_t transport_status_flags) {
     if(transport_status_flags & ELASTICSEARCH_STATUS_FLAG_ERROR){
         col_append_str(pinfo->cinfo, COL_INFO, "[ERROR], ");
     }else{
@@ -411,7 +411,7 @@ static void append_status_info_to_column(packet_info *pinfo, gint8 transport_sta
     }
 }
 
-static void elasticsearch_decode_binary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gint8 transport_status_flags, guint32 version _U_) {
+static void elasticsearch_decode_binary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int8_t transport_status_flags, uint32_t version _U_) {
     append_status_info_to_column(pinfo, transport_status_flags);
     if(elasticsearch_is_compressed(transport_status_flags)){
         col_append_str(pinfo->cinfo, COL_INFO, "[COMPRESSED], ");
@@ -426,9 +426,9 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
 
     int i, j;
     int offset = 0;
-    gint8 transport_status_flags;
-    guint32 version;
-    guint64 request_id;
+    int8_t transport_status_flags;
+    uint32_t version;
+    uint64_t request_id;
     vint_t request_headers, response_headers;
     vstring_t header_key;
     vint_t header_values;
@@ -542,11 +542,11 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     return tvb_captured_length(tvb);
 }
 
-static guint elasticsearch_get_binary_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned elasticsearch_get_binary_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                                   int offset, void *data _U_)
 {
     /* length is two bytes into the packet, also the length doesn't include the starting 6 bytes */
-    return (guint)tvb_get_ntohl(tvb, offset+ELASTICSEARCH_MESSAGE_LENGTH_OFFSET) + ELASTICSEARCH_HEADER_LENGTH;
+    return (unsigned)tvb_get_ntohl(tvb, offset+ELASTICSEARCH_MESSAGE_LENGTH_OFFSET) + ELASTICSEARCH_HEADER_LENGTH;
 }
 
 static int dissect_elasticsearch_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
@@ -563,7 +563,7 @@ static int dissect_elasticsearch_binary(tvbuff_t *tvb, packet_info *pinfo, proto
 
     if(elasticsearch_binary_header_is_valid(tvb)){
         /* pass all packets through TCP-reassembly */
-        tcp_dissect_pdus(tvb, pinfo, elasticsearch_tree, TRUE, ELASTICSEARCH_HEADER_LENGTH,
+        tcp_dissect_pdus(tvb, pinfo, elasticsearch_tree, true, ELASTICSEARCH_HEADER_LENGTH,
                 elasticsearch_get_binary_message_len, elasticsearch_dissect_valid_binary_packet, data);
     } else {
         proto_tree_add_item(elasticsearch_tree, hf_elasticsearch_data, tvb, offset, -1, ENC_NA);
@@ -800,7 +800,7 @@ void proto_register_elasticsearch(void) {
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_elasticsearch,
         &ett_elasticsearch_address,
         &ett_elasticsearch_discovery_node,

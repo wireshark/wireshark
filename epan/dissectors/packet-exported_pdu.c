@@ -86,7 +86,7 @@ static expert_field ei_exported_pdu_unsupported_version;
 static expert_field ei_exported_pdu_unknown_tag;
 static expert_field ei_exported_pdu_unexpected_tag_length;
 
-static const gchar *user_data_pdu = "data";
+static const char *user_data_pdu = "data";
 
 #define EXPORTED_PDU_NEXT_DISSECTOR_STR      0
 #define EXPORTED_PDU_NEXT_HEUR_DISSECTOR_STR 1
@@ -202,7 +202,7 @@ static port_type exp_pdu_port_type_to_ws_port_type(uint32_t type)
         break;
     }
 
-    DISSECTOR_ASSERT(FALSE);
+    DISSECTOR_ASSERT(false);
     return PT_NONE;
 }
 
@@ -227,7 +227,7 @@ dissect_3gpp_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tag_tree, int off
             } else {
                 cgi_item = proto_tree_add_bits_item(tag_tree, hf_exported_pdu_3gpp_cgi, tvb, bit_offset, 56, ENC_BIG_ENDIAN);
                 cgi_tree = proto_item_add_subtree(cgi_item, ett_exported_pdu_3gpp_cgi);
-                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_CGI, FALSE);
+                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_CGI, false);
                 proto_tree_add_item(cgi_tree, hf_exported_pdu_3gpp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(cgi_tree, hf_exported_pdu_3gpp_ci, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             }
@@ -238,7 +238,7 @@ dissect_3gpp_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tag_tree, int off
             } else {
                 cgi_item = proto_tree_add_bits_item(tag_tree, hf_exported_pdu_3gpp_ecgi, tvb, bit_offset, 52, ENC_BIG_ENDIAN);
                 cgi_tree = proto_item_add_subtree(cgi_item, ett_exported_pdu_3gpp_cgi);
-                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_ECGI, FALSE);
+                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_ECGI, false);
                 bit_offset = offset * 8;
                 proto_tree_add_bits_item(cgi_tree, hf_exported_pdu_3gpp_eci, tvb, bit_offset, 28, ENC_BIG_ENDIAN);
             }
@@ -249,7 +249,7 @@ dissect_3gpp_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tag_tree, int off
             } else {
                 cgi_item = proto_tree_add_bits_item(tag_tree, hf_exported_pdu_3gpp_ncgi, tvb, bit_offset, 60, ENC_BIG_ENDIAN);
                 cgi_tree = proto_item_add_subtree(cgi_item, ett_exported_pdu_3gpp_cgi);
-                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_NRCGI, FALSE);
+                offset = dissect_e212_mcc_mnc(tvb, pinfo, cgi_tree, offset, E212_NRCGI, false);
                 bit_offset = offset * 8;
                 proto_tree_add_bits_item(cgi_tree, hf_exported_pdu_3gpp_nci, tvb, bit_offset, 36, ENC_BIG_ENDIAN);
             }
@@ -384,7 +384,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_DVBCI_EVT:
                 proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dvbci_evt,
                         tvb, offset, 1, ENC_BIG_ENDIAN, &dvb_ci_dir);
-                dvbci_set_addrs((guint8)dvb_ci_dir, pinfo);
+                dvbci_set_addrs((uint8_t)dvb_ci_dir, pinfo);
                 break;
             case EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL:
                 proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dis_table_val, tvb, offset, 4, ENC_BIG_ENDIAN, &dissector_table_val);
@@ -505,7 +505,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 else {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, FALSE, dissector_data);
+                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, false, dissector_data);
             }
         }
         default:
@@ -770,11 +770,11 @@ proto_register_exported_pdu(void)
 void
 proto_reg_handoff_exported_pdu(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized) {
         dissector_add_uint("wtap_encap", WTAP_ENCAP_WIRESHARK_UPPER_PDU, exported_pdu_handle);
-        initialized = TRUE;
+        initialized = true;
     }
 
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");

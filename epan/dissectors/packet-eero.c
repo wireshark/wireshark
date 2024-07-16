@@ -28,7 +28,7 @@ static int hf_eero_type;
 static int hf_eero_src_mac;
 static int hf_eero_data;
 
-static gint ett_eero;
+static int ett_eero;
 
 static dissector_handle_t eero_handle;
 
@@ -37,10 +37,10 @@ static capture_dissector_handle_t eero_cap_handle;
 
 
 static bool
-capture_eero(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_eero(const unsigned char *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   capture_dissector_increment_count(cpinfo, proto_eero);
-  return TRUE;
+  return true;
 }
 
 static int
@@ -98,7 +98,7 @@ proto_register_eero(void)
               NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_eero
   };
 

@@ -174,11 +174,11 @@ static int hf_epl_v1_asnd_device_variant;
 static int hf_epl_v1_asnd_poll_in_size;
 static int hf_epl_v1_asnd_poll_out_size;
 
-static gint ett_epl_v1;
+static int ett_epl_v1;
 
 
-static gint
-dissect_epl_v1_soc(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_epl_v1_soc(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 {
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_soc_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_soc_ps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -200,8 +200,8 @@ dissect_epl_v1_soc(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 }
 
 
-static gint
-dissect_epl_v1_eoc(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_epl_v1_eoc(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 {
 	offset += 1;
 
@@ -215,10 +215,10 @@ dissect_epl_v1_eoc(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 }
 
 
-static gint
-dissect_epl_v1_preq(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_epl_v1_preq(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 {
-	guint16 len;
+	uint16_t len;
 
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_preq_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_preq_rd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -239,10 +239,10 @@ dissect_epl_v1_preq(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 
 
 
-static gint
-dissect_epl_v1_pres(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_epl_v1_pres(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 {
-	guint16 len;
+	uint16_t len;
 
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_pres_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_pres_ex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -267,8 +267,8 @@ dissect_epl_v1_pres(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 
 
 
-static gint
-dissect_epl_v1_ainv(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_epl_v1_ainv(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 {
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_ainv_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -278,11 +278,11 @@ dissect_epl_v1_ainv(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 
 
 
-static gint
-dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 {
-	guint8  epl_v1_asnd_channel;
-	guint16 len;
+	uint8_t epl_v1_asnd_channel;
+	uint16_t len;
 
 	/* get ASnd channel */
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_asnd_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -327,15 +327,15 @@ dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 static int
 dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint8  epl_v1_service, epl_v1_dest, epl_v1_src, epl_v1_ainv_ch, epl_v1_asnd_ch;
-	gint    offset;
+	uint8_t epl_v1_service, epl_v1_dest, epl_v1_src, epl_v1_ainv_ch, epl_v1_asnd_ch;
+	int     offset;
 	proto_item *ti=NULL;
 	proto_tree *epl_v1_tree=NULL;
 
 
 	if(tvb_captured_length(tvb) < 3){
 		/* Not enough data for an EPL_V1 header; don't try to interpret it */
-		return FALSE;
+		return false;
 	}
 
 	offset = 0;
@@ -386,7 +386,7 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		break;
 
 	default:     /* no valid EPL packet */
-		return FALSE;
+		return false;
 	}
 
 	if(tree){
@@ -431,7 +431,7 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		break;
 
 	default: /* not a valid MessageType - can't dissect any further. */
-		return FALSE;
+		return false;
 	}
 	return offset;
 }
@@ -618,7 +618,7 @@ proto_register_epl_v1(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_epl_v1,
 	};
 

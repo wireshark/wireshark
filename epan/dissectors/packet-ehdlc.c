@@ -86,9 +86,9 @@ static const xdlc_cf_items ehdlc_cf_items_ext = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_ehdlc;
-static gint ett_ehdlc_xid;
-static gint ett_ehdlc_control;
+static int ett_ehdlc;
+static int ett_ehdlc_xid;
+static int ett_ehdlc_control;
 
 enum {
 	SUB_RSL,
@@ -101,7 +101,7 @@ enum {
 };
 
 /* Determine TEI from Compressed TEI */
-static guint8 tei_from_ctei(guint8 ctei)
+static uint8_t tei_from_ctei(uint8_t ctei)
 {
 	if (ctei < 12)
 		return ctei;
@@ -109,7 +109,7 @@ static guint8 tei_from_ctei(guint8 ctei)
 		return 60 + (ctei - 12);
 }
 
-static guint8 c_r_from_csapi(guint8 csapi)
+static uint8_t c_r_from_csapi(uint8_t csapi)
 {
 	switch (csapi) {
 	case 1:
@@ -120,7 +120,7 @@ static guint8 c_r_from_csapi(guint8 csapi)
 	}
 }
 
-static guint8 sapi_from_csapi(guint8 csapi)
+static uint8_t sapi_from_csapi(uint8_t csapi)
 {
 	switch (csapi) {
 	case 0:
@@ -145,9 +145,9 @@ static guint8 sapi_from_csapi(guint8 csapi)
 static dissector_handle_t sub_handles[SUB_MAX];
 
 static int
-dissect_ehdlc_xid(proto_tree *tree, tvbuff_t *tvb, guint base_offset, guint len)
+dissect_ehdlc_xid(proto_tree *tree, tvbuff_t *tvb, unsigned base_offset, unsigned len)
 {
-	guint offset = base_offset;
+	unsigned offset = base_offset;
 	proto_item *ti;
 	proto_tree *xid_tree;
 
@@ -169,8 +169,8 @@ dissect_ehdlc_xid(proto_tree *tree, tvbuff_t *tvb, guint base_offset, guint len)
 	offset += 2;
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 2) {
-		guint8 iei = tvb_get_guint8(tvb, offset++);
-		guint8 ie_len = tvb_get_guint8(tvb, offset++);
+		uint8_t iei = tvb_get_guint8(tvb, offset++);
+		uint8_t ie_len = tvb_get_guint8(tvb, offset++);
 
 		switch (iei) {
 		case 0x07:
@@ -204,12 +204,12 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_item *ti            = NULL;
 		proto_tree *ehdlc_tree    = NULL;
-		guint16     len, hdr2;
-		guint8      csapi, ctei, sapi, tei, c_r;
+		uint16_t    len, hdr2;
+		uint8_t     csapi, ctei, sapi, tei, c_r;
 		tvbuff_t   *next_tvb;
-		guint16     control;
-		gboolean    is_response   = FALSE, is_extended = TRUE;
-		gint        header_length = 2; /* Address + Length field */
+		uint16_t    control;
+		bool        is_response   = false, is_extended = true;
+		int         header_length = 2; /* Address + Length field */
 
 		hdr2 = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 		len = hdr2 & 0x1FF;
@@ -264,7 +264,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 		control = dissect_xdlc_control(tvb, offset+2, pinfo, ehdlc_tree, hf_ehdlc_control,
 					       ett_ehdlc_control, &ehdlc_cf_items, &ehdlc_cf_items_ext,
-					       NULL, NULL, is_response, is_extended, FALSE);
+					       NULL, NULL, is_response, is_extended, false);
 		header_length += XDLC_CONTROL_LEN(control, is_extended);
 
 		if (XDLC_IS_INFORMATION(control)) {
@@ -437,7 +437,7 @@ proto_register_ehdlc(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ehdlc,
 		&ett_ehdlc_xid,
 		&ett_ehdlc_control,

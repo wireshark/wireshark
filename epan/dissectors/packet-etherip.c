@@ -17,7 +17,7 @@ static int proto_etherip;
 static int hf_etherip_ver;
 static int hf_etherip_reserved;
 
-static gint ett_etherip;
+static int ett_etherip;
 
 static expert_field ei_etherip_ver_3;
 static expert_field ei_etherip_reserved_0;
@@ -42,7 +42,7 @@ dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   tvbuff_t *next_tvb;
   proto_tree *etherip_tree;
   proto_item *ti;
-  guint16 field, version;
+  uint16_t field, version;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETHERIP");
 
@@ -89,7 +89,7 @@ proto_register_etherip(void)
         "Reserved (must be 0)", HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_etherip,
   };
 

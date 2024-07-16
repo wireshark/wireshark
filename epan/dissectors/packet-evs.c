@@ -470,13 +470,13 @@ static const value_string evs_640_bwct_idx_vals[] = {
 };
 
 static void
-dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 cmr_oct)
+dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, uint8_t cmr_oct)
 {
     proto_tree *tree;
     proto_item *item;
-    const gchar *str;
-    guint8 t_bits = (cmr_oct & 0x70) >> 4;
-    guint8 d_bits = (cmr_oct & 0x0f);
+    const char *str;
+    uint8_t t_bits = (cmr_oct & 0x70) >> 4;
+    uint8_t d_bits = (cmr_oct & 0x0f);
     /* CMR */
     tree = proto_tree_add_subtree(evs_tree, tvb, offset, 1, ett_evs_header, &item, "CMR");
 
@@ -610,15 +610,15 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree *evs_tree, *sub_tree, *vd_tree;
     int offset = 0 , bit_offset = 0;
     int packet_len, idx, speech_data_len;
-    guint32 num_bits;
-    const gchar *str;
-    guint8 oct, h_bit, toc_f_bit, evs_mode_b;
+    uint32_t num_bits;
+    const char *str;
+    uint8_t oct, h_bit, toc_f_bit, evs_mode_b;
     int num_toc, num_data;
-    guint64 value;
-    gboolean is_compact = FALSE;
+    uint64_t value;
+    bool is_compact = false;
     struct _rtp_pkt_info *rtp_pkt_info = p_get_proto_data(pinfo->pool, pinfo, proto_rtp, pinfo->curr_layer_num-1);
     struct _rtp_info *rtp_info = NULL;
-    gboolean rtmp_enforce_hf_only = FALSE;
+    bool rtmp_enforce_hf_only = false;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVS");
@@ -633,7 +633,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (rtp_info->info_payload_fmtp_map) {
             char *tmp = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "hf-only");
             if (g_strcmp0(tmp, "1") == 0) {
-                rtmp_enforce_hf_only = TRUE;
+                rtmp_enforce_hf_only = true;
             }
         }
     }
@@ -653,7 +653,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (oct == 0) {
                 /* EVS Primary 2.8 kbps */
                 str = "EVS Primary 2.8";
-                is_compact = TRUE;
+                is_compact = true;
             } else {
                 /* EVS AMR-WB IO SID */
                 str = "EVS AMR-WB IO SID";
@@ -661,7 +661,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         } else {
             str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
             if (str) {
-                is_compact = TRUE;
+                is_compact = true;
             }
         }
     }
@@ -1090,7 +1090,7 @@ proto_register_evs(void)
 
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_evs,
         &ett_evs_header,
         &ett_evs_speech,

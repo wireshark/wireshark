@@ -35,7 +35,7 @@ void proto_reg_handoff_etch(void);
 /*
  * Magic Number for Etch
  */
-static const guint8 etch_magic[] = { 0xde, 0xad, 0xbe, 0xef };
+static const uint8_t etch_magic[] = { 0xde, 0xad, 0xbe, 0xef };
 
 /*
  * Typecodes in the Etch protocol, representing the field types
@@ -91,11 +91,11 @@ static const value_string tc_lookup_table[] = {
  * Wireshark internal fields
  */
 static int proto_etch;
-static gint ett_etch;
-static gint ett_etch_struct;
-static gint ett_etch_keyvalue;
-static gint ett_etch_key;
-static gint ett_etch_value;
+static int ett_etch;
+static int ett_etch_struct;
+static int ett_etch_keyvalue;
+static int ett_etch_key;
+static int ett_etch_value;
 static int hf_etch_sig;
 static int hf_etch_length;
 static int hf_etch_version;
@@ -127,10 +127,10 @@ static const char       *gbl_keytab_folder = "";
 static char             *gbl_current_keytab_folder;
 
 static int               gbl_pdu_counter;
-static guint32           gbl_old_frame_num;
+static uint32_t          gbl_old_frame_num;
 
 static wmem_strbuf_t    *gbl_symbol_buffer;
-static gboolean          gbl_have_symbol;
+static bool              gbl_have_symbol;
 
 /***************************************************************************/
 /* Methods */
@@ -161,7 +161,7 @@ static void
 gbl_symbols_new(void)
 {
   DISSECTOR_ASSERT(gbl_symbols_array == NULL);
-  gbl_symbols_array = g_array_new(TRUE, TRUE, sizeof(value_string));
+  gbl_symbols_array = g_array_new(true, true, sizeof(value_string));
 }
 
 static void
@@ -172,26 +172,26 @@ gbl_symbols_free(void)
 
   if (gbl_symbols_array != NULL) {
     value_string *vs_p;
-    guint i;
+    unsigned i;
     vs_p = (value_string *)(void *)gbl_symbols_array->data;
     for (i=0; i<gbl_symbols_array->len; i++) {
-      g_free((gchar *)vs_p[i].strptr);
+      g_free((char *)vs_p[i].strptr);
     }
-    g_array_free(gbl_symbols_array, TRUE);
+    g_array_free(gbl_symbols_array, true);
     gbl_symbols_array = NULL;
   }
 }
 
 static void
-gbl_symbols_array_append(guint32 hash, gchar *symbol)
+gbl_symbols_array_append(uint32_t hash, char *symbol)
 {
   value_string vs = {hash, symbol};
   DISSECTOR_ASSERT(gbl_symbols_array != NULL);
   g_array_append_val(gbl_symbols_array, vs);
 }
 
-static gint
-gbl_symbols_compare_vs(gconstpointer  a, gconstpointer  b)
+static int
+gbl_symbols_compare_vs(const void *   a, const void *   b)
 {
   const value_string *vsa = (const value_string *)a;
   const value_string *vsb = (const value_string *)b;
@@ -221,8 +221,8 @@ gbl_symbols_vs_ext_new(void)
 /*
  * get the length of a given typecode in bytes, -1 if to be derived from message
  */
-static gint32
-get_byte_length(guint8 typecode)
+static int32_t
+get_byte_length(uint8_t typecode)
 {
   switch (typecode) {
   case ETCH_TC_NULL:
@@ -355,11 +355,11 @@ read_hashed_symbols_from_dir(const char *dirname)
 /*
  * read a type flag from tvb and add it to tree
  */
-static guint8
+static uint8_t
 read_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
 
-  guint32      type_code;
+  uint32_t     type_code;
 
   type_code = tvb_get_guint8(tvb, *offset);
   proto_tree_add_item(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -373,7 +373,7 @@ read_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 static void
 read_array_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
-  guint32 type_code;
+  uint32_t type_code;
 
   type_code = tvb_get_guint8(tvb, *offset);
 
@@ -390,12 +390,12 @@ read_array_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 /*
  * read the length of an array and add it to tree
  */
-static guint32
+static uint32_t
 read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
-  guint32 length;
+  uint32_t length;
   int     length_of_array_length_type;
-  guint8  tiny;
+  uint8_t tiny;
 
   tiny = tvb_get_guint8(tvb, *offset);
 
@@ -405,7 +405,7 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
     length = tiny;
     length_of_array_length_type = 1;
   } else {
-    guint8 type_code;
+    uint8_t type_code;
     type_code = read_type(offset, tvb, etch_tree);
     length_of_array_length_type = get_byte_length(type_code);
 
@@ -503,7 +503,7 @@ read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
  */
 static void
 read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
-            int asWhat, guint8 type_code)
+            int asWhat, uint8_t type_code)
 {
   int byteLength;
 
@@ -511,8 +511,8 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
   byteLength = get_byte_length(type_code);
   if (byteLength > 0) {
     proto_item  *ti;
-    const gchar *symbol = NULL;
-    guint32      hash   = 0;
+    const char *symbol = NULL;
+    uint32_t     hash   = 0;
 
     gbl_symbol_buffer = wmem_strbuf_create(wmem_packet_scope());  /* no symbol found yet */
     if (byteLength == 4) {
@@ -520,7 +520,7 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
       symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
       if(symbol != NULL) {
         asWhat = hf_etch_symbol;
-        gbl_have_symbol = TRUE;
+        gbl_have_symbol = true;
         wmem_strbuf_append_printf(gbl_symbol_buffer,"%s",symbol);
       }
     }
@@ -541,7 +541,7 @@ static int
 read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
            packet_info *pinfo, int asWhat)
 {
-  guint8 type_code;
+  uint8_t type_code;
 
   type_code = tvb_get_guint8(tvb, *offset);
   if (type_code <= ETCH_TC_MAX_TINY_INT ||
@@ -636,7 +636,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packe
   proto_tree *new_tree_bck;
   proto_item *ti, *parent_ti;
 
-  gbl_have_symbol = FALSE;
+  gbl_have_symbol = false;
 
   parent_ti =
     proto_tree_add_item(etch_tree, hf_etch_keyvalue, tvb, *offset, 1,
@@ -650,7 +650,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packe
   read_value(offset, tvb, new_tree, pinfo, hf_etch_value);
 
   /* append the symbol of the key */
-  if(gbl_have_symbol == TRUE){
+  if(gbl_have_symbol == true){
     proto_item_append_text(parent_ti, " (%s)", wmem_strbuf_get_str(gbl_symbol_buffer));
   }
 
@@ -668,7 +668,7 @@ static wmem_strbuf_t*
 get_column_info(wmem_allocator_t *scope, tvbuff_t *tvb)
 {
   int            byte_length;
-  guint8         type_code;
+  uint8_t        type_code;
   wmem_strbuf_t *result_buf;
   int            my_offset = 0;
 
@@ -682,8 +682,8 @@ get_column_info(wmem_allocator_t *scope, tvbuff_t *tvb)
   my_offset++;
 
   if (byte_length == 4) {
-    const gchar *symbol;
-    guint32      hash;
+    const char *symbol;
+    uint32_t     hash;
     hash   = tvb_get_ntohl(tvb, my_offset);
     symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
     if (symbol != NULL) {
@@ -746,7 +746,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 /*
  * determine PDU length of protocol etch
  */
-static guint
+static unsigned
 get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
@@ -771,7 +771,7 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return 0;
   }
 
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_etch_message_len,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, 8, get_etch_message_len,
                    dissect_etch_message, data);
 
   if (gbl_pdu_counter > 0) {
@@ -924,7 +924,7 @@ void proto_register_etch(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_etch,
     &ett_etch_struct,
     &ett_etch_keyvalue,
@@ -952,14 +952,14 @@ void proto_register_etch(void)
 
 void proto_reg_handoff_etch(void)
 {
-  static gboolean etch_prefs_initialized = FALSE;
+  static bool etch_prefs_initialized = false;
 
   /* create dissector handle only once */
   if(!etch_prefs_initialized) {
     /* add heuristic dissector for tcp */
     heur_dissector_add("tcp", dissect_etch_heur, "Etch over TCP", "etch_tcp", proto_etch, HEURISTIC_ENABLE);
     dissector_add_for_decode_as_with_preference("tcp.port", etch_handle);
-    etch_prefs_initialized = TRUE;
+    etch_prefs_initialized = true;
   }
 
 

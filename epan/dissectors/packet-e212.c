@@ -3414,17 +3414,17 @@ static expert_field ei_E212_imsi_malformed;
 /*
  * Return MCC MNC in a packet scope allocated string that can be used in labels.
  */
-gchar *
-dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, gboolean little_endian)
+char *
+dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, bool little_endian)
 {
 
     int         start_offset, mcc_mnc;
-    guint8      octet;
-    guint16     mcc, mnc;
-    guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
+    uint8_t     octet;
+    uint16_t    mcc, mnc;
+    uint8_t     mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
     proto_item *item;
-    gchar      *mcc_str, *mnc_str, *mcc_mnc_str;
-    gboolean    long_mnc = FALSE;
+    char       *mcc_str, *mnc_str, *mcc_mnc_str;
+    bool        long_mnc = false;
     int         hf_E212_mcc_id, hf_E212_mnc_id;
 
     switch(number_type){
@@ -3492,7 +3492,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
     mnc = 10 * mnc1 + mnc2;
     if ((mnc3 != 0xf) || (mcc_mnc == 0xffffff)) {
-        long_mnc = TRUE;
+        long_mnc = true;
         if(little_endian)
             mnc = 10 * mnc + mnc3;
         else
@@ -3543,7 +3543,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 int
-dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, gboolean little_endian)
+dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, bool little_endian)
 {
     dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, number_type, little_endian);
     return offset +3;
@@ -3588,15 +3588,15 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 int
 dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32     start_offset, mcc_mnc;
-    guint8      octet;
-    guint16     mcc, mnc;
-    gchar      *mcc_str, *mnc_str;
-    guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
+    uint32_t    start_offset, mcc_mnc;
+    uint8_t     octet;
+    uint16_t    mcc, mnc;
+    char       *mcc_str, *mnc_str;
+    uint8_t     mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
     proto_item *item;
-    gboolean    long_mnc;
+    bool        long_mnc;
 
-    long_mnc = FALSE;
+    long_mnc = false;
     start_offset = offset;
 
     /* MCC + MNC */
@@ -3625,7 +3625,7 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
     if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext) && mnc3 != 0xf) {
         mnc = 10 * mnc + mnc3;
-        long_mnc = TRUE;
+        long_mnc = true;
     }
 
     mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
@@ -3688,14 +3688,14 @@ static int
 dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 
-    guint32     start_offset;
-    guint8      octet;
-    guint16     mcc, mnc;
-    gchar      *mcc_str, *mnc_str;
-    guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
-    gboolean    long_mnc;
+    uint32_t    start_offset;
+    uint8_t     octet;
+    uint16_t    mcc, mnc;
+    char       *mcc_str, *mnc_str;
+    uint8_t     mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
+    bool        long_mnc;
 
-    long_mnc = FALSE;
+    long_mnc = false;
     start_offset = offset;
 
     /* MCC digits 1 */
@@ -3725,7 +3725,7 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
     if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext) && mnc3 != 0xf) {
         mnc = 10 * mnc + mnc3;
-        long_mnc = TRUE;
+        long_mnc = true;
     }
 
     mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
@@ -3757,9 +3757,9 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 int
 dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint16 mcc = 0, mnc = 0;
-    gchar  *mcc_str, *mnc_str;
-    gboolean    long_mnc = FALSE;
+    uint16_t mcc = 0, mnc = 0;
+    char   *mcc_str, *mnc_str;
+    bool        long_mnc = false;
 
     ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset, 3, ENC_UTF_8),
         NULL, &mcc);
@@ -3771,7 +3771,7 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         if (tvb_reported_length_remaining(tvb, offset + 3) > 2) {
             ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 3, ENC_UTF_8),
                 NULL, &mnc);
-            long_mnc = TRUE;
+            long_mnc = true;
         }
     }
 
@@ -3801,13 +3801,13 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         return 5;
 }
 
-static gboolean
-is_imsi_string_valid(const gchar *imsi_str)
+static bool
+is_imsi_string_valid(const char *imsi_str)
 {
     size_t len;
 
     if (imsi_str == NULL)
-        return FALSE;
+        return false;
     len = strlen(imsi_str);
     /* According to TS 23.003 2.2 and 2.3, the number of digits in IMSI shall not exceed 15.
      * Even if in the reality imsis are always 14 or 15 digits long, the standard doesn't say
@@ -3816,17 +3816,17 @@ is_imsi_string_valid(const gchar *imsi_str)
      * As the dissector actually only decodes the MCC and MNC, allow to decode a
        short IMSI (without MSIN) as used by MAP messages */
     if (len < 5 || len > 15 || strchr(imsi_str, '?')) {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-const gchar *
-dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, gboolean skip_first)
+const char *
+dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, bool skip_first)
 {
     proto_item *item;
     proto_tree *subtree;
-    const guint8 *imsi_str;
+    const uint8_t *imsi_str;
 
     /* Fetch the BCD encoded digits from tvb indicated half byte, formating the digits according to
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the wmem
@@ -3853,12 +3853,12 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     return imsi_str;
 }
 
-const gchar *
+const char *
 dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
 {
     proto_item *item;
     proto_tree *subtree;
-    const gchar *imsi_str;
+    const char *imsi_str;
 
     /* Fetch the UTF8-encoded IMSI */
     imsi_str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
@@ -4020,7 +4020,7 @@ proto_register_e212(void)
     };
 
 
-    static gint *ett_e212_array[] = {
+    static int *ett_e212_array[] = {
         &ett_e212_imsi,
     };
 

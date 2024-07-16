@@ -91,13 +91,13 @@ static int hf_elcom_release_result;
 
 static int hf_elcom_strangeleftover;
 
-static gint ett_elcom;
-static gint ett_elcom_initiator;
-static gint ett_elcom_responder;
-static gint ett_elcom_userdata;
-static gint ett_elcom_datarequest;
+static int ett_elcom;
+static int ett_elcom_initiator;
+static int ett_elcom_responder;
+static int ett_elcom_userdata;
+static int ett_elcom_datarequest;
 
-static gboolean elcom_show_hex = TRUE;
+static bool elcom_show_hex = true;
 
 static const value_string endian_vals[] = {
         {0x0002, "Big"},
@@ -156,14 +156,14 @@ static const value_string type_vals[] = {
         {0, NULL }
 };
 
-static gint
-dissect_lower_address(wmem_allocator_t *scope, proto_item *ti_arg, gint ett_arg,
-                      tvbuff_t *tvb, gint arg_offset,
+static int
+dissect_lower_address(wmem_allocator_t *scope, proto_item *ti_arg, int ett_arg,
+                      tvbuff_t *tvb, int arg_offset,
                       int hf_endian, int hf_ip, int hf_port, int hf_suff)
 {
-        gint        offset = arg_offset;
-        guint8      len1, len2;
-        guint8     *suffix;
+        int         offset = arg_offset;
+        uint8_t     len1, len2;
+        uint8_t    *suffix;
         proto_tree *tree;
         proto_item *ti;
 
@@ -222,13 +222,13 @@ dissect_lower_address(wmem_allocator_t *scope, proto_item *ti_arg, gint ett_arg,
         return offset;
 }
 
-static gint
-dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offset)
+static int
+dissect_userdata(proto_item *ti_arg, int ett_arg, tvbuff_t *tvb, int arg_offset)
 {
-        gint        offset = arg_offset;
-        guint8      flen, lenbytes;
-        guint8      year, month, day, hour, min, sec;
-        guint16     msec;
+        int         offset = arg_offset;
+        uint8_t     flen, lenbytes;
+        uint8_t     year, month, day, hour, min, sec;
+        uint16_t    msec;
         proto_tree *tree;
         proto_item *ti;
 
@@ -308,11 +308,11 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
         return offset;
 }
 
-static gint
-dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offset)
+static int
+dissect_datarequest(proto_item *ti_arg, int ett_arg, tvbuff_t *tvb, int arg_offset)
 {
-        gint        offset = arg_offset;
-        guint8      gtype, oidlen;
+        int         offset = arg_offset;
+        uint8_t     gtype, oidlen;
         proto_tree *tree;
         proto_item *ti;
 
@@ -396,13 +396,13 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 static int
 dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-        gboolean    is_request, length_ok;
+        bool        is_request, length_ok;
         proto_tree *elcom_tree;
         proto_item *ti, *hidden_item;
-        gint        offset = 0;
-        guint       elcom_len;
-        guint8      elcom_msg_type;
-        guint8     *suffix;
+        int         offset = 0;
+        unsigned    elcom_len;
+        uint8_t     elcom_msg_type;
+        uint8_t    *suffix;
 
         /* Check that there's enough data */
         if (tvb_captured_length(tvb) < 3)
@@ -469,7 +469,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         hidden_item = proto_tree_add_boolean(elcom_tree,
                                              is_request ? hf_elcom_request : hf_elcom_response,
-                                             tvb, 0, 0, TRUE);
+                                             tvb, 0, 0, true);
         proto_item_set_hidden(hidden_item);
 
         /* 2 first bytes are the frame length */
@@ -724,7 +724,7 @@ proto_register_elcom(void)
         };
 
         /* Setup protocol subtree array */
-        static gint *ett[] = {
+        static int *ett[] = {
                 &ett_elcom,
                 &ett_elcom_initiator,
                 &ett_elcom_responder,

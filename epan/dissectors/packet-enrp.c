@@ -93,13 +93,13 @@ static int hf_reject_bit;
 static int hf_tos_bit;
 
 /* Initialize the subtree pointers */
-static gint ett_enrp;
-static gint ett_enrp_parameter;
-static gint ett_enrp_cause;
-static gint ett_enrp_flags;
+static int ett_enrp;
+static int ett_enrp_parameter;
+static int ett_enrp_cause;
+static int ett_enrp_flags;
 
-static guint64 enrp_total_msgs;
-static guint64 enrp_total_bytes;
+static uint64_t enrp_total_msgs;
+static uint64_t enrp_total_bytes;
 
 static expert_field ei_enrp_max_recursion_depth_reached;
 static expert_field ei_enrp_invalid_length;
@@ -118,8 +118,8 @@ dissect_enrp(tvbuff_t *, packet_info *, proto_tree *, void*);
 #define ENRP_MAX_RECURSION_DEPTH 10
 
 typedef struct _enrp_tap_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } enrp_tap_rec_t;
 
@@ -128,7 +128,7 @@ typedef struct _enrp_tap_rec_t {
 static void
 dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
-  guint16 code, length, cause_info_length;
+  uint16_t code, length, cause_info_length;
 
   code              = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
@@ -142,7 +142,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  guint16 code, length, padding_length;
+  uint16_t code, length, padding_length;
   proto_item *cause_item;
   proto_tree *cause_tree;
   tvbuff_t *parameter_tvb, *message_tvb;
@@ -200,8 +200,8 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  guint16 length, total_length;
-  gint offset;
+  uint16_t length, total_length;
+  int offset;
   tvbuff_t *error_cause_tvb;
 
   offset = 0;
@@ -305,8 +305,8 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
 static void
 dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  guint32 type;
-  guint   length;
+  uint32_t type;
+  unsigned   length;
 
   proto_tree_add_item(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  ENC_BIG_ENDIAN);
   type = tvb_get_ntohl(parameter_tvb, POLICY_TYPE_OFFSET);
@@ -364,7 +364,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
 static void
 dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  guint16 handle_length;
+  uint16_t handle_length;
   proto_item*    pi;
 
   handle_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -413,7 +413,7 @@ dissect_operation_error_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 static void
 dissect_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 cookie_length;
+  uint16_t cookie_length;
 
   cookie_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (cookie_length > 0)
@@ -438,7 +438,7 @@ dissect_pe_checksum_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 type, parameter_value_length;
+  uint16_t type, parameter_value_length;
 
   type                   = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -453,7 +453,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *enrp_tree)
 {
-  guint16 type, length, padding_length;
+  uint16_t type, length, padding_length;
   proto_tree *parameter_item;
   proto_tree *parameter_tree;
 
@@ -540,7 +540,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint offset, length, total_length, remaining_length;
+  int offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
 
   offset = 0;
@@ -769,7 +769,7 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   enrp_tap_rec_t *tap_rec;
   proto_item *flags_item;
   proto_tree *flags_tree;
-  guint8 type;
+  uint8_t type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   if (p_get_proto_depth(pinfo, proto_enrp) == 1) {
@@ -939,9 +939,9 @@ enrp_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   const enrp_tap_rec_t*     tap_rec   = (const enrp_tap_rec_t*)data;
   stat_tap_table*           table;
   stat_tap_table_item_type* msg_data;
-  gint                      idx;
-  guint64                   messages;
-  guint64                   bytes;
+  int                       idx;
+  uint64_t                  messages;
+  uint64_t                  bytes;
   int                       i         = 0;
   double                    firstSeen = -1.0;
   double                    lastSeen  = -1.0;
@@ -969,9 +969,9 @@ enrp_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -1029,7 +1029,7 @@ enrp_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
 static void
 enrp_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -1141,7 +1141,7 @@ proto_register_enrp(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_enrp,
     &ett_enrp_parameter,
     &ett_enrp_cause,
@@ -1158,7 +1158,7 @@ proto_register_enrp(void)
   };
 
   static tap_param enrp_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui enrp_stat_table = {

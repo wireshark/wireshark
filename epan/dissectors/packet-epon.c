@@ -47,9 +47,9 @@ static expert_field ei_epon_checksum_bad;
 
 static dissector_handle_t eth_maybefcs_handle;
 
-static gint ett_epon;
-static gint ett_epon_sec;
-static gint ett_epon_checksum;
+static int ett_epon;
+static int ett_epon_sec;
+static int ett_epon_checksum;
 
 static const true_false_string epon_mode_tfs = {
   "Broadcast/Multicast",
@@ -65,11 +65,11 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item  *item;
   proto_tree  *sec_tree;
   tvbuff_t    *next_tvb;
-  guint       checksum;
-  guint       sent_checksum;
-  guint       offset = 0;
-  guint       dpoe_sec_byte;
-  gboolean    dpoe_encrypted = FALSE;
+  unsigned    checksum;
+  unsigned    sent_checksum;
+  unsigned    offset = 0;
+  unsigned    dpoe_sec_byte;
+  bool        dpoe_encrypted = false;
 
   /* Start_of_Packet delimiter (/S/) can happen in byte 1, 2 or 3,
    * making the captured preamble 8, 7 or 6 bytes in length. If the
@@ -102,8 +102,8 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    */
   dpoe_sec_byte = tvb_get_guint8(tvb, 2+offset);
   if (dpoe_sec_byte != 0x55) {
-    guint       dpoe_keyid;
-    guint       dpoe_reserved;
+    unsigned    dpoe_keyid;
+    unsigned    dpoe_reserved;
 
     item = proto_tree_add_item(epon_tree, hf_epon_dpoe_security,
                                tvb, 2+offset, 1, ENC_BIG_ENDIAN);
@@ -235,7 +235,7 @@ proto_register_epon(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_epon,
     &ett_epon_sec,
     &ett_epon_checksum

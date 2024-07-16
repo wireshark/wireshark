@@ -47,11 +47,11 @@ static int hf_esio_rio_diag;
 static int hf_esio_rio_flags;
 
 /* Initialize the subtree pointers */
-static gint ett_esio;
-static gint ett_esio_header;
-static gint ett_esio_transfer_header;
-static gint ett_esio_transfer_data;
-static gint ett_esio_data;
+static int ett_esio;
+static int ett_esio_header;
+static int ett_esio_transfer_header;
+static int ett_esio_transfer_data;
+static int ett_esio_data;
 
 static expert_field ei_esio_telegram_lost;
 
@@ -72,37 +72,37 @@ static const value_string esio_sts_types[] = {
 };
 
 /* check whether the packet looks like SBUS or not */
-static gboolean
+static bool
 is_esio_pdu(tvbuff_t *tvb)
 {
        /* we need at least 8 bytes to determine whether this is
           Ether-S-I/O or not*/
        /* minimal length is 20 bytes*/
        if (tvb_captured_length(tvb) < 20) {
-              return FALSE;
+              return false;
        }
        /* First four bytes must be "ESIO"*/
        if (tvb_strneql(tvb, 0, "ESIO", 4) != 0) {
-              return FALSE;
+              return false;
        }
        /* fifth byte must be 0*/
        if (tvb_get_guint8(tvb, 4) > 0x00) {
-              return FALSE;
+              return false;
        }
        /* sixth byte indicates telegram type and must be 0, 1 or 2*/
        if (tvb_get_guint8(tvb, 5) > 0x02) {
-              return FALSE;
+              return false;
        }
        /* seventh byte must be 0*/
        if (tvb_get_guint8(tvb, 6) > 0x00) {
-              return FALSE;
+              return false;
        }
        /* eight byte indicates telegram version and must be 0 (up to now)*/
        if (tvb_get_guint8(tvb, 7) > 0x00) {
-              return FALSE;
+              return false;
        }
        /*header seems to be Ether-S-I/O*/
-       return TRUE;
+       return true;
 }
 
 /*Dissect the telegram*/
@@ -115,15 +115,15 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        proto_tree *esio_tree, *esio_header_tree, *esio_transfer_header_tree,
                   *esio_data_tansfer_tree, *esio_data_tree;
 
-       gint        i;
-       gint        offset;
-       guint8      esio_nbr_data_transfers;
-       guint16     esio_telegram_type;
-       guint16     esio_tlg_type;
-       guint16     esio_transfer_length;
-       guint32     esio_transfer_dest_id;
-       guint32     esio_src_id;
-       guint32     esio_dst_id;
+       int         i;
+       int         offset;
+       uint8_t     esio_nbr_data_transfers;
+       uint16_t    esio_telegram_type;
+       uint16_t    esio_tlg_type;
+       uint16_t    esio_transfer_length;
+       uint32_t    esio_transfer_dest_id;
+       uint32_t    esio_src_id;
+       uint32_t    esio_dst_id;
 
 /* does this look like an sbus pdu? */
        if (!is_esio_pdu(tvb)) {
@@ -381,7 +381,7 @@ proto_register_esio(void)
 
 
 /* Setup protocol subtree array */
-       static gint *ett[] = {
+       static int *ett[] = {
               &ett_esio,
               &ett_esio_header,
               &ett_esio_transfer_header,

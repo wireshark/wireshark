@@ -81,7 +81,7 @@ static expert_field ei_exeh_unequal_ports;
 static expert_field ei_exeh_incoming_framesource;
 static expert_field ei_exeh_outgoing_framesource;
 
-static gint ett_exeh;
+static int ett_exeh;
 
 #define PROTO_SHORT_NAME "EXEH"
 #define PROTO_LONG_NAME "EXtreme extra Eth Header"
@@ -119,9 +119,9 @@ dissect_exeh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
 	proto_item *ti;
 	proto_tree *exeh_tree;
-	guint32 offset = 0;
-	guint32 etype, module1, port1, module2, port2, direction, framesource;
-	gint32 databytes;
+	uint32_t offset = 0;
+	uint32_t etype, module1, port1, module2, port2, direction, framesource;
+	int32_t databytes;
 	tvbuff_t *frame_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -273,7 +273,7 @@ proto_register_exeh(void)
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_exeh,
 	};
 

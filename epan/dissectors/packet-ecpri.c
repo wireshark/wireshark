@@ -78,11 +78,11 @@ void proto_reg_handoff_ecpri(void);
 /**************************************************************************************************/
 /* Initialize the subtree pointers                                                                */
 /**************************************************************************************************/
-static gint ett_ecpri;
-static gint ett_ecpri_header;
-static gint ett_ecpri_payload;
-static gint ett_ecpri_timestamp;
-static gint ett_ecpri_element;
+static int ett_ecpri;
+static int ett_ecpri_header;
+static int ett_ecpri_payload;
+static int ett_ecpri_timestamp;
+static int ett_ecpri_element;
 
 /**************************************************************************************************/
 /* Initialize the protocol and registered fields                                                  */
@@ -365,19 +365,19 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_item *ti_fault_notif;
 
     int offset;
-    guint32 msg_type;
-    guint32 event_type;
-    guint32 concatenation;
-    guint32 num_faults_notif;
-    guint32 action_type;
-    guint32 fault_notif;
-    guint16 payload_size;
-    guint32 data_length;
-    guint16 reported_length;
-    guint16 remaining_length;
-    guint32 time_stamp_ns;
-    guint64 time_stamp_s;
-    guint64 comp_val;
+    uint32_t msg_type;
+    uint32_t event_type;
+    uint32_t concatenation;
+    uint32_t num_faults_notif;
+    uint32_t action_type;
+    uint32_t fault_notif;
+    uint16_t payload_size;
+    uint32_t data_length;
+    uint16_t reported_length;
+    uint16_t remaining_length;
+    uint32_t time_stamp_ns;
+    uint64_t time_stamp_s;
+    uint64_t comp_val;
 
     reported_length = tvb_reported_length(tvb);
 
@@ -572,12 +572,12 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             remaining_length -= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
                             if (remaining_length >= payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
                             {
-                                if (data_length == (guint32)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
+                                if (data_length == (uint32_t)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
                                 {
                                     proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH, ENC_NA);
                                     offset += payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
                                 }
-                                else if (data_length < (guint32)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
+                                else if (data_length < (uint32_t)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
                                 {
                                     expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too small, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
                                 }
@@ -690,7 +690,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                     if (payload_size == ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH + num_faults_notif * ECPRI_MSG_TYPE_7_ELEMENT_SIZE)
                                     {
                                         /* Dissect elements in loop */
-                                        for (guint32 i = 0; i < num_faults_notif; i++)
+                                        for (uint32_t i = 0; i < num_faults_notif; i++)
                                         {
                                             element_item = proto_tree_add_item(payload_tree, hf_element, tvb, offset, ECPRI_MSG_TYPE_7_ELEMENT_SIZE, ENC_NA);
                                             proto_item_prepend_text(element_item, "#%d: ", i + 1);
@@ -858,7 +858,7 @@ void proto_register_ecpri(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
             &ett_ecpri,
             &ett_ecpri_header,
             &ett_ecpri_payload,

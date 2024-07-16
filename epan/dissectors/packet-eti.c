@@ -11804,7 +11804,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 switch (fields[fidx].size) {
                     case 1:
                         {
-                            guint8 x = tvb_get_guint8(tvb, off);
+                            uint8_t x = tvb_get_guint8(tvb, off);
                             if (x == UINT8_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xff)");
                                 if (!usages[uidx])
@@ -11818,7 +11818,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         break;
                     case 2:
                         {
-                            guint16 x = tvb_get_letohs(tvb, off);
+                            uint16_t x = tvb_get_letohs(tvb, off);
                             if (x == UINT16_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xffff)");
                                 if (!usages[uidx])
@@ -11832,7 +11832,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         break;
                     case 4:
                         {
-                            guint32 x = tvb_get_letohl(tvb, off);
+                            uint32_t x = tvb_get_letohl(tvb, off);
                             if (x == UINT32_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xffffffff)");
                                 if (!usages[uidx])
@@ -11846,7 +11846,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         break;
                     case 8:
                         {
-                            guint64 x = tvb_get_letoh64(tvb, off);
+                            uint64_t x = tvb_get_letoh64(tvb, off);
                             if (x == UINT64_MAX) {
                                 proto_item *e = proto_tree_add_uint64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xffffffffffffffff)");
                                 if (!usages[uidx])
@@ -11867,7 +11867,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 switch (fields[fidx].size) {
                     case 1:
                         {
-                            gint8 x = tvb_get_gint8(tvb, off);
+                            int8_t x = tvb_get_gint8(tvb, off);
                             if (x == INT8_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x80)");
                                 if (!usages[uidx])
@@ -11881,7 +11881,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         break;
                     case 2:
                         {
-                            gint16 x = tvb_get_letohis(tvb, off);
+                            int16_t x = tvb_get_letohis(tvb, off);
                             if (x == INT16_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x8000)");
                                 if (!usages[uidx])
@@ -11895,7 +11895,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         break;
                     case 4:
                         {
-                            gint32 x = tvb_get_letohil(tvb, off);
+                            int32_t x = tvb_get_letohil(tvb, off);
                             if (x == INT32_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x80000000)");
                                 if (!usages[uidx])
@@ -11909,7 +11909,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         break;
                     case 8:
                         {
-                            gint64 x = tvb_get_letohi64(tvb, off);
+                            int64_t x = tvb_get_letohi64(tvb, off);
                             if (x == INT64_MIN) {
                                 proto_item *e = proto_tree_add_int64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x8000000000000000)");
                                 if (!usages[uidx])
@@ -11989,7 +11989,7 @@ static int
 dissect_eti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4 /* bytes to read for bodylen */,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 4 /* bytes to read for bodylen */,
             get_eti_message_len, dissect_eti_message, data);
     return tvb_captured_length(tvb);
 }

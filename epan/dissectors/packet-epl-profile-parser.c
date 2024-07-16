@@ -81,12 +81,12 @@ static struct xpath {
 #endif /* HAVE_LIBXML2 */
 
 struct datatype {
-	guint16 id;
+	uint16_t id;
 	const struct epl_datatype *ptr;
 };
 
 static struct typemap_entry {
-	guint16 id;
+	uint16_t id;
 	const char *name;
 	struct epl_datatype *type;
 } epl_datatypes[] = {
@@ -127,33 +127,33 @@ struct epl_wmem_iarray {
 	GEqualFunc equal;
 	wmem_allocator_t *scope;
 	GArray *arr;
-	guint cb_id;
-	guint8 is_sorted :1;
+	unsigned cb_id;
+	uint8_t is_sorted :1;
 };
 
-static epl_wmem_iarray_t *epl_wmem_iarray_new(wmem_allocator_t *allocator, const guint elem_size, GEqualFunc cmp) G_GNUC_MALLOC;
-static void epl_wmem_iarray_insert(epl_wmem_iarray_t *iarr, guint32 where, range_admin_t *data);
+static epl_wmem_iarray_t *epl_wmem_iarray_new(wmem_allocator_t *allocator, const unsigned elem_size, GEqualFunc cmp) G_GNUC_MALLOC;
+static void epl_wmem_iarray_insert(epl_wmem_iarray_t *iarr, uint32_t where, range_admin_t *data);
 static void epl_wmem_iarray_sort_and_compact(epl_wmem_iarray_t *iarr);
 
-static gboolean
+static bool
 epl_ishex(const char *num)
 {
 	if (g_str_has_prefix(num, "0x"))
-		return TRUE;
+		return true;
 
 	for (; g_ascii_isxdigit(*num); num++)
 		;
 
 	if (g_ascii_tolower(*num) == 'h')
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
-static guint16
-epl_g_key_file_get_uint16(GKeyFile *gkf, const gchar *group_name, const gchar *key, GError **error)
+static uint16_t
+epl_g_key_file_get_uint16(GKeyFile *gkf, const char *group_name, const char *key, GError **error)
 {
-	guint16 ret = 0;
+	uint16_t ret = 0;
 	const char *endptr;
 	char *val = g_key_file_get_string(gkf, group_name, key, error);
 
@@ -196,7 +196,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 	GError *err;
 	char **group, **groups;
 	char *val;
-	gsize groups_count;
+	size_t groups_count;
 
 	gkf = g_key_file_new();
 
@@ -219,10 +219,10 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 	{
 		char *name;
 		const char *endptr;
-		guint16 idx = 0, datatype;
+		uint16_t idx = 0, datatype;
 		struct object *obj = NULL;
 		struct od_entry tmpobj = OD_ENTRY_INITIALIZER;
-		gboolean is_object = TRUE;
+		bool is_object = true;
 
 		if (!g_ascii_isxdigit(**group))
 			continue;
@@ -238,7 +238,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 			|| tmpobj.idx > 0xFF)
 				continue;
 
-			is_object = FALSE;
+			is_object = false;
 		}
 		else continue;
 
@@ -252,7 +252,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 
 		if ((name = g_key_file_get_string(gkf, *group, "ParameterName", NULL)))
 		{
-			gsize count = strcspn(name, "#") + 1;
+			size_t count = strcspn(name, "#") + 1;
 			(void) g_strlcpy(
 				tmpobj.name,
 				name,
@@ -421,7 +421,7 @@ populate_datatype_list(xmlNodeSetPtr nodes, void *_profile)
 			if (g_str_equal("dataType", key))
 			{
 				xmlNode *subnode;
-				guint16 idx = 0;
+				uint16_t idx = 0;
 
 				if (!ws_hexstrtou16(val, &endptr, &idx))
 					continue;
@@ -452,7 +452,7 @@ populate_datatype_list(xmlNodeSetPtr nodes, void *_profile)
 	return 0;
 }
 
-static gboolean
+static bool
 parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 		xmlAttrPtr attr;
 		const char *defaultValue = NULL, *actualValue = NULL;
@@ -466,11 +466,11 @@ parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 			if (g_str_equal("index", key))
 			{
 				if (!ws_hexstrtou16(val, &endptr, &out->idx))
-					return FALSE;
+					return false;
 
 			} else if (g_str_equal("subIndex", key)) {
 				if (!ws_hexstrtou16(val, &endptr, &out->idx))
-					return FALSE;
+					return false;
 
 			} else if (g_str_equal("name", key)) {
 				(void) g_strlcpy(out->name, val, sizeof out->name);
@@ -480,7 +480,7 @@ parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 				ws_hexstrtou16(val, &endptr, &out->type_class);
 
 			} else if (g_str_equal("dataType", key)) {
-				guint16 id;
+				uint16_t id;
 				if (ws_hexstrtou16(val, &endptr, &id))
 				{
 					struct datatype *type = (struct datatype*)g_hash_table_lookup((GHashTable*)profile->data, GUINT_TO_POINTER(id));
@@ -509,7 +509,7 @@ parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 			out->value = 0;
 
 
-		return TRUE;
+		return true;
 }
 
 static int
@@ -551,7 +551,7 @@ populate_object_list(xmlNodeSetPtr nodes, void *_profile)
 									subobj.info.idx, &subobj.range);
 					}
 					if (subobj.info.value && epl_profile_object_mapping_add(
-					    profile, obj->info.idx, (guint8)subobj.info.idx, subobj.info.value))
+					    profile, obj->info.idx, (uint8_t)subobj.info.idx, subobj.info.value))
 					{
 						ws_log(NULL, LOG_LEVEL_INFO,
 						"Loaded mapping from XDC %s:%s", obj->info.name, subobj.info.name);
@@ -601,8 +601,8 @@ static bool
 free_garray(wmem_allocator_t *scope _U_, wmem_cb_event_t event _U_, void *data)
 {
 	GArray *arr = (GArray*)data;
-	g_array_free(arr, TRUE);
-	return FALSE;
+	g_array_free(arr, true);
+	return false;
 }
 
 /**
@@ -621,7 +621,7 @@ free_garray(wmem_allocator_t *scope _U_, wmem_cb_event_t event _U_, void *data)
  */
 
 static epl_wmem_iarray_t *
-epl_wmem_iarray_new(wmem_allocator_t *scope, const guint elem_size, GEqualFunc equal)
+epl_wmem_iarray_new(wmem_allocator_t *scope, const unsigned elem_size, GEqualFunc equal)
 {
 	epl_wmem_iarray_t *iarr;
 
@@ -632,8 +632,8 @@ epl_wmem_iarray_new(wmem_allocator_t *scope, const guint elem_size, GEqualFunc e
 
 	iarr->equal = equal;
 	iarr->scope = scope;
-	iarr->arr = g_array_new(FALSE, FALSE, elem_size);
-	iarr->is_sorted = TRUE;
+	iarr->arr = g_array_new(false, false, elem_size);
+	iarr->is_sorted = true;
 
 	wmem_register_callback(scope, free_garray, iarr->arr);
 
@@ -642,14 +642,14 @@ epl_wmem_iarray_new(wmem_allocator_t *scope, const guint elem_size, GEqualFunc e
 
 
 /** Returns true if the iarr is empty. */
-gboolean
+bool
 epl_wmem_iarray_is_empty(epl_wmem_iarray_t *iarr)
 {
 	return iarr->arr->len == 0;
 }
 
 /** Returns true if the iarr is sorted. */
-gboolean
+bool
 epl_wmem_iarray_is_sorted(epl_wmem_iarray_t *iarr)
 {
 	return iarr->is_sorted;
@@ -657,16 +657,16 @@ epl_wmem_iarray_is_sorted(epl_wmem_iarray_t *iarr)
 
 /** Inserts an element */
 static void
-epl_wmem_iarray_insert(epl_wmem_iarray_t *iarr, guint32 where, range_admin_t *data)
+epl_wmem_iarray_insert(epl_wmem_iarray_t *iarr, uint32_t where, range_admin_t *data)
 {
 	if (iarr->arr->len)
-		iarr->is_sorted = FALSE;
+		iarr->is_sorted = false;
 
 	data->high = data->low = where;
 	g_array_append_vals(iarr->arr, data, 1);
 }
 
-static int u32cmp(guint32 a, guint32 b)
+static int u32cmp(uint32_t a, uint32_t b)
 {
 	if (a < b) return -1;
 	if (a > b) return +1;
@@ -677,7 +677,7 @@ static int u32cmp(guint32 a, guint32 b)
 static int
 epl_wmem_iarray_cmp(const void *a, const void *b)
 {
-	return u32cmp(*(const guint32*)a, *(const guint32*)b);
+	return u32cmp(*(const uint32_t*)a, *(const uint32_t*)b);
 }
 
 /** Makes array suitable for searching */
@@ -685,7 +685,7 @@ static void
 epl_wmem_iarray_sort_and_compact(epl_wmem_iarray_t *iarr)
 {
 	range_admin_t *elem, *prev = NULL;
-	guint i, len;
+	unsigned i, len;
 	len = iarr->arr->len;
 	if (iarr->is_sorted)
 		return;
@@ -732,7 +732,7 @@ bsearch_garray(const void *key, GArray *arr, int (*cmp)(const void*, const void*
  * Calling this is unspecified if the array wasn't sorted before
  */
 range_admin_t *
-epl_wmem_iarray_find(epl_wmem_iarray_t *iarr, guint32 value) {
+epl_wmem_iarray_find(epl_wmem_iarray_t *iarr, uint32_t value) {
 	epl_wmem_iarray_sort_and_compact(iarr);
 
 	range_admin_t needle;
@@ -746,7 +746,7 @@ void
 epl_wmem_print_iarr(epl_wmem_iarray_t *iarr)
 {
 	range_admin_t *elem;
-	guint i, len;
+	unsigned i, len;
 	elem = (range_admin_t*)iarr->arr->data;
 	len = iarr->arr->len;
 	for (i = 0; i < len; i++)

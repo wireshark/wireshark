@@ -43,8 +43,8 @@ static expert_field ei_etv_ddb_invalid_section_length;
 static expert_field ei_etv_ddb_invalid_reserved_bits;
 static expert_field ei_etv_ddb_filter_info;
 
-static gint ett_etv;
-static gint ett_etv_payload;
+static int ett_etv;
+static int ett_etv_payload;
 
 static void
 dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto,
@@ -53,16 +53,16 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	expert_field* ei_section_length, expert_field* ei_filter_info)
 {
 	tvbuff_t   *sub_tvb;
-	guint       offset = 0;
+	unsigned    offset = 0;
 	proto_item *ti;
 	proto_item *pi;
 	proto_tree *etv_tree;
 	proto_item *items[PACKET_MPEG_SECT_PI__SIZE];
 	bool        ssi;
-	guint       reserved;
-	guint8      reserved2;
-	guint16     filter_info;
-	guint       sect_len;
+	unsigned    reserved;
+	uint8_t     reserved2;
+	uint16_t    filter_info;
+	unsigned    sect_len;
 
 	ti = proto_tree_add_item(tree, proto, tvb, offset, -1, ENC_NA);
 	etv_tree = proto_item_add_subtree(ti, ett_etv);
@@ -70,7 +70,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	offset += packet_mpeg_sect_header_extra(tvb, offset, etv_tree, &sect_len,
 						&reserved, &ssi, items);
 
-	if (FALSE != ssi) {
+	if (false != ssi) {
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__SSI];
 
@@ -182,7 +182,7 @@ proto_register_etv(void)
 		} }
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_etv,
 		&ett_etv_payload
 	};

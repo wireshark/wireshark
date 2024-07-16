@@ -158,13 +158,13 @@ static int hf_ebhscr_stop_timestamp;
 static int hf_ebhscr_mjr_hdr;
 static int hf_ebhscr_mjr_hdr_unused;
 
-static gint ett_ebhscr;
-static gint ett_ebhscr_channel;
-static gint ett_ebhscr_packet_header;
-static gint ett_ebhscr_status;
-static gint ett_ebhscr_mjr_hdr;
+static int ett_ebhscr;
+static int ett_ebhscr_channel;
+static int ett_ebhscr_packet_header;
+static int ett_ebhscr_status;
+static int ett_ebhscr_mjr_hdr;
 
-static gint ett_lin_payload;
+static int ett_lin_payload;
 
 static int * const can_status_bits[] = {
 	&hf_can_proto_type,
@@ -524,11 +524,11 @@ static dissector_table_t subdissector_table;
 #define EBHSCR_HEADER_LENGTH 32
 
 static int dissect_ebhscr_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-								proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status,
-								guint32 ebhscr_frame_length)
+								proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status,
+								uint32_t ebhscr_frame_length)
 {
-	guint16 can_proto_status, can_type;
-	guint32 ebhscr_current_payload_length;
+	uint16_t can_proto_status, can_type;
+	uint32_t ebhscr_current_payload_length;
 	tvbuff_t* next_tvb;
 	proto_item *ti;
 
@@ -565,14 +565,14 @@ static int dissect_ebhscr_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int dissect_ebhscr_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-								proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status,
-								guint32 ebhscr_frame_length)
+								proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status,
+								uint32_t ebhscr_frame_length)
 {
 	tvbuff_t* next_tvb;
 	proto_item *ti;
-	guint8 channel;
-	guint32 ebhscr_current_payload_length;
-	guint64 major_hrd, fsc_not_present, link_up, link_speed;
+	uint8_t channel;
+	uint32_t ebhscr_current_payload_length;
+	uint64_t major_hrd, fsc_not_present, link_up, link_speed;
 	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
 
 	ti = proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 2, hf_ebhscr_status,
@@ -612,12 +612,12 @@ static int dissect_ebhscr_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int dissect_ebhscr_nmea(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-								proto_tree *ebhscr_packet_header_tree, guint32 ebhscr_frame_length,
-								guint32 ebhscr_length)
+								proto_tree *ebhscr_packet_header_tree, uint32_t ebhscr_frame_length,
+								uint32_t ebhscr_length)
 {
 	tvbuff_t* next_tvb;
-	guint8 *nmea_str;
-	guint32 ebhscr_current_payload_length;
+	uint8_t *nmea_str;
+	uint32_t ebhscr_current_payload_length;
 
 	if (ebhscr_frame_length == EBHSCR_HEADER_LENGTH) {
 		return tvb_captured_length(tvb);
@@ -636,12 +636,12 @@ static int dissect_ebhscr_nmea(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static int dissect_ebhscr_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-								proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status,
-								guint32 ebhscr_frame_length)
+								proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status,
+								uint32_t ebhscr_frame_length)
 {
 	tvbuff_t* next_tvb;
-	guint32 ebhscr_current_payload_length;
-	guint64 time_source = 0;
+	uint32_t ebhscr_current_payload_length;
+	uint64_t time_source = 0;
 	proto_item *ti;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "TimeState ");
@@ -688,11 +688,11 @@ static int dissect_ebhscr_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int dissect_ebhscr_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ebhscr_tree,
-					proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status, guint32 ebhscr_frame_length)
+					proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status, uint32_t ebhscr_frame_length)
 {
 	proto_item* ti;
 	proto_tree *lin_payload_tree, *lin_pid_tree;
-	guint32 ebhscr_current_payload_length;
+	uint32_t ebhscr_current_payload_length;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LIN (EBHSCR)");
 	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
@@ -734,11 +734,11 @@ static int dissect_ebhscr_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ebh
 
 static int
 dissect_ebhscr_dio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-					proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status, guint32 ebhscr_frame_length)
+					proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status, uint32_t ebhscr_frame_length)
 {
 	tvbuff_t* next_tvb;
 	proto_item *ti;
-	guint32 ebhscr_current_payload_length;
+	uint32_t ebhscr_current_payload_length;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "DIO");
 	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
@@ -763,14 +763,14 @@ dissect_ebhscr_dio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int dissect_ebhscr_flexray_frame_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-												proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status,
-												guint32 ebhscr_current_payload_length)
+												proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status,
+												uint32_t ebhscr_current_payload_length)
 {
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_mhdr_sub_tree, *flexray_status_tree;
 	tvbuff_t *fr_tvb, *hdr_tvb;
-	guint8 channel;
-	guint8 header_data[2U];
+	uint8_t channel;
+	uint8_t header_data[2U];
 
 	ti = proto_tree_add_item(ebhscr_packet_header_tree, hf_ebhscr_status, tvb, 2, 2, ENC_BIG_ENDIAN);
 	flexray_status_tree = proto_item_add_subtree(ti, ett_ebhscr_status);
@@ -833,8 +833,8 @@ static int dissect_ebhscr_flexray_symbol_packet(tvbuff_t *tvb, packet_info *pinf
 	tvbuff_t* symbol_tvb;
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_mhdr_sub_tree, *flexray_status_tree;
-	guint8 symbol_length, channel;
-	guint8 flexray_symbol_packet[2U];
+	uint8_t symbol_length, channel;
+	uint8_t flexray_symbol_packet[2U];
 
 	ti = proto_tree_add_item(ebhscr_packet_header_tree, hf_ebhscr_status, tvb, 2, 2, ENC_BIG_ENDIAN);
 	flexray_status_tree = proto_item_add_subtree(ti, ett_ebhscr_status);
@@ -875,7 +875,7 @@ static int dissect_ebhscr_flexray_symbol_packet(tvbuff_t *tvb, packet_info *pinf
 
 static int dissect_ebhscr_flexray_slot_status_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ebhscr_packet_header_tree)
 {
-	guint32 supercycle_counter;
+	uint32_t supercycle_counter;
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_mhdr_sub_tree, *flexray_status_tree;
 
@@ -904,8 +904,8 @@ static int dissect_ebhscr_flexray_slot_status_packet(tvbuff_t *tvb, packet_info 
 
 static int dissect_ebhscr_flexray_start_of_cycle_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ebhscr_packet_header_tree)
 {
-	guint8 cycle_counter;
-	guint32 supercycle_counter;
+	uint8_t cycle_counter;
+	uint32_t supercycle_counter;
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_status_tree;
 
@@ -932,11 +932,11 @@ static int dissect_ebhscr_flexray_start_of_cycle_packet(tvbuff_t *tvb, packet_in
 
 static int dissect_ebhscr_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 									proto_tree *ebhscr_packet_header_tree, proto_item *ebhscr_channel,
-									guint16 ebhscr_status, guint32 ebhscr_frame_length)
+									uint16_t ebhscr_status, uint32_t ebhscr_frame_length)
 {
 	proto_tree *flexray_channel_tree;
-	guint32 flexray_packet_type;
-	guint32 ebhscr_current_payload_length;
+	uint32_t flexray_packet_type;
+	uint32_t ebhscr_current_payload_length;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FLEXRAY (EBHSCR)");
 	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
@@ -970,10 +970,10 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree *ebhscr_tree;
 	proto_tree *proto_ebhscr_channel;
 	tvbuff_t* next_tvb;
-	guint32 ebhscr_frame_length, ebhscr_length;
-	gint ebhscr_current_payload_length;
-	guint8 ebhscr_major_num;
-	guint16 ebhscr_status = 0;
+	uint32_t ebhscr_frame_length, ebhscr_length;
+	int ebhscr_current_payload_length;
+	uint8_t ebhscr_major_num;
+	uint16_t ebhscr_status = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EBHSCR");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1798,7 +1798,7 @@ proto_register_ebhscr(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ebhscr,
 		&ett_ebhscr_channel,
 		&ett_ebhscr_packet_header,

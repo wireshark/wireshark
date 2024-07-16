@@ -34,9 +34,9 @@ void proto_reg_handoff_erf(void);
 
 typedef struct sdh_g707_format_s
 {
-  guint8 m_sdh_line_rate;
-  guint8 m_vc_size ;
-  gint8 m_vc_index_array[DECHAN_MAX_AUG_INDEX];
+  uint8_t m_sdh_line_rate;
+  uint8_t m_vc_size ;
+  int8_t m_vc_index_array[DECHAN_MAX_AUG_INDEX];
         /* i = 3 --> ITU-T letter #D - index of AUG-16
          * i = 2 --> ITU-T letter #C - index of AUG-4,
          * i = 1 --> ITU-T letter #B - index of AUG-1
@@ -240,25 +240,25 @@ static int hf_erf_meta_tag_len;
 static int hf_erf_meta_tag_unknown;
 
 /* Initialize the subtree pointers */
-static gint ett_erf;
-static gint ett_erf_pseudo_hdr;
-static gint ett_erf_rectype;
-static gint ett_erf_hash_type;
-static gint ett_erf_flags;
-static gint ett_erf_mc_hdlc;
-static gint ett_erf_mc_raw;
-static gint ett_erf_mc_atm;
-static gint ett_erf_mc_rawlink;
-static gint ett_erf_mc_aal5;
-static gint ett_erf_mc_aal2;
-static gint ett_erf_aal2;
-static gint ett_erf_eth;
-static gint ett_erf_meta;
-static gint ett_erf_meta_tag;
-static gint ett_erf_source;
-static gint ett_erf_anchor;
-static gint ett_erf_anchor_flags;
-static gint ett_erf_entropy_value;
+static int ett_erf;
+static int ett_erf_pseudo_hdr;
+static int ett_erf_rectype;
+static int ett_erf_hash_type;
+static int ett_erf_flags;
+static int ett_erf_mc_hdlc;
+static int ett_erf_mc_raw;
+static int ett_erf_mc_atm;
+static int ett_erf_mc_rawlink;
+static int ett_erf_mc_aal5;
+static int ett_erf_mc_aal2;
+static int ett_erf_aal2;
+static int ett_erf_eth;
+static int ett_erf_meta;
+static int ett_erf_meta_tag;
+static int ett_erf_source;
+static int ett_erf_anchor;
+static int ett_erf_anchor_flags;
+static int ett_erf_entropy_value;
 
 static expert_field ei_erf_extension_headers_not_shown;
 static expert_field ei_erf_packet_loss;
@@ -286,7 +286,7 @@ typedef enum {
   ERF_HDLC_MAX    = 5
 } erf_hdlc_type_vals;
 
-static gint erf_hdlc_type = ERF_HDLC_GUESS;
+static int erf_hdlc_type = ERF_HDLC_GUESS;
 static dissector_handle_t chdlc_handle, ppp_handle, frelay_handle, mtp2_handle;
 
 static bool erf_rawcell_first;
@@ -297,7 +297,7 @@ typedef enum {
   ERF_AAL5_UNSPEC = 2
 } erf_aal5_type_val;
 
-static gint erf_aal5_type = ERF_AAL5_GUESS;
+static int erf_aal5_type = ERF_AAL5_GUESS;
 static dissector_handle_t atm_untruncated_handle;
 
 static dissector_handle_t sdh_handle;
@@ -701,12 +701,12 @@ static const header_field_info erf_smart_trunc_default_flags[] = {
 };
 
 typedef struct {
-  guint16 code;
+  uint16_t code;
   header_field_info hfinfo;
 } erf_meta_hf_template_t;
 
 typedef struct {
-  gint ett_value;
+  int ett_value;
   /*
    * XXX: Must be at least array_length(ehdr_type_vals). Should change to
    * dynamic (possibly using new proto tree API) if many more fields defined.
@@ -719,12 +719,12 @@ typedef struct {
 } erf_meta_tag_info_ex_t;
 
 typedef struct {
-  guint16 code;
-  guint16 section;
+  uint16_t code;
+  uint16_t section;
   const erf_meta_hf_template_t* tag_template;
   const erf_meta_hf_template_t* section_template;
 
-  gint ett;
+  int ett;
   int hf_value;
   erf_meta_tag_info_ex_t *extra;
   /* TODO: could add a type_value and callback here for greater flexibility */
@@ -742,7 +742,7 @@ typedef struct {
 typedef struct {
   wmem_map_t* source_map;
   wmem_map_t* host_anchor_map;
-  guint64 implicit_host_id;
+  uint64_t implicit_host_id;
 } erf_state_t;
 
 typedef struct {
@@ -751,7 +751,7 @@ typedef struct {
 } erf_source_info_t;
 
 typedef struct {
-  guint frame_num;
+  unsigned frame_num;
 } erf_anchored_info_t;
 
 typedef struct {
@@ -760,12 +760,12 @@ typedef struct {
 } erf_host_anchor_info_t;
 
 typedef struct {
-  guint64 host_id;
-  guint64 anchor_id;
+  uint64_t host_id;
+  uint64_t anchor_id;
 } erf_anchor_key_t;
 
-#define ERF_SOURCE_KEY(host_id, source_id) (((guint64) host_id << 16) | source_id)
-#define ERF_TAG_INFO_KEY(tag_info) (((guint32) (tag_info)->section << 16) | (tag_info)->code)
+#define ERF_SOURCE_KEY(host_id, source_id) (((uint64_t) host_id << 16) | source_id)
+#define ERF_TAG_INFO_KEY(tag_info) (((uint32_t) (tag_info)->section << 16) | (tag_info)->code)
 
 static erf_meta_index_t erf_meta_index;
 static erf_state_t erf_state;
@@ -1089,7 +1089,7 @@ static int erf_type_has_color(unsigned int type) {
 }
 
 static erf_meta_tag_info_ex_t* erf_meta_tag_info_ex_new(wmem_allocator_t *allocator) {
-  gsize i = 0;
+  size_t i = 0;
   erf_meta_tag_info_ex_t *extra = wmem_new0(allocator, erf_meta_tag_info_ex_t);
 
   extra->ett_value = -1;
@@ -1118,7 +1118,7 @@ static erf_meta_tag_info_t*
 init_section_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_meta_hf_template_t *section)
 {
   erf_meta_tag_info_t *section_info;
-  gint                *ett_tmp; /* wmem_array_append needs actual memory to copy from */
+  int                 *ett_tmp; /* wmem_array_append needs actual memory to copy from */
   hf_register_info     hfri_tmp[] = {
     { NULL, { "Section ID", NULL, FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, /* Section ID */
     { NULL, { "Section Length", NULL, FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* Section Length */
@@ -1183,8 +1183,8 @@ init_tag_value_subfields(wmem_array_t *hfri_table, erf_meta_tag_info_t *tag_info
 static erf_meta_tag_info_t*
 init_ext_hdrs_tag_value_subfields(wmem_array_t *hfri_table, erf_meta_tag_info_t *tag_info)
 {
-  gsize                i = 0;
-  gsize                num_known_ext_hdrs = array_length(ehdr_type_vals) -1 /*null terminated*/;
+  size_t               i = 0;
+  size_t               num_known_ext_hdrs = array_length(ehdr_type_vals) -1 /*null terminated*/;
   hf_register_info     hfri_tmp = { NULL, { NULL, NULL, FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL } }; /* Value, will be filled from template */
 
   DISSECTOR_ASSERT(array_length(ehdr_type_vals_short) > num_known_ext_hdrs);
@@ -1198,7 +1198,7 @@ init_ext_hdrs_tag_value_subfields(wmem_array_t *hfri_table, erf_meta_tag_info_t 
   for (i = 0; i < num_known_ext_hdrs; i++) {
     /* Add value subfield */
     hfri_tmp.p_id = &tag_info->extra->hf_values[4+i];
-    hfri_tmp.hfinfo.bitmask = (guint64)1 << ehdr_type_vals[i].value;
+    hfri_tmp.hfinfo.bitmask = (uint64_t)1 << ehdr_type_vals[i].value;
     hfri_tmp.hfinfo.name = ehdr_type_vals[i].strptr;
     hfri_tmp.hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(),
       "erf.meta.", tag_info->section_template->hfinfo.abbrev, ".", tag_info->tag_template->hfinfo.abbrev, ".", ehdr_type_vals_short[i].strptr, NULL);
@@ -1233,7 +1233,7 @@ static erf_meta_tag_info_t*
 init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_meta_hf_template_t *section, const erf_meta_hf_template_t *tag)
 {
   erf_meta_tag_info_t *tag_info;
-  gint                *ett_tmp; /* wmem_array_append needs actual memory to copy from */
+  int                 *ett_tmp; /* wmem_array_append needs actual memory to copy from */
 
   tag_info = erf_meta_tag_info_new(wmem_epan_scope(), section, tag);
 
@@ -1317,7 +1317,7 @@ init_meta_tags(void)
   erf_meta_index.vs_list        = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
   erf_meta_index.vs_abbrev_list = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
   erf_meta_index.hfri           = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
-  erf_meta_index.ett            = wmem_array_new(wmem_epan_scope(), sizeof(gint*));
+  erf_meta_index.ett            = wmem_array_new(wmem_epan_scope(), sizeof(int*));
 
   /* Generate tag fields */
   for (j = 0; j < array_length(erf_meta_tags); j++) {
@@ -1373,14 +1373,14 @@ static inline value_string *erf_to_value_string(wmem_array_t *array) {
   return (value_string *)wmem_array_get_raw(array);
 }
 
-static guint erf_anchor_key_hash(gconstpointer key) {
+static unsigned erf_anchor_key_hash(const void *key) {
   const erf_anchor_key_t *anchor_key = (const erf_anchor_key_t*) key;
 
-  return ((guint32)anchor_key->host_id ^ (guint32)anchor_key->anchor_id);
+  return ((uint32_t)anchor_key->host_id ^ (uint32_t)anchor_key->anchor_id);
 
 }
 
-static gboolean erf_anchor_key_equal(gconstpointer a, gconstpointer b) {
+static gboolean erf_anchor_key_equal(const void *a, const void *b) {
   const erf_anchor_key_t *anchor_key_a = (const erf_anchor_key_t*) a ;
   const erf_anchor_key_t *anchor_key_b = (const erf_anchor_key_t*) b ;
 
@@ -1388,7 +1388,7 @@ static gboolean erf_anchor_key_equal(gconstpointer a, gconstpointer b) {
     (anchor_key_a->anchor_id & ERF_EXT_HDR_TYPE_ANCHOR_ID) == (anchor_key_b->anchor_id & ERF_EXT_HDR_TYPE_ANCHOR_ID);
 }
 
-static void erf_host_anchor_info_insert(packet_info *pinfo, guint64 host_id, guint64 anchor_id, guint8 flags _U_) {
+static void erf_host_anchor_info_insert(packet_info *pinfo, uint64_t host_id, uint64_t anchor_id, uint8_t flags _U_) {
   erf_host_anchor_info_t *anchor_info;
   erf_anchor_key_t key = {host_id, anchor_id};
   erf_anchored_info_t *anchored_info;
@@ -1423,15 +1423,15 @@ static void erf_host_anchor_info_insert(packet_info *pinfo, guint64 host_id, gui
 
 
 static int
-erf_source_append(guint64 host_id, guint8 source_id, guint32 num)
+erf_source_append(uint64_t host_id, uint8_t source_id, uint32_t num)
 {
   erf_source_info_t *source_info;
-  guint64            source_key = ERF_SOURCE_KEY(host_id, source_id);
+  uint64_t           source_key = ERF_SOURCE_KEY(host_id, source_id);
 
   source_info = (erf_source_info_t*) wmem_map_lookup(erf_state.source_map, &source_key);
 
   if (!source_info) {
-    guint64 *source_key_ptr = wmem_new(wmem_file_scope(), guint64);
+    uint64_t *source_key_ptr = wmem_new(wmem_file_scope(), uint64_t);
     *source_key_ptr = source_key;
 
     source_info = (erf_source_info_t*) wmem_new(wmem_file_scope(), erf_source_info_t);
@@ -1452,14 +1452,14 @@ erf_source_append(guint64 host_id, guint8 source_id, guint32 num)
   return 0;
 }
 
-static guint32
-erf_source_find_closest(guint64 host_id, guint8 source_id, guint32 fnum, guint32 *fnum_next_ptr) {
+static uint32_t
+erf_source_find_closest(uint64_t host_id, uint8_t source_id, uint32_t fnum, uint32_t *fnum_next_ptr) {
   wmem_list_frame_t  *list_frame      = NULL;
   wmem_list_frame_t  *list_frame_prev = NULL;
   erf_source_info_t  *source_info     = NULL;
-  guint64             source_key      = ERF_SOURCE_KEY(host_id, source_id);
-  guint32             fnum_prev       = G_MAXUINT32;
-  guint32             fnum_next       = G_MAXUINT32;
+  uint64_t            source_key      = ERF_SOURCE_KEY(host_id, source_id);
+  uint32_t            fnum_prev       = UINT32_MAX;
+  uint32_t            fnum_next       = UINT32_MAX;
 
   source_info = (erf_source_info_t*) wmem_map_lookup(erf_state.source_map, &source_key);
 
@@ -1471,19 +1471,19 @@ erf_source_find_closest(guint64 host_id, guint8 source_id, guint32 fnum, guint32
       /* If looking at a metadata record, get the real previous meta frame */
       if (fnum_prev == fnum) {
         list_frame_prev = wmem_list_frame_prev(list_frame);
-        fnum_prev = list_frame_prev ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame_prev)) : G_MAXUINT32;
+        fnum_prev = list_frame_prev ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame_prev)) : UINT32_MAX;
       }
 
       list_frame = wmem_list_frame_next(list_frame);
-      fnum_next = list_frame ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame)) : G_MAXUINT32;
+      fnum_next = list_frame ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame)) : UINT32_MAX;
     } else {
       /*
        * XXX: Edge case: still need the first meta record to find the next one at the
        * beginning of the file.
        */
       list_frame = wmem_list_head(source_info->meta_list);
-      fnum_next = list_frame ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame)) : G_MAXUINT32;
-      fnum_prev = G_MAXUINT32;
+      fnum_next = list_frame ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame)) : UINT32_MAX;
+      fnum_prev = UINT32_MAX;
     }
   }
 
@@ -1495,7 +1495,7 @@ erf_source_find_closest(guint64 host_id, guint8 source_id, guint32 fnum, guint32
 
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
 static void
-erf_atm_guess_lane_type(tvbuff_t *tvb, int offset, guint len,
+erf_atm_guess_lane_type(tvbuff_t *tvb, int offset, unsigned len,
     struct atm_phdr *atm_info)
 {
   if (len >= 2) {
@@ -1519,7 +1519,7 @@ erf_atm_guess_lane_type(tvbuff_t *tvb, int offset, guint len,
 }
 
 static void
-erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
+erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, unsigned len,
     struct atm_phdr *atm_info)
 {
   /*
@@ -1559,7 +1559,7 @@ erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
    */
 
   if (len >= 3) {
-    guint8 mtp3b;
+    uint8_t mtp3b;
     if (tvb_get_ntoh24(tvb, offset) == 0xAAAA03) {
       /*
        * Looks like a SNAP header; assume it's LLC
@@ -1603,8 +1603,8 @@ dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree 
 {
   proto_item *flags_item;
   proto_tree *flags_tree;
-  guint64     hdr   = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  guint32     value = ((guint32)(hdr >> 32)) & EHDR_CLASS_FLAGS_MASK;
+  uint64_t    hdr   = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint32_t    value = ((uint32_t)(hdr >> 32)) & EHDR_CLASS_FLAGS_MASK;
 
   flags_item = proto_tree_add_uint(tree, hf_erf_ehdr_class_flags, tvb, 0, 0, value);
   flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
@@ -1617,42 +1617,42 @@ dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree 
   proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_drop, tvb, 0, 0, value);
   proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_str,  tvb, 0, 0, value);
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_class_seqnum, tvb, 0, 0, (guint32)hdr);
+  proto_tree_add_uint(tree, hf_erf_ehdr_class_seqnum, tvb, 0, 0, (uint32_t)hdr);
 }
 
 static void
 dissect_intercept_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_int_id, tvb, 0, 0, (guint16)((hdr >> 32 ) & 0xFFFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (guint32)hdr);
+  proto_tree_add_uint(tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (uint8_t)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_int_id, tvb, 0, 0, (uint16_t)((hdr >> 32 ) & 0xFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (uint32_t)hdr);
 }
 
 static void
 dissect_raw_link_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_res ,    tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (guint32)((hdr >> 16) & 0xffff));
-  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_rate,    tvb, 0, 0, (guint32)((hdr >> 8) & 0x00ff));
-  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_type,    tvb, 0, 0, (guint32)(hdr & 0x00ff));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_res ,    tvb, 0, 0, (uint32_t)((hdr >> 32) & 0xFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (uint32_t)((hdr >> 16) & 0xffff));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_rate,    tvb, 0, 0, (uint32_t)((hdr >> 8) & 0x00ff));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_type,    tvb, 0, 0, (uint32_t)(hdr & 0x00ff));
 }
 
 static void
 dissect_bfs_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_hash, tvb, 0, 0, (guint32)((hdr >> 48) & 0xFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_color, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_raw_hash, tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_hash, tvb, 0, 0, (uint32_t)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_color, tvb, 0, 0, (uint32_t)((hdr >> 32) & 0xFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_raw_hash, tvb, 0, 0, (uint32_t)(hdr & 0xFFFFFFFF));
 }
 
 static int
-channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, guint8 vc_size, guint8 rate)
+channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, uint16_t bit_flds, uint8_t vc_size, uint8_t rate)
 {
   int i = 0; /* i = 3 --> ITU-T letter #D - index of AUG-16
               * i = 2 --> ITU-T letter #C - index of AUG-4,
@@ -1675,7 +1675,7 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
   /* for STM64 traffic,from #D and so on .. */
     for (i = (rate - 2); i >= 0; i--)
   {
-    guint8 aug_n_index = 0;
+    uint8_t aug_n_index = 0;
 
     /*if AUG-n is bigger than vc-size*/
     if ( i >= (vc_size - 1))
@@ -1696,7 +1696,7 @@ static void
 channelised_fill_vc_id_string(wmem_strbuf_t* out_string, sdh_g707_format_t* in_fmt)
 {
   int      i;
-  gboolean is_printed  = FALSE;
+  bool is_printed  = false;
 
   static const char* g_vc_size_strings[] = {
     "unknown",  /*0x0*/
@@ -1728,7 +1728,7 @@ channelised_fill_vc_id_string(wmem_strbuf_t* out_string, sdh_g707_format_t* in_f
         wmem_strbuf_append_printf(out_string, "%s%d",
                                   ((is_printed)?", ":""),
                                   in_fmt->m_vc_index_array[i]);
-        is_printed = TRUE;
+        is_printed = true;
       }
     }
 
@@ -1740,7 +1740,7 @@ channelised_fill_vc_id_string(wmem_strbuf_t* out_string, sdh_g707_format_t* in_f
       wmem_strbuf_append_printf(out_string, "%s%d",
                                 ((is_printed)?", ":""),
                                 in_fmt->m_vc_index_array[i]);
-      is_printed = TRUE;
+      is_printed = true;
     }
   }
   if ( ! is_printed )
@@ -1750,7 +1750,7 @@ channelised_fill_vc_id_string(wmem_strbuf_t* out_string, sdh_g707_format_t* in_f
     {
       wmem_strbuf_append_printf(out_string, "%s0",
                                 ((is_printed)?", ":""));
-      is_printed = TRUE;
+      is_printed = true;
     }
   }
   wmem_strbuf_append_c(out_string, ')');
@@ -1760,43 +1760,43 @@ channelised_fill_vc_id_string(wmem_strbuf_t* out_string, sdh_g707_format_t* in_f
 static void
 dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64            hdr              = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  guint8             vc_id            = (guint8)((hdr >> 24) & 0xFF);
-  guint8             vc_size          = (guint8)((hdr >> 16) & 0xFF);
-  guint8             line_rate        = (guint8)((hdr >> 8) & 0xFF);
+  uint64_t           hdr              = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint8_t            vc_id            = (uint8_t)((hdr >> 24) & 0xFF);
+  uint8_t            vc_size          = (uint8_t)((hdr >> 16) & 0xFF);
+  uint8_t            line_rate        = (uint8_t)((hdr >> 8) & 0xFF);
   sdh_g707_format_t  g707_format;
   wmem_strbuf_t     *vc_id_string = wmem_strbuf_create(pinfo->pool);
 
   channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_rate);
   channelised_fill_vc_id_string(vc_id_string, &g707_format);
 
-  proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morebits, tvb, 0, 0, (guint8)((hdr >> 63) & 0x1));
-  proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morefrag, tvb, 0, 0, (guint8)((hdr >> 55) & 0x1));
-  proto_tree_add_uint(tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (guint16)((hdr >> 40) & 0x7FFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
+  proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morebits, tvb, 0, 0, (uint8_t)((hdr >> 63) & 0x1));
+  proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morefrag, tvb, 0, 0, (uint8_t)((hdr >> 55) & 0x1));
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (uint16_t)((hdr >> 40) & 0x7FFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (uint8_t)((hdr >> 32) & 0xFF));
   proto_tree_add_uint_format_value(tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id,
                                    "0x%.2x (g.707: %s)", vc_id, wmem_strbuf_get_str(vc_id_string));
   proto_tree_add_uint(tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
   proto_tree_add_uint(tree, hf_erf_ehdr_chan_rate, tvb, 0, 0, line_rate);
-  proto_tree_add_uint(tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (uint8_t)((hdr >> 0) & 0xFF));
 }
 
 static void
 dissect_signature_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_signature_payload_hash, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_signature_color,        tvb, 0, 0, (guint8)((hdr >> 24) & 0xFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_signature_flow_hash,    tvb, 0, 0, (guint32)(hdr & 0xFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_signature_payload_hash, tvb, 0, 0, (uint32_t)((hdr >> 32) & 0xFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_signature_color,        tvb, 0, 0, (uint8_t)((hdr >> 24) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_signature_flow_hash,    tvb, 0, 0, (uint32_t)(hdr & 0xFFFFFF));
 }
 
 static void
 dissect_host_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_host_id_sourceid, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_host_id_sourceid, tvb, 0, 0, (uint8_t)((hdr >> 48) & 0xFF));
   proto_tree_add_uint64(tree, hf_erf_ehdr_host_id_hostid, tvb, 0, 0, (hdr & ERF_EHDR_HOST_ID_MASK));
 }
 
@@ -1810,9 +1810,9 @@ dissect_anchor_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     NULL
   };
 
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-  proto_tree_add_bitmask_value(tree, tvb, 0, hf_erf_ehdr_anchor_id_flags, ett_erf_anchor_flags, anchor_flags, (guint8)(hdr >> 48) & 0xff);
+  proto_tree_add_bitmask_value(tree, tvb, 0, hf_erf_ehdr_anchor_id_flags, ett_erf_anchor_flags, anchor_flags, (uint8_t)(hdr >> 48) & 0xff);
   proto_tree_add_uint64(tree, hf_erf_ehdr_anchor_id_anchorid, tvb, 0, 0, (hdr & ERF_EHDR_ANCHOR_ID_MASK));
 }
 
@@ -1820,12 +1820,12 @@ dissect_anchor_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  guint8      hash_type = (guint8)((hdr >> 40) & 0xFF);
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint8_t     hash_type = (uint8_t)((hdr >> 40) & 0xFF);
   proto_item *hash_type_item;
   proto_tree *hash_type_tree;
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_source_id,  tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_source_id,  tvb, 0, 0, (uint8_t)((hdr >> 48) & 0xFF));
 
   hash_type_item = proto_tree_add_uint_format_value(tree, hf_erf_ehdr_flow_id_hash_type, tvb, 0, 0, hash_type,
                                                   "0x%02x (%s%s)",
@@ -1840,12 +1840,12 @@ dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_type,  tvb, 0, 0, hash_type);
   proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_inner, tvb, 0, 0, hash_type);
 
-  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_stack_type, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
-  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_flow_hash,  tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_stack_type, tvb, 0, 0, (uint8_t)((hdr >> 32) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_flow_hash,  tvb, 0, 0, (uint32_t)(hdr & 0xFFFFFFFF));
 }
 
 static float
-entropy_from_entropy_header_value(guint8 entropy_hdr_value)
+entropy_from_entropy_header_value(uint8_t entropy_hdr_value)
 {
   /* mapping 1-255 to 0.0-8.0 */
   /*  255 is 8.0 */
@@ -1857,8 +1857,8 @@ entropy_from_entropy_header_value(guint8 entropy_hdr_value)
 static void
 dissect_entropy_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  guint8      entropy_hdr_value = (guint8)((hdr >> 48) & 0xFF);
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint8_t     entropy_hdr_value = (uint8_t)((hdr >> 48) & 0xFF);
   float      entropy;
   proto_item *pi;
   proto_tree *entropy_value_tree;
@@ -1873,18 +1873,18 @@ dissect_entropy_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   proto_tree_add_uint64(tree, hf_erf_ehdr_entropy_reserved, tvb, 0, 0, (hdr & 0xFFFFFFFFFFFF));
 }
 
-static guint64
-find_host_id(packet_info *pinfo, gboolean *has_anchor_definition) {
-  guint64     hdr;
-  guint8      type;
-  guint8      has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
+static uint64_t
+find_host_id(packet_info *pinfo, bool *has_anchor_definition) {
+  uint64_t    hdr;
+  uint8_t     type;
+  uint8_t     has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
   int         i = 0;
-  guint64     host_id = ERF_META_HOST_ID_IMPLICIT;
-  gboolean    anchor_definition = FALSE;
+  uint64_t    host_id = ERF_META_HOST_ID_IMPLICIT;
+  bool        anchor_definition = false;
 
   while(has_more && (i < MAX_ERF_EHDR)) {
     hdr = pinfo->pseudo_header->erf.ehdr_list[i].ehdr;
-    type = (guint8) (hdr >> 56);
+    type = (uint8_t) (hdr >> 56);
 
     switch (type & 0x7f) {
       case ERF_EXT_HDR_TYPE_HOST_ID:
@@ -1893,7 +1893,7 @@ find_host_id(packet_info *pinfo, gboolean *has_anchor_definition) {
         break;
       case ERF_EXT_HDR_TYPE_ANCHOR_ID:
         if ((hdr & ERF_EHDR_ANCHOR_ID_DEFINITION_MASK))
-          anchor_definition = TRUE;
+          anchor_definition = true;
         break;
     }
     has_more = type & 0x80;
@@ -1906,7 +1906,7 @@ find_host_id(packet_info *pinfo, gboolean *has_anchor_definition) {
   return host_id;
 }
 
-static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint64 host_id, guint64 anchor_id, guint8 anchor _U_) {
+static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint64_t host_id, uint64_t anchor_id, uint8_t anchor _U_) {
 
   erf_anchor_key_t key = {host_id, anchor_id};
   erf_host_anchor_info_t *anchor_info;
@@ -1950,24 +1950,24 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void
-dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint64 host_id, guint8 source_id)
+dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint64_t host_id, uint8_t source_id)
 {
   proto_tree *hostid_tree;
   proto_item *pi           = NULL;
-  guint32     fnum_current = G_MAXUINT32;
-  guint32     fnum         = G_MAXUINT32;
-  guint32     fnum_next    = G_MAXUINT32;
+  uint32_t    fnum_current = UINT32_MAX;
+  uint32_t    fnum         = UINT32_MAX;
+  uint32_t    fnum_next    = UINT32_MAX;
 
   fnum = erf_source_find_closest(host_id, source_id, pinfo->num, &fnum_next);
 
-  if (fnum != G_MAXUINT32) {
+  if (fnum != UINT32_MAX) {
     fnum_current = fnum;
   } else {
     /* XXX: Possibly undesirable side effect: first metadata record links to next */
     fnum_current = fnum_next;
   }
 
-  if (fnum_current != G_MAXUINT32) {
+  if (fnum_current != UINT32_MAX) {
     pi = proto_tree_add_uint_format(tree, hf_erf_source_current, tvb, 0, 0, fnum_current,
         "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
     hostid_tree = proto_item_add_subtree(pi, ett_erf_source);
@@ -1983,13 +1983,13 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   pi = proto_tree_add_uint(hostid_tree, hf_erf_sourceid, tvb, 0, 0, source_id);
   proto_item_set_generated(pi);
 
-  if (fnum_next != G_MAXUINT32) {
+  if (fnum_next != UINT32_MAX) {
     pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
     proto_item_set_generated(pi);
     /* XXX: Save the surrounding nearest periodic records when we do a filtered save so we keep native ERF metadata */
     mark_frame_as_depended_upon(pinfo->fd, fnum_next);
   }
-  if (fnum != G_MAXUINT32) {
+  if (fnum != UINT32_MAX) {
     pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
     proto_item_set_generated(pi);
     mark_frame_as_depended_upon(pinfo->fd, fnum);
@@ -1999,7 +1999,7 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 static void
 dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  uint64_t    hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
   proto_tree_add_uint64(tree, hf_erf_ehdr_unk, tvb, 0, 0, hdr);
 }
@@ -2009,7 +2009,7 @@ dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
   proto_item *mc_hdlc_item;
   proto_tree *mc_hdlc_tree;
-  guint32     mc_hdlc;
+  uint32_t    mc_hdlc;
   proto_item *pi;
 
   /* Multi Channel HDLC Header */
@@ -2053,7 +2053,7 @@ dissect_mc_raw_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
   proto_item *mc_raw_item;
   proto_tree *mc_raw_tree;
-  guint32     mc_raw;
+  uint32_t    mc_raw;
 
   /* Multi Channel RAW Header */
   mc_raw_item = proto_tree_add_uint(tree, hf_erf_mc_raw, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
@@ -2075,7 +2075,7 @@ dissect_mc_atm_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
   proto_item *mc_atm_item;
   proto_tree *mc_atm_tree;
-  guint32     mc_atm;
+  uint32_t    mc_atm;
 
   /*"Multi Channel ATM Header"*/
   mc_atm_item = proto_tree_add_uint(tree, hf_erf_mc_atm, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
@@ -2102,7 +2102,7 @@ dissect_mc_rawlink_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *mc_rawl_item;
   proto_tree *mc_rawl_tree;
-  guint32     mc_rawl;
+  uint32_t    mc_rawl;
 
   /* Multi Channel RAW Link Header */
   mc_rawl_item = proto_tree_add_uint(tree, hf_erf_mc_rawl, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
@@ -2121,7 +2121,7 @@ dissect_mc_aal5_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *mc_aal5_item;
   proto_tree *mc_aal5_tree;
-  guint32     mc_aal5;
+  uint32_t    mc_aal5;
 
   /* Multi Channel AAL5 Header */
   mc_aal5_item = proto_tree_add_uint(tree, hf_erf_mc_aal5, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
@@ -2147,7 +2147,7 @@ dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *mc_aal2_item;
   proto_tree *mc_aal2_tree;
-  guint32     mc_aal2;
+  uint32_t    mc_aal2;
 
   /* Multi Channel AAL2 Header */
   mc_aal2_item = proto_tree_add_uint(tree, hf_erf_mc_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
@@ -2172,7 +2172,7 @@ dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *aal2_item;
   proto_tree *aal2_tree;
-  guint32     aal2;
+  uint32_t    aal2;
 
   /* AAL2 Header */
   aal2_item = proto_tree_add_uint(tree, hf_erf_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
@@ -2193,7 +2193,7 @@ dissect_eth_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item          *eth_item;
   proto_tree          *eth_tree;
-  guint8               eth_offset, eth_pad;
+  uint8_t              eth_offset, eth_pad;
 
   eth_item = proto_tree_add_item(tree, hf_erf_eth, tvb, 0, 0, ENC_NA);
 
@@ -2211,7 +2211,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *pi;
   proto_item *flags_item, *rectype_item;
   proto_tree *flags_tree, *rectype_tree;
-  gboolean has_flags = FALSE;
+  bool has_flags = false;
 
   proto_tree_add_uint64(tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
@@ -2238,21 +2238,21 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK) {
     proto_item_append_text(flags_item, "(ERF Truncation Error");
     expert_add_info(pinfo, pi, &ei_erf_truncation_error);
-    has_flags = TRUE;
+    has_flags = true;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK) {
     proto_item_append_text(flags_item, "%sERF Rx Error", has_flags ? "; " : "(");
     expert_add_info(pinfo, pi, &ei_erf_rx_error);
-    has_flags = TRUE;
+    has_flags = true;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK) {
     proto_item_append_text(flags_item, "%sERF DS Error", has_flags ? "; " : "(");
     expert_add_info(pinfo, pi, &ei_erf_ds_error);
-    has_flags = TRUE;
+    has_flags = true;
   }
   if (has_flags) {
     proto_item_append_text(flags_item, ")");
@@ -2280,16 +2280,16 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
   proto_item *pi;
   proto_item *ehdr_tree;
-  guint64     hdr;
-  guint8      type;
-  guint8      has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
+  uint64_t    hdr;
+  uint8_t     type;
+  uint8_t     has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
   int         i        = 0;
   int         max      = array_length(pinfo->pseudo_header->erf.ehdr_list);
 
-  guint64     host_id        = ERF_META_HOST_ID_IMPLICIT;
-  guint8      source_id      = 0;
-  gboolean    found_host_id  = FALSE;
-  gboolean    has_anchor_definition = FALSE;
+  uint64_t    host_id        = ERF_META_HOST_ID_IMPLICIT;
+  uint8_t     source_id      = 0;
+  bool        found_host_id  = false;
+  bool        has_anchor_definition = false;
 
   /*
    * Get the first Host ID of the record (which may not be the first extension
@@ -2305,14 +2305,14 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
      * Host ID 0 (unset).
      */
     host_id = erf_state.implicit_host_id;
-    found_host_id = FALSE;
+    found_host_id = false;
   } else {
-    found_host_id = TRUE;
+    found_host_id = true;
   }
 
   while(has_more && (i < max)) {
     hdr = pinfo->pseudo_header->erf.ehdr_list[i].ehdr;
-    type = (guint8) (hdr >> 56);
+    type = (uint8_t) (hdr >> 56);
 
     pi = proto_tree_add_uint(tree, hf_erf_ehdr_t, tvb, 0, 0, (type & 0x7f));
     ehdr_tree = proto_item_add_subtree(pi, ett_erf_pseudo_hdr);
@@ -2338,13 +2338,13 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       break;
     case ERF_EXT_HDR_TYPE_FLOW_ID:
       if (source_id == 0) {
-        source_id = (guint8)((hdr >> 48) & 0xFF);
+        source_id = (uint8_t)((hdr >> 48) & 0xFF);
       }
       dissect_flow_id_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
     case ERF_EXT_HDR_TYPE_HOST_ID:
       host_id = hdr & ERF_EHDR_HOST_ID_MASK;
-      source_id = (guint8)((hdr >> 48) & 0xFF);
+      source_id = (uint8_t)((hdr >> 48) & 0xFF);
       dissect_host_id_ex_header(tvb, pinfo, ehdr_tree, i);
 
       /* Track and dissect combined Host ID and Source ID(s) */
@@ -2375,9 +2375,9 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case ERF_EXT_HDR_TYPE_ANCHOR_ID:
       dissect_anchor_id_ex_header(tvb, pinfo, ehdr_tree, i);
       if (!PINFO_FD_VISITED(pinfo)) {
-        erf_host_anchor_info_insert(pinfo, host_id, hdr & ERF_EHDR_ANCHOR_ID_MASK, (guint8)(hdr >> 48));
+        erf_host_anchor_info_insert(pinfo, host_id, hdr & ERF_EHDR_ANCHOR_ID_MASK, (uint8_t)(hdr >> 48));
       }
-      dissect_host_anchor_id(tvb, pinfo, tree, host_id, hdr & ERF_EHDR_ANCHOR_ID_MASK, (guint8)(hdr >> 48));
+      dissect_host_anchor_id(tvb, pinfo, tree, host_id, hdr & ERF_EHDR_ANCHOR_ID_MASK, (uint8_t)(hdr >> 48));
       break;
     case ERF_EXT_HDR_TYPE_ENTROPY:
       dissect_entropy_ex_header(tvb, pinfo, ehdr_tree, i);
@@ -2414,9 +2414,9 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   }
 }
 
-guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {
-  guint8      type;
-  guint8      has_more;
+uint64_t* erf_get_ehdr(packet_info *pinfo, uint8_t hdrtype, int* afterindex) {
+  uint8_t     type;
+  uint8_t     has_more;
   int         max;
   int         i        = afterindex ? *afterindex + 1 : 0; /*allow specifying instance to start after for use in loop*/
 
@@ -2428,7 +2428,7 @@ guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {
 
 
   while(has_more && (i < max)) {
-    type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
+    type = (uint8_t) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
 
     if ((type & 0x7f) == (hdrtype & 0x7f)) {
          if (afterindex)
@@ -2479,19 +2479,19 @@ dissect_meta_tag_bitfield(proto_item *section_tree, tvbuff_t *tvb, int offset, e
 }
 
 static proto_item*
-dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, gint taglength, erf_meta_tag_info_t *tag_info, proto_item **out_tag_tree, expert_field **out_truncated_expert)
+dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, int taglength, erf_meta_tag_info_t *tag_info, proto_item **out_tag_tree, expert_field **out_truncated_expert)
 {
   proto_item *tag_pi        = NULL;
   proto_tree *subtree       = NULL;
   proto_item *subtree_pi    = NULL;
   int i;
-  guint32 ext_hdrs[4] = {0, 0, 0, 0};
+  uint32_t ext_hdrs[4] = {0, 0, 0, 0};
   int int_offset      = 0;
   int int_avail       = MIN(taglength / 4, 4);
   int bit_offset      = 0;
   int ext_hdr_num     = 0;
-  gboolean first      = TRUE;
-  gboolean all_set    = TRUE;
+  bool first      = true;
+  bool all_set    = true;
 
   DISSECTOR_ASSERT(tag_info->extra);
 
@@ -2500,8 +2500,8 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, g
 
   for (int_offset = 0; int_offset < int_avail; int_offset++) {
     ext_hdrs[int_offset] = tvb_get_guint32(tvb, offset + 4 + int_offset*4, ENC_BIG_ENDIAN);
-    if (ext_hdrs[int_offset] != G_MAXUINT32)
-      all_set = FALSE;
+    if (ext_hdrs[int_offset] != UINT32_MAX)
+      all_set = false;
   }
 
   /* Special case: all specified bits are 1 means all extension headers */
@@ -2531,7 +2531,7 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, g
         if (!all_set)
           proto_item_append_text(tag_pi, "%s %s", first ? ":" : ",", val_to_str(ext_hdr_num, ehdr_type_vals, "%d"));
 
-        first = FALSE;
+        first = false;
       }
 
       ext_hdr_num++;
@@ -2549,12 +2549,12 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, g
   return tag_pi;
 }
 
-static void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relative) {
-  guint64 ts = timestamp;
+static void erf_ts_to_nstime(uint64_t timestamp, nstime_t* t, bool is_relative) {
+  uint64_t ts = timestamp;
 
   /* relative ERF timestamps are signed, convert as if unsigned then flip back */
   if (is_relative) {
-    ts = (guint64) ABS((gint64)timestamp);
+    ts = (uint64_t) ABS((int64_t)timestamp);
   }
 
 
@@ -2567,7 +2567,7 @@ static void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relativ
     t->secs += 1;
   }
 
-  if (is_relative && (gint64)timestamp < 0) {
+  if (is_relative && (int64_t)timestamp < 0) {
     /*
      * Set both signs to negative for consistency with other nstime code
      * and so -0.123 works.
@@ -2578,7 +2578,7 @@ static void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relativ
 }
 
 /* TODO: Would be nice if default FT_RELATIVE_TIME formatter was prettier */
-static proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, nstime_t* t) {
+static proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tvbuff_t *tvb, int offset, int length, nstime_t* t) {
   proto_item *pi = NULL;
 
   DISSECTOR_ASSERT(t);
@@ -2593,16 +2593,16 @@ static proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tv
   return pi;
 }
 
-static proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, gint64 timeinterval) {
+static proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex, tvbuff_t *tvb, int offset, int length, int64_t timeinterval) {
   nstime_t t;
-  guint64 ti, ti_ns;
+  uint64_t ti, ti_ns;
 
-  ti = (guint64) ABS(timeinterval);
+  ti = (uint64_t) ABS(timeinterval);
 
   ti += (ti & 0x8000) << 1; /* rounding */
   ti_ns = ti >> 16;
   t.secs = (time_t) (ti_ns / NS_PER_S);
-  t.nsecs = (guint32)(ti_ns % NS_PER_S);
+  t.nsecs = (uint32_t)(ti_ns % NS_PER_S);
   if (t.nsecs >= NS_PER_S) {
     t.nsecs -= NS_PER_S;
     t.secs += 1;
@@ -2674,14 +2674,14 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item *section_tree  = tree;
   proto_item *sectionlen_pi = NULL;
 
-  guint16                sectiontype  = ERF_META_SECTION_NONE;
-  guint16                tagtype      = 0;
-  guint16                taglength    = 0;
-  const gchar           *tagvalstring = NULL;
+  uint16_t               sectiontype  = ERF_META_SECTION_NONE;
+  uint16_t               tagtype      = 0;
+  uint16_t               taglength    = 0;
+  const char            *tagvalstring = NULL;
   erf_meta_tag_info_t   *tag_info;
   int                    expected_length = 0;
   expert_field          *truncated_expert = NULL;
-  gboolean               skip_truncated = FALSE;
+  bool                   skip_truncated = false;
 
   /* Used for search entry and unknown tags */
   erf_meta_hf_template_t tag_template_unknown = { 0, { "Unknown", "unknown",
@@ -2691,8 +2691,8 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   int     offset        = 0;
   int     sectionoffset = 0;
-  guint16 sectionid     = 0;
-  guint16 sectionlen    = 0;
+  uint16_t sectionid     = 0;
+  uint16_t sectionlen    = 0;
   int     remaining_len = 0;
 
   int captured_length = (int) tvb_captured_length(tvb);
@@ -2708,7 +2708,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     tag_tree = NULL;
     tag_pi = NULL;
     truncated_expert = NULL;
-    skip_truncated = FALSE;
+    skip_truncated = false;
 
     if (ERF_META_IS_SECTION(tagtype))
       sectiontype = tagtype;
@@ -2725,7 +2725,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* Get expected length (minimum length in the case of ns_host_*) */
     expected_length = meta_tag_expected_length(tag_info);
 
-    if (remaining_len < (gint32)taglength + 4 || taglength < expected_length) {
+    if (remaining_len < (int32_t)taglength + 4 || taglength < expected_length) {
       /*
        * Malformed tag, just dissect type and length. Top level tag
        * dissection means can't add the subtree and type/length first.
@@ -2733,7 +2733,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
        * Allow too-long tags for now (and proto_tree generally generates
        * a warning for these anyway).
        */
-      skip_truncated = TRUE;
+      skip_truncated = true;
       truncated_expert = &ei_erf_meta_truncated_tag;
     }
 
@@ -2746,7 +2746,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         truncated_expert = &ei_erf_meta_zero_len_tag;
         /* XXX: Still dissect normally too if string/unknown or section header */
         if (expected_length != 0) {
-          skip_truncated = TRUE;
+          skip_truncated = true;
         }
       }
     }
@@ -2805,11 +2805,11 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     } else if (!skip_truncated) { /* Not section header tag (and not truncated) */
       enum ftenum tag_ft;
       char        pi_label[ITEM_LABEL_LENGTH+1];
-      gboolean    dissected = TRUE;
-      guint32     value32;
-      guint64     value64;
+      bool        dissected = true;
+      uint32_t    value32;
+      uint64_t    value64;
       float       float_value;
-      gchar      *tmp = NULL;
+      char       *tmp = NULL;
 
       tag_ft = tag_info->tag_template->hfinfo.type;
       pi_label[0] = '\0';
@@ -2834,20 +2834,20 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_if_rx_power:
       case ERF_META_TAG_if_tx_power:
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2fdBm", (double)((gint32) value32)/100.0);
+        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (int32_t) value32, "%.2fdBm", (double)((int32_t) value32)/100.0);
         break;
 
       case ERF_META_TAG_temperature:
       case ERF_META_TAG_power:
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        float_value = (float)((gint32) value32)/1000.0f;
+        float_value = (float)((int32_t) value32)/1000.0f;
         tag_pi = proto_tree_add_float(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, float_value);
         break;
 
       case ERF_META_TAG_loc_lat:
       case ERF_META_TAG_loc_long:
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2f", (double)((gint32) value32)*1000000.0);
+        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (int32_t) value32, "%.2f", (double)((int32_t) value32)*1000000.0);
         break;
 
       case ERF_META_TAG_mask_cidr:
@@ -2926,7 +2926,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_ptp_offset_from_master:
       case ERF_META_TAG_ptp_mean_path_delay:
         value64 = tvb_get_ntoh64(tvb, offset + 4);
-        tag_pi = dissect_ptp_timeinterval(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint64) value64);
+        tag_pi = dissect_ptp_timeinterval(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (int64_t) value64);
         break;
 
       case ERF_META_TAG_ptp_current_utc_offset:
@@ -2935,7 +2935,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         value32 = tvb_get_ntohl(tvb, offset + 4);
         /* PTP value is signed */
-        t.secs = (gint32) value32;
+        t.secs = (int32_t) value32;
         t.nsecs = 0;
 
         tag_pi = dissect_relative_time(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, &t);
@@ -2952,7 +2952,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       {
         float entropy;
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        entropy = entropy_from_entropy_header_value((guint8) value32);
+        entropy = entropy_from_entropy_header_value((uint8_t) value32);
 
         tag_pi = proto_tree_add_float_format_value(section_tree, tag_info->hf_value, tvb, 0, 0, entropy,
           "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
@@ -2965,7 +2965,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         break;
 
       default:
-        dissected = FALSE;
+        dissected = false;
         break;
       }
 
@@ -2987,7 +2987,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
            * here. For now do by hand.
            */
           nstime_t t;
-          guint64 ts;
+          uint64_t ts;
 
           ts = tvb_get_letoh64(tvb, offset + 4);
           erf_ts_to_nstime(ts, &t, tag_ft == FT_RELATIVE_TIME);
@@ -3023,7 +3023,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       expert_add_info(pinfo, tag_pi, truncated_expert);
     }
 
-    offset += (((guint32)taglength + 4) + 0x3U) & ~0x3U;
+    offset += (((uint32_t)taglength + 4) + 0x3U) & ~0x3U;
   }
 
   if (remaining_len != 0) {
@@ -3040,15 +3040,15 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 static int
 dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint8              flags;
-  guint8              erf_type;
-  guint32             atm_hdr  = 0;
+  uint8_t             flags;
+  uint8_t             erf_type;
+  uint32_t            atm_hdr  = 0;
   proto_tree         *erf_tree;
   proto_item         *erf_item;
   erf_hdlc_type_vals  hdlc_type;
-  guint8              first_byte;
+  uint8_t             first_byte;
   tvbuff_t           *new_tvb;
-  guint8              aal2_cid;
+  uint8_t             aal2_cid;
   struct atm_phdr     atm_info;
 
   erf_type=pinfo->pseudo_header->erf.phdr.type & 0x7F;
@@ -3826,7 +3826,7 @@ proto_register_erf(void)
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_erf,
     &ett_erf_pseudo_hdr,
     &ett_erf_rectype,
@@ -3898,13 +3898,13 @@ proto_register_erf(void)
 
   /* Register per-section Provenance fields */
   proto_register_field_array(proto_erf, (hf_register_info*) wmem_array_get_raw(erf_meta_index.hfri), (int) wmem_array_get_count(erf_meta_index.hfri));
-  proto_register_subtree_array((gint**) wmem_array_get_raw(erf_meta_index.ett), (int) wmem_array_get_count(erf_meta_index.ett));
+  proto_register_subtree_array((int**) wmem_array_get_raw(erf_meta_index.ett), (int) wmem_array_get_count(erf_meta_index.ett));
 
   erf_module = prefs_register_protocol(proto_erf, NULL);
 
   prefs_register_enum_preference(erf_module, "hdlc_type", "ERF_HDLC Layer 2",
                                  "Protocol encapsulated in HDLC records",
-                                 &erf_hdlc_type, erf_hdlc_options, FALSE);
+                                 &erf_hdlc_type, erf_hdlc_options, false);
 
   prefs_register_bool_preference(erf_module, "rawcell_first",
                                  "Raw ATM cells are first cell of AAL5 PDU",
@@ -3915,7 +3915,7 @@ proto_register_erf(void)
   prefs_register_enum_preference(erf_module, "aal5_type",
                                  "ATM AAL5 packet type",
                                  "Protocol encapsulated in ATM AAL5 packets",
-                                 &erf_aal5_type, erf_aal5_options, FALSE);
+                                 &erf_aal5_type, erf_aal5_options, false);
 
   /*
    * We just use eth_maybefcs now and respect the Ethernet preference.

@@ -76,8 +76,8 @@ static int hf_egd_stat;
 static int hf_egd_csig;
 static int hf_egd_resv;
 
-static gint ett_egd;
-static gint ett_status_item;
+static int ett_egd;
+static int ett_status_item;
 
 static int dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -103,8 +103,8 @@ static int dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item *notime = NULL;
     proto_tree *egd_tree = NULL;
     tvbuff_t *next_tvb = NULL;
-    gint offset, data_length;
-    guint32 sectime;
+    int offset, data_length;
+    uint32_t sectime;
 
     offset = 0;
 
@@ -217,7 +217,7 @@ void proto_register_egd(void)
       }
     };
 
-  static gint *ett[] =
+  static int *ett[] =
     {
       &ett_egd,
       &ett_status_item

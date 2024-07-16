@@ -12,7 +12,7 @@
 
 /** Gets the ERF extension header of the specified type,
  *
- * Afterindex may be NULL, or set to a gint initialized to -1 and the function
+ * Afterindex may be NULL, or set to a int initialized to -1 and the function
  * re-called in a loop to iterate through extension headers of hdrtype type.
  *
  * Note: pinfo is assumed to be a pointer to an ERF pinfo.
@@ -26,5 +26,5 @@
  *
  * @returns Pointer to extension header or NULL.
  * */
-guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterinstance);
+uint64_t* erf_get_ehdr(packet_info *pinfo, uint8_t hdrtype, int* afterinstance);
 #endif /* packet-erf.h */

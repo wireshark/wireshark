@@ -55,11 +55,11 @@ static int hf_esis_net;
 static int hf_esis_da;
 static int hf_esis_bsnpa;
 
-static gint ett_esis;
-static gint ett_esis_area_addr;
-static gint ett_esis_network;
-static gint ett_esis_dest_addr;
-static gint ett_esis_subnetwork;
+static int ett_esis;
+static int ett_esis_area_addr;
+static int ett_esis_network;
+static int ett_esis_dest_addr;
+static int ett_esis_subnetwork;
 
 
 static expert_field ei_esis_version;
@@ -125,10 +125,10 @@ static const value_string esis_vals[] = {
 
 
 static void
-esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
+esis_dissect_esh_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
     proto_tree *esis_area_tree;
     int         offset  = 0;
-    guint       no_sa, sal;
+    unsigned    no_sa, sal;
 
     proto_item  *ti;
 
@@ -151,7 +151,7 @@ esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *
 } /* esis_dissect_esh_pdu */
 
 static void
-esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
+esis_dissect_ish_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
 
     int   offset  = 0;
     int   netl    = 0;
@@ -171,7 +171,7 @@ esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *
 }
 
 static void
-esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
+esis_dissect_redirect_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
 
     int   offset  = 0;
     int   tmpl    = 0;
@@ -233,11 +233,11 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_i
  */
 static int
 dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  guint8 version, length;
+  uint8_t version, length;
   proto_item *ti, *type_item;
   proto_tree *esis_tree    = NULL;
-  guint8      variable_len, type;
-  guint16     checksum;
+  uint8_t     variable_len, type;
+  uint16_t    checksum;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -274,7 +274,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /* No checksum present */
         proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
-        guint32 c0 = 0, c1 = 0;
+        uint32_t c0 = 0, c1 = 0;
 
         if (osi_calc_checksum(tvb, 0, length, &c0, &c1)) {
             /* Successfully processed checksum, verify it */
@@ -368,7 +368,7 @@ proto_register_esis(void) {
       { &hf_esis_bsnpa, { "BSNPA", "esis.bsnpa", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_esis,
     &ett_esis_area_addr,
     &ett_esis_network,

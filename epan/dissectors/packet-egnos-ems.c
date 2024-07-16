@@ -43,7 +43,7 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EMS");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    guint8 prn, year, month, day, hour, minute, second, mt;
+    uint8_t prn, year, month, day, hour, minute, second, mt;
     prn    = tvb_get_guint8(tvb, 0);
     year   = tvb_get_guint8(tvb, 1);
     month  = tvb_get_guint8(tvb, 2);
@@ -92,7 +92,7 @@ void proto_register_ems(void) {
         {&hf_ems_mt,     {"Message Type", "ems.mt",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ems,
     };
 
@@ -104,7 +104,7 @@ void proto_register_ems(void) {
 }
 
 void proto_reg_handoff_ems(void) {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized) {
         dissector_add_uint("wtap_encap", WTAP_ENCAP_EMS, ems_handle);

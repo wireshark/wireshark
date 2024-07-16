@@ -65,11 +65,11 @@ static int hf_etw_descriptor_keywords;
 static int hf_etw_processor_time;
 static int hf_etw_activity_id;
 
-static gint ett_etw_header;
-static gint ett_etw_descriptor;
-static gint ett_etw_buffer_context;
-static gint ett_etw_header_flags;
-static gint ett_etw_event_property_types;
+static int ett_etw_header;
+static int ett_etw_descriptor;
+static int ett_etw_buffer_context;
+static int ett_etw_header_flags;
+static int ett_etw_event_property_types;
 
 static dissector_handle_t mbim_dissector;
 
@@ -86,9 +86,9 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
 {
     proto_tree* etw_header, * etw_descriptor, * etw_buffer_context;
     tvbuff_t* mbim_tvb;
-    guint32 message_offset, message_length, provider_name_offset, provider_name_length, user_data_offset, user_data_length;
+    uint32_t message_offset, message_length, provider_name_offset, provider_name_length, user_data_offset, user_data_length;
     e_guid_t provider_id;
-    gint offset = 0;
+    int offset = 0;
     static int * const etw_header_flags[] = {
         &hf_etw_header_flag_extended_info,
         &hf_etw_header_flag_private_session,
@@ -167,11 +167,11 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     proto_tree_add_item_ret_uint(etw_header, hf_etw_provider_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_name_length);
     offset += 4;
     user_data_offset = offset;
-    message_offset = user_data_offset + ROUND_UP_COUNT(user_data_length, sizeof(gint32));
+    message_offset = user_data_offset + ROUND_UP_COUNT(user_data_length, sizeof(int32_t));
     if (message_length) {
         proto_tree_add_item(etw_header, hf_etw_message, tvb, message_offset, message_length, ENC_LITTLE_ENDIAN | ENC_UTF_16);
     }
-    provider_name_offset = message_offset + ROUND_UP_COUNT(message_length, sizeof(gint32));
+    provider_name_offset = message_offset + ROUND_UP_COUNT(message_length, sizeof(int32_t));
     if (provider_name_length) {
         proto_tree_add_item(etw_header, hf_etw_provider_name, tvb, provider_name_offset, provider_name_length, ENC_LITTLE_ENDIAN | ENC_UTF_16);
     }
@@ -179,7 +179,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     col_set_str(pinfo->cinfo, COL_DEF_SRC, "windows");
     col_set_str(pinfo->cinfo, COL_DEF_DST, "windows");
     if (memcmp(&mbim_net_providerid, &provider_id, sizeof(e_guid_t)) == 0) {
-        guint32 pack_flags;
+        uint32_t pack_flags;
 
         if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
             switch(PACK_FLAGS_DIRECTION(pack_flags)) {
@@ -412,7 +412,7 @@ proto_register_etw(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_etw_header,
         &ett_etw_descriptor,
         &ett_etw_buffer_context,

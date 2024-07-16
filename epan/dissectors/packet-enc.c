@@ -22,9 +22,9 @@ static capture_dissector_handle_t enc_cap_handle;
 /* The header in OpenBSD Encapsulating Interface files. */
 
 struct enchdr {
-  guint32 af;
-  guint32 spi;
-  guint32 flags;
+  uint32_t af;
+  uint32_t spi;
+  uint32_t flags;
 };
 #define BSD_ENC_HDRLEN    12
 
@@ -48,16 +48,16 @@ static int hf_enc_flags_payload_compress;
 static int hf_enc_flags_header_auth;
 static int hf_enc_flags_reserved;
 
-static gint ett_enc;
-static gint ett_enc_flag;
+static int ett_enc;
+static int ett_enc_flag;
 
 static bool
-capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_enc(const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-  guint32 af;
+  uint32_t af;
 
   if (!BYTES_ARE_IN_FRAME(0, len, BSD_ENC_HDRLEN))
-    return FALSE;
+    return false;
 
   memcpy((char *)&af, (const char *)&pd[0], sizeof(af));
   if ((af & 0xFFFF0000) != 0) {
@@ -84,7 +84,7 @@ static int
 dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct enchdr  ench;
-  guint          writer_encoding;
+  unsigned       writer_encoding;
   tvbuff_t      *next_tvb;
   proto_tree    *enc_tree;
   proto_item    *ti;
@@ -173,7 +173,7 @@ proto_register_enc(void)
       { "Reserved", "enc.flags.reserved", FT_UINT32, BASE_HEX, NULL, BSD_ENC_M_RESERVED,
         NULL, HFILL }},
   };
-  static gint *ett[] =
+  static int *ett[] =
   {
       &ett_enc,
       &ett_enc_flag

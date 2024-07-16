@@ -182,8 +182,8 @@ static int hf_evrc_legacy_toc_reduc_rate;
 static int hf_evrc_legacy_toc_frame_type;
 
 /* Initialize the subtree pointers */
-static gint ett_evrc;
-static gint ett_toc;
+static int ett_evrc;
+static int ett_toc;
 
 static expert_field ei_evrc_unknown_variant;
 
@@ -194,8 +194,8 @@ static expert_field ei_evrc_unknown_variant;
 static bool legacy_pt_60;
 
 
-static guint8
-evrc_frame_type_to_octs(guint8 frame_type)
+static uint8_t
+evrc_frame_type_to_octs(uint8_t frame_type)
 {
     switch (frame_type)
     {
@@ -223,12 +223,12 @@ evrc_frame_type_to_octs(guint8 frame_type)
 static void
 dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_variant_t evrc_variant)
 {
-    guint8                      oct;
-    guint8                      frame_count;
-    guint8                      i;
-    guint32                     offset, saved_offset;
-    gboolean                    further_entries;
-    guint32                     len;
+    uint8_t                     oct;
+    uint8_t                     frame_count;
+    uint8_t                     i;
+    uint32_t                    offset, saved_offset;
+    bool                        further_entries;
+    uint32_t                    len;
     proto_item                  *item = NULL;
     proto_tree                  *evrc_tree = NULL;
     proto_tree                  *toc_tree = NULL;
@@ -240,7 +240,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
      * assumed max number of speech frames based on
      * frame count being 5 bits + 1
      */
-    guint8                      speech_data_len[0x20];
+    uint8_t                     speech_data_len[0x20];
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVRC");
@@ -267,7 +267,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         offset++;
 
         frame_count = 0;
-        further_entries = TRUE;
+        further_entries = true;
         while (further_entries && (frame_count < sizeof(speech_data_len)) &&
             ((len - offset) > 0))
         {
@@ -279,9 +279,9 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             oct = tvb_get_guint8(tvb, offset);
-            further_entries = (oct & 0x80) ? TRUE : FALSE;
+            further_entries = (oct & 0x80) ? true : false;
 
-            speech_data_len[frame_count] = evrc_frame_type_to_octs((guint8)(oct & 0x7f));
+            speech_data_len[frame_count] = evrc_frame_type_to_octs((uint8_t)(oct & 0x7f));
 
             frame_count++;
             offset++;
@@ -367,7 +367,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
             proto_tree_add_item(toc_tree, hf_toc_frame_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            speech_data_len[i] = evrc_frame_type_to_octs((guint8)((oct & 0xf0) >> 4));
+            speech_data_len[i] = evrc_frame_type_to_octs((uint8_t)((oct & 0xf0) >> 4));
 
             i++;
 
@@ -376,7 +376,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
                 /* even number of frames */
                 proto_tree_add_item(toc_tree, hf_toc_frame_type_low, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                speech_data_len[i] = evrc_frame_type_to_octs((guint8)(oct & 0x0f));
+                speech_data_len[i] = evrc_frame_type_to_octs((uint8_t)(oct & 0x0f));
 
                 i++;
             }
@@ -571,7 +571,7 @@ proto_register_evrc(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_evrc,
         &ett_toc
@@ -628,7 +628,7 @@ proto_register_evrc(void)
 void
 proto_reg_handoff_evrc(void)
 {
-    static gboolean             evrc_prefs_initialized = FALSE;
+    static bool                 evrc_prefs_initialized = false;
 
     if (!evrc_prefs_initialized)
     {
@@ -647,7 +647,7 @@ proto_reg_handoff_evrc(void)
         /* Since the draft legacy encapsulation only appears on PT 60, not
          * adding it to decode as */
         /* dissector_add_for_decode_as("rtp.pt", evrc_legacy_handle); */
-        evrc_prefs_initialized = TRUE;
+        evrc_prefs_initialized = true;
     }
     else
     {
