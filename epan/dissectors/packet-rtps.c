@@ -440,6 +440,8 @@ static dissector_table_t rtps_type_name_table;
 #define PID_BASE_TYPE_NAME                      (0x0076)
 #define PID_BUILTIN_ENDPOINT_QOS                (0x0077)
 #define PID_ENABLE_AUTHENTICATION               (0x0078)
+#define PID_RELATED_ENTITY_GUID                 (0x0081)
+#define PID_RELATED_ORIGINAL_WRITER_INFO        (0x0083)/* inline QoS */
 #define PID_DOMAIN_ID                           (0x000f)
 #define PID_DOMAIN_TAG                          (0x4014)
 
@@ -455,7 +457,7 @@ static dissector_table_t rtps_type_name_table;
 #define PID_ROLE_NAME                           (0x800a)
 #define PID_ACK_KIND                            (0x800b)
 #define PID_PEER_HOST_EPOCH                     (0x800e)
-#define PID_RELATED_ORIGINAL_WRITER_INFO        (0x800f)/* inline QoS */
+#define PID_RELATED_ORIGINAL_WRITER_INFO_LEGACY (0x800f)/* inline QoS */
 #define PID_RTI_DOMAIN_ID                       (0x800f)
 #define PID_RELATED_READER_GUID                 (0x8010)/* inline QoS */
 #define PID_TRANSPORT_INFO_LIST                 (0x8010)
@@ -1816,6 +1818,7 @@ static const value_string parameter_id_vals[] = {
 
 static const value_string parameter_id_inline_qos_rti[] = {
   { PID_RELATED_ORIGINAL_WRITER_INFO,   "PID_RELATED_ORIGINAL_WRITER_INFO" },
+  { PID_RELATED_ORIGINAL_WRITER_INFO_LEGACY, "PID_RELATED_ORIGINAL_WRITER_INFO_LEGACY" },
   { PID_RELATED_SOURCE_GUID,            "PID_RELATED_SOURCE_GUID" },
   { PID_RELATED_READER_GUID,            "PID_RELATED_READER_GUID" },
   { PID_SOURCE_GUID,                    "PID_SOURCE_GUID" },
@@ -1888,6 +1891,7 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_TYPE_CONSISTENCY,               "PID_TYPE_CONSISTENCY" },
   { PID_BUILTIN_ENDPOINT_QOS,           "PID_BUILTIN_ENDPOINT_QOS" },
   { PID_ENABLE_AUTHENTICATION,          "PID_ENABLE_AUTHENTICATION" },
+  { PID_RELATED_ENTITY_GUID,            "PID_RELATED_ENTITY_GUID" },
   { PID_IDENTITY_TOKEN,                 "PID_IDENTITY_TOKEN" },
   { PID_PERMISSIONS_TOKEN,              "PID_PERMISSIONS_TOKEN" },
   { PID_DATA_TAGS,                      "PID_DATA_TAGS" },
@@ -7827,6 +7831,29 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
             offset, 4, ENC_NA);
       break;
 
+    case PID_RELATED_ENTITY_GUID:
+      ENSURE_LENGTH(16);
+      rtps_util_add_guid_prefix_v2(
+          rtps_parameter_tree,
+          tvb,
+          offset,
+          hf_rtps_sm_guid_prefix,
+          hf_rtps_sm_host_id,
+          hf_rtps_sm_app_id,
+          hf_rtps_sm_instance_id,
+          0);
+      rtps_util_add_entity_id(
+          rtps_parameter_tree,
+          tvb,
+          offset + 12,
+          hf_rtps_sm_entity_id,
+          hf_rtps_sm_entity_id_key,
+          hf_rtps_sm_entity_id_kind,
+          ett_rtps_entity,
+          "Related entity instance id",
+          NULL);
+      break;
+
     case PID_BUILTIN_ENDPOINT_QOS:
       ENSURE_LENGTH(1);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_builtin_endpoint_qos, tvb,
@@ -8204,7 +8231,7 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
 
     case PID_RTI_DOMAIN_ID:
     case PID_DOMAIN_ID: {
-      if (is_inline_qos) { /* PID_RELATED_ORIGINAL_WRITER_INFO */
+      if (is_inline_qos) { /* PID_RELATED_ORIGINAL_WRITER_INFO_LEGACY */
         ENSURE_LENGTH(16);
         rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix,
                     hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id, 0);
@@ -8232,6 +8259,39 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
               (const void*)participant_guid_copy, (void*)p_info);
           }
         }
+      }
+      break;
+    }
+
+    case PID_RELATED_ORIGINAL_WRITER_INFO: {
+      if (is_inline_qos) { /* PID_RELATED_ORIGINAL_WRITER_INFO */
+        ENSURE_LENGTH(16);
+        rtps_util_add_guid_prefix_v2(
+            rtps_parameter_tree,
+            tvb,
+            offset,
+            hf_rtps_sm_guid_prefix,
+            hf_rtps_sm_host_id,
+            hf_rtps_sm_app_id,
+            hf_rtps_sm_instance_id,
+            0);
+        rtps_util_add_entity_id(
+            rtps_parameter_tree,
+            tvb,
+            offset + 12,
+            hf_rtps_sm_entity_id,
+            hf_rtps_sm_entity_id_key,
+            hf_rtps_sm_entity_id_kind,
+            ett_rtps_entity,
+            "virtualGUIDSuffix",
+            NULL);
+        /* Sequence number */
+        rtps_util_add_seq_number(
+            rtps_parameter_tree,
+            tvb,
+            offset + 16,
+            encoding,
+            "virtualSeqNumber");
       }
       break;
     }
