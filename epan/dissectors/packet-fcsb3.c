@@ -94,20 +94,20 @@ static int hf_sbccs_dib_linkctlinfo_ecrcg;
 static int hf_sbccs_logical_path;
 
 /* Initialize the subtree pointers */
-static gint ett_fc_sbccs;
-static gint ett_sbccs_iui;
-static gint ett_sbccs_dhflags;
-static gint ett_sbccs_dib_ccw_flags;
-static gint ett_sbccs_dib_cmdflags;
-static gint ett_sbccs_dib_statusflags;
-static gint ett_sbccs_dib_status;
-static gint ett_sbccs_dib_ctlparam;
-static gint ett_sbccs_dib_linkctlinfo;
+static int ett_fc_sbccs;
+static int ett_sbccs_iui;
+static int ett_sbccs_dhflags;
+static int ett_sbccs_dib_ccw_flags;
+static int ett_sbccs_dib_cmdflags;
+static int ett_sbccs_dib_statusflags;
+static int ett_sbccs_dib_status;
+static int ett_sbccs_dib_ctlparam;
+static int ett_sbccs_dib_linkctlinfo;
 
 #if 0
 typedef struct {
-    guint32 conv_id;
-    guint32 task_id;
+    uint32_t conv_id;
+    uint32_t task_id;
 } sb3_task_id_t;
 #endif
 
@@ -234,7 +234,7 @@ static const value_string fc_sbccs_dib_lrj_errcode_val[] = {
 };
 
 static void
-dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
+dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags)
 {
     static int * const iui_flags[] = {
         &hf_sbccs_iui_as,
@@ -248,7 +248,7 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 }
 
 static void
-dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
+dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags)
 {
     static int * const linkctlinfo_flags[] = {
         &hf_sbccs_dib_linkctlinfo_ctcconn,
@@ -262,7 +262,7 @@ dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16
 
 
 static void
-dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
+dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags)
 {
     static int * const dh_flags[] = {
         &hf_sbccs_dhflags_end,
@@ -278,7 +278,7 @@ dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 fl
 
 
 static void
-dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
+dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t flags)
 {
     static int * const ccw_flags[] = {
         &hf_sbccs_dib_ccw_flags_cd,
@@ -294,7 +294,7 @@ dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
 
 
 static void
-dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
+dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t flags)
 {
     static int * const cmd_flags[] = {
         &hf_sbccs_dib_cmdflags_du,
@@ -318,7 +318,7 @@ static const value_string status_ffc_val[] = {
 
 
 static void
-dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
+dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t flags)
 {
     static int * const status_flags[] = {
         &hf_sbccs_dib_statusflags_ffc,
@@ -335,7 +335,7 @@ dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8
 
 
 static void
-dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
+dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t flags)
 {
     static int * const status_flags[] = {
         &hf_sbccs_dib_status_attention,
@@ -385,7 +385,7 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
 
 
 static void
-dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags)
+dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint32_t flags)
 {
     static int * const rst_param_flags[] = {
         &hf_sbccs_dib_ctlparam_rc,
@@ -398,9 +398,9 @@ dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
                                    ett_sbccs_dib_ctlparam, rst_param_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
-static void get_fc_sbccs_conv_data (tvbuff_t *tvb, guint offset,
-                                    guint16 *ch_cu_id, guint16 *dev_addr,
-                                    guint16 *ccw)
+static void get_fc_sbccs_conv_data (tvbuff_t *tvb, unsigned offset,
+                                    uint16_t *ch_cu_id, uint16_t *dev_addr,
+                                    uint16_t *ccw)
 {
     *ch_cu_id  = *dev_addr = *ccw = 0;
 
@@ -413,12 +413,12 @@ static void get_fc_sbccs_conv_data (tvbuff_t *tvb, guint offset,
 /* Decode both the SB-3 and basic IU header */
 static void
 dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             guint offset)
+                             unsigned offset)
 {
     proto_tree *sb3hdr_tree;
     proto_tree *iuhdr_tree;
-    guint8      iui, dhflags;
-    guint       type;
+    uint8_t     iui, dhflags;
+    unsigned    type;
 
     /* Decode the basic SB3 and IU header and determine type of frame */
     type = get_fc_sbccs_iu_type (tvb, offset);
@@ -453,7 +453,7 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static void dissect_fc_sbccs_dib_data_hdr (tvbuff_t *tvb,
                                            packet_info *pinfo _U_,
-                                           proto_tree *tree, guint offset)
+                                           proto_tree *tree, unsigned offset)
 {
     if (tree) {
         proto_tree_add_item (tree, hf_sbccs_dib_iucnt, tvb, offset+9, 1, ENC_BIG_ENDIAN);
@@ -463,9 +463,9 @@ static void dissect_fc_sbccs_dib_data_hdr (tvbuff_t *tvb,
 }
 
 static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
-                                          proto_tree *tree, guint offset)
+                                          proto_tree *tree, unsigned offset)
 {
-    guint8 flags;
+    uint8_t flags;
 
     col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s", val_to_str (tvb_get_guint8 (tvb, offset),
@@ -492,12 +492,12 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
-                                             proto_tree *tree, guint offset)
+                                             proto_tree *tree, unsigned offset)
 {
-    guint8    flags;
-    gboolean  rv_valid, qparam_valid;
+    uint8_t   flags;
+    bool      rv_valid, qparam_valid;
     tvbuff_t *next_tvb;
-    guint16   supp_status_cnt = 0;
+    uint16_t  supp_status_cnt = 0;
 
     if (tree) {
         flags = tvb_get_guint8 (tvb, offset);
@@ -539,9 +539,9 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
-                                          proto_tree *tree, guint offset)
+                                          proto_tree *tree, unsigned offset)
 {
-    guint8 ctlfn;
+    uint8_t ctlfn;
 
     ctlfn = tvb_get_guint8 (tvb, offset);
     col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -585,11 +585,11 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
-                                           proto_tree *tree, guint offset)
+                                           proto_tree *tree, unsigned offset)
 {
-    guint8  link_ctl;
-    guint16 ctl_info;
-    guint   link_payload_len, i;
+    uint8_t link_ctl;
+    uint16_t ctl_info;
+    unsigned   link_payload_len, i;
 
     col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
@@ -653,9 +653,9 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree, void* data _U_)
 {
-    guint8          type;
-    guint16         ch_cu_id, dev_addr, ccw;
-    guint           offset   = 0;
+    uint8_t         type;
+    uint16_t        ch_cu_id, dev_addr, ccw;
+    unsigned        offset   = 0;
     proto_item     *ti;
     proto_tree     *sb3_tree = NULL;
     proto_tree     *dib_tree = NULL;
@@ -1103,7 +1103,7 @@ proto_register_fcsbccs (void)
 
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fc_sbccs,
         &ett_sbccs_iui,
         &ett_sbccs_dhflags,

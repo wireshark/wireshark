@@ -265,7 +265,7 @@ static dissector_handle_t fc_handle;
  * Insert common descriptor type and length fields.
  */
 static proto_tree*
-fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb, guint8 dtype, int ett, proto_item** item)
+fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb, uint8_t dtype, int ett, proto_item** item)
 {
     proto_tree* ret_tree;
 
@@ -283,8 +283,8 @@ fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb, guint8 dtype, int ett, proto_
 static void
 fip_desc_fc4f(tvbuff_t *tvb, proto_tree *tree, proto_item *item)
 {
-    guint mask;
-    guint offset;
+    unsigned mask;
+    unsigned offset;
 
     static int * const types_word0[] = { /* types 0 - 31 */
         &hf_fip_type_ip,
@@ -331,17 +331,17 @@ fip_desc_fc4f(tvbuff_t *tvb, proto_tree *tree, proto_item *item)
 static int
 dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint       op;
-    guint       sub;
-    guint       rlen;
+    unsigned    op;
+    unsigned    sub;
+    unsigned    rlen;
     proto_item *ti;
     proto_item *item;
     proto_tree *fip_tree;
     proto_tree *subtree;
-    guint       dtype;
-    guint       dlen;
-    guint       desc_offset;
-    guint       val;
+    unsigned    dtype;
+    unsigned    dlen;
+    unsigned    desc_offset;
+    unsigned    val;
     tvbuff_t   *desc_tvb;
     const char *info;
 
@@ -767,7 +767,7 @@ proto_register_fip(void)
             NULL, HFILL}},
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fip,
         &ett_fip_flags,
         &ett_fip_dt_pri,

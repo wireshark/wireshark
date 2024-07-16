@@ -86,14 +86,14 @@ static const value_string protocol_statuses[] = {
 };
 
 static void
-dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
-   gint end_offset = offset + len;
+   int end_offset = offset + len;
 
    while (offset < end_offset) {
-      gint start_offset = offset;
-      guint32 namelen;
-      guint32 valuelen;
+      int start_offset = offset;
+      uint32_t namelen;
+      uint32_t valuelen;
       char *name;
       char *value;
 
@@ -130,7 +130,7 @@ dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint 
 }
 
 static int
-dissect_begin_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_begin_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
    proto_tree *br_tree;
 
@@ -149,7 +149,7 @@ dissect_begin_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tr
 }
 
 static void
-dissect_abort_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_abort_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
    proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_abort_request, NULL, "Abort Request:");
 
@@ -157,7 +157,7 @@ dissect_abort_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tr
 }
 
 static int
-dissect_end_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_end_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
    proto_tree *er_tree;
 
@@ -175,7 +175,7 @@ dissect_end_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree
 }
 
 static void
-dissect_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
    proto_tree *p_tree;
 
@@ -187,7 +187,7 @@ dissect_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint of
 }
 
 static void
-dissect_get_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_get_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
    proto_tree *gv_tree;
 
@@ -199,7 +199,7 @@ dissect_get_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gin
 }
 
 static void
-dissect_get_values_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_get_values_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int offset, uint16_t len)
 {
    proto_tree *gvr_tree;
 
@@ -213,8 +213,8 @@ dissect_get_values_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tr
 static int
 dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-   gint offset = 0;
-   guint8 type;
+   int offset = 0;
+   uint8_t type;
 
    type = tvb_get_guint8(tvb, 1);
 
@@ -223,7 +223,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
    /* XXX: Unfortunately, something in the tcp_dissect_pdus() code is broken */
    /*      such that only the type for the first FCGI record appears in the  */
    /*      INFO column. (All write attempts to COL_INFO after the first fail */
-   /*      because pinfo->cinfo->writable is FALSE).                         */
+   /*      because pinfo->cinfo->writable is false).                         */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCGI");
    col_clear(pinfo->cinfo, COL_INFO);
    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
@@ -233,8 +233,8 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
    if (tree) { /* we are being asked for details */
       proto_item *ti;
       proto_tree *fcgi_tree;
-      guint16 clen;
-      guint8 plen;
+      uint16_t clen;
+      uint8_t plen;
 
       ti = proto_tree_add_item(tree, proto_fcgi, tvb, 0, -1, ENC_NA);
       proto_item_append_text(ti, " (%s)",
@@ -303,7 +303,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
    return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_fcgi_record_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
    return 8 + tvb_get_ntohs(tvb, offset + 4) + tvb_get_guint8(tvb, offset + 6);
@@ -312,7 +312,7 @@ get_fcgi_record_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_fcgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_fcgi_record_len, dissect_fcgi_record, data);
+   tcp_dissect_pdus(tvb, pinfo, tree, true, 8, get_fcgi_record_len, dissect_fcgi_record, data);
    return tvb_captured_length(tvb);
 }
 
@@ -360,7 +360,7 @@ proto_register_fcgi(void)
         { "NV Pair name", "fcgi.nv_name",
           FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
    };
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_fcgi,
       &ett_fcgi_begin_request,
       &ett_fcgi_abort_request,

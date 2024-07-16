@@ -75,8 +75,8 @@ static int hf_ftp_data_command;
 static int hf_ftp_data_command_frame;
 static int hf_ftp_data_current_working_directory;
 
-static gint ett_ftp;
-static gint ett_ftp_reqresp;
+static int ett_ftp;
+static int ett_ftp_reqresp;
 
 static expert_field ei_ftp_eprt_args_invalid;
 static expert_field ei_ftp_epsv_args_invalid;
@@ -167,13 +167,13 @@ static const value_string eprt_af_vals[] = {
    It will be used to set the maximum file size for FTP's export
    objects (in megabytes). Use 0 for no limit.
  */
-static guint pref_export_maxsize;
+static unsigned pref_export_maxsize;
 
 typedef struct _ftp_eo_t {
-    gchar    *command;      /* Command this data stream answers (e.g., RETR foo.txt) */
-    guint32  command_frame; /* Where command for this data was seen */
-    guint32  payload_len;   /* Length of packet's data */
-    gchar    *payload_data; /* Packet's data */
+    char     *command;      /* Command this data stream answers (e.g., RETR foo.txt) */
+    uint32_t command_frame; /* Where command for this data was seen */
+    uint32_t payload_len;   /* Length of packet's data */
+    char     *payload_data; /* Packet's data */
 } ftp_eo_t;
 
 /* Stores mappings of the command packet number to the export object
@@ -183,7 +183,7 @@ typedef struct _ftp_eo_t {
 GHashTable *command_packet_to_eo_row;
 
 /* Track which row number in the export object table we're up to */
-guint32 eo_row_count;
+uint32_t eo_row_count;
 
 /**
  * This is the callback passed to register_export_object()
@@ -244,7 +244,7 @@ ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
                 entry->filename = g_strdup("(MISSING)");
             }
 
-            gsize bytes_to_copy;
+            size_t bytes_to_copy;
             if (pref_export_maxsize != 0 && (eo_info->payload_len > pref_export_maxsize*1024*1024)) {
                 bytes_to_copy = pref_export_maxsize*1024*1024;
             }
@@ -252,7 +252,7 @@ ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
                 bytes_to_copy = eo_info->payload_len;
             }
             entry->payload_len = bytes_to_copy;
-            entry->payload_data = (guint8 *)g_memdup2(eo_info->payload_data, bytes_to_copy);
+            entry->payload_data = (uint8_t *)g_memdup2(eo_info->payload_data, bytes_to_copy);
 
             /* Add the mapping of the command frame and the export object
                list's row number to the hash table */
@@ -264,10 +264,10 @@ ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
                command_packet_to_eo_row hashtable, so it's a continuation of
                a previous. Let's look up the entry in the export
                object list and append the data to there */
-            guint32 row_num = GPOINTER_TO_UINT(g_hash_table_lookup(command_packet_to_eo_row, GUINT_TO_POINTER(eo_info->command_frame)));
+            uint32_t row_num = GPOINTER_TO_UINT(g_hash_table_lookup(command_packet_to_eo_row, GUINT_TO_POINTER(eo_info->command_frame)));
             export_object_entry_t *entry = object_list->get_entry(object_list->gui_data, row_num);
 
-            gsize bytes_to_copy;
+            size_t bytes_to_copy;
             if (pref_export_maxsize != 0 && (entry->payload_len + eo_info->payload_len) > pref_export_maxsize*1024*1024) {
                 bytes_to_copy = pref_export_maxsize*1024*1024 - entry->payload_len;
             }
@@ -275,7 +275,7 @@ ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
                 bytes_to_copy = eo_info->payload_len;
             }
 
-            entry->payload_data = (guint8 *) g_realloc(entry->payload_data, entry->payload_len + bytes_to_copy);
+            entry->payload_data = (uint8_t *) g_realloc(entry->payload_data, entry->payload_len + bytes_to_copy);
             memcpy(entry->payload_data + entry->payload_len, eo_info->payload_data, bytes_to_copy);
             entry->payload_len = entry->payload_len + bytes_to_copy;
         }
@@ -309,19 +309,19 @@ ftp_eo_cleanup(void)
 
 typedef struct ftp_data_conversation_t
 {
-    const gchar   *command;      /* Command that this data answers */
-    guint32       command_frame; /* Frame command was seen */
-    const gchar   *setup_method; /* Type of command used to set up data conversation */
-    guint32       setup_frame;   /* Frame where this happened */
+    const char    *command;      /* Command that this data answers */
+    uint32_t      command_frame; /* Frame command was seen */
+    const char    *setup_method; /* Type of command used to set up data conversation */
+    uint32_t      setup_frame;   /* Frame where this happened */
     wmem_strbuf_t *current_working_directory;
 
     /* Summary details of stream to show in command frame. */
-    guint         first_frame_num;
+    unsigned      first_frame_num;
     nstime_t      first_frame_time;
-    guint         last_frame_num;
+    unsigned      last_frame_num;
     nstime_t      last_frame_time;
-    guint         frames_seen;
-    guint         bytes_seen;
+    unsigned      frames_seen;
+    unsigned      bytes_seen;
 } ftp_data_conversation_t;
 
 /* Data to associate with individual FTP frame */
@@ -333,14 +333,14 @@ typedef struct ftp_packet_data_t
 /* State of FTP conversation */
 typedef struct ftp_conversation_t
 {
-    const gchar *last_command;       /* Most recent request command seen (on first pass) */
-    guint32     last_command_frame;  /* When request was seen */
+    const char *last_command;       /* Most recent request command seen (on first pass) */
+    uint32_t    last_command_frame;  /* When request was seen */
     wmem_strbuf_t *current_working_directory;
     ftp_data_conversation_t *current_data_conv;  /* Current data conversation (during first pass) */
-    guint32     current_data_setup_frame;
-    gchar *username;
-    guint username_pkt_num;
-    gboolean tls_requested;
+    uint32_t    current_data_setup_frame;
+    char *username;
+    unsigned username_pkt_num;
+    bool tls_requested;
 } ftp_conversation_t;
 
 /* For a given packet, retrieve or initialise a new conversation, and return it */
@@ -372,9 +372,9 @@ static GHashTable *ftp_command_to_data_hash;
  */
 static void create_and_link_data_conversation(packet_info *pinfo,
                                               address *addr_a,
-                                              guint16 port_a,
+                                              uint16_t port_a,
                                               address *addr_b,
-                                              guint16 port_b,
+                                              uint16_t port_b,
                                               const char *method)
 {
     /* Only to do on first pass */
@@ -412,8 +412,8 @@ static void create_and_link_data_conversation(packet_info *pinfo,
 
 /*
  * Parse the address and port information in a PORT command or in the
- * response to a PASV command.  Return TRUE if we found an address and
- * port, and supply the address and port; return FALSE if we didn't find
+ * response to a PASV command.  Return true if we found an address and
+ * port, and supply the address and port; return false if we didn't find
  * them.
  *
  * We ignore the IP address in the reply, and use the address from which
@@ -462,17 +462,17 @@ static void create_and_link_data_conversation(packet_info *pinfo,
  * so it appears that you can't assume there are parentheses around
  * the address and port number.
  */
-static gboolean
-parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, guint32 *ftp_ip,
-    guint16 *ftp_port, guint32 *pasv_offset, guint *ftp_ip_len,
-    guint *ftp_port_len)
+static bool
+parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, uint32_t *ftp_ip,
+    uint16_t *ftp_port, uint32_t *pasv_offset, unsigned *ftp_ip_len,
+    unsigned *ftp_port_len)
 {
     char     *args;
     char     *p;
-    guchar    c;
+    unsigned char    c;
     int       i;
     int       ip_address[4], port[2];
-    gboolean  ret = FALSE;
+    bool      ret = false;
 
     /*
      * Copy the rest of the line into a null-terminated buffer.
@@ -507,14 +507,14 @@ parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, guint32 *ftp_ip,
              */
             *ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
             *ftp_ip = g_htonl((ip_address[0] << 24) | (ip_address[1] <<16) | (ip_address[2] <<8) | ip_address[3]);
-            *pasv_offset = (guint32)(p - args);
+            *pasv_offset = (uint32_t)(p - args);
             *ftp_port_len = (port[0] < 10 ? 1 : (port[0] < 100 ? 2 : 3 )) + 1 +
                             (port[1] < 10 ? 1 : (port[1] < 100 ? 2 : 3 ));
             *ftp_ip_len = (ip_address[0] < 10 ? 1 : (ip_address[0] < 100 ? 2 : 3)) + 1 +
                           (ip_address[1] < 10 ? 1 : (ip_address[1] < 100 ? 2 : 3)) + 1 +
                           (ip_address[2] < 10 ? 1 : (ip_address[2] < 100 ? 2 : 3)) + 1 +
                           (ip_address[3] < 10 ? 1 : (ip_address[3] < 100 ? 2 : 3));
-            ret = TRUE;
+            ret = true;
             break;
         }
 
@@ -529,16 +529,16 @@ parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, guint32 *ftp_ip,
     return ret;
 }
 
-static gboolean
-isvalid_rfc2428_delimiter(const guchar c)
+static bool
+isvalid_rfc2428_delimiter(const unsigned char c)
 {
     /* RFC2428 sect. 2 states rules for a valid delimiter */
-    const gchar *forbidden = "0123456789abcdef.:";
+    const char *forbidden = "0123456789abcdef.:";
     if (!g_ascii_isgraph(c))
-        return FALSE;
+        return false;
     if (strchr(forbidden, g_ascii_tolower(c)))
-        return FALSE;
-    return TRUE;
+        return false;
+    return true;
 }
 
 
@@ -572,24 +572,24 @@ isvalid_rfc2428_delimiter(const guchar c)
  * act depending on it.
  *
  */
-static gboolean
-parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
-        guint32 *eprt_ip, guint16 *eprt_ipv6, guint16 *ftp_port,
-        guint32 *eprt_ip_len, guint32 *ftp_port_len)
+static bool
+parse_eprt_request(tvbuff_t *tvb, int offset, int linelen, uint32_t *eprt_af,
+        uint32_t *eprt_ip, uint16_t *eprt_ipv6, uint16_t *ftp_port,
+        uint32_t *eprt_ip_len, uint32_t *ftp_port_len)
 {
-    gint      delimiters_seen = 0;
-    gchar     delimiter;
-    gint      fieldlen;
-    gchar    *field;
-    gint      n;
-    gint      lastn;
+    int       delimiters_seen = 0;
+    char      delimiter;
+    int       fieldlen;
+    char     *field;
+    int       n;
+    int       lastn;
     char     *args, *p;
-    gboolean  ret = TRUE;
+    bool      ret = true;
 
 
     /* line contains the EPRT parameters, we need at least the 4 delimiters */
     if (linelen<4)
-        return FALSE;
+        return false;
 
     /* Copy the rest of the line into a null-terminated buffer. */
     args = wmem_alloc(wmem_packet_scope(), linelen + 1);
@@ -600,8 +600,8 @@ parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
      * strlen(args) will terminate at the NUL and will thus return
      * a value less than linelen.
      */
-    if ((gint)strlen(args) < linelen)
-        linelen = (gint)strlen(args);
+    if ((int)strlen(args) < linelen)
+        linelen = (int)strlen(args);
 
     /*
      * RFC2428 sect. 2 states ...
@@ -614,7 +614,7 @@ parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
      * character must be the delimiter and has just to be checked to be valid.
      */
     if (!isvalid_rfc2428_delimiter(*p))
-        return FALSE;  /* EPRT command does not follow a vaild delimiter;
+        return false;  /* EPRT command does not follow a vaild delimiter;
                         * malformed EPRT command - immediate escape */
 
     delimiter = *p;
@@ -624,7 +624,7 @@ parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
             delimiters_seen++;
     }
     if (delimiters_seen != 4)
-        return FALSE; /* delimiter doesn't occur 4 times
+        return false; /* delimiter doesn't occur 4 times
                        * probably no EPRT request - immediate escape */
 
     /* we know that the first character is a delimiter... */
@@ -641,42 +641,42 @@ parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
 
         fieldlen = n - lastn - 1;
         if (fieldlen<=0)
-            return FALSE; /* all fields must have data in them */
+            return false; /* all fields must have data in them */
         field =  p + lastn + 1;
 
         if (delimiters_seen == 2) {     /* end of address family field */
-            gchar *af_str;
+            char *af_str;
             af_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
             if (!ws_strtou32(af_str, NULL, eprt_af))
-                return FALSE;
+                return false;
         }
         else if (delimiters_seen == 3) {/* end of IP address field */
-            gchar *ip_str;
+            char *ip_str;
             ip_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
 
             if (*eprt_af == EPRT_AF_IPv4) {
                 if (str_to_ip(ip_str, eprt_ip))
-                   ret = TRUE;
+                   ret = true;
                 else
-                   ret = FALSE;
+                   ret = false;
             }
             else if (*eprt_af == EPRT_AF_IPv6) {
                 if (str_to_ip6(ip_str, eprt_ipv6))
-                   ret = TRUE;
+                   ret = true;
                 else
-                   ret = FALSE;
+                   ret = false;
             }
             else
-                return FALSE; /* invalid/unknown address family */
+                return false; /* invalid/unknown address family */
 
             *eprt_ip_len = fieldlen;
         }
         else if (delimiters_seen == 4) {/* end of port field */
-            gchar *pt_str;
+            char *pt_str;
             pt_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
 
             if (!ws_strtou16(pt_str, NULL, ftp_port))
-                return FALSE;
+                return false;
             *ftp_port_len = fieldlen;
         }
 
@@ -708,17 +708,17 @@ parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
  * protocol independent and already set.
  *
  */
-static gboolean
-parse_extended_pasv_response(tvbuff_t *tvb, int offset, gint linelen,
-        guint16 *ftp_port, guint *pasv_offset, guint *ftp_port_len)
+static bool
+parse_extended_pasv_response(tvbuff_t *tvb, int offset, int linelen,
+        uint16_t *ftp_port, unsigned *pasv_offset, unsigned *ftp_port_len)
 {
-    gint       n;
-    gchar     *args;
-    gchar     *p;
-    gchar     *e;
-    guchar     c;
-    gboolean   ret             = FALSE;
-    gboolean   delimiters_seen = FALSE;
+    int        n;
+    char      *args;
+    char      *p;
+    char      *e;
+    unsigned char     c;
+    bool       ret             = false;
+    bool       delimiters_seen = false;
 
     /*
      * Copy the rest of the line into a null-terminated buffer.
@@ -732,12 +732,12 @@ parse_extended_pasv_response(tvbuff_t *tvb, int offset, gint linelen,
        (Try to cope with '(' in description)
      */
     for (; !delimiters_seen;) {
-        guchar delimiter = '\0';
+        unsigned char delimiter = '\0';
         while ((c = *p) != '\0' && (c != '('))
             p++;
 
         if (*p == '\0') {
-            return FALSE;
+            return false;
         }
 
         /* Skip '(' */
@@ -758,15 +758,15 @@ parse_extended_pasv_response(tvbuff_t *tvb, int offset, gint linelen,
                 break;
             }
         }
-        delimiters_seen = TRUE;
+        delimiters_seen = true;
     }
 
     /*
      * Should now be at digits.
      */
     if (*p != '\0') {
-        const gchar* endptr;
-        gboolean port_valid;
+        const char* endptr;
+        bool port_valid;
         /*
          * We didn't run out of text without finding anything.
          */
@@ -774,18 +774,18 @@ parse_extended_pasv_response(tvbuff_t *tvb, int offset, gint linelen,
         /* the conversion returned false, but the converted value could
            be valid instead, check it out */
         if (!port_valid && *endptr == '|')
-            port_valid = TRUE;
+            port_valid = true;
         if (port_valid) {
-            *pasv_offset = (guint32)(p - args);
+            *pasv_offset = (uint32_t)(p - args);
 
-            ret = TRUE;
+            ret = true;
 
             /* get port string length */
             if ((e=strchr(p,')')) == NULL) {
-                ret = FALSE;
+                ret = false;
             }
             else {
-                *ftp_port_len = (guint)(--e - p);
+                *ftp_port_len = (unsigned)(--e - p);
             }
         }
     }
@@ -794,11 +794,11 @@ parse_extended_pasv_response(tvbuff_t *tvb, int offset, gint linelen,
 }
 
 /* Get the last character out of a string */
-static gchar wmem_strbuf_get_last_char(wmem_strbuf_t *string)
+static char wmem_strbuf_get_last_char(wmem_strbuf_t *string)
 {
-    gsize len = wmem_strbuf_get_len(string);
+    size_t len = wmem_strbuf_get_len(string);
     if (len > 0) {
-        const gchar *buf = wmem_strbuf_get_str(string);
+        const char *buf = wmem_strbuf_get_str(string);
         return buf[len-1];
     }
     else {
@@ -808,7 +808,7 @@ static gchar wmem_strbuf_get_last_char(wmem_strbuf_t *string)
 }
 
 /* Get the nth character out of string */
-static gchar wmem_strbuf_get_char_n(wmem_strbuf_t *string, size_t n)
+static char wmem_strbuf_get_char_n(wmem_strbuf_t *string, size_t n)
 {
     if (n > wmem_strbuf_get_len(string)-1) {
         return '\0';
@@ -819,24 +819,24 @@ static gchar wmem_strbuf_get_char_n(wmem_strbuf_t *string, size_t n)
 }
 
 /* Does the path end with the separator character? */
-static gboolean ends_with_separator(wmem_strbuf_t *path)
+static bool ends_with_separator(wmem_strbuf_t *path)
 {
     if (wmem_strbuf_get_len(path) == 0) {
-        return FALSE;
+        return false;
     }
 
-    gchar last = wmem_strbuf_get_last_char(path);
+    char last = wmem_strbuf_get_last_char(path);
     return last == '/';
 }
 
 /* Does the path begin with the separator character? */
-static gboolean begins_with_separator(wmem_strbuf_t *path)
+static bool begins_with_separator(wmem_strbuf_t *path)
 {
     if (wmem_strbuf_get_len(path) == 0) {
-        return FALSE;
+        return false;
     }
 
-    gchar first = wmem_strbuf_get_char_n(path, 0);
+    char first = wmem_strbuf_get_char_n(path, 0);
     return first == '/';
 }
 
@@ -863,7 +863,7 @@ static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path
 
     /* Now normalise, by going through the string one directory at a time.  If see "..",
        remove it and the previous folder. If see ".", ignore it. */
-    guint offset;
+    unsigned offset;
 
     /* Initialise with empty path */
     wmem_strbuf_t *normalised_directory = wmem_strbuf_new(wmem_file_scope(), NULL);
@@ -879,7 +879,7 @@ static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path
     /* Now go through the appended path, one directory at a time, and
        copy to normalised_directory */
     for (; offset <= wmem_strbuf_get_len(appended_path); offset++) {
-        gchar ch = wmem_strbuf_get_char_n(appended_path, offset);
+        char ch = wmem_strbuf_get_char_n(appended_path, offset);
         if ((offset == wmem_strbuf_get_len(appended_path)) || ch == '/' || ch == '\0') {
             /* Folder name is complete */
             if (offset>0 && wmem_strbuf_get_len(this_folder) > 0) {
@@ -946,7 +946,7 @@ static void process_pwd_success(ftp_conversation_t *conv, tvbuff_t *tvb,
 {
     wmem_strbuf_t *output;
     const char *line = tvb_get_ptr(tvb, offset, linelen);
-    gboolean outputStarted = FALSE;
+    bool outputStarted = false;
 
     /* Line must start with quotes */
     if ((linelen < 2) || (line[0] != '"')) {
@@ -972,7 +972,7 @@ static void process_pwd_success(ftp_conversation_t *conv, tvbuff_t *tvb,
                     /* End of path */
                     break;
                 }
-                outputStarted = TRUE;
+                outputStarted = true;
             }
         }
         else {
@@ -1008,41 +1008,41 @@ static void store_directory_in_packet(packet_info *pinfo, ftp_conversation_t *p_
 static int
 dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gboolean        is_request;
+    bool            is_request;
     proto_tree     *ftp_tree;
     proto_tree     *reqresp_tree;
     proto_item     *ti, *hidden_item;
-    gint            offset            = 0;
-    guint32         code;
-    gchar           code_str[4];
-    gboolean        is_port_request   = FALSE;
-    gboolean        is_eprt_request   = FALSE;
-    gboolean        is_pasv_response  = FALSE;
-    gboolean        is_epasv_response = FALSE;
-    gint            next_offset;
-    gint            next_token;
+    int             offset            = 0;
+    uint32_t        code;
+    char            code_str[4];
+    bool            is_port_request   = false;
+    bool            is_eprt_request   = false;
+    bool            is_pasv_response  = false;
+    bool            is_epasv_response = false;
+    int             next_offset;
+    int             next_token;
     int             linelen;
     int             tokenlen          = 0;
-    guint32         pasv_ip;
-    guint32         pasv_offset;
-    guint32         ftp_ip;
-    guint32         ftp_ip_len;
-    guint32         eprt_offset;
-    guint32         eprt_af           = 0;
-    guint32         eprt_ip;
-    guint16         eprt_ipv6[8];
-    guint32         eprt_ip_len       = 0;
-    guint16         ftp_port;
-    guint32         ftp_port_len;
+    uint32_t        pasv_ip;
+    uint32_t        pasv_offset;
+    uint32_t        ftp_ip;
+    uint32_t        ftp_ip_len;
+    uint32_t        eprt_offset;
+    uint32_t        eprt_af           = 0;
+    uint32_t        eprt_ip;
+    uint16_t        eprt_ipv6[8];
+    uint32_t        eprt_ip_len       = 0;
+    uint16_t        ftp_port;
+    uint32_t        ftp_port_len;
     address         ftp_ip_address;
-    gboolean        ftp_nat;
+    bool            ftp_nat;
 
     copy_address_shallow(&ftp_ip_address, &pinfo->src);
 
     if (pinfo->match_uint == pinfo->destport)
-        is_request = TRUE;
+        is_request = true;
     else
-        is_request = FALSE;
+        is_request = false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP");
 
@@ -1080,7 +1080,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * that ftp commands end with \r\n and requiring that <CR> be padded
      * with a <NUL> that is then stripped away upon receipt, similar to Telnet.
      */
-    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, false);
 
     /*
      * Put the first line from the buffer into the summary
@@ -1097,7 +1097,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             hf_ftp_request, tvb, 0, 0, is_request);
     proto_item_set_hidden(hidden_item);
     hidden_item = proto_tree_add_boolean(ftp_tree,
-            hf_ftp_response, tvb, 0, 0, is_request == FALSE);
+            hf_ftp_response, tvb, 0, 0, is_request == false);
     proto_item_set_hidden(hidden_item);
 
     /* Put the line into the protocol tree. */
@@ -1116,17 +1116,17 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * tvb_get_token_len() does not skip trailing spaces, which is
          * what we want. (get_token_len() _does_ skip extra spaces.)
          */
-        tokenlen = tvb_get_token_len(tvb, 0, linelen, &next_token, FALSE);
+        tokenlen = tvb_get_token_len(tvb, 0, linelen, &next_token, false);
         if (tokenlen != 0) {
             proto_tree_add_item(reqresp_tree, hf_ftp_request_command,
                     tvb, 0, tokenlen, ENC_UTF_8);
             if (tvb_strneql(tvb, 0, "PORT", tokenlen) == 0)
-                is_port_request = TRUE;
+                is_port_request = true;
             /*
              * EPRT request command, as per RFC 2428
              */
             else if (tvb_strneql(tvb, 0, "EPRT", tokenlen) == 0)
-                is_eprt_request = TRUE;
+                is_eprt_request = true;
             else if (tvb_strneql(tvb, 0, "USER", tokenlen) == 0) {
                 if (p_ftp_conv && !p_ftp_conv->username && linelen - tokenlen > 1) {
                     p_ftp_conv->username = tvb_get_string_enc(wmem_file_scope(), tvb, tokenlen + 1, linelen - tokenlen - 1, ENC_UTF_8);
@@ -1153,7 +1153,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             p_ftp_conv->last_command_frame = pinfo->num;
 
             if ( (linelen == 8) && ! tvb_strneql(tvb, 0, "AUTH TLS", 8) )
-                p_ftp_conv->tls_requested = TRUE;
+                p_ftp_conv->tls_requested = true;
         }
         /* And make sure set for FTP data conversation */
         if (p_ftp_conv && p_ftp_conv->current_data_conv && !p_ftp_conv->current_data_conv->command) {
@@ -1181,7 +1181,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * as errors?
          */
         if (linelen >= 3 && tvb_ascii_isdigit(tvb, 0, 3)) {
-            gboolean code_valid;
+            bool code_valid;
             proto_item* pi;
             /*
              * One-line reply, or first or last line
@@ -1203,13 +1203,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * 1639, or has that been supplanted by RFC 2428?
              */
             if (code == 227)
-                is_pasv_response = TRUE;
+                is_pasv_response = true;
 
             /*
              * Responses to EPSV command, as per RFC 2428
              */
             if (code == 229)
-                is_epasv_response = TRUE;
+                is_epasv_response = true;
 
             /*
              * Response to AUTH TLS command as per RFC 4217
@@ -1219,7 +1219,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     /* AUTH TLS accepted, next reply will be TLS */
                     ssl_starttls_ack( tls_handle, pinfo, ftp_handle);
 
-                    p_ftp_conv->tls_requested = FALSE ;
+                    p_ftp_conv->tls_requested = false ;
                 }
             }
 
@@ -1308,7 +1308,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     tvb, pasv_offset + (tokenlen+1) , ftp_ip_len, ftp_ip);
             proto_tree_add_uint(reqresp_tree, hf_ftp_active_port,
                     tvb, pasv_offset + 1 + (tokenlen+1) + ftp_ip_len, ftp_port_len, ftp_port);
-            set_address(&ftp_ip_address, AT_IPv4, 4, (const guint8 *)&ftp_ip);
+            set_address(&ftp_ip_address, AT_IPv4, 4, (const uint8_t *)&ftp_ip);
             ftp_nat = !addresses_equal(&pinfo->src, &ftp_ip_address);
             if (ftp_nat) {
                 proto_tree_add_boolean(reqresp_tree, hf_ftp_active_nat,
@@ -1335,7 +1335,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_uint(reqresp_tree, hf_ftp_pasv_port,
                         tvb, pasv_offset + 4 + 1 + ftp_ip_len, ftp_port_len, ftp_port);
                 set_address(&ftp_ip_address, AT_IPv4, 4,
-                    (const guint8 *)&pasv_ip);
+                    (const uint8_t *)&pasv_ip);
                 ftp_nat = !addresses_equal(&pinfo->src, &ftp_ip_address);
                 if (ftp_nat) {
                     proto_tree_add_boolean(reqresp_tree, hf_ftp_pasv_nat,
@@ -1357,7 +1357,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
                     &eprt_ip_len, &ftp_port_len)) {
 
-            /* since parse_eprt_request() returned TRUE,
+            /* since parse_eprt_request() returned true,
                we know that we have a valid address family */
             eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
             proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb,
@@ -1368,7 +1368,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
                         tvb, eprt_offset, eprt_ip_len, eprt_ip);
                 set_address(&ftp_ip_address, AT_IPv4, 4,
-                        (const guint8 *)&eprt_ip);
+                        (const uint8_t *)&eprt_ip);
             }
             else if (eprt_af == EPRT_AF_IPv6) {
                 proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
@@ -1405,7 +1405,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 /* Add IP address and port number to tree */
 
                 if (ftp_ip_address.type == AT_IPv4) {
-                    guint32 addr;
+                    uint32_t addr;
                     memcpy(&addr, ftp_ip_address.data, 4);
                     addr_it = proto_tree_add_ipv4(reqresp_tree,
                             hf_ftp_epsv_ip, tvb, 0, 0, addr);
@@ -1444,7 +1444,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /*
          * Find the end of the line.
          */
-        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
         /*
          * Put this line.
@@ -1496,19 +1496,19 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 /* Length of stream */
                 if (ftp_data->frames_seen > 1) {
                     /* Work out gap between frames */
-                    gint seconds = (gint)
+                    int seconds = (int)
                               (ftp_data->last_frame_time.secs - ftp_data->first_frame_time.secs);
-                    gint nseconds =
+                    int nseconds =
                               ftp_data->last_frame_time.nsecs - ftp_data->first_frame_time.nsecs;
 
                     /* Round gap to nearest ms. */
-                    gint gap_ms = (seconds*1000) + ((nseconds+500000) / 1000000);
+                    int gap_ms = (seconds*1000) + ((nseconds+500000) / 1000000);
                     ti = proto_tree_add_uint(tree, hf_ftp_command_response_duration,
                                          tvb, 0, 0, gap_ms);
                     proto_item_set_generated(ti);
 
                     /* Bitrate (kbps)*/
-                    guint bitrate = (guint)(((ftp_data->bytes_seen*8.0)/(gap_ms/1000.0))/1000);
+                    unsigned bitrate = (unsigned)(((ftp_data->bytes_seen*8.0)/(gap_ms/1000.0))/1000);
                     ti = proto_tree_add_uint(tree, hf_ftp_command_response_kbps,
                                              tvb, offset, 0, bitrate);
                     proto_item_set_generated(ti);
@@ -1540,8 +1540,8 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 {
     proto_item *data_ti, *ti;
     int         data_length = tvb_captured_length(tvb);
-    gboolean    is_text = TRUE;
-    gint        check_chars, i;
+    bool        is_text = true;
+    int         check_chars, i;
     conversation_t *p_conv;
     ftp_data_conversation_t *p_ftp_data_conv;
 
@@ -1613,7 +1613,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                     eo_info->command = wmem_strdup(wmem_packet_scope(), p_ftp_data_conv->command);
                     eo_info->command_frame = p_ftp_data_conv->command_frame;
                     eo_info->payload_len = tvb_reported_length(tvb);
-                    eo_info->payload_data = (gchar *) tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
+                    eo_info->payload_data = (char *) tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
                     tap_queue_packet(ftp_eo_tap, pinfo, eo_info);
                 }
             }
@@ -1623,9 +1623,9 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     /* Check the first few chars to see whether it looks like a text file or output */
     check_chars = MIN(20, data_length);
     for (i=0; i < check_chars; i++) {
-        guint8 c = tvb_get_guint8(tvb, i);
+        uint8_t c = tvb_get_guint8(tvb, i);
         if (c!='\r' && c!='\n' && !g_ascii_isprint(c)) {
-            is_text = FALSE;
+            is_text = false;
             break;
         }
     }
@@ -1663,12 +1663,12 @@ proto_register_ftp(void)
         { &hf_ftp_response,
           { "Response",           "ftp.response",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "TRUE if FTP response", HFILL }},
+            "true if FTP response", HFILL }},
 
         { &hf_ftp_request,
           { "Request",            "ftp.request",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "TRUE if FTP request", HFILL }},
+            "true if FTP request", HFILL }},
 
         { &hf_ftp_request_command,
           { "Request command",    "ftp.request.command",
@@ -1800,7 +1800,7 @@ proto_register_ftp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             "Command corresponding to this setup frame", HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ftp,
         &ett_ftp_reqresp
     };

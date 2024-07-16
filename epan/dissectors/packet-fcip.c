@@ -82,7 +82,7 @@ static const value_string fcencap_proto_vals[] = {
     {0, NULL},
 };
 
-static const guint8 fcip_header_8_bytes[8] = {
+static const uint8_t fcip_header_8_bytes[8] = {
     0x01, 0x01, 0xFE, 0xFE,
     0x01, 0x01, 0xFE, 0xFE
 };
@@ -118,7 +118,7 @@ static int hf_fcip_conn_flags;
 
 static int ett_fcip;
 
-static guint fcip_port         = 3225;
+static unsigned fcip_port         = 3225;
 static bool fcip_desegment = true;
 
 static dissector_handle_t fc_handle;
@@ -128,12 +128,12 @@ static dissector_handle_t fcip_handle;
 /* This routine attempts to locate the position of the next header in the
  * provided segment
  */
-static guint
-get_next_fcip_header_offset (tvbuff_t *tvb, packet_info *pinfo, gint offset)
+static unsigned
+get_next_fcip_header_offset (tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
-    gint       bytes_remaining = tvb_reported_length_remaining (tvb, offset);
-    gint       frame_len;
-    guint16    flen, flen1;
+    int        bytes_remaining = tvb_reported_length_remaining (tvb, offset);
+    int        frame_len;
+    uint16_t   flen, flen1;
     fcip_eof_t eof, eofc;
 
     /*
@@ -302,9 +302,9 @@ NXT_BYTE: while (bytes_remaining) {
 }
 
 static void
-dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
+dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    guint8 protocol = tvb_get_guint8 (tvb, offset);
+    uint8_t protocol = tvb_get_guint8 (tvb, offset);
 
     if (tree) {
         proto_tree_add_uint (tree, hf_fcip_protocol, tvb, offset, 1, protocol);
@@ -335,7 +335,7 @@ dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 static void
-dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
+dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     if (tree) {
         proto_tree_add_item (tree, hf_fcip_src_wwn, tvb, offset, 8, ENC_NA);
@@ -351,15 +351,15 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
     }
 }
 
-static gboolean
+static bool
 dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-              gboolean check_port)
+              bool check_port)
 {
-    gint offset = 0,
+    int offset = 0,
          start  = 0,
          frame_len = 0;
-    gint bytes_remaining = tvb_captured_length (tvb);
-    guint8 pflags, sof = 0, eof = 0;
+    int bytes_remaining = tvb_captured_length (tvb);
+    uint8_t pflags, sof = 0, eof = 0;
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *fcip_tree = NULL;
@@ -367,21 +367,21 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     fc_data_t fc_data;
 
     if (bytes_remaining < FCIP_ENCAP_HEADER_LEN) {
-        return FALSE;
+        return false;
     }
 
     if (check_port &&
         ((pinfo->srcport != fcip_port) && (pinfo->destport != fcip_port))) {
-        return FALSE;
+        return false;
     }
 
     while (bytes_remaining > FCIP_ENCAP_HEADER_LEN) {
         if ((offset = get_next_fcip_header_offset (tvb, pinfo, offset)) == -1) {
-            return FALSE;
+            return false;
         }
         else if (offset == -2) {
             /* We need more data to desegment */
-            return TRUE;
+            return true;
         }
 
         start = offset;
@@ -401,7 +401,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = frame_len - bytes_remaining;
-                return TRUE;
+                return true;
             }
         }
 
@@ -498,7 +498,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         bytes_remaining -= frame_len;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* This is called for those sessions where we have explicitly said
@@ -509,14 +509,14 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_fcip_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_fcip (tvb, pinfo, tree, FALSE);
+    dissect_fcip (tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
 static bool
 dissect_fcip_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return (dissect_fcip (tvb, pinfo, tree, TRUE));
+    return (dissect_fcip (tvb, pinfo, tree, true));
 }
 
 void
@@ -605,7 +605,7 @@ proto_register_fcip (void)
            NULL, 0x0, NULL, HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcip,
     };
 

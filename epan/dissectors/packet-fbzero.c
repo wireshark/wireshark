@@ -64,12 +64,12 @@ static int hf_fb_zero_padding;
 static int hf_fb_zero_payload;
 static int hf_fb_zero_unknown;
 
-static gint ett_fb_zero;
-static gint ett_fb_zero_puflags;
-static gint ett_fb_zero_prflags;
-static gint ett_fb_zero_ft;
-static gint ett_fb_zero_ftflags;
-static gint ett_fb_zero_tag_value;
+static int ett_fb_zero;
+static int ett_fb_zero_puflags;
+static int ett_fb_zero_prflags;
+static int ett_fb_zero_ft;
+static int ett_fb_zero_ftflags;
+static int ett_fb_zero_tag_value;
 
 static expert_field ei_fb_zero_tag_undecoded;
 static expert_field ei_fb_zero_tag_offset_end_invalid;
@@ -163,18 +163,18 @@ static const value_string tag_kexs_vals[] = {
 };
 
 
-static guint32
-dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree, guint offset, guint32 tag_number){
-    guint32 tag_offset_start = offset + tag_number*4*2;
-    guint32 tag_offset = 0, total_tag_len = 0;
-    gint32 tag_len = 0;
-    gboolean tag_offset_valid = TRUE;
+static uint32_t
+dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree, unsigned offset, uint32_t tag_number){
+    uint32_t tag_offset_start = offset + tag_number*4*2;
+    uint32_t tag_offset = 0, total_tag_len = 0;
+    int32_t tag_len = 0;
+    bool tag_offset_valid = true;
 
     while(tag_number){
         proto_tree *tag_tree;
         proto_item *ti_tag, *ti_type, *ti_offset_len, *ti_len;
-        guint32 offset_end, tag;
-        const guint8* tag_str;
+        uint32_t offset_end, tag;
+        const uint8_t* tag_str;
 
         /*
          * This item covers the tag type and end offset; the tag values
@@ -199,7 +199,7 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
              * but we can no longer show the values, or subsequent length
              * values, as the end offset in the tag value region is bogus.
              */
-            tag_offset_valid = FALSE;
+            tag_offset_valid = false;
         } else {
             tag_len = offset_end - tag_offset;
             if(!tvb_bytes_exist(tvb, tag_offset_start + tag_offset, tag_len)){
@@ -214,7 +214,7 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                  * We don't just throw an exception here, because we
                  * want to show all the tag type and end offset values.
                  */
-                tag_offset_valid = FALSE;
+                tag_offset_valid = false;
             }
             total_tag_len += tag_len;
             ti_len = proto_tree_add_uint(tag_tree, hf_fb_zero_tag_length, tvb, offset, 4, tag_len);
@@ -381,12 +381,12 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
 
 
 static int
-dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree, guint offset, guint8 len_pkn _U_){
+dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree, unsigned offset, uint8_t len_pkn _U_){
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
         proto_item *ti;
-        guint32 message_tag, tag_number, length;
-        const guint8* message_tag_str;
+        uint32_t message_tag, tag_number, length;
+        const uint8_t* message_tag_str;
         proto_tree_add_item(fb_zero_tree, hf_fb_zero_unknown, tvb, offset, 1, ENC_NA);
         offset += 1;
 
@@ -433,9 +433,9 @@ dissect_fb_zero_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti, *ti_puflags;
     proto_tree *fb_zero_tree, *puflags_tree;
-    guint offset = 0;
-    guint8 puflags;
-    guint32 message_tag, version;
+    unsigned offset = 0;
+    uint8_t puflags;
+    uint32_t message_tag, version;
 
     if (tvb_captured_length(tvb) < FBZERO_MIN_LENGTH)
         return 0;
@@ -486,7 +486,7 @@ static bool dissect_fb_zero_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     conversation_t *conversation = NULL;
     int offset = 0;
-    guint32 version, length, message_tag;
+    uint32_t version, length, message_tag;
     /* Verify packet size (Flag (1 byte) + Version (3bytes) + Flag (1 byte) + length (4 bytes) + Tag (4 bytes)) */
     if (tvb_captured_length(tvb) < 13)
     {
@@ -658,7 +658,7 @@ proto_register_fb_zero(void)
     };
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fb_zero,
         &ett_fb_zero_puflags,
         &ett_fb_zero_prflags,

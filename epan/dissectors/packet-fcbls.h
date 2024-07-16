@@ -54,10 +54,10 @@ static const value_string fc_bls_seqid_val[] = {
 };
 
 typedef struct _fc_bls_ba_rjt {
-    guint8 rsvd;
-    guint8 reason_code;
-    guint8 rjt_detail;
-    guint8 vendor_uniq;
+    uint8_t rsvd;
+    uint8_t reason_code;
+    uint8_t rjt_detail;
+    uint8_t vendor_uniq;
 } fc_bls_ba_rjt;
 
 #endif

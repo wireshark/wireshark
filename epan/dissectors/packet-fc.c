@@ -121,10 +121,10 @@ static int ett_fccrc;
 
 
 /* Initialize the subtree pointers */
-static gint ett_fc;
-static gint ett_fctl;
-static gint ett_fcbls;
-static gint ett_fc_vft;
+static int ett_fc;
+static int ett_fctl;
+static int ett_fcbls;
+static int ett_fc_vft;
 
 static expert_field ei_fccrc;
 static expert_field ei_short_hdr;
@@ -142,15 +142,15 @@ typedef struct _fc_conv_data_t {
 
 /* Reassembly stuff */
 static bool fc_reassemble = true;
-static guint32  fc_max_frame_size = 1024;
+static uint32_t fc_max_frame_size = 1024;
 static reassembly_table fc_reassembly_table;
 
 typedef struct _fcseq_conv_key {
-    guint32 conv_idx;
+    uint32_t conv_idx;
 } fcseq_conv_key_t;
 
 typedef struct _fcseq_conv_data {
-    guint32 seq_cnt;
+    uint32_t seq_cnt;
 } fcseq_conv_data_t;
 
 static wmem_map_t *fcseq_req_hash;
@@ -158,8 +158,8 @@ static wmem_map_t *fcseq_req_hash;
 /*
  * Hash Functions
  */
-static gint
-fcseq_equal(gconstpointer v, gconstpointer w)
+static int
+fcseq_equal(const void *v, const void *w)
 {
     const fcseq_conv_key_t *v1 = (const fcseq_conv_key_t *)v;
     const fcseq_conv_key_t *v2 = (const fcseq_conv_key_t *)w;
@@ -167,11 +167,11 @@ fcseq_equal(gconstpointer v, gconstpointer w)
     return (v1->conv_idx == v2->conv_idx);
 }
 
-static guint
-fcseq_hash (gconstpointer v)
+static unsigned
+fcseq_hash (const void *v)
 {
     const fcseq_conv_key_t *key = (const fcseq_conv_key_t *)v;
-    guint val;
+    unsigned val;
 
     val = key->conv_idx;
 
@@ -226,8 +226,8 @@ fc_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &fchdr->s_id, 0, TRUE, 1, pinfo->fd->pkt_len, &fc_endpoint_dissector_info, ENDPOINT_NONE);
-    add_endpoint_table_data(hash, &fchdr->d_id, 0, FALSE, 1, pinfo->fd->pkt_len, &fc_endpoint_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, &fchdr->s_id, 0, true, 1, pinfo->fd->pkt_len, &fc_endpoint_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, &fchdr->d_id, 0, false, 1, pinfo->fd->pkt_len, &fc_endpoint_dissector_info, ENDPOINT_NONE);
 
     return TAP_PACKET_REDRAW;
 }
@@ -238,12 +238,12 @@ static void
 fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     srt_stat_table *fc_srt_table;
-    guint32 i;
+    uint32_t i;
 
     fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, "fc.type", NULL);
     for (i = 0; i < FC_NUM_PROCEDURES; i++)
     {
-        gchar* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
+        char* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
         init_srt_table_row(fc_srt_table, i, tmp_str);
         wmem_free(NULL, tmp_str);
     }
@@ -252,7 +252,7 @@ fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
 static tap_packet_status
 fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
-    guint i = 0;
+    unsigned i = 0;
     srt_stat_table *fc_srt_table;
     srt_data_t *data = (srt_data_t *)pss;
     const fc_hdr *fc=(const fc_hdr *)prv;
@@ -462,8 +462,8 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-static guint8
-fc_get_ftype (guint8 r_ctl, guint8 type)
+static uint8_t
+fc_get_ftype (uint8_t r_ctl, uint8_t type)
 {
     /* A simple attempt to determine the upper level protocol based on the
      * r_ctl & type fields.
@@ -594,12 +594,12 @@ dissect_fc_vft(proto_tree *parent_tree,
 {
     proto_item *item;
     proto_tree *tree;
-    guint8 rctl;
-    guint8 ver;
-    guint8 type;
-    guint8 pri;
-    guint16 vf_id;
-    guint8 hop_ct;
+    uint8_t rctl;
+    uint8_t ver;
+    uint8_t type;
+    uint8_t pri;
+    uint16_t vf_id;
+    uint8_t hop_ct;
 
     rctl = tvb_get_guint8(tvb, offset);
     type = tvb_get_guint8(tvb, offset + 1);
@@ -665,7 +665,7 @@ static const value_string fc_els_proto_val[] = {
 
 /* Code to actually dissect the packets */
 static void
-dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp, fc_data_t* fc_data)
+dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_ifcp, fc_data_t* fc_data)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti, *hidden_item;
@@ -673,16 +673,16 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     tvbuff_t *next_tvb;
     int offset = 0, next_offset;
     int vft_offset = -1;
-    gboolean is_lastframe_inseq, is_1frame_inseq, is_exchg_resp = 0;
+    bool is_lastframe_inseq, is_1frame_inseq, is_exchg_resp = 0;
     fragment_head *fcfrag_head;
-    guint32 frag_id, frag_size;
-    guint8 df_ctl, seq_id;
-    guint32 f_ctl;
+    uint32_t frag_id, frag_size;
+    uint8_t df_ctl, seq_id;
+    uint32_t f_ctl;
     address addr;
 
-    guint32 param, exchange_key;
-    guint16 real_seqcnt;
-    guint8 ftype;
+    uint32_t param, exchange_key;
+    uint16_t real_seqcnt;
+    uint8_t ftype;
 
     fc_hdr* fchdr = wmem_new(pinfo->pool, fc_hdr); /* Needed by conversations, not just tap */
     fc_exchange_t *fc_ex;
@@ -754,7 +754,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
        and not necessarily in every frame. Stub it here for now */
     fchdr->lun = 0xFFFF;
     if (pinfo->fd->visited) {
-        fchdr->lun = (guint16)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid));
+        fchdr->lun = (uint16_t)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid));
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -912,7 +912,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             proto_tree_add_uint_format_value(fc_tree, hf_fc_type, tvb,
                                         offset+8, FC_TYPE_SIZE,
                                         fchdr->type,"0x%x(%s)", fchdr->type,
-                                        fclctl_get_typestr ((guint8) (fchdr->r_ctl & 0x0F),
+                                        fclctl_get_typestr ((uint8_t) (fchdr->r_ctl & 0x0F),
                                                             fchdr->type));
         } else {
             proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, ENC_BIG_ENDIAN);
@@ -990,7 +990,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
          * flag them as being fragmented when they're not. This fixes the
          * problem
          */
-        is_lastframe_inseq = TRUE;
+        is_lastframe_inseq = true;
     } else {
         is_exchg_resp = (f_ctl & FC_FCTL_EXCHANGE_RESPONDER) != 0;
     }
@@ -1131,7 +1131,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             call_data_dissector(next_tvb, pinfo, tree);
         } else {
             if (!dissector_try_uint_new (fcftype_dissector_table, ftype,
-                                next_tvb, pinfo, tree, FALSE, fchdr)) {
+                                next_tvb, pinfo, tree, false, fchdr)) {
                 call_data_dissector(next_tvb, pinfo, tree);
             }
         }
@@ -1152,7 +1152,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* Set up LUN data */
     if (!pinfo->fd->visited) {
-        wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, GUINT_TO_POINTER((guint)fchdr->lun));
+        wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, GUINT_TO_POINTER((unsigned)fchdr->lun));
     }
 
     exchange_key = ((fchdr->oxid & 0xFFFF) | ((fchdr->lun << 16) & 0xFFFF0000));
@@ -1219,7 +1219,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (!fc_data)
        return 0;
 
-    dissect_fc_helper (tvb, pinfo, tree, FALSE, fc_data);
+    dissect_fc_helper (tvb, pinfo, tree, false, fc_data);
     return tvb_captured_length(tvb);
 }
 
@@ -1231,7 +1231,7 @@ dissect_fc_wtap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     fc_data.ethertype = ETHERTYPE_UNK;
     fc_data.sof_eof = 0;
 
-    dissect_fc_helper (tvb, pinfo, tree, FALSE, &fc_data);
+    dissect_fc_helper (tvb, pinfo, tree, false, &fc_data);
     return tvb_captured_length(tvb);
 }
 
@@ -1243,7 +1243,7 @@ dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (!fc_data)
        return 0;
 
-    dissect_fc_helper (tvb, pinfo, tree, TRUE, fc_data);
+    dissect_fc_helper (tvb, pinfo, tree, true, fc_data);
     return tvb_captured_length(tvb);
 }
 
@@ -1253,15 +1253,15 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_item *it;
     proto_tree *fcsof_tree;
     tvbuff_t *next_tvb;
-    guint32 sof;
-    guint32 crc_computed;
-    guint32 eof;
-    const gint FCSOF_TRAILER_LEN = 8;
-    const gint FCSOF_HEADER_LEN = 4;
-    gint crc_offset = tvb_reported_length(tvb) - FCSOF_TRAILER_LEN;
-    gint eof_offset = crc_offset + 4;
-    gint sof_offset = 0;
-    gint frame_len_for_checksum;
+    uint32_t sof;
+    uint32_t crc_computed;
+    uint32_t eof;
+    const int FCSOF_TRAILER_LEN = 8;
+    const int FCSOF_HEADER_LEN = 4;
+    int crc_offset = tvb_reported_length(tvb) - FCSOF_TRAILER_LEN;
+    int eof_offset = crc_offset + 4;
+    int sof_offset = 0;
+    int frame_len_for_checksum;
     fc_data_t fc_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
@@ -1476,7 +1476,7 @@ proto_register_fc(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fc,
         &ett_fcbls,
         &ett_fc_vft,
@@ -1514,7 +1514,7 @@ proto_register_fc(void)
           { "CRC Status", "fc.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }},
     };
 
-    static gint *sof_ett[] = {
+    static int *sof_ett[] = {
         &ett_fcsof,
         &ett_fceof,
         &ett_fccrc
@@ -1568,7 +1568,7 @@ proto_register_fc(void)
 
     fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 
-    register_conversation_table(proto_fc, TRUE, fc_conversation_packet, fc_endpoint_packet);
+    register_conversation_table(proto_fc, true, fc_conversation_packet, fc_endpoint_packet);
     register_srt_table(proto_fc, NULL, 1, fcstat_packet, fcstat_init, NULL);
 }
 

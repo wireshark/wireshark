@@ -9,7 +9,7 @@
  * Copyright 2002,2003,2018 Alfred Koebler
  *
  * To use this dissector use the command line option
- * -o eth.interpret_as_fw1_monitor:TRUE
+ * -o eth.interpret_as_fw1_monitor:true
  *
  * At the moment the way with the option is the best one.
  * A automatic way is not possible, because the file format isn't different
@@ -102,12 +102,12 @@ static int hf_fw1_type;
 static int hf_fw1_trailer;
 
 /* Initialize the subtree pointers */
-static gint ett_fw1;
+static int ett_fw1;
 
 #define ETH_HEADER_SIZE 14
 
 #define MAX_INTERFACES  20
-static gchar    *p_interfaces[MAX_INTERFACES];
+static char     *p_interfaces[MAX_INTERFACES];
 static int      interface_anzahl=0;
 
 static void
@@ -125,10 +125,10 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   char          direction;
   char  chain;
   char          *interface_name;
-  guint32       iface_len = 10;
+  uint32_t      iface_len = 10;
   wmem_strbuf_t *header;
   int           i;
-  gboolean      found;
+  bool          found;
   static const char     fw1_header[] = "FW1 Monitor";
   ethertype_data_t ethertype_data;
 
@@ -153,10 +153,10 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   interface_name=tvb_get_stringzpad(pinfo->pool, tvb, 2, iface_len, ENC_ASCII|ENC_NA);
 
   /* Known interface name - if not, remember it */
-  found=FALSE;
+  found=false;
   for (i=0; i<interface_anzahl; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-      found=TRUE;
+      found=true;
       break;
     }
   }
@@ -246,7 +246,7 @@ proto_register_fw1(void)
     }
   };
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_fw1,
   };
   module_t *fw1_module;

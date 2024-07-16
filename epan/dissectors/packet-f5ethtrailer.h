@@ -54,9 +54,9 @@
 
 #include <glib.h>
 
-#define F5ETH_TAP_TMM_MAX   G_MAXUINT16
+#define F5ETH_TAP_TMM_MAX   UINT16_MAX
 #define F5ETH_TAP_TMM_BITS  16
-#define F5ETH_TAP_SLOT_MAX  G_MAXUINT16
+#define F5ETH_TAP_SLOT_MAX  UINT16_MAX
 #define F5ETH_TAP_SLOT_BITS 16
 
 /** Magic number for Ethernet trailer tap data to ensure that any tap and the dissector were both
@@ -69,20 +69,20 @@
 
 /** Data structure to hold data returned by the f5ethtrailer tap.  Magic has to be first. */
 typedef struct f5eth_tap_data {
-    guint32 magic;        /**< Verify proper version of dissector */
-    guint32 trailer_len;  /**< Overall length of the F5 trailer */
+    uint32_t magic;        /**< Verify proper version of dissector */
+    uint32_t trailer_len;  /**< Overall length of the F5 trailer */
     /* 64 bit align */
-    guint64 flow;         /**< Flow ID */
-    guint64 peer_flow;    /**< Peer Flow ID */
+    uint64_t flow;         /**< Flow ID */
+    uint64_t peer_flow;    /**< Peer Flow ID */
     /* 64 bit align */
-    gchar  *virtual_name; /**< Virtual server name */
-    guint16 slot;         /**< The slot the handled the packet (F5ETH_TAP_TMM_MAX == unknown) */
-    guint16 tmm;          /**< The tmm that handled the packet (F5ETH_TAP_sLOT_MAX == unknown) */
-    guint8  noise_low:1;  /**< If the frame has low noise(1) or not(0) */
-    guint8  noise_med:1;  /**< If the frame has medium noise(1) or not(0) */
-    guint8  noise_high:1; /**< If the frame has high noise(1) or not(0) */
-    guint8  flows_set:1;  /**< If the frame has flow/peerflow fields(1) or not(0) */
-    guint8  ingress:2;    /**< Whether the packet was ingress(1), egress(0) or unknown(3) */
+    char   *virtual_name; /**< Virtual server name */
+    uint16_t slot;         /**< The slot the handled the packet (F5ETH_TAP_TMM_MAX == unknown) */
+    uint16_t tmm;          /**< The tmm that handled the packet (F5ETH_TAP_sLOT_MAX == unknown) */
+    uint8_t noise_low:1;  /**< If the frame has low noise(1) or not(0) */
+    uint8_t noise_med:1;  /**< If the frame has medium noise(1) or not(0) */
+    uint8_t noise_high:1; /**< If the frame has high noise(1) or not(0) */
+    uint8_t flows_set:1;  /**< If the frame has flow/peerflow fields(1) or not(0) */
+    uint8_t ingress:2;    /**< Whether the packet was ingress(1), egress(0) or unknown(3) */
 } f5eth_tap_data_t;
 
 /** \brief Tap data version matches compiled version
@@ -106,8 +106,8 @@ inline static int check_f5eth_tap_magic(f5eth_tap_data_t *tdata)
 
 /** Data structure to hold data returned by the f5fileinfo tap. */
 struct f5fileinfo_tap_data {
-    guint32 magic;  /**< Just to make sure that we have the same version. */
-    guint32 ver[6]; /**< Array for version and build elements. */
+    uint32_t magic;  /**< Just to make sure that we have the same version. */
+    uint32_t ver[6]; /**< Array for version and build elements. */
 };
 
 #define F5FILEINFO_TAP_DATA_INIT { 0, { 0, 0, 0, 0, 0, 0 } }

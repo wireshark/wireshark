@@ -72,33 +72,33 @@
 #define FC_SWILS_RJT_EP_ISOL       0x2F
 
 typedef struct _fcswils_elp {
-    guint8 revision;
-    guint8 flags[2];
-    guint8 rsvd1;
-    guint32 r_a_tov;
-    guint32 e_d_tov;
-    guint8  req_epname[8];
-    guint8  req_sname[8];
-    guint8  clsf_svcparm[6];
-    guint16 clsf_rcvsize;
-    guint16 clsf_conseq;
-    guint16 clsf_e2e;
-    guint16 clsf_openseq;
-    guint16 rsvd;
-    guint8  cls1_svcparm[2];
-    guint16 cls1_rcvsize;
-    guint8  cls2_svcparm[2];
-    guint16 cls2_rcvsize;
-    guint8  cls3_svcparm[2];
-    guint16 cls3_rcvsize;
-    guint8  rsvd2[20];
-    guint16 isl_flwctrl_mode;
-    guint16 flw_ctrl_parmlen;
-    guint32 b2b_credit;
-    guint32 compat_p1;
-    guint32 compat_p2;
-    guint32 compat_p3;
-    guint32 compat_p4;
+    uint8_t revision;
+    uint8_t flags[2];
+    uint8_t rsvd1;
+    uint32_t r_a_tov;
+    uint32_t e_d_tov;
+    uint8_t req_epname[8];
+    uint8_t req_sname[8];
+    uint8_t clsf_svcparm[6];
+    uint16_t clsf_rcvsize;
+    uint16_t clsf_conseq;
+    uint16_t clsf_e2e;
+    uint16_t clsf_openseq;
+    uint16_t rsvd;
+    uint8_t cls1_svcparm[2];
+    uint16_t cls1_rcvsize;
+    uint8_t cls2_svcparm[2];
+    uint16_t cls2_rcvsize;
+    uint8_t cls3_svcparm[2];
+    uint16_t cls3_rcvsize;
+    uint8_t rsvd2[20];
+    uint16_t isl_flwctrl_mode;
+    uint16_t flw_ctrl_parmlen;
+    uint32_t b2b_credit;
+    uint32_t compat_p1;
+    uint32_t compat_p2;
+    uint32_t compat_p3;
+    uint32_t compat_p4;
 } fcswils_elp;
 #define FC_SWILS_ELP_SIZE 100
 
@@ -106,16 +106,16 @@ typedef struct _fcswils_elp {
 #define FC_SWILS_ELP_FC_RRDY     0x2
 
 struct _fcswils_efp_didrec {
-    guint8 rec_type;
-    guint8 dom_id;
-    guint16 rsvd1;
-    guint32 rsvd2;
-    guint8  sname[8];
+    uint8_t rec_type;
+    uint8_t dom_id;
+    uint16_t rsvd1;
+    uint32_t rsvd2;
+    uint8_t sname[8];
 };
 struct _fcswils_efp_mcastrec {
-    guint8 rec_type;
-    guint8 mcast_grpnum;
-    guint8 rsvd[14];
+    uint8_t rec_type;
+    uint8_t mcast_grpnum;
+    uint8_t rsvd[14];
 };
 
 typedef union _fcswils_efp_listrec {
@@ -127,23 +127,23 @@ typedef union _fcswils_efp_listrec {
 #define FC_SWILS_LRECTYPE_MCAST  0x2
 
 typedef struct _fcswils_efp {
-    guint8  opcode;
-    guint8  reclen;
-    guint16 payload_len;
-    guint8  rsvd1[3];
-    guint8  pswitch_prio;
-    guint8  pswitch_name[8];
+    uint8_t opcode;
+    uint8_t reclen;
+    uint16_t payload_len;
+    uint8_t rsvd1[3];
+    uint8_t pswitch_prio;
+    uint8_t pswitch_name[8];
 } fcswils_efp;
 #define FC_SWILS_EFP_SIZE 16
 
 typedef struct _fcswils_dia {
-    guint8 switch_name[8];
-    guint8 rsvd[4];
+    uint8_t switch_name[8];
+    uint8_t rsvd[4];
 } fcswils_dia;
 
 typedef struct _fcswils_rdi_req {
-    guint8 rsvd[3];
-    guint8 domain_id;
+    uint8_t rsvd[3];
+    uint8_t domain_id;
 } fcswils_rdi_req;
 #define FC_SWILS_RDIREQ_SIZE 4
 

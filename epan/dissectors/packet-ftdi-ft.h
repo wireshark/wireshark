@@ -36,11 +36,11 @@ typedef enum {
 } FTDI_INTERFACE;
 
 typedef struct _ftdi_mpsse_info_t {
-    guint32         bus_id;
-    guint32         device_address;
+    uint32_t        bus_id;
+    uint32_t        device_address;
     FTDI_CHIP       chip;
     FTDI_INTERFACE  iface;
-    gboolean        mcu_mode;
+    bool            mcu_mode;
 } ftdi_mpsse_info_t;
 
 #endif /* __PACKET_FTDI_FT_H__ */

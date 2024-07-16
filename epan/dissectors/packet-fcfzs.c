@@ -60,19 +60,19 @@ static int hf_fcfzs_soft_zone_set_enforced;
 static int hf_fcfzs_hard_zone_set_enforced;
 
 /* Initialize the subtree pointers */
-static gint ett_fcfzs;
-static gint ett_fcfzs_gzc_flags;
-static gint ett_fcfzs_zone_state;
+static int ett_fcfzs;
+static int ett_fcfzs_gzc_flags;
+static int ett_fcfzs_zone_state;
 
 static expert_field ei_fcfzs_no_exchange;
 static expert_field ei_fcfzs_mbrid;
 
 typedef struct _fcfzs_conv_key {
-    guint32 conv_idx;
+    uint32_t conv_idx;
 } fcfzs_conv_key_t;
 
 typedef struct _fcfzs_conv_data {
-    guint32 opcode;
+    uint32_t opcode;
 } fcfzs_conv_data_t;
 
 static wmem_map_t *fcfzs_req_hash;
@@ -80,8 +80,8 @@ static wmem_map_t *fcfzs_req_hash;
 /*
  * Hash Functions
  */
-static gint
-fcfzs_equal(gconstpointer v, gconstpointer w)
+static int
+fcfzs_equal(const void *v, const void *w)
 {
     const fcfzs_conv_key_t *v1 = (const fcfzs_conv_key_t *)v;
     const fcfzs_conv_key_t *v2 = (const fcfzs_conv_key_t *)w;
@@ -89,11 +89,11 @@ fcfzs_equal(gconstpointer v, gconstpointer w)
     return (v1->conv_idx == v2->conv_idx);
 }
 
-static guint
-fcfzs_hash(gconstpointer v)
+static unsigned
+fcfzs_hash(const void *v)
 {
     const fcfzs_conv_key_t *key = (const fcfzs_conv_key_t *)v;
-    guint val;
+    unsigned val;
 
     val = key->conv_idx;
 
@@ -197,7 +197,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
 
 
 static void
-dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gboolean isreq)
+dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, bool isreq)
 {
     static int * const flags[] = {
         &hf_fcfzs_gzc_flags_hard_zones,
@@ -215,7 +215,7 @@ dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gboolean i
 }
 
 static void
-dissect_fcfzs_gest(tvbuff_t *tvb, proto_tree *parent_tree, gboolean isreq)
+dissect_fcfzs_gest(tvbuff_t *tvb, proto_tree *parent_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     static int * const flags[] = {
@@ -233,7 +233,7 @@ dissect_fcfzs_gest(tvbuff_t *tvb, proto_tree *parent_tree, gboolean isreq)
 }
 
 static void
-dissect_fcfzs_gzsn(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gzsn(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
     int numrec, i, len;
     int offset = 16;            /* past the fc_ct header */
@@ -262,7 +262,7 @@ dissect_fcfzs_gzsn(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 }
 
 static void
-dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
     int numrec, i, len;
     int offset = 16;            /* past the fc_ct header */
@@ -298,7 +298,7 @@ dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 }
 
 static void
-dissect_fcfzs_gzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isreq)
 {
     int numrec, i, len;
     int offset = 16;            /* past the fc_ct header */
@@ -342,7 +342,7 @@ dissect_fcfzs_gzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean 
 }
 
 static void
-dissect_fcfzs_gazs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gazs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -352,7 +352,7 @@ dissect_fcfzs_gazs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean
 }
 
 static void
-dissect_fcfzs_gzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int len;
@@ -370,7 +370,7 @@ dissect_fcfzs_gzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean 
 }
 
 static void
-dissect_fcfzs_adzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_adzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -380,7 +380,7 @@ dissect_fcfzs_adzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean
 }
 
 static void
-dissect_fcfzs_azsd(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_azsd(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -390,7 +390,7 @@ dissect_fcfzs_azsd(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean
 }
 
 static void
-dissect_fcfzs_arzs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_arzs(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int len;
@@ -407,14 +407,14 @@ dissect_fcfzs_arzs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 }
 
 static void
-dissect_fcfzs_dzs(tvbuff_t *tvb _U_, proto_tree *tree _U_, gboolean isreq _U_)
+dissect_fcfzs_dzs(tvbuff_t *tvb _U_, proto_tree *tree _U_, bool isreq _U_)
 {
     /* Both req & successful response contain just the FC_CT header */
     return;
 }
 
 static void
-dissect_fcfzs_arzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_arzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isreq)
 {
     int numrec, i, len, plen;
     int offset = 16;            /* past the fc_ct header */
@@ -458,7 +458,7 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean
 }
 
 static void
-dissect_fcfzs_arzd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_arzd(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int len;
@@ -507,7 +507,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     conversation_t    *conversation;
     fcfzs_conv_data_t *cdata;
     fcfzs_conv_key_t   ckey, *req_key;
-    gboolean           isreq         = TRUE;
+    bool               isreq         = true;
     fc_hdr *fchdr;
 
     /* Reject the packet if data is NULL */
@@ -519,7 +519,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Zone Server");
 
 
-    tvb_memcpy(tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
+    tvb_memcpy(tvb, (uint8_t *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8(tvb, offset+1);
     cthdr.in_id = tvb_get_ntoh24(tvb, offset);
     cthdr.opcode = g_ntohs(cthdr.opcode);
@@ -575,7 +575,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                          fchdr->rxid, NO_PORT_B);
-        isreq = FALSE;
+        isreq = false;
         if (!conversation) {
             if (opcode == FCCT_MSG_ACC) {
                 col_add_str(pinfo->cinfo, COL_INFO,
@@ -835,7 +835,7 @@ proto_register_fcfzs(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcfzs,
         &ett_fcfzs_gzc_flags,
         &ett_fcfzs_zone_state,

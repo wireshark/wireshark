@@ -37,9 +37,9 @@ static int hf_fefd_device_id;
 static int hf_fefd_sent_through_interface;
 static int hf_fefd_data;
 
-static gint ett_fefd;
-static gint ett_fefd_flags;
-static gint ett_fefd_tlv;
+static int ett_fefd;
+static int ett_fefd_flags;
+static int ett_fefd_tlv;
 
 #define TYPE_DEVICE_ID        0x0001
 #define TYPE_PORT_ID          0x0002
@@ -80,8 +80,8 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *ti;
     proto_tree *fefd_tree = NULL;
     int         offset    = 0;
-    guint16     type;
-    guint16     length;
+    uint16_t    type;
+    uint16_t    length;
     proto_tree *tlv_tree;
     int         real_length;
     static int * const flags[] = {
@@ -257,7 +257,7 @@ proto_register_fefd(void)
             NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fefd,
         &ett_fefd_flags,
         &ett_fefd_tlv

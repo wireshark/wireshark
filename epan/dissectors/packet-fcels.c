@@ -214,45 +214,45 @@ static int hf_fcels_rnft_fc4_qualifier;
 static int hf_fcels_lip_f8_initiated_count;
 static int hf_fcels_rpl_port_name;
 
-static gint ett_fcels;
-static gint ett_fcels_lsrjt;
-static gint ett_fcels_acc;
-static gint ett_fcels_logi;
-static gint ett_fcels_logi_cmnsvc;
-static gint ett_fcels_logi_clssvc;
-static gint ett_fcels_logo;
-static gint ett_fcels_abtx;
-static gint ett_fcels_rsi;
-static gint ett_fcels_rrq;
-static gint ett_fcels_rec;
-static gint ett_fcels_prli;
-static gint ett_fcels_prli_svcpg;
-static gint ett_fcels_adisc;
-static gint ett_fcels_farp;
-static gint ett_fcels_rps;
-static gint ett_fcels_rpl;
-static gint ett_fcels_rplpb;
-static gint ett_fcels_fan;
-static gint ett_fcels_rscn;
-static gint ett_fcels_rscn_rec;
-static gint ett_fcels_estat;
-static gint ett_fcels_scr;
-static gint ett_fcels_rnft;
-static gint ett_fcels_rnft_fc4;
-static gint ett_fcels_lsts;
-static gint ett_fcels_rnid;
-static gint ett_fcels_rlir;
-static gint ett_fcels_lirr;
-static gint ett_fcels_srl;
-static gint ett_fcels_rpsc;
-static gint ett_fcels_cbind;
-static gint ett_fcels_cmnfeatures;
-static gint ett_fcels_clsflags;
-static gint ett_fcels_initctl;
-static gint ett_fcels_rcptctl;
-static gint ett_fcels_fcpflags;
-static gint ett_fcels_prliloflags;
-static gint ett_fcels_speedflags;
+static int ett_fcels;
+static int ett_fcels_lsrjt;
+static int ett_fcels_acc;
+static int ett_fcels_logi;
+static int ett_fcels_logi_cmnsvc;
+static int ett_fcels_logi_clssvc;
+static int ett_fcels_logo;
+static int ett_fcels_abtx;
+static int ett_fcels_rsi;
+static int ett_fcels_rrq;
+static int ett_fcels_rec;
+static int ett_fcels_prli;
+static int ett_fcels_prli_svcpg;
+static int ett_fcels_adisc;
+static int ett_fcels_farp;
+static int ett_fcels_rps;
+static int ett_fcels_rpl;
+static int ett_fcels_rplpb;
+static int ett_fcels_fan;
+static int ett_fcels_rscn;
+static int ett_fcels_rscn_rec;
+static int ett_fcels_estat;
+static int ett_fcels_scr;
+static int ett_fcels_rnft;
+static int ett_fcels_rnft_fc4;
+static int ett_fcels_lsts;
+static int ett_fcels_rnid;
+static int ett_fcels_rlir;
+static int ett_fcels_lirr;
+static int ett_fcels_srl;
+static int ett_fcels_rpsc;
+static int ett_fcels_cbind;
+static int ett_fcels_cmnfeatures;
+static int ett_fcels_clsflags;
+static int ett_fcels_initctl;
+static int ett_fcels_rcptctl;
+static int ett_fcels_fcpflags;
+static int ett_fcels_prliloflags;
+static int ett_fcels_speedflags;
 
 static expert_field ei_fcels_src_unknown;
 static expert_field ei_fcels_dst_unknown;
@@ -602,11 +602,11 @@ static const value_string unbind_status_vals[] = {
 };
 
 typedef struct _fcels_conv_key {
-    guint32 conv_idx;
+    uint32_t conv_idx;
 } fcels_conv_key_t;
 
 typedef struct _fcels_conv_data {
-    guint32 opcode;
+    uint32_t opcode;
 } fcels_conv_data_t;
 
 static wmem_map_t *fcels_req_hash;
@@ -616,8 +616,8 @@ static dissector_handle_t fcsp_handle;
 /*
  * Hash Functions
  */
-static gint
-fcels_equal(gconstpointer v, gconstpointer w)
+static int
+fcels_equal(const void *v, const void *w)
 {
   const fcels_conv_key_t *v1 = (const fcels_conv_key_t *)v;
   const fcels_conv_key_t *v2 = (const fcels_conv_key_t *)w;
@@ -625,11 +625,11 @@ fcels_equal(gconstpointer v, gconstpointer w)
   return (v1->conv_idx == v2->conv_idx);
 }
 
-static guint
-fcels_hash (gconstpointer v)
+static unsigned
+fcels_hash (const void *v)
 {
     const fcels_conv_key_t *key = (const fcels_conv_key_t *)v;
-    guint val;
+    unsigned val;
 
     val = key->conv_idx;
 
@@ -654,7 +654,7 @@ static const true_false_string tfs_fc_fcels_cmn_payload = {
 };
 
 static void
-dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
+dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
 {
     static int * const common_flags[] = {
         &hf_fcels_cmn_cios,
@@ -709,7 +709,7 @@ static const true_false_string tfs_fc_fcels_cls_nzctl = {
 
 /* The next 3 routines decode only Class 2 & Class 3 relevant bits */
 static void
-dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
+dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
 {
     static int * const common_flags[] = {
         &hf_fcels_cls_cns,
@@ -764,7 +764,7 @@ static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
 };
 
 static void
-dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, guint8 isreq)
+dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint32_t flags, uint8_t isreq)
 {
     static int * const req_flags[] = {
         &hf_fcels_fcpflags_trireq,
@@ -801,7 +801,7 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 f
 
 
 static void
-dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
+dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint32_t flags, int port)
 {
     proto_item *item;
     static int * const speed_flags[] = {
@@ -831,7 +831,7 @@ static const true_false_string tfs_fc_fcels_prliloflags_eip = {
 };
 
 static void
-dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, guint8 opcode)
+dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, uint8_t opcode)
 {
     static int * const tprlo_flags[] = {
         &hf_fcels_tprloflags_opav,
@@ -882,7 +882,7 @@ static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
 };
 
 static void
-dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
+dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
 {
     static int * const plogi_flags[] = {
         &hf_fcels_initctl_initial_pa,
@@ -922,7 +922,7 @@ static const value_string rcptctl_category_vals[] = {
 };
 
 static void
-dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
+dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
 {
     static int * const plogi_flags[] = {
         &hf_fcels_rcptctl_ack0,
@@ -953,14 +953,14 @@ dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
 
 static void
 dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    proto_item *ti, guint8 opcode)
+                    proto_item *ti, uint8_t opcode)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0,
         svcvld = 0,
         svcclass;
     proto_tree *logi_tree, *cmnsvc_tree;
-    guint16 flag;
+    uint16_t flag;
 
     if (tree) {
         logi_tree = proto_item_add_subtree (ti, ett_fcels_logi);
@@ -1019,21 +1019,21 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_plogi (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint8 isreq _U_, proto_item *ti)
+                     uint8_t isreq _U_, proto_item *ti)
 {
     dissect_fcels_logi (tvb, pinfo, tree, ti, FC_ELS_PLOGI);
 }
 
 static void
 dissect_fcels_flogi (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint8 isreq _U_, proto_item *ti)
+                     uint8_t isreq _U_, proto_item *ti)
 {
     dissect_fcels_logi (tvb, pinfo, tree, ti, FC_ELS_FLOGI);
 }
 
 static void
 dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                      guint8 isreq, proto_item *ti)
+                      uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 5;             /* bypass opcode+rsvd field */
@@ -1056,7 +1056,7 @@ dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
@@ -1080,7 +1080,7 @@ dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rsi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 4;
@@ -1102,7 +1102,7 @@ dissect_fcels_rsi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rrq (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
@@ -1123,7 +1123,7 @@ dissect_fcels_rrq (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
@@ -1161,21 +1161,21 @@ dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_pdisc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint8 isreq _U_, proto_item *ti)
+                     uint8_t isreq _U_, proto_item *ti)
 {
     dissect_fcels_logi (tvb, pinfo, tree, ti, FC_ELS_PDISC);
 }
 
 static void
 dissect_fcels_fdisc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint8 isreq _U_, proto_item *ti)
+                     uint8_t isreq _U_, proto_item *ti)
 {
     dissect_fcels_logi (tvb, pinfo, tree, ti, FC_ELS_FDISC);
 }
 
 static void
 dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint8 isreq _U_, proto_item *ti)
+                     uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 5;
@@ -1229,25 +1229,25 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_farp_req (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        guint8 isreq _U_, proto_item *ti)
+                        uint8_t isreq _U_, proto_item *ti)
 {
     dissect_fcels_farp (tvb, pinfo, tree, ti);
 }
 
 static void
 dissect_fcels_farp_rply (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         guint8 isreq _U_, proto_item *ti)
+                         uint8_t isreq _U_, proto_item *ti)
 {
     dissect_fcels_farp (tvb, pinfo, tree, ti);
 }
 
 static void
 dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 3;
-    guint8 flag;
+    uint8_t flag;
     proto_tree *rps_tree;
 
     flag = tvb_get_guint8 (tvb, offset);
@@ -1296,7 +1296,7 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
@@ -1334,7 +1334,7 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq _U_, proto_item *ti)
+                   uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 5;
@@ -1354,7 +1354,7 @@ dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 1;
@@ -1395,7 +1395,7 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_scr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 7;
@@ -1411,10 +1411,10 @@ dissect_fcels_scr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     int offset = 0;
-    guint16 numrec, i;
+    uint16_t numrec, i;
     proto_tree *rnft_tree, *fc4_tree;
 
     if (tree) {
@@ -1447,7 +1447,7 @@ dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_lsts (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 5;
@@ -1480,10 +1480,10 @@ dissect_fcels_lsts (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
-                              guint8 isreq, proto_item *ti, guint8 opcode)
+                              uint8_t isreq, proto_item *ti, uint8_t opcode)
 {
     int offset = 0;
-    guint8 type;
+    uint8_t type;
     proto_tree *prli_tree, *svcpg_tree;
     int num_svcpg, payload_len, i, flag;
 
@@ -1538,7 +1538,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_fcels_prli (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     if (tree) {
         dissect_fcels_prlilo_payload (tvb, pinfo, isreq, ti, FC_ELS_PRLI);
@@ -1547,7 +1547,7 @@ dissect_fcels_prli (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_fcels_prlo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     if (tree) {
@@ -1557,7 +1557,7 @@ dissect_fcels_prlo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_fcels_tprlo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint8 isreq, proto_item *ti)
+                     uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
 
@@ -1568,12 +1568,12 @@ dissect_fcels_tprlo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq _U_, proto_item *ti)
+                    uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 4;
     proto_tree *lirr_tree;
-    guint8 lirr_fmt;
+    uint8_t lirr_fmt;
 
     if (tree) {
         lirr_tree = proto_item_add_subtree (ti, ett_fcels_lirr);
@@ -1598,7 +1598,7 @@ static const true_false_string tfs_srl_flag = { "Scan only specified FL Port", "
 
 static void
 dissect_fcels_srl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                   guint8 isreq, proto_item *ti)
+                   uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 4;
@@ -1618,7 +1618,7 @@ dissect_fcels_srl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 2;
@@ -1712,7 +1712,7 @@ dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint8 isreq, proto_item *ti)
+                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
@@ -1768,7 +1768,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_fcels_rlir (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-                    proto_tree *tree, guint8 isreq _U_,
+                    proto_tree *tree, uint8_t isreq _U_,
                     proto_item *ti _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1779,7 +1779,7 @@ dissect_fcels_rlir (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 static void
 dissect_fcels_lsrjt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint8 isreq _U_, proto_item *ti)
+                     uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 5;
@@ -1803,16 +1803,16 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti = NULL;
     proto_tree *acc_tree;
-    guint8 isreq = FC_ELS_REQ;
+    uint8_t isreq = FC_ELS_REQ;
     int offset = 0;
-    guint8 opcode,
+    uint8_t opcode,
            failed_opcode = 0;
     conversation_t *conversation;
     fcels_conv_data_t *cdata;
     fcels_conv_key_t ckey, *req_key;
-    guint find_options, new_options;
+    unsigned find_options, new_options;
     address dstaddr;
-    guint8 addrdata[3];
+    uint8_t addrdata[3];
     fc_hdr *fchdr;
 
     /* Reject the packet if data is NULL */
@@ -1835,7 +1835,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Register conversation in case this is not a response */
     if ((opcode != FC_ELS_LSRJT) && (opcode != FC_ELS_ACC)) {
         if (opcode == FC_ELS_FLOGI) {
-            const guint8 *srcfc;
+            const uint8_t *srcfc;
 
             /* Check that the source address is, in fact, an FC address */
             if (pinfo->src.type != AT_FC) {
@@ -1845,7 +1845,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 return 0;
             }
 
-            srcfc = (const guint8 *)pinfo->src.data;
+            srcfc = (const uint8_t *)pinfo->src.data;
             if (srcfc[2]) {
                 /* If it is a loop port, we'll need to remember the ALPA */
                 find_options = NO_PORT_B;
@@ -1902,7 +1902,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             /* FLOGI has two ways to save state: without the src and using just
              * the port (ALPA) part of the address. Try both.
              */
-            const guint8 *dstfc;
+            const uint8_t *dstfc;
 
             /* Check that the source address is, in fact, an FC address */
             if (pinfo->dst.type != AT_FC) {
@@ -1912,7 +1912,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 return 0;
             }
 
-            dstfc = (const guint8 *)pinfo->dst.data;
+            dstfc = (const uint8_t *)pinfo->dst.data;
 
             addrdata[0] = addrdata[1] = 0;
             addrdata[2] = dstfc[2];
@@ -2535,7 +2535,7 @@ proto_register_fcels (void)
       { &hf_fcels_common_identification_data_length, { "Common Identification Data Length", "fcels.common_identification_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcels,
         &ett_fcels_lsrjt,
         &ett_fcels_acc,

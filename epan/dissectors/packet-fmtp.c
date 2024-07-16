@@ -27,7 +27,7 @@ static int hf_fmtp_pdu_version;
 static int hf_fmtp_pdu_reserved;
 static int hf_fmtp_pdu_type;
 static int hf_fmtp_pdu_length;
-static gint ett_fmtp;
+static int ett_fmtp;
 
 /* #define TCP_PORT_FMTP       8500 */
 #define FMTP_HEADER_LEN     5
@@ -59,8 +59,8 @@ static const value_string system_message_names[] = {
 static int
 dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8      packet_type;
-    guint16     packet_len;
+    uint8_t     packet_type;
+    uint16_t    packet_len;
     tvbuff_t   *next_tvb;
     proto_item *ti = NULL;
     proto_tree *fmtp_tree = NULL;
@@ -114,16 +114,16 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_fmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return (guint)tvb_get_ntohs(tvb, offset+2);
+    return (unsigned)tvb_get_ntohs(tvb, offset+2);
 }
 
 static bool
 dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint16 length;
+    uint16_t length;
 
     if (tvb_captured_length(tvb) < 5)
         return false;
@@ -141,7 +141,7 @@ dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if ((tvb_get_guint8(tvb, 4) < 0x01) || (tvb_get_guint8(tvb, 4) > 0x04))
         return false;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FMTP_HEADER_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, FMTP_HEADER_LEN,
                      get_fmtp_message_len, dissect_fmtp_message, data);
     return true;
 }
@@ -177,7 +177,7 @@ proto_register_fmtp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fmtp
     };
 

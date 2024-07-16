@@ -118,8 +118,8 @@ WS_DLL_PUBLIC const value_string fc_fc4_val[];
 
 
 typedef struct _fc_exchange_t {
-    guint32 first_exchange_frame;
-    guint32 last_exchange_frame;
+    uint32_t first_exchange_frame;
+    uint32_t last_exchange_frame;
     nstime_t fc_time;
 } fc_exchange_t;
 
@@ -127,16 +127,16 @@ typedef struct _fc_exchange_t {
 typedef struct _fc_hdr {
     address s_id;
     address d_id;
-    guint32 fctl;
-    guint8 type;
-    guint16 seqcnt;
-    guint16 oxid;
-    guint16 rxid;
-    guint8 r_ctl;
-    guint8 cs_ctl;
-    guint16 lun;
+    uint32_t fctl;
+    uint8_t type;
+    uint16_t seqcnt;
+    uint16_t oxid;
+    uint16_t rxid;
+    uint8_t r_ctl;
+    uint8_t cs_ctl;
+    uint16_t lun;
     fc_exchange_t* fc_ex;
-    guint32 relative_offset;
+    uint32_t relative_offset;
 } fc_hdr;
 
 #define FC_DATA_SOF_FIRST_FRAME   0x1
@@ -146,8 +146,8 @@ typedef struct _fc_hdr {
 
 /* Data structure to pass into FC dissector */
 typedef struct _fc_data {
-    guint   ethertype;
-    guint8  sof_eof;              /**< FC's SOF/EOF encoding passed to FC decoder
+    unsigned   ethertype;
+    uint8_t sof_eof;              /**< FC's SOF/EOF encoding passed to FC decoder
                                  * Bit 7 set if Last frame in sequence
                                  * Bit 6 set if invalid frame content
                                  * Bit 2 set if SOFf

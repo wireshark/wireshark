@@ -58,10 +58,10 @@ static int hf_fmp_startOffset;
 static int hf_fmp_extent_state;
 static int hf_fmp_revokeHandleListReason;
 
-static gint ett_fmp_notify;
-static gint ett_fmp_notify_hlist;
-static gint ett_fmp_extList;
-static gint ett_fmp_ext;
+static int ett_fmp_notify;
+static int ett_fmp_notify_hlist;
+static int ett_fmp_extList;
+static int ett_fmp_ext;
 
 
 static int dissect_fmp_notify_extentList(tvbuff_t *, int, packet_info *, proto_tree *);
@@ -450,12 +450,12 @@ dissect_fmp_notify_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static int
 dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-		   proto_tree *tree, guint32 ext_num)
+		   proto_tree *tree, uint32_t ext_num)
 {
 	proto_tree *extTree;
 
 	extTree = proto_tree_add_subtree_format(tree, tvb, offset, 20 ,
-				      ett_fmp_ext, NULL, "Extent (%u)", (guint32) ext_num);
+				      ett_fmp_ext, NULL, "Extent (%u)", (uint32_t) ext_num);
 
 	offset = dissect_rpc_uint32(tvb,  extTree, hf_fmp_firstLogBlk,
 				    offset);
@@ -474,10 +474,10 @@ static int
 dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		       proto_tree *tree)
 {
-	guint32	    numExtents;
-	guint32	    totalLength;
+	uint32_t	    numExtents;
+	uint32_t	    totalLength;
 	proto_tree *extListTree;
-	guint32	    i;
+	uint32_t	    i;
 
 	numExtents = tvb_get_ntohl(tvb, offset);
 	totalLength = 4 + (20 * numExtents);
@@ -583,7 +583,7 @@ proto_register_fmp_notify(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_fmp_notify,
 		&ett_fmp_notify_hlist,
 		&ett_fmp_extList,

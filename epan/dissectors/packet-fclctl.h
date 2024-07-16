@@ -77,6 +77,6 @@ extern const value_string fc_lctl_proto_val[];
 #define FC_LCTL_RJT_VEND_ERR               0xFF
 
 /* Function definitions */
-const gchar *fclctl_get_typestr (guint8 linkctl_type, guint8 type);
-const gchar *fclctl_get_paramstr (wmem_allocator_t *pool, guint32 linkctl_type, guint32 param);
+const char *fclctl_get_typestr (uint8_t linkctl_type, uint8_t type);
+const char *fclctl_get_paramstr (wmem_allocator_t *pool, uint32_t linkctl_type, uint32_t param);
 #endif

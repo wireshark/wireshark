@@ -22,7 +22,7 @@ void proto_register_fortinet_sso(void);
 void proto_reg_handoff_fortinet_sso(void);
 
 static int proto_fortinet_sso;
-static gint ett_fortinet_sso;
+static int ett_fortinet_sso;
 
 static int hf_fsso_length;
 static int hf_fsso_timestamp;
@@ -46,10 +46,10 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_tree *ti;
     proto_tree *fsso_tree;
-    guint32 payload_length, client_ip;
-    gint string_length = -1;
-    const gchar *string;
-    gint32 len;
+    uint32_t payload_length, client_ip;
+    int string_length = -1;
+    const char *string;
+    int32_t len;
     int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FSSO");
@@ -116,8 +116,8 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     } else {
 
         if(tvb_reported_length_remaining(tvb, offset)) {
-            guint16 value;
-            guint32 number_port_range;
+            uint16_t value;
+            uint32_t number_port_range;
             value = tvb_get_ntohs(tvb, offset);
 
             if(value == 0x2002) { /* Not a TS Agent additional Data */
@@ -170,7 +170,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static bool
 dissect_fortinet_fsso_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint32 length_remaining, length;
+    uint32_t length_remaining, length;
 
     if (tvb_captured_length(tvb) < 2) {
         return false;
@@ -256,7 +256,7 @@ proto_register_fortinet_sso(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fortinet_sso,
     };
 

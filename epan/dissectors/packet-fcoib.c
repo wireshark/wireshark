@@ -93,15 +93,15 @@ static dissector_handle_t fc_handle;
 static int
 dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        crc_offset;
-    gint        eof_offset;
-    gint        sof_offset;
-    gint        frame_len;
-    guint       version;
+    int         crc_offset;
+    int         eof_offset;
+    int         sof_offset;
+    int         frame_len;
+    unsigned    version;
     const char *ver;
-    guint8      sof          = 0;
-    guint8      eof          = 0;
-    guint8      sig          = 0;
+    uint8_t     sof          = 0;
+    uint8_t     eof          = 0;
+    uint8_t     sig          = 0;
     const char *eof_str;
     const char *sof_str;
     const char *crc_msg;
@@ -109,9 +109,9 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *ti;
     proto_tree *fcoib_tree;
     tvbuff_t   *next_tvb;
-    gboolean    crc_exists;
-    guint32     crc_computed = 0;
-    guint32     crc          = 0;
+    bool        crc_exists;
+    uint32_t    crc_computed = 0;
+    uint32_t    crc          = 0;
     fc_data_t   fc_data;
 
     frame_len = tvb_reported_length_remaining(tvb, 0) -
@@ -229,13 +229,13 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 static bool
 dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint        crc_offset;
-    gint        eof_offset;
-    gint        sof_offset;
-    gint        frame_len;
-    guint8      sof          = 0;
-    guint8      eof          = 0;
-    guint8      sig          = 0;
+    int         crc_offset;
+    int         eof_offset;
+    int         sof_offset;
+    int         frame_len;
+    uint8_t     sof          = 0;
+    uint8_t     eof          = 0;
+    uint8_t     sig          = 0;
 
     frame_len = tvb_reported_length_remaining(tvb, 0) -
       FCOIB_HEADER_LEN - FCOIB_TRAILER_LEN;
@@ -291,7 +291,7 @@ proto_register_fcoib(void)
           {"CRC Status", "fcoib.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
            NULL, HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcoib,
     };
 

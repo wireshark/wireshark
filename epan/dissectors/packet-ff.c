@@ -39,9 +39,9 @@ void proto_register_ff(void);
 void proto_reg_handoff_ff(void);
 
 static int proto_ff;
-static gint ett_ff;
+static int ett_ff;
 
-static gboolean ff_desegment    = TRUE; /* desegmentation of FF over TCP */
+static bool ff_desegment    = true; /* desegmentation of FF over TCP */
 
 static dissector_handle_t ff_udp_handle;
 static dissector_handle_t ff_tcp_handle;
@@ -61,10 +61,10 @@ static int hf_ff_data;
 static int hf_ff_reserved24;
 static int hf_ff_unknown_service;
 
-static gint ett_ff_fda_msg_hdr;
-static gint ett_ff_fda_msg_hdr_proto_and_type;
-static gint ett_ff_fda_msg_hdr_opts;
-static gint ett_ff_fda_msg_hdr_srv;
+static int ett_ff_fda_msg_hdr;
+static int ett_ff_fda_msg_hdr_proto_and_type;
+static int ett_ff_fda_msg_hdr_opts;
+static int ett_ff_fda_msg_hdr_srv;
 
 
 
@@ -78,7 +78,7 @@ static int hf_ff_fda_msg_trailer_invoke_id;
 static int hf_ff_fda_msg_trailer_time_stamp;
 static int hf_ff_fda_msg_trailer_extended_control_field;
 
-static gint ett_ff_fda_msg_trailer;
+static int ett_ff_fda_msg_trailer;
 
 
 
@@ -139,9 +139,9 @@ static int hf_ff_fda_open_sess_err_err_code;
 static int hf_ff_fda_open_sess_err_additional_code;
 static int hf_ff_fda_open_sess_err_additional_desc;
 
-static gint ett_ff_fda_open_sess_req;
-static gint ett_ff_fda_open_sess_rsp;
-static gint ett_ff_fda_open_sess_err;
+static int ett_ff_fda_open_sess_req;
+static int ett_ff_fda_open_sess_rsp;
+static int ett_ff_fda_open_sess_err;
 
 
 
@@ -160,9 +160,9 @@ static int hf_ff_fda_idle_err_err_code;
 static int hf_ff_fda_idle_err_additional_code;
 static int hf_ff_fda_idle_err_additional_desc;
 
-static gint ett_ff_fda_idle_req;
-static gint ett_ff_fda_idle_rsp;
-static gint ett_ff_fda_idle_err;
+static int ett_ff_fda_idle_req;
+static int ett_ff_fda_idle_rsp;
+static int ett_ff_fda_idle_err;
 
 
 
@@ -184,7 +184,7 @@ static int hf_ff_sm_find_tag_query_req_idx;
 static int hf_ff_sm_find_tag_query_req_tag;
 static int hf_ff_sm_find_tag_query_req_vfd_tag;
 
-static gint ett_ff_sm_find_tag_query_req;
+static int ett_ff_sm_find_tag_query_req;
 
 
 
@@ -211,9 +211,9 @@ static int hf_ff_sm_find_tag_reply_dup_pd_tag;
 static int hf_ff_sm_find_tag_reply_dup_device;
 static int hf_ff_sm_find_tag_reply_dup;
 
-static gint ett_ff_sm_find_tag_reply_req;
-static gint ett_ff_sm_find_tag_reply_req_dup_detection_state;
-static gint ett_ff_sm_find_tag_reply_req_list_of_fda_addr_selectors;
+static int ett_ff_sm_find_tag_reply_req;
+static int ett_ff_sm_find_tag_reply_req_dup_detection_state;
+static int ett_ff_sm_find_tag_reply_req_list_of_fda_addr_selectors;
 
 
 
@@ -266,17 +266,17 @@ static int hf_ff_sm_id_err_err_code;
 static int hf_ff_sm_id_err_additional_code;
 static int hf_ff_sm_id_err_additional_desc;
 
-static gint ett_ff_sm_id_req;
-static gint ett_ff_sm_id_rsp;
-static gint ett_ff_sm_id_rsp_smk_state;
-static gint ett_ff_sm_id_rsp_dev_type;
-static gint ett_ff_sm_id_rsp_dev_redundancy_state;
-static gint ett_ff_sm_id_rsp_dup_detection_state;
-static gint ett_ff_sm_id_rsp_entries_h1_live_list;
-static gint ett_ff_sm_id_rsp_h1_live_list;
-static gint ett_ff_sm_id_rsp_entries_node_addr;
-static gint ett_ff_sm_id_rsp_h1_node_addr;
-static gint ett_ff_sm_id_err;
+static int ett_ff_sm_id_req;
+static int ett_ff_sm_id_rsp;
+static int ett_ff_sm_id_rsp_smk_state;
+static int ett_ff_sm_id_rsp_dev_type;
+static int ett_ff_sm_id_rsp_dev_redundancy_state;
+static int ett_ff_sm_id_rsp_dup_detection_state;
+static int ett_ff_sm_id_rsp_entries_h1_live_list;
+static int ett_ff_sm_id_rsp_h1_live_list;
+static int ett_ff_sm_id_rsp_entries_node_addr;
+static int ett_ff_sm_id_rsp_h1_node_addr;
+static int ett_ff_sm_id_err;
 
 
 
@@ -298,9 +298,9 @@ static int hf_ff_sm_clear_addr_err_err_code;
 static int hf_ff_sm_clear_addr_err_additional_code;
 static int hf_ff_sm_clear_addr_err_additional_desc;
 
-static gint ett_ff_sm_clear_addr_req;
-static gint ett_ff_sm_clear_addr_rsp;
-static gint ett_ff_sm_clear_addr_err;
+static int ett_ff_sm_clear_addr_req;
+static int ett_ff_sm_clear_addr_rsp;
+static int ett_ff_sm_clear_addr_err;
 
 
 
@@ -339,11 +339,11 @@ static int hf_ff_sm_set_assign_info_err_err_code;
 static int hf_ff_sm_set_assign_info_err_additional_code;
 static int hf_ff_sm_set_assign_info_err_additional_desc;
 
-static gint ett_ff_sm_set_assign_info_req;
-static gint ett_ff_sm_set_assign_info_req_dev_redundancy_state;
-static gint ett_ff_sm_set_assign_info_req_clear_dup_detection_state;
-static gint ett_ff_sm_set_assign_info_rsp;
-static gint ett_ff_sm_set_assign_info_err;
+static int ett_ff_sm_set_assign_info_req;
+static int ett_ff_sm_set_assign_info_req_dev_redundancy_state;
+static int ett_ff_sm_set_assign_info_req_clear_dup_detection_state;
+static int ett_ff_sm_set_assign_info_rsp;
+static int ett_ff_sm_set_assign_info_err;
 
 
 
@@ -364,9 +364,9 @@ static int hf_ff_sm_clear_assign_info_err_err_code;
 static int hf_ff_sm_clear_assign_info_err_additional_code;
 static int hf_ff_sm_clear_assign_info_err_additional_desc;
 
-static gint ett_ff_sm_clear_assign_info_req;
-static gint ett_ff_sm_clear_assign_info_rsp;
-static gint ett_ff_sm_clear_assign_info_err;
+static int ett_ff_sm_clear_assign_info_req;
+static int ett_ff_sm_clear_assign_info_rsp;
+static int ett_ff_sm_clear_assign_info_err;
 
 
 
@@ -411,15 +411,15 @@ static int hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag;
 static int hf_ff_sm_dev_annunc_req_dup_detection_state_device;
 static int hf_ff_sm_dev_annunc_req_dup_detection_state;
 
-static gint ett_ff_sm_dev_annunc_req;
-static gint ett_ff_sm_dev_annunc_req_smk_state;
-static gint ett_ff_sm_dev_annunc_req_dev_type;
-static gint ett_ff_sm_dev_annunc_req_dev_redundancy_state;
-static gint ett_ff_sm_dev_annunc_req_dup_detection_state;
-static gint ett_ff_sm_dev_annunc_req_entries_h1_live_list;
-static gint ett_ff_sm_dev_annunc_req_h1_live_list;
-static gint ett_ff_sm_dev_annunc_req_entries_node_addr;
-static gint ett_ff_sm_dev_annunc_req_h1_node_addr;
+static int ett_ff_sm_dev_annunc_req;
+static int ett_ff_sm_dev_annunc_req_smk_state;
+static int ett_ff_sm_dev_annunc_req_dev_type;
+static int ett_ff_sm_dev_annunc_req_dev_redundancy_state;
+static int ett_ff_sm_dev_annunc_req_dup_detection_state;
+static int ett_ff_sm_dev_annunc_req_entries_h1_live_list;
+static int ett_ff_sm_dev_annunc_req_h1_live_list;
+static int ett_ff_sm_dev_annunc_req_entries_node_addr;
+static int ett_ff_sm_dev_annunc_req_h1_node_addr;
 
 
 
@@ -453,9 +453,9 @@ static int hf_ff_fms_init_err_err_code;
 static int hf_ff_fms_init_err_additional_code;
 static int hf_ff_fms_init_err_additional_desc;
 
-static gint ett_ff_fms_init_req;
-static gint ett_ff_fms_init_rep;
-static gint ett_ff_fms_init_err;
+static int ett_ff_fms_init_req;
+static int ett_ff_fms_init_rep;
+static int ett_ff_fms_init_err;
 
 
 
@@ -470,7 +470,7 @@ static int hf_ff_fms_abort_req_abort_id;
 static int hf_ff_fms_abort_req_reason_code;
 static int hf_ff_fms_abort_req_reserved;
 
-static gint ett_ff_fms_abort_req;
+static int ett_ff_fms_abort_req;
 
 
 
@@ -493,9 +493,9 @@ static int hf_ff_fms_status_err_err_code;
 static int hf_ff_fms_status_err_additional_code;
 static int hf_ff_fms_status_err_additional_desc;
 
-static gint ett_ff_fms_status_req;
-static gint ett_ff_fms_status_rsp;
-static gint ett_ff_fms_status_err;
+static int ett_ff_fms_status_req;
+static int ett_ff_fms_status_rsp;
+static int ett_ff_fms_status_err;
 
 
 
@@ -510,7 +510,7 @@ static int hf_ff_fms_unsolicited_status_req_physical_status;
 static int hf_ff_fms_unsolicited_status_req_reserved;
 static int hf_ff_fms_unsolicited_status_req_local_detail;
 
-static gint ett_ff_fms_unsolicited_status_req;
+static int ett_ff_fms_unsolicited_status_req;
 
 
 
@@ -532,9 +532,9 @@ static int hf_ff_fms_id_err_err_code;
 static int hf_ff_fms_id_err_additional_code;
 static int hf_ff_fms_id_err_additional_desc;
 
-static gint ett_ff_fms_id_req;
-static gint ett_ff_fms_id_rsp;
-static gint ett_ff_fms_id_err;
+static int ett_ff_fms_id_req;
+static int ett_ff_fms_id_rsp;
+static int ett_ff_fms_id_err;
 
 
 
@@ -561,9 +561,9 @@ static int hf_ff_fms_get_od_err_err_code;
 static int hf_ff_fms_get_od_err_additional_code;
 static int hf_ff_fms_get_od_err_additional_desc;
 
-static gint ett_ff_fms_get_od_req;
-static gint ett_ff_fms_get_od_rsp;
-static gint ett_ff_fms_get_od_err;
+static int ett_ff_fms_get_od_req;
+static int ett_ff_fms_get_od_rsp;
+static int ett_ff_fms_get_od_err;
 
 
 
@@ -584,9 +584,9 @@ static int hf_ff_fms_init_put_od_err_err_code;
 static int hf_ff_fms_init_put_od_err_additional_code;
 static int hf_ff_fms_init_put_od_err_additional_desc;
 
-static gint ett_ff_fms_init_put_od_req;
-static gint ett_ff_fms_init_put_od_rsp;
-static gint ett_ff_fms_init_put_od_err;
+static int ett_ff_fms_init_put_od_req;
+static int ett_ff_fms_init_put_od_rsp;
+static int ett_ff_fms_init_put_od_err;
 
 
 
@@ -607,9 +607,9 @@ static int hf_ff_fms_put_od_err_err_code;
 static int hf_ff_fms_put_od_err_additional_code;
 static int hf_ff_fms_put_od_err_additional_desc;
 
-static gint ett_ff_fms_put_od_req;
-static gint ett_ff_fms_put_od_rsp;
-static gint ett_ff_fms_put_od_err;
+static int ett_ff_fms_put_od_req;
+static int ett_ff_fms_put_od_rsp;
+static int ett_ff_fms_put_od_err;
 
 
 
@@ -629,9 +629,9 @@ static int hf_ff_fms_terminate_put_od_err_err_code;
 static int hf_ff_fms_terminate_put_od_err_additional_code;
 static int hf_ff_fms_terminate_put_od_err_additional_desc;
 
-static gint ett_ff_fms_terminate_put_od_req;
-static gint ett_ff_fms_terminate_put_od_rsp;
-static gint ett_ff_fms_terminate_put_od_err;
+static int ett_ff_fms_terminate_put_od_req;
+static int ett_ff_fms_terminate_put_od_rsp;
+static int ett_ff_fms_terminate_put_od_err;
 
 
 
@@ -651,9 +651,9 @@ static int hf_ff_fms_gen_init_download_seq_err_err_code;
 static int hf_ff_fms_gen_init_download_seq_err_additional_code;
 static int hf_ff_fms_gen_init_download_seq_err_additional_desc;
 
-static gint ett_ff_fms_gen_init_download_seq_req;
-static gint ett_ff_fms_gen_init_download_seq_rep;
-static gint ett_ff_fms_gen_init_download_seq_err;
+static int ett_ff_fms_gen_init_download_seq_req;
+static int ett_ff_fms_gen_init_download_seq_rep;
+static int ett_ff_fms_gen_init_download_seq_err;
 
 
 
@@ -675,9 +675,9 @@ static int hf_ff_fms_gen_download_seg_err_err_code;
 static int hf_ff_fms_gen_download_seg_err_additional_code;
 static int hf_ff_fms_gen_download_seg_err_additional_desc;
 
-static gint ett_ff_fms_gen_download_seg_req;
-static gint ett_ff_fms_gen_download_seg_rsp;
-static gint ett_ff_fms_gen_download_seg_err;
+static int ett_ff_fms_gen_download_seg_req;
+static int ett_ff_fms_gen_download_seg_rsp;
+static int ett_ff_fms_gen_download_seg_err;
 
 
 
@@ -698,9 +698,9 @@ static int hf_ff_fms_gen_terminate_download_seq_err_err_code;
 static int hf_ff_fms_gen_terminate_download_seq_err_additional_code;
 static int hf_ff_fms_gen_terminate_download_seq_err_additional_desc;
 
-static gint ett_ff_fms_gen_terminate_download_seq_req;
-static gint ett_ff_fms_gen_terminate_download_seq_rsp;
-static gint ett_ff_fms_gen_terminate_download_seq_err;
+static int ett_ff_fms_gen_terminate_download_seq_req;
+static int ett_ff_fms_gen_terminate_download_seq_rsp;
+static int ett_ff_fms_gen_terminate_download_seq_err;
 
 
 
@@ -720,9 +720,9 @@ static int hf_ff_fms_init_download_seq_err_err_code;
 static int hf_ff_fms_init_download_seq_err_additional_code;
 static int hf_ff_fms_init_download_seq_err_additional_desc;
 
-static gint ett_ff_fms_init_download_seq_req;
-static gint ett_ff_fms_init_download_seq_rsp;
-static gint ett_ff_fms_init_download_seq_err;
+static int ett_ff_fms_init_download_seq_req;
+static int ett_ff_fms_init_download_seq_rsp;
+static int ett_ff_fms_init_download_seq_err;
 
 
 
@@ -743,9 +743,9 @@ static int hf_ff_fms_download_seg_err_err_code;
 static int hf_ff_fms_download_seg_err_additional_code;
 static int hf_ff_fms_download_seg_err_additional_desc;
 
-static gint ett_ff_fms_download_seg_req;
-static gint ett_ff_fms_download_seg_rsp;
-static gint ett_ff_fms_download_seg_err;
+static int ett_ff_fms_download_seg_req;
+static int ett_ff_fms_download_seg_rsp;
+static int ett_ff_fms_download_seg_err;
 
 
 
@@ -766,9 +766,9 @@ static int hf_ff_fms_terminate_download_seq_err_err_code;
 static int hf_ff_fms_terminate_download_seq_err_additional_code;
 static int hf_ff_fms_terminate_download_seq_err_additional_desc;
 
-static gint ett_ff_fms_terminate_download_seq_req;
-static gint ett_ff_fms_terminate_download_seq_rsp;
-static gint ett_ff_fms_terminate_download_seq_err;
+static int ett_ff_fms_terminate_download_seq_req;
+static int ett_ff_fms_terminate_download_seq_rsp;
+static int ett_ff_fms_terminate_download_seq_err;
 
 
 
@@ -788,9 +788,9 @@ static int hf_ff_fms_init_upload_seq_err_err_code;
 static int hf_ff_fms_init_upload_seq_err_additional_code;
 static int hf_ff_fms_init_upload_seq_err_additional_desc;
 
-static gint ett_ff_fms_init_upload_seq_req;
-static gint ett_ff_fms_init_upload_seq_rsp;
-static gint ett_ff_fms_init_upload_seq_err;
+static int ett_ff_fms_init_upload_seq_req;
+static int ett_ff_fms_init_upload_seq_rsp;
+static int ett_ff_fms_init_upload_seq_err;
 
 
 
@@ -812,9 +812,9 @@ static int hf_ff_fms_upload_seg_err_err_code;
 static int hf_ff_fms_upload_seg_err_additional_code;
 static int hf_ff_fms_upload_seg_err_additional_desc;
 
-static gint ett_ff_fms_upload_seg_req;
-static gint ett_ff_fms_upload_seg_rsp;
-static gint ett_ff_fms_upload_seg_err;
+static int ett_ff_fms_upload_seg_req;
+static int ett_ff_fms_upload_seg_rsp;
+static int ett_ff_fms_upload_seg_err;
 
 
 
@@ -834,9 +834,9 @@ static int hf_ff_fms_terminate_upload_seq_err_err_code;
 static int hf_ff_fms_terminate_upload_seq_err_additional_code;
 static int hf_ff_fms_terminate_upload_seq_err_additional_desc;
 
-static gint ett_ff_fms_terminate_upload_seq_req;
-static gint ett_ff_fms_terminate_upload_seq_rsp;
-static gint ett_ff_fms_terminate_upload_seq_err;
+static int ett_ff_fms_terminate_upload_seq_req;
+static int ett_ff_fms_terminate_upload_seq_rsp;
+static int ett_ff_fms_terminate_upload_seq_err;
 
 
 
@@ -857,9 +857,9 @@ static int hf_ff_fms_req_dom_download_err_err_code;
 static int hf_ff_fms_req_dom_download_err_additional_code;
 static int hf_ff_fms_req_dom_download_err_additional_desc;
 
-static gint ett_ff_fms_req_dom_download_req;
-static gint ett_ff_fms_req_dom_download_rsp;
-static gint ett_ff_fms_req_dom_download_err;
+static int ett_ff_fms_req_dom_download_req;
+static int ett_ff_fms_req_dom_download_rsp;
+static int ett_ff_fms_req_dom_download_err;
 
 
 
@@ -880,9 +880,9 @@ static int hf_ff_fms_req_dom_upload_err_err_code;
 static int hf_ff_fms_req_dom_upload_err_additional_code;
 static int hf_ff_fms_req_dom_upload_err_additional_desc;
 
-static gint ett_ff_fms_req_dom_upload_req;
-static gint ett_ff_fms_req_dom_upload_rsp;
-static gint ett_ff_fms_req_dom_upload_err;
+static int ett_ff_fms_req_dom_upload_req;
+static int ett_ff_fms_req_dom_upload_rsp;
+static int ett_ff_fms_req_dom_upload_err;
 
 
 
@@ -906,10 +906,10 @@ static int hf_ff_fms_create_pi_err_err_code;
 static int hf_ff_fms_create_pi_err_additional_code;
 static int hf_ff_fms_create_pi_err_additional_desc;
 
-static gint ett_ff_fms_create_pi_req;
-static gint ett_ff_fms_create_pi_req_list_of_dom_idxes;
-static gint ett_ff_fms_create_pi_rsp;
-static gint ett_ff_fms_create_pi_err;
+static int ett_ff_fms_create_pi_req;
+static int ett_ff_fms_create_pi_req_list_of_dom_idxes;
+static int ett_ff_fms_create_pi_rsp;
+static int ett_ff_fms_create_pi_err;
 
 
 
@@ -928,9 +928,9 @@ static int hf_ff_fms_del_pi_err_err_code;
 static int hf_ff_fms_del_pi_err_additional_code;
 static int hf_ff_fms_del_pi_err_additional_desc;
 
-static gint ett_ff_fms_del_pi_req;
-static gint ett_ff_fms_del_pi_rsp;
-static gint ett_ff_fms_del_pi_err;
+static int ett_ff_fms_del_pi_req;
+static int ett_ff_fms_del_pi_rsp;
+static int ett_ff_fms_del_pi_err;
 
 
 
@@ -951,9 +951,9 @@ static int hf_ff_fms_start_err_err_code;
 static int hf_ff_fms_start_err_additional_code;
 static int hf_ff_fms_start_err_additional_desc;
 
-static gint ett_ff_fms_start_req;
-static gint ett_ff_fms_start_rsp;
-static gint ett_ff_fms_start_err;
+static int ett_ff_fms_start_req;
+static int ett_ff_fms_start_rsp;
+static int ett_ff_fms_start_err;
 
 
 
@@ -974,9 +974,9 @@ static int hf_ff_fms_stop_err_err_code;
 static int hf_ff_fms_stop_err_additional_code;
 static int hf_ff_fms_stop_err_additional_desc;
 
-static gint ett_ff_fms_stop_req;
-static gint ett_ff_fms_stop_rsp;
-static gint ett_ff_fms_stop_err;
+static int ett_ff_fms_stop_req;
+static int ett_ff_fms_stop_rsp;
+static int ett_ff_fms_stop_err;
 
 
 
@@ -997,9 +997,9 @@ static int hf_ff_fms_resume_err_err_code;
 static int hf_ff_fms_resume_err_additional_code;
 static int hf_ff_fms_resume_err_additional_desc;
 
-static gint ett_ff_fms_resume_req;
-static gint ett_ff_fms_resume_rsp;
-static gint ett_ff_fms_resume_err;
+static int ett_ff_fms_resume_req;
+static int ett_ff_fms_resume_rsp;
+static int ett_ff_fms_resume_err;
 
 
 
@@ -1019,9 +1019,9 @@ static int hf_ff_fms_reset_err_err_code;
 static int hf_ff_fms_reset_err_additional_code;
 static int hf_ff_fms_reset_err_additional_desc;
 
-static gint ett_ff_fms_reset_req;
-static gint ett_ff_fms_reset_rsp;
-static gint ett_ff_fms_reset_err;
+static int ett_ff_fms_reset_req;
+static int ett_ff_fms_reset_rsp;
+static int ett_ff_fms_reset_err;
 
 
 
@@ -1040,9 +1040,9 @@ static int hf_ff_fms_kill_err_err_code;
 static int hf_ff_fms_kill_err_additional_code;
 static int hf_ff_fms_kill_err_additional_desc;
 
-static gint ett_ff_fms_kill_req;
-static gint ett_ff_fms_kill_rsp;
-static gint ett_ff_fms_kill_err;
+static int ett_ff_fms_kill_req;
+static int ett_ff_fms_kill_rsp;
+static int ett_ff_fms_kill_err;
 
 
 
@@ -1062,9 +1062,9 @@ static int hf_ff_fms_read_err_err_code;
 static int hf_ff_fms_read_err_additional_code;
 static int hf_ff_fms_read_err_additional_desc;
 
-static gint ett_ff_fms_read_req;
-static gint ett_ff_fms_read_rsp;
-static gint ett_ff_fms_read_err;
+static int ett_ff_fms_read_req;
+static int ett_ff_fms_read_rsp;
+static int ett_ff_fms_read_err;
 
 
 
@@ -1085,9 +1085,9 @@ static int hf_ff_fms_read_with_subidx_err_err_code;
 static int hf_ff_fms_read_with_subidx_err_additional_code;
 static int hf_ff_fms_read_with_subidx_err_additional_desc;
 
-static gint ett_ff_fms_read_with_subidx_req;
-static gint ett_ff_fms_read_with_subidx_rsp;
-static gint ett_ff_fms_read_with_subidx_err;
+static int ett_ff_fms_read_with_subidx_req;
+static int ett_ff_fms_read_with_subidx_rsp;
+static int ett_ff_fms_read_with_subidx_err;
 
 
 
@@ -1106,9 +1106,9 @@ static int hf_ff_fms_write_err_err_code;
 static int hf_ff_fms_write_err_additional_code;
 static int hf_ff_fms_write_err_additional_desc;
 
-static gint ett_ff_fms_write_req;
-static gint ett_ff_fms_write_rsp;
-static gint ett_ff_fms_write_err;
+static int ett_ff_fms_write_req;
+static int ett_ff_fms_write_rsp;
+static int ett_ff_fms_write_err;
 
 
 
@@ -1129,9 +1129,9 @@ static int hf_ff_fms_write_with_subidx_err_err_code;
 static int hf_ff_fms_write_with_subidx_err_additional_code;
 static int hf_ff_fms_write_with_subidx_err_additional_desc;
 
-static gint ett_ff_fms_write_with_subidx_req;
-static gint ett_ff_fms_write_with_subidx_rsp;
-static gint ett_ff_fms_write_with_subidx_err;
+static int ett_ff_fms_write_with_subidx_req;
+static int ett_ff_fms_write_with_subidx_rsp;
+static int ett_ff_fms_write_with_subidx_err;
 
 
 
@@ -1153,10 +1153,10 @@ static int hf_ff_fms_def_variable_list_err_err_code;
 static int hf_ff_fms_def_variable_list_err_additional_code;
 static int hf_ff_fms_def_variable_list_err_additional_desc;
 
-static gint ett_ff_fms_def_variable_list_req;
-static gint ett_ff_fms_def_variable_list_req_list_of_idxes;
-static gint ett_ff_fms_def_variable_list_rsp;
-static gint ett_ff_fms_def_variable_list_err;
+static int ett_ff_fms_def_variable_list_req;
+static int ett_ff_fms_def_variable_list_req_list_of_idxes;
+static int ett_ff_fms_def_variable_list_rsp;
+static int ett_ff_fms_def_variable_list_err;
 
 
 
@@ -1176,9 +1176,9 @@ static int hf_ff_fms_del_variable_list_err_err_code;
 static int hf_ff_fms_del_variable_list_err_additional_code;
 static int hf_ff_fms_del_variable_list_err_additional_desc;
 
-static gint ett_ff_fms_del_variable_list_req;
-static gint ett_ff_fms_del_variable_list_rsp;
-static gint ett_ff_fms_del_variable_list_err;
+static int ett_ff_fms_del_variable_list_req;
+static int ett_ff_fms_del_variable_list_rsp;
+static int ett_ff_fms_del_variable_list_err;
 
 
 
@@ -1190,7 +1190,7 @@ static int hf_ff_fms_info_report;
 static int hf_ff_fms_info_report_req;
 static int hf_ff_fms_info_report_req_idx;
 
-static gint ett_ff_fms_info_report_req;
+static int ett_ff_fms_info_report_req;
 
 
 
@@ -1203,7 +1203,7 @@ static int hf_ff_fms_info_report_with_subidx_req;
 static int hf_ff_fms_info_report_with_subidx_req_idx;
 static int hf_ff_fms_info_report_with_subidx_req_subidx;
 
-static gint ett_ff_fms_info_report_with_subidx_req;
+static int ett_ff_fms_info_report_with_subidx_req;
 
 
 
@@ -1215,7 +1215,7 @@ static int hf_ff_fms_info_report_on_change;
 static int hf_ff_fms_info_report_on_change_req;
 static int hf_ff_fms_info_report_on_change_req_idx;
 
-static gint ett_ff_fms_info_report_on_change_req;
+static int ett_ff_fms_info_report_on_change_req;
 
 
 
@@ -1229,7 +1229,7 @@ static int hf_ff_fms_info_report_on_change_with_subidx_req;
 static int hf_ff_fms_info_report_on_change_with_subidx_req_idx;
 static int hf_ff_fms_info_report_on_change_with_subidx_req_subidx;
 
-static gint ett_ff_fms_info_report_on_change_with_subidx_req;
+static int ett_ff_fms_info_report_on_change_with_subidx_req;
 
 
 
@@ -1242,7 +1242,7 @@ static int hf_ff_fms_ev_notification_req;
 static int hf_ff_fms_ev_notification_req_idx;
 static int hf_ff_fms_ev_notification_req_ev_num;
 
-static gint ett_ff_fms_ev_notification_req;
+static int ett_ff_fms_ev_notification_req;
 
 
 
@@ -1263,9 +1263,9 @@ static int hf_ff_fms_alter_ev_condition_monitoring_err_err_code;
 static int hf_ff_fms_alter_ev_condition_monitoring_err_additional_code;
 static int hf_ff_fms_alter_ev_condition_monitoring_err_additional_desc;
 
-static gint ett_ff_fms_alter_ev_condition_monitoring_req;
-static gint ett_ff_fms_alter_ev_condition_monitoring_rsp;
-static gint ett_ff_fms_alter_ev_condition_monitoring_err;
+static int ett_ff_fms_alter_ev_condition_monitoring_req;
+static int ett_ff_fms_alter_ev_condition_monitoring_rsp;
+static int ett_ff_fms_alter_ev_condition_monitoring_err;
 
 
 
@@ -1286,9 +1286,9 @@ static int hf_ff_fms_ack_ev_notification_err_err_code;
 static int hf_ff_fms_ack_ev_notification_err_additional_code;
 static int hf_ff_fms_ack_ev_notification_err_additional_desc;
 
-static gint ett_ff_fms_ack_ev_notification_req;
-static gint ett_ff_fms_ack_ev_notification_rsp;
-static gint ett_ff_fms_ack_ev_notification_err;
+static int ett_ff_fms_ack_ev_notification_req;
+static int ett_ff_fms_ack_ev_notification_rsp;
+static int ett_ff_fms_ack_ev_notification_err;
 
 
 
@@ -1330,10 +1330,10 @@ static int hf_ff_lr_get_info_err_err_code;
 static int hf_ff_lr_get_info_err_additional_code;
 static int hf_ff_lr_get_info_err_additional_desc;
 
-static gint ett_ff_lr_get_info_req;
-static gint ett_ff_lr_get_info_rsp;
-static gint ett_ff_lr_get_info_rsp_lr_flags;
-static gint ett_ff_lr_get_info_err;
+static int ett_ff_lr_get_info_req;
+static int ett_ff_lr_get_info_rsp;
+static int ett_ff_lr_get_info_rsp_lr_flags;
+static int ett_ff_lr_get_info_err;
 
 
 
@@ -1384,11 +1384,11 @@ static int hf_ff_lr_put_info_err_err_code;
 static int hf_ff_lr_put_info_err_additional_code;
 static int hf_ff_lr_put_info_err_additional_desc;
 
-static gint ett_ff_lr_put_info_req;
-static gint ett_ff_lr_put_info_req_lr_flags;
-static gint ett_ff_lr_put_info_rsp;
-static gint ett_ff_lr_put_info_rsp_lr_flags;
-static gint ett_ff_lr_put_info_err;
+static int ett_ff_lr_put_info_req;
+static int ett_ff_lr_put_info_req_lr_flags;
+static int ett_ff_lr_put_info_rsp;
+static int ett_ff_lr_put_info_rsp_lr_flags;
+static int ett_ff_lr_put_info_err;
 
 
 
@@ -1415,10 +1415,10 @@ static int hf_ff_lr_get_statistics_err_err_code;
 static int hf_ff_lr_get_statistics_err_additional_code;
 static int hf_ff_lr_get_statistics_err_additional_desc;
 
-static gint ett_ff_lr_get_statistics_req;
-static gint ett_ff_lr_get_statistics_rsp;
-static gint ett_ff_lr_get_statistics_rsp_list_of_x_cable_stat;
-static gint ett_ff_lr_get_statistics_err;
+static int ett_ff_lr_get_statistics_req;
+static int ett_ff_lr_get_statistics_rsp;
+static int ett_ff_lr_get_statistics_rsp_list_of_x_cable_stat;
+static int ett_ff_lr_get_statistics_err;
 
 
 
@@ -1444,12 +1444,12 @@ static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag;
 static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_device;
 static int hf_ff_lr_diagnostic_msg_req_dup_detection_state;
 
-static gint ett_ff_lr_diagnostic_msg_req;
-static gint ett_ff_lr_diagnostic_msg_req_dup_detection_stat;
-static gint ett_ff_lr_diagnostic_msg_req_a_to_a_status;
-static gint ett_ff_lr_diagnostic_msg_req_b_to_a_status;
-static gint ett_ff_lr_diagnostic_msg_req_a_to_b_status;
-static gint ett_ff_lr_diagnostic_msg_req_b_to_b_status;
+static int ett_ff_lr_diagnostic_msg_req;
+static int ett_ff_lr_diagnostic_msg_req_dup_detection_stat;
+static int ett_ff_lr_diagnostic_msg_req_a_to_a_status;
+static int ett_ff_lr_diagnostic_msg_req_b_to_a_status;
+static int ett_ff_lr_diagnostic_msg_req_a_to_b_status;
+static int ett_ff_lr_diagnostic_msg_req_b_to_b_status;
 
 
 
@@ -1843,7 +1843,7 @@ static const value_string names_err_code_fms_init[] = {
 };
 
 static const char *
-val_to_str_err_code(guint8 errclass, guint8 code)
+val_to_str_err_code(uint8_t errclass, uint8_t code)
 {
     switch (errclass) {
         case 1:
@@ -1892,8 +1892,8 @@ val_to_str_err_code(guint8 errclass, guint8 code)
  * 6.5.1.1.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -1957,8 +1957,8 @@ dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, gint offset,
  * 6.5.1.1.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2022,12 +2022,12 @@ dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.1.1.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FDA Open Session Error");
@@ -2075,8 +2075,8 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
  * 6.5.1.2.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2100,8 +2100,8 @@ dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, gint offset,
  * 6.5.1.2.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2125,12 +2125,12 @@ dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.1.2.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FDA Idle Error");
@@ -2178,8 +2178,8 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
  * 6.5.2.1.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2229,7 +2229,7 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 3-8: Reserved, set to 0.
@@ -2251,10 +2251,10 @@ dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_find_tag_reply_req_list_of_fda_addr_selectors(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint16 value)
+    int offset, proto_tree *tree, uint16_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -2276,11 +2276,11 @@ dissect_ff_msg_sm_find_tag_reply_req_list_of_fda_addr_selectors(tvbuff_t *tvb,
 
 
 static void
-dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint16     NumOfFDAAddrSelectors;
+    uint16_t    NumOfFDAAddrSelectors;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Find Tag Reply Request");
 
@@ -2372,8 +2372,8 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
  * 6.5.2.3.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_id_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2398,7 +2398,7 @@ dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2423,10 +2423,10 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_entries_node_addr(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -2445,7 +2445,7 @@ dissect_ff_msg_sm_id_rsp_entries_node_addr(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2473,10 +2473,10 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_entries_link_id(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -2495,7 +2495,7 @@ dissect_ff_msg_sm_id_rsp_entries_link_id(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_smk_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 2-8:
@@ -2519,7 +2519,7 @@ dissect_ff_msg_sm_id_rsp_smk_state(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_dev_type(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bit 8 = Linking Device
@@ -2554,7 +2554,7 @@ dissect_ff_msg_sm_id_rsp_dev_type(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 5-8 = Reserved, set to 0
@@ -2581,7 +2581,7 @@ dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 3-8: Reserved, set to 0.
@@ -2603,12 +2603,12 @@ dissect_ff_msg_sm_id_rsp_dup_detection_state(tvbuff_t *tvb,
 
 
 static void
-dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree, guint32 FDAAddress)
+dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree, uint32_t FDAAddress)
 {
     proto_tree *sub_tree;
 
-    guint32 NumOfEntriesInVerNumList;
+    uint32_t NumOfEntriesInVerNumList;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Response");
 
@@ -2693,9 +2693,9 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (NumOfEntriesInVerNumList) {
-        guint16 LinkId;
+        uint16_t LinkId;
         /* 11111111 11111111 00000000 00000000 */
-        LinkId = (guint16)(FDAAddress >> 16);
+        LinkId = (uint16_t)(FDAAddress >> 16);
         if (LinkId) {
             dissect_ff_msg_sm_id_rsp_entries_node_addr(tvb,
                 offset, sub_tree, NumOfEntriesInVerNumList);
@@ -2719,12 +2719,12 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.2.3.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_id_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Error");
@@ -2771,8 +2771,8 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
  * 6.5.2.4.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2815,8 +2815,8 @@ dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, gint offset,
  * 6.5.2.4.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -2840,12 +2840,12 @@ dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.2.4.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Address Error");
@@ -2894,7 +2894,7 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 5-8 = Reserved, set to 0
@@ -2921,7 +2921,7 @@ dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 3-8: Reserved, set to 0.
@@ -2943,8 +2943,8 @@ dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvbuff_t *tvb,
 
 
 static void
-dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3023,8 +3023,8 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
  * 6.5.2.5.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3063,12 +3063,12 @@ dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.2.5.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Set Assignment Info Error");
@@ -3117,8 +3117,8 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
  * 6.5.2.6.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3152,8 +3152,8 @@ dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, gint offset,
  * 6.5.2.6.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3177,12 +3177,12 @@ dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.2.6.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Assignment Info Error");
@@ -3232,7 +3232,7 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3258,10 +3258,10 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -3280,7 +3280,7 @@ dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3308,10 +3308,10 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_entries_link_id(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -3330,7 +3330,7 @@ dissect_ff_msg_sm_dev_annunc_req_entries_link_id(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_smk_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 2-8:
@@ -3355,7 +3355,7 @@ dissect_ff_msg_sm_dev_annunc_req_smk_state(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_dev_type(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bit 8 = Linking Device
@@ -3390,7 +3390,7 @@ dissect_ff_msg_sm_dev_annunc_req_dev_type(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 5-8 = Reserved, set to 0
@@ -3417,7 +3417,7 @@ dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 3-8: Reserved, set to 0.
@@ -3439,12 +3439,12 @@ dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvbuff_t *tvb,
 
 
 static void
-dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree, guint32 FDAAddress)
+dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree, uint32_t FDAAddress)
 {
     proto_tree *sub_tree;
 
-    guint32 NumOfEntriesInVerNumList;
+    uint32_t NumOfEntriesInVerNumList;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Device Annunciation Request");
 
@@ -3532,9 +3532,9 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (NumOfEntriesInVerNumList) {
-        guint16 LinkId;
+        uint16_t LinkId;
         /* 11111111 11111111 00000000 00000000 */
-        LinkId = (guint16)(FDAAddress >> 16);
+        LinkId = (uint16_t)(FDAAddress >> 16);
         if (LinkId) {
             dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvb,
                 offset, sub_tree, NumOfEntriesInVerNumList);
@@ -3559,8 +3559,8 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.2.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_init_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3615,8 +3615,8 @@ dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.2.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3650,12 +3650,12 @@ dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.2.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_init_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Error");
@@ -3702,8 +3702,8 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.3.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3746,8 +3746,8 @@ dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.4.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_status_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_status_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3771,8 +3771,8 @@ dissect_ff_msg_fms_status_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.4.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3814,12 +3814,12 @@ dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.4.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_status_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Status Error");
@@ -3866,8 +3866,8 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.5.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3912,8 +3912,8 @@ dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.6.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_id_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_id_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3937,8 +3937,8 @@ dissect_ff_msg_fms_id_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.6.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -3977,12 +3977,12 @@ dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.6.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_id_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Identify Error");
@@ -4029,8 +4029,8 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.7.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4073,8 +4073,8 @@ dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.7.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4112,12 +4112,12 @@ dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.7.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Get OD Error");
@@ -4164,8 +4164,8 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.8.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_init_put_od_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_init_put_od_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Request");
@@ -4198,8 +4198,8 @@ dissect_ff_msg_fms_init_put_od_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.8.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4223,12 +4223,12 @@ dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.8.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Error");
@@ -4276,8 +4276,8 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.9.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4307,8 +4307,8 @@ dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.9.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4331,12 +4331,12 @@ dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.9.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Put OD Error");
@@ -4384,8 +4384,8 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.10.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4409,8 +4409,8 @@ dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.10.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4434,12 +4434,12 @@ dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.10.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Error");
@@ -4496,8 +4496,8 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_fms_generic_init_download_sequence_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4527,8 +4527,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_req(
  */
 static void
 dissect_ff_msg_fms_generic_init_download_sequence_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4553,12 +4553,12 @@ dissect_ff_msg_fms_generic_init_download_sequence_rsp(
  */
 static void
 dissect_ff_msg_fms_generic_init_download_sequence_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Initiate Download Sequence Error");
@@ -4610,8 +4610,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
  */
 static void
 dissect_ff_msg_fms_generic_download_segment_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4650,8 +4650,8 @@ dissect_ff_msg_fms_generic_download_segment_req(
  */
 static void
 dissect_ff_msg_fms_generic_download_segment_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4676,12 +4676,12 @@ dissect_ff_msg_fms_generic_download_segment_rsp(
  */
 static void
 dissect_ff_msg_fms_generic_download_segment_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Download Segment Error");
@@ -4733,8 +4733,8 @@ dissect_ff_msg_fms_generic_download_segment_err(
  */
 static void
 dissect_ff_msg_fms_generic_terminate_download_sequence_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4764,8 +4764,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_req(
  */
 static void
 dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4800,12 +4800,12 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
  */
 static void
 dissect_ff_msg_fms_generic_terminate_download_sequence_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Terminate Download Sequence Error");
@@ -4858,8 +4858,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
  */
 static void
 dissect_ff_msg_fms_init_download_sequence_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4889,8 +4889,8 @@ dissect_ff_msg_fms_init_download_sequence_req(
  */
 static void
 dissect_ff_msg_fms_init_download_sequence_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -4915,12 +4915,12 @@ dissect_ff_msg_fms_init_download_sequence_rsp(
  */
 static void
 dissect_ff_msg_fms_init_download_sequence_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Download Sequence Error");
@@ -4970,8 +4970,8 @@ dissect_ff_msg_fms_init_download_sequence_err(
  * 6.5.3.15.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5000,8 +5000,8 @@ dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.15.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5034,12 +5034,12 @@ dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.15.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Download Segment Error");
@@ -5089,8 +5089,8 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_fms_terminate_download_sequence_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5130,8 +5130,8 @@ dissect_ff_msg_fms_terminate_download_sequence_req(
  */
 static void
 dissect_ff_msg_fms_terminate_download_sequence_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5156,12 +5156,12 @@ dissect_ff_msg_fms_terminate_download_sequence_rsp(
  */
 static void
 dissect_ff_msg_fms_terminate_download_sequence_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Download Sequence Error");
@@ -5213,8 +5213,8 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
  */
 static void
 dissect_ff_msg_fms_init_upload_seq_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5244,8 +5244,8 @@ dissect_ff_msg_fms_init_upload_seq_req(
  */
 static void
 dissect_ff_msg_fms_init_upload_seq_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5270,12 +5270,12 @@ dissect_ff_msg_fms_init_upload_seq_rsp(
  */
 static void
 dissect_ff_msg_fms_init_upload_seq_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Upload Sequence Error");
@@ -5323,8 +5323,8 @@ dissect_ff_msg_fms_init_upload_seq_err(
  * 6.5.3.18.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5353,8 +5353,8 @@ dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.18.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5387,12 +5387,12 @@ dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.18.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Upload Segment Error");
@@ -5442,8 +5442,8 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_fms_terminate_upload_seq_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5473,8 +5473,8 @@ dissect_ff_msg_fms_terminate_upload_seq_req(
  */
 static void
 dissect_ff_msg_fms_terminate_upload_seq_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5499,12 +5499,12 @@ dissect_ff_msg_fms_terminate_upload_seq_rsp(
  */
 static void
 dissect_ff_msg_fms_terminate_upload_seq_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Upload Sequence Error");
@@ -5556,8 +5556,8 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
  */
 static void
 dissect_ff_msg_fms_req_dom_download_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5589,8 +5589,8 @@ dissect_ff_msg_fms_req_dom_download_req(
  */
 static void
 dissect_ff_msg_fms_req_dom_download_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5615,12 +5615,12 @@ dissect_ff_msg_fms_req_dom_download_rsp(
  */
 static void
 dissect_ff_msg_fms_req_dom_download_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Download Error");
@@ -5671,8 +5671,8 @@ dissect_ff_msg_fms_req_dom_download_err(
  */
 static void
 dissect_ff_msg_fms_req_dom_upload_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5704,8 +5704,8 @@ dissect_ff_msg_fms_req_dom_upload_req(
  */
 static void
 dissect_ff_msg_fms_req_dom_upload_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5730,12 +5730,12 @@ dissect_ff_msg_fms_req_dom_upload_rsp(
  */
 static void
 dissect_ff_msg_fms_req_dom_upload_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Upload Error");
@@ -5785,10 +5785,10 @@ dissect_ff_msg_fms_req_dom_upload_err(
  */
 static void
 dissect_ff_msg_fms_create_pi_req_dom_idxes(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint16 value)
+    int offset, proto_tree *tree, uint16_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -5808,11 +5808,11 @@ dissect_ff_msg_fms_create_pi_req_dom_idxes(tvbuff_t *tvb,
 
 
 static void
-dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint16     NumOfDomIdxes;
+    uint16_t    NumOfDomIdxes;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Request");
 
@@ -5858,8 +5858,8 @@ dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.22.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5888,12 +5888,12 @@ dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.22.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Error");
@@ -5942,8 +5942,8 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.23.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5972,8 +5972,8 @@ dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.23.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -5997,12 +5997,12 @@ dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.23.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Program Invocation Error");
@@ -6051,8 +6051,8 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.24.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6080,8 +6080,8 @@ dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.24.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6105,12 +6105,12 @@ dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.24.3. PI Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Start Error");
@@ -6166,8 +6166,8 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.25.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6195,8 +6195,8 @@ dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.25.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6220,12 +6220,12 @@ dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.25.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Stop Error");
@@ -6281,8 +6281,8 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.26.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6310,8 +6310,8 @@ dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.26.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6335,12 +6335,12 @@ dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.26.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Resume Error");
@@ -6396,8 +6396,8 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.27.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6425,8 +6425,8 @@ dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.27.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6450,12 +6450,12 @@ dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.27.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Reset Error");
@@ -6511,8 +6511,8 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.28.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6540,8 +6540,8 @@ dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.28.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6565,12 +6565,12 @@ dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.28.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Kill Error");
@@ -6617,8 +6617,8 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.29.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_read_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_read_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6646,8 +6646,8 @@ dissect_ff_msg_fms_read_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.29.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6668,12 +6668,12 @@ dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.29.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_read_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Read Error");
@@ -6720,8 +6720,8 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.30.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6755,8 +6755,8 @@ dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.30.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6778,12 +6778,12 @@ dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.30.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Error");
@@ -6833,8 +6833,8 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.31.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_write_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_write_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6862,8 +6862,8 @@ dissect_ff_msg_fms_write_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.31.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6887,12 +6887,12 @@ dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.31.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_write_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Write Error");
@@ -6939,8 +6939,8 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.32.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6974,8 +6974,8 @@ dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.32.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -6999,12 +6999,12 @@ dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.32.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Write with Subindex Error");
@@ -7055,10 +7055,10 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_fms_def_variable_list_req_list_of_idxes(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -7077,11 +7077,11 @@ dissect_ff_msg_fms_def_variable_list_req_list_of_idxes(tvbuff_t *tvb,
 
 
 static void
-dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint32     NumOfIndexes;
+    uint32_t    NumOfIndexes;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Request");
 
@@ -7116,8 +7116,8 @@ dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.33.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7146,12 +7146,12 @@ dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.33.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Error");
@@ -7201,8 +7201,8 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.34.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7231,8 +7231,8 @@ dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.34.2. Response Message Parameters
  */
 static void
-dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7256,12 +7256,12 @@ dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, gint offset,
  * 6.5.3.34.3. Error Message Parameters
  */
 static void
-dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Variable List Error");
@@ -7311,8 +7311,8 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
  * 6.5.3.35.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7343,8 +7343,8 @@ dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.36.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7379,8 +7379,8 @@ dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, gint offset,
  * 6.5.3.37.1. Request Message Parameters
  */
 static void
-dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7412,8 +7412,8 @@ dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_fms_info_report_change_subindex_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7451,8 +7451,8 @@ dissect_ff_msg_fms_info_report_change_subindex_req(
  */
 static void
 dissect_ff_msg_fms_ev_notification_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7488,8 +7488,8 @@ dissect_ff_msg_fms_ev_notification_req(
  */
 static void
 dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7529,8 +7529,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
  */
 static void
 dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7555,12 +7555,12 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
  */
 static void
 dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Alter Event Condition Monitoring Error");
@@ -7613,8 +7613,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
  */
 static void
 dissect_ff_msg_fms_ack_ev_notification_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7649,8 +7649,8 @@ dissect_ff_msg_fms_ack_ev_notification_req(
  */
 static void
 dissect_ff_msg_fms_ack_ev_notification_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7675,12 +7675,12 @@ dissect_ff_msg_fms_ack_ev_notification_rsp(
  */
 static void
 dissect_ff_msg_fms_ack_ev_notification_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Acknowledge Event Notification Error");
@@ -7732,8 +7732,8 @@ dissect_ff_msg_fms_ack_ev_notification_err(
  */
 static void
 dissect_ff_msg_lr_get_info_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -7758,7 +7758,7 @@ dissect_ff_msg_lr_get_info_req(
  */
 static void
 dissect_ff_msg_lr_get_info_rsp_lr_flags(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 6-8: Reserved (not used) = 0
@@ -7799,11 +7799,11 @@ dissect_ff_msg_lr_get_info_rsp_lr_flags(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_lr_get_info_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      MaxMsgNumDiff;
+    uint8_t     MaxMsgNumDiff;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Response");
 
@@ -7893,12 +7893,12 @@ dissect_ff_msg_lr_get_info_rsp(
  */
 static void
 dissect_ff_msg_lr_get_info_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Error");
@@ -7948,7 +7948,7 @@ dissect_ff_msg_lr_get_info_err(
  */
 static void
 dissect_ff_msg_lr_put_info_req_lr_flags(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 6-8: Reserved (not used) = 0
@@ -7989,11 +7989,11 @@ dissect_ff_msg_lr_put_info_req_lr_flags(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_lr_put_info_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      MaxMsgNumDiff;
+    uint8_t     MaxMsgNumDiff;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Request");
 
@@ -8083,7 +8083,7 @@ dissect_ff_msg_lr_put_info_req(
  */
 static void
 dissect_ff_msg_lr_put_info_rsp_lr_flags(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     /*
      * Bits 6-8: Reserved (not used) = 0
@@ -8124,11 +8124,11 @@ dissect_ff_msg_lr_put_info_rsp_lr_flags(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_lr_put_info_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      MaxMsgNumDiff;
+    uint8_t     MaxMsgNumDiff;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Response");
 
@@ -8218,12 +8218,12 @@ dissect_ff_msg_lr_put_info_rsp(
  */
 static void
 dissect_ff_msg_lr_put_info_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Error");
@@ -8275,8 +8275,8 @@ dissect_ff_msg_lr_put_info_err(
  */
 static void
 dissect_ff_msg_lr_get_statistics_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
 
@@ -8301,10 +8301,10 @@ dissect_ff_msg_lr_get_statistics_req(
  */
 static void
 dissect_ff_msg_lr_get_statistics_rsp_x_cable_stat(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -8326,11 +8326,11 @@ dissect_ff_msg_lr_get_statistics_rsp_x_cable_stat(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_lr_get_statistics_rsp(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint32     NumXcableStat;
+    uint32_t    NumXcableStat;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Response");
 
@@ -8402,12 +8402,12 @@ dissect_ff_msg_lr_get_statistics_rsp(
  */
 static void
 dissect_ff_msg_lr_get_statistics_err(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      ErrorClass;
-    guint8      ErrorCode;
+    uint8_t     ErrorClass;
+    uint8_t     ErrorCode;
     const char *error_code;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Error");
@@ -8458,7 +8458,7 @@ dissect_ff_msg_lr_get_statistics_err(
  */
 static void
 dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvbuff_t *tvb,
-        gint offset, proto_tree *tree)
+        int offset, proto_tree *tree)
 {
     /*
      * Bits 3-8: Reserved, set to 0.
@@ -8481,10 +8481,10 @@ dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_diagnostic_msg_req_if_a_to_a_status(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -8507,10 +8507,10 @@ dissect_ff_msg_diagnostic_msg_req_if_a_to_a_status(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_diagnostic_msg_req_if_b_to_a_status(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -8533,10 +8533,10 @@ dissect_ff_msg_diagnostic_msg_req_if_b_to_a_status(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_diagnostic_msg_req_if_a_to_b_status(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -8559,10 +8559,10 @@ dissect_ff_msg_diagnostic_msg_req_if_a_to_b_status(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_diagnostic_msg_req_if_b_to_b_status(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint32 value)
+    int offset, proto_tree *tree, uint32_t value)
 {
     proto_tree *sub_tree;
-    guint       d;
+    unsigned    d;
 
     if (!tree) {
         return;
@@ -8585,12 +8585,12 @@ dissect_ff_msg_diagnostic_msg_req_if_b_to_b_status(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_diagnostic_msg_req(
-    tvbuff_t *tvb, gint offset,
-    guint32 length, packet_info *pinfo, proto_tree *tree)
+    tvbuff_t *tvb, int offset,
+    uint32_t length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint16     DeviceIndex;
-    guint16     NumOfInterfaceStatuses;
+    uint16_t    DeviceIndex;
+    uint16_t    NumOfInterfaceStatuses;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Diagnostic Message Request");
 
@@ -8685,15 +8685,15 @@ dissect_ff_msg_diagnostic_msg_req(
  * 6.5. Service-Specific Parameters
  */
 static void
-dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
+dissect_ff_msg_body(tvbuff_t *tvb, int offset, uint32_t length,
     packet_info *pinfo, proto_tree *tree,
-    guint8 ProtocolAndType, guint8 Service, guint32 FDAAddress)
+    uint8_t ProtocolAndType, uint8_t Service, uint32_t FDAAddress)
 {
     proto_item *hidden_item;
-    guint16 message = 0;
+    uint16_t message = 0;
 
-    message = ((guint16)ProtocolAndType) << 8;
-    message |= (guint16)Service;
+    message = ((uint16_t)ProtocolAndType) << 8;
+    message |= (uint16_t)Service;
 
     switch (message) {
         case FDA_MSG_SESSION_OPEN_REQ:
@@ -10774,7 +10774,7 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
  */
 static void
 dissect_ff_msg_trailer(tvbuff_t *tvb,
-    gint offset, guint32 length, proto_tree *tree, guint8 Options)
+    int offset, uint32_t length, proto_tree *tree, uint8_t Options)
 {
     proto_tree *sub_tree;
     proto_item *hidden_item;
@@ -10823,7 +10823,7 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_hdr_srv(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 proto_and_type, guint8 service)
+    int offset, proto_tree *tree, uint8_t proto_and_type, uint8_t service)
 {
     proto_tree *sub_tree;
     proto_item *ti;
@@ -10889,7 +10889,7 @@ dissect_ff_msg_hdr_srv(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_hdr_proto_and_type(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     static int * const header[] = {
         &hf_ff_hdr_proto_id,
@@ -10908,7 +10908,7 @@ dissect_ff_msg_hdr_proto_and_type(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
-    gint offset, proto_tree *tree)
+    int offset, proto_tree *tree)
 {
     static int * const options[] = {
         &hf_ff_hdr_opts_msg_num,
@@ -10930,11 +10930,11 @@ dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
  */
 static void
 dissect_ff_msg_hdr(tvbuff_t *tvb,
-    proto_tree *tree, guint8 ProtocolAndType, guint8 Service)
+    proto_tree *tree, uint8_t ProtocolAndType, uint8_t Service)
 {
     proto_tree *sub_tree;
     proto_item *hidden_item;
-    gint        offset   = 0;
+    int         offset   = 0;
 
     if (!tree) {
         return;
@@ -10983,15 +10983,15 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *sub_tree;
     proto_item *ti;
-    gint        offset   = 0;
+    int         offset   = 0;
 
-    guint8  Options         = 0; /* Options */
-    guint8  ProtocolAndType = 0; /* Protocol Id And Confirmed Msg Type */
-    guint8  Service         = 0; /* Service */
-    guint32 FDAAddress      = 0; /* FDA Address */
-    guint32 length          = 0; /* Message Length */
+    uint8_t Options         = 0; /* Options */
+    uint8_t ProtocolAndType = 0; /* Protocol Id And Confirmed Msg Type */
+    uint8_t Service         = 0; /* Service */
+    uint32_t FDAAddress      = 0; /* FDA Address */
+    uint32_t length          = 0; /* Message Length */
 
-    guint32 trailer_len = 0;
+    uint32_t trailer_len = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FF");
 
@@ -11051,7 +11051,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 
-static guint
+static unsigned
 get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return (tvb_get_ntohl(tvb, offset + 8));
@@ -11089,12 +11089,12 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint offset = 0;
+    int offset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > FDA_MSG_HDR_LENGTH)
     {
         tvbuff_t *pdu_tvb;
-        gint length;
+        int length;
 
         /* Make sure at least the header is there */
         if (tvb_captured_length_remaining(tvb, offset) < FDA_MSG_HDR_LENGTH)
@@ -15041,7 +15041,7 @@ proto_register_ff(void)
 
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ff,
         &ett_ff_fda_msg_hdr,
         &ett_ff_fda_msg_hdr_proto_and_type,

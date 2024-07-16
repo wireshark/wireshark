@@ -95,8 +95,8 @@ static const value_string fc_lctl_rjt_val[] = {
 };
 static value_string_ext fc_lctl_rjt_val_ext = VALUE_STRING_EXT_INIT(fc_lctl_rjt_val);
 
-const gchar *
-fclctl_get_typestr (guint8 linkctl_type, guint8 type)
+const char *
+fclctl_get_typestr (uint8_t linkctl_type, uint8_t type)
 {
     if ((linkctl_type == FC_LCTL_FBSYB) ||
         (linkctl_type == FC_LCTL_FBSYL)) {
@@ -105,8 +105,8 @@ fclctl_get_typestr (guint8 linkctl_type, guint8 type)
     return "";
 }
 
-const gchar *
-fclctl_get_paramstr (wmem_allocator_t *pool, guint32 linkctl_type, guint32 param)
+const char *
+fclctl_get_paramstr (wmem_allocator_t *pool, uint32_t linkctl_type, uint32_t param)
 {
     if (linkctl_type == FC_LCTL_PBSY) {
       return wmem_strdup_printf(pool, "%s, %s",

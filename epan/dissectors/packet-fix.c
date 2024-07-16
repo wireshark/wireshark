@@ -44,10 +44,10 @@ static int proto_fix;
 static bool fix_desegment = true;
 
 /* Initialize the subtree pointers */
-static gint ett_fix;
-static gint ett_unknown;
-static gint ett_badfield;
-static gint ett_checksum;
+static int ett_fix;
+static int ett_unknown;
+static int ett_badfield;
+static int ett_checksum;
 
 static expert_field ei_fix_checksum_bad;
 static expert_field ei_fix_missing_field;
@@ -94,12 +94,12 @@ fix_field_tag_compar(const void *v_needle, const void *v_entry)
 static int fix_next_header(tvbuff_t *tvb, int offset)
 {
     /* try to resync to the next start */
-    guint         min_len = tvb_captured_length_remaining(tvb, offset);
-    const guint8 *data    = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, min_len, ENC_ASCII);
-    const guint8 *start   = data;
+    unsigned      min_len = tvb_captured_length_remaining(tvb, offset);
+    const uint8_t *data    = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, min_len, ENC_ASCII);
+    const uint8_t *start   = data;
 
     while ((start = strstr(start, "\0018"))) {
-        min_len = (guint) (start +1 -data);
+        min_len = (unsigned) (start +1 -data);
         /*  if remaining length < 6 return and let the next desegment round
             test for 8=FIX
         */
@@ -141,7 +141,7 @@ static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
 static int fix_header_len(tvbuff_t *tvb, int offset)
 {
     int            base_offset, ctrla_offset;
-    gint32         value;
+    int32_t        value;
     int            size;
     fix_parameter *tag;
 
@@ -208,8 +208,8 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     int            field_offset, ctrla_offset;
     int            tag_value;
     char          *value;
-    guint32        ivalue;
-    gboolean       ivalue_valid;
+    uint32_t       ivalue;
+    bool           ivalue_valid;
     proto_item*    pi;
     fix_parameter *tag;
     const char *msg_type;
@@ -275,7 +275,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         if (tag->value_len < 1) {
             proto_tree *field_tree;
             /* XXX - put an error indication here.  It's too late
-               to return FALSE; we've already started dissecting,
+               to return false; we've already started dissecting,
                and if a heuristic dissector starts dissecting
                (either updating the columns or creating a protocol
                tree) and then gives up, it leaves crud behind that
@@ -332,9 +332,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
               case 10:
                 {
                     proto_tree *checksum_tree;
-                    guint8 sum = 0;
-                    const guint8 *sum_data = tvb_get_ptr(tvb, 0, field_offset);
-                    gboolean sum_ok;
+                    uint8_t sum = 0;
+                    const uint8_t *sum_data = tvb_get_ptr(tvb, 0, field_offset);
+                    bool sum_ok;
                     int j;
 
                     for (j = 0; j < field_offset; j++, sum_data++) {
@@ -379,7 +379,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_fix_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int fix_len;
@@ -480,7 +480,7 @@ proto_register_fix(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fix,
         &ett_unknown,
         &ett_badfield,

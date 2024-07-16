@@ -77,7 +77,7 @@ static int hf_auth_dhchap_chal_value;
 static int hf_auth_dhchap_rsp_value;
 
 /* Initialize the subtree pointers */
-static gint ett_fcsp;
+static int ett_fcsp;
 
 static expert_field ei_auth_fcap_undecoded;
 
@@ -152,10 +152,10 @@ static const value_string fcauth_dhchap_dhgid_vals[] = {
 */
 
 static void dissect_fcsp_dhchap_auth_param(tvbuff_t *tvb, proto_tree *tree,
-                                     int offset, gint32 total_len)
+                                     int offset, int32_t total_len)
 {
-    guint16 auth_param_tag;
-    guint16 param_len, i;
+    uint16_t auth_param_tag;
+    uint16_t param_len, i;
 
     if (tree) {
         total_len -= 4;
@@ -207,8 +207,8 @@ static void dissect_fcsp_dhchap_auth_param(tvbuff_t *tvb, proto_tree *tree,
 static void dissect_fcsp_dhchap_challenge(tvbuff_t *tvb, proto_tree *tree)
 {
     int     offset = 12;
-    guint16 name_type;
-    guint16 param_len, name_len;
+    uint16_t name_type;
+    uint16_t param_len, name_len;
 
     if (tree) {
         proto_tree_add_item(tree, hf_auth_responder_name_type, tvb, offset,
@@ -254,7 +254,7 @@ static void dissect_fcsp_dhchap_challenge(tvbuff_t *tvb, proto_tree *tree)
 static void dissect_fcsp_dhchap_reply(tvbuff_t *tvb, proto_tree *tree)
 {
     int     offset = 12;
-    guint32 param_len;
+    uint32_t param_len;
 
     if (tree) {
         proto_tree_add_item(tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -282,7 +282,7 @@ static void dissect_fcsp_dhchap_reply(tvbuff_t *tvb, proto_tree *tree)
 static void dissect_fcsp_dhchap_success(tvbuff_t *tvb, proto_tree *tree)
 {
     int     offset = 12;
-    guint32 param_len;
+    uint32_t param_len;
 
     if (tree) {
         proto_tree_add_item(tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -297,8 +297,8 @@ static void dissect_fcsp_dhchap_success(tvbuff_t *tvb, proto_tree *tree)
 static void dissect_fcsp_auth_negotiate(tvbuff_t *tvb, proto_tree *tree)
 {
     int     offset = 12;
-    guint16 name_type, name_len, proto_type, param_len;
-    guint32 num_protos, i;
+    uint16_t name_type, name_len, proto_type, param_len;
+    uint32_t num_protos, i;
 
     if (tree) {
         proto_tree_add_item(tree, hf_auth_initiator_name_type, tvb, offset,
@@ -364,7 +364,7 @@ static void dissect_fcsp_auth_rjt(tvbuff_t *tvb, proto_tree *tree)
 static int dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti        = NULL;
-    guint8      opcode;
+    uint8_t     opcode;
     int         offset    = 0;
     proto_tree *fcsp_tree = NULL;
 
@@ -582,7 +582,7 @@ proto_register_fcsp(void)
 
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcsp,
     };
 

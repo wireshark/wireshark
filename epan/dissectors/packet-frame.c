@@ -191,16 +191,16 @@ static int hf_frame_bblog_pad_3;
 static int hf_frame_bblog_payload_len;
 static int hf_comments_text;
 
-static gint ett_frame;
-static gint ett_ifname;
-static gint ett_flags;
-static gint ett_comments;
-static gint ett_hash;
-static gint ett_verdict;
-static gint ett_bblog;
-static gint ett_bblog_event_flags;
-static gint ett_bblog_t_flags;
-static gint ett_bblog_t_flags2;
+static int ett_frame;
+static int ett_ifname;
+static int ett_flags;
+static int ett_comments;
+static int ett_hash;
+static int ett_verdict;
+static int ett_bblog;
+static int ett_bblog_event_flags;
+static int ett_bblog_t_flags;
+static int ett_bblog_t_flags2;
 
 static expert_field ei_comments_text;
 static expert_field ei_arrive_time_out_of_range;
@@ -219,7 +219,7 @@ static bool force_docsis_encap;
 static bool generate_md5_hash;
 static bool generate_bits_field = true;
 static bool disable_packet_size_limited_in_summary;
-static guint    max_comment_lines   = 30;
+static unsigned max_comment_lines   = 30;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
@@ -293,11 +293,11 @@ typedef struct fr_foreach_s {
 	proto_tree *tree;
 	tvbuff_t *tvb;
 	packet_info *pinfo;
-	guint n_changes;
+	unsigned n_changes;
 } fr_foreach_t;
 
 static const char *
-get_verdict_type_string(guint8 type)
+get_verdict_type_string(uint8_t type)
 {
 	switch(type) {
 	case OPT_VERDICT_TYPE_HW:
@@ -311,7 +311,7 @@ get_verdict_type_string(guint8 type)
 }
 
 static const char *
-get_hash_type_string(guint8 type)
+get_hash_type_string(uint8_t type)
 {
 	switch(type) {
 	case OPT_HASH_2COMP:
@@ -332,7 +332,7 @@ get_hash_type_string(guint8 type)
 }
 
 static void
-ensure_tree_item(proto_tree *tree, guint count)
+ensure_tree_item(proto_tree *tree, unsigned count)
 {
 	/*
 	 * Ensure that no exception is thrown in proto.c when adding the
@@ -366,7 +366,7 @@ frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
 	sai->line_style = 1;
 	sai->conv_num = 0;
-	sai->display = TRUE;
+	sai->display = true;
 
 	g_queue_push_tail(sainfo->items, sai);
 
@@ -381,28 +381,28 @@ frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 void
 register_frame_end_routine(packet_info *pinfo, void (*func)(void))
 {
-	pinfo->frame_end_routines = g_slist_append(pinfo->frame_end_routines, (gpointer)func);
+	pinfo->frame_end_routines = g_slist_append(pinfo->frame_end_routines, (void *)func);
 }
 
 typedef void (*void_func_t)(void);
 
 static void
-call_frame_end_routine(gpointer routine)
+call_frame_end_routine(void *routine)
 {
 	void_func_t func = (void_func_t)routine;
 	(*func)();
 }
 
 static bool
-frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
+frame_add_comment(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
 	proto_item *comment_item;
 	proto_item *hidden_item;
 	proto_tree *comments_tree;
-	gchar *newline;             /* location of next newline in comment */
-	gchar *ch;                  /* utility pointer */
-	guint i;                    /* track number of lines */
+	char *newline;             /* location of next newline in comment */
+	char *ch;                  /* utility pointer */
+	unsigned i;                    /* track number of lines */
 
 	if (option_id == OPT_COMMENT) {
 		ch = option->stringval;
@@ -490,7 +490,7 @@ frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 }
 
 static bool
-frame_add_hash(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
+frame_add_hash(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
 
@@ -514,7 +514,7 @@ frame_add_hash(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
 }
 
 static bool
-frame_add_verdict(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
+frame_add_verdict(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
 
@@ -563,22 +563,22 @@ static int
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	proto_item  *volatile ti = NULL;
-	guint	     cap_len = 0, frame_len = 0;
-	guint32      pack_flags;
-	guint32      interface_queue;
-	guint64      drop_count;
-	guint64      packetid;
+	unsigned	     cap_len = 0, frame_len = 0;
+	uint32_t     pack_flags;
+	uint32_t     interface_queue;
+	uint64_t     drop_count;
+	uint64_t     packetid;
 	proto_tree  *volatile tree;
 	proto_tree  *comments_tree;
 	proto_tree  *volatile fh_tree = NULL;
 	proto_item  *item;
-	const gchar *cap_plurality, *frame_plurality;
+	const char *cap_plurality, *frame_plurality;
 	frame_data_t *fr_data = (frame_data_t*)data;
 	const color_filter_t *color_filter;
 	dissector_handle_t dissector_handle;
 	fr_foreach_t fr_user_data;
 	struct nflx_tcpinfo tcpinfo;
-	gboolean tcpinfo_filled = false;
+	bool tcpinfo_filled = false;
 
 	tree=parent_tree;
 
@@ -1076,9 +1076,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		if (generate_md5_hash) {
-			const guint8 *cp;
-			guint8        digest[HASH_MD5_LENGTH];
-			const gchar  *digest_string;
+			const uint8_t *cp;
+			uint8_t       digest[HASH_MD5_LENGTH];
+			const char   *digest_string;
 
 			cp = tvb_get_ptr(tvb, 0, cap_len);
 
@@ -1229,7 +1229,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	if (pinfo->fd->ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
-		proto_tree_add_boolean_format(tree, hf_frame_ignored, tvb, 0, 0, TRUE, "This frame is marked as ignored");
+		proto_tree_add_boolean_format(tree, hf_frame_ignored, tvb, 0, 0, true, "This frame is marked as ignored");
 		return tvb_captured_length(tvb);
 	}
 
@@ -1285,7 +1285,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					        pinfo->rec->rec_header.packet_header.pkt_encap);
 				}
 				if (dissector_handle != NULL) {
-					guint32 save_match_uint = pinfo->match_uint;
+					uint32_t save_match_uint = pinfo->match_uint;
 
 					pinfo->match_uint =
 					    pinfo->rec->rec_header.packet_header.pkt_encap;
@@ -1495,11 +1495,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	}
 
 	if (prefs.enable_incomplete_dissectors_check && tree && tree->tree_data->visible) {
-		gchar* decoded;
-		guint length;
-		guint i;
-		guint byte;
-		guint bit;
+		char* decoded;
+		unsigned length;
+		unsigned i;
+		unsigned byte;
+		unsigned bit;
 
 		length = tvb_captured_length(tvb);
 		decoded = proto_find_undecoded_data(tree, length);
@@ -2245,7 +2245,7 @@ proto_register_frame(void)
 		    FT_INT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }};
 
- 	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_frame,
 		&ett_ifname,
 		&ett_flags,

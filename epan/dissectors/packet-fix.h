@@ -1221,7 +1221,7 @@ typedef struct _fix_field {
         { "COMPOUND", "COMPOUND YIELD" },
         { "CURRENT", "CURRENT YIELD" },
         { "GOVTEQUIV", "GVNT EQUIVALENT YIELD" },
-        { "GROSS", "TRUE GROSS YIELD" },
+        { "GROSS", "true GROSS YIELD" },
         { "INFLATION", "YIELD WITH INFLATION ASSUMPTION" },
         { "INVERSEFLOATER", "INVERSE FLOATER BOND YIELD" },
         { "LASTCLOSE", "MOST RECENT CLOSING YIELD" },
@@ -1241,7 +1241,7 @@ typedef struct _fix_field {
         { "SIMPLE", "SIMPLE YIELD" },
         { "TAXEQUIV", "TAX EQUIVALENT YIELD" },
         { "TENDER", "YIELD TO TENDER DATE" },
-        { "TRUE", "TRUE YIELD" },
+        { "TRUE", "true YIELD" },
         { "VALUE1_32", "YIELD VALUE OF 1 32" },
         { "WORST", "YIELD TO WORST" },
         { 0, NULL }

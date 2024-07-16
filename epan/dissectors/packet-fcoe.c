@@ -97,19 +97,19 @@ static dissector_handle_t fcoe_handle;
  * present, are not padding. Otherwise returns the entry from the EOF
  * value_string. Intended for use with the newer T11 version, where the frame
  * length is not explicitly set (and padding is used). */
-static const gchar *
-fcoe_get_eof(tvbuff_t *tvb, gint eof_offset)
+static const char *
+fcoe_get_eof(tvbuff_t *tvb, int eof_offset)
 {
-    guint8      eof          = 0;
-    const gchar *eof_str;
-    gint        padding_remaining;
+    uint8_t     eof          = 0;
+    const char *eof_str;
+    int         padding_remaining;
 
     if (!tvb_bytes_exist(tvb, eof_offset, 1)) {
         return NULL;
     }
 
     padding_remaining = MIN(tvb_captured_length_remaining(tvb, eof_offset+1),3);
-    if (tvb_memeql(tvb, eof_offset+1, (const guint8*)"\x00\x00\x00", padding_remaining)) {
+    if (tvb_memeql(tvb, eof_offset+1, (const uint8_t*)"\x00\x00\x00", padding_remaining)) {
         return NULL;
     }
 
@@ -121,25 +121,25 @@ fcoe_get_eof(tvbuff_t *tvb, gint eof_offset)
 static int
 dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint        crc_offset;
-    gint        eof_offset;
-    gint        frame_len    = 0;
-    gint        header_len   = FCOE_HEADER_LEN;
-    guint       version;
+    int         crc_offset;
+    int         eof_offset;
+    int         frame_len    = 0;
+    int         header_len   = FCOE_HEADER_LEN;
+    unsigned    version;
     const char *ver;
-    guint16     len_sof;
-    gint        bytes_remaining;
-    guint8      sof          = 0;
-    guint8      eof          = 0;
+    uint16_t    len_sof;
+    int         bytes_remaining;
+    uint8_t     sof          = 0;
+    uint8_t     eof          = 0;
     const char *eof_str;
     const char *crc_msg;
     const char *len_msg;
     proto_item *ti;
     proto_tree *fcoe_tree;
     tvbuff_t   *next_tvb;
-    gboolean    crc_exists;
-    guint32     crc_computed = 0;
-    guint32     crc          = 0;
+    bool        crc_exists;
+    uint32_t    crc_computed = 0;
+    uint32_t    crc          = 0;
     fc_data_t fc_data;
 
     /*
@@ -312,7 +312,7 @@ proto_register_fcoe(void)
           {"CRC Status", "fcoe.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcoe,
     };
 

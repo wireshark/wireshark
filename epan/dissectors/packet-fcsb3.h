@@ -51,7 +51,7 @@
 #define FC_SBCCS_DIB_LRC_HDR_SIZE    16
 
 /* Decodes the DIB Type from the IU header and returns type */
-static inline guint get_fc_sbccs_iu_type (tvbuff_t *tvb, guint offset)
+static inline unsigned get_fc_sbccs_iu_type (tvbuff_t *tvb, unsigned offset)
 {
     /* This is in the IUI field of the IU header */
     return (tvb_get_guint8 (tvb, offset+FC_SBCCS_SB3_HDR_SIZE) & 0x7);

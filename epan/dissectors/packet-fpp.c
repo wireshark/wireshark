@@ -42,8 +42,8 @@ static int hf_fpp_mcrc32_status;
 static expert_field ei_fpp_crc32;
 static expert_field ei_fpp_mcrc32;
 
-static gint ett_fpp;
-static gint ett_fpp_preamble;
+static int ett_fpp;
+static int ett_fpp_preamble;
 
 static reassembly_table fpp_reassembly_table;
 
@@ -60,8 +60,8 @@ static int hf_fpp_fragment_error;
 static int hf_fpp_fragment_count;
 static int hf_fpp_reassembled_in;
 static int hf_fpp_reassembled_length;
-static gint ett_fpp_fragment;
-static gint ett_fpp_fragments;
+static int ett_fpp_fragment;
+static int ett_fpp_fragments;
 
 static const fragment_items fpp_frag_items = {
     /* Fragment subtrees */
@@ -190,10 +190,10 @@ static const value_string delim_desc[] = {
     { 0x0, NULL }
 };
 
-static guint32
+static uint32_t
 get_preamble_length(tvbuff_t *tvb) {
 
-    guint32 offset = 0;
+    uint32_t offset = 0;
 
     if( 0x50 == tvb_get_guint8(tvb, offset) )
     {
@@ -206,7 +206,7 @@ get_preamble_length(tvbuff_t *tvb) {
         offset++;
     }
 
-    guint8 smd1 = tvb_get_guint8(tvb, offset);
+    uint8_t smd1 = tvb_get_guint8(tvb, offset);
 
     switch (smd1) {
         case SMD_PP_Start_0:
@@ -228,9 +228,9 @@ get_preamble_length(tvbuff_t *tvb) {
 }
 
 static fpp_crc_t
-get_crc_stat(tvbuff_t *tvb, guint32 crc, guint32 mcrc) {
+get_crc_stat(tvbuff_t *tvb, uint32_t crc, uint32_t mcrc) {
     fpp_crc_t crc_val;
-    guint32 received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
+    uint32_t received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
 
     if (received_crc == crc) {
         crc_val = CRC_CRC;
@@ -243,9 +243,9 @@ get_crc_stat(tvbuff_t *tvb, guint32 crc, guint32 mcrc) {
 }
 
 static fpp_crc_t
-get_express_crc_stat(tvbuff_t *tvb, guint32 express_crc) {
+get_express_crc_stat(tvbuff_t *tvb, uint32_t express_crc) {
     fpp_crc_t crc_val;
-    guint32 received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
+    uint32_t received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
 
     if (received_crc == express_crc) {
         crc_val = CRC_CRC;
@@ -259,7 +259,7 @@ static fpp_packet_t
 get_packet_type(tvbuff_t *tvb) {
     /* function analyze a packet based on preamble and ignore crc */
 
-    guint32 offset = 0;
+    uint32_t offset = 0;
 
     if( 0x50 == tvb_get_guint8(tvb, offset) )
     {
@@ -272,8 +272,8 @@ get_packet_type(tvbuff_t *tvb) {
         offset++;
     }
 
-    guint8 smd1 = tvb_get_guint8(tvb, offset);
-    guint8 smd2 = tvb_get_guint8(tvb, offset + 1);
+    uint8_t smd1 = tvb_get_guint8(tvb, offset);
+    uint8_t smd2 = tvb_get_guint8(tvb, offset + 1);
 
     switch (smd1) {
         case SMD_PP_Start_0:
@@ -309,7 +309,7 @@ get_packet_type(tvbuff_t *tvb) {
 
 static void
 col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
-    guint preamble_length = get_preamble_length( tvb );
+    unsigned preamble_length = get_preamble_length( tvb );
 
     switch( get_packet_type(tvb) ) {
         case FPP_Packet_Expess:
@@ -339,11 +339,11 @@ col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
 }
 
 struct _fpp_ctx_t {
-    gboolean preemption;
-    guint8 frame_cnt;
-    guint8 frag_cnt;
-    guint32 size;
-    guint32 crc;
+    bool preemption;
+    uint8_t frame_cnt;
+    uint8_t frag_cnt;
+    uint32_t size;
+    uint32_t crc;
     wmem_map_t *crc_history;
 };
 
@@ -362,8 +362,8 @@ get_packet_direction(packet_info *pinfo) {
 }
 
 static void
-init_fpp_ctx(struct _fpp_ctx_t *ctx, guint8 frame_cnt, guint32 crc) {
-    ctx->preemption = TRUE;
+init_fpp_ctx(struct _fpp_ctx_t *ctx, uint8_t frame_cnt, uint32_t crc) {
+    ctx->preemption = true;
     ctx->frame_cnt = frame_cnt;
     ctx->frag_cnt = FragCount_3;
     ctx->size = 0;
@@ -371,8 +371,8 @@ init_fpp_ctx(struct _fpp_ctx_t *ctx, guint8 frame_cnt, guint32 crc) {
     ctx->crc_history = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 }
 
-static guint8
-frag_cnt_next(guint8 cur_num) {
+static uint8_t
+frag_cnt_next(uint8_t cur_num) {
     switch(cur_num) {
         case FragCount_0:
             return FragCount_1;
@@ -386,8 +386,8 @@ frag_cnt_next(guint8 cur_num) {
     }
 }
 
-static guint8
-get_cont_by_start(guint8 start_cnt) {
+static uint8_t
+get_cont_by_start(uint8_t start_cnt) {
     if (start_cnt == SMD_PP_Start_0)
         return SMD_PP_ContFrag_0;
     else if (start_cnt == SMD_PP_Start_1)
@@ -402,7 +402,7 @@ get_cont_by_start(guint8 start_cnt) {
 
 struct _fpp_pdata_t {
     /* struct for future possible usage */
-    guint32 offset;
+    uint32_t offset;
 };
 
 typedef struct _fpp_pdata_t fpp_pdata_t;
@@ -420,7 +420,7 @@ drop_conversation(conversation_t *conv) {
 static void
 drop_fragments(packet_info *pinfo) {
     tvbuff_t *tvbuf;
-    guint interface_id;
+    unsigned interface_id;
     packet_direction_enum packet_direction = get_packet_direction(pinfo);
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
@@ -439,28 +439,28 @@ static tvbuff_t*
 dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     fpp_packet_t pck_type;
 
-    guint preamble_length = get_preamble_length( tvb );
-    guint preamble_bit_length = preamble_length * 8;
-    gboolean preamble_unaligned = FALSE;
+    unsigned preamble_length = get_preamble_length( tvb );
+    unsigned preamble_bit_length = preamble_length * 8;
+    bool preamble_unaligned = false;
 
-    guint8 smd1 = tvb_get_guint8(tvb, preamble_length - 2);
-    guint8 smd2 = tvb_get_guint8(tvb, preamble_length - 1);
+    uint8_t smd1 = tvb_get_guint8(tvb, preamble_length - 2);
+    uint8_t smd2 = tvb_get_guint8(tvb, preamble_length - 1);
 
-    guint crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
-    gint frag_size = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
+    unsigned crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
+    int frag_size = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
 
     /* Reassembly parameters. */
     tvbuff_t *new_tvb = NULL;
     fragment_head *frag_data;
-    gboolean save_fragmented;
+    bool save_fragmented;
     conversation_t *conv;
     fpp_ctx_t *ctx;
-    guint interface_id;
+    unsigned interface_id;
     packet_direction_enum packet_direction = get_packet_direction(pinfo);
     fpp_crc_t crc_val;
 
     /* mCRC calculations needs previous crc */
-    guint32 crc, mcrc, prev_crc;
+    uint32_t crc, mcrc, prev_crc;
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
         interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -475,7 +475,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         //First octet contains preamble alignment bits.
         preamble_bit_length -= 4;
-        preamble_unaligned = TRUE;
+        preamble_unaligned = true;
     }
 
     if( preamble_bit_length == FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
@@ -529,14 +529,14 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     prev_crc = ctx->crc;
                 }
                 /* create a copy of frame number and previous crc and store in crc_history */
-                guint32 *copy_of_pinfo_num = wmem_new(wmem_epan_scope(), guint32);
-                guint32 *copy_of_prev_crc = wmem_new(wmem_epan_scope(), guint32);
+                uint32_t *copy_of_pinfo_num = wmem_new(wmem_epan_scope(), uint32_t);
+                uint32_t *copy_of_prev_crc = wmem_new(wmem_epan_scope(), uint32_t);
                 *copy_of_pinfo_num = pinfo->num;
                 *copy_of_prev_crc = prev_crc;
                 wmem_map_insert(ctx->crc_history, copy_of_pinfo_num, copy_of_prev_crc);
             }
             else {
-                prev_crc = *(guint32 *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
+                prev_crc = *(uint32_t *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
             }
         }
     }
@@ -576,7 +576,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             frag_data = fragment_add_check(&fpp_reassembly_table,
                                tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
-                               0, frag_size, TRUE);
+                               0, frag_size, true);
 
             set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, 8);
             set_address_tvb(&pinfo->dst, AT_ETHER, 6, tvb, 8);
@@ -619,7 +619,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (fpp_pdata) {
                 frag_data = fragment_add_check(&fpp_reassembly_table,
                     tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
-                    fpp_pdata->offset, frag_size, TRUE);
+                    fpp_pdata->offset, frag_size, true);
                 if (frag_data != NULL) {
                     col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", frag_data->reassembled_in);
                     process_reassembled_data(tvb, preamble_length, pinfo,
@@ -649,10 +649,10 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction);
             if (fpp_pdata) {
                 save_fragmented = pinfo->fragmented;
-                pinfo->fragmented = TRUE;
+                pinfo->fragmented = true;
                 frag_data = fragment_add_check(&fpp_reassembly_table,
                                                tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
-                                               fpp_pdata->offset, frag_size, FALSE);
+                                               fpp_pdata->offset, frag_size, false);
                 // Attempt reassembly.
                 new_tvb = process_reassembled_data(tvb, preamble_length, pinfo,
                                                    "Reassembled FPP", frag_data, &fpp_frag_items,
@@ -665,7 +665,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             if (new_tvb) {
                 /* Reassembly was successful; return the completed datagram. */
-                guint32 reassembled_crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(new_tvb, 0, tvb_reported_length(new_tvb)));
+                uint32_t reassembled_crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(new_tvb, 0, tvb_reported_length(new_tvb)));
 
                 /* Reassembly frame takes place regardless of whether the check sum was correct or not. */
                 proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_crc32, -1, &ei_fpp_crc32, pinfo, reassembled_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -705,14 +705,14 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 static tvbuff_t *
-dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc, fpp_crc_t crc_val) {
+dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t crc, fpp_crc_t crc_val) {
 
-    guint crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
-    guint offset = 0;
-    guint preamble_length = get_preamble_length( tvb );
-    guint preamble_bit_length = preamble_length * 8;
-    gboolean preamble_unaligned = FALSE;
-    guint pdu_data_len = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
+    unsigned crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
+    unsigned offset = 0;
+    unsigned preamble_length = get_preamble_length( tvb );
+    unsigned preamble_bit_length = preamble_length * 8;
+    bool preamble_unaligned = false;
+    unsigned pdu_data_len = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
 
 
     proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, offset, preamble_length, ENC_NA);
@@ -722,7 +722,7 @@ dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc
     {
         //First octet contains preamble alignment bits.
         preamble_bit_length -= 4;
-        preamble_unaligned = TRUE;
+        preamble_unaligned = true;
     }
 
     if( preamble_bit_length == FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
@@ -755,11 +755,11 @@ dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc
 static int
 dissect_fpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 express_crc;
+    uint32_t express_crc;
     fpp_crc_t crc_val;
     tvbuff_t *next = tvb;
-    guint preamble_length = get_preamble_length( tvb );
-    guint pdu_data_len = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
+    unsigned preamble_length = get_preamble_length( tvb );
+    unsigned pdu_data_len = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FPP");
     col_clear(pinfo->cinfo,COL_INFO);
@@ -893,7 +893,7 @@ proto_register_fpp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fpp,
         &ett_fpp_preamble,
         /* Reassembly subtrees. */

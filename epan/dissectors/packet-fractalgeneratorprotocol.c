@@ -49,11 +49,11 @@ static int hf_parameter_c2imag;
 static int hf_parameter_n;
 static int hf_buffer;
 
-static guint64 fgp_total_msgs;
-static guint64 fgp_total_bytes;
+static uint64_t fgp_total_msgs;
+static uint64_t fgp_total_bytes;
 
 /* Initialize the subtree pointers */
-static gint ett_fractalgeneratorprotocol;
+static int ett_fractalgeneratorprotocol;
 
 /* Dissectors for messages. This is specific to FractalGeneratorProtocol */
 #define MESSAGE_TYPE_LENGTH    1
@@ -117,8 +117,8 @@ static const value_string algorithmid_values[] = {
 
 
 typedef struct _tap_fgp_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } tap_fgp_rec_t;
 
@@ -141,7 +141,7 @@ dissect_fgp_parameter_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 static void
 dissect_fgp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  guint16 buffer_length;
+  uint16_t buffer_length;
 
   proto_tree_add_item(message_tree, hf_data_start_x, message_tvb, DATA_STARTX_OFFSET, DATA_STARTX_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_data_start_y, message_tvb, DATA_STARTY_OFFSET, DATA_STARTY_LENGTH, ENC_BIG_ENDIAN);
@@ -192,7 +192,7 @@ dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, prot
 
   /* dissect the message */
   dissect_fgp_message(message_tvb, pinfo, fgp_tree);
-  return TRUE;
+  return true;
 }
 
 
@@ -278,9 +278,9 @@ fgp_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, 
   const tap_fgp_rec_t*      tap_rec   = (const tap_fgp_rec_t*)data;
   stat_tap_table*           table;
   stat_tap_table_item_type* msg_data;
-  gint                      idx;
-  guint64                   messages;
-  guint64                   bytes;
+  int                       idx;
+  uint64_t                  messages;
+  uint64_t                  bytes;
   int                       i         = 0;
   double                    firstSeen = -1.0;
   double                    lastSeen  = -1.0;
@@ -308,9 +308,9 @@ fgp_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, 
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -368,7 +368,7 @@ fgp_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, 
 static void
 fgp_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -446,12 +446,12 @@ proto_register_fractalgeneratorprotocol(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_fractalgeneratorprotocol
   };
 
   static tap_param fgp_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui fgp_stat_table = {

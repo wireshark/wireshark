@@ -298,20 +298,20 @@ static int hf_fcdns_zonelen;
 static int hf_fcdns_zonenm;
 
 /* Initialize the subtree pointers */
-static gint ett_fcdns;
-static gint ett_cos_flags;
-static gint ett_fc4flags;
-static gint ett_fc4features;
+static int ett_fcdns;
+static int ett_cos_flags;
+static int ett_fc4flags;
+static int ett_fc4features;
 
 static expert_field ei_fcdns_no_record_of_exchange;
 static expert_field ei_fcdns_zone_mbrid;
 
 typedef struct _fcdns_conv_key {
-    guint32 conv_idx;
+    uint32_t conv_idx;
 } fcdns_conv_key_t;
 
 typedef struct _fcdns_conv_data {
-    guint32 opcode;
+    uint32_t opcode;
 } fcdns_conv_data_t;
 
 static wmem_map_t *fcdns_req_hash;
@@ -319,8 +319,8 @@ static wmem_map_t *fcdns_req_hash;
 /*
  * Hash Functions
  */
-static gint
-fcdns_equal(gconstpointer v, gconstpointer w)
+static int
+fcdns_equal(const void *v, const void *w)
 {
   const fcdns_conv_key_t *v1 = (const fcdns_conv_key_t *)v;
   const fcdns_conv_key_t *v2 = (const fcdns_conv_key_t *)w;
@@ -328,11 +328,11 @@ fcdns_equal(gconstpointer v, gconstpointer w)
   return (v1->conv_idx == v2->conv_idx);
 }
 
-static guint
-fcdns_hash (gconstpointer v)
+static unsigned
+fcdns_hash (const void *v)
 {
     const fcdns_conv_key_t *key = (const fcdns_conv_key_t *)v;
-    guint val;
+    unsigned val;
 
     val = key->conv_idx;
 
@@ -364,7 +364,7 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfind
 static void
 dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    guint8 type;
+    uint8_t type;
     static int * const flags[] = {
         &hf_fcdns_fc4features_i,
         &hf_fcdns_fc4features_t,
@@ -406,7 +406,7 @@ dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex
 {
     proto_item *item;
     proto_tree *tree;
-    guint32 flags;
+    uint32_t flags;
 
     item=proto_tree_add_item(parent_tree, hfindex, tvb, offset,
                                 32, ENC_NA);
@@ -474,10 +474,10 @@ dissect_fcdns_req_portid (tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 len;
+    uint8_t len;
 
     if (req_tree) {
         if (isreq) {
@@ -545,7 +545,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gpnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gpnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -561,7 +561,7 @@ dissect_fcdns_gpnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gnnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gnnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -577,7 +577,7 @@ dissect_fcdns_gnnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gcsid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gcsid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -592,7 +592,7 @@ dissect_fcdns_gcsid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gftid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gftid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -607,10 +607,10 @@ dissect_fcdns_gftid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 len;
+    uint8_t len;
 
     if (req_tree) {
         if (isreq) {
@@ -627,7 +627,7 @@ dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gptid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gptid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -643,7 +643,7 @@ dissect_fcdns_gptid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gfpnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gfpnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -660,7 +660,7 @@ dissect_fcdns_gfpnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gfdid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int tot_len, desclen;
@@ -686,7 +686,7 @@ dissect_fcdns_gfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gffid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -701,7 +701,7 @@ dissect_fcdns_gffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gidpn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gidpn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -718,7 +718,7 @@ dissect_fcdns_gidpn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gipppn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gipppn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -735,10 +735,10 @@ dissect_fcdns_gipppn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gidnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gidnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -757,7 +757,7 @@ dissect_fcdns_gidnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gipnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gipnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -774,10 +774,10 @@ dissect_fcdns_gipnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gpnnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gpnnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -798,10 +798,10 @@ dissect_fcdns_gpnnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gsnnnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gsnnnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 len;
+    uint8_t len;
 
     if (req_tree) {
         if (isreq) {
@@ -819,10 +819,10 @@ dissect_fcdns_gsnnnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gidft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gidft (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -845,10 +845,10 @@ dissect_fcdns_gidft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gpnft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gpnft (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -873,10 +873,10 @@ dissect_fcdns_gpnft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gnnft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gnnft (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -901,10 +901,10 @@ dissect_fcdns_gnnft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gidpt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gidpt (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast = 0;
+    uint8_t islast = 0;
 
     if (req_tree) {
         if (isreq) {
@@ -927,10 +927,10 @@ dissect_fcdns_gidpt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gidipp (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gidipp (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -949,10 +949,10 @@ dissect_fcdns_gidipp (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gidff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gidff (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 islast;
+    uint8_t islast;
 
     if (req_tree) {
         if (isreq) {
@@ -974,7 +974,7 @@ dissect_fcdns_gidff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rpnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rpnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -989,7 +989,7 @@ dissect_fcdns_rpnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rnnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rnnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1004,7 +1004,7 @@ dissect_fcdns_rnnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rcsid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rcsid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1016,7 +1016,7 @@ dissect_fcdns_rcsid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rptid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rptid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1029,7 +1029,7 @@ dissect_fcdns_rptid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rftid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rftid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1041,10 +1041,10 @@ dissect_fcdns_rftid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rspnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 len;
+    uint8_t len;
 
     if (req_tree && isreq) {
         proto_tree_add_item (req_tree, hf_fcdns_req_portid, tvb,
@@ -1059,7 +1059,7 @@ dissect_fcdns_rspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rippid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rippid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1072,7 +1072,7 @@ dissect_fcdns_rippid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int len;
@@ -1097,7 +1097,7 @@ dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rffid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1108,7 +1108,7 @@ dissect_fcdns_rffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_ripnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_ripnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1119,10 +1119,10 @@ dissect_fcdns_ripnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_rsnnnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_rsnnnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    guint8 len;
+    uint8_t len;
 
     if (isreq) {
         proto_tree_add_item (req_tree, hf_fcdns_req_nname, tvb, offset, 8, ENC_NA);
@@ -1136,7 +1136,7 @@ dissect_fcdns_rsnnnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_daid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_daid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1145,8 +1145,8 @@ dissect_fcdns_daid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
     }
 }
 
-static guint8 *
-zonenm_to_str (wmem_allocator_t *scope, tvbuff_t *tvb, gint offset)
+static uint8_t *
+zonenm_to_str (wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 {
     int len = tvb_get_guint8 (tvb, offset);
     return tvb_get_string_enc(scope, tvb, offset+4, len, ENC_ASCII);
@@ -1155,7 +1155,7 @@ zonenm_to_str (wmem_allocator_t *scope, tvbuff_t *tvb, gint offset)
 static void
 dissect_fcdns_zone_mbr (tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree, int offset)
 {
-    guint8 mbrtype;
+    uint8_t mbrtype;
     int idlen;
     proto_item* ti;
 
@@ -1192,7 +1192,7 @@ static void
 dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     int numrec, i, len;
-    guint8 objfmt;
+    uint8_t objfmt;
 
     if (tree) {
         numrec = tvb_get_ntohl (tvb, offset);
@@ -1263,7 +1263,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcdns_geid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_geid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1276,7 +1276,7 @@ dissect_fcdns_geid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gepn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gepn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     if (isreq) {
@@ -1288,7 +1288,7 @@ dissect_fcdns_gepn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_genn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_genn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1301,7 +1301,7 @@ dissect_fcdns_genn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_geip (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_geip (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1316,7 +1316,7 @@ dissect_fcdns_geip (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_geft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_geft (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1331,7 +1331,7 @@ dissect_fcdns_geft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gept (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gept (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1347,7 +1347,7 @@ dissect_fcdns_gept (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gezm (tvbuff_t *tvb, packet_info* pinfo, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gezm (tvbuff_t *tvb, packet_info* pinfo, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1360,7 +1360,7 @@ dissect_fcdns_gezm (tvbuff_t *tvb, packet_info* pinfo, proto_tree *req_tree, gbo
 }
 
 static void
-dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int str_len;
@@ -1379,7 +1379,7 @@ dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_geipp (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_geipp (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1394,7 +1394,7 @@ dissect_fcdns_geipp (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_geff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_geff (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
@@ -1442,7 +1442,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         return 0;
     fchdr = (fc_hdr *)data;
 
-    tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
+    tvb_memcpy (tvb, (uint8_t *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset);
     cthdr.in_id = tvb_get_ntoh24 (tvb, offset+1);
     cthdr.opcode = g_ntohs (cthdr.opcode);
@@ -2061,7 +2061,7 @@ proto_register_fcdns (void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fcdns,
         &ett_cos_flags,
         &ett_fc4flags,

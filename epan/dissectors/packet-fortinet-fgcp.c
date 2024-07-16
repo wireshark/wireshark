@@ -54,9 +54,9 @@ static int hf_fortinet_fgcp_hb_unknown_uint16;
 
 static dissector_handle_t fortinet_fgcp_hb_handle;
 
-static gint ett_fortinet_fgcp_hb;
-static gint ett_fortinet_fgcp_hb_flag;
-static gint ett_fortinet_fgcp_hb_tlv;
+static int ett_fortinet_fgcp_hb;
+static int ett_fortinet_fgcp_hb_flag;
+static int ett_fortinet_fgcp_hb_tlv;
 
 static int proto_fortinet_fgcp_session;
 static int hf_fortinet_fgcp_session_magic;
@@ -65,7 +65,7 @@ static int hf_fortinet_fgcp_session_type;
 static dissector_handle_t fortinet_fgcp_session_handle;
 static dissector_handle_t ip_handle;
 
-static gint ett_fortinet_fgcp_session;
+static int ett_fortinet_fgcp_session;
 
 static const value_string fortinet_fgcp_hb_mode_vals[] = {
     { 0x1,            "A/A (Active/Active)"},
@@ -92,8 +92,8 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *fortinet_hb_tree;
-    guint       offset = 0, length, auth_len=0;
-    guint8      flags;
+    unsigned    offset = 0, length, auth_len=0;
+    uint8_t     flags;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FGCP-HB");
 
@@ -182,13 +182,13 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(fortinet_hb_tree, hf_fortinet_fgcp_hb_payload_encrypted, tvb, offset, length, ENC_NA);
         offset += length;
     } else {
-        guint next_offset;
+        unsigned next_offset;
 
         length = tvb_reported_length_remaining(tvb, offset) - auth_len;
         next_offset = offset + length;
 
         while (offset < next_offset) {
-                guint32 type, len;
+                uint32_t type, len;
                 proto_item *ti_tlv;
                 proto_tree *tlv_tree;
 
@@ -205,21 +205,21 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tlv_tree, hf_fortinet_fgcp_hb_tlv_value, tvb, offset, len, ENC_NA);
                 switch (type) {
                 case HB_TLV_VCLUSTER_ID:{
-                    guint32 vcluster_id;
+                    uint32_t vcluster_id;
                     proto_tree_add_item_ret_uint(tlv_tree, hf_fortinet_fgcp_hb_tlv_vcluster_id, tvb, offset, 1, ENC_NA, &vcluster_id);
                     proto_item_append_text(ti_tlv, ": %u", vcluster_id);
                     offset += 1;
                     }
                 break;
                 case HB_TLV_PRIORITY:{
-                    guint32 priority;
+                    uint32_t priority;
                     proto_tree_add_item_ret_uint(tlv_tree, hf_fortinet_fgcp_hb_tlv_priority, tvb, offset, 1, ENC_NA, &priority);
                     proto_item_append_text(ti_tlv, ": %u", priority);
                     offset += 1;
                     }
                 break;
                 case HB_TLV_OVERRIDE:{
-                    guint32 override;
+                    uint32_t override;
                     proto_tree_add_item_ret_uint(tlv_tree, hf_fortinet_fgcp_hb_tlv_override, tvb, offset, 1, ENC_NA, &override);
                     if (override){
                         proto_item_append_text(ti_tlv, ": True");
@@ -250,7 +250,7 @@ dissect_fortinet_fgcp_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     proto_item *ti;
     proto_tree *fortinet_hb_tree;
-    guint       offset = 0;
+    unsigned    offset = 0;
     tvbuff_t    *data_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FGCP-SESSION");
@@ -416,7 +416,7 @@ proto_register_fortinet_fgcp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fortinet_fgcp_hb,
         &ett_fortinet_fgcp_hb_flag,
         &ett_fortinet_fgcp_hb_tlv,

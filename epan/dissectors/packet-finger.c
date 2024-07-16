@@ -32,11 +32,11 @@ static int hf_finger_response_time;
 
 static expert_field ei_finger_nocrlf;
 
-static gint ett_finger;
+static int ett_finger;
 
 typedef struct _finger_transaction_t {
-    guint32  req_frame;
-    guint32  rep_frame;
+    uint32_t req_frame;
+    uint32_t rep_frame;
     nstime_t req_time;
 } finger_transaction_t;
 
@@ -48,17 +48,17 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree           *finger_tree;
     conversation_t       *conversation;
     finger_transaction_t *finger_trans;
-    gboolean              is_query;
-    guint                 len;
+    bool                  is_query;
+    unsigned              len;
     struct tcpinfo       *tcpinfo = (struct tcpinfo*)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FINGER");
 
     if (pinfo->destport == FINGER_PORT) {
-        is_query = TRUE;
+        is_query = true;
         col_set_str(pinfo->cinfo, COL_INFO, "Query");
     } else {
-        is_query = FALSE;
+        is_query = false;
         col_set_str(pinfo->cinfo, COL_INFO, "Response");
     }
 
@@ -73,7 +73,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!PINFO_FD_VISITED(pinfo)) {
         if (pinfo->can_desegment) {
             if (is_query) {
-                if ((len < 2) || (tvb_memeql(tvb, len - 2, (const guint8*)"\r\n", 2))) {
+                if ((len < 2) || (tvb_memeql(tvb, len - 2, (const uint8_t*)"\r\n", 2))) {
                     pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                     pinfo->desegment_offset = 0;
                     return -1;
@@ -114,7 +114,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (is_query) {
         expert_ti = proto_tree_add_item(finger_tree, hf_finger_query, tvb, 0, -1, ENC_ASCII);
-        if ((len < 2) || (tvb_memeql(tvb, len - 2, (const guint8*)"\r\n", 2))) {
+        if ((len < 2) || (tvb_memeql(tvb, len - 2, (const uint8_t*)"\r\n", 2))) {
             /*
              * From RFC742, Send a single "command line", ending with <CRLF>.
              */
@@ -176,7 +176,7 @@ proto_register_finger(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_finger
     };
 

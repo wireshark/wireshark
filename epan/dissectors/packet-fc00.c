@@ -59,12 +59,12 @@ static int hf_fc00_payload;
 #define CRYPTO_HEADER_LEN 120
 
 /* Initialize the subtree pointers */
-static gint ett_fc00;
-static gint ett_fc00_auth;
-static gint ett_fc00_key;
+static int ett_fc00;
+static int ett_fc00_auth;
+static int ett_fc00_key;
 
 static const value_string session_states[] = {
-    { G_MAXUINT32, "Connect To Me" },
+    { UINT32_MAX, "Connect To Me" },
     { 0, "Hello" },
     { 1, "Hello" },
     { 2, "repeated Hello" },
@@ -77,17 +77,17 @@ static const value_string session_states[] = {
 static int
 dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 session_state;
+    uint32_t session_state;
     proto_item *ti = NULL;
     proto_tree *fc00_tree = NULL;
-    guint payload_len = 0;
+    unsigned payload_len = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "fc00");
     col_clear(pinfo->cinfo, COL_INFO);
 
     session_state = tvb_get_ntohl(tvb, SESSION_STATE_OFF);
 
-    if ((session_state > 3) && (session_state < G_MAXUINT32)) {
+    if ((session_state > 3) && (session_state < UINT32_MAX)) {
         ti = proto_tree_add_item(tree, proto_fc00, tvb, 0, SESSION_STATE_LEN, ENC_NA);
         fc00_tree = proto_item_add_subtree(ti, ett_fc00);
         proto_tree_add_item(fc00_tree, hf_fc00_session_nonce, tvb,
@@ -124,23 +124,23 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if (fc00_tree)
     {
         GChecksum *hash  = g_checksum_new(G_CHECKSUM_SHA512);
-        gsize digest_len = g_checksum_type_get_length(G_CHECKSUM_SHA512);
+        size_t digest_len = g_checksum_type_get_length(G_CHECKSUM_SHA512);
         proto_tree *key_tree;
 
-        guint8 *raw_key    = (guint8*)wmem_alloc(pinfo->pool, PUBLIC_KEY_LEN);
+        uint8_t *raw_key    = (uint8_t*)wmem_alloc(pinfo->pool, PUBLIC_KEY_LEN);
         char *encoded_key = (char*)wmem_alloc(pinfo->pool, 53);
-        guint8 *ip_buf    = (guint8*)wmem_alloc(pinfo->pool, digest_len);
+        uint8_t *ip_buf    = (uint8_t*)wmem_alloc(pinfo->pool, digest_len);
 
         tvb_memcpy(tvb, raw_key, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
 
-        ws_base32_decode((guint8*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
+        ws_base32_decode((uint8_t*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
 
-        g_checksum_update(hash, (guchar*)raw_key, PUBLIC_KEY_LEN);
+        g_checksum_update(hash, (unsigned char*)raw_key, PUBLIC_KEY_LEN);
         g_checksum_get_digest(hash, ip_buf, &digest_len);
         g_checksum_free(hash);
 
         hash = g_checksum_new(G_CHECKSUM_SHA512);
-        g_checksum_update(hash, (guchar*)ip_buf, digest_len);
+        g_checksum_update(hash, (unsigned char*)ip_buf, digest_len);
         g_checksum_get_digest(hash, ip_buf, &digest_len);
         g_checksum_free(hash);
 
@@ -257,7 +257,7 @@ proto_register_fc00(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fc00,
         &ett_fc00_auth,
         &ett_fc00_key
