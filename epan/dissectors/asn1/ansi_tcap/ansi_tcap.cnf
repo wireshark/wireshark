@@ -184,7 +184,7 @@ if(next_tvb) {
 	}
 	switch(len) {
 	case 1:
-		gp_tcapsrt_info->src_tid=tvb_get_guint8(next_tvb, 0);
+		gp_tcapsrt_info->src_tid=tvb_get_uint8(next_tvb, 0);
 		break;
 	case 2:
 		gp_tcapsrt_info->src_tid=tvb_get_ntohs(next_tvb, 0);

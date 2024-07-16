@@ -387,7 +387,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, uint32_t offset, _U_ unsigned len,
   uint32_t curr_offset;
 
   curr_offset = offset;
-  oct = tvb_get_guint8(tvb, curr_offset);
+  oct = tvb_get_uint8(tvb, curr_offset);
 
   *cause_value = oct & 0x7f;
 
@@ -395,7 +395,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, uint32_t offset, _U_ unsigned len,
   curr_offset++;
 
   if ((oct & 0x80)) {
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format(tree, hf_cause_value,
                                tvb, curr_offset, 1, oct,
                                "Diagnostic : %u", oct);
@@ -1068,9 +1068,9 @@ dissect_camel_camelPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ct
             gp_camelsrt_info->tcap_session_id = ( (struct tcaphash_context_t *) (p_private_tcap->context))->session_id;
     }
 
-    camel_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
+    camel_pdu_type = tvb_get_uint8(tvb, offset)&0x0f;
     /* Get the length and add 2 */
-    camel_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
+    camel_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
 
     /* Populate the info column with PDU type*/
     col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));

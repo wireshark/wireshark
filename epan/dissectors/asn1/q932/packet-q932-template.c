@@ -223,7 +223,7 @@ dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
   proto_item* ti;
 
   while ((remain > 0) && !(octet & 0x80)) {
-    octet = tvb_get_guint8(tvb, offset++);
+    octet = tvb_get_uint8(tvb, offset++);
     remain--;
     value <<= 7;
     value |= octet & 0x7F;
@@ -248,8 +248,8 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   ti = proto_tree_add_item(tree, proto_q932, tvb, offset, -1, ENC_NA);
   proto_item_set_hidden(ti);
 
-  ie_type = tvb_get_guint8(tvb, offset);
-  ie_len = tvb_get_guint8(tvb, offset + 1);
+  ie_type = tvb_get_uint8(tvb, offset);
+  ie_len = tvb_get_uint8(tvb, offset + 1);
 
   ie_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_q932_ie, NULL,
             val_to_str(ie_type, VALS(q932_str_ie_type), "unknown (0x%02X)"));

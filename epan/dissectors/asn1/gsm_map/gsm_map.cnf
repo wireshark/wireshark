@@ -324,7 +324,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
 	case 1:
-		octet = tvb_get_guint8(parameter_tvb,0);
+		octet = tvb_get_uint8(parameter_tvb,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
@@ -520,7 +520,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
     return offset;
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
-  oct = tvb_get_guint8(gsm_map_priv->signal_info_tvb, 0);
+  oct = tvb_get_uint8(gsm_map_priv->signal_info_tvb, 0);
   actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
   call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
@@ -622,7 +622,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  if (!parameter_tvb)
 	return offset;
 
- octet = tvb_get_guint8(parameter_tvb,0);
+ octet = tvb_get_uint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
  if ((octet & 0x01)== 1)
@@ -643,7 +643,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  if (!parameter_tvb)
 	return offset;
 
- octet = tvb_get_guint8(parameter_tvb,0);
+ octet = tvb_get_uint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
  if ((octet & 0x01)== 1)
@@ -723,7 +723,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (!parameter_tvb)
     return offset;
   proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
-  pdp_type_org = tvb_get_guint8(parameter_tvb,1);
+  pdp_type_org = tvb_get_uint8(parameter_tvb,1);
   switch (pdp_type_org){
     case 0: /* ETSI */
       proto_tree_add_item(tree, hf_gsm_map_etsi_pdp_type_number, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
@@ -798,7 +798,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_pdptypenumber);
 
-	octet = tvb_get_guint8(parameter_tvb,0);
+	octet = tvb_get_uint8(parameter_tvb,0);
 	switch(octet){
 	case 0x04: /* IPv4 */
 		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, 4, ENC_BIG_ENDIAN);
@@ -910,10 +910,10 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		 octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		 length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		 proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
@@ -929,7 +929,7 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		break;
 	case 2:
 		/* gsm-0806 */
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
@@ -946,7 +946,7 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		break;
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
 			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
@@ -954,8 +954,8 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
-		length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
+		length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		if ( octet == 4 )
 			dissect_q931_bearer_capability_ie(gsm_map_priv->signal_info_tvb, 2, length, subtree);
 		break;
@@ -992,10 +992,10 @@ MAP interfaces
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		 octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		 length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		 proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
@@ -1011,7 +1011,7 @@ MAP interfaces
 		break;
 	case 2:
 		/* gsm-0806 */
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
@@ -1028,7 +1028,7 @@ MAP interfaces
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
 			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
@@ -1036,8 +1036,8 @@ MAP interfaces
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
-		length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
+		length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		if ( octet == 4 )
 			dissect_q931_bearer_capability_ie(gsm_map_priv->signal_info_tvb, 2, length, subtree);
 		break;
@@ -1110,7 +1110,7 @@ MAP interfaces
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ericsson_locationInformation);
-    rat = tvb_get_guint8(parameter_tvb, 0);
+    rat = tvb_get_uint8(parameter_tvb, 0);
     proto_tree_add_uint(subtree, hf_gsm_map_ericsson_locationInformation_rat, parameter_tvb, 0, 1, rat);
     switch (rat) {
       case 0:

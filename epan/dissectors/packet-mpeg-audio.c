@@ -440,7 +440,7 @@ test_mpeg_audio(tvbuff_t *tvb, int offset)
 	if (tvb_strneql(tvb, offset, "ID3", 3) == 0)
 		return true;
 
-	hdr = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+	hdr = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 	MPA_UNMARSHAL(&mpa, hdr);
 	return MPA_VALID(&mpa);
 }
@@ -456,7 +456,7 @@ mpeg_resync(tvbuff_t *tvb, int offset)
 	 */
 	offset = tvb_find_guint8(tvb, offset, -1, '\xff');
 	while (offset != -1 && tvb_bytes_exist(tvb, offset, 4)) {
-		hdr = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		hdr = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 		MPA_UNMARSHAL(&mpa, hdr);
 		if (MPA_VALID(&mpa)) {
 			return offset;

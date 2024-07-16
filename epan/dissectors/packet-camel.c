@@ -1333,7 +1333,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, uint32_t offset, _U_ unsigned len,
   uint32_t curr_offset;
 
   curr_offset = offset;
-  oct = tvb_get_guint8(tvb, curr_offset);
+  oct = tvb_get_uint8(tvb, curr_offset);
 
   *cause_value = oct & 0x7f;
 
@@ -1341,7 +1341,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, uint32_t offset, _U_ unsigned len,
   curr_offset++;
 
   if ((oct & 0x80)) {
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format(tree, hf_cause_value,
                                tvb, curr_offset, 1, oct,
                                "Diagnostic : %u", oct);
@@ -3252,7 +3252,7 @@ dissect_camel_DateAndTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   for (curr_offset = 0; curr_offset < 7 ; curr_offset++)
   /*Loop to extract date*/
   {
-      digit_pair = tvb_get_guint8(tvb, curr_offset);
+      digit_pair = tvb_get_uint8(tvb, curr_offset);
 
       proto_tree_add_uint(tree,
                           hf_digit,
@@ -3446,7 +3446,7 @@ dissect_camel_T_pDPTypeOrganization(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
  if (!parameter_tvb)
 	return offset;
- PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);
+ PDPTypeOrganization  = (tvb_get_uint8(parameter_tvb,0) &0x0f);
 
   return offset;
 }
@@ -3465,7 +3465,7 @@ dissect_camel_T_pDPTypeNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
  if (!parameter_tvb)
 	return offset;
- PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);
+ PDPTypeNumber = tvb_get_uint8(parameter_tvb,0);
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
@@ -4648,7 +4648,7 @@ dissect_camel_TimeAndTimezone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 The Time Zone indicates the difference, expressed in quarters of an hour, between the local time and GMT. In the first of the two semi octets,
 the first bit (bit 3 of the seventh octet of the TP Service Centre Time Stamp field) represents the algebraic sign of this difference (0: positive, 1: negative).
 */
-  oct = tvb_get_guint8(parameter_tvb,7);
+  oct = tvb_get_uint8(parameter_tvb,7);
 
   /* packet-gsm_sms.c time dis_field_scts_aux() */
   tz = (oct >> 4) + (oct & 0x07) * 10;
@@ -8112,9 +8112,9 @@ dissect_camel_camelPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ct
             gp_camelsrt_info->tcap_session_id = ( (struct tcaphash_context_t *) (p_private_tcap->context))->session_id;
     }
 
-    camel_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
+    camel_pdu_type = tvb_get_uint8(tvb, offset)&0x0f;
     /* Get the length and add 2 */
-    camel_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
+    camel_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
 
     /* Populate the info column with PDU type*/
     col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));

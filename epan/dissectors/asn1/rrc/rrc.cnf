@@ -734,7 +734,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 %(DEFAULT_BODY)s
   if (parameter_tvb){
-    uint8_t byte = tvb_get_guint8(parameter_tvb, 0);
+    uint8_t byte = tvb_get_uint8(parameter_tvb, 0);
     if (byte == 0x06) {
       if (gsm_a_dtap_handle) {
         call_dissector(gsm_a_dtap_handle, parameter_tvb, actx->pinfo, tree);
@@ -751,7 +751,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 %(DEFAULT_BODY)s
   if (parameter_tvb){
-    de_ms_cm_2(parameter_tvb, tree, actx->pinfo, 2, tvb_get_guint8(parameter_tvb,1), NULL, 0);
+    de_ms_cm_2(parameter_tvb, tree, actx->pinfo, 2, tvb_get_uint8(parameter_tvb,1), NULL, 0);
   }
 
 #.FN_BODY GSM-Classmark3 VAL_PTR = &parameter_tvb

@@ -1616,11 +1616,11 @@ dissect_gprscdr_MSTimeZone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   if (!parameter_tvb)
     return offset;
 
-  data = tvb_get_guint8(parameter_tvb, 0);
+  data = tvb_get_uint8(parameter_tvb, 0);
   sign = (data & 0x08) ? '-' : '+';
   data = (data >> 4) + (data & 0x07) * 10;
 
-  data2 = tvb_get_guint8(tvb, 1) & 0x3;
+  data2 = tvb_get_uint8(tvb, 1) & 0x3;
 
   proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)",
                          sign,
@@ -1991,15 +1991,15 @@ dissect_gprscdr_TimeStamp(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
     return offset;
 
   proto_item_append_text(actx->created_item, " (UTC %x-%x-%x %x:%x:%x %s%x:%x)",
-                         tvb_get_guint8(parameter_tvb,0),                        /* Year */
-                         tvb_get_guint8(parameter_tvb,1),                        /* Month */
-                         tvb_get_guint8(parameter_tvb,2),                        /* Day */
-                         tvb_get_guint8(parameter_tvb,3),                        /* Hour */
-                         tvb_get_guint8(parameter_tvb,4),                        /* Minute */
-                         tvb_get_guint8(parameter_tvb,5),                        /* Second */
+                         tvb_get_uint8(parameter_tvb,0),                        /* Year */
+                         tvb_get_uint8(parameter_tvb,1),                        /* Month */
+                         tvb_get_uint8(parameter_tvb,2),                        /* Day */
+                         tvb_get_uint8(parameter_tvb,3),                        /* Hour */
+                         tvb_get_uint8(parameter_tvb,4),                        /* Minute */
+                         tvb_get_uint8(parameter_tvb,5),                        /* Second */
                          tvb_get_string_enc(actx->pinfo->pool, parameter_tvb,6,1,ENC_ASCII|ENC_NA), /* Sign */
-                         tvb_get_guint8(parameter_tvb,7),                        /* Hour */
-                         tvb_get_guint8(parameter_tvb,8)                         /* Minute */
+                         tvb_get_uint8(parameter_tvb,7),                        /* Hour */
+                         tvb_get_uint8(parameter_tvb,8)                         /* Minute */
                         );
 
 

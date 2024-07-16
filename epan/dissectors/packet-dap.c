@@ -1545,7 +1545,7 @@ dissect_dap_T_pagedResultsQueryReference(bool implicit_tag _U_, tvbuff_t *tvb _U
 
 				proto_item_append_text(actx->created_item," (");
 				for(i=0; i<len; i++)
-					proto_item_append_text(actx->created_item,"%c",tvb_get_guint8(out_tvb,i));
+					proto_item_append_text(actx->created_item,"%c",tvb_get_uint8(out_tvb,i));
 				proto_item_append_text(actx->created_item,")");
 			}
 		}

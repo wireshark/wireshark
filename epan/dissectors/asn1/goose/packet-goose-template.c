@@ -176,7 +176,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 						ENC_BIG_ENDIAN, &length);
 
 	/* Reserved 1 */
-	reserve1_val = tvb_get_guint16(tvb, offset + 4, ENC_BIG_ENDIAN);
+	reserve1_val = tvb_get_uint16(tvb, offset + 4, ENC_BIG_ENDIAN);
 	proto_tree_add_bitmask_value(tree, tvb, offset + 4, hf_goose_reserve1, ett_reserve1,
 						reserve1_flags, reserve1_val);
 
@@ -347,7 +347,7 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* Check do we have padding bytes */
 	if ((tvb_captured_length(tvb) > offset) &&
-		(tvb_get_guint8(tvb, offset) == 0xAF)) {
+		(tvb_get_uint8(tvb, offset) == 0xAF)) {
 		/* Padding subtree */
 		item = proto_tree_add_item(sess_user_info_tree, hf_goose_padding, tvb,
 								   offset, -1, ENC_NA);
@@ -389,7 +389,7 @@ dissect_rgoose_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	/* Is it R-GOOSE? */
-	spdu = tvb_get_guint8(tvb, 0);
+	spdu = tvb_get_uint8(tvb, 0);
 	if (spdu != OSI_SPDU_GOOSE) {
 		return false;
 	}

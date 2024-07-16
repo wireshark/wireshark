@@ -302,7 +302,7 @@ OPERATION.&ResultType
 
 				proto_item_append_text(actx->created_item," (");
 				for(i=0; i<len; i++)
-					proto_item_append_text(actx->created_item,"%%c",tvb_get_guint8(out_tvb,i));
+					proto_item_append_text(actx->created_item,"%%c",tvb_get_uint8(out_tvb,i));
 				proto_item_append_text(actx->created_item,")");
 			}
 		}

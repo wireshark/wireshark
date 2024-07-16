@@ -992,7 +992,7 @@ TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_
   tvbuff_t *val_tvb = NULL;
 %(DEFAULT_BODY)s
   if (val_tvb) {
-    uint32_t val = tvb_get_guint8(val_tvb, 0);
+    uint32_t val = tvb_get_uint8(val_tvb, 0);
     actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, 1, val);
   }
 

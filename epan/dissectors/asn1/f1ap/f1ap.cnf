@@ -2658,7 +2658,7 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
 %(DEFAULT_BODY)s
 #.FN_FTR Latest-RRC-Version-Enhanced
   if (param_tvb) {
-    proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_guint8(param_tvb, 0), tvb_get_guint8(param_tvb, 1), tvb_get_guint8(param_tvb, 2));
+    proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_uint8(param_tvb, 0), tvb_get_uint8(param_tvb, 1), tvb_get_uint8(param_tvb, 2));
   }
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &param_tvb

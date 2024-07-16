@@ -245,7 +245,7 @@ BulkPDU/request-id bulkPDU_request-id
 
  %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		uint8_t v3_flags = tvb_get_guint8(parameter_tvb, 0);
+		uint8_t v3_flags = tvb_get_uint8(parameter_tvb, 0);
 		proto_tree* flags_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_msgFlags);
 
 		proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);

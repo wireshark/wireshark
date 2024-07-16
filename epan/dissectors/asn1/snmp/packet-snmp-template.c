@@ -544,15 +544,15 @@ dissect_snmp_variable_date_and_time(proto_tree *tree, packet_info *pinfo, int hf
 	char *str;
 
 	year			= tvb_get_ntohs(tvb,offset);
-	month			= tvb_get_guint8(tvb,offset+2);
-	day			= tvb_get_guint8(tvb,offset+3);
-	hour			= tvb_get_guint8(tvb,offset+4);
-	minutes			= tvb_get_guint8(tvb,offset+5);
-	seconds			= tvb_get_guint8(tvb,offset+6);
-	deci_seconds		= tvb_get_guint8(tvb,offset+7);
+	month			= tvb_get_uint8(tvb,offset+2);
+	day			= tvb_get_uint8(tvb,offset+3);
+	hour			= tvb_get_uint8(tvb,offset+4);
+	minutes			= tvb_get_uint8(tvb,offset+5);
+	seconds			= tvb_get_uint8(tvb,offset+6);
+	deci_seconds		= tvb_get_uint8(tvb,offset+7);
 	if(length > 8){
-		hour_from_utc	= tvb_get_guint8(tvb,offset+9);
-		min_from_utc	= tvb_get_guint8(tvb,offset+10);
+		hour_from_utc	= tvb_get_uint8(tvb,offset+9);
+		min_from_utc	= tvb_get_uint8(tvb,offset+10);
 
 		str = wmem_strdup_printf(pinfo->pool,
 			 "%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
@@ -1036,11 +1036,11 @@ indexing_done:
 
 				if(value_len > 0) {
 					/* extend sign bit */
-					if(tvb_get_guint8(tvb, int_val_offset)&0x80) {
+					if(tvb_get_uint8(tvb, int_val_offset)&0x80) {
 						val=-1;
 					}
 					for(i=0;i<value_len;i++) {
-						val=(val<<8)|tvb_get_guint8(tvb, int_val_offset);
+						val=(val<<8)|tvb_get_uint8(tvb, int_val_offset);
 						int_val_offset++;
 					}
 				}
@@ -1107,7 +1107,7 @@ indexing_done:
 				 * Check if this is an unsigned int64 with
 				 * a big value.
 				 */
-				if (value_len > 9 || tvb_get_guint8(tvb, value_offset) != 0) {
+				if (value_len > 9 || tvb_get_uint8(tvb, value_offset) != 0) {
 					/* It is.  Fail. */
 					proto_tree_add_expert_format(pt_varbind,actx->pinfo,&ei_snmp_uint_too_large,tvb,value_offset,value_len,"Integral value too large");
 					goto already_added;
@@ -1268,7 +1268,7 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 
 	/* first bit: engine id conformance */
 	if (len_remain<1) return offset;
-	conformance = ((tvb_get_guint8(tvb, offset)>>7) & 0x01);
+	conformance = ((tvb_get_uint8(tvb, offset)>>7) & 0x01);
 	proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* 4-byte enterprise number/name */
@@ -1298,7 +1298,7 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 
 		/* 1-byte format specifier */
 		if (len_remain<1) return offset;
-		format = tvb_get_guint8(tvb, offset);
+		format = tvb_get_uint8(tvb, offset);
 		item = proto_tree_add_uint_format(tree, hf_snmp_engineid_format, tvb, offset, 1, format, "Engine ID Format: %s (%d)",
 						  val_to_str_const(format, snmp_engineid_format_vals, "Reserved/Enterprise-specific"),
 						  format);
@@ -1956,7 +1956,7 @@ check_ScopedPdu(tvbuff_t* tvb)
 			&& ( (!pc) || (ber_class!=BER_CLASS_UNI) || (tag!=BER_UNI_TAG_ENUMERATED) )
 			)) return false;
 
-	if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0))
+	if((tvb_get_uint8(tvb, offset)==0)&&(tvb_get_uint8(tvb, offset+1)==0))
 		return true;
 
 	hoffset = offset;

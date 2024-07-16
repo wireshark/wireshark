@@ -807,7 +807,7 @@ CauseCodeType
     its_hdr->CpmContainerId = CpmContainerId;
 
 #.FN_BODY ItsPduHeader
-  uint8_t version = tvb_get_guint8(tvb, 0);
+  uint8_t version = tvb_get_uint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
     return test_offset;

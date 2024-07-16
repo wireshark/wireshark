@@ -491,7 +491,7 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
   {
-    uint8_t tmp = tvb_get_guint8(tvb, 0);
+    uint8_t tmp = tvb_get_uint8(tvb, 0);
 
     if (tmp == 0)
       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",

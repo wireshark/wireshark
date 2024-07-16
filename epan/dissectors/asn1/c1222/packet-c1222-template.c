@@ -322,7 +322,7 @@ static uat_t *c1222_uat;
   fieldname##_allocated = length;
 #define FILL_TABLE_APTITLE(fieldname) \
   length = offset - start_offset; \
-  switch (tvb_get_guint8(tvb, start_offset)) { \
+  switch (tvb_get_uint8(tvb, start_offset)) { \
     case 0x80: /* relative OID */ \
       tvb_ensure_bytes_exist(tvb, start_offset, length); \
       fieldname##_len = length + c1222_baseoid_len; \
@@ -366,7 +366,7 @@ c1222_cksum(tvbuff_t *tvb, int offset, int len)
 {
   uint8_t sum;
   for (sum = 0; len; offset++, len--)
-    sum += tvb_get_guint8(tvb, offset);
+    sum += tvb_get_uint8(tvb, offset);
   return ~sum + 1;
 }
 /**
@@ -446,7 +446,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
       break;
     case C1222_CMD_AUTHENTICATE:
       if (*length >= 1) {
-        auth_len = tvb_get_guint8(tvb, *offset);
+        auth_len = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_auth_len, tvb, *offset, 1, auth_len);
         *offset += 1;
         if (*length >= auth_len) {
@@ -507,13 +507,13 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         *length -= 2;
         if (*length >= tblsize+1U) {
           if (table == 7) {/* is it a procedure call? */
-            procedure_num = tvb_get_guint16(tvb, *offset, c1222_big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
+            procedure_num = tvb_get_uint16(tvb, *offset, c1222_big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
             proto_tree_add_uint(tree, hf_c1222_procedure_response, tvb, *offset, 2, procedure_num);
             proto_tree_add_uint(tree, hf_c1222_procedure_mfg, tvb, *offset, 2, procedure_num);
             proto_tree_add_uint(tree, hf_c1222_procedure_num, tvb, *offset, 2, procedure_num);
             *offset += 2;
             *length -= 2;
-            proc_seq = tvb_get_guint8(tvb, *offset);
+            proc_seq = tvb_get_uint8(tvb, *offset);
             proto_tree_add_uint(tree, hf_c1222_procedure_sequence, tvb, *offset, 1, proc_seq);
             *offset += 1;
             *length -= 1;
@@ -583,7 +583,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
       break;
     case C1222_CMD_WAIT:
       if (*length >= 1) {
-        wait_seconds = tvb_get_guint8(tvb, *offset);
+        wait_seconds = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_wait_secs, tvb, *offset, 1, wait_seconds);
         *offset += 1;
         *length -= 1;
@@ -599,7 +599,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         proto_tree_add_uint(tree, hf_c1222_neg_pkt_size, tvb, *offset, 2, packet_size);
         *offset += 2;
         *length -= 2;
-        nbr_packet = tvb_get_guint8(tvb, *offset);
+        nbr_packet = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_neg_nbr_pkts, tvb, *offset, 1, nbr_packet);
         *offset += 1;
         *length -= 1;
@@ -611,19 +611,19 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
       break;
     case C1222_CMD_TIMING_SETUP:
       if (*length >= 4) {
-        traffic = tvb_get_guint8(tvb, *offset);
+        traffic = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_timing_setup_traffic, tvb, *offset, 1, traffic);
         *offset += 1;
         *length -= 1;
-        inter_char = tvb_get_guint8(tvb, *offset);
+        inter_char = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_timing_setup_inter_char, tvb, *offset, 1, inter_char);
         *offset += 1;
         *length -= 1;
-        resp_to = tvb_get_guint8(tvb, *offset);
+        resp_to = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_timing_setup_resp_to, tvb, *offset, 1, resp_to);
         *offset += 1;
         *length -= 1;
-        nbr_retries = tvb_get_guint8(tvb, *offset);
+        nbr_retries = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_timing_setup_nbr_retries, tvb, *offset, 1, nbr_retries);
         *offset += 1;
         *length -= 1;
@@ -906,22 +906,22 @@ ber_len_ok(tvbuff_t *tvb, int offset)
   uint8_t ch;
 
   if (tvb_offset_exists(tvb, offset)) {
-    ch = tvb_get_guint8(tvb, offset);
+    ch = tvb_get_uint8(tvb, offset);
     offset++;
     if (!(ch & 0x80)) {
       return true;
     } else if (tvb_offset_exists(tvb, offset)) {
-      ch = tvb_get_guint8(tvb, offset);
+      ch = tvb_get_uint8(tvb, offset);
       offset++;
       if (!(ch & 0x80)) {
         return true;
       } else if (tvb_offset_exists(tvb, offset)) {
-        ch = tvb_get_guint8(tvb, offset);
+        ch = tvb_get_uint8(tvb, offset);
         offset++;
         if (!(ch & 0x80)) {
           return true;
         } else if (tvb_offset_exists(tvb, offset)) {
-          ch = tvb_get_guint8(tvb, offset);
+          ch = tvb_get_uint8(tvb, offset);
           /*offset++;*/
           if (!(ch & 0x80)) {
             return true;
@@ -967,7 +967,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, uint32_t len, packet_info *pinfo, proto
     return offset;
   }
   /* parse the flags byte which is always unencrypted */
-  flags = tvb_get_guint8(tvb, offset);
+  flags = tvb_get_uint8(tvb, offset);
   proto_tree_add_bitmask(tree, tvb, offset, hf_c1222_epsem_flags, ett_c1222_flags, c1222_flags, ENC_BIG_ENDIAN);
   offset++;
   switch ((flags & C1222_EPSEM_FLAG_SECURITY_MODE) >> 2) {
@@ -1042,7 +1042,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, uint32_t len, packet_info *pinfo, proto
         return offset+len;
       }
       if (tvb_offset_exists(epsem_buffer, local_offset+len2-1)) {
-        cmd_err = tvb_get_guint8(epsem_buffer, local_offset);
+        cmd_err = tvb_get_uint8(epsem_buffer, local_offset);
         ct = proto_tree_add_item(tree, hf_c1222_epsem_total, epsem_buffer, local_offset, len2, ENC_NA);
         cmd_tree = proto_item_add_subtree(ct, ett_c1222_cmd);
         parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, (uint32_t *)&len2, &local_offset);

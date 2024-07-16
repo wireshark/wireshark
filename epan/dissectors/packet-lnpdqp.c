@@ -191,7 +191,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item(subtree, hf_lnpdqp_nature_of_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 3 Numbering Plan |Encoding Scheme| */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(subtree, hf_lnpdqp_np, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lnpdqp_digits_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -199,7 +199,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     switch ((octet&0xf)){
     case 1:
         /* BCD Coding */
-        no_of_digits = tvb_get_guint8(tvb,offset);
+        no_of_digits = tvb_get_uint8(tvb,offset);
         proto_tree_add_item(subtree, hf_lnpdqp_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(no_of_digits == 0)
             return;
@@ -209,7 +209,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         break;
     case 2:
         /* IA5 Coding */
-        no_of_digits = tvb_get_guint8(tvb,offset);
+        no_of_digits = tvb_get_uint8(tvb,offset);
         proto_tree_add_item(subtree, hf_lnpdqp_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(no_of_digits == 0)
             return;
@@ -232,7 +232,7 @@ dissect_lnpdqp_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
     uint8_t type_of_dgt;
     proto_tree *subtree;
 
-    type_of_dgt = tvb_get_guint8(tvb,offset);
+    type_of_dgt = tvb_get_uint8(tvb,offset);
     switch(type_of_dgt){
         case 2:
             /* Calling Party Number */

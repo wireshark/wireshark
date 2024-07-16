@@ -8255,7 +8255,7 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
          */
 
         /* Assume a TargetRNC-ToSourceRNC-Container.  Peek the RRC octetstream to guess the choice*/
-        container_choice = tvb_get_guint8(rrc_message_tvb, 0) >> 5;
+        container_choice = tvb_get_uint8(rrc_message_tvb, 0) >> 5;
         if (container_choice < 7) {
           /* Normal case (0-6): dissect as TargetRNC-ToSourceRNC-Container */
           call_dissector(rrc_t_to_srnc_handle,rrc_message_tvb,actx->pinfo, proto_tree_get_root(tree));
@@ -14931,14 +14931,14 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define PDU_TYPE_OFFSET 0
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return false; }
 
-  temp = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
+  temp = tvb_get_uint8(tvb, PDU_TYPE_OFFSET);
   if (temp & 0x1F) {
     /* PDU Type byte is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
        0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
     return false;
   }
 
-  temp = tvb_get_guint8(tvb, CRIT_OFFSET);
+  temp = tvb_get_uint8(tvb, CRIT_OFFSET);
   if (temp == 0xC0 || temp & 0x3F) {
     /* Criticality byte is not 0x00 (reject), 0x40 (ignore) or 0x80 (notify) */
     return false;
@@ -14947,13 +14947,13 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* compute aligned PER length determinant without calling dissect_per_length_determinant()
      to avoid exceptions and info added to tree, info column and expert info */
   offset = LENGTH_OFFSET;
-  length = tvb_get_guint8(tvb, offset);
+  length = tvb_get_uint8(tvb, offset);
   offset += 1;
   if ((length & 0x80) == 0x80) {
     if ((length & 0xc0) == 0x80) {
       length &= 0x3f;
       length <<= 8;
-      length += tvb_get_guint8(tvb, offset);
+      length += tvb_get_uint8(tvb, offset);
       offset += 1;
     } else {
       length = 0;
@@ -14963,7 +14963,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return false;
   }
 
-  temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
+  temp = tvb_get_uint8(tvb, MSG_TYPE_OFFSET);
   if (temp > RANAP_MAX_PC) { return false; }
 
   /* Try to strengthen the heuristic further, by checking the byte following the length and the bitfield indicating extensions etc

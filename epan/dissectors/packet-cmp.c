@@ -1496,7 +1496,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	}
 
 	pdu_len=tvb_get_ntohl(tvb, 0);
-	pdu_type=tvb_get_guint8(tvb, 4);
+	pdu_type=tvb_get_uint8(tvb, 4);
 
 	if (pdu_type < 10) {
 		/* RFC2510 TCP transport */
@@ -1508,7 +1508,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	} else {
 		/* post RFC2510 TCP transport - the former "type" field is now "version" */
 		tcptrans_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_cmp, NULL, "TCP transport");
-		pdu_type=tvb_get_guint8(tvb, 6);
+		pdu_type=tvb_get_uint8(tvb, 6);
 		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_version, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -1591,11 +1591,11 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	}
 
 	pdu_len=tvb_get_ntohl(tvb, 0);
-	pdu_type=tvb_get_guint8(tvb, 4);
+	pdu_type=tvb_get_uint8(tvb, 4);
 
 	if(pdu_type == 10) {
 		/* post RFC2510 TCP transport */
-		pdu_type = tvb_get_guint8(tvb, 7);
+		pdu_type = tvb_get_uint8(tvb, 7);
 		offset = 7; /* post RFC2510 TCP transport header length */
 		/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes
 		 * in size.

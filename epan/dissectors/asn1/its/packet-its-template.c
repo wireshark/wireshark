@@ -373,7 +373,7 @@ static unsigned char ita2_ascii[32] = {
 static void
 append_country_code_fmt(proto_item *item, tvbuff_t *val_tvb)
 {
-  uint16_t v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
+  uint16_t v = tvb_get_uint16(val_tvb, 0, ENC_BIG_ENDIAN);
   v >>= 6;  /* 10 bits */
   uint16_t v1 = (v >> 5) & 0x1F;
   uint16_t v2 = v & 0x1F;

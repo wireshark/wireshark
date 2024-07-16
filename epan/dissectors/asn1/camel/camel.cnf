@@ -340,7 +340,7 @@ proto_tree *subtree;
   for (curr_offset = 0; curr_offset < 7 ; curr_offset++)
   /*Loop to extract date*/
   {
-      digit_pair = tvb_get_guint8(tvb, curr_offset);
+      digit_pair = tvb_get_uint8(tvb, curr_offset);
 
       proto_tree_add_uint(tree,
                           hf_digit,
@@ -482,7 +482,7 @@ proto_tree *subtree;
 
  if (!parameter_tvb)
 	return offset;
- PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);
+ PDPTypeOrganization  = (tvb_get_uint8(parameter_tvb,0) &0x0f);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -495,7 +495,7 @@ proto_tree *subtree;
 
  if (!parameter_tvb)
 	return offset;
- PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);
+ PDPTypeNumber = tvb_get_uint8(parameter_tvb,0);
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
@@ -790,7 +790,7 @@ proto_tree *subtree;
 The Time Zone indicates the difference, expressed in quarters of an hour, between the local time and GMT. In the first of the two semi octets,
 the first bit (bit 3 of the seventh octet of the TP Service Centre Time Stamp field) represents the algebraic sign of this difference (0: positive, 1: negative).
 */
-  oct = tvb_get_guint8(parameter_tvb,7);
+  oct = tvb_get_uint8(parameter_tvb,7);
 
   /* packet-gsm_sms.c time dis_field_scts_aux() */
   tz = (oct >> 4) + (oct & 0x07) * 10;

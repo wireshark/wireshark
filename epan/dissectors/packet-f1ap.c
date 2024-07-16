@@ -27866,7 +27866,7 @@ dissect_f1ap_Latest_RRC_Version_Enhanced(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
   if (param_tvb) {
-    proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_guint8(param_tvb, 0), tvb_get_guint8(param_tvb, 1), tvb_get_guint8(param_tvb, 2));
+    proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_uint8(param_tvb, 0), tvb_get_uint8(param_tvb, 1), tvb_get_uint8(param_tvb, 2));
   }
 
   return offset;

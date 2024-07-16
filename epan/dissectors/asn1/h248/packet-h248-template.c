@@ -1556,7 +1556,7 @@ static int dissect_h248_trx_id(bool implicit_tag, packet_info *pinfo, proto_tree
         THROW(BoundsError);
     } else {
         for(i=1;i<=len;i++){
-            trx_id=(trx_id<<8)|tvb_get_guint8(tvb, offset);
+            trx_id=(trx_id<<8)|tvb_get_uint8(tvb, offset);
             offset++;
         }
         if (trx_id > 0xffffffff) {
@@ -1594,7 +1594,7 @@ static int dissect_h248_ctx_id(bool implicit_tag, packet_info *pinfo, proto_tree
         THROW(BoundsError);
     } else {
         for(i=1;i<=len;i++){
-            ctx_id=(ctx_id<<8)|tvb_get_guint8(tvb, offset);
+            ctx_id=(ctx_id<<8)|tvb_get_uint8(tvb, offset);
             offset++;
         }
 
@@ -1984,7 +1984,7 @@ static int dissect_h248_SigParameterName(bool implicit_tag _U_, tvbuff_t *tvb, i
         case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
         case 3: param_id = tvb_get_ntoh24(next_tvb,0); break;
         case 2: param_id = tvb_get_ntohs(next_tvb,0); break;
-        case 1: param_id = tvb_get_guint8(next_tvb,0); break;
+        case 1: param_id = tvb_get_uint8(next_tvb,0); break;
         default: break;
     }
 
@@ -2058,7 +2058,7 @@ static int dissect_h248_EventParameterName(bool implicit_tag _U_, tvbuff_t *tvb,
             case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
             case 3: param_id = tvb_get_ntoh24(next_tvb,0); break;
             case 2: param_id = tvb_get_ntohs(next_tvb,0); break;
-            case 1: param_id = tvb_get_guint8(next_tvb,0); break;
+            case 1: param_id = tvb_get_uint8(next_tvb,0); break;
             default: break;
         }
     }
@@ -2136,7 +2136,7 @@ static int dissect_h248_MtpAddress(bool implicit_tag, tvbuff_t *tvb, int offset,
         val=0;
         len=tvb_reported_length(new_tvb);
         for(i=0;i<len;i++){
-            val= (val<<8)|tvb_get_guint8(new_tvb, i);
+            val= (val<<8)|tvb_get_uint8(new_tvb, i);
         }
 
         /* do the prettification */

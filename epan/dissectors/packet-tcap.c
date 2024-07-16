@@ -737,7 +737,7 @@ dissect_tcap_OrigTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
     len = tvb_reported_length_remaining(parameter_tvb, 0);
     switch(len) {
     case 1:
-      gp_tcapsrt_info->src_tid=tvb_get_guint8(parameter_tvb, 0);
+      gp_tcapsrt_info->src_tid=tvb_get_uint8(parameter_tvb, 0);
       break;
     case 2:
       gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
@@ -758,7 +758,7 @@ dissect_tcap_OrigTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
       for (i = 0; i < len; i++) {
-        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_uint8(parameter_tvb,i));
       }
       col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
     }
@@ -820,7 +820,7 @@ dissect_tcap_DestTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
     len = tvb_reported_length_remaining(parameter_tvb, 0);
     switch(len) {
     case 1:
-      gp_tcapsrt_info->dst_tid=tvb_get_guint8(parameter_tvb, 0);
+      gp_tcapsrt_info->dst_tid=tvb_get_uint8(parameter_tvb, 0);
       break;
     case 2:
       gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
@@ -841,7 +841,7 @@ dissect_tcap_DestTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
       for(i = 0; i < len; i++) {
-        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_uint8(parameter_tvb,i));
       }
       col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
     }

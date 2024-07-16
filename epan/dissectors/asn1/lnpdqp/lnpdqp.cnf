@@ -14,7 +14,7 @@ ProvideInstructionArg
     uint8_t type_of_dgt;
     proto_tree *subtree;
 
-    type_of_dgt = tvb_get_guint8(tvb,offset);
+    type_of_dgt = tvb_get_uint8(tvb,offset);
     switch(type_of_dgt){
         case 2:
             /* Calling Party Number */

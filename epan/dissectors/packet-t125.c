@@ -425,7 +425,7 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
    * This might not be enough, but since t125 only catch COTP packets,
    * it should not be a problem.
    */
-  uint8_t first_byte = tvb_get_guint8(tvb, 0) >> 2;
+  uint8_t first_byte = tvb_get_uint8(tvb, 0) >> 2;
   switch (first_byte) {
     case HF_T125_ERECT_DOMAIN_REQUEST:
     case HF_T125_ATTACH_USER_REQUEST:

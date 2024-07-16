@@ -181,32 +181,32 @@ dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return false;
   }
 
-  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
+  pdu_type = tvb_get_uint8(tvb, PDU_TYPE_OFFSET);
   if (pdu_type & 0x1F) {
     /* pdu_type is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
        0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
     return false;
   }
 
-  procedure_id = tvb_get_guint8(tvb, PROC_CODE_OFFSET);
+  procedure_id = tvb_get_uint8(tvb, PROC_CODE_OFFSET);
   if (procedure_id > RNSAP_MAX_PC) {
       return false;
   }
 
-  dd_mode = tvb_get_guint8(tvb, DD_CRIT_OFFSET) >> 5;
+  dd_mode = tvb_get_uint8(tvb, DD_CRIT_OFFSET) >> 5;
   if (dd_mode >= 0x03) {
     /* dd_mode is not 0x00 (tdd), 0x01 (fdd) or 0x02 (common) */
     return false;
   }
 
-  criticality = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
+  criticality = (tvb_get_uint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
   if (criticality == 0x03) {
     /* criticality is not 0x00 (reject), 0x01 (ignore) or 0x02 (notify) */
     return false;
   }
 
   /* Finding the offset for the length field - depends on wether the transaction id is long or short */
-  transaction_id_type = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x04) >> 2;
+  transaction_id_type = (tvb_get_uint8(tvb, DD_CRIT_OFFSET) & 0x04) >> 2;
   if(transaction_id_type == 0x00) { /* Short transaction id - 1 byte*/
     length_field_offset = 4;
   }
@@ -216,13 +216,13 @@ dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   /* compute aligned PER length determinant without calling dissect_per_length_determinant()
      to avoid exceptions and info added to tree, info column and expert info */
-  length = tvb_get_guint8(tvb, length_field_offset);
+  length = tvb_get_uint8(tvb, length_field_offset);
   length_field_offset += 1;
   if (length & 0x80) {
     if ((length & 0xc0) == 0x80) {
       length &= 0x3f;
       length <<= 8;
-      length += tvb_get_guint8(tvb, length_field_offset);
+      length += tvb_get_uint8(tvb, length_field_offset);
       length_field_offset += 1;
     } else {
       length = 0;

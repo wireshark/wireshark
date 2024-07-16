@@ -9382,9 +9382,9 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     item = proto_tree_add_item(parent_tree, proto_inap, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_inap);
   }
-  inap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
+  inap_pdu_type = tvb_get_uint8(tvb, offset)&0x0f;
   /* Get the length and add 2 */
-  inap_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
+  inap_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
   opcode = 0;
   is_ExtensionField =false;
   dissect_inap_ROS(true, tvb, offset, &asn1_ctx, tree, -1);

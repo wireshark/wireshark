@@ -158,7 +158,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
     len = tvb_reported_length_remaining(parameter_tvb, 0);
     switch(len) {
     case 1:
-      gp_tcapsrt_info->src_tid=tvb_get_guint8(parameter_tvb, 0);
+      gp_tcapsrt_info->src_tid=tvb_get_uint8(parameter_tvb, 0);
       break;
     case 2:
       gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
@@ -179,7 +179,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
       for (i = 0; i < len; i++) {
-        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_uint8(parameter_tvb,i));
       }
       col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
     }
@@ -207,7 +207,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
     len = tvb_reported_length_remaining(parameter_tvb, 0);
     switch(len) {
     case 1:
-      gp_tcapsrt_info->dst_tid=tvb_get_guint8(parameter_tvb, 0);
+      gp_tcapsrt_info->dst_tid=tvb_get_uint8(parameter_tvb, 0);
       break;
     case 2:
       gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
@@ -228,7 +228,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
       for(i = 0; i < len; i++) {
-        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_uint8(parameter_tvb,i));
       }
       col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
     }

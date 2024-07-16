@@ -3073,7 +3073,7 @@ verify_krb5_pac_full_checksum(proto_tree *tree,
 
 	cur_offset = 0;
 	__PAC_CHECK_OFFSET_SIZE(cur_offset, 8, "PACTYPE Header");
-	num_buffers = tvb_get_guint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+	num_buffers = tvb_get_uint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
 	cur_offset += 4;
 	/* ignore 4 byte version */
 	cur_offset += 4;
@@ -3084,11 +3084,11 @@ verify_krb5_pac_full_checksum(proto_tree *tree,
 		uint64_t b_offset;
 
 		__PAC_CHECK_OFFSET_SIZE(cur_offset, 16, "PAC_INFO_BUFFER Header");
-		b_type = tvb_get_guint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+		b_type = tvb_get_uint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
 		cur_offset += 4;
-		b_length = tvb_get_guint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+		b_length = tvb_get_uint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
 		cur_offset += 4;
-		b_offset = tvb_get_guint64(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+		b_offset = tvb_get_uint64(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
 		cur_offset += 8;
 
 		__PAC_CHECK_OFFSET_SIZE(b_offset, b_length, "PAC_INFO_BUFFER Payload");
@@ -4783,7 +4783,7 @@ dissect_krb5_PAC_DREP(proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_krb_pac_drep, NULL, "DREP");
 
-	val = tvb_get_guint8(tvb, offset);
+	val = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, val>>4);
 
 	offset++;
@@ -9067,7 +9067,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	   All krb5 commands start with an APPL tag and thus is >=0x60
 	   so if first byte is <=16  just blindly assume it is krb4 then
 	*/
-	if(tvb_captured_length(tvb) >= 1 && tvb_get_guint8(tvb, 0)<=0x10){
+	if(tvb_captured_length(tvb) >= 1 && tvb_get_uint8(tvb, 0)<=0x10){
 		if(krb4_handle){
 			bool res;
 

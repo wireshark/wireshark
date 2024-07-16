@@ -401,7 +401,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   offset++;
 
   /* Maximum SDU size, octet 7 (see 3GPP TS 23.107) */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   switch (octet){
   case 0:
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, octet, "Reserved");
@@ -429,7 +429,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   offset++;
 
   /* Maximum bit rate for uplink, octet 8 */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, octet, "Reserved"  );
   }else{
@@ -437,7 +437,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   }
   offset++;
   /* Maximum bit rate for downlink, octet 9 (see 3GPP TS 23.107) */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, octet, "Reserved"  );
   }else{
@@ -459,7 +459,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   /*  Guaranteed bit rate for uplink, octet 12 (See 3GPP TS 23.107)
       Coding is identical to that of Maximum bit rate for uplink.
   */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet, "Subscribed guaranteed bit rate for uplink/reserved");
   }else{
@@ -470,7 +470,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   /*  Guaranteed bit rate for downlink, octet 13(See 3GPP TS 23.107)
       Coding is identical to that of Maximum bit rate for uplink.
   */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet, "Subscribed guaranteed bit rate for downlink/reserved");
   }else{
@@ -542,7 +542,7 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext2_qos_subscribed);
 
     /* Ocet 14 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     proto_tree_add_bits_item(subtree, hf_gsm_map_spare_bits, tvb, (offset << 3), 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gsm_map_qos_signalling_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -561,7 +561,7 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Octet 15 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Maximum bit rate for downlink";
@@ -582,7 +582,7 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Octet 16 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Guaranteed bit rate for downlink";
@@ -617,7 +617,7 @@ dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext3_qos_subscribed);
 
     /* Maximum bit rate for uplink (extended) Octet 17 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Maximum bit rate for uplink";
@@ -638,7 +638,7 @@ dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Guaranteed bit rate for uplink (extended) Octet 18 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Guaranteed bit rate for uplink";
@@ -871,7 +871,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   uint8_t coding_grp;
   uint8_t character_set;
 
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   coding_grp = octet >>4;
   proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1010,7 +1010,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(tvb_reported_length(tvb)==1)
     return;
 
-  octet = tvb_get_guint8(tvb,0);
+  octet = tvb_get_uint8(tvb,0);
   /* nature of address indicator */
   na = (octet & 0x70)>>4;
   /* numbering plan indicator */
@@ -1166,7 +1166,7 @@ static int dissect_mc_message(tvbuff_t *tvb,
   int32_t bug_tag;
   uint32_t bug_len;
 
-  octet = tvb_get_guint8(tvb,0);
+  octet = tvb_get_uint8(tvb,0);
   if ( (octet & 0xf) == 3) {
     /* XXX  asn2wrs can not yet handle tagged assignment yes so this
      * XXX is some conformance file magic to work around that bug
@@ -2326,9 +2326,9 @@ dissect_gsm_map_GSMMAPPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
     }
   }
 
-  gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
+  gsmmap_pdu_type = tvb_get_uint8(tvb, offset)&0x0f;
   /* Get the length and add 2 */
-  gsm_map_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
+  gsm_map_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP Component"));
   col_append_str(actx->pinfo->cinfo, COL_INFO, " ");

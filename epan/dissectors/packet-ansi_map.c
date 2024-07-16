@@ -1418,7 +1418,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree_add_item(subtree, hf_ansi_map_na, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 3 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(subtree, hf_ansi_map_np, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_digits_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1428,7 +1428,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            octet_len = tvb_get_guint8(tvb,offset);
+            octet_len = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
             if(octet_len == 0)
                 return;
@@ -1440,7 +1440,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             {
             const uint8_t* digits;
             /* IA5 Coding */
-            octet_len = tvb_get_guint8(tvb,offset);
+            octet_len = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
             if(octet_len == 0)
                 return;
@@ -1466,7 +1466,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     case 2:/* Telephony Numbering (ITU-T Rec. E.164,E.163). */
     case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
     case 7:/* Private Numbering Plan */
-        octet_len = tvb_get_guint8(tvb,offset);
+        octet_len = tvb_get_uint8(tvb,offset);
         proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(octet_len == 0)
             return;
@@ -1498,17 +1498,17 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         case 3:
             /* Octet string */
             /* Point Code Member Number octet 2 */
-            b1 = tvb_get_guint8(tvb,offset);
+            b1 = tvb_get_uint8(tvb,offset);
             offset++;
             /* Point Code Cluster Number octet 3 */
-            b2 = tvb_get_guint8(tvb,offset);
+            b2 = tvb_get_uint8(tvb,offset);
             offset++;
             /* Point Code Network Number octet 4 */
-            b3 = tvb_get_guint8(tvb,offset);
+            b3 = tvb_get_uint8(tvb,offset);
             offset++;
             proto_tree_add_bytes_format_value(subtree, hf_ansi_map_point_code, tvb, offset-3, 3, NULL, "%u-%u-%u", b3, b2, b1);
             /* Subsystem Number (SSN) octet 5 */
-            b4 = tvb_get_guint8(tvb,offset);
+            b4 = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(subtree, hf_ansi_map_SSN, tvb, offset, 1, ENC_NA);
             proto_item_append_text(actx->created_item, " - Point Code %u-%u-%u  SSN %u", b3, b2, b1, b4);
             break;
@@ -2442,11 +2442,11 @@ dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* Trunk Group Number (G) Octet 1 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Trunk Member Number (M) Octet2 */
-    octet2 = tvb_get_guint8(tvb,offset);
+    octet2 = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(actx->created_item, " (G %u/M %u)", octet, octet2);
 }
@@ -2992,13 +2992,13 @@ dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
     proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Point Code Member Number octet 2 */
-    b1 = tvb_get_guint8(tvb,offset);
+    b1 = tvb_get_uint8(tvb,offset);
     offset++;
     /* Point Code Cluster Number octet 3 */
-    b2 = tvb_get_guint8(tvb,offset);
+    b2 = tvb_get_uint8(tvb,offset);
     offset++;
     /* Point Code Network Number octet 4 */
-    b3 = tvb_get_guint8(tvb,offset);
+    b3 = tvb_get_uint8(tvb,offset);
     offset++;
     proto_tree_add_bytes_format_value(subtree, hf_ansi_map_point_code, tvb, offset-3, 3, NULL, "%u-%u-%u", b3, b2, b1);
     proto_tree_add_item(subtree, hf_ansi_map_SSN, tvb, offset, 1, ENC_NA);
@@ -5401,7 +5401,7 @@ dissect_ansi_map_ServiceIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                        &parameter_tvb);
 
 	if (parameter_tvb){
-		ServiceIndicator = tvb_get_guint8(parameter_tvb,0);
+		ServiceIndicator = tvb_get_uint8(parameter_tvb,0);
 		if (SMS_BearerData_tvb !=NULL)
 		{
 			switch(ServiceIndicator){
@@ -15185,7 +15185,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     subtree = proto_item_add_subtree(actx->created_item, ett_win_trigger_list);
 
     while(offset< end_offset) {
-        octet = tvb_get_guint8(tvb,offset);
+        octet = tvb_get_uint8(tvb,offset);
         switch (octet){
         case 0xdc:
             proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "TDP-R's armed");

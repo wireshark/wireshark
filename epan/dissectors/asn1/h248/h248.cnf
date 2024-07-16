@@ -332,9 +332,9 @@ SigParameterV1/value                ABBREV=sig_param_value
     proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,ENC_BIG_ENDIAN);
 
-    wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
+    wild_term = tvb_get_uint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
     /* limitation: assume only one wildcard is used */
-    wild_card = tvb_get_guint8(new_tvb,0);
+    wild_card = tvb_get_uint8(new_tvb,0);
 
 #.END
 

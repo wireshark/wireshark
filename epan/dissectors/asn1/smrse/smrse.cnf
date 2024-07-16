@@ -34,8 +34,8 @@ SemiOctetString
 	}
 	strp=tmpstr;
 	for(i=0;i<len;i++){
-		*strp++=n2a[tvb_get_guint8(tvb, offset)&0x0f];
-		*strp++=n2a[(tvb_get_guint8(tvb, offset)>>4)&0x0f];
+		*strp++=n2a[tvb_get_uint8(tvb, offset)&0x0f];
+		*strp++=n2a[(tvb_get_uint8(tvb, offset)>>4)&0x0f];
 		offset++;
 	}
 	*strp=0;

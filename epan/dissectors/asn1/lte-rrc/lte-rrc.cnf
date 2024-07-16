@@ -909,12 +909,12 @@ if(ue_cap_tvb){
     /* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
     subtree2 = proto_tree_add_subtree(subtree, ue_cap_tvb, 0, 5,
                        ett_lte_rrc_UE_CapabilityRAT_Container, &item, "Mobile Station Classmark 2");
-    byte = tvb_get_guint8(ue_cap_tvb, 0);
+    byte = tvb_get_uint8(ue_cap_tvb, 0);
     if (byte != 0x33) {
       expert_add_info_format(actx->pinfo, item, &ei_lte_rrc_unexpected_type_value,
                              "Unexpected type value (found 0x%02X)", byte);
     }
-    byte = tvb_get_guint8(ue_cap_tvb, 1);
+    byte = tvb_get_uint8(ue_cap_tvb, 1);
     if (byte != 0x03) {
       expert_add_info_format(actx->pinfo, item, &ei_lte_rrc_unexpected_length_value,
                              "Unexpected length value (found %d)", byte);
@@ -1121,7 +1121,7 @@ MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC
       break;
     case T_targetRAT_Type_geran:
       /* geran */
-      byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
+      byte = tvb_get_uint8(target_rat_msg_cont_tvb, 0);
       if (byte == 0x06) {
         if (gsm_a_dtap_handle) {
           lte_rrc_call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
@@ -2647,7 +2647,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   uint32_t sfn;
 %(DEFAULT_BODY)s
   /* Show SFN in info column */
-  sfn = tvb_get_guint8(value_tvb, 0);
+  sfn = tvb_get_uint8(value_tvb, 0);
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (SFN=%%u)", sfn);
 
 #.FN_BODY SystemInformationBlockType1/systemInfoValueTag VAL_PTR=&value

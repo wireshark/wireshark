@@ -443,7 +443,7 @@ ReturnData
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		ServiceIndicator = tvb_get_guint8(parameter_tvb,0);
+		ServiceIndicator = tvb_get_uint8(parameter_tvb,0);
 		if (SMS_BearerData_tvb !=NULL)
 		{
 			switch(ServiceIndicator){

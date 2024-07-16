@@ -497,7 +497,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	 * XXX - heuristic to check for misidentified packets.
 	 */
 	if (dissect_possible_rtpv2_packets_as_rtp){
-		octet1 = tvb_get_guint8(tvb, offset);
+		octet1 = tvb_get_uint8(tvb, offset);
 		if (RTP_VERSION(octet1) == 2){
 			return call_dissector(rtp_handle,tvb,pinfo,tree);
 		}

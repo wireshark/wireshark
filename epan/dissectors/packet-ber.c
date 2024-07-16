@@ -626,7 +626,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "dissect_ber_tagged_type(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "dissect_ber_tagged_type(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "dissect_ber_tagged_type(%s) entered\n", name);
 }
@@ -1007,7 +1007,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
                 /* we may want to do better and show the bytes */
                 is_printable = true;
                 for (i = 0; i < len; i++) {
-                    c = tvb_get_guint8(tvb, offset + i);
+                    c = tvb_get_uint8(tvb, offset + i);
 
                     if (is_printable && !g_ascii_isprint(c))
                         is_printable = false;
@@ -1018,7 +1018,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
                 if (is_printable) { /* give a nicer representation if it looks like a string */
                     proto_item_append_text(pi, " (");
                     for (i = 0; i < len; i++) {
-                        proto_item_append_text(pi, "%c", tvb_get_guint8(tvb, offset + i));
+                        proto_item_append_text(pi, "%c", tvb_get_uint8(tvb, offset + i));
                     }
                     proto_item_append_text(pi, ")");
                 }
@@ -1181,7 +1181,7 @@ get_ber_identifier(tvbuff_t *tvb, int offset, int8_t *ber_class, bool *pc, int32
     bool tmp_pc;
     int32_t  tmp_tag;
 
-    id = tvb_get_guint8(tvb, offset);
+    id = tvb_get_uint8(tvb, offset);
     offset += 1;
 #ifdef DEBUG_BER
 ws_debug_printf("BER ID=%02x", id);
@@ -1194,7 +1194,7 @@ ws_debug_printf("BER ID=%02x", id);
     if (tmp_tag == 0x1F) {
         tmp_tag = 0;
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
-            t = tvb_get_guint8(tvb, offset);
+            t = tvb_get_uint8(tvb, offset);
 #ifdef DEBUG_BER
 ws_debug_printf(" %02x", t);
 #endif
@@ -1301,7 +1301,7 @@ try_get_ber_length(tvbuff_t *tvb, int offset, uint32_t *length, bool *ind, int n
         THROW(ReportedBoundsError);
     }
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     if (!(oct & 0x80)) {
@@ -1312,7 +1312,7 @@ try_get_ber_length(tvbuff_t *tvb, int offset, uint32_t *length, bool *ind, int n
         if (len) {
             /* 8.1.3.5 */
             while (len--) {
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 offset++;
                 tmp_length = (tmp_length<<8) + oct;
             }
@@ -1323,7 +1323,7 @@ try_get_ber_length(tvbuff_t *tvb, int offset, uint32_t *length, bool *ind, int n
             /* ok in here we can traverse the BER to find the length, this will fix most indefinite length issues */
             /* Assumption here is that indefinite length is always used on constructed types*/
             /* check for EOC */
-            while (tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb, offset+1)) {
+            while (tvb_get_uint8(tvb, offset) || tvb_get_uint8(tvb, offset+1)) {
                 /* not an EOC at offset */
                 s_offset = offset;
                 offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
@@ -1395,7 +1395,7 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
             proto_tree_add_uint_format_value(tree, hf_ber_length, tvb, old_offset, 1, tmp_length, "Indefinite length %d", tmp_length);
         } else {
             if ((offset - old_offset) > 1) {
-                proto_tree_add_uint(tree, hf_ber_length_octets, tvb, old_offset, 1, (tvb_get_guint8(tvb, old_offset) & 0x7f));
+                proto_tree_add_uint(tree, hf_ber_length_octets, tvb, old_offset, 1, (tvb_get_uint8(tvb, old_offset) & 0x7f));
                 proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset+1, offset - (old_offset+1), tmp_length);
             } else {
                 proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset, offset - old_offset, tmp_length);
@@ -1466,7 +1466,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, int hf_id, tvbuff_t 
         if (ind) {
             /* this was indefinite length - so check for EOC */
 
-            if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
+            if ((tvb_get_uint8(tvb, offset) == 0) && (tvb_get_uint8(tvb, offset+1) == 0)) {
                 fragment = false;
                 /* skip past EOC */
                 offset +=2;
@@ -1565,7 +1565,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet string(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet string(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
 }
@@ -1874,7 +1874,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, implicit_tag);
 }
@@ -1897,7 +1897,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
     val = 0;
     if (len > 0) {
 
-        first = tvb_get_guint8(tvb, offset);
+        first = tvb_get_uint8(tvb, offset);
         /* we can't handle integers > 64 bits */
         /* take into account the use case of a 64bits unsigned integer: you will have a 9th byte set to 0 */
         if ((len > 9) || ((len == 9) && (first != 0))) {
@@ -1924,14 +1924,14 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
             val = -1;
         }
         if ((len > 1) && decode_warning_leading_zero_bits) {
-            uint8_t second = tvb_get_guint8(tvb, offset+1);
+            uint8_t second = tvb_get_uint8(tvb, offset+1);
             if (((first == 0x00) && ((second & 0x80) == 0)) ||
                 ((first == 0xff) && ((second & 0x80) != 0))) {
                 used_too_many_bytes = true;
             }
         }
         for (i=0; i<len; i++) {
-            val = ((uint64_t)val<<8) | tvb_get_guint8(tvb, offset);
+            val = ((uint64_t)val<<8) | tvb_get_uint8(tvb, offset);
             offset++;
         }
     }
@@ -2061,7 +2061,7 @@ dissect_ber_boolean(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
 
     if (len == 1)
     {
-        val = tvb_get_guint8(tvb, offset);
+        val = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         actx->created_item = NULL;
@@ -2171,7 +2171,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", name);
 }
@@ -2243,7 +2243,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", n
 
         /*if (ind) {  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
                     but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
-            if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
+            if ((tvb_get_uint8(tvb, offset) == 0) && (tvb_get_uint8(tvb, offset+1) == 0)) {
                 /* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
                 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
                 dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -2437,7 +2437,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(next_tvb, 0) > 3) {
-proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(next_tvb, 0), tvb_get_guint8(next_tvb, 0), tvb_get_guint8(next_tvb, 1), tvb_get_guint8(next_tvb, 2));
+proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(next_tvb, 0), tvb_get_uint8(next_tvb, 0), tvb_get_uint8(next_tvb, 1), tvb_get_uint8(next_tvb, 2));
 } else {
 proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) calling subdissector\n", name);
 }
@@ -2547,7 +2547,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
 }
@@ -2625,7 +2625,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
         /*if (ind) {  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
           but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 
-            if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
+            if ((tvb_get_uint8(tvb, offset) == 0) && (tvb_get_uint8(tvb, offset+1) == 0)) {
                 if (show_internal_ber_fields) {
                     proto_tree_add_item(tree, hf_ber_seq_eoc, tvb, s_offset, offset+2, ENC_NA);
                 }
@@ -2704,7 +2704,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(next_tvb, 0) > 3) {
-proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(next_tvb, 0), tvb_get_guint8(next_tvb, 0), tvb_get_guint8(next_tvb, 1), tvb_get_guint8(next_tvb, 2));
+proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(next_tvb, 0), tvb_get_uint8(next_tvb, 0), tvb_get_uint8(next_tvb, 1), tvb_get_uint8(next_tvb, 2));
 } else {
 proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector\n", name);
 }
@@ -2833,7 +2833,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) entered offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) entered offset:%d len:%d %02x:%02x:%02x\n", name, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) entered len:%d\n", name, tvb_reported_length_remaining(tvb, offset));
 }
@@ -2954,7 +2954,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(next_tvb, 0) > 3) {
-proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) calling subdissector start_offset:%d offset:%d len:%d %02x:%02x:%02x\n", name, start_offset, offset, tvb_reported_length_remaining(next_tvb, 0), tvb_get_guint8(next_tvb, 0), tvb_get_guint8(next_tvb, 1), tvb_get_guint8(next_tvb, 2));
+proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) calling subdissector start_offset:%d offset:%d len:%d %02x:%02x:%02x\n", name, start_offset, offset, tvb_reported_length_remaining(next_tvb, 0), tvb_get_uint8(next_tvb, 0), tvb_get_uint8(next_tvb, 1), tvb_get_uint8(next_tvb, 2));
 } else {
 proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n", name, tvb_reported_length(next_tvb));
 }
@@ -3122,7 +3122,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "RESTRICTED STRING dissect_ber_octet string(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "RESTRICTED STRING dissect_ber_octet string(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "RESTRICTED STRING dissect_ber_octet_string(%s) entered\n", name);
 }
@@ -3225,7 +3225,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb, offset) > 3) {
-proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered\n", name);
 }
@@ -3371,7 +3371,7 @@ name = hfinfo->name;
 name = "unnamed";
 }
 if (tvb_reported_length_remaining(tvb,offset) > 3) {
-proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2));
+proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n", name, implicit_tag, offset, tvb_reported_length_remaining(tvb, offset), tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2));
 } else {
 proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
 }
@@ -3434,7 +3434,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
 
             /*if (ind) {  this sequence of was of indefinite length, if this is implicit indefinite impossible maybe
               but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
-                if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
+                if ((tvb_get_uint8(tvb, offset) == 0) && (tvb_get_uint8(tvb, offset+1) == 0)) {
                     break;
                 }
             /* } */
@@ -3491,7 +3491,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
         hoffset = offset;
         /*if (ind) {  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
           but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
-            if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
+            if ((tvb_get_uint8(tvb, offset) == 0) && (tvb_get_uint8(tvb, offset+1) == 0)) {
                 if (show_internal_ber_fields) {
                     proto_tree_add_item(tree, hf_ber_seq_of_eoc, tvb, hoffset, end_offset-hoffset, ENC_NA);
                 }
@@ -3965,7 +3965,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
         /* TO DO */
     } else {
         /* primitive */
-        pad = tvb_get_guint8(tvb, offset);
+        pad = tvb_get_uint8(tvb, offset);
         /* 8.6.2.4 If a bitstring value has no 1 bits, then an encoder (as a sender's option)
          * may encode the value with a length of 1 and with an initial octet set to 0
          * or may encode it as a bit string with one or more 0 bits following the initial octet.
@@ -4053,7 +4053,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
 
 
     if ((pad > 0) && (pad < 8) && (len > 0)) {
-        uint8_t bits_in_pad = tvb_get_guint8(tvb, offset + len - 1) & (0xFF >> (8 - pad));
+        uint8_t bits_in_pad = tvb_get_uint8(tvb, offset + len - 1) & (0xFF >> (8 - pad));
         if (bits_in_pad) {
             expert_add_info_format(
                 actx->pinfo, item, &ei_ber_bits_set_padded,

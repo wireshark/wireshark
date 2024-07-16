@@ -3001,7 +3001,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   offset++;
 
   /* Maximum SDU size, octet 7 (see 3GPP TS 23.107) */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   switch (octet){
   case 0:
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, octet, "Reserved");
@@ -3029,7 +3029,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   offset++;
 
   /* Maximum bit rate for uplink, octet 8 */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, octet, "Reserved"  );
   }else{
@@ -3037,7 +3037,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   }
   offset++;
   /* Maximum bit rate for downlink, octet 9 (see 3GPP TS 23.107) */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, octet, "Reserved"  );
   }else{
@@ -3059,7 +3059,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   /*  Guaranteed bit rate for uplink, octet 12 (See 3GPP TS 23.107)
       Coding is identical to that of Maximum bit rate for uplink.
   */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet, "Subscribed guaranteed bit rate for uplink/reserved");
   }else{
@@ -3070,7 +3070,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   /*  Guaranteed bit rate for downlink, octet 13(See 3GPP TS 23.107)
       Coding is identical to that of Maximum bit rate for uplink.
   */
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   if (octet == 0 ){
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet, "Subscribed guaranteed bit rate for downlink/reserved");
   }else{
@@ -3142,7 +3142,7 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext2_qos_subscribed);
 
     /* Ocet 14 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     proto_tree_add_bits_item(subtree, hf_gsm_map_spare_bits, tvb, (offset << 3), 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gsm_map_qos_signalling_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3161,7 +3161,7 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Octet 15 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Maximum bit rate for downlink";
@@ -3182,7 +3182,7 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Octet 16 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Guaranteed bit rate for downlink";
@@ -3217,7 +3217,7 @@ dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext3_qos_subscribed);
 
     /* Maximum bit rate for uplink (extended) Octet 17 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Maximum bit rate for uplink";
@@ -3238,7 +3238,7 @@ dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Guaranteed bit rate for uplink (extended) Octet 18 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct == 0x00)
         str = "Use the value indicated by the Guaranteed bit rate for uplink";
@@ -3471,7 +3471,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   uint8_t coding_grp;
   uint8_t character_set;
 
-  octet = tvb_get_guint8(tvb,offset);
+  octet = tvb_get_uint8(tvb,offset);
   coding_grp = octet >>4;
   proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3610,7 +3610,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(tvb_reported_length(tvb)==1)
     return;
 
-  octet = tvb_get_guint8(tvb,0);
+  octet = tvb_get_uint8(tvb,0);
   /* nature of address indicator */
   na = (octet & 0x70)>>4;
   /* numbering plan indicator */
@@ -3989,10 +3989,10 @@ MAP interfaces
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		 octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		 length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		 proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
@@ -4008,7 +4008,7 @@ MAP interfaces
 		break;
 	case 2:
 		/* gsm-0806 */
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
@@ -4025,7 +4025,7 @@ MAP interfaces
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
 			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
@@ -4033,8 +4033,8 @@ MAP interfaces
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
-		length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
+		length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		if ( octet == 4 )
 			dissect_q931_bearer_capability_ie(gsm_map_priv->signal_info_tvb, 2, length, subtree);
 		break;
@@ -4120,7 +4120,7 @@ dissect_gsm_map_LongSignalInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
 	case 1:
-		octet = tvb_get_guint8(parameter_tvb,0);
+		octet = tvb_get_uint8(parameter_tvb,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
@@ -4190,7 +4190,7 @@ dissect_gsm_map_GSN_Address(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_pdptypenumber);
 
-	octet = tvb_get_guint8(parameter_tvb,0);
+	octet = tvb_get_uint8(parameter_tvb,0);
 	switch(octet){
 	case 0x04: /* IPv4 */
 		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, 4, ENC_BIG_ENDIAN);
@@ -4865,7 +4865,7 @@ dissect_gsm_map_Ext_SS_Status(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
  if (!parameter_tvb)
 	return offset;
 
- octet = tvb_get_guint8(parameter_tvb,0);
+ octet = tvb_get_uint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
  if ((octet & 0x01)== 1)
@@ -4995,7 +4995,7 @@ dissect_gsm_map_ss_SS_Status(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
  if (!parameter_tvb)
 	return offset;
 
- octet = tvb_get_guint8(parameter_tvb,0);
+ octet = tvb_get_uint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
  if ((octet & 0x01)== 1)
@@ -5816,7 +5816,7 @@ dissect_gsm_map_er_SM_DeliveryFailureCause(bool implicit_tag _U_, tvbuff_t *tvb 
   if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
     return offset;
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
-  oct = tvb_get_guint8(gsm_map_priv->signal_info_tvb, 0);
+  oct = tvb_get_uint8(gsm_map_priv->signal_info_tvb, 0);
   actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
   call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
@@ -11959,7 +11959,7 @@ dissect_gsm_map_ms_PDP_Type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (!parameter_tvb)
     return offset;
   proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
-  pdp_type_org = tvb_get_guint8(parameter_tvb,1);
+  pdp_type_org = tvb_get_uint8(parameter_tvb,1);
   switch (pdp_type_org){
     case 0: /* ETSI */
       proto_tree_add_item(tree, hf_gsm_map_etsi_pdp_type_number, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
@@ -18046,10 +18046,10 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		 octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		 length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		 proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
@@ -18065,7 +18065,7 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		break;
 	case 2:
 		/* gsm-0806 */
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
@@ -18082,7 +18082,7 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		break;
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
 			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
@@ -18090,8 +18090,8 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
-		length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		octet = tvb_get_uint8(gsm_map_priv->signal_info_tvb,0);
+		length = tvb_get_uint8(gsm_map_priv->signal_info_tvb,1);
 		if ( octet == 4 )
 			dissect_q931_bearer_capability_ie(gsm_map_priv->signal_info_tvb, 2, length, subtree);
 		break;
@@ -20075,7 +20075,7 @@ dissect_gsm_map_ericsson_T_locationInformation(bool implicit_tag _U_, tvbuff_t *
 
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ericsson_locationInformation);
-    rat = tvb_get_guint8(parameter_tvb, 0);
+    rat = tvb_get_uint8(parameter_tvb, 0);
     proto_tree_add_uint(subtree, hf_gsm_map_ericsson_locationInformation_rat, parameter_tvb, 0, 1, rat);
     switch (rat) {
       case 0:
@@ -22417,7 +22417,7 @@ static int dissect_mc_message(tvbuff_t *tvb,
   int32_t bug_tag;
   uint32_t bug_len;
 
-  octet = tvb_get_guint8(tvb,0);
+  octet = tvb_get_uint8(tvb,0);
   if ( (octet & 0xf) == 3) {
     /* XXX  asn2wrs can not yet handle tagged assignment yes so this
      * XXX is some conformance file magic to work around that bug
@@ -23577,9 +23577,9 @@ dissect_gsm_map_GSMMAPPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
     }
   }
 
-  gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
+  gsmmap_pdu_type = tvb_get_uint8(tvb, offset)&0x0f;
   /* Get the length and add 2 */
-  gsm_map_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
+  gsm_map_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP Component"));
   col_append_str(actx->pinfo->cinfo, COL_INFO, " ");

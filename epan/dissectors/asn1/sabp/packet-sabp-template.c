@@ -123,7 +123,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   /* Octet 1 Number-of-Pages */
-  nr_pages = tvb_get_guint8(tvb, offset);
+  nr_pages = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_sabp_no_of_pages, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
   /*
@@ -138,7 +138,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 "CB page %u data",  n+1);
     /* octet 2 - 83 CBS-Message-Information-Page 1  */
     cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_NA);
-    cb_inf_msg_len = tvb_get_guint8(tvb,offset+82);
+    cb_inf_msg_len = tvb_get_uint8(tvb,offset+82);
     page_tvb = tvb_new_subset_length(tvb, offset, cb_inf_msg_len);
     unpacked_tvb = dissect_cbs_data(sms_encoding, page_tvb, subtree, pinfo, 0);
     len = tvb_captured_length(unpacked_tvb);
