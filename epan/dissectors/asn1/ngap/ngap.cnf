@@ -1327,6 +1327,14 @@ TSCFeedbackInformation/burstArrivalburstArrivalTimeOffsetTimeWindowEnd DISPLAY=B
 %(DEFAULT_BODY)s
   ngap_get_private_data(actx->pinfo)->qos_flow_add_info_rel_type = -1;
 
+#.FN_BODY SuccessfulPSCellChangeReport-Item/successfulPSCellChangeReportContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_successfulPSCellChangeReportContainer);
+    dissect_nr_rrc_SuccessPSCell_Report_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 

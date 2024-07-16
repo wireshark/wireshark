@@ -125,6 +125,9 @@ static int ett_f1ap_SIB14_message;
 static int ett_f1ap_SIB15_message;
 static int ett_f1ap_SIB17_message;
 static int ett_f1ap_SIB20_message;
+static int ett_f1ap_SIB22_message;
+static int ett_f1ap_SIB23_message;
+static int ett_f1ap_SIB24_message;
 static int ett_f1ap_SL_PHY_MAC_RLC_Config;
 static int ett_f1ap_SL_PHY_MAC_RLC_ConfigExt;
 static int ett_f1ap_SL_RLC_ChannelToAddModList;
@@ -157,6 +160,18 @@ static int ett_f1ap_ReferenceConfigurationInformation;
 static int ett_f1ap_LTMCFRAResourceConfig;
 static int ett_f1ap_location_Information;
 static int ett_f1ap_velocity_Information;
+static int ett_f1ap_successfulPSCellChangeReportContainer;
+static int ett_f1ap_cSIResourceConfigToAddModList;
+static int ett_f1ap_cSIResourceConfigToReleaseList;
+static int ett_f1ap_mbs_NeighbourCellList;
+static int ett_f1ap_mtch_NeighbourCellprovided;
+static int ett_f1ap_thresholdMBSList;
+static int ett_f1ap_mBSMulticastConfiguration;
+static int ett_f1ap_MusimCandidateBandList;
+static int ett_f1ap_NeedForInterruptionInfoNR;
+static int ett_f1ap_RACHConfiguration;
+static int ett_f1ap_SRSPosRRCInactiveValidityAreaConfig;
+static int ett_f1ap_TCIStatesConfigurationsList;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -884,6 +899,9 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SIB15_message,
     &ett_f1ap_SIB17_message,
     &ett_f1ap_SIB20_message,
+    &ett_f1ap_SIB22_message,
+    &ett_f1ap_SIB23_message,
+    &ett_f1ap_SIB24_message,
     &ett_f1ap_SL_PHY_MAC_RLC_Config,
     &ett_f1ap_SL_PHY_MAC_RLC_ConfigExt,
     &ett_f1ap_SL_RLC_ChannelToAddModList,
@@ -916,6 +934,18 @@ void proto_register_f1ap(void) {
     &ett_f1ap_LTMCFRAResourceConfig,
     &ett_f1ap_location_Information,
     &ett_f1ap_velocity_Information,
+    &ett_f1ap_successfulPSCellChangeReportContainer,
+    &ett_f1ap_cSIResourceConfigToAddModList,
+    &ett_f1ap_cSIResourceConfigToReleaseList,
+    &ett_f1ap_mbs_NeighbourCellList,
+    &ett_f1ap_mtch_NeighbourCellprovided,
+    &ett_f1ap_thresholdMBSList,
+    &ett_f1ap_mBSMulticastConfiguration,
+    &ett_f1ap_MusimCandidateBandList,
+    &ett_f1ap_NeedForInterruptionInfoNR,
+    &ett_f1ap_RACHConfiguration,
+    &ett_f1ap_SRSPosRRCInactiveValidityAreaConfig,
+    &ett_f1ap_TCIStatesConfigurationsList,
 #include "packet-f1ap-ettarr.c"
   };
 

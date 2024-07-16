@@ -2575,6 +2575,18 @@ Configured-EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
     case 21:
       dissect_nr_rrc_SIB21_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
       break;
+    case 22:
+      dissect_nr_rrc_SIB22_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 23:
+      dissect_nr_rrc_SIB23_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 24:
+      dissect_nr_rrc_SIB24_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 25:
+      dissect_nr_rrc_SIB25_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
     default:
       break;
     }
@@ -3007,6 +3019,30 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     dissect_nr_rrc_SIB20_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SIB22-message VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB22_message);
+    dissect_nr_rrc_SIB22_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SIB23-message VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB23_message);
+    dissect_nr_rrc_SIB23_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SIB24-message VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB24_message);
+    dissect_nr_rrc_SIB24_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY SL-PHY-MAC-RLC-Config VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -3304,6 +3340,113 @@ N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_
 
 #.TYPE_ATTR
 N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_N6Jitter_fmt)
+
+#.FN_BODY SuccessfulPSCellChangeReportInformation-Item/successfulPSCellChangeReportContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_successfulPSCellChangeReportContainer);
+    dissect_nr_rrc_SuccessPSCell_Report_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSIResourceConfiguration/cSIResourceConfigToAddModList VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_cSIResourceConfigToAddModList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToAddModList_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSIResourceConfiguration/cSIResourceConfigToReleaseList VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_cSIResourceConfigToReleaseList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToReleaseList_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UpdateMBSMulticastNeighbourCellListInformation/mbs-NeighbourCellList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mbs_NeighbourCellList);
+    dissect_nr_rrc_MBS_NeighbourCellList_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MTCH-NeighbourCellInformation/mtch-NeighbourCellprovided VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mtch_NeighbourCellprovided);
+    dissect_nr_rrc_MTCH_NeighbourCell_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UpdateThresholdMBS-ListInformation/thresholdMBSList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_thresholdMBSList);
+    dissect_nr_rrc_ThresholdMBS_List_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MBSMulticastConfiguration-available/mBSMulticastConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mBSMulticastConfiguration);
+    dissect_nr_rrc_MBSMulticastConfiguration_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MBSMulticastConfigurationNotificationInfo/mbsMulticastConfigurationChanged VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mBSMulticastConfiguration);
+    dissect_nr_rrc_MBSMulticastConfiguration_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MusimCandidateBandList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MusimCandidateBandList);
+    dissect_nr_rrc_MUSIM_CandidateBandList_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NeedForInterruptionInfoNR VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_NeedForInterruptionInfoNR);
+    dissect_nr_rrc_NeedForInterruptionInfoNR_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RACHConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RACHConfiguration);
+    dissect_nr_rrc_EarlyUL_SyncConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SRSPosRRCInactiveValidityAreaConfig VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SRSPosRRCInactiveValidityAreaConfig);
+    dissect_nr_rrc_SRS_PosRRC_InactiveValidityAreaConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY TCIStatesConfigurationsList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_TCIStatesConfigurationsList);
+    dissect_nr_rrc_LTM_TCI_Info_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.FN_HDR Reset
   set_message_label(actx, MTYPE_RESET);

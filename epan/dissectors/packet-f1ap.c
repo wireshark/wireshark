@@ -2335,8 +2335,8 @@ static int hf_f1ap_tAValue;                       /* TAValue */
 static int hf_f1ap_preambleIndex;                 /* PreambleIndex */
 static int hf_f1ap_rA_RNTI;                       /* RA_RNTI */
 static int hf_f1ap_tagIDPointer;                  /* TagIDPointer */
-static int hf_f1ap_cSIResourceConfigToAddModList;  /* OCTET_STRING */
-static int hf_f1ap_cSIResourceConfigToReleaseList;  /* OCTET_STRING */
+static int hf_f1ap_cSIResourceConfigToAddModList;  /* T_cSIResourceConfigToAddModList */
+static int hf_f1ap_cSIResourceConfigToReleaseList;  /* T_cSIResourceConfigToReleaseList */
 static int hf_f1ap_perUE;                         /* DeactivationIndicationList */
 static int hf_f1ap_deactivateAll;                 /* NULL */
 static int hf_f1ap_DeactivationIndicationList_item;  /* DeactivationIndicationList_Item */
@@ -2702,14 +2702,14 @@ static int hf_f1ap_mbsMulticastNeighbourCellListInformationprovided;  /* UpdateM
 static int hf_f1ap_nombsMulticastNeighbourCellListInformationprovided;  /* NULL */
 static int hf_f1ap_thresholdMBS_ListInformationprovided;  /* UpdateThresholdMBS_ListInformation */
 static int hf_f1ap_nothresholdMBSListInformationprovided;  /* NULL */
-static int hf_f1ap_mbs_NeighbourCellList;         /* OCTET_STRING */
+static int hf_f1ap_mbs_NeighbourCellList;         /* T_mbs_NeighbourCellList */
 static int hf_f1ap_mbs_MulticastSessionList;      /* MTCH_NeighbourCellSessionList */
 static int hf_f1ap_MTCH_NeighbourCellSessionList_item;  /* MTCH_NeighbourCellSession_Item */
 static int hf_f1ap_mbsSessionID;                  /* MBS_Session_ID */
 static int hf_f1ap_mtch_NeighbourCellInformation;  /* MTCH_NeighbourCellInformation */
-static int hf_f1ap_mtch_NeighbourCellprovided;    /* OCTET_STRING */
+static int hf_f1ap_mtch_NeighbourCellprovided;    /* T_mtch_NeighbourCellprovided */
 static int hf_f1ap_mtch_NeighbourCellnotprovided;  /* NULL */
-static int hf_f1ap_thresholdMBSList;              /* OCTET_STRING */
+static int hf_f1ap_thresholdMBSList;              /* T_thresholdMBSList */
 static int hf_f1ap_thresholdIndexSessionList;     /* ThresholdIndexSessionList */
 static int hf_f1ap_ThresholdIndexSessionList_item;  /* ThresholdIndexSession_Item */
 static int hf_f1ap_thresholdIndexInformation;     /* ThresholdIndexInformation */
@@ -2721,10 +2721,10 @@ static int hf_f1ap_mbsMulticastConfigurationResponseInfo;  /* MBSMulticastConfig
 static int hf_f1ap_mbsMulticastConfigurationNotification;  /* MBSMulticastConfigurationNotification */
 static int hf_f1ap_mbsMulticastConfiguration_available;  /* MBSMulticastConfiguration_available */
 static int hf_f1ap_mbsMulticastConfiguration_notavailable;  /* MBSMulticastConfiguration_notavailable */
-static int hf_f1ap_mBSMulticastConfiguration;     /* OCTET_STRING */
+static int hf_f1ap_mBSMulticastConfiguration;     /* T_mBSMulticastConfiguration */
 static int hf_f1ap_mBSMulticastConfiguration_notavailable;  /* T_mBSMulticastConfiguration_notavailable */
 static int hf_f1ap_mbsMulticastConfigurationNotificationInfo;  /* MBSMulticastConfigurationNotificationInfo */
-static int hf_f1ap_mbsMulticastConfigurationChanged;  /* OCTET_STRING */
+static int hf_f1ap_mbsMulticastConfigurationChanged;  /* T_mbsMulticastConfigurationChanged */
 static int hf_f1ap_mbsMulticastConfigurationRemoved;  /* NULL */
 static int hf_f1ap_mbs_f1u_info_at_DU;            /* UPTransportLayerInformation */
 static int hf_f1ap_mbsProgressInformation;        /* MRB_ProgressInformation */
@@ -3313,7 +3313,7 @@ static int hf_f1ap_sUL_transmission_Bandwidth;    /* Transmission_Bandwidth */
 static int hf_f1ap_SuccessfulHOReportInformationList_item;  /* SuccessfulHOReportInformation_Item */
 static int hf_f1ap_successfulHOReportContainer;   /* T_successfulHOReportContainer */
 static int hf_f1ap_SuccessfulPSCellChangeReportInformationList_item;  /* SuccessfulPSCellChangeReportInformation_Item */
-static int hf_f1ap_successfulPSCellChangeReportContainer;  /* OCTET_STRING */
+static int hf_f1ap_successfulPSCellChangeReportContainer;  /* T_successfulPSCellChangeReportContainer */
 static int hf_f1ap_SupportedUETypeList_item;      /* SupportedUETypeList_Item */
 static int hf_f1ap_supportedUEtype;               /* T_supportedUEtype */
 static int hf_f1ap_all_DL;                        /* NULL */
@@ -3707,6 +3707,9 @@ static int ett_f1ap_SIB14_message;
 static int ett_f1ap_SIB15_message;
 static int ett_f1ap_SIB17_message;
 static int ett_f1ap_SIB20_message;
+static int ett_f1ap_SIB22_message;
+static int ett_f1ap_SIB23_message;
+static int ett_f1ap_SIB24_message;
 static int ett_f1ap_SL_PHY_MAC_RLC_Config;
 static int ett_f1ap_SL_PHY_MAC_RLC_ConfigExt;
 static int ett_f1ap_SL_RLC_ChannelToAddModList;
@@ -3739,6 +3742,18 @@ static int ett_f1ap_ReferenceConfigurationInformation;
 static int ett_f1ap_LTMCFRAResourceConfig;
 static int ett_f1ap_location_Information;
 static int ett_f1ap_velocity_Information;
+static int ett_f1ap_successfulPSCellChangeReportContainer;
+static int ett_f1ap_cSIResourceConfigToAddModList;
+static int ett_f1ap_cSIResourceConfigToReleaseList;
+static int ett_f1ap_mbs_NeighbourCellList;
+static int ett_f1ap_mtch_NeighbourCellprovided;
+static int ett_f1ap_thresholdMBSList;
+static int ett_f1ap_mBSMulticastConfiguration;
+static int ett_f1ap_MusimCandidateBandList;
+static int ett_f1ap_NeedForInterruptionInfoNR;
+static int ett_f1ap_RACHConfiguration;
+static int ett_f1ap_SRSPosRRCInactiveValidityAreaConfig;
+static int ett_f1ap_TCIStatesConfigurationsList;
 static int ett_f1ap_PrivateIE_ID;
 static int ett_f1ap_ProtocolIE_Container;
 static int ett_f1ap_ProtocolIE_Field;
@@ -14525,17 +14540,43 @@ dissect_f1ap_CUtoDUTAInformation_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static int
-dissect_f1ap_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_f1ap_T_cSIResourceConfigToAddModList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_cSIResourceConfigToAddModList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToAddModList_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_f1ap_T_cSIResourceConfigToReleaseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_cSIResourceConfigToReleaseList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToReleaseList_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
 
 
 static const per_sequence_t CSIResourceConfiguration_sequence[] = {
-  { &hf_f1ap_cSIResourceConfigToAddModList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_OCTET_STRING },
-  { &hf_f1ap_cSIResourceConfigToReleaseList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_OCTET_STRING },
+  { &hf_f1ap_cSIResourceConfigToAddModList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_T_cSIResourceConfigToAddModList },
+  { &hf_f1ap_cSIResourceConfigToReleaseList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_T_cSIResourceConfigToReleaseList },
   { &hf_f1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -16023,8 +16064,15 @@ dissect_f1ap_DLLBTFailureInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_f1ap_RACHConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RACHConfiguration);
+    dissect_nr_rrc_EarlyUL_SyncConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -16168,8 +16216,15 @@ dissect_f1ap_EarlySyncInformation_Request(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_f1ap_TCIStatesConfigurationsList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_TCIStatesConfigurationsList);
+    dissect_nr_rrc_LTM_TCI_Info_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -16202,6 +16257,16 @@ static int
 dissect_f1ap_TAAssistanceInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_f1ap_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, NULL);
 
   return offset;
 }
@@ -18091,6 +18156,18 @@ dissect_f1ap_T_sIBmessage_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
       break;
     case 21:
       dissect_nr_rrc_SIB21_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 22:
+      dissect_nr_rrc_SIB22_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 23:
+      dissect_nr_rrc_SIB23_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 24:
+      dissect_nr_rrc_SIB24_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 25:
+      dissect_nr_rrc_SIB25_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;
@@ -20659,6 +20736,40 @@ dissect_f1ap_MulticastCU2DURRCInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+
+static int
+dissect_f1ap_T_mbs_NeighbourCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mbs_NeighbourCellList);
+    dissect_nr_rrc_MBS_NeighbourCellList_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_f1ap_T_mtch_NeighbourCellprovided(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mtch_NeighbourCellprovided);
+    dissect_nr_rrc_MTCH_NeighbourCell_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
 static const value_string f1ap_MTCH_NeighbourCellInformation_vals[] = {
   {   0, "mtch-NeighbourCellprovided" },
   {   1, "mtch-NeighbourCellnotprovided" },
@@ -20667,7 +20778,7 @@ static const value_string f1ap_MTCH_NeighbourCellInformation_vals[] = {
 };
 
 static const per_choice_t MTCH_NeighbourCellInformation_choice[] = {
-  {   0, &hf_f1ap_mtch_NeighbourCellprovided, ASN1_NO_EXTENSIONS     , dissect_f1ap_OCTET_STRING },
+  {   0, &hf_f1ap_mtch_NeighbourCellprovided, ASN1_NO_EXTENSIONS     , dissect_f1ap_T_mtch_NeighbourCellprovided },
   {   1, &hf_f1ap_mtch_NeighbourCellnotprovided, ASN1_NO_EXTENSIONS     , dissect_f1ap_NULL },
   {   2, &hf_f1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_f1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
@@ -20714,7 +20825,7 @@ dissect_f1ap_MTCH_NeighbourCellSessionList(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 static const per_sequence_t UpdateMBSMulticastNeighbourCellListInformation_sequence[] = {
-  { &hf_f1ap_mbs_NeighbourCellList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_OCTET_STRING },
+  { &hf_f1ap_mbs_NeighbourCellList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_mbs_NeighbourCellList },
   { &hf_f1ap_mbs_MulticastSessionList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_MTCH_NeighbourCellSessionList },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -20748,6 +20859,23 @@ dissect_f1ap_MBSMulticastNeighbourCellListItem(tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_f1ap_MBSMulticastNeighbourCellListItem, MBSMulticastNeighbourCellListItem_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_f1ap_T_thresholdMBSList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_thresholdMBSList);
+    dissect_nr_rrc_ThresholdMBS_List_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -20818,7 +20946,7 @@ dissect_f1ap_ThresholdIndexSessionList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t UpdateThresholdMBS_ListInformation_sequence[] = {
-  { &hf_f1ap_thresholdMBSList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_OCTET_STRING },
+  { &hf_f1ap_thresholdMBSList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_thresholdMBSList },
   { &hf_f1ap_thresholdIndexSessionList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ThresholdIndexSessionList },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -20918,8 +21046,25 @@ dissect_f1ap_MulticastCU2DUCommonRRCInfo(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+
+static int
+dissect_f1ap_T_mBSMulticastConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mBSMulticastConfiguration);
+    dissect_nr_rrc_MBSMulticastConfiguration_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
 static const per_sequence_t MBSMulticastConfiguration_available_sequence[] = {
-  { &hf_f1ap_mBSMulticastConfiguration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_OCTET_STRING },
+  { &hf_f1ap_mBSMulticastConfiguration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_T_mBSMulticastConfiguration },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -20987,6 +21132,23 @@ dissect_f1ap_MBSMulticastConfigurationResponseInfo(tvbuff_t *tvb _U_, int offset
 }
 
 
+
+static int
+dissect_f1ap_T_mbsMulticastConfigurationChanged(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_mBSMulticastConfiguration);
+    dissect_nr_rrc_MBSMulticastConfiguration_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
 static const value_string f1ap_MBSMulticastConfigurationNotificationInfo_vals[] = {
   {   0, "mbsMulticastConfigurationChanged" },
   {   1, "mbsMulticastConfigurationRemoved" },
@@ -20995,7 +21157,7 @@ static const value_string f1ap_MBSMulticastConfigurationNotificationInfo_vals[] 
 };
 
 static const per_choice_t MBSMulticastConfigurationNotificationInfo_choice[] = {
-  {   0, &hf_f1ap_mbsMulticastConfigurationChanged, ASN1_NO_EXTENSIONS     , dissect_f1ap_OCTET_STRING },
+  {   0, &hf_f1ap_mbsMulticastConfigurationChanged, ASN1_NO_EXTENSIONS     , dissect_f1ap_T_mbsMulticastConfigurationChanged },
   {   1, &hf_f1ap_mbsMulticastConfigurationRemoved, ASN1_NO_EXTENSIONS     , dissect_f1ap_NULL },
   {   2, &hf_f1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_f1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
@@ -21684,8 +21846,15 @@ dissect_f1ap_MusimCapabilityRestrictionIndication(tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_f1ap_MusimCandidateBandList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MusimCandidateBandList);
+    dissect_nr_rrc_MUSIM_CandidateBandList_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -22502,8 +22671,15 @@ dissect_f1ap_NeedForGapNCSGInfoEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_f1ap_NeedForInterruptionInfoNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_NeedForInterruptionInfoNR);
+    dissect_nr_rrc_NeedForInterruptionInfoNR_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -28606,8 +28782,15 @@ dissect_f1ap_SIB20_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_SIB24_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB24_message);
+    dissect_nr_rrc_SIB24_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -28616,8 +28799,15 @@ dissect_f1ap_SIB24_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_SIB22_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB22_message);
+    dissect_nr_rrc_SIB22_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -28626,8 +28816,15 @@ dissect_f1ap_SIB22_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_SIB23_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB23_message);
+    dissect_nr_rrc_SIB23_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -29700,8 +29897,15 @@ dissect_f1ap_SRSPortIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_f1ap_SRSPosRRCInactiveValidityAreaConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SRSPosRRCInactiveValidityAreaConfig);
+    dissect_nr_rrc_SRS_PosRRC_InactiveValidityAreaConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -29966,8 +30170,26 @@ dissect_f1ap_SuccessfulHOReportInformationList(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+
+static int
+dissect_f1ap_T_successfulPSCellChangeReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_successfulPSCellChangeReportContainer);
+    dissect_nr_rrc_SuccessPSCell_Report_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
 static const per_sequence_t SuccessfulPSCellChangeReportInformation_Item_sequence[] = {
-  { &hf_f1ap_successfulPSCellChangeReportContainer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_OCTET_STRING },
+  { &hf_f1ap_successfulPSCellChangeReportContainer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_T_successfulPSCellChangeReportContainer },
   { &hf_f1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -49500,11 +49722,11 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_cSIResourceConfigToAddModList,
       { "cSIResourceConfigToAddModList", "f1ap.cSIResourceConfigToAddModList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_cSIResourceConfigToReleaseList,
       { "cSIResourceConfigToReleaseList", "f1ap.cSIResourceConfigToReleaseList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_perUE,
       { "perUE", "f1ap.perUE",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -50968,7 +51190,7 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_mbs_NeighbourCellList,
       { "mbs-NeighbourCellList", "f1ap.mbs_NeighbourCellList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_mbs_MulticastSessionList,
       { "mbs-MulticastSessionList", "f1ap.mbs_MulticastSessionList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -50988,7 +51210,7 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_mtch_NeighbourCellprovided,
       { "mtch-NeighbourCellprovided", "f1ap.mtch_NeighbourCellprovided",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_mtch_NeighbourCellnotprovided,
       { "mtch-NeighbourCellnotprovided", "f1ap.mtch_NeighbourCellnotprovided_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -50996,7 +51218,7 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_thresholdMBSList,
       { "thresholdMBSList", "f1ap.thresholdMBSList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_thresholdIndexSessionList,
       { "thresholdIndexSessionList", "f1ap.thresholdIndexSessionList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -51044,7 +51266,7 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_mBSMulticastConfiguration,
       { "mBSMulticastConfiguration", "f1ap.mBSMulticastConfiguration",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_mBSMulticastConfiguration_notavailable,
       { "mBSMulticastConfiguration-notavailable", "f1ap.mBSMulticastConfiguration_notavailable",
         FT_UINT32, BASE_DEC, VALS(f1ap_T_mBSMulticastConfiguration_notavailable_vals), 0,
@@ -51056,7 +51278,7 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_mbsMulticastConfigurationChanged,
       { "mbsMulticastConfigurationChanged", "f1ap.mbsMulticastConfigurationChanged",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_mbsMulticastConfigurationRemoved,
       { "mbsMulticastConfigurationRemoved", "f1ap.mbsMulticastConfigurationRemoved_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -53412,7 +53634,7 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_successfulPSCellChangeReportContainer,
       { "successfulPSCellChangeReportContainer", "f1ap.successfulPSCellChangeReportContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_SupportedUETypeList_item,
       { "SupportedUETypeList-Item", "f1ap.SupportedUETypeList_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -54819,6 +55041,9 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SIB15_message,
     &ett_f1ap_SIB17_message,
     &ett_f1ap_SIB20_message,
+    &ett_f1ap_SIB22_message,
+    &ett_f1ap_SIB23_message,
+    &ett_f1ap_SIB24_message,
     &ett_f1ap_SL_PHY_MAC_RLC_Config,
     &ett_f1ap_SL_PHY_MAC_RLC_ConfigExt,
     &ett_f1ap_SL_RLC_ChannelToAddModList,
@@ -54851,6 +55076,18 @@ void proto_register_f1ap(void) {
     &ett_f1ap_LTMCFRAResourceConfig,
     &ett_f1ap_location_Information,
     &ett_f1ap_velocity_Information,
+    &ett_f1ap_successfulPSCellChangeReportContainer,
+    &ett_f1ap_cSIResourceConfigToAddModList,
+    &ett_f1ap_cSIResourceConfigToReleaseList,
+    &ett_f1ap_mbs_NeighbourCellList,
+    &ett_f1ap_mtch_NeighbourCellprovided,
+    &ett_f1ap_thresholdMBSList,
+    &ett_f1ap_mBSMulticastConfiguration,
+    &ett_f1ap_MusimCandidateBandList,
+    &ett_f1ap_NeedForInterruptionInfoNR,
+    &ett_f1ap_RACHConfiguration,
+    &ett_f1ap_SRSPosRRCInactiveValidityAreaConfig,
+    &ett_f1ap_TCIStatesConfigurationsList,
     &ett_f1ap_PrivateIE_ID,
     &ett_f1ap_ProtocolIE_Container,
     &ett_f1ap_ProtocolIE_Field,

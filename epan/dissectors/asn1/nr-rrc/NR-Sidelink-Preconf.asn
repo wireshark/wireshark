@@ -1,12 +1,16 @@
--- 3GPP TS 38.331 V17.8.0 (2024-03)
+-- 3GPP TS 38.331 V18.2.0 (2024-06)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+    SL-RelayUE-ConfigU2U-r18,
+    SL-RemoteUE-ConfigU2U-r18,
     SL-RemoteUE-Config-r17,
     SL-DRX-ConfigGC-BC-r17,
+    SL-Freq-Id-r16,
+    maxNrofFreqSL-1-r18,
     SL-FreqConfigCommon-r16,
     SL-RadioBearerConfig-r16,
     SL-RLC-BearerConfig-r16,
@@ -46,9 +50,17 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     sl-MaxCID-r16                               INTEGER (1..16383)                                                    DEFAULT 15,
     ...,
     [[
-    sl-DRX-PreConfigGC-BC-r17                   SL-DRX-ConfigGC-BC-r17                                               OPTIONAL,
+    sl-DRX-PreConfigGC-BC-r17                   SL-DRX-ConfigGC-BC-r17                                                OPTIONAL,
     sl-TxProfileList-r17                        SL-TxProfileList-r17                                                  OPTIONAL,
     sl-PreconfigDiscConfig-r17                  SL-RemoteUE-Config-r17                                                OPTIONAL
+    ]],
+    [[
+    sl-PreconfigFreqInfoListSizeExt-v1800       SEQUENCE (SIZE (1..maxNrofFreqSL-1-r18)) OF SL-FreqConfigCommon-r16   OPTIONAL,
+    sl-RLC-BearerConfigListSizeExt-v1800        SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-BearerConfig-r16        OPTIONAL,
+    sl-SyncFreqList-r18                         SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-Freq-Id-r16              OPTIONAL,
+    sl-SyncTxMultiFreq-r18                      ENUMERATED {true}                                                     OPTIONAL,
+    sl-PreconfigDiscConfig-v1800                SL-PreconfigDiscConfig-v1800                                          OPTIONAL,
+    sl-PosPreconfigFreqInfoList-r18             SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommon-r16     OPTIONAL
     ]]
 }
 
@@ -72,6 +84,11 @@ SL-RoHC-Profiles-r16 ::=              SEQUENCE {
     profile0x0102-r16                     BOOLEAN,
     profile0x0103-r16                     BOOLEAN,
     profile0x0104-r16                     BOOLEAN
+}
+
+SL-PreconfigDiscConfig-v1800 ::=      SEQUENCE {
+    sl-RelayUE-PreconfigU2U-r18           SL-RelayUE-ConfigU2U-r18,
+    sl-RemoteUE-PreconfigU2U-r18          SL-RemoteUE-ConfigU2U-r18
 }
 
 -- TAG-SL-PRECONFIGURATIONNR-STOP

@@ -186,6 +186,7 @@ static int ett_ngap_UERadioCapabilityForPagingOfNB_IoT;
 static int ett_ngap_GlobalCable_ID;
 static int ett_ngap_UpdateFeedback;
 static int ett_ngap_successfulHOReportContainer;
+static int ett_ngap_successfulPSCellChangeReportContainer;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15;
@@ -1473,6 +1474,7 @@ void proto_register_ngap(void) {
     &ett_ngap_GlobalCable_ID,
     &ett_ngap_UpdateFeedback,
     &ett_ngap_successfulHOReportContainer,
+    &ett_ngap_successfulPSCellChangeReportContainer,
 #include "packet-ngap-ettarr.c"
   };
 

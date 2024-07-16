@@ -1034,6 +1034,14 @@ TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
     dissect_lte_rrc_CellIdListNR_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SuccessfulPSCellChangeReportContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_SuccessfulPSCellChangeReportContainer);
+    dissect_nr_rrc_SuccessPSCell_Report_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest

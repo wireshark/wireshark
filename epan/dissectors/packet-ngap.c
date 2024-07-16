@@ -2239,7 +2239,7 @@ static int hf_ngap_SNPNListforMDT_item;           /* SNPNListforMDTItem */
 static int hf_ngap_SuccessfulHandoverReportList_item;  /* SuccessfulHandoverReport_Item */
 static int hf_ngap_successfulHOReportContainer;   /* T_successfulHOReportContainer */
 static int hf_ngap_SuccessfulPSCellChangeReportList_item;  /* SuccessfulPSCellChangeReport_Item */
-static int hf_ngap_successfulPSCellChangeReportContainer;  /* OCTET_STRING */
+static int hf_ngap_successfulPSCellChangeReportContainer;  /* T_successfulPSCellChangeReportContainer */
 static int hf_ngap_rRCContainer;                  /* RRCContainer */
 static int hf_ngap_pDUSessionResourceInformationList;  /* PDUSessionResourceInformationList */
 static int hf_ngap_e_RABInformationList;          /* E_RABInformationList */
@@ -2450,6 +2450,7 @@ static int ett_ngap_UERadioCapabilityForPagingOfNB_IoT;
 static int ett_ngap_GlobalCable_ID;
 static int ett_ngap_UpdateFeedback;
 static int ett_ngap_successfulHOReportContainer;
+static int ett_ngap_successfulPSCellChangeReportContainer;
 static int ett_ngap_PrivateIE_ID;
 static int ett_ngap_ProtocolIE_Container;
 static int ett_ngap_ProtocolIE_Field;
@@ -21883,16 +21884,23 @@ dissect_ngap_SuccessfulHandoverReportList(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static int
-dissect_ngap_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ngap_T_successfulPSCellChangeReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_successfulPSCellChangeReportContainer);
+    dissect_nr_rrc_SuccessPSCell_Report_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
 
 
 static const per_sequence_t SuccessfulPSCellChangeReport_Item_sequence[] = {
-  { &hf_ngap_successfulPSCellChangeReportContainer, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_OCTET_STRING },
+  { &hf_ngap_successfulPSCellChangeReportContainer, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_T_successfulPSCellChangeReportContainer },
   { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -37895,7 +37903,7 @@ void proto_register_ngap(void) {
     { &hf_ngap_successfulPSCellChangeReportContainer,
       { "successfulPSCellChangeReportContainer", "ngap.successfulPSCellChangeReportContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_ngap_rRCContainer,
       { "rRCContainer", "ngap.rRCContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -38603,6 +38611,7 @@ void proto_register_ngap(void) {
     &ett_ngap_GlobalCable_ID,
     &ett_ngap_UpdateFeedback,
     &ett_ngap_successfulHOReportContainer,
+    &ett_ngap_successfulPSCellChangeReportContainer,
     &ett_ngap_PrivateIE_ID,
     &ett_ngap_ProtocolIE_Container,
     &ett_ngap_ProtocolIE_Field,

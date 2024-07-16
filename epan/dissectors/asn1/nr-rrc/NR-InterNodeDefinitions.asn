@@ -1,12 +1,16 @@
--- 3GPP TS 38.331 V17.8.0 (2024-03)
+-- 3GPP TS 38.331 V18.2.0 (2024-06)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+    AffectedCarrierFreqCombList-r16,
+    AffectedCarrierFreqRangeCombList-r18,
     ARFCN-ValueNR,
     ARFCN-ValueEUTRA,
+    CandidateServingFreqListNR-r16,
+    CandidateServingFreqRangeListNR-r18,
     CellIdentity,
     CGI-InfoEUTRA,
     CGI-InfoNR,
@@ -17,11 +21,14 @@ IMPORTS
     EUTRA-PhysCellId,
     FeatureSetDownlinkPerCC-Id,
     FeatureSetUplinkPerCC-Id,
+    FlightPathInfoReport-r18,
     FreqBandIndicatorNR,
     GapConfig,
+    IDC-TDM-Assistance-r18,
     maxBandComb,
     maxBands,
     maxBandsEUTRA,
+    maxCandidateBandIndex-r18,
     maxCellSFTD,
     maxFeatureSetsPerBand,
     maxFreq,
@@ -35,6 +42,7 @@ IMPORTS
     maxNrofServingCells-1,
     maxNrofServingCellsEUTRA,
     maxNrofIndexesToReport,
+    maxNrofLTM-Configs-r18,
     maxSimultaneousBands,
     MBSInterestIndication-r17,
     MeasQuantityResults,
@@ -43,15 +51,21 @@ IMPORTS
     MeasResultList2NR,
     MeasResultSCG-Failure,
     MeasResultServFreqListEUTRA-SCG,
+    MUSIM-CandidateBandList-r18,
+    MUSIM-CapRestriction-r18,
+    MUSIM-GapConfig-r17,
     NeedForGapsInfoNR-r16,
     NeedForGapNCSG-InfoNR-r17,
     NeedForGapNCSG-InfoEUTRA-r17,
+    NeedForInterruptionInfoNR-r18,
     OverheatingAssistance,
     OverheatingAssistance-r17,
     P-Max,
     PhysCellId,
     RadioBearerConfig,
     RAN-NotificationAreaInfo,
+    ReferenceConfiguration-r18,
+    ReportConfigNR,
     RRCReconfiguration,
     ServCellIndex,
     SetupRelease,
@@ -68,7 +82,10 @@ IMPORTS
     RSSI-ResourceId-r16,
     SDT-Config-r17,
     SidelinkUEInformationNR-r16,
+    SRS-PosRRC-InactiveValidityAreaPreConfigList-r18,
     SRS-ResourceId,
+    SuccessPSCell-Config-r18,
+    SupportedAggBandwidth-r17,
     UE-RadioPagingInfo-r17
 FROM NR-RRC-Definitions;
 
@@ -104,19 +121,29 @@ CG-CandidateInfoId-r17::=           SEQUENCE {
 -- TAG-CG-CANDIDATELIST-STOP
 -- TAG-HANDOVER-COMMAND-START
 
-HandoverCommand ::=                 SEQUENCE {
-    criticalExtensions                  CHOICE {
-        c1                                  CHOICE{
-            handoverCommand                     HandoverCommand-IEs,
+HandoverCommand ::=                      SEQUENCE {
+    criticalExtensions                       CHOICE {
+        c1                                       CHOICE{
+            handoverCommand                          HandoverCommand-IEs,
             spare3 NULL, spare2 NULL, spare1 NULL
         },
-        criticalExtensionsFuture            SEQUENCE {}
+        criticalExtensionsFuture                 SEQUENCE {}
     }
 }
 
-HandoverCommand-IEs ::=             SEQUENCE {
-    handoverCommandMessage              OCTET STRING (CONTAINING RRCReconfiguration),
-    nonCriticalExtension                SEQUENCE {}                                        OPTIONAL
+HandoverCommand-IEs ::=                  SEQUENCE {
+    handoverCommandMessage                   OCTET STRING (CONTAINING RRCReconfiguration),
+    nonCriticalExtension                     HandoverCommand-v1800-IEs                             OPTIONAL
+}
+
+HandoverCommand-v1800-IEs ::=            SEQUENCE {
+    candPSCellExecutionConditionInfo-r18     CandPSCellExecutionConditionInfo-r18                  OPTIONAL,
+    nonCriticalExtension                     SEQUENCE {}                                           OPTIONAL
+}
+
+CandPSCellExecutionConditionInfo-r18 ::= SEQUENCE {
+    candPSCellExecCondReportConfigNR-r18     SEQUENCE (SIZE (1..2)) OF ReportConfigNR,
+    ...
 }
 
 -- TAG-HANDOVER-COMMAND-STOP
@@ -153,6 +180,9 @@ AS-Config ::=                           SEQUENCE {
     ]],
     [[
     sdt-Config-r17                          SDT-Config-r17                                  OPTIONAL
+    ]],
+    [[
+    srs-PosRRC-InactiveValidityAreaPreConfigList-r18  SRS-PosRRC-InactiveValidityAreaPreConfigList-r18   OPTIONAL
     ]]
 }
 
@@ -182,6 +212,10 @@ AS-Context ::=                          SEQUENCE {
     needForGapNCSG-InfoNR-r17               NeedForGapNCSG-InfoNR-r17                           OPTIONAL,
     needForGapNCSG-InfoEUTRA-r17            NeedForGapNCSG-InfoEUTRA-r17                        OPTIONAL,
     mbsInterestIndication-r17               OCTET STRING (CONTAINING MBSInterestIndication-r17) OPTIONAL
+    ]],
+    [[
+    needForInterruptionInfoNR-r18           NeedForInterruptionInfoNR-r18                       OPTIONAL,
+    flightPathInfoReport-r18                FlightPathInfoReport-r18                            OPTIONAL
     ]]
 }
 
@@ -320,9 +354,19 @@ CG-Config-v1700-IEs ::=             SEQUENCE {
 CG-Config-v1730-IEs ::=             SEQUENCE {
     fr1-Carriers-SCG-r17                INTEGER (1..32)                                 OPTIONAL,
     fr2-Carriers-SCG-r17                INTEGER (1..32)                                 OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                     OPTIONAL
+    nonCriticalExtension                CG-Config-v1800-IEs                             OPTIONAL
 }
 
+CG-Config-v1800-IEs ::=             SEQUENCE {
+    candidateServingFreqRangeListNR-r18    CandidateServingFreqRangeListNR-r18             OPTIONAL,
+    candidateServingFreqListNR-r16         CandidateServingFreqListNR-r16                  OPTIONAL,
+    idc-TDM-AssistanceConfig-r18           ENUMERATED {enabled}                            OPTIONAL,
+    candidateCellInfoListSubsequentCPC-r18 CandidateCellInfoListCPC-r17                    OPTIONAL,
+    scpac-ReferenceConfigurationSCG-r18    ReferenceConfiguration-r18                      OPTIONAL,
+    subsequentCPAC-Information-r18         CandidateCellInfoListCPC-r17                    OPTIONAL,
+    successPSCell-Config-r18               SuccessPSCell-Config-r18                        OPTIONAL,
+    nonCriticalExtension                   SEQUENCE {}                                     OPTIONAL
+}
 ServCellInfoListSCG-NR-r16 ::=      SEQUENCE (SIZE (1.. maxNrofServingCells)) OF  ServCellInfoXCG-NR-r16
 
 ServCellInfoXCG-NR-r16 ::=          SEQUENCE {
@@ -358,6 +402,9 @@ PH-InfoSCG ::=                      SEQUENCE {
     ...,
     [[
     twoSRS-PUSCH-Repetition-r17         ENUMERATED{enabled}                             OPTIONAL
+    ]],
+    [[
+    twoSRS-MultipanelScheme-r18         ENUMERATED{enabled}                             OPTIONAL
     ]]
 }
 
@@ -392,6 +439,12 @@ ConfigRestrictModReqSCG ::=         SEQUENCE {
     ]],
     [[
     reservedResourceConfigNRDC-r17      ResourceConfigNRDC-r17                              OPTIONAL
+    ]],
+    [[
+    aggregatedBandwidthSN-r17           AggregatedBandwidthSN-r17                           OPTIONAL
+    ]],
+    [[
+    requestedMaxLTM-CandidateIdSCG-r18  INTEGER(0..maxNrofLTM-Configs-r18)                  OPTIONAL
     ]]
 }
 
@@ -425,6 +478,15 @@ CandidateCellInfo-r17 ::=        SEQUENCE {
 CandidateCell-r17 ::=            SEQUENCE {
     physCellId-r17                   PhysCellId,
     condExecutionCondSCG-r17         OCTET STRING (CONTAINING CondReconfigExecCondSCG-r17)               OPTIONAL
+}
+
+AggregatedBandwidthSN-r17 ::= SEQUENCE {
+    aggBW-FDD-DL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    aggBW-FDD-UL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    aggBW-TDD-DL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    aggBW-TDD-UL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    aggBW-TotalDL-r17             SupportedAggBandwidth-r17                 OPTIONAL,
+    aggBW-TotalUL-r17             SupportedAggBandwidth-r17                 OPTIONAL
 }
 
 -- TAG-CG-CONFIG-STOP
@@ -544,6 +606,17 @@ CG-ConfigInfo-v1700-IEs ::=             SEQUENCE {
 CG-ConfigInfo-v1730-IEs ::=             SEQUENCE {
     fr1-Carriers-MCG-r17                    INTEGER (1..32)                              OPTIONAL,
     fr2-Carriers-MCG-r17                    INTEGER (1..32)                              OPTIONAL,
+    nonCriticalExtension                    CG-ConfigInfo-v1800-IEs                      OPTIONAL
+}
+
+CG-ConfigInfo-v1800-IEs ::=             SEQUENCE {
+    musim-GapConfigInfo-r18                 MUSIM-GapConfig-r17                          OPTIONAL,
+    musim-CapRestrictionInfo-r18            SEQUENCE {
+        musim-CapRestriction-r18                MUSIM-CapRestriction-r18                 OPTIONAL,
+        musim-CandidateBandList-r18             MUSIM-CandidateBandList-r18              OPTIONAL
+    }                                                                                    OPTIONAL,
+    scpac-ReferenceConfiguration-r18        ReferenceConfiguration-r18                   OPTIONAL,
+    subsequentCPAC-Candidates-r18           CandidateCellListCPC-r17                     OPTIONAL,
     nonCriticalExtension                    SEQUENCE {}                                  OPTIONAL
 }
 
@@ -600,6 +673,12 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
     ]],
     [[
     allowedResourceConfigNRDC-r17    ResourceConfigNRDC-r17                                           OPTIONAL
+    ]],
+    [[
+    allowedAggregatedBandwidthSNList-r17  AllowedAggregatedBandwidthSNList-r17                        OPTIONAL
+    ]],
+    [[
+    maxNumberLTM-CandidatesSCG-r18   INTEGER(0..maxNrofLTM-Configs-r18)                               OPTIONAL
     ]]
 }
 
@@ -616,6 +695,9 @@ PH-InfoMCG ::=                  SEQUENCE {
     ...,
     [[
     twoSRS-PUSCH-Repetition-r17         ENUMERATED{enabled}                                           OPTIONAL
+    ]],
+    [[
+    twoSRS-MultipanelScheme-r18         ENUMERATED{enabled}                                           OPTIONAL
     ]]
 }
 
@@ -696,6 +778,11 @@ MRDC-AssistanceInfo ::= SEQUENCE {
     ]],
     [[
     overheatingAssistanceSCG-FR2-2-r17      OCTET STRING (CONTAINING OverheatingAssistance-r17)   OPTIONAL
+    ]],
+    [[
+    affectedCarrierFreqRangeCombList-r18    AffectedCarrierFreqRangeCombList-r18                  OPTIONAL,
+    affectedCarrierFreqCombList-r18         AffectedCarrierFreqCombList-r16                       OPTIONAL,
+    idc-TDM-Assistance-r18                  IDC-TDM-Assistance-r18                                OPTIONAL
     ]]
 }
 
@@ -726,6 +813,18 @@ CandidateCellListCPC-r17 ::= SEQUENCE (SIZE (1..maxFreq)) OF CandidateCellCPC-r1
 CandidateCellCPC-r17 ::=           SEQUENCE {
     ssbFrequency-r17                   ARFCN-ValueNR,
     candidateCellList-r17              SEQUENCE (SIZE (1..maxNrofCondCells-r16)) OF PhysCellId
+}
+
+AllowedAggregatedBandwidthSNList-r17 ::=     SEQUENCE (SIZE (1..maxBandComb)) OF AllowedAggregatedBandwidth-r17
+
+AllowedAggregatedBandwidth-r17 ::=   SEQUENCE {
+    bandCombinationIndex-r17             BandCombinationIndex,
+    allowedAggBW-FDD-DL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    allowedAggBW-FDD-UL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    allowedAggBW-TDD-DL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    allowedAggBW-TDD-UL-r17              SupportedAggBandwidth-r17                 OPTIONAL,
+    allowedAggBW-TotalDL-r17             SupportedAggBandwidth-r17                 OPTIONAL,
+    allowedAggBW-TotalUL-r17             SupportedAggBandwidth-r17                 OPTIONAL
 }
 
 -- TAG-CG-CONFIG-INFO-STOP
@@ -812,6 +911,12 @@ UERadioPagingInformation-v1700-IEs ::= SEQUENCE {
     inactiveStatePO-Determination-r17      ENUMERATED {supported}                               OPTIONAL,
     numberOfRxRedCap-r17                   ENUMERATED {one, two}                                OPTIONAL,
     halfDuplexFDD-TypeA-RedCap-r17         SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR OPTIONAL,
+    nonCriticalExtension                   UERadioPagingInformation-v1800-IEs                   OPTIONAL
+}
+
+UERadioPagingInformation-v1800-IEs ::= SEQUENCE {
+    numberOfRxERedCap-r18                  ENUMERATED {one, two}                                OPTIONAL,
+    supportOf2RxXR-r18                     ENUMERATED {supported}                               OPTIONAL,
     nonCriticalExtension                   SEQUENCE {}                                          OPTIONAL
 }
 

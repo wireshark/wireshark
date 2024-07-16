@@ -1,10 +1,11 @@
--- 3GPP TS 38.331 V17.8.0 (2024-03)
+-- 3GPP TS 38.331 V18.2.0 (2024-06)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+    ARFCN-ValueNR,
     CellAccessRelatedInfo,
     SetupRelease,
     RRC-TransactionIdentifier,
@@ -22,21 +23,34 @@ IMPORTS
     SL-MeasId-r16,
     FreqBandList,
     FreqBandIndicatorNR,
+    GNSS-ID-r16,
     maxNrofRelayMeas-r17,
     maxSimultaneousBands,
     maxBandComb,
     maxBands,
+    maxSIB,
     maxSIB-MessagePlus1-r17,
     maxSL-LCID-r16,
+    maxNrofFreqSL-1-r18,
     BandParametersSidelink-r16,
+    PagingRecord-v1700,
     RLC-ParametersSidelink-r16,
+    SBAS-ID-r16,
     SIB1,
     SL-DRX-ConfigUC-r17,
     SL-DRX-ConfigUC-SemiStatic-r17,
     SL-PagingIdentityRemoteUE-r17,
     SL-RLC-ChannelID-r17,
     SL-SourceIdentity-r17,
-    SystemInformation
+    SystemInformation,
+    maxNrofSL-Dest-r16,
+    SL-DestinationIdentity-r16,
+    SL-RelayIndicationMP-r18,
+    SL-RSRP-Range-r16,
+    SL-QoS-FlowIdentity-r16,
+    SL-QoS-Info-r16,
+    maxNrofPhysicalResourceBlocks,
+    SubcarrierSpacing
 FROM NR-RRC-Definitions;
 
 -- TAG-PC5-RRC-DEFINITIONS-STOP
@@ -76,7 +90,8 @@ SCCH-MessageType ::=         CHOICE {
         c2                              CHOICE {
             notificationMessageSidelink-r17 NotificationMessageSidelink-r17,
             ueAssistanceInformationSidelink-r17 UEAssistanceInformationSidelink-r17,
-            spare6 NULL, spare5 NULL, spare4 NULL, spare3 NULL, spare2 NULL, spare1 NULL
+            ueInformationRequestSidelink-r18    UEInformationRequestSidelink-r18,
+            ueInformationResponseSidelink-r18   UEInformationResponseSidelink-r18, spare4 NULL, spare3 NULL, spare2 NULL, spare1 NULL
         },
         messageClassExtensionFuture-r17    SEQUENCE {}
     }
@@ -117,12 +132,18 @@ SL-MeasResults-r16 ::=                          SEQUENCE {
 
 SL-MeasResult-r16 ::=                           SEQUENCE {
     sl-ResultDMRS-r16                               SL-MeasQuantityResult-r16                                               OPTIONAL,
-    ...
+    ...,
+    [[
+    sl-Result-SL-PRS-r18                            SL-MeasQuantityResult-r16                                               OPTIONAL
+    ]]
 }
 
 SL-MeasQuantityResult-r16 ::=                   SEQUENCE {
     sl-RSRP-r16                                     RSRP-Range                                                              OPTIONAL,
-    ...
+    ...,
+    [[
+    sl-RSRP-DedicatedSL-PRS-RP-r18                  SL-RSRP-Range-r16                                                       OPTIONAL
+    ]]
 }
 
 SL-MeasResultListRelay-r17 ::=                  SEQUENCE (SIZE (1..maxNrofRelayMeas-r17)) OF SL-MeasResultRelay-r17
@@ -131,7 +152,11 @@ SL-MeasResultRelay-r17 ::=                      SEQUENCE {
     cellIdentity-r17                                CellAccessRelatedInfo,
     sl-RelayUE-Identity-r17                         SL-SourceIdentity-r17,
     sl-MeasResult-r17                               SL-MeasResult-r16,
-    ...
+    ...,
+    [[
+    sl-MeasQuantity-r18                             ENUMERATED { sl-rsrp, sd-rsrp }                                         OPTIONAL,
+    sl-RelayIndicationMP-r18                        SL-RelayIndicationMP-r18                                                OPTIONAL
+    ]]
 }
 
 -- TAG-MEASUREMENTREPORTSIDELINK-STOP
@@ -150,9 +175,14 @@ NotificationMessageSidelink-r17-IEs ::=   SEQUENCE {
                                                   relayUE-Uu-RRC-Failure
                                               }                                     OPTIONAL,  -- Need N
     lateNonCriticalExtension                  OCTET STRING                          OPTIONAL,
-    nonCriticalExtension                      SEQUENCE {}                           OPTIONAL
+    nonCriticalExtension                      NotificationMessageSidelink-v1800-IEs OPTIONAL
 }
 
+NotificationMessageSidelink-v1800-IEs ::= SEQUENCE {
+    sl-IndicationType-r18                     ENUMERATED {relayUE-PC5-RLF, spare1}  OPTIONAL,  -- Need N
+    sl-DestinationIdentityRemoteUE-r18        SL-DestinationIdentity-r16            OPTIONAL,  -- Need N
+    nonCriticalExtension                      SEQUENCE {}                           OPTIONAL
+}
 -- TAG-NOTIFICATIONMESSAGESIDELINK -STOP
 -- TAG-REMOTEUEINFORMATIONSIDELINK-START
 
@@ -167,7 +197,15 @@ RemoteUEInformationSidelink-r17-IEs ::=       SEQUENCE {
     sl-RequestedSIB-List-r17                     CHOICE {release NULL, setup SL-RequestedSIB-List-r17}          OPTIONAL, -- Need M
     sl-PagingInfo-RemoteUE-r17                    CHOICE {release NULL, setup SL-PagingInfo-RemoteUE-r17}         OPTIONAL, -- Need M
     lateNonCriticalExtension                      OCTET STRING                                       OPTIONAL,
-    nonCriticalExtension                          SEQUENCE {}                                        OPTIONAL
+    nonCriticalExtension                          RemoteUEInformationSidelink-v1800-IEs              OPTIONAL
+}
+
+RemoteUEInformationSidelink-v1800-IEs ::=    SEQUENCE {
+    sl-RequestedPosSIB-List-r18                  CHOICE {release NULL, setup SL-RequestedPosSIB-List-r18 }       OPTIONAL,  -- Need M
+    sl-SFN-DFN-OffsetRequested-r18               ENUMERATED { true }                                OPTIONAL,  -- Need R
+    connectionForMP-r18                          ENUMERATED {true}                                  OPTIONAL,  -- Need N
+    sl-DestinationIdentityRemoteUE-r18           SL-DestinationIdentity-r16                         OPTIONAL,  -- Need N
+    nonCriticalExtension                         SEQUENCE {}                                        OPTIONAL
 }
 
 SL-RequestedSIB-List-r17 ::=                 SEQUENCE (SIZE (maxSIB-MessagePlus1-r17)) OF SL-SIB-ReqInfo-r17
@@ -178,8 +216,28 @@ SL-PagingInfo-RemoteUE-r17 ::=                SEQUENCE {
 }
 
 SL-SIB-ReqInfo-r17 ::=                   ENUMERATED { sib1, sib2, sib3, sib4, sib5, sib6, sib7, sib8, sib9, sib10, sib11, sib12, sib13,
-                                                      sib14, sib15, sib16, sib17, sib18, sib19, sib20, sib21, sibNotReq11, sibNotReq10, sibNotReq9,
-                                                      sibNotReq8, sibNotReq7, sibNotReq6, sibNotReq5, sibNotReq4, sibNotReq3, sibNotReq2, sibNotReq1, ... }
+                                                      sib14, sib15, sib16, sib17, sib18, sib19, sib20, sib21, sibNotReq11, sibNotReq10,
+                                                      sibNotReq9, sibNotReq8, sibNotReq7, sibNotReq6, sibNotReq5, sibNotReq4,
+                                                      sibNotReq3, sibNotReq2, sibNotReq1, ..., sib17bis-v1820 }
+
+SL-RequestedPosSIB-List-r18 ::=          SEQUENCE (SIZE (1..maxSIB)) OF SL-PosSIB-ReqInfo-r18
+
+SL-PosSIB-ReqInfo-r18 ::=                SEQUENCE {
+    gnss-id-r18                              GNSS-ID-r16                                            OPTIONAL,   -- Need R
+    sbas-id-r18                              SBAS-ID-r16                                            OPTIONAL,   -- Cond GNSS-ID-SBAS
+    posSibType-r18              ENUMERATED { posSibType1-1, posSibType1-2, posSibType1-3, posSibType1-4, posSibType1-5, posSibType1-6,
+                                             posSibType1-7, posSibType1-8, posSibType1-9, posSibType1-10, posSibType1-11,
+                                             posSibType1-12, posSibType2-1, posSibType2-2, posSibType2-3, posSibType2-4, posSibType2-5,
+                                             posSibType2-6, posSibType2-7, posSibType2-8, posSibType2-9, posSibType2-10, posSibType2-11,
+                                             posSibType2-12, posSibType2-13, posSibType2-14, posSibType2-15, posSibType2-16,
+                                             posSibType2-17, posSibType2-17a, posSibType2-18, posSibType2-18a, posSibType2-19,
+                                             posSibType2-20, posSibType2-20a, posSibType2-21, posSibType2-22, posSibType2-23,
+                                             posSibType2-24, posSibType2-25, posSibType2-26, posSibType2-27, posSibType3-1,
+                                             posSibType4-1, posSibType5-1, posSibType6-1, posSibType6-2, posSibType6-3, posSibType6-4,
+                                             posSibType6-5, posSibType6-6, posSibType6-7, posSibType7-1, posSibType7-2, posSibType7-3,
+                                             posSibType7-4, spare9, spare8, spare7, spare6, spare5, spare4, spare3, spare2, spare1,
+                                             ... }
+}
 
 -- TAG-REMOTEUEINFORMATIONSIDELINK-STOP
 -- TAG-RRCRECONFIGURATIONSIDELINK-START
@@ -208,8 +266,45 @@ RRCReconfigurationSidelink-v1700-IEs ::= SEQUENCE {
     sl-LatencyBoundIUC-Report-r17           CHOICE {release NULL, setup SL-LatencyBoundIUC-Report-r17 }                      OPTIONAL, -- Need M
     sl-RLC-ChannelToReleaseListPC5-r17      SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-ChannelID-r17         OPTIONAL, -- Need N
     sl-RLC-ChannelToAddModListPC5-r17       SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-ChannelConfigPC5-r17  OPTIONAL, -- Need N
-    nonCriticalExtension                    SEQUENCE {}                                                         OPTIONAL
+    nonCriticalExtension                    RRCReconfigurationSidelink-v1800-IEs                                OPTIONAL
 }
+
+RRCReconfigurationSidelink-v1800-IEs ::= SEQUENCE {
+    sl-SFN-DFN-Offset-r18                   CHOICE {release NULL, setup SL-SFN-DFN-Offset-r18 }                                OPTIONAL, -- Need M
+    sl-CarrierToAddModList-r18              SEQUENCE (SIZE (1..maxNrofFreqSL-1-r18)) OF SL-CarrierConfig-r18      OPTIONAL, -- Need N
+    sl-CarrierToReleaseList-r18             SEQUENCE (SIZE (1..maxNrofFreqSL-1-r18)) OF SL-CarrierId-r18          OPTIONAL, -- Need N
+    sl-RLC-BearerToAddModList-r18           SEQUENCE (SIZE(1..maxNrofSLRB-r16)) OF SL-RLC-BearerConfig-r18        OPTIONAL, -- Need N
+    sl-RLC-BearerToReleaseList-r18          SEQUENCE (SIZE(1..maxNrofSLRB-r16)) OF SL-RLC-BearerConfigIndex-r18   OPTIONAL, -- Need N
+    sl-LocalID-PairToAddModList-r18         SEQUENCE (SIZE (1..maxNrofSL-Dest-r16)) OF SL-SRAP-ConfigPC5-r18      OPTIONAL, -- Need N
+    nonCriticalExtension                    SEQUENCE {}                                                           OPTIONAL
+}
+
+SL-CarrierConfig-r18 ::= SEQUENCE {
+    sl-CarrierId-r18                        SL-CarrierId-r18,
+    sl-OffsetToCarrier-r18                  INTEGER (0..2199),
+    subcarrierSpacing-r18                   SubcarrierSpacing,
+    carrierBandwidth-r18                    INTEGER (1..maxNrofPhysicalResourceBlocks),
+    sl-AbsoluteFrequencyPointA-r18          ARFCN-ValueNR
+}
+
+SL-CarrierId-r18 ::=                    INTEGER (1..maxNrofFreqSL-1-r18)
+
+SL-RLC-BearerConfig-r18 ::=         CHOICE {
+    srb                                 SEQUENCE {
+        sl-SRB-IdentityWithDuplication      INTEGER (1..3),
+        sL-RLC-BearerConfigIndex-r18        SL-RLC-BearerConfigIndex-r18,
+        ...
+    },
+    drb                                 SEQUENCE {
+        slrb-PC5-ConfigIndex-r18            SLRB-PC5-ConfigIndex-r16,
+        sL-RLC-BearerConfigIndex-r18        SL-RLC-BearerConfigIndex-r18,
+        sl-RLC-ConfigPC5-r18                SL-RLC-ConfigPC5-r16                                                OPTIONAL, -- Need M
+        sl-MAC-LogicalChannelConfigPC5-r18  SL-LogicalChannelConfigPC5-r16                                      OPTIONAL, -- Need M
+        ...
+    }
+}
+
+SL-RLC-BearerConfigIndex-r18 ::=        INTEGER (1..maxSL-LCID-r16)
 
 SL-LatencyBoundIUC-Report-r17::=            INTEGER (3..160)
 
@@ -254,7 +349,10 @@ SL-RLC-ConfigPC5-r16 ::=                CHOICE {
 
 SL-LogicalChannelConfigPC5-r16 ::=      SEQUENCE {
     sl-LogicalChannelIdentity-r16           LogicalChannelIdentity,
-    ...
+    ...,
+    [[
+    sl-LogicalChannelIdentity-v1800     INTEGER (33..38)                                                        OPTIONAL  -- Need M
+    ]]
 }
 
 SL-PQFI-r16 ::=                         INTEGER (1..64)
@@ -272,6 +370,20 @@ SL-RLC-ChannelConfigPC5-r17::=          SEQUENCE {
     sl-RLC-ChannelID-PC5-r17                SL-RLC-ChannelID-r17,
     sl-RLC-ConfigPC5-r17                    SL-RLC-ConfigPC5-r16                                                OPTIONAL, -- Need M
     sl-MAC-LogicalChannelConfigPC5-r17      SL-LogicalChannelConfigPC5-r16                                      OPTIONAL, -- Need M
+    ...
+}
+
+SL-SFN-DFN-Offset-r18 ::=               SEQUENCE {
+    sl-FrameOffset-r18                      INTEGER (0..1023),
+    sl-SubframeOffset-r18                   INTEGER (0..9),
+    sl-SlotOffset-r18                       INTEGER (0..31)
+}
+
+SL-SRAP-ConfigPC5-r18 ::=               SEQUENCE {
+    sl-PeerRemoteUE-L2Identity-r18          SL-DestinationIdentity-r16                                          OPTIONAL, -- Need M
+    sl-PeerRemoteUE-LocalIdentity-r18       INTEGER (0..255)                                                    OPTIONAL, -- Need M
+    sl-RemoteUE-L2Identity-r18              SL-SourceIdentity-r17                                               OPTIONAL, -- Need M
+    sl-RemoteUE-LocalIdentity-r18           INTEGER (0..255)                                                    OPTIONAL, -- Need M
     ...
 }
 
@@ -378,6 +490,12 @@ UECapabilityInformationSidelink-r16-IEs ::= SEQUENCE {
 UECapabilityInformationSidelink-v1700-IEs ::= SEQUENCE {
     mac-ParametersSidelink-r17                    MAC-ParametersSidelink-r17                                            OPTIONAL,
     supportedBandCombinationListSidelinkNR-v1710  BandCombinationListSidelinkNR-v1710                                   OPTIONAL,
+    nonCriticalExtension                          UECapabilityInformationSidelink-v1800-IEs                             OPTIONAL
+}
+
+UECapabilityInformationSidelink-v1800-IEs ::= SEQUENCE {
+    sfn-DFN-OffsetSupported-r18                   ENUMERATED { supported }                                              OPTIONAL,
+    posSIB-ForwardingSupported-r18                ENUMERATED { supported }                                              OPTIONAL,
     nonCriticalExtension                          SEQUENCE {}                                                           OPTIONAL
 }
 
@@ -386,11 +504,15 @@ MAC-ParametersSidelink-r17 ::= SEQUENCE {
     ...
 }
 
-AccessStratumReleaseSidelink-r16 ::= ENUMERATED { rel16, rel17, spare6, spare5, spare4, spare3, spare2, spare1, ... }
+AccessStratumReleaseSidelink-r16 ::= ENUMERATED { rel16, rel17, rel18, spare5, spare4, spare3, spare2, spare1, ... }
 
 PDCP-ParametersSidelink-r16 ::= SEQUENCE {
     outOfOrderDeliverySidelink-r16              ENUMERATED {supported}      OPTIONAL,
-    ...
+    ...,
+    [[
+    pdcp-DuplicationSRB-sidelink-r18            ENUMERATED {supported}                                                  OPTIONAL,
+    pdcp-DuplicationDRB-sidelink-r18            ENUMERATED {supported}                                                  OPTIONAL
+    ]]
 }
 
 BandCombinationListSidelinkNR-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombinationParametersSidelinkNR-r16
@@ -446,9 +568,9 @@ BandSidelinkPC5-r16 ::=           SEQUENCE {
     ]],
     [[
     --32-5a-2
-    rx-IUC-Scheme1-PreferredMode2Sidelink-r17     ENUMERATED {supported}                           OPTIONAL,
+    rx-IUC-Scheme1-PreferredMode2Sidelink-r17      ENUMERATED {supported}                           OPTIONAL,
     --32-5a-3
-    rx-IUC-Scheme1-NonPreferredMode2Sidelink-r17  ENUMERATED {supported}                           OPTIONAL,
+    rx-IUC-Scheme1-NonPreferredMode2Sidelink-r17   ENUMERATED {supported}                           OPTIONAL,
     --32-5b-2
     rx-IUC-Scheme2-Mode2Sidelink-r17               ENUMERATED {n5, n15, n25, n32, n35, n45, n50, n64} OPTIONAL,
     --32-6-1
@@ -457,10 +579,76 @@ BandSidelinkPC5-r16 ::=           SEQUENCE {
     rx-IUC-Scheme1-SCI-ExplicitReq-r17             ENUMERATED {supported}                           OPTIONAL,
     --32-7
     scheme2-ConflictDeterminationRSRP-r17          ENUMERATED {supported}                           OPTIONAL
+    ]],
+    [[
+    -- R1 41-1-17: Open loop SL pathloss based power control for SL-PRS and associated PSCCH and SL RSRP report for dedicated resource
+    -- pool
+    sl-PathlossBasedOLPC-SL-RSRP-Report-r18        ENUMERATED {supported}                           OPTIONAL,
+    -- R1 47-k4: Transmitting UE to UE COT sharing information
+    sl-UE-COT-Sharing-r18                          ENUMERATED {supported}                           OPTIONAL,
+    -- R1 47-m11: PSFCH transmissions in multiple contiguous RB sets
+    sl-PSFCH-MultiContiguousRB-r18                 ENUMERATED {supported}                           OPTIONAL,
+    -- R1 47-m11a: PSFCH transmissions in multiple non-contiguous RB sets
+    sl-PSFCH-MultiNonContiguousRB-r18              ENUMERATED {supported}                           OPTIONAL,
+    -- R1 47-v1: NR SL communication with SL CA
+    sl-CA-Communication-r18                        SEQUENCE {
+        numberOfCarriers-r18                           INTEGER (2..8),
+        numberOfPSCCH-DecodeValueZ-r18                 INTEGER (1..2),
+        totalBandwidth-r18                             ENUMERATED {mhz20,mhz30,mhz40,mhz50,mhz60,mhz70}
+    }                                                                                               OPTIONAL,
+    -- R4 45-2: SL reception in intra-carrier guard band
+    sl-ReceptionIntraCarrierGuardBand-r18         ENUMERATED {supported}                            OPTIONAL,
+    -- R4 45-3: Power class for sidelink unlicensed
+    sl-PowerClassUnlicensed-r18                    ENUMERATED {pc5, spare7, spare6, spare5, spare4, spare3, spare2, spare1}    OPTIONAL
     ]]
 }
 
 -- TAG-UECAPABILITYINFORMATIONSIDELINK-STOP
+-- TAG-UEINFORMATIONREQUESTSIDELINK-START
+
+UEInformationRequestSidelink-r18 ::=      SEQUENCE {
+    rrc-TransactionIdentifier-r18             RRC-TransactionIdentifier,
+    criticalExtensions                        CHOICE {
+        ueInformationRequestSidelink-r18          UEInformationRequestSidelink-r18-IEs,
+        criticalExtensionsFuture                  SEQUENCE {}
+    }
+}
+
+UEInformationRequestSidelink-r18-IEs ::= SEQUENCE {
+    sl-E2E-QoS-InfoListPC5-r18               SEQUENCE (SIZE (1..maxNrofSLRB-r16)) OF SL-E2E-QoS-InfoPC5-r18 OPTIONAL, -- Need N
+    lateNonCriticalExtension                 OCTET STRING                                                             OPTIONAL,
+    nonCriticalExtension                     SEQUENCE {}                                                              OPTIONAL
+}
+
+SL-E2E-QoS-InfoPC5-r18 ::=               SEQUENCE {
+        sl-DestinationIdentityRemoteUE-r18   SL-DestinationIdentity-r16,
+        sl-E2E-SLRB-Index-r18                SLRB-PC5-ConfigIndex-r16,
+        sl-QoS-InfoList-r18                  SEQUENCE (SIZE (1..maxNrofSL-QFIsPerDest-r16)) OF SL-QoS-Info-r16
+}
+
+-- TAG-UEINFORMATIONREQUESTSIDELINK-STOP
+-- TAG-UEINFORMATIONRESPONSESIDELINK-START
+
+UEInformationResponseSidelink-r18 ::=       SEQUENCE {
+    rrc-TransactionIdentifier-r18               RRC-TransactionIdentifier,
+    criticalExtensions                          CHOICE {
+        ueInformationResponseSidelink-r18           UEInformationResponseSidelink-r18-IEs,
+        criticalExtensionsFuture                    SEQUENCE {}
+    }
+}
+
+UEInformationResponseSidelink-r18-IEs ::=  SEQUENCE {
+    sl-SplitQoS-InfoListPC5-r18                SEQUENCE (SIZE (1.. maxNrofSL-QFIs-r16)) OF SL-SplitQoS-InfoPC5-r18 OPTIONAL, -- Need N
+    lateNonCriticalExtension                   OCTET STRING                                                OPTIONAL,
+    nonCriticalExtension                       SEQUENCE {}                                                 OPTIONAL
+}
+
+SL-SplitQoS-InfoPC5-r18 ::=                SEQUENCE {
+    sl-QoS-FlowIdentity-r18                 SL-QoS-FlowIdentity-r16,
+    sl-SplitPacketDelayBudget-r18           INTEGER (0..1023)
+}
+
+-- TAG-UEINFORMATIONRESPONSESIDELINK-STOP
 -- TAG-UUMESSAGETRANSFERSIDELINK-START
 
 UuMessageTransferSidelink-r17 ::=           SEQUENCE {
@@ -475,6 +663,11 @@ UuMessageTransferSidelink-r17-IEs ::=       SEQUENCE {
     sl-SIB1-Delivery-r17                        OCTET STRING (CONTAINING SIB1)                           OPTIONAL,   -- Need N
     sl-SystemInformationDelivery-r17            OCTET STRING (CONTAINING SystemInformation)              OPTIONAL,   -- Need N
     lateNonCriticalExtension                    OCTET STRING                                             OPTIONAL,
+    nonCriticalExtension                        UuMessageTransferSidelink-v1800-IEs                      OPTIONAL
+}
+
+UuMessageTransferSidelink-v1800-IEs ::=     SEQUENCE {
+    sl-PagingDelivery-r18                       OCTET STRING (CONTAINING PagingRecord-v1700)             OPTIONAL,   -- Need N
     nonCriticalExtension                        SEQUENCE {}                                              OPTIONAL
 }
 

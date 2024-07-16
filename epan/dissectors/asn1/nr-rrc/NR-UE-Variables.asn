@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.8.0 (2024-03)
+-- 3GPP TS 38.331 V18.2.0 (2024-06)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -10,13 +10,20 @@ IMPORTS
     CellIdentity,
     EUTRA-PhysCellId,
     maxCEFReport-r17,
+    maxCellReport,
     MeasId,
     MeasIdToAddModList,
     MeasIdleCarrierEUTRA-r16,
     MeasIdleCarrierNR-r16,
     MeasResultIdleEUTRA-r16,
     MeasResultIdleNR-r16,
+    MeasReselectionCarrierNR-r18,
+    MeasurementValidityDuration-r18,
     MeasObjectToAddModList,
+    MeasConfigAppLayerId-r17,
+    MeasConfigAppLayer-r17,
+    maxNrofAppLayerMeas-r17,
+    AppLayerIdleInactiveConfig-r18,
     PhysCellId,
     RNTI-Value,
     ReportConfigToAddModList,
@@ -64,14 +71,52 @@ IMPORTS
     maxNrofCLI-SRS-Resources-r16,
     RSSI-ResourceId-r16,
     SRS-ResourceId,
-    VisitedPSCellInfoList-r17
+    VisitedPSCellInfoList-r17,
+    SuccessPSCell-Report-r18,
+    maxNPN-r16,
+    SNPN-ConfigID-List-r18,
+    AreaConfiguration-v1800,
+    NID-r16,
+    SK-CounterConfig-r18,
+    ReferenceConfiguration-r18,
+    maxNrofLTM-Configs-plus1-r18,
+    maxSecurityCellSet-r18
+
 FROM NR-RRC-Definitions;
 
 -- NR-UE-VARIABLES-STOP
+-- TAG-VARAPPLAYERIDLECONFIG-START
+
+VarAppLayerIdleConfig-r18-IEs ::= SEQUENCE {
+    appLayerIdleConfigList-r18        SEQUENCE (SIZE (1..maxNrofAppLayerMeas-r17)) OF VarAppLayerIdle-r18
+}
+
+VarAppLayerIdle-r18 ::=           SEQUENCE {
+    measConfigAppLayerId-r18          MeasConfigAppLayerId-r17,
+    serviceType-r18                   ENUMERATED {streaming, mtsi, vr, spare5, spare4, spare3, spare2, spare1},
+    appLayerIdleInactiveConfig-r18    AppLayerIdleInactiveConfig-r18,
+    appLayerMeasPriority-r18          INTEGER (1..16)                                                               OPTIONAL
+}
+
+-- TAG-VARAPPLAYERIDLECONFIG-STOP
+-- TAG-VARAPPLAYERPLMN-LISTCONFIG-START
+
+VarAppLayerPLMN-ListConfig-r18-IEs ::= SEQUENCE {
+    plmnConfigList-r18                     SEQUENCE (SIZE (1..maxNrofAppLayerMeas-r17)) OF VarAppLayerPLMN-List-r18
+}
+
+VarAppLayerPLMN-List-r18 ::=           SEQUENCE {
+    measConfigAppLayerId-r18               MeasConfigAppLayerId-r17,
+    plmn-IdentityList-r18                  PLMN-IdentityList2-r16
+}
+
+-- TAG-VARAPPLAYERPLMN-LISTCONFIG-STOP
 -- TAG-VARCONDITIONALRECONFIG-START
 
-VarConditionalReconfig ::=     SEQUENCE {
-    condReconfigList               CondReconfigToAddModList-r16        OPTIONAL
+VarConditionalReconfig ::=         SEQUENCE {
+    condReconfigList                   CondReconfigToAddModList-r16                                           OPTIONAL,
+    scpac-ReferenceConfiguration-r18   ReferenceConfiguration-r18                                             OPTIONAL,
+    sk-CounterConfiguration-r18        SEQUENCE (SIZE (1..maxSecurityCellSet-r18)) OF SK-CounterConfig-r18    OPTIONAL
 }
 
 -- TAG-VARCONDITIONALRECONFIG-STOP
@@ -79,9 +124,16 @@ VarConditionalReconfig ::=     SEQUENCE {
 
 VarConnEstFailReport-r16 ::= SEQUENCE {
     connEstFailReport-r16        ConnEstFailReport-r16,
-    plmn-Identity-r16            PLMN-Identity
+    networkIdentity-r18          CHOICE {
+        plmn-Identity-r18            PLMN-Identity,
+        snpn-Identity-r18            SNPN-Identity-r18
+    }
 }
 
+SNPN-Identity-r18 ::=        SEQUENCE {
+    plmn-Identity-r18            PLMN-Identity,
+    nid-r18                      NID-r16
+}
 -- TAG-VARCONNESTFAILREPORT-STOP
 -- TAG-VARCONNESTFAILREPORTLIST-START
 
@@ -103,7 +155,8 @@ VarLogMeasConfig-r16-IEs ::= SEQUENCE {
         eventTriggered               LoggedEventTriggerConfig-r16
     },
     earlyMeasIndication-r17      ENUMERATED {true}            OPTIONAL,
-    areaConfiguration-r17        AreaConfiguration-r17        OPTIONAL
+    areaConfiguration-r17        AreaConfiguration-r17        OPTIONAL,
+    areaConfiguration-v1800      AreaConfiguration-v1800      OPTIONAL
 }
 -- TAG-VARLOGMEASCONFIG-STOP
 -- TAG-VARLOGMEASREPORT-START
@@ -114,11 +167,28 @@ VarLogMeasReport-r16 ::=     SEQUENCE {
     traceRecordingSessionRef-r16 OCTET STRING (SIZE (2)),
     tce-Id-r16                   OCTET STRING (SIZE (1)),
     logMeasInfoList-r16          LogMeasInfoList-r16,
-    plmn-IdentityList-r16        PLMN-IdentityList2-r16,
-    sigLoggedMeasType-r17        ENUMERATED {true}
+    sigLoggedMeasType-r17        ENUMERATED {true},
+    identityList-r18             CHOICE {
+        plmn-IdentityList-r18        PLMN-IdentityList2-r16,
+        snpn-ConfigID-List-r18       SNPN-ConfigID-List-r18
+    }
 }
 
 -- TAG-VARLOGMEASREPORT-STOP
+-- TAG-VARLTM-SERVINGCELLNORESETID-START
+
+VarLTM-ServingCellNoResetID-r18-IEs ::= SEQUENCE {
+    ltm-ServingCellNoResetID-r18            INTEGER (1..maxNrofLTM-Configs-plus1-r18)                         OPTIONAL
+}
+
+-- TAG-VARLTM-SERVINGCELLNORESETID-STOP
+-- TAG-VARLTM-SERVINGCELLUE-MEASUREDTA-ID-START
+
+VarLTM-ServingCellUeMeasuredTA-ID-r18-IEs ::= SEQUENCE {
+    ltm-ServingCellUE-MeasuredTA-ID-r18           INTEGER (1..maxNrofLTM-Configs-plus1-r18)                    OPTIONAL
+}
+
+-- TAG-VARLTM-SERVINGCELLUE-MEASUREDTA-ID-STOP
 -- TAG-VARMEASCONFIG-START
 
 VarMeasConfig ::=                   SEQUENCE {
@@ -160,6 +230,10 @@ VarMeasIdleConfig-r16 ::=     SEQUENCE {
     validityAreaList-r16          ValidityAreaList-r16                                                           OPTIONAL
 }
 
+VarEnhMeasIdleConfig-r18 ::=  SEQUENCE {
+    measIdleValidityDuration-r18  MeasurementValidityDuration-r18                                                OPTIONAL
+}
+
 -- TAG-VARMEASIDLECONFIG-STOP
 -- TAG-VARMEASIDLEREPORT-START
 
@@ -176,11 +250,13 @@ VarMeasReportList ::=               SEQUENCE (SIZE (1..maxNrofMeasId)) OF VarMea
 VarMeasReport ::=                   SEQUENCE {
     -- List of measurement that have been triggered
     measId                              MeasId,
-    cellsTriggeredList                  CellsTriggeredList              OPTIONAL,
+    cellsTriggeredList                  CellsTriggeredList                                        OPTIONAL,
     numberOfReportsSent                 INTEGER,
-    cli-TriggeredList-r16               CLI-TriggeredList-r16           OPTIONAL,
-    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16             OPTIONAL,
-    relaysTriggeredList-r17             RelaysTriggeredList-r17         OPTIONAL
+    cli-TriggeredList-r16               CLI-TriggeredList-r16                                     OPTIONAL,
+    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16                                       OPTIONAL,
+    relaysTriggeredList-r17             RelaysTriggeredList-r17                                   OPTIONAL,
+    cellsMetLeavingCond-r18             SEQUENCE (SIZE (1..maxCellReport)) OF PhysCellId          OPTIONAL,
+    reportedBestNeighbourCell-r18       SEQUENCE (SIZE (1..2)) OF PhysCellId                      OPTIONAL
 }
 
 CellsTriggeredList ::=              SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOICE {
@@ -213,6 +289,14 @@ VarMeasReportSL-r16 ::=                   SEQUENCE {
 }
 
 -- TAG-VARMEASREPORTLISTSL-STOP
+-- TAG-VARMEASRESELECTIONCONFIG-START
+
+VarMeasReselectionConfig-r18 ::=     SEQUENCE {
+    measReselectionCarrierListNR-r18     SEQUENCE (SIZE (1..maxFreqIdle-r16)) OF MeasReselectionCarrierNR-r18    OPTIONAL,
+    measReselectionValidityDuration-r18  MeasurementValidityDuration-r18                                         OPTIONAL
+}
+
+-- TAG-VARMEASRESELECTIONCONFIG-STOP
 -- TAG-VARMOBILITYHISTORYREPORT-START
 
 VarMobilityHistoryReport-r16 ::= VisitedCellInfoList-r16
@@ -234,10 +318,11 @@ VarPendingRNA-Update ::=                    SEQUENCE {
 
 VarRA-Report-r16 ::=      SEQUENCE {
     ra-ReportList-r16         RA-ReportList-r16,
-    plmn-IdentityList-r16     PLMN-IdentityList-r16
+    identityList-r18          CHOICE {
+        plmn-IdentityList-r18     PLMN-IdentityList2-r16,
+        snpn-IdentityList-r18     SEQUENCE (SIZE (1..maxNPN-r16)) OF SNPN-Identity-r18
+    }
 }
-
-PLMN-IdentityList-r16 ::= SEQUENCE (SIZE (1..maxPLMN)) OF PLMN-Identity
 
 -- TAG-VARRA-REPORT-STOP
 -- TAG-VARRESUMEMAC-INPUT-START
@@ -253,10 +338,20 @@ VarResumeMAC-Input  ::=     SEQUENCE {
 
 VarRLF-Report-r16 ::=    SEQUENCE {
     rlf-Report-r16           RLF-Report-r16,
-    plmn-IdentityList-r16    PLMN-IdentityList2-r16
+    identityList-r18         CHOICE {
+        plmn-IdentityList-r18    PLMN-IdentityList2-r16,
+        snpn-IdentityList-r18    SEQUENCE (SIZE (1..maxNPN-r16)) OF SNPN-Identity-r18
+    }
 }
 
 -- TAG-VARRLF-REPORT-STOP
+-- TAG-VARSERVINGSECURITYCELLSETID-START
+
+VarServingSecurityCellSetID ::=       SEQUENCE {
+    servingSecurityCellSetId-r18          INTEGER (1.. maxSecurityCellSet-r18)
+}
+
+-- TAG-VARSERVINGSECURITYCELLSETID-STOP
 -- TAG-VARSHORTMAC-INPUT-START
 
 VarShortMAC-Input   ::=                 SEQUENCE {
@@ -270,8 +365,33 @@ VarShortMAC-Input   ::=                 SEQUENCE {
 
 VarSuccessHO-Report-r17-IEs ::= SEQUENCE {
     successHO-Report-r17            SuccessHO-Report-r17,
-    plmn-IdentityList-r17           PLMN-IdentityList2-r16
+    identityList-r18                CHOICE {
+        plmn-IdentityList-r18           PLMN-IdentityList2-r16,
+        snpn-IdentityList-r18           SEQUENCE (SIZE (1..maxNPN-r16)) OF SNPN-Identity-r18
+    }
 }
 -- TAG-VARSUCCESSHO-Report-STOP
+-- TAG-VARSUCCESSPSCELL-Report-START
+
+VarSuccessPSCell-Report-r18-IEs ::= SEQUENCE {
+    successPSCell-Report-r18        SuccessPSCell-Report-r18,
+    identityList-r18                CHOICE {
+        plmn-IdentityList-r18           PLMN-IdentityList2-r16,
+        snpn-IdentityList-r18           SEQUENCE (SIZE (1..maxNPN-r16)) OF SNPN-Identity-r18
+    }
+}
+
+-- TAG-VARSUCCESSPSCELL-Report-STOP
+-- TAG-VARTSS-INFO-START
+
+VarTSS-Info-r18 ::= SEQUENCE {
+    storedEventID-r18       INTEGER (0..63),
+    storedGlobalGnbID-r18   SEQUENCE {
+        plmn-Identity-r18       PLMN-Identity,
+        gnb-ID-r18              BIT STRING (SIZE (22..32))
+    }
+}
+
+-- TAG-VARTSS-INFO-STOP
 
 END
