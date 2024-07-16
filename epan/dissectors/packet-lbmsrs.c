@@ -762,14 +762,11 @@ static const gchar *getFrameTypeName(const guint64 frame_type) {
 static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
 {
     /*check if valid rsocket packet*/
-    guint start_offset = offset;
     offset += rsocket_frame_len_field_size;
 
     /*check the length*/
-    /*rsocket data maybe split across multiple packets*/
-    guint32 tvb_length = tvb_captured_length(tvb);
-
-    if (tvb_length < (offset - start_offset + rsocket_stream_id_field_size))
+    /*rsocket data may be split across multiple packets*/
+    if (!tvb_bytes_exist(tvb, offset, rsocket_stream_id_field_size))
     {
         return FALSE;
     }
@@ -780,7 +777,7 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
     /*move the offset past the stream id field*/
     offset += rsocket_stream_id_field_size;
 
-    if (tvb_length < (offset - start_offset + 1))
+    if (!tvb_bytes_exist(tvb, offset, 1))
     {
         return FALSE;
     }
@@ -839,7 +836,7 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
     /*if rsocket metadata is available get the metadata length*/
     if (rsocket_metadata_flag)
     {
-        if (tvb_length < (offset - start_offset + 3))
+        if (!tvb_bytes_exist(tvb, offset, 3))
         {
             return FALSE;
         }
@@ -849,7 +846,7 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
         offset += 3;
         /*move the offset by the metadata length*/
         offset += rsocket_metadata_len;
-        if (tvb_length < (offset - start_offset + 6))
+        if (!tvb_bytes_exist(tvb, offset, 6))
         {
             return FALSE;
         }
@@ -858,9 +855,8 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
 
     /*check the SRS message id*/
 
-    guint32 rsocket_payload_len = tvb_length - offset;
     /*if payload is available start processing for SRS*/
-    if (rsocket_payload_len > 2)
+    if (tvb_bytes_exist(tvb, offset, 2))
     {
         guint16 message_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
         switch (message_id)
@@ -2394,10 +2390,9 @@ static guint dissect_lbmsrs_stream_request(tvbuff_t * tvb, packet_info * pinfo, 
 /*Function to dissect SRS as part of Rsocket payload/metadata*/
 static guint dissect_lbmsrs_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint32 rsocket_payload_len)
 {
-    guint total_payload_len = tvb_captured_length(tvb);
     guint len_dissected = 0;
 
-    if ((total_payload_len - offset) < L_LBM_SRS_MESSAGE_ID)
+    if (tvb_captured_length_remaining(tvb, offset) < L_LBM_SRS_MESSAGE_ID)
     {
         return 0;
     }
